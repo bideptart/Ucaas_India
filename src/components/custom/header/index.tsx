@@ -434,9 +434,12 @@ const Header = () => {
                     transition: transform .3s cubic-bezier(.34,1.56,.64,1),
                                 background .15s ease, color .15s ease;
                   }
-                  .hdr-quick-toggle:hover { background: #e0e7ff; color: #2563eb; }
+                  .hdr-quick-toggle:hover {
+                    background: color-mix(in oklab, var(--primary) 15%, transparent);
+                    color: var(--primary);
+                  }
                   .hdr-quick-toggle.on {
-                    transform: rotate(135deg); background: #2563eb; color: #fff;
+                    transform: rotate(135deg); background: var(--primary); color: #fff;
                   }
 
                   .hdr-quick {
@@ -659,15 +662,20 @@ const Header = () => {
           </nav>
         </header>
 
-        {notificationState && (
-          <SideDrawer
-            isOpen={notificationState}
-            handleClose={() => setNotificationState(false)}
-            content={<NotificationContent setNotificationState={setNotificationState} />}
-            isHeader={true}
-            width="30%"
-          />
-        )}
+        {/* Always mounted, unlike the other SideDrawers here — the slide
+            transition needs the panel already sitting off-screen
+            (translate-x-full) before isOpen flips true, so there is
+            something to animate FROM. Conditionally mounting it (the old
+            `notificationState && <SideDrawer/>` pattern) meant it only
+            ever existed already fully open, so open and close both just
+            snapped instead of sliding. */}
+        <SideDrawer
+          isOpen={notificationState}
+          handleClose={() => setNotificationState(false)}
+          content={<NotificationContent setNotificationState={setNotificationState} />}
+          isHeader={true}
+          width="30%"
+        />
         {pendingChatState && (
           <SideDrawer
             isOpen={pendingChatState}

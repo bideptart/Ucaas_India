@@ -179,6 +179,15 @@
      can outrank that inline style, so this orange sticks regardless of what
      the org's API returns. */
   --primary: #f2994a !important;
+  /* Same problem as --primary, but this token is declared inside Tailwind's
+     @theme block, which strips !important before it reaches the generated
+     stylesheet — so overriding it there did nothing against the org API's
+     inline blue. A plain :root rule doesn't have that limitation. This is
+     what every hover state built on bg-ucass-primary-200 (bell, theme
+     toggle, avatar chip, quick-menu icons) actually reads. */
+  --color-ucass-primary-200: #fde9d2 !important;
+  --color-ucass-active: #c96f1f !important;
+  --color-ucass-active-bg: #fde9d2 !important;
   --primary-foreground: oklch(0.985 0 0);
   /* Same story as --primary above: --color-ucass-primary-100/200 and
      --color-ucass-active(-bg) are set inline from mainSiteInfo by
@@ -1047,7 +1056,7 @@
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid #e2dcd3;
   border-radius: 999px;
   padding: 0 16px;
   height: 38px;
@@ -1607,7 +1616,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 90px;
+  /* min-width, not width: a hard fixed width forced every tab to the same
+     size, but "Directory" and "Performance" don't fit 90px next to a 16px
+     icon with white-space: nowrap. Flexbox had nowhere else to take the
+     overflow from but the icon (shrinkable) since the text can't wrap —
+     so the icon collapsed toward 0 instead of the tab widening. */
+  min-width: 90px;
   height: 30px;
   padding: 6px 12px;
   font-size: 13px;
@@ -1616,7 +1630,8 @@
   white-space: nowrap;
   color: #64748b;
   background: none;
-  border: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
   border-bottom: 3px solid transparent;
   cursor: pointer;
   transition:
@@ -1625,9 +1640,12 @@
     border-color 0.15s;
 }
 
+.mcm-areanav-btn svg {
+  flex-shrink: 0;
+}
+
 .mcm-areanav-btn:hover {
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--primary);
 }
 
 .mcm-areanav-btn.is-active {

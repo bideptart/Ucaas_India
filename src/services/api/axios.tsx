@@ -1,4 +1,5 @@
 import { getEnv, handleAlert, SESSION_NAME } from '@/lib/utils';
+import { buildDemoPayload, isDemoMode } from '@/lib/demo-mode';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -72,6 +73,40 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json; charset=utf-8',
   },
 });
+
+/* Demo mode answers every request locally, so no screen can 401 and tear the
+   session down. The organisation lookup is the one exception: it is what the
+   branding, colours and Stripe key come from, it needs no account, and letting
+   it through means the demo shell looks like the real product. */
+if (isDemoMode()) {
+  apiClient.defaults.adapter = async (config) => {
+    const url = config.url || '';
+
+    if (url.includes(GET_META_DATA_PATH)) {
+      const response = await fetch(`${config.baseURL || ''}${url}`, {
+        method: (config.method || 'post').toUpperCase(),
+        headers: { 'Content-Type': 'application/json' },
+        body: typeof config.data === 'string' ? config.data : JSON.stringify(config.data ?? {}),
+      });
+
+      return {
+        data: await response.json(),
+        status: response.status,
+        statusText: response.statusText,
+        headers: {},
+        config,
+      };
+    }
+
+    return {
+      data: buildDemoPayload(url),
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config,
+    };
+  };
+}
 
 apiClient.interceptors.request.use(
   (config) => {

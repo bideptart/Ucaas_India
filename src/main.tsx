@@ -3,8 +3,14 @@ import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import './index.css';
 import 'react-phone-input-2/lib/style.css';
 import App from './App.tsx';
+import { seedDemoSession } from './lib/demo-mode';
+import { SESSION_NAME } from './lib/utils';
 
 polyfillCountryFlagEmojis();
+
+/* Before React mounts, so the first render already sees a session and the
+   guards send `/` to the dashboard instead of the login screen. */
+seedDemoSession(SESSION_NAME);
 
 const DYNAMIC_IMPORT_RELOAD_KEY = 'dynamic_import_reload_at';
 const DYNAMIC_IMPORT_ERROR_PATTERNS = [

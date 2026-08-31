@@ -1,3 +1,4 @@
+import { isPreviewHost } from '@/lib/utils';
 import {
   forwardRef,
   useCallback,
@@ -10,7 +11,33 @@ import {
 const TURNSTILE_SCRIPT_ID = 'cloudflare-turnstile-script';
 const TURNSTILE_SCRIPT_URL =
   'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+/** The production widget, provisioned for the mycountrymobile.com domains. */
 const DEFAULT_TURNSTILE_SITE_KEY = '0x4AAAAAAAJIystrqehYNKVT';
+
+/** Cloudflare's documented always-passes test key. Valid on any hostname. */
+const TESTING_TURNSTILE_SITE_KEY = '1x00000000000000000000AA';
+
+/**
+ * A Turnstile sitekey only works on the hostnames its widget lists in the
+ * Cloudflare dashboard. Anywhere else the challenge cannot load — it renders
+ * "Unable to connect to website" — and since the form will not submit without
+ * a token, the login page becomes unusable. The production key covers the
+ * organisation's own domains, so a preview deployment falls back to
+ * Cloudflare's test key, which loads anywhere and always passes.
+ *
+ * That leaves the check decorative on preview hosts. It protects nothing that
+ * was being relied on: `captchaToken` is optional in the login request and the
+ * API accepts calls without it, so the widget was only ever a client-side gate.
+ *
+ * Set `VITE_TURNSTILE_SITE_KEY` to run a real widget on such a host — the key
+ * it names must list that hostname in Cloudflare, or this same failure returns.
+ */
+export const getTurnstileSiteKey = () => {
+  const configured = String(import.meta.env.VITE_TURNSTILE_SITE_KEY || '').trim();
+  if (configured) return configured;
+
+  return isPreviewHost() ? TESTING_TURNSTILE_SITE_KEY : DEFAULT_TURNSTILE_SITE_KEY;
+};
 
 type TurnstileTheme = 'auto' | 'light' | 'dark';
 type TurnstileSize = 'normal' | 'compact' | 'flexible';
@@ -99,7 +126,7 @@ export type UseTurnstileOptions = {
 };
 
 export const useTurnstile = ({
-  siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || DEFAULT_TURNSTILE_SITE_KEY,
+  siteKey = getTurnstileSiteKey(),
   action,
   theme = 'auto',
   size = 'flexible',

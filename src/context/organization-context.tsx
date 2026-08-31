@@ -2,7 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 // import { getEnv } from '@/lib/utils';
 import { getMainSiteInfo } from '@/services/api';
 import ServerMaintenance from '@/components/custom/server-maintenance';
-import { getEnv } from '@/lib/utils';
+import { getEnv, isPreviewHost } from '@/lib/utils';
 import FullPageLoader from '@/components/custom/full-page-loader';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -67,22 +67,13 @@ export const OrganizationContext = createContext<OrganizationContextType>({
  */
 const FALLBACK_ORG_DOMAIN = 'https://qa.mycountrymobile.com';
 
-const isUnregisteredHost = (hostname: string) =>
-  hostname === 'localhost' ||
-  hostname === '127.0.0.1' ||
-  hostname === '[::1]' ||
-  hostname.endsWith('.local') ||
-  hostname.endsWith('.vercel.app');
-
 const getDomain = () => {
   const configured = getFirstNonEmptyString(
     (getEnv() as { VITE_ORG_DOMAIN?: string }).VITE_ORG_DOMAIN,
   );
   if (configured) return configured.replace(/\/+$/, '');
 
-  return isUnregisteredHost(window.location.hostname)
-    ? FALLBACK_ORG_DOMAIN
-    : window.location.origin;
+  return isPreviewHost() ? FALLBACK_ORG_DOMAIN : window.location.origin;
 };
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {

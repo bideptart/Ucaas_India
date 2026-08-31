@@ -70,6 +70,29 @@ export const getAiWidgetScriptUrl = () => {
 };
 
 /**
+ * Hosts that are not one of the organisation's registered domains — a local
+ * dev server, or a preview deployment.
+ *
+ * Three separate things are provisioned per domain and so do not cover these
+ * hosts: the API's CORS allowlist, the organisation registered to a domain, and
+ * the hostnames a Cloudflare Turnstile widget accepts. Each needs its own
+ * fallback, but they all key off this same question.
+ */
+export const isPreviewHost = (hostname?: string) => {
+  const host = hostname ?? (typeof window === 'undefined' ? '' : window.location.hostname);
+
+  return (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host === '[::1]' ||
+    host.endsWith('.local') ||
+    host.endsWith('.vercel.app')
+  );
+};
+
+/**
  * Where API requests go.
  *
  * `VITE_API_BASE_URL` names the API host directly, which is how the production

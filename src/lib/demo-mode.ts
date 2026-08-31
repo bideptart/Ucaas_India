@@ -117,17 +117,17 @@ export const DEMO_USER = {
 };
 
 /**
- * An empty list that answers to every shape the screens unwrap results with —
- * `result`, `result.data`, `result.rows`. It is a real array, so a screen that
- * maps straight over it works, and it carries the same empty array on the
- * properties a paginated screen reaches for.
+ * A list that answers to every shape the screens unwrap results with — `result`
+ * itself, `result.rows`, `result.data`. It is a real array, so a screen that
+ * maps straight over it works, and it carries the same rows on the properties a
+ * paginated screen reaches for.
  */
-const emptyList = () => {
-  const list: any = [];
-  list.data = [];
-  list.rows = [];
-  list.total = 0;
-  list.count = 0;
+const listPayload = (items: any[] = []) => {
+  const list: any = [...items];
+  list.data = items;
+  list.rows = items;
+  list.total = items.length;
+  list.count = items.length;
   list.current_page = 1;
   list.last_page = 1;
   return list;
@@ -141,8 +141,158 @@ const ok = (result: unknown) => ({
   result,
 });
 
+/* ---------------------------------------------------------------------------
+   A small store so the management screens behave, not just render.
+
+   Creating a user, editing one, assigning a role or defining a custom role all
+   write here and show up in the lists afterwards, which is what makes those
+   screens worth working on. It lives in localStorage, so a reload keeps what
+   was entered; clearing site data resets it to the seed below.
+
+   Everything in it is visibly fake — example.com addresses, "Demo" names — so
+   nothing on screen can be mistaken for a real customer's data.
+--------------------------------------------------------------------------- */
+
+const STORE_KEY = 'demo-mode-data';
+
+const ROLE_SEED = [
+  { uuid: 'demo-role-admin', name: 'Administrator', slug: 'ADMIN', is_custom: false },
+  { uuid: 'demo-role-subadmin', name: 'Sub Admin', slug: 'SUB_ADMIN', is_custom: false },
+  { uuid: 'demo-role-manager', name: 'Manager', slug: 'MANAGER', is_custom: false },
+  { uuid: 'demo-role-agent', name: 'Agent', slug: 'AGENT', is_custom: false },
+];
+
+const buildUser = (
+  first: string,
+  last: string,
+  role: string,
+  roleName: string,
+  extension: string,
+) => ({
+  uuid: `demo-user-${extension}`,
+  first_name: first,
+  last_name: last,
+  name: `${first} ${last}`,
+  full_name: `${first} ${last}`,
+  email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
+  extension,
+  role,
+  role_name: roleName,
+  role_data: { name: roleName, slug: role },
+  status: 1,
+  is_active: true,
+  created_at: '2026-01-01T00:00:00.000Z',
+});
+
+const USER_SEED = [
+  buildUser('Demo', 'User', 'ADMIN', 'Administrator', '1001'),
+  buildUser('Sam', 'Sub', 'SUB_ADMIN', 'Sub Admin', '1002'),
+  buildUser('Mia', 'Manager', 'MANAGER', 'Manager', '1003'),
+  buildUser('Alex', 'Agent', 'AGENT', 'Agent', '1004'),
+];
+
+type Store = { users: any[]; roles: any[] };
+
+const readStore = (): Store => {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw) as Store;
+  } catch {
+    /* Corrupt or unavailable storage falls back to the seed. */
+  }
+  return { users: [...USER_SEED], roles: [...ROLE_SEED] };
+};
+
+const writeStore = (store: Store) => {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(store));
+  } catch {
+    /* A full or blocked store only costs persistence, not the screen. */
+  }
+};
+
+const newUuid = () =>
+  globalThis.crypto?.randomUUID?.() || `demo-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const asObject = (data: unknown): Record<string, any> => {
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data) ?? {};
+    } catch {
+      return {};
+    }
+  }
+  return data && typeof data === 'object' ? (data as Record<string, any>) : {};
+};
+
+/** Writes that the management screens make; returns null when none applies. */
+const applyWrite = (url: string, body: Record<string, any>) => {
+  const store = readStore();
+
+  if (url.includes('/api/user/add-member')) {
+    const created = {
+      ...buildUser(
+        body.first_name || 'New',
+        body.last_name || 'Member',
+        body.role || 'AGENT',
+        body.role_name || body.role || 'Agent',
+        String(body.extension || 1000 + store.users.length + 1),
+      ),
+      ...body,
+      uuid: newUuid(),
+    };
+    store.users = [...store.users, created];
+    writeStore(store);
+    return ok(created);
+  }
+
+  if (url.includes('/api/user/update') || url.includes('/api/user/assign-role-bulk-users')) {
+    const targets = new Set<string>(
+      [body.uuid, body.user_uuid, ...(Array.isArray(body.user_uuids) ? body.user_uuids : [])].filter(
+        Boolean,
+      ),
+    );
+    store.users = store.users.map((user) =>
+      targets.has(user.uuid) ? { ...user, ...body, uuid: user.uuid } : user,
+    );
+    writeStore(store);
+    return ok(listPayload(store.users));
+  }
+
+  if (url.includes('/api/user/delete')) {
+    const target = body.uuid || body.user_uuid;
+    store.users = store.users.filter((user) => user.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  if (url.includes('/api/user/role/custom/upsert')) {
+    const existing = store.roles.find((role) => role.uuid && role.uuid === body.uuid);
+    if (existing) {
+      store.roles = store.roles.map((role) =>
+        role.uuid === body.uuid ? { ...role, ...body } : role,
+      );
+      writeStore(store);
+      return ok(existing);
+    }
+    const created = { ...body, uuid: newUuid(), is_custom: true, name: body.name || 'Custom Role' };
+    store.roles = [...store.roles, created];
+    writeStore(store);
+    return ok(created);
+  }
+
+  if (url.includes('/api/user/role/custom/remove')) {
+    const target = url.split('/').filter(Boolean).pop();
+    store.roles = store.roles.filter((role) => role.uuid !== target && role.uuid !== body.uuid);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  return null;
+};
+
 /** Endpoint-specific answers; everything else gets an empty list. */
-const matchDemoPayload = (url: string) => {
+const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/user/info')) return ok(DEMO_USER);
 
   if (url.includes('/api/login') || url.includes('/api/verify-otp')) {
@@ -151,10 +301,17 @@ const matchDemoPayload = (url: string) => {
 
   if (url.includes('/api/send-otp')) return ok({ sent: true });
 
-  return ok(emptyList());
+  const written = applyWrite(url, asObject(data));
+  if (written) return written;
+
+  if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles));
+  if (url.includes('/api/user/list')) return ok(listPayload(readStore().users));
+  if (url.includes('/api/user/detail')) return ok(readStore().users[0] ?? null);
+
+  return ok(listPayload());
 };
 
-export const buildDemoPayload = (url: string) => matchDemoPayload(url);
+export const buildDemoPayload = (url: string, data?: unknown) => matchDemoPayload(url, data);
 
 /** Seeded before React mounts so the guards see a session on first render. */
 export const seedDemoSession = (sessionKey: string) => {

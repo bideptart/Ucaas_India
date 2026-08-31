@@ -99,7 +99,7 @@ if (isDemoMode()) {
     }
 
     return {
-      data: buildDemoPayload(url),
+      data: buildDemoPayload(url, config.data),
       status: 200,
       statusText: 'OK',
       headers: {},

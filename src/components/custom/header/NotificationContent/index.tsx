@@ -68,8 +68,13 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
   }, [notificationArr, notificationFilterValue]);
   return (
     <div className="w-full mx-auto ">
-      <div className="flex flex-col  gap-2 px-1 py-2">
-        <div className="flex justify-between items-center ">
+      {/* pt-4 lines this row up with the drawer's close button (absolute,
+          top-4); pr-16 keeps the filter control clear of that same
+          40px-wide circle sitting at right-4. Without both, the row and
+          the close button read as two disconnected pieces instead of one
+          header line. */}
+      <div className="flex flex-col  gap-2 pl-3 pr-16 pt-4 pb-2">
+        <div className="flex justify-between items-center h-10">
           <div className=" text-gray-900 font-semibold flex gap-2 items-center justify-between w-full">
             <div className="flex items-center gap-3 ">
               <div className="flex w-5 h-5">{notificationFilterValue?.icon}</div>

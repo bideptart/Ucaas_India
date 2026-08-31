@@ -45,9 +45,9 @@
      flat --surface so the warm gradient body shows through the blur. Kept
      light on the blur and high on the opacity: a heavy fog reads as
      unpolished, the reference keeps the glass barely-there. */
-  --glass-surface: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.9);
-  --glass-blur: blur(12px) saturate(160%);
+  --glass-surface: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-blur: blur(16px) saturate(180%);
 
   /* AI gets its own hue on purpose: machine output must never be
      mistaken for system truth. Violet = "generated, verify me". */
@@ -239,6 +239,24 @@
   gap: 14px;
   align-items: start;
 }
+/* Queues sat noticeably shorter than the agent-status + agents column
+   beside it under the default align-items: start. Stretching this pair
+   makes Queues grow to match, instead of the empty-state message just
+   floating in a short box. */
+.mcm-page .grid2.grid2-stretch {
+  align-items: stretch;
+}
+.mcm-page .grid2.grid2-stretch > .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mcm-page .grid2.grid2-stretch > .panel-card > .tbl-wrap {
+  flex: 1;
+}
+.mcm-page .grid2.grid2-stretch > .stack {
+  height: 100%;
+}
 @media (max-width: 1080px) {
   .mcm-page .grid2 {
     grid-template-columns: 1fr;
@@ -254,6 +272,22 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
+}
+/* The dashboard home's four top cards (Needs you now / Your day so far /
+   Since you logged off / Quick dial) stay on one row instead of wrapping
+   at the auto-fit minmax above. */
+.mcm-page .grid4.grid4-onerow {
+  grid-template-columns: repeat(4, 1fr);
+  /* Default grid align-items is stretch — every card matches the row's
+     tallest card instead of hugging its own (shorter) content. */
+}
+.mcm-page .grid4.grid4-onerow > .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mcm-page .grid4.grid4-onerow > .panel-card > .pc-body {
+  flex: 1;
 }
 .mcm-page .stack {
   display: flex;
@@ -333,13 +367,10 @@
 
 /* ---- panel card ---- */
 .mcm-page .panel-card {
-  background: var(--glass-surface);
-  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-lg);
 }
 .mcm-page .pc-head {
   padding: 14px 16px;
@@ -726,16 +757,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
   gap: 1px;
-  background: var(--glass-border);
-  border: 1px solid var(--glass-border);
+  background: var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
   margin-bottom: 16px;
-  /* The 1px gap above shows through as hairlines between tiles; blurring
-     the whole strip (rather than each tile) keeps those hairlines crisp. */
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-lg);
 }
 /* The dashboard home's KPI strip has a fixed 8 tiles and reads better as
    one row than wrapping the 8th onto its own line. */
@@ -744,7 +770,7 @@
 }
 
 .mcm-page .kpi {
-  background: var(--glass-surface);
+  background: var(--surface);
   padding: 13px 15px;
 }
 .mcm-page .kpi .k {

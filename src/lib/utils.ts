@@ -69,13 +69,32 @@ export const getAiWidgetScriptUrl = () => {
   }
 };
 
+/**
+ * Where API requests go.
+ *
+ * `VITE_API_BASE_URL` names the API host directly, which is how the production
+ * deployment is configured. Calling the API cross-origin only works from a host
+ * the API allowlists, though: it returns no `Access-Control-Allow-Origin` to
+ * anyone else, so the browser blocks every response and the app cannot load its
+ * own organisation.
+ *
+ * With no variable set the base is empty, which makes every request same-origin
+ * (`/api/...`). Both the dev server and the deployment proxy that path to the
+ * API, so the browser never performs a cross-origin request and there is
+ * nothing for an allowlist to reject.
+ */
+export const getApiBaseUrl = () =>
+  String(import.meta.env.VITE_API_BASE_URL || '')
+    .trim()
+    .replace(/\/+$/, '');
+
 export function getEnv() {
   const aiBaseUrl = getAiBaseUrl();
 
   return {
     ...import.meta.env,
     VITE_PAYPAL_CLIENT_ID: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    VITE_API_BASE_URL: getApiBaseUrl(),
     VITE_NOTIFICATION_SOCKET_URL: import.meta.env.VITE_NOTIFICATION_SOCKET_URL,
     VITE_AI_SOCKET_URL: import.meta.env.VITE_AI_SOCKET_URL,
     VITE_AGENTIC_API_URL: import.meta.env.VITE_AGENTIC_API_URL,

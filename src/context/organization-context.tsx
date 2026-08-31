@@ -53,8 +53,37 @@ export const OrganizationContext = createContext<OrganizationContextType>({
   error: null,
 });
 
-/** Domain is taken from the current route (window.location.origin). */
-const getDomain = () => window.location.origin;
+/**
+ * Organisation branding is looked up by the domain the app is served from, so
+ * normally the current origin is the right answer.
+ *
+ * A development or preview host is not registered with the backend, which
+ * answers "Website settings not found" and leaves the app with nothing to
+ * render. Those hosts fall back to QA — which is what localhost has always
+ * done, now extended to the other hosts that share the problem.
+ *
+ * `VITE_ORG_DOMAIN` overrides both, for a deployment that should follow one
+ * specific organisation no matter where it is hosted.
+ */
+const FALLBACK_ORG_DOMAIN = 'https://qa.mycountrymobile.com';
+
+const isUnregisteredHost = (hostname: string) =>
+  hostname === 'localhost' ||
+  hostname === '127.0.0.1' ||
+  hostname === '[::1]' ||
+  hostname.endsWith('.local') ||
+  hostname.endsWith('.vercel.app');
+
+const getDomain = () => {
+  const configured = getFirstNonEmptyString(
+    (getEnv() as { VITE_ORG_DOMAIN?: string }).VITE_ORG_DOMAIN,
+  );
+  if (configured) return configured.replace(/\/+$/, '');
+
+  return isUnregisteredHost(window.location.hostname)
+    ? FALLBACK_ORG_DOMAIN
+    : window.location.origin;
+};
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   const [mainSiteInfo, setMainSiteInfo] = useState<MainSiteInfo | null>(null);
@@ -83,10 +112,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchMainSiteInfo = useCallback(async () => {
-    const domain = getDomain().includes('localhost')
-      ? 'https://qa.mycountrymobile.com'
-      : getDomain();
-    // const domain = "https://mcm.mycountrymobile.com";
+    const domain = getDomain();
     try {
       setIsLoading(true);
       setError(null);
@@ -208,16 +234,29 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     error,
   };
 
-  if (!stripePublishableKey) {
-    return <FullPageLoader />;
-  }
+  /* Stripe only matters to the billing screens, and <Elements> throws when it
+     is handed no key. Rendering without the provider keeps that failure on the
+     screens that actually use Stripe.
+
+     This used to be a `!stripePublishableKey → <FullPageLoader />` guard
+     placed above the checks below, which made a missing key indistinguishable
+     from a page that is still loading: whenever the organisation lookup failed
+     — an unregistered domain, an unreachable API — there was never going
+     to be a key, so the app sat on that spinner forever and the error branch
+     underneath was unreachable. */
+  const withStripe = (content: ReactNode) =>
+    stripePromise ? (
+      <Elements stripe={stripePromise} options={options}>
+        {content}
+      </Elements>
+    ) : (
+      content
+    );
 
   if (isNoOrgPage) {
     return (
       <OrganizationContext.Provider value={{ ...value, isLoading: false }}>
-        <Elements stripe={stripePromise} options={options}>
-          {children}
-        </Elements>
+        {withStripe(children)}
       </OrganizationContext.Provider>
     );
   }
@@ -232,9 +271,7 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <OrganizationContext.Provider value={value}>
-      <Elements stripe={stripePromise} options={options}>
-        {children}
-      </Elements>
+      {withStripe(children)}
     </OrganizationContext.Provider>
   );
 };

@@ -179,6 +179,15 @@
      can outrank that inline style, so this orange sticks regardless of what
      the org's API returns. */
   --primary: #f2994a !important;
+  /* Same problem as --primary, but this token is declared inside Tailwind's
+     @theme block, which strips !important before it reaches the generated
+     stylesheet — so overriding it there did nothing against the org API's
+     inline blue. A plain :root rule doesn't have that limitation. This is
+     what every hover state built on bg-ucass-primary-200 (bell, theme
+     toggle, avatar chip, quick-menu icons) actually reads. */
+  --color-ucass-primary-200: #fde9d2 !important;
+  --color-ucass-active: #c96f1f !important;
+  --color-ucass-active-bg: #fde9d2 !important;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);

@@ -4,10 +4,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://api2.mycountrymobile.com/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://api.mycountrymobile.com/api/:path*" },
     {
       "source": "/Organisations/:path*",
-      "destination": "https://api2.mycountrymobile.com/Organisations/:path*"
+      "destination": "https://api.mycountrymobile.com/Organisations/:path*"
     },
     { "source": "/:path*", "destination": "/index.html" }
   ]

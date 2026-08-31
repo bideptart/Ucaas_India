@@ -6,7 +6,7 @@ Two things about this app are not obvious from the source, and getting either
 wrong produces a page that spins forever with nothing in the console to explain
 it.
 
-**The API allowlists origins.** `api2.mycountrymobile.com` returns an
+**The API allowlists origins.** `api.mycountrymobile.com` returns an
 `Access-Control-Allow-Origin` header only to hosts it recognises — the
 `*.mycountrymobile.com` domains. Any other host gets a response with no such
 header, which the browser then blocks. A deployment on a `vercel.app` domain, or
@@ -30,6 +30,19 @@ branding, no Stripe key, and nothing to render. Hosts that cannot be registered
 — localhost, `*.vercel.app` — fall back to the QA organisation. Set
 `VITE_ORG_DOMAIN` to follow a specific organisation instead.
 
+## Which API host
+
+`api.mycountrymobile.com`, which is what the deployed console at
+ucaas.mycountrymobile.com has baked into its own bundle.
+
+`docs/api-security-audit-2026-08-29.md` says the production frontend points at
+`api2.mycountrymobile.com`. That is no longer true of the running deployment,
+and the two hosts do not share a user database: signing in against `api2` with
+an account that exists in production fails with "The email ... was not found",
+which reads as a wrong password rather than a wrong backend. Both hosts serve
+the same organisation record, so branding and the login screen come up fine
+either way and the mistake only surfaces at the moment someone tries to sign in.
+
 ## Vercel setup
 
 `vercel.json` covers the build, the API proxy, and client-side routing, so a
@@ -52,7 +65,7 @@ them.
 ## Local development
 
 `npm install && npm run dev`. No `.env` is required — the dev server proxies
-`/api` to `api2.mycountrymobile.com` and the app loads the QA organisation.
+`/api` to `api.mycountrymobile.com` and the app loads the QA organisation.
 Set `VITE_API_PROXY_TARGET` to proxy elsewhere.
 
 On the production host, `.env` lives in `/etc/mycountrymobile-web` rather than

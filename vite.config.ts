@@ -17,7 +17,7 @@ const SECRETS_ENV_DIR = '/etc/mycountrymobile-web';
  * The deployed build does the same thing through `vercel.json`.
  */
 const API_PROXY_TARGET =
-  process.env.VITE_API_PROXY_TARGET || 'https://api2.mycountrymobile.com';
+  process.env.VITE_API_PROXY_TARGET || 'https://api.mycountrymobile.com';
 
 export default defineConfig({
   // .env files live outside the repo (real secrets — Stripe, PayPal,

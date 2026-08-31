@@ -337,7 +337,14 @@ const Header = () => {
   return (
     <>
       <div className="fixed left-0 top-0 z-30 h-16 w-full">
-        <header className="bg-white min-h-16 text-gray-900/80 border-b border-gray-200 px-3 py-2 ">
+        <header
+          className="min-h-16 text-gray-900/80 border-b border-white/50 px-3 py-2 "
+          style={{
+            background: 'rgba(255, 255, 255, 0.78)',
+            backdropFilter: 'blur(12px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+          }}
+        >
           <nav
             className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-3"
             aria-label="Global"

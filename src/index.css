@@ -173,8 +173,12 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* --primary: set dynamically from mainSiteInfo.primary_color (fallback below) */
-  --primary: oklch(0.18 0 0);
+  /* --primary is normally set dynamically from mainSiteInfo.primary_color
+     (an inline style on <html>, from the org's branding API). The
+     !important here is deliberate: it is the only way an author stylesheet
+     can outrank that inline style, so this orange sticks regardless of what
+     the org's API returns. */
+  --primary: #f2994a !important;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -278,13 +282,23 @@
   body {
     height: 100%;
     font-family: var(--mcm-sans);
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Warm gradient backdrop for the glassmorphism pass — the blurred
+       panels need something with color behind them or the blur has
+       nothing to show. Fixed so it doesn't scroll away under long pages. */
+    background:
+      radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
+      radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
+      radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
+      radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
+      linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+    background-attachment: fixed;
   }
 
   #root,
   html {
     height: 100%;
-    background-color: var(--color-gray-100);
+    background-color: transparent;
   }
 
   input,
@@ -1015,20 +1029,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 0 16px;
   height: 38px;
   transition:
     border-color 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.2s,
+    background 0.2s;
 }
 
 .global-search-input-wrapper:focus-within,
 .global-search-input-wrapper.is-open {
-  border-color: #cbd5e1;
+  border-color: #f2994a;
   background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(242, 153, 74, 0.15);
 }
 
 .global-search-input {

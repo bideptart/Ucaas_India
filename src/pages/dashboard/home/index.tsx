@@ -378,7 +378,7 @@ const Home = () => {
         </div>
 
         {/* ── KPI strip ────────────────────────────────────────────────── */}
-        <div className="kpis">
+        <div className="kpis kpis-onerow">
           {kpis.map((kpi) => (
             // A breaching figure tints the whole tile, not just the number —
             // the artifact's `alert` treatment, so it reads at a glance.

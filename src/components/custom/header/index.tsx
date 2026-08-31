@@ -434,9 +434,12 @@ const Header = () => {
                     transition: transform .3s cubic-bezier(.34,1.56,.64,1),
                                 background .15s ease, color .15s ease;
                   }
-                  .hdr-quick-toggle:hover { background: #e0e7ff; color: #2563eb; }
+                  .hdr-quick-toggle:hover {
+                    background: color-mix(in oklab, var(--primary) 15%, transparent);
+                    color: var(--primary);
+                  }
                   .hdr-quick-toggle.on {
-                    transform: rotate(135deg); background: #2563eb; color: #fff;
+                    transform: rotate(135deg); background: var(--primary); color: #fff;
                   }
 
                   .hdr-quick {

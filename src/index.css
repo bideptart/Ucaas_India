@@ -1030,7 +1030,7 @@
   align-items: center;
   gap: 8px;
   background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid #e2dcd3;
   border-radius: 999px;
   padding: 0 16px;
   height: 38px;
@@ -1599,7 +1599,8 @@
   white-space: nowrap;
   color: #64748b;
   background: none;
-  border: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
   border-bottom: 3px solid transparent;
   cursor: pointer;
   transition:
@@ -1609,8 +1610,7 @@
 }
 
 .mcm-areanav-btn:hover {
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--primary);
 }
 
 .mcm-areanav-btn.is-active {

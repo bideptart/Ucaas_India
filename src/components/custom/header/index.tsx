@@ -1,19 +1,11 @@
-import {
-  ActivityIcon,
-  Bell,
-  CalendarIcon,
-  // CloseIcon,
-  Headphones,
-  Monitor,
-  // PauseCircle,
-} from '@/assets/icons';
+import { Bell } from '@/assets/icons';
 import ucaasLogo from '@/assets/images/ucaas-logo.png';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CustomAvatar from '../custom-avatar';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import SideDrawer from '../side-drawer';
 import ChangePassword from '@/pages/change-password';
@@ -27,7 +19,7 @@ import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
 import ThemeToggle from '@/components/custom/theme-toggle';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
-import { ChevronDown, List, Menu, Wallet, X } from 'lucide-react';
+import { ChevronDown, Menu, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn, SESSION_NAME } from '@/lib/utils';
 import { DASHBOARDCONST } from '@/pages/dashboard/constant';
@@ -39,13 +31,6 @@ const Header = () => {
   const { user, handleRemoveUser } = useUser();
   const queryClient = useQueryClient();
   const { status: myPresenceStatus } = useMyPresence();
-  const ACTIVE_PATH = {
-    CALENDAR: 'calendar',
-    RUNNING_CAMPAIGN: 'running-campaign',
-    ACTIVITY: user?.user_info?.uuid,
-    ALL_CALLS: 'all-calls',
-    BASIC_INFO: 'basic-info',
-  };
   const {
     activeCampaign,
     setActiveCampaign,
@@ -55,7 +40,6 @@ const Header = () => {
   } = useDialpad();
   const {
     unreadCount = 0,
-    unreadTaskCount = 0,
     userLogoutData,
     disconnectSocket,
     socketEventsManager,
@@ -71,9 +55,6 @@ const Header = () => {
   const [walletUpdatedAmount, setWalletUpdatedAmount] = useState<number | null>(null);
   const navigate = useNavigate();
   const { pathname = '' } = useLocation();
-  const [searchParams] = useSearchParams();
-  const activePath = pathname?.split('/')?.pop();
-  const currentView = searchParams.get('view') || 'calendar';
   const companyAmount = user?.company_info?.amount;
   const totalFunds =
     companyAmount !== null && companyAmount !== undefined ? `$${companyAmount}` : '00.00';
@@ -101,16 +82,6 @@ const Header = () => {
   const hasAnyActiveDialpadSessionRef = useRef(hasAnyActiveDialpadSession);
 
   const { features } = useCompanyFeatures();
-  const monitoringAccess = features?.plan_features?.monitoring?.action || {};
-  const campaignAccess = features?.plan_features?.campaign?.IS_SHOW;
-  const taskRoute = '/calendar?view=task-list';
-  const calendarRoute = '/calendar?view=calendar';
-  const myCampaignsRoute = '/my-campaigns';
-  const activityRoute = user?.user_info?.uuid ? `/activity/${user.user_info.uuid}` : undefined;
-  const monitoringRoute =
-    role !== 'ADMIN' || !monitoringAccess?.view
-      ? '/monitoring/department'
-      : '/monitoring/all-calls';
   const addFundsRoute = '/admin-settings/billing/purchase';
   // const { isCampaignCall, isStartCampaign, selectedCampaign, setIsStopCampaign, isStopCampaign } =
   //   useCampaign();
@@ -316,7 +287,7 @@ const Header = () => {
     <>
       <div className="fixed left-0 top-0 z-30 h-16 w-full">
         <header
-          className="min-h-16 text-gray-900/80 border-b border-white/50 px-3 py-2 "
+          className="min-h-16 text-gray-900/80 border-b border-white/50 px-4 py-2.5 "
           style={{
             background: 'rgba(255, 255, 255, 0.78)',
             backdropFilter: 'blur(12px) saturate(160%)',
@@ -324,7 +295,7 @@ const Header = () => {
           }}
         >
           <nav
-            className="flex w-full flex-col gap-3 md:flex-row md:items-center md:gap-3"
+            className="flex w-full flex-col gap-3 md:flex-row md:items-center md:gap-2"
             aria-label="Global"
           >
             <div className="mcm-brandbar hidden md:order-1 md:flex md:items-center md:gap-3">
@@ -389,65 +360,11 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-actions"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-3 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-2 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
             >
-              {/* These used to collapse behind a "+" toggle into a floating
-                  popup panel. Now they sit inline in the bar itself, styled
-                  like the bell/theme-toggle glass buttons beside them —
-                  no extra click needed to reach any of them. */}
-              <div className="flex items-center gap-2 min-[1440px]:gap-3">
-                <CustomTooltip text={'Tasks'} side="bottom">
-                  <span
-                    className={`cursor-pointer relative flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${activePath === ACTIVE_PATH.CALENDAR && currentView === 'task-list' ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
-                    {...getHeaderRouteHandlers(taskRoute)}
-                  >
-                    {unreadTaskCount > 0 ? (
-                      <span className="bg-primary absolute text-white font-normal rounded-full -top-1 -right-1 border-white border-2 text-[10px] min-w-[20px] h-5 flex items-center justify-center shadow-sm z-10">
-                        {unreadTaskCount > 9 ? '9+' : unreadTaskCount}
-                      </span>
-                    ) : null}
-                    <List className="w-4.5 h-4.5" />
-                  </span>
-                </CustomTooltip>
-
-                <CustomTooltip text={'Calendar'} side="bottom">
-                  <span
-                    className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.CALENDAR === activePath && currentView === 'calendar' ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
-                    {...getHeaderRouteHandlers(calendarRoute)}
-                  >
-                    <CalendarIcon className="w-4.5 h-4.5" />
-                  </span>
-                </CustomTooltip>
-                {campaignAccess && (
-                  <CustomTooltip text={'My Campaigns'} side="bottom">
-                    <span
-                      className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.RUNNING_CAMPAIGN === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
-                      {...getHeaderRouteHandlers(myCampaignsRoute)}
-                    >
-                      <Headphones className="w-4.5 h-4.5" />
-                    </span>
-                  </CustomTooltip>
-                )}
-                <CustomTooltip text={'Activity'} side="bottom">
-                  <span
-                    className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.ACTIVITY === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
-                    {...getHeaderRouteHandlers(activityRoute)}
-                  >
-                    <ActivityIcon className="w-4.5 h-4.5" />
-                  </span>
-                </CustomTooltip>
-                {monitoringAccess?.view && (
-                  <CustomTooltip text={'Monitoring'} side="bottom">
-                    <span
-                      className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.ALL_CALLS === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
-                      {...getHeaderRouteHandlers(monitoringRoute)}
-                    >
-                      <Monitor className="w-4.5 h-4.5" />
-                    </span>
-                  </CustomTooltip>
-                )}
-              </div>
-
+              {/* Tasks, Calendar, My Campaigns, Activity and Monitoring moved
+                  into the Performance area rail — the bar keeps only
+                  notifications and account controls now. */}
               {/* The WebRTC and presence chips lived here. Registration state is
                   already on the dialer button beside this, and presence is on the
                   avatar menu — two more always-on chips just crowded the bar. */}

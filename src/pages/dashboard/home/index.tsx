@@ -64,6 +64,19 @@ const STATE_CLASS: Record<string, string> = {
   Offline: 'state away',
 };
 
+/* Same palette as the .state pills above (--live/--accent/--warn/--ink-4),
+   as flat colors rather than classes — the segmented distribution bar
+   paints each slice with these directly instead of a background wash. */
+const STATE_COLOR: Record<string, string> = {
+  'On Call': 'var(--accent)',
+  Ringing: 'var(--warn)',
+  'On Hold': 'var(--warn)',
+  Available: 'var(--live)',
+  Busy: 'var(--accent)',
+  'Do Not Disturb': 'var(--accent-ink)',
+  Offline: 'var(--ink-4)',
+};
+
 /** Service level, on the artifact's thresholds: 85+ good, 80+ neutral, below that bad. */
 const slTag = (sla: number | null) => {
   if (sla === null) return <span style={{ color: 'var(--ink-4)' }}>—</span>;
@@ -390,9 +403,8 @@ const Home = () => {
           ))}
         </div>
 
-        <div className="grid4 grid4-onerow">
-          {/* ── needs you now ──────────────────────────────────────────── */}
-          <div className="panel-card">
+        {/* ── needs you now, full width on its own row ─────────────────── */}
+        <div className="panel-card">
             <div className="pc-head">
               <h3>Needs you now</h3>
               <span className={`tag ${attention.length ? 'neg' : 'pos'}`}>
@@ -405,7 +417,7 @@ const Home = () => {
                 live
               </span>
             </div>
-            <div className="pc-body">
+            <div className={`pc-body${attention.length ? ' attn-row' : ''}`}>
               {attention.length ? (
                 attention.map((item) => (
                   <div key={item.id} className={`attn ${item.level}`}>
@@ -436,7 +448,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* ── your day so far ────────────────────────────────────────── */}
+        {/* ── your day so far / since you logged off / quick dial ──────── */}
+        <div className="grid3 grid3-stretch" style={{ marginTop: 16 }}>
             <div className="panel-card">
               <div className="pc-head">
                 <h3>Your day so far</h3>
@@ -590,7 +603,13 @@ const Home = () => {
         </div>
 
         {/* ── Queues + agent status, side by side ──────────────────────── */}
-        <div className="grid2 grid2-stretch" style={{ marginTop: 16 }}>
+        <div className="grid2 grid2-stretch-cols" style={{ marginTop: 16 }}>
+        {/* Queues stacked with Interactions below it — Queues alone left a
+            lot of dead space under the right column's taller
+            agent-status + agents stack, and Interactions was a separate
+            full-width row after both; folding it in here uses that space
+            instead of leaving it empty. */}
+        <div className="stack">
         {/* ── Queues ──────────────────────────────────────────────────────
             The whole floor, worst first — Home answers "where is it hurting"
             before you go to Performance to work the detail. */}
@@ -660,6 +679,74 @@ const Home = () => {
           </div>
         </div>
 
+        {/* ── Interactions ───────────────────────────────────────────────
+            Live calls only. Sentiment is in the artifact but needs the
+            Copilot transcript service, so the column is left out rather
+            than shown empty. */}
+        <div className="panel-card">
+          <div className="pc-head">
+            <h3>Interactions</h3>
+            <span className="pc-right num" style={{ color: 'var(--ink-4)', fontSize: 11 }}>
+              {interactions.length} in progress
+            </span>
+          </div>
+          <div className="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Customer</th>
+                  <th>Number</th>
+                  <th>Queue</th>
+                  <th>Agent</th>
+                  <th>Duration</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {interactions.length ? (
+                  interactions.map((call) => (
+                    <tr key={call.id}>
+                      <td className="num">
+                        {call.startedAt ? moment(call.startedAt).format('HH:mm') : '—'}
+                      </td>
+                      <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{call.customer}</td>
+                      <td className="num">{call.number}</td>
+                      <td>{call.queue}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{call.agent}</td>
+                      <td className="num">
+                        {call.startedAt ? (
+                          <Timer startTime={call.startedAt} />
+                        ) : (
+                          <span style={{ color: 'var(--ink-4)' }}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        <span
+                          className={call.waiting ? 'state acw' : 'state busy'}
+                          style={{ textTransform: 'capitalize' }}
+                        >
+                          {call.state}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7}>
+                      <div className="empty">
+                        <Ic n="phone" />
+                        <p>Nothing on the wire right now.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+
         {/* ── Agent status distribution + agents, stacked in this column
             so they fill the height Queues sets on the left ─────────────── */}
         <div className="stack">
@@ -672,25 +759,35 @@ const Home = () => {
           </div>
           <div className="pc-body">
             {stateDistribution.length ? (
-              stateDistribution.map((slice) => (
-                <div className="hbar" key={slice.state}>
-                  <span className="hbar-l">
-                    <span className={STATE_CLASS[slice.state] || 'state away'}>{slice.state}</span>
-                  </span>
-                  <span className="hbar-t">
-                    <i
+              <>
+                {/* One row instead of a bar per state: each slice's width is
+                    its share of the roster, laid end to end. */}
+                <div className="dist-bar">
+                  {stateDistribution.map((slice) => (
+                    <span
+                      key={slice.state}
+                      className="dist-bar-seg"
                       style={{
                         width: `${slice.pct}%`,
-                        background: slice.state === 'Offline' ? 'var(--ink-4)' : 'var(--accent)',
+                        background: STATE_COLOR[slice.state] || 'var(--ink-4)',
                       }}
+                      title={`${slice.state}: ${slice.count} (${slice.pct}%)`}
                     />
-                  </span>
-                  <span className="hbar-v num">
-                    {slice.count}
-                    <span style={{ color: 'var(--ink-4)' }}> · {slice.pct}%</span>
-                  </span>
+                  ))}
                 </div>
-              ))
+                <div className="dist-legend">
+                  {stateDistribution.map((slice) => (
+                    <div className="dist-legend-item" key={slice.state}>
+                      <span className={STATE_CLASS[slice.state] || 'state away'}>
+                        {slice.state}
+                      </span>
+                      <span className="num" style={{ color: 'var(--ink-4)' }}>
+                        {slice.count} · {slice.pct}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="empty">
                 <Ic n="users" />
@@ -704,7 +801,7 @@ const Home = () => {
             Occupancy, adherence and sentiment are in the artifact but have no
             service behind them yet, so this shows what the platform knows
             rather than filling the columns in. */}
-        <div className="panel-card">
+        <div className="panel-card roomy-rows">
           <div className="pc-head">
             <h3>Agents</h3>
             <button type="button" className="btn sm ghost" onClick={() => navigate('/performance')}>
@@ -775,73 +872,6 @@ const Home = () => {
           </div>
         </div>
         </div>
-        </div>
-
-        {/* ── Interactions ───────────────────────────────────────────────
-            Live calls only. Sentiment is in the artifact but needs the
-            Copilot transcript service, so the column is left out rather
-            than shown empty. */}
-        <div className="panel-card" style={{ marginTop: 16 }}>
-          <div className="pc-head">
-            <h3>Interactions</h3>
-            <span className="pc-right num" style={{ color: 'var(--ink-4)', fontSize: 11 }}>
-              {interactions.length} in progress
-            </span>
-          </div>
-          <div className="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Customer</th>
-                  <th>Number</th>
-                  <th>Queue</th>
-                  <th>Agent</th>
-                  <th>Duration</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {interactions.length ? (
-                  interactions.map((call) => (
-                    <tr key={call.id}>
-                      <td className="num">
-                        {call.startedAt ? moment(call.startedAt).format('HH:mm') : '—'}
-                      </td>
-                      <td style={{ fontWeight: 700 }}>{call.customer}</td>
-                      <td className="num">{call.number}</td>
-                      <td>{call.queue}</td>
-                      <td>{call.agent}</td>
-                      <td className="num">
-                        {call.startedAt ? (
-                          <Timer startTime={call.startedAt} />
-                        ) : (
-                          <span style={{ color: 'var(--ink-4)' }}>—</span>
-                        )}
-                      </td>
-                      <td>
-                        <span
-                          className={call.waiting ? 'state acw' : 'state busy'}
-                          style={{ textTransform: 'capitalize' }}
-                        >
-                          {call.state}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7}>
-                      <div className="empty">
-                        <Ic n="phone" />
-                        <p>Nothing on the wire right now.</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>

@@ -481,6 +481,9 @@ const Header = () => {
           isHeader={true}
           width="30%"
           isCloseIcon={false}
+          enableResponsive
+          responsiveWidth="96vw"
+          responsiveBreakpoint={1024}
         />
         {pendingChatState && (
           <SideDrawer

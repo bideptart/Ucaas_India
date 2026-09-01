@@ -234,27 +234,40 @@ const UpcomingMeetings = () => {
   };
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3  ">
+    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 bg-transparent ">
       <div className=" flex h-full min-h-0 w-full flex-col justify-start gap-4 ">
         <div className="w-full max-w-250 mx-auto px-4 xs:pt-4 sm:pt-0">
           <MeetingHeader formInstance={formInstance} />
         </div>
         <div className="w-full h-full overflow-auto">
           <div className="max-w-250 mx-auto flex min-h-0 flex-1 flex-col gap-3 mt-2 px-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-[#2E2D35] font-semibold text-lg flex items-center gap-1">
-                Upcoming Meetings <InfoIcon className="w-3 h-3 text-[#9A948F]" />
-              </h4>
+            <div className="flex justify-between items-center mb-1">
+              <div className="flex flex-col gap-0.5">
+                <h4
+                  className="font-bold text-xl flex items-center gap-2.5"
+                  style={{ color: '#8A3F1C' }}
+                >
+                  <span
+                    className="h-5 w-1.5 rounded-full"
+                    style={{ background: 'linear-gradient(180deg, #E78B50, #D9652E)' }}
+                  />
+                  Upcoming Meetings
+                  <InfoIcon className="w-3.5 h-3.5 text-[#9A948F]" />
+                </h4>
+                <p className="text-xs text-[#9A948F] pl-4">Everything on your calendar, in order</p>
+              </div>
               <Button
                 variant="outline"
-                className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F]"
+                className="justify-center gap-1.5 shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:w-auto hover:bg-white/70 hover:text-[#9A948F] border-white/70 bg-white/45 backdrop-blur-md h-9 min-h-9 rounded-full px-4 text-xs text-[#9A948F]"
                 type="button"
               >
-                <span className="text-ucass-active">{upcomingMeetingList?.length || 0}</span>
+                <span className="font-bold text-sm" style={{ color: '#B5642F' }}>
+                  {upcomingMeetingList?.length || 0}
+                </span>
                 Meeting(s)
               </Button>
             </div>
-            <div ref={scrollContainerRef} className="flex flex-1 min-h-0 flex-col gap-3 ">
+            <div ref={scrollContainerRef} className="flex flex-1 min-h-0 flex-col gap-3.5 ">
               {isPendingUpcomingMeeting ? (
                 <div className="flex items-center justify-center p-5">
                   <Loader variant="blue" size="sm" />
@@ -300,21 +313,28 @@ const UpcomingMeetings = () => {
                   return (
                     <div
                       key={meeting?.meetingId}
-                      className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center sm:justify-between "
+                      className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between "
                     >
                       <div className="flex w-full min-w-0 items-start">
                         <div className="flex gap-4 items-center">
-                          <div className=" rounded-lg min-h-11 min-w-11 max-w-11 max-h-11 flex flex-col justify-center items-center text-ucass-active  bg-ucass-active-bg">
-                            <div className="text-[11px] uppercase font-medium ">
+                          <div
+                            className="rounded-xl min-h-13 min-w-13 max-w-13 max-h-13 flex flex-col justify-center items-center border"
+                            style={{
+                              color: '#B5642F',
+                              background: 'rgba(231,139,80,0.1)',
+                              borderColor: 'rgba(231,139,80,0.2)',
+                            }}
+                          >
+                            <div className="text-[10px] uppercase font-bold tracking-wide">
                               {formattedDate?.month || ''}
                             </div>
-                            <div className="text-sm uppercase font-extrabold leading-4">
+                            <div className="text-lg uppercase font-extrabold leading-5">
                               {formattedDate?.day}
                             </div>
                           </div>
-                          <div className="flex min-w-0 flex-col gap-1">
+                          <div className="flex min-w-0 flex-col gap-1.5">
                             <div className="flex items-center flex-wrap gap-2">
-                              <h4 className="min-w-0 text-md font-semibold break-words">
+                              <h4 className="min-w-0 text-[15px] font-semibold text-gray-900 break-words">
                                 {meeting?.name || 'Meeting Name'}
                               </h4>
                             </div>
@@ -343,13 +363,14 @@ const UpcomingMeetings = () => {
                             </div> */}
                             <div className="flex flex-wrap gap-2 w-full items-center text-[#9A948F]">
                               <div className="flex items-center gap-1 text-[11px]">
-                                <Clock4Icon className="w-3 h-3" />
+                                <Clock4Icon className="w-3 h-3" style={{ color: '#B5642F' }} />
                                 <div className="flex">
                                   {getAbbreviationByTimeZone(meeting?.timezone)}{' '}
                                   {formatTime(meeting?.startTimeLocal)} -{' '}
                                   {formatTime(meeting?.endTimeLocal) || ''}
                                 </div>
                               </div>
+                              <span className="h-1 w-1 rounded-full bg-gray-300" aria-hidden />
                               <div
                                 className="flex items-center cursor-pointer"
                                 onClick={() => {
@@ -377,7 +398,7 @@ const UpcomingMeetings = () => {
                                   </div>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 text-[11px]">
+                              <div className="flex items-center gap-1 text-xs">
                                 <div className="flex">
                                   {formatMemberCountLabel(
                                     nonGuestMembers.length,
@@ -389,7 +410,14 @@ const UpcomingMeetings = () => {
                               </div>
                               <div className="flex items-center gap-1 text-[11px] ml-4">
                                 <div className="flex text-[#9A948F]">Host :</div>
-                                <div className="min-w-6 min-h-6  max-h-6 flex justify-center items-center rounded-sm text-primary font-medium bg-ucass-active-bg text-[10px] border border-ucass-active/20 px-2">
+                                <div
+                                  className="min-w-6 min-h-6  max-h-6 flex justify-center items-center rounded-sm font-medium text-[10px] px-2"
+                                  style={{
+                                    color: '#B5642F',
+                                    background: 'rgba(231,139,80,0.12)',
+                                    border: '1px solid rgba(231,139,80,0.25)',
+                                  }}
+                                >
                                   {hostLabel}
                                 </div>
                               </div>
@@ -397,6 +425,11 @@ const UpcomingMeetings = () => {
                           </div>
                         </div>
                       </div>
+                      <span
+                        className="hidden sm:block h-12 w-px shrink-0"
+                        style={{ background: 'rgba(154,52,18,0.08)' }}
+                        aria-hidden
+                      />
                       <div className="flex w-full  items-center justify-start gap-2 sm:w-auto sm:justify-end">
                         {canEndMeetingBeforeStart(meeting?.startUtc) &&
                           meeting?.createdById === user?.uuid &&
@@ -445,7 +478,7 @@ const UpcomingMeetings = () => {
                           <Button
                             size={'sm'}
                             variant={'primary'}
-                            className="justify-center shadow-none sm:w-auto min-w-14"
+                            className="justify-center shadow-none sm:w-auto min-w-14 border-none bg-[#E78B50] hover:bg-[#D9652E]"
                             type="button"
                             onClick={() => {
                               window.open(`/video-meet?meetCode=${meeting?.meetingId}`);
@@ -460,7 +493,7 @@ const UpcomingMeetings = () => {
                               <Button
                                 size={'sm'}
                                 variant={'primary'}
-                                className="justify-center shadow-none sm:w-auto min-w-14 cursor-not-allowed opacity-60 pointer-events-none"
+                                className="justify-center shadow-none sm:w-auto min-w-14 cursor-not-allowed opacity-60 pointer-events-none border-none bg-[#E78B50]"
                                 type="button"
                                 disabled
                               >
@@ -519,7 +552,12 @@ const UpcomingMeetings = () => {
                 })
               ) : (
                 <div className="w-full mx-auto max-w-250 min-h-52 lg:min-h-80 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 rounded-lg   m-auto border border-[rgba(225,200,165,0.9)] flex flex-col items-center justify-center gap-2">
-                  <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
+                  <div
+                    className="flex items-center justify-center rounded-full p-4"
+                    style={{ background: 'rgba(231,139,80,0.08)' }}
+                  >
+                    <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
+                  </div>
                   <p className="flex items-center justify-center text-[#2E2D35]  font-medium">
                     No upcoming meetings!
                   </p>

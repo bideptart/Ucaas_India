@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { SearchLine } from '@/assets/icons';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/assets/icons/icon';
+import { handleAlert } from '@/lib/utils';
 
 const AgentReports = () => {
   const tableRef = useRef<any>(null);
@@ -35,6 +36,7 @@ const AgentReports = () => {
       setIsLoading(true);
       try {
         await tableRef.current.refetchTable();
+        handleAlert({ text: 'Refreshed', type: 'success' });
       } finally {
         setIsLoading(false);
       }

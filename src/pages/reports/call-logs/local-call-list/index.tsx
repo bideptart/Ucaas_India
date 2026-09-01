@@ -105,6 +105,7 @@ const LocalCallList = () => {
       setIsLoading(true);
       try {
         await tableRef.current.refetchTable();
+        handleAlert({ text: 'Refreshed', type: 'success' });
       } finally {
         setIsLoading(false);
       }

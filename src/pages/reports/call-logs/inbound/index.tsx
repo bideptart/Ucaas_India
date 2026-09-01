@@ -3,7 +3,7 @@ import { Icon } from '@/assets/icons/icon';
 import { ReportsPageLayout } from '../../reports-content-layout';
 
 import { useNavigate } from 'react-router-dom';
-import { convertDateFormateApis, formatSecondsToMMSS, MEDIA_URL } from '@/lib/utils';
+import { convertDateFormateApis, formatSecondsToMMSS, handleAlert, MEDIA_URL } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { FilterIcon, SearchLine } from '@/assets/icons';
 
@@ -155,6 +155,7 @@ const Inbound = () => {
       setIsLoading(true);
       try {
         await tableRef.current.refetchTable();
+        handleAlert({ text: 'Refreshed', type: 'success' });
       } finally {
         setIsLoading(false);
       }

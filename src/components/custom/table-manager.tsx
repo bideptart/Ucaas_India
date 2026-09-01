@@ -31,7 +31,7 @@ import CustomSelect from './custom-select';
 import Loader from './loader';
 import { MemoizedTableManagerRow } from './table-manager-row';
 import CommonFilter from './custom-filter';
-import { normalizeSearchText } from '@/lib/utils';
+import { handleAlert, normalizeSearchText } from '@/lib/utils';
 
 const pageNumberListLimit = 5;
 const perPagesArr = [25, 50, 100, 200];
@@ -224,6 +224,18 @@ function TableManager({
   });
   const hasRows = table.getRowModel().rows.length > 0;
   const showInitialLoader = !hasRows && (isLoading || loading);
+
+  /* The data underneath a refresh is often unchanged (demo data, or a real
+     list that just hasn't moved) - with no toast, clicking refresh and
+     seeing the exact same rows reads as the button doing nothing. This is
+     only wired to the manual refresh icon below, not to `refetchTable()` on
+     `tableRef` - that imperative handle is also called after mutations
+     (delete/create) that already show their own success toast, and doubling
+     up there would stack an unrelated "Refreshed" on top. */
+  const handleManualRefetch = async () => {
+    await refetch();
+    handleAlert({ text: 'Refreshed', type: 'success' });
+  };
 
   const handleNextPage = () => {
     table?.nextPage();
@@ -507,7 +519,7 @@ function TableManager({
                 className="cursor-pointer text-[#2E2D35]/80 hover:text-primary"
                 type="button"
                 variant={'ghost'}
-                onClick={() => refetch()}
+                onClick={() => handleManualRefetch()}
               >
                 {isRefetching || isFetching ? (
                   <Loader2 className="animate-spin" />

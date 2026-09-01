@@ -33,8 +33,8 @@ const CallbacksTab = () => {
    * dashboards) is rendered by the page shell above this tab, not by this
    * component, so it needs the same body-class flag the Live view uses to
    * reach it — `perf-warm-toolbar` in live-theme.css. Unlike Live, this tab
-   * does not add `perf-live-theme`, so it picks up the toolbar look only,
-   * not Live's full-page ambient gradient.
+   * does not add `perf-warm-backdrop`, so it picks up the toolbar look only,
+   * not the full-page ambient gradient.
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-toolbar');

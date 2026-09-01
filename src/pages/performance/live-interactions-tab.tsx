@@ -20,14 +20,13 @@ const LiveInteractionsTab = () => {
    * shell above this tab). Flagging the document while the view is open lets
    * `live-theme.css` reach both without either file being edited — so no
    * other area, and no other Performance view, is touched, and leaving this
-   * view restores them on the same frame. `perf-warm-toolbar` is the shared
-   * toggle other Performance tabs (Callbacks) also use for the same toolbar
-   * look; `perf-live-theme` on top of it is what additionally paints the
-   * full-page gradient, which is Live-only.
+   * view restores them on the same frame. Both classes are shared toggles —
+   * other Performance tabs (Callbacks, Campaigns) opt into either
+   * independently for the same toolbar/backdrop look.
    */
   useEffect(() => {
-    document.body.classList.add('perf-live-theme', 'perf-warm-toolbar');
-    return () => document.body.classList.remove('perf-live-theme', 'perf-warm-toolbar');
+    document.body.classList.add('perf-warm-backdrop', 'perf-warm-toolbar');
+    return () => document.body.classList.remove('perf-warm-backdrop', 'perf-warm-toolbar');
   }, []);
 
   const activeCalls = useMemo(

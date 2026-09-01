@@ -8,6 +8,9 @@ import { useState } from 'react';
 
 const Verification = ({ search }: { search: string }) => {
   const [, setRowData] = useState<any>(null);
+  //   const [drawerState, setDrawerState] = useState({
+  //     editAddress: false,
+  //   });
   const [modalState, setModalState] = useState({
     deleteAddress: false,
   });

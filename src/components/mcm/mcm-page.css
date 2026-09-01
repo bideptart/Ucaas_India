@@ -766,6 +766,9 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   white-space: nowrap;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .mcm-page .ptabstrip button:hover {
   color: var(--ink);
@@ -3477,6 +3480,9 @@
   color: var(--ink-3);
   font-size: 12px;
   font-weight: 600;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 .mcm-adminhome-clear:hover {
   color: var(--crit);

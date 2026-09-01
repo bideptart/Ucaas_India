@@ -8,7 +8,6 @@ import { useState } from 'react';
 
 const Verification = ({ search }: { search: string }) => {
   const [rowData, setRowData] = useState<any>(null);
-  console.log('🚀 ~ Verification ~ rowData:', rowData);
   //   const [drawerState, setDrawerState] = useState({
   //     editAddress: false,
   //   });

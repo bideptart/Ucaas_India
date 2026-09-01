@@ -84,8 +84,6 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
     select: (data) => data?.data?.data?.result?.rows?.[0] || {},
     enabled: isEdit,
   });
-  console.log('🚀 ~ CreateIdentity ~ identityData:', identityData);
-  console.log('🚀 ~ CreateIdentity ~ isIdentityProofLoading:', isIdentityProofLoading);
 
   const { data: identityRequirements = {} } = useQuery({
     queryKey: ['getIdentityRequirements'],

@@ -43,12 +43,10 @@ const Create10DLCBrand = ({ setDrawerState }: any) => {
     resolver: yupResolver(activeSchema),
     mode: 'onChange',
   });
-  console.log({ object: formMethods.watch(), errors: formMethods.formState.errors });
 
   const { mutate, isPending } = useMutation({
     mutationFn: brandCreate,
     onSuccess: ({ data }) => {
-      console.log('🚀 ~ Create10DLCBrand ~ data:', data);
       queryClient.invalidateQueries(['getUsersDetails'], {
         exact: true,
       });

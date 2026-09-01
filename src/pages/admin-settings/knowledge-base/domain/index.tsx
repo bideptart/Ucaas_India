@@ -77,7 +77,6 @@ function AIDomain() {
   }, []);
 
   const handleTestChatClick = async (rowData: any) => {
-    console.log(rowData?.domain, 'rowData???', window.location.origin);
 
     if (rowData?.domain !== window.location.hostname) {
       handleAlert({
@@ -110,7 +109,6 @@ function AIDomain() {
       const agent = agentList?.find(
         (a: any) => a?._id === agentId || a?.agent_uuid === agentId || a?.id === agentId,
       );
-      console.log(agent, 'rowData3', agentId, 'agentList', agentList);
       const widgetKey = getAi360WidgetKey(agent || rowData);
       const widgetScriptSrc = getChatWidgetScriptSrc();
 
@@ -140,7 +138,6 @@ function AIDomain() {
         }, 0);
       };
 
-      console.log(script, 'rowData4');
 
       document.body.appendChild(script);
 
@@ -155,7 +152,6 @@ function AIDomain() {
     }
   };
 
-  console.log(handleTestChatClick);
 
   const { mutate: mutateDeleteDomain, isPending: isDeletePending } = useMutation({
     mutationKey: ['deleteAIDomain'],

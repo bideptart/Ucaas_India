@@ -117,7 +117,6 @@ const OutboundRates = () => {
     getRates({ filter });
   };
 
-  console.log('ratesBlock', ratesBlock);
   return (
     <section className="w-full overflow-x-auto overflow-y-hidden">
       <div className="flex items-center justify-between p-3 border-b border-[rgba(225,200,165,0.9)] min-h-[65px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">

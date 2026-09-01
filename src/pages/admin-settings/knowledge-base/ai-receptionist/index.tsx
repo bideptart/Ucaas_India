@@ -429,7 +429,6 @@ const AiReceptionist = () => {
   const [activeView, setActiveView] = useState<
     'list' | 'build-choice' | 'template-choice' | 'create-scratch'
   >('list');
-  console.log(activeView, 'activeeee');
 
   const [selectedBuildMode, setSelectedBuildMode] = useState<BuildMode | null>(null);
   const [selectedTemplateName, setSelectedTemplateName] = useState('');
@@ -569,7 +568,6 @@ const AiReceptionist = () => {
     return numberOptions.filter((opt: any) => opt.value === '' || !opt.is_assigned);
   }, [numberOptions]);
 
-  console.log('availableNumberOptions', availableNumberOptions);
 
   const { mutate: mutateDeleteAgent, isPending: isDeletePending } = useMutation({
     mutationKey: ['deleteAIReceptionist'],
@@ -724,7 +722,6 @@ const AiReceptionist = () => {
         useMessageExactly,
         ...upadedData
       } = payload;
-      console.log(agent_uuid, uuid, did_uuid, company_uuid, created_at, useMessageExactly);
 
       mutateUpdateAgent(upadedData, {
         onSuccess: () => {
@@ -752,7 +749,6 @@ const AiReceptionist = () => {
   };
   const [showMultipleAssignModal, setShowMultipleAssignModal] = useState(false);
   const [multipleAssignUsers, setMultipleAssignUsers] = useState<any[]>([]);
-  console.log(multipleAssignUsers, showMultipleAssignModal);
 
   useEffect(() => {
     return () => {

@@ -480,7 +480,6 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
         (item: any) => item?.value === call_handling?.business_hours?.ai_forward_to?.type,
       )?.label || '';
 
-    console.log(aiTypeLabel);
 
     setValue('callHandling', {
       businessHours: {

@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
@@ -92,6 +93,20 @@ const Performance = () => {
     dateOptions: DateFilterTypes,
   }));
   const selectedRange = dropdownVal.value;
+
+  /**
+   * The toolbar (filters, live status pill, Wallboard/My dashboards) is
+   * rendered once here, unconditionally, above every tab's own content — so
+   * `perf-warm-toolbar` (live-theme.css) belongs on this parent rather than
+   * duplicated in each tab component. It flags the toolbar bar itself with
+   * the flat light tint the left rail uses for its own panel; approved
+   * after review, it now applies across every Performance tab, not just
+   * Live/Callbacks/Campaigns, which is what previously had it individually.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-toolbar');
+    return () => document.body.classList.remove('perf-warm-toolbar');
+  }, []);
 
   // Queues, agents and the headline figures come from the shared live hook so
   // Home and Performance can never disagree about them. Everything below is

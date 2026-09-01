@@ -84,6 +84,18 @@ export const areaOfPath = (pathname: string, items: { name: string; link: string
   });
   if (owner) return owner;
 
+  /* A view that opens outside its area's base — Tasks, Calendar, Dialer,
+     Activity, Monitor all leave /performance — still belongs to the area whose
+     rail offered it. Without this the path matches no nav item and no area
+     base, falls through to the segment guess below, and lands on Home: the
+     Home tab lights while the user is on a Performance view, and the rail
+     disappears because Home carries a single item. Longest prefix first, so a
+     nested claim beats a shallower one. */
+  const claimed = externalViewPrefixes()
+    .filter(({ prefix }) => path === prefix || path.startsWith(`${prefix}/`))
+    .sort((a, b) => b.prefix.length - a.prefix.length)[0];
+  if (claimed) return claimed.area;
+
   // Fall back to the first path segment, which covers routes an item links to
   // only indirectly (e.g. /campaign/... when the item points at a sub-page).
   const segment = path.split('/').filter(Boolean)[0] || '';
@@ -116,6 +128,12 @@ export type AreaView = {
    * Monitoring) are resolved in useAreaNav instead, keyed by `key`.
    */
   href?: string;
+  /**
+   * The path prefix this view owns, when that cannot be read off `href` —
+   * the views whose real href depends on the signed-in user. Without it the
+   * area cannot recognise its own page when the user is standing on it.
+   */
+  match?: string;
 };
 
 /**
@@ -167,8 +185,8 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   // Activity and Monitoring depend on the signed-in user (their uuid, their
   // role/plan access) so their real href is resolved in useAreaNav — this
   // placeholder just claims the slot and the icon.
-  { key: 'ext-activity', label: 'Activity', icon: 'PhoneIcon' },
-  { key: 'ext-monitoring', label: 'Monitor', icon: 'AnalyticsIcon' },
+  { key: 'ext-activity', label: 'Activity', icon: 'PhoneIcon', match: '/activity' },
+  { key: 'ext-monitoring', label: 'Monitor', icon: 'AnalyticsIcon', match: '/monitoring' },
 ];
 
 /** The views an area carries in its rail, if it carries any. */
@@ -181,3 +199,17 @@ export const AREA_VIEWS: Partial<Record<AreaId, { base: string; views: AreaView[
   performance: { base: '/performance', views: PERFORMANCE_VIEWS },
   directory: { base: '/directory', views: DIRECTORY_VIEWS },
 };
+
+/**
+ * Path prefixes owned by views that open outside their own area's base.
+ *
+ * Read off `href` where there is one, and off `match` for the views whose href
+ * is resolved later from the signed-in user.
+ */
+const externalViewPrefixes = (): { prefix: string; area: AreaId }[] =>
+  (Object.keys(AREA_VIEWS) as AreaId[]).flatMap((area) =>
+    (AREA_VIEWS[area]?.views ?? []).flatMap((view) => {
+      const prefix = view.match || (view.href ? view.href.split('?')[0] : '');
+      return prefix ? [{ prefix, area }] : [];
+    }),
+  );

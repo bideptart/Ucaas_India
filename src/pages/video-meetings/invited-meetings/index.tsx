@@ -13,7 +13,6 @@ import { useMutation, useInfiniteQuery } from '@tanstack/react-query';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import AlertConfirm from '@/components/custom/alert-confirm';
-import MeetingHeader from '../upcoming-meetings/header';
 import MeetingInfo from '../meeting-info-modal';
 import ScheduleMeeting from '../schedule-meeting';
 import MeetingMembersModal from '../meeting-members-modal';
@@ -152,7 +151,6 @@ const InvitedMeetings = () => {
   return (
     <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3  p-3 sm:p-4 overflow-auto">
       <div className="mx-auto max-w-250 flex h-full min-h-0 w-full flex-col justify-start gap-6 sm:gap-8 ">
-        <MeetingHeader formInstance={formInstance} />
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           <div className="flex justify-between items-center">
             <h4

@@ -24,6 +24,7 @@
 import { isPreviewHost } from '@/lib/utils';
 import { demoAiVoiceRows } from '@/lib/demo-ai-voices';
 import { demoCrawledPages } from '@/lib/demo-site-crawl';
+import { getDemoReviewJob, startDemoReviewJob } from '@/lib/demo-knowledge-review';
 import { resolveCaptainRequest } from '@/lib/demo-captain';
 import {
   DEMO_AGENTS,
@@ -40,6 +41,7 @@ import {
   demoFaxConversations,
   demoFaxMessages,
   demoFlowRows,
+  filterCallsByDateRange,
   demoInboundCallRows,
   demoLocalCallRows,
   demoMeetingRows,
@@ -193,16 +195,38 @@ export const DEMO_USER = {
  * maps straight over it works, and it carries the same rows on the properties a
  * paginated screen reaches for.
  */
-const listPayload = (items: any[] = [], extra: Record<string, any> = {}) => {
-  const list: any = [...items];
-  list.data = items;
-  list.rows = items;
-  list.total = items.length;
-  list.count = items.length;
-  list.totalItems = items.length;
-  list.totalPages = 1;
-  list.current_page = 1;
-  list.last_page = 1;
+/**
+ * `page`/`limit` come third rather than being folded into `extra`: every
+ * TableManager screen sends them on every request (a "per page" picker, a
+ * page-forward click), and until this read them the same full array came
+ * back for page 1 and page 2 alike — a 64-row call log under a 25-per-page
+ * table showed all 64 with no second page to click to. Passing the raw
+ * request body here is enough; page/limit default to "no real paging" (one
+ * page holding everything) when the caller doesn't have them or the list is
+ * always small, so most call sites need change nothing.
+ */
+const listPayload = (
+  items: any[] = [],
+  extra: Record<string, any> = {},
+  requestData?: unknown,
+) => {
+  const totalItems = items.length;
+  const requested = asObject(requestData);
+  const page = Math.max(1, Number(requested?.page) || 1);
+  const limit = Number(requested?.limit) || totalItems || 1;
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+  const start = (page - 1) * limit;
+  const pageItems = limit >= totalItems ? items : items.slice(start, start + limit);
+
+  const list: any = [...pageItems];
+  list.data = pageItems;
+  list.rows = pageItems;
+  list.total = totalItems;
+  list.count = totalItems;
+  list.totalItems = totalItems;
+  list.totalPages = totalPages;
+  list.current_page = page;
+  list.last_page = totalPages;
   /* Aggregates a screen reads off the result alongside the rows — the call
      log's `call_stats`, for instance. */
   Object.assign(list, extra);
@@ -345,7 +369,7 @@ const applyWrite = (url: string, body: Record<string, any>) => {
       targets.has(user.uuid) ? { ...user, ...body, uuid: user.uuid } : user,
     );
     writeStore(store);
-    return ok(listPayload(store.users));
+    return ok(listPayload(store.users, {}, body));
   }
 
   if (url.includes('/api/user/delete')) {
@@ -396,18 +420,38 @@ const matchDemoPayload = (url: string, data: unknown) => {
   /* The contact centre the Performance views read. Empty lists would leave
      Queues, Agents, Calls, Flows and Boards as five empty states. */
   if (url.includes('/api/tenant/report/call-list')) {
+    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     // Callbacks ▸ "Queue voicemail" calls this same endpoint with
     // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
     // day's call log filtered down.
-    if (asObject(data)?.type === 'voicemail') return ok(listPayload(demoVoicemailRows()));
-    return ok(listPayload(demoCalls(), { call_stats: demoCallStats() }));
+    if (asObject(data)?.type === 'voicemail') {
+      const voicemailRows = filterCallsByDateRange(demoVoicemailRows(), dateRange);
+      return ok(listPayload(voicemailRows, {}, data));
+    }
+    let rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
+    // Reports ▸ Outbound sends `filter: [{key:'direction', value:'Outbound'}, ...]` —
+    // without honoring it the page would list inbound calls under "Outbound".
+    const directionFilter = (asObject(data)?.filter || []).find(
+      (row: any) => row?.key === 'direction',
+    );
+    if (directionFilter?.value) {
+      rangedCalls = rangedCalls.filter((row) => row.direction === directionFilter.value);
+    }
+    return ok(listPayload(rangedCalls, { call_stats: demoCallStats(rangedCalls) }, data));
   }
-  if (url.includes('/api/tenant/report/agents')) return ok(listPayload(demoAgentReportRows()));
+  if (url.includes('/api/tenant/report/agents')) {
+    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
+    const rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
+    return ok(listPayload(demoAgentReportRows(rangedCalls), {}, data));
+  }
   if (url.includes('/api/tenant/report/call-queue/list')) {
-    return ok(listPayload(demoQueueReportRows()));
+    /* The shipped Queue report calls this with no date filter at all (see
+       queue/index.tsx, where filter_date is commented out) — always the
+       full pool, matching real backend behaviour. */
+    return ok(listPayload(demoQueueReportRows(), {}, data));
   }
-  if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows()));
-  if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows()));
+  if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows(), {}, data));
+  if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows(), {}, data));
   /* The AI Receptionist builder's Voice & Persona step. An empty list here
      leaves its required voice field with nothing to select, which stops the
      wizard at step 2 rather than just looking bare. */
@@ -418,17 +462,33 @@ const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/ai/chat-agent/site-crawl')) {
     return demoCrawledPages(String(asObject(data)?.site_url || ''));
   }
-  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
+  /* The Review step's job. Order matters: every path below contains the
+     `review-job` prefix, so the specific ones have to be tested first or they
+     would all be answered as a fresh job. */
+  if (url.includes('/api/ai/knowledge-base/review-job/status')) {
+    return getDemoReviewJob(String(asObject(data)?.jobId || ''));
+  }
+  if (url.includes('/api/ai/knowledge-base/review-job/cleanup')) return ok({ cleaned: true });
+  if (url.includes('/api/ai/knowledge-base/review-job')) {
+    return startDemoReviewJob(asObject(data));
+  }
+  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows(), {}, data));
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;
     const campaign = demoCampaignRows().find((row) => row._id === campaignId);
     return ok(campaign?.campaignAnalytics || {});
   }
-  if (url.includes('/api/calendar/event-task/list')) return ok(listPayload(demoCalendarTaskRows()));
-  if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows()));
-  if (url.includes('/api/contact/group/list')) return ok(listPayload(demoContactGroupRows()));
-  if (url.includes('/api/tenant/department/list')) return ok(listPayload(demoDepartmentRows()));
-  if (url.includes('/api/site/list')) return ok(listPayload(demoSiteRows()));
+  if (url.includes('/api/calendar/event-task/list')) {
+    return ok(listPayload(demoCalendarTaskRows(), {}, data));
+  }
+  if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows(), {}, data));
+  if (url.includes('/api/contact/group/list')) {
+    return ok(listPayload(demoContactGroupRows(), {}, data));
+  }
+  if (url.includes('/api/tenant/department/list')) {
+    return ok(listPayload(demoDepartmentRows(), {}, data));
+  }
+  if (url.includes('/api/site/list')) return ok(listPayload(demoSiteRows(), {}, data));
   if (url.includes('/api/contact/list')) {
     /* Directory ▸ Blocked reads this same endpoint twice — once for the whole
        book, once filtered to `tag: 'BLOCK'` for the table itself — so the
@@ -437,39 +497,50 @@ const matchDemoPayload = (url: string, data: unknown) => {
     const rows = tagFilter
       ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
       : demoContactBookRows();
-    return ok(listPayload(rows));
+    return ok(listPayload(rows, {}, data));
   }
   if (url.includes('/api/tenant/report/inbound-calls')) {
     /* This page reads `result.data.data` for rows and `result.data.call_stats`
        for the summary tiles — one extra `.data` nesting level deeper than
        every other call-list-backed report. */
-    const rows = demoInboundCallRows();
+    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
+    const rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
+    const rows = demoInboundCallRows(rangedCalls);
     const totalDuration = rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0);
     return ok({
-      data: { data: rows, call_stats: { ...demoCallStats(), total_duration: totalDuration } },
+      data: {
+        data: rows,
+        call_stats: { ...demoCallStats(rangedCalls), total_duration: totalDuration },
+      },
     });
   }
-  if (url.includes('/api/tenant/local-call-list')) return ok(listPayload(demoLocalCallRows()));
-  if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows()));
-  if (url.includes('/api/tenant/user/template/list')) return ok(listPayload(demoTemplateRows()));
-  if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows()));
+  if (url.includes('/api/tenant/local-call-list')) {
+    return ok(listPayload(demoLocalCallRows(), {}, data));
+  }
+  if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows(), {}, data));
+  if (url.includes('/api/tenant/user/template/list')) {
+    return ok(listPayload(demoTemplateRows(), {}, data));
+  }
+  if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows(), {}, data));
 
   /* Inbox and the admin Numbers list both read the same handful of company
      numbers — one function, three callers. */
   if (url.includes('/api/fax/did/number/assigned')) return ok(demoAssignedDidRows());
-  if (url.includes('/api/numbers/list')) return ok(listPayload(demoAssignedDidRows()));
+  if (url.includes('/api/numbers/list')) return ok(listPayload(demoAssignedDidRows(), {}, data));
 
   /* Inbox's conversation list, then the open thread's own messages. Neither
      shares a URL with the SMS *log* above — that's Reports, this is Inbox. */
   if (url.includes('/api/v1/sms/did-list')) return ok(demoSmsConversations());
   if (url.includes('/api/v1/sms/list')) {
     const chatId = asObject(data)?.chat_id;
-    return ok(listPayload(demoSmsThreadRows(chatId)));
+    return ok(listPayload(demoSmsThreadRows(chatId), {}, data));
   }
-  if (url.includes('/api/fax/to-number-list')) return ok(listPayload(demoFaxConversations()));
+  if (url.includes('/api/fax/to-number-list')) {
+    return ok(listPayload(demoFaxConversations(), {}, data));
+  }
   if (url.includes('/api/fax/list')) {
     const faxMessageId = asObject(data)?.filters?.faxMessageId;
-    return ok(listPayload(demoFaxMessages(faxMessageId)));
+    return ok(listPayload(demoFaxMessages(faxMessageId), {}, data));
   }
 
   /* Home's "today" digest re-reads the call log through a second endpoint
@@ -478,7 +549,7 @@ const matchDemoPayload = (url: string, data: unknown) => {
     const params = asObject(data);
     if (params?.type === 'voicemail') {
       const rows = demoVoicemailRows();
-      return ok(listPayload(rows, { totalRecords: rows.length }));
+      return ok(listPayload(rows, { totalRecords: rows.length }, data));
     }
     const wantsMissed = (params?.filter || []).some(
       (row: any) => row?.key === 'direction' && row?.value === 'Missed',
@@ -488,11 +559,11 @@ const matchDemoPayload = (url: string, data: unknown) => {
           .filter((row) => row.direction === 'Inbound' && row.billsectotal === 0)
           .map((row) => ({ ...row, direction: 'Missed' }))
       : demoCalls();
-    return ok(listPayload(rows, { totalRecords: rows.length }));
+    return ok(listPayload(rows, { totalRecords: rows.length }, data));
   }
 
-  if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles));
-  if (url.includes('/api/user/list')) return ok(listPayload(readStore().users));
+  if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles, {}, data));
+  if (url.includes('/api/user/list')) return ok(listPayload(readStore().users, {}, data));
   if (url.includes('/api/user/detail')) return ok(readStore().users[0] ?? null);
 
   return ok(listPayload());

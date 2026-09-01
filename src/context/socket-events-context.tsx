@@ -26,6 +26,7 @@ import {
   demoAiLiveWallboardData,
   demoCampaignAiLiveCallData,
   demoChatThreads,
+  demoMessageList,
   demoLiveCalls,
   demoLiveQueueCalls,
   demoUsersOnlineStatus,
@@ -514,6 +515,10 @@ interface SocketEventsType {
     chatId?: string,
     attachments?: any[],
   ) => void;
+  updateChatLists: (
+    updater: (chats: any[]) => any[],
+    options?: { targetChatId?: string; upsertInAgentList?: boolean },
+  ) => void;
   chatExist: (chatId: string) => any;
   createPrivateChatId: (ids: string[]) => string;
   handleSendMessage: (message: any, callback?: (response: any) => void) => void;
@@ -714,6 +719,7 @@ export const SocketEvents = createContext<SocketEventsType>({
   setRecentTasks: () => void 0,
   handleOpenChatInWindow: () => void 0,
   createNewChat: () => void 0,
+  updateChatLists: () => void 0,
   chatExist: () => null,
   createPrivateChatId: () => '',
   handleSendMessage: () => void 0,
@@ -853,7 +859,9 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [allAgentChats, setAllAgentChats] = useState<any>(() =>
     isDemoMode() ? demoAgentChatThreads() : [],
   );
-  const [messageList, setMessageList] = useState<any>([]);
+  const [messageList, setMessageList] = useState<any>(() =>
+    isDemoMode() ? demoMessageList() : [],
+  );
   const [pinnedList, setPinnedList] = useState<any>([]);
   const [threadsManager, setThreadsManager] = useState<any>([]);
   const [notesList, setNotesList] = useState<any>([]);
@@ -3988,6 +3996,39 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function handleSendMessage(message: any, callback?: (response: any) => void) {
+    /* Demo mode has no server on the other end of this socket, so the real
+       branch below would just emit into the void — the composer clears
+       itself (it doesn't wait on this) but the message never reappears
+       anywhere. The caller already builds a complete message object
+       (chatId, senderId, messageId, createdAt) before calling this, since
+       that's also what an optimistic send would show before the real ack —
+       so echoing it straight into local state is enough to make sending
+       feel real: it lands in the thread and the sidebar preview updates. */
+    if (isDemoMode()) {
+      const chatId = message?.chatId;
+      if (chatId) {
+        setMessageList((prevList: any[]) => {
+          const list = Array.isArray(prevList) ? prevList : [];
+          const index = list.findIndex((item: any) => item?.chatId === chatId);
+          if (index === -1) return [...list, { chatId, messages: [message] }];
+          const next = [...list];
+          const existingMessages = Array.isArray(next[index]?.messages)
+            ? next[index].messages
+            : [];
+          next[index] = { ...next[index], messages: [...existingMessages, message] };
+          return next;
+        });
+        updateChatLists(
+          (chats: any[]) =>
+            chats.map((chat: any) =>
+              chat?.chatId === chatId ? { ...chat, lastMessage: message } : chat,
+            ),
+          { targetChatId: chatId },
+        );
+      }
+      callback?.({ success: true, response: { data: { result: message } } });
+      return;
+    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.SEND_MESSAGE, message, (response: any) => {
         console.log('Server ack:', response);
@@ -4794,6 +4835,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
         setRecentTasks,
         handleOpenChatInWindow,
         createNewChat,
+        updateChatLists,
         chatExist,
         createPrivateChatId: createPrivateChatIdFromUsers,
         handleSendMessage,

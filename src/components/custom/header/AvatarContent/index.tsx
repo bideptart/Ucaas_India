@@ -1,6 +1,7 @@
 import { useUser } from '@/hooks/use-user';
 import { useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
+import { KeyRound, LogOut, User, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useCompanyFeatures } from '@/hooks/rbac';
@@ -128,49 +129,34 @@ const AvatarContent = ({ setProfileState }: any) => {
     };
     logoutMutate(payload);
   };
+  const menuItemClass =
+    'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 cursor-pointer transition-colors hover:bg-ucass-primary-200 hover:text-primary';
+
   return (
-    <div className="flex flex-col gap-2 px-3  pb-2">
-      <div className="flex flex-col gap-2 mt-2">
-        <div className="flex gap-2 items-center justify-between edit-container">
-          <div className="flex gap-2 text-gray-700 items-center text-sm w-full justify-center">
-            <CustomAvatar
-              name={fullName}
-              size="80"
-              extension={user?.user_info?.extension}
-              image={user?.user_info?.profile}
-              isActivityInfo={false}
-            />
-          </div>
+    <div className="flex flex-col">
+      {/* Banner: a tinted header strip behind the avatar, name and email
+          centered, so this reads as a profile card rather than a plain
+          stacked list. */}
+      <div className="flex flex-col items-center gap-2 -mx-3 -mt-3 px-4 pt-5 pb-4 bg-ucass-primary-200/50 rounded-t-md">
+        <CustomAvatar
+          name={fullName}
+          size="72"
+          extension={user?.user_info?.extension}
+          image={user?.user_info?.profile}
+          isActivityInfo={false}
+        />
+        <div className="flex flex-col items-center gap-0.5">
+          <p className="text-sm font-semibold text-gray-900 truncate max-w-56">{fullName}</p>
+          <p className="text-xs text-gray-500 truncate max-w-56">{user?.user_info?.email || ''}</p>
         </div>
-        <div className="flex gap-2 items-center justify-between edit-container">
-          <div className="flex gap-2 text-gray-700 items-center text-sm">
-            <Icon name="UserLine" className="w-4 h-4 " />
-            <p className=" truncate max-w-50">{fullName}</p>
-          </div>
-        </div>
-        <div className="flex gap-2 items-center text-gray-700 center text-sm">
-          <Icon name="LetterLine" className="w-4 h-4 " />
-          <span className="truncate max-w-50">{user?.user_info?.email || ''}</span>
-        </div>
-        <div className="flex gap-2 text-gray-700 items-center text-sm">
-          <Icon name="Grid" className="w-4 h-4 " />
-          <p className="truncate max-w-50">{user?.user_info?.extension}</p>
-        </div>
-        <div className="flex gap-2 items-center text-sm justify-between">
-          <div className="flex gap-2 text-gray-700 items-center">
-            <Icon name="PhoneLine" className="w-4 h-4 " />
-            <p className="truncate max-w-50">
-              {phone.startsWith('+') ? phone : phone ? `+${phone}` : ''}
-            </p>
-          </div>
-        </div>
-        <DropdownMenuSeparator />
 
         <Popover open={showPresence} onOpenChange={(val) => setShowPresence(val)}>
           <PopoverTrigger>
-            <span className="cursor-pointer flex gap-2 items-center">
-              <div>{statusImageLookup[effectiveSocketStatus] ?? statusImageLookup['online']}</div>
-              <div className="capitalize text-sm text-gray-700">
+            <span className="cursor-pointer flex gap-1.5 items-center rounded-full bg-white/80 px-2.5 py-1 border border-white shadow-sm">
+              <div className="w-3.5 h-3.5">
+                {statusImageLookup[effectiveSocketStatus] ?? statusImageLookup['online']}
+              </div>
+              <div className="capitalize text-xs font-medium text-gray-700">
                 {effectiveSocketStatus === 'dnd' ? 'DND' : effectiveSocketStatus}
               </div>
             </span>
@@ -195,30 +181,59 @@ const AvatarContent = ({ setProfileState }: any) => {
         </Popover>
       </div>
 
-      <DropdownMenuSeparator />
-      <div className="flex flex-col gap-2 mt-2">
+      {/* Contact details. Email gets its own full-width row — splitting it
+          into a two-column grid with phone left it truncating after just a
+          few characters. Extension and phone (when there is one) share a
+          row since both are short. */}
+      <div className="flex flex-col gap-2 px-3 pt-3 pb-1 text-xs text-gray-600">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Icon name="LetterLine" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+          <span className="truncate">{user?.user_info?.email || '—'}</span>
+        </div>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Icon name="Grid" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+            <span className="truncate">Ext {user?.user_info?.extension}</span>
+          </div>
+          {/* Always shown, even with no number yet — this fills in once a
+              real backend supplies user_info.phone. */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Icon name="PhoneLine" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+            <span className="truncate">
+              {phone ? (phone.startsWith('+') ? phone : `+${phone}`) : '—'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <DropdownMenuSeparator className="my-2" />
+
+      <div className="flex flex-col gap-0.5 px-1 pb-1">
         <div
-          className="text-sm text-gray-700 cursor-pointer hover:text-primary"
+          className={menuItemClass}
           {...getRoutePrefetchHandlers('/admin-settings/account/basic-info')}
           onClick={() => {
             navigate('/admin-settings/account/basic-info');
             setProfileState(false);
           }}
         >
+          <User className="w-4 h-4" />
           My Profile
         </div>
         <div
-          className="text-sm text-gray-700 cursor-pointer hover:text-primary"
+          className={menuItemClass}
           onClick={(val) => setProfileState(val ? 'changePassword' : null)}
         >
+          <KeyRound className="w-4 h-4" />
           Change Password
         </div>
         {features?.plan_features?.billing?.action?.view && (
           <div
-            className="text-sm text-gray-700 cursor-pointer hover:text-primary"
+            className={menuItemClass}
             {...getRoutePrefetchHandlers('/admin-settings/billing/purchase')}
             onClick={handleAddFunds}
           >
+            <Wallet className="w-4 h-4" />
             Add Funds
           </div>
         )}
@@ -226,13 +241,14 @@ const AvatarContent = ({ setProfileState }: any) => {
           onClick={() => {
             logoutDevice();
           }}
-          className="text-sm cursor-pointer text-red-700 flex justify-start"
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-red-600 cursor-pointer transition-colors hover:bg-red-50"
         >
+          <LogOut className="w-4 h-4" />
           Sign out
         </button>
-        <DropdownMenuSeparator />
-        <p className="text-xs text-gray-700 cursor-pointer text-right">v{packageJson.version}</p>
       </div>
+      <DropdownMenuSeparator className="my-1" />
+      <p className="text-[11px] text-gray-400 text-right px-2 pb-1">v{packageJson.version}</p>
     </div>
   );
 };

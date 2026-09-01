@@ -11,6 +11,7 @@ import {
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
+import FlowsTab from './flows-tab';
 import InteractionsTab from './interactions-tab';
 import DashboardsTab from './dashboards-tab';
 import LiveInteractionsTab from './live-interactions-tab';
@@ -44,6 +45,7 @@ const TABS = [
   { key: 'campaign-activity', label: 'Campaign Activity' },
   { key: 'agents', label: 'Agents' },
   { key: 'interactions', label: 'Interactions' },
+  { key: 'flows', label: 'Flows' },
   { key: 'dashboards', label: 'Dashboards' },
   { key: 'live-interactions', label: 'Live Interactions' },
   { key: 'callbacks', label: 'Callbacks' },
@@ -396,6 +398,7 @@ const Performance = () => {
           />
         )}
         {activeTab === 'interactions' && <InteractionsTab selectedRange={selectedRange} />}
+        {activeTab === 'flows' && <FlowsTab />}
         {activeTab === 'dashboards' && <DashboardsTab />}
         {activeTab === 'live-interactions' && <LiveInteractionsTab />}
         {activeTab === 'callbacks' && <CallbacksTab />}

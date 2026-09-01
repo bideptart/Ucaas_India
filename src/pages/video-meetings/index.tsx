@@ -45,10 +45,10 @@ const VideoMeetings = () => {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="border-b border-gray-200 bg-white md:hidden">
+        <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] md:hidden">
           <div className="px-4 pt-4">
-            <h2 className="text-lg font-semibold text-gray-900">Meetings</h2>
-            <p className="text-xs text-gray-500">Browse meeting sections</p>
+            <h2 className="text-lg font-semibold text-[#2E2D35]">Meetings</h2>
+            <p className="text-xs text-[#9A948F]">Browse meeting sections</p>
           </div>
 
           <div className="flex gap-2 overflow-x-auto px-3 py-3">
@@ -64,7 +64,7 @@ const VideoMeetings = () => {
                     'inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors',
                     isActive
                       ? 'border-primary bg-ucass-primary-200 text-primary'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-primary/40 hover:bg-gray-50',
+                      : 'border-gray-200 bg-white text-[#2E2D35] hover:border-primary/40 hover:bg-gray-50',
                   )}
                 >
                   <Icon name={item.icon as IconType} className="h-4 w-4 shrink-0" />

@@ -234,7 +234,7 @@ const UpcomingMeetings = () => {
   };
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3  bg-gray-200/15 ">
+    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3  ">
       <div className=" flex h-full min-h-0 w-full flex-col justify-start gap-4 ">
         <div className="w-full max-w-250 mx-auto px-4 xs:pt-4 sm:pt-0">
           <MeetingHeader formInstance={formInstance} />
@@ -242,12 +242,12 @@ const UpcomingMeetings = () => {
         <div className="w-full h-full overflow-auto">
           <div className="max-w-250 mx-auto flex min-h-0 flex-1 flex-col gap-3 mt-2 px-4">
             <div className="flex justify-between items-center">
-              <h4 className="text-gray-900 font-semibold text-lg flex items-center gap-1">
-                Upcoming Meetings <InfoIcon className="w-3 h-3 text-gray-600" />
+              <h4 className="text-[#2E2D35] font-semibold text-lg flex items-center gap-1">
+                Upcoming Meetings <InfoIcon className="w-3 h-3 text-[#9A948F]" />
               </h4>
               <Button
                 variant="outline"
-                className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-gray-600 border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-gray-600"
+                className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F]"
                 type="button"
               >
                 <span className="text-ucass-active">{upcomingMeetingList?.length || 0}</span>
@@ -300,7 +300,7 @@ const UpcomingMeetings = () => {
                   return (
                     <div
                       key={meeting?.meetingId}
-                      className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center sm:justify-between "
+                      className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center sm:justify-between "
                     >
                       <div className="flex w-full min-w-0 items-start">
                         <div className="flex gap-4 items-center">
@@ -341,7 +341,7 @@ const UpcomingMeetings = () => {
                                 </div>
                               </CustomTooltip>
                             </div> */}
-                            <div className="flex flex-wrap gap-2 w-full items-center text-gray-600">
+                            <div className="flex flex-wrap gap-2 w-full items-center text-[#9A948F]">
                               <div className="flex items-center gap-1 text-[11px]">
                                 <Clock4Icon className="w-3 h-3" />
                                 <div className="flex">
@@ -372,7 +372,7 @@ const UpcomingMeetings = () => {
                                     ))
                                   : null}
                                 {remainingMembersCount > 0 && (
-                                  <div className="min-w-6 min-h-6 max-w-6 max-h-6 flex justify-center items-center rounded-full text-gray-600 font-medium bg-gray-200 text-[10px] border-2 border-white -ml-2">
+                                  <div className="min-w-6 min-h-6 max-w-6 max-h-6 flex justify-center items-center rounded-full text-[#9A948F] font-medium bg-[#F0DFC5] text-[10px] border-2 border-white -ml-2">
                                     +{remainingMembersCount}
                                   </div>
                                 )}
@@ -388,7 +388,7 @@ const UpcomingMeetings = () => {
                                 </div>
                               </div>
                               <div className="flex items-center gap-1 text-[11px] ml-4">
-                                <div className="flex text-gray-500">Host :</div>
+                                <div className="flex text-[#9A948F]">Host :</div>
                                 <div className="min-w-6 min-h-6  max-h-6 flex justify-center items-center rounded-sm text-primary font-medium bg-ucass-active-bg text-[10px] border border-ucass-active/20 px-2">
                                   {hostLabel}
                                 </div>
@@ -471,7 +471,7 @@ const UpcomingMeetings = () => {
                         )}
 
                         <DropdownMenu>
-                          <DropdownMenuTrigger className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-md w-8 h-8 bg-white-100 text-gray-900/80 hover:bg-gray-100 hover:text-gray-600">
+                          <DropdownMenuTrigger className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-md w-8 h-8 bg-white-100 text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F]">
                             <Icon name="MenuDots" className="w-5 h-5 " />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
@@ -518,12 +518,12 @@ const UpcomingMeetings = () => {
                   );
                 })
               ) : (
-                <div className="w-full mx-auto max-w-250 min-h-52 lg:min-h-80 bg-white p-4 rounded-lg   m-auto border border-gray-100 flex flex-col items-center justify-center gap-2">
+                <div className="w-full mx-auto max-w-250 min-h-52 lg:min-h-80 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 rounded-lg   m-auto border border-[rgba(225,200,165,0.9)] flex flex-col items-center justify-center gap-2">
                   <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-                  <p className="flex items-center justify-center text-gray-900  font-medium">
+                  <p className="flex items-center justify-center text-[#2E2D35]  font-medium">
                     No upcoming meetings!
                   </p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-[#2E2D35]">
                     Start or schedule a meeting to see it appear here
                   </p>
                 </div>

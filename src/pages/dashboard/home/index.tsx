@@ -378,7 +378,7 @@ const Home = () => {
         </div>
 
         {/* ── KPI strip ────────────────────────────────────────────────── */}
-        <div className="kpis">
+        <div className="kpis kpis-onerow">
           {kpis.map((kpi) => (
             // A breaching figure tints the whole tile, not just the number —
             // the artifact's `alert` treatment, so it reads at a glance.
@@ -390,7 +390,7 @@ const Home = () => {
           ))}
         </div>
 
-        <div className="grid2">
+        <div className="grid4 grid4-onerow">
           {/* ── needs you now ──────────────────────────────────────────── */}
           <div className="panel-card">
             <div className="pc-head">
@@ -436,8 +436,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="stack">
-            {/* ── your day so far ──────────────────────────────────────── */}
+          {/* ── your day so far ────────────────────────────────────────── */}
             <div className="panel-card">
               <div className="pc-head">
                 <h3>Your day so far</h3>
@@ -588,13 +587,14 @@ const Home = () => {
                 )}
               </div>
             </div>
-          </div>
         </div>
 
+        {/* ── Queues + agent status, side by side ──────────────────────── */}
+        <div className="grid2 grid2-stretch" style={{ marginTop: 16 }}>
         {/* ── Queues ──────────────────────────────────────────────────────
             The whole floor, worst first — Home answers "where is it hurting"
             before you go to Performance to work the detail. */}
-        <div className="panel-card" style={{ marginTop: 16 }}>
+        <div className="panel-card">
           <div className="pc-head">
             <h3>Queues</h3>
             <button type="button" className="btn sm ghost" onClick={() => navigate('/performance')}>
@@ -660,9 +660,10 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ── Agent status distribution ──────────────────────────────────
-            Where the floor actually is right now, before the roster below. */}
-        <div className="panel-card" style={{ marginTop: 16 }}>
+        {/* ── Agent status distribution + agents, stacked in this column
+            so they fill the height Queues sets on the left ─────────────── */}
+        <div className="stack">
+        <div className="panel-card">
           <div className="pc-head">
             <h3>Agent status distribution</h3>
             <span className="pc-right num" style={{ color: 'var(--ink-4)', fontSize: 11 }}>
@@ -703,7 +704,7 @@ const Home = () => {
             Occupancy, adherence and sentiment are in the artifact but have no
             service behind them yet, so this shows what the platform knows
             rather than filling the columns in. */}
-        <div className="panel-card" style={{ marginTop: 16 }}>
+        <div className="panel-card">
           <div className="pc-head">
             <h3>Agents</h3>
             <button type="button" className="btn sm ghost" onClick={() => navigate('/performance')}>
@@ -772,6 +773,8 @@ const Home = () => {
               </tbody>
             </table>
           </div>
+        </div>
+        </div>
         </div>
 
         {/* ── Interactions ───────────────────────────────────────────────

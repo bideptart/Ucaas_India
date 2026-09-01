@@ -230,7 +230,13 @@ const getEmptyStateMessage = (label?: string, unreadOnly?: boolean) => {
   return (label && EMPTY_STATE_MESSAGES[label]) || 'No Notification(s) Found!';
 };
 
-const NotificationContent = ({ setNotificationState }: { setNotificationState: any }) => {
+const NotificationContent = ({
+  isOpen,
+  setNotificationState,
+}: {
+  isOpen: boolean;
+  setNotificationState: any;
+}) => {
   const { user } = useUser();
   const { makeCall } = useDialpad();
   // const { user_info } = user;
@@ -289,15 +295,18 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
   // move focus into itself when it opens, so a keyboard/screen-reader user
   // has no obvious way in or out. Both are handled here instead, scoped to
   // this component's lifetime rather than touching the shared drawer.
+  // SideDrawer now stays mounted permanently (for its slide animation), so
+  // this has to key off isOpen rather than run once on mount — otherwise
+  // focus and Escape would only ever work the very first time it opened.
   useEffect(() => {
+    if (!isOpen) return;
     closeButtonRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setNotificationState(false);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isOpen]);
   useEffect(() => {
     try {
       localStorage.setItem(NOTIFICATION_UNREAD_ONLY_STORAGE_KEY, String(showUnreadOnly));
@@ -308,6 +317,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
   const { data: ongoingMeetingData } = useQuery({
     queryKey: ['ongoingMeetingList', 'notification-content'],
     queryFn: () => meetingList({ listType: 'ongoing', page: 1, limit: 100 }),
+    enabled: isOpen,
   });
   const ongoingMeetingList =
     ongoingMeetingData?.data?.data?.result?.rows &&
@@ -315,9 +325,12 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
       ? ongoingMeetingData?.data?.data?.result?.rows
       : [];
 
+  // SideDrawer stays permanently mounted now, so a mount-only fetch would
+  // only ever run once — fetch fresh notifications on every open instead.
   useEffect(() => {
+    if (!isOpen) return;
     getNotifications();
-  }, []);
+  }, [isOpen]);
 
   const sourceNotifications = useMemo(() => {
     if (!isShowingDummy) return notificationArr;
@@ -491,7 +504,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                         className="cursor-pointer"
                         onClick={() => setNotificationFilterValue(filter)}
                       >
-                        <div className="w-6 h-6 p-1 bg-gray-50 border-gray-200 border rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 p-1 bg-[#FBE2C8]/45 border-[#EEE7DD] border rounded-full flex items-center justify-center">
                           {filter?.icon}
                         </div>
                         {filter?.label}
@@ -669,7 +682,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                 markReadNotification(notification?._id);
               }
             };
-            const categoryAccent = getCategoryAccent(notificationtype);
+            const categoryAccent = getCategoryAccent();
             const enterDelayMs = Math.min(notificationIndex, 14) * 25;
 
             return (

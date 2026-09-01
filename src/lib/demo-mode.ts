@@ -6,9 +6,13 @@
  * route guards treat the app as authenticated and `/` lands on the dashboard,
  * and every API call is answered locally instead of going out.
  *
- * The data is empty, not invented: lists come back with no rows so screens
- * render their real empty states. Nothing here reflects a real account, and no
- * screen showing this data is showing anything true about a customer.
+ * Most lists come back with no rows, so screens render their real empty
+ * states. The exception is the contact centre in `demo-contact-centre.ts` —
+ * queues, agents, a call log, IVR flows, campaigns, SMS, contact lists, tasks
+ * and voicemail — because Performance's tables and stat cards cannot be
+ * worked on against nothing. All of it is invented and Indian throughout
+ * (agents, contacts, +91 numbers). Nothing here reflects a real account, and
+ * no screen showing this data is showing anything true about a customer.
  *
  * It can only ever run on a preview host — a `vercel.app` domain or a local dev
  * server, per `isPreviewHost`. On a real domain the checks below return false
@@ -18,6 +22,32 @@
  * preview host and sign in against the real API instead.
  */
 import { isPreviewHost } from '@/lib/utils';
+import { resolveCaptainRequest } from '@/lib/demo-captain';
+import {
+  DEMO_AGENTS,
+  demoAgentReportRows,
+  demoAssignedDidRows,
+  demoCallStats,
+  demoCalls,
+  demoCalendarTaskRows,
+  demoCampaignRows,
+  demoContactBookRows,
+  demoContactGroupRows,
+  demoDepartmentRows,
+  demoDncRows,
+  demoFlowRows,
+  demoInboundCallRows,
+  demoLocalCallRows,
+  demoMeetingRows,
+  demoSiteRows,
+  demoTemplateRows,
+  demoQueueReportRows,
+  demoQueueRows,
+  demoSmsConversations,
+  demoSmsLogRows,
+  demoSmsThreadRows,
+  demoVoicemailRows,
+} from '@/lib/demo-contact-centre';
 
 export const DEMO_SESSION_TOKEN = 'demo-mode-session-token';
 
@@ -54,8 +84,17 @@ const PLAN_FEATURES = grant([
   'ai.action.agent.view',
   'ai.action.domain.view',
   'ai.action.knowledge_base.view',
+  'ai.access.CHAT',
+  'ai.access.VOICE',
   'account_setting.access.SITE.action.view',
+  'account_setting.access.SITE.action.add',
+  'account_setting.access.SITE.action.edit',
+  'account_setting.access.SITE.action.delete',
   'account_setting.access.USER.action.view',
+  'account_setting.access.USER.action.add',
+  'advance_call_management.access.RECORDING',
+  'advance_call_management.access.TRANSCRIPTION',
+  'billing.action.view',
   'calling_rates.IS_SHOW',
   'calling_rates.action.view',
   'campaign.IS_SHOW',
@@ -66,14 +105,28 @@ const PLAN_FEATURES = grant([
   'contact.action.view',
   'integration.IS_SHOW',
   'integration.action.view',
+  'messages.IS_SHOW',
+  'messages.action.send_fax',
+  'messages.action.send_message',
+  'messages.action.send_mms',
   'monitoring.action.view',
+  'monitoring_features.action.barge',
+  'monitoring_features.action.hangup',
+  'monitoring_features.action.intercept',
+  'monitoring_features.action.listen',
+  'monitoring_features.action.whisper',
   'omni_channel.IS_SHOW',
+  'omni_channel.access',
   'omni_channel.action.view',
+  'phone_system.EXTENSION',
+  'phone_system.VOICEMAIL',
   'phone_system_action.IS_SHOW',
+  'phone_system_action.access.ANNOUNCEMENT',
   'phone_system_action.access.DEPARTMENT',
   'phone_system_action.access.IVR',
   'phone_system_action.access.QUEUE',
   'phone_system_action.action.view',
+  'phone_system_action.action.add',
   'reports.IS_SHOW',
   'reports.action.call_recording_listen',
   'reports.action.sms',
@@ -81,7 +134,9 @@ const PLAN_FEATURES = grant([
   'video.IS_SHOW',
   'video.access.RECORDING',
   'video.action.view',
+  'video.action.create',
   'virtual_numbers.action.view',
+  'virtual_numbers.action.assign_number',
 ]);
 
 /** Shaped like the `/api/user/info` result the app hydrates the session from. */
@@ -91,10 +146,10 @@ export const DEMO_USER = {
   plan_uuid: 'demo-plan-0000-0000-0000-000000000001',
   user_info: {
     uuid: 'demo-user-0000-0000-0000-000000000001',
-    first_name: 'Demo',
-    last_name: 'User',
-    name: 'Demo User',
-    email: 'demo.user@example.com',
+    first_name: 'Arjun',
+    last_name: 'Mehta',
+    name: 'Arjun Mehta',
+    email: 'arjun.mehta@example.com',
     /* ADMIN so the guards read company plan features rather than a role's,
        and admin-only pages stay reachable. */
     role: 'ADMIN',
@@ -103,6 +158,12 @@ export const DEMO_USER = {
     timezone: 'Asia/Kolkata',
     plan_features: PLAN_FEATURES,
   },
+  /* Inbox's "Your number" picker reads `user.assigned_did` off the top-level
+     session object the app hydrates `user` from (`{...data}` in
+     UserContext) — not off `user_info` — so it has to sit here rather than
+     nested, or the dropdown and its default-number effect have nothing to
+     work with. */
+  assigned_did: demoAssignedDidRows(),
   company_info: {
     uuid: 'demo-company-0000-0000-0000-000000000001',
     company_name: 'Demo Company',
@@ -122,14 +183,19 @@ export const DEMO_USER = {
  * maps straight over it works, and it carries the same rows on the properties a
  * paginated screen reaches for.
  */
-const listPayload = (items: any[] = []) => {
+const listPayload = (items: any[] = [], extra: Record<string, any> = {}) => {
   const list: any = [...items];
   list.data = items;
   list.rows = items;
   list.total = items.length;
   list.count = items.length;
+  list.totalItems = items.length;
+  list.totalPages = 1;
   list.current_page = 1;
   list.last_page = 1;
+  /* Aggregates a screen reads off the result alongside the rows — the call
+     log's `call_stats`, for instance. */
+  Object.assign(list, extra);
   return list;
 };
 
@@ -153,7 +219,9 @@ const ok = (result: unknown) => ({
    nothing on screen can be mistaken for a real customer's data.
 --------------------------------------------------------------------------- */
 
-const STORE_KEY = 'demo-mode-data';
+/* Bumped when the seed changes: the store is persisted, so an existing
+   browser would otherwise keep serving the previous, smaller roster. */
+const STORE_KEY = 'demo-mode-data-v3';
 
 const ROLE_SEED = [
   { uuid: 'demo-role-admin', name: 'Administrator', slug: 'ADMIN', is_custom: false },
@@ -168,6 +236,8 @@ const buildUser = (
   role: string,
   roleName: string,
   extension: string,
+  phone = '',
+  site = '',
 ) => ({
   uuid: `demo-user-${extension}`,
   first_name: first,
@@ -176,6 +246,8 @@ const buildUser = (
   full_name: `${first} ${last}`,
   email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
   extension,
+  phone,
+  site: site ? { name: site } : null,
   role,
   role_name: roleName,
   role_data: { name: roleName, slug: role },
@@ -184,12 +256,19 @@ const buildUser = (
   created_at: '2026-01-01T00:00:00.000Z',
 });
 
-const USER_SEED = [
-  buildUser('Demo', 'User', 'ADMIN', 'Administrator', '1001'),
-  buildUser('Sam', 'Sub', 'SUB_ADMIN', 'Sub Admin', '1002'),
-  buildUser('Mia', 'Manager', 'MANAGER', 'Manager', '1003'),
-  buildUser('Alex', 'Agent', 'AGENT', 'Agent', '1004'),
-];
+/* The same roster the contact-centre data is built around, so an agent in the
+   user list is the agent Performance reports handled calls for. */
+const USER_SEED = DEMO_AGENTS.map((row) =>
+  buildUser(
+    row.first_name,
+    row.last_name,
+    row.role,
+    row.role_name,
+    row.extension,
+    row.phone,
+    row.site,
+  ),
+);
 
 type Store = { users: any[]; roles: any[] };
 
@@ -304,6 +383,89 @@ const matchDemoPayload = (url: string, data: unknown) => {
   const written = applyWrite(url, asObject(data));
   if (written) return written;
 
+  /* The contact centre the Performance views read. Empty lists would leave
+     Queues, Agents, Calls, Flows and Boards as five empty states. */
+  if (url.includes('/api/tenant/report/call-list')) {
+    // Callbacks ▸ "Queue voicemail" calls this same endpoint with
+    // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
+    // day's call log filtered down.
+    if (asObject(data)?.type === 'voicemail') return ok(listPayload(demoVoicemailRows()));
+    return ok(listPayload(demoCalls(), { call_stats: demoCallStats() }));
+  }
+  if (url.includes('/api/tenant/report/agents')) return ok(listPayload(demoAgentReportRows()));
+  if (url.includes('/api/tenant/report/call-queue/list')) {
+    return ok(listPayload(demoQueueReportRows()));
+  }
+  if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows()));
+  if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows()));
+  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
+  if (url.includes('/api/campaign/analytics')) {
+    const campaignId = asObject(data)?.campaignId;
+    const campaign = demoCampaignRows().find((row) => row._id === campaignId);
+    return ok(campaign?.campaignAnalytics || {});
+  }
+  if (url.includes('/api/calendar/event-task/list')) return ok(listPayload(demoCalendarTaskRows()));
+  if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows()));
+  if (url.includes('/api/contact/group/list')) return ok(listPayload(demoContactGroupRows()));
+  if (url.includes('/api/tenant/department/list')) return ok(listPayload(demoDepartmentRows()));
+  if (url.includes('/api/site/list')) return ok(listPayload(demoSiteRows()));
+  if (url.includes('/api/contact/list')) {
+    /* Directory ▸ Blocked reads this same endpoint twice — once for the whole
+       book, once filtered to `tag: 'BLOCK'` for the table itself — so the
+       filter has to actually apply or "blocked" shows everyone. */
+    const tagFilter = (asObject(data)?.filters || []).find((row: any) => row?.key === 'tag');
+    const rows = tagFilter
+      ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
+      : demoContactBookRows();
+    return ok(listPayload(rows));
+  }
+  if (url.includes('/api/tenant/report/inbound-calls')) {
+    /* This page reads `result.data.data` for rows and `result.data.call_stats`
+       for the summary tiles — one extra `.data` nesting level deeper than
+       every other call-list-backed report. */
+    const rows = demoInboundCallRows();
+    const totalDuration = rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0);
+    return ok({
+      data: { data: rows, call_stats: { ...demoCallStats(), total_duration: totalDuration } },
+    });
+  }
+  if (url.includes('/api/tenant/local-call-list')) return ok(listPayload(demoLocalCallRows()));
+  if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows()));
+  if (url.includes('/api/tenant/user/template/list')) return ok(listPayload(demoTemplateRows()));
+  if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows()));
+
+  /* Inbox and the admin Numbers list both read the same handful of company
+     numbers — one function, three callers. */
+  if (url.includes('/api/fax/did/number/assigned')) return ok(demoAssignedDidRows());
+  if (url.includes('/api/numbers/list')) return ok(listPayload(demoAssignedDidRows()));
+
+  /* Inbox's conversation list, then the open thread's own messages. Neither
+     shares a URL with the SMS *log* above — that's Reports, this is Inbox. */
+  if (url.includes('/api/v1/sms/did-list')) return ok(demoSmsConversations());
+  if (url.includes('/api/v1/sms/list')) {
+    const chatId = asObject(data)?.chat_id;
+    return ok(listPayload(demoSmsThreadRows(chatId)));
+  }
+
+  /* Home's "today" digest re-reads the call log through a second endpoint
+     rather than the one `demoCalls()` already answers above. */
+  if (url.includes('/api/tenant/report/phone-call-list')) {
+    const params = asObject(data);
+    if (params?.type === 'voicemail') {
+      const rows = demoVoicemailRows();
+      return ok(listPayload(rows, { totalRecords: rows.length }));
+    }
+    const wantsMissed = (params?.filter || []).some(
+      (row: any) => row?.key === 'direction' && row?.value === 'Missed',
+    );
+    const rows = wantsMissed
+      ? demoCalls()
+          .filter((row) => row.direction === 'Inbound' && row.billsectotal === 0)
+          .map((row) => ({ ...row, direction: 'Missed' }))
+      : demoCalls();
+    return ok(listPayload(rows, { totalRecords: rows.length }));
+  }
+
   if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles));
   if (url.includes('/api/user/list')) return ok(listPayload(readStore().users));
   if (url.includes('/api/user/detail')) return ok(readStore().users[0] ?? null);
@@ -312,6 +474,39 @@ const matchDemoPayload = (url: string, data: unknown) => {
 };
 
 export const buildDemoPayload = (url: string, data?: unknown) => matchDemoPayload(url, data);
+
+/**
+ * The Captain screens call their own service with `fetch`, so the axios
+ * adapter never sees them. Answering them means intercepting `fetch` itself.
+ *
+ * Only `/captain-api/` paths are handled; everything else — the organisation
+ * lookup, fonts, the Vite dev client — is passed through to the real `fetch`
+ * untouched, so nothing outside Captain changes behaviour.
+ */
+const CAPTAIN_PREFIX = '/captain-api/';
+
+export const installCaptainDemoFetch = () => {
+  if (!isDemoMode()) return;
+  if ((window.fetch as { __demo?: boolean }).__demo) return;
+
+  const realFetch = window.fetch.bind(window);
+
+  const demoFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+    if (!url.includes(CAPTAIN_PREFIX)) return realFetch(input as RequestInfo, init);
+
+    const method = init?.method || (input instanceof Request ? input.method : undefined) || 'GET';
+
+    return new Response(
+      JSON.stringify({ data: resolveCaptainRequest(url, { ...init, method }) }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  };
+
+  (demoFetch as { __demo?: boolean }).__demo = true;
+  window.fetch = demoFetch as typeof window.fetch;
+};
 
 /** Seeded before React mounts so the guards see a session on first render. */
 export const seedDemoSession = (sessionKey: string) => {

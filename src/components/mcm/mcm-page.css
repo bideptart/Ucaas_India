@@ -25,21 +25,32 @@
    ============================================================ */
 
 .mcm-page {
-  --ground: #eef1f8;
+  --ground: transparent;
   --surface: #ffffff;
-  --surface-2: #f6f8fc;
-  --surface-3: #eaeef7;
+  --surface-2: #fbf3e8;
+  --surface-3: #f5e6d3;
   --ink: #0d1526;
   --ink-2: #3d4a63;
   --ink-3: #6b7891;
   --ink-4: #93a0b8;
-  --line: #dfe5f0;
-  --line-2: #eaeef6;
+  --line: #eee7dd;
+  --line-2: #f0e4d3;
 
-  --accent: #2563eb;
-  --accent-ink: #1d4ed8;
-  --accent-wash: #e8efff;
-  --accent-edge: #c3d6ff;
+  --accent: #f2994a;
+  --accent-ink: #c96f1f;
+  --accent-wash: #fff1e0;
+  --accent-edge: #ffd9ad;
+
+  /* Glass surface — used by the KPI strip and panel cards instead of a
+     flat --surface so the warm gradient body shows through the blur. Kept
+     light on the blur and high on the opacity: a heavy fog reads as
+     unpolished, the reference keeps the glass barely-there.
+     Warm cream instead of white so it doesn't read as flat/cool against
+     the orange body gradient; no saturate() on the blur — boosting the
+     saturation of the vivid gradient behind it shifts the blend pink. */
+  --glass-surface: rgba(251, 249, 246, 0.85);
+  --glass-border: rgba(225, 200, 165, 0.9);
+  --glass-blur: blur(12px);
 
   /* AI gets its own hue on purpose: machine output must never be
      mistaken for system truth. Violet = "generated, verify me". */
@@ -81,10 +92,10 @@
   --ink-4: #6b7a96;
   --line: #26314a;
   --line-2: #1c2537;
-  --accent: #5b8dff;
-  --accent-ink: #87aaff;
-  --accent-wash: #16223d;
-  --accent-edge: #2c3f68;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
   --ai-wash: #231a3d;
@@ -100,6 +111,12 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
+
+  /* Same glass tokens, retinted for the dark surface so a blurred panel
+     picks up the page's own ink instead of a leftover white fog. */
+  --glass-surface: rgba(17, 24, 39, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(16px) saturate(180%);
 }
 
 /* ---- base ---- */
@@ -231,6 +248,24 @@
   gap: 14px;
   align-items: start;
 }
+/* Queues sat noticeably shorter than the agent-status + agents column
+   beside it under the default align-items: start. Stretching this pair
+   makes Queues grow to match, instead of the empty-state message just
+   floating in a short box. */
+.mcm-page .grid2.grid2-stretch {
+  align-items: stretch;
+}
+.mcm-page .grid2.grid2-stretch > .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mcm-page .grid2.grid2-stretch > .panel-card > .tbl-wrap {
+  flex: 1;
+}
+.mcm-page .grid2.grid2-stretch > .stack {
+  height: 100%;
+}
 @media (max-width: 1080px) {
   .mcm-page .grid2 {
     grid-template-columns: 1fr;
@@ -246,6 +281,22 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
+}
+/* The dashboard home's four top cards (Needs you now / Your day so far /
+   Since you logged off / Quick dial) stay on one row instead of wrapping
+   at the auto-fit minmax above. */
+.mcm-page .grid4.grid4-onerow {
+  grid-template-columns: repeat(4, 1fr);
+  /* Default grid align-items is stretch — every card matches the row's
+     tallest card instead of hugging its own (shorter) content. */
+}
+.mcm-page .grid4.grid4-onerow > .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mcm-page .grid4.grid4-onerow > .panel-card > .pc-body {
+  flex: 1;
 }
 .mcm-page .stack {
   display: flex;
@@ -721,6 +772,12 @@
   overflow: hidden;
   margin-bottom: 16px;
 }
+/* The dashboard home's KPI strip has a fixed 8 tiles and reads better as
+   one row than wrapping the 8th onto its own line. */
+.mcm-page .kpis.kpis-onerow {
+  grid-template-columns: repeat(8, 1fr);
+}
+
 .mcm-page .kpi {
   background: var(--surface);
   padding: 13px 15px;
@@ -2259,7 +2316,11 @@
    The whole area laid out at once, grouped, rather than hidden behind an
    accordion you have to open to discover what is inside. */
 .mcm-adminhome {
-  background: var(--ground);
+  /* One quiet wash, off to a side — not the mirrored twin-blob glow that
+     makes a page read as a template. Barely perceptible; it just gives the
+     glass panels below something to catch. */
+  background: radial-gradient(900px 480px at 78% -10%, var(--accent-wash) 0%, transparent 65%),
+    var(--ground);
 }
 
 .mcm-adminhome-head {
@@ -2270,7 +2331,9 @@
   justify-content: space-between;
   gap: 16px;
   padding: 20px 22px 16px;
-  background: var(--surface);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--line);
 }
 .mcm-adminhome-eyebrow {
@@ -2297,13 +2360,38 @@
 .mcm-adminhome-search {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 240px;
-  padding: 7px 12px;
+  gap: 9px;
+  min-width: 260px;
+  padding: 8px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--ink-3);
+  background: var(--surface);
+  /* A faint inset lip reads as a slightly recessed slot rather than a flat
+     tinted rectangle — the same cue a well-made search field in a native
+     app uses, just dialled down. */
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 1px rgba(13, 21, 38, 0.03);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.mcm-adminhome-search:hover {
+  border-color: var(--ink-4);
+}
+.mcm-adminhome-search:focus-within {
+  border-color: var(--accent-edge);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 1px rgba(13, 21, 38, 0.03),
+    0 0 0 3px var(--accent-wash);
+}
+.mcm-adminhome-search .ic {
+  color: var(--ink-4);
+  transition: color 0.2s ease;
+}
+.mcm-adminhome-search:focus-within .ic {
+  color: var(--accent-ink);
 }
 .mcm-adminhome-search input {
   flex: 1;
@@ -2314,6 +2402,7 @@
   color: var(--ink);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.005em;
 }
 .mcm-adminhome-search input::placeholder {
   color: var(--ink-4);
@@ -2363,10 +2452,39 @@
 }
 
 .mcm-admincard {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
+  position: relative;
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
   padding: 16px 6px 10px;
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+/* Inner edge-highlight, top and left only — the cue that reads as a
+   refracting pane of glass rather than a plain translucent box. A ring on
+   all four sides flattens back into a border; restricting it to the lit
+   corner is what makes it look dimensional. */
+.mcm-admincard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, var(--glass-border) 0%, transparent 40%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.mcm-admincard:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--shadow);
 }
 .mcm-admincard-h {
   padding: 0 12px 10px;
@@ -2388,6 +2506,7 @@
   align-items: center;
   gap: 4px;
   border-radius: var(--r-sm);
+  transition: background-color 0.2s ease;
 }
 .mcm-admincard li:hover {
   background: var(--surface-2);
@@ -3418,7 +3537,7 @@
 @keyframes mcm-flash-outline {
   0%,
   60% {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 45%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #f2994a) 45%, transparent);
   }
   100% {
     box-shadow: 0 0 0 3px transparent;

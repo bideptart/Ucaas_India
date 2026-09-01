@@ -7,6 +7,7 @@ import {
   Monitor,
   // PauseCircle,
 } from '@/assets/icons';
+import ucaasLogo from '@/assets/images/ucaas-logo.png';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
@@ -24,11 +25,10 @@ import NotificationContent from './NotificationContent';
 import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
 import ThemeToggle from '@/components/custom/theme-toggle';
-import { useOrganization } from '@/hooks/use-organisation';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
-import { List, Menu, Plus, Wallet, X } from 'lucide-react';
+import { ChevronDown, List, Menu, Plus, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getEnv, SESSION_NAME } from '@/lib/utils';
+import { cn, SESSION_NAME } from '@/lib/utils';
 import { DASHBOARDCONST } from '@/pages/dashboard/constant';
 import AlertConfirm from '../alert-confirm';
 import { toast } from 'react-toastify';
@@ -36,10 +36,6 @@ import { getRoutePrefetchHandlers, prefetchRoute } from '@/router/route-prefetch
 
 const Header = () => {
   const { user, handleRemoveUser } = useUser();
-  const { mainSiteInfo } = useOrganization();
-  // The organisation context is loosely typed; name the two fields the brand
-  // block reads rather than widening the shared context type.
-  const siteBrand = (mainSiteInfo || {}) as { site_name?: string; company_name?: string };
   const queryClient = useQueryClient();
   const ACTIVE_PATH = {
     CALENDAR: 'calendar',
@@ -341,7 +337,14 @@ const Header = () => {
   return (
     <>
       <div className="fixed left-0 top-0 z-30 h-16 w-full">
-        <header className="bg-white min-h-16 text-gray-900/80 border-b border-gray-200 px-3 py-3 ">
+        <header
+          className="min-h-16 text-gray-900/80 border-b border-white/50 px-3 py-2 "
+          style={{
+            background: 'rgba(255, 255, 255, 0.78)',
+            backdropFilter: 'blur(12px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+          }}
+        >
           <nav
             className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-3"
             aria-label="Global"
@@ -360,26 +363,7 @@ const Header = () => {
                     show their initial rather than falling back to the vendor's
                     logo — this bar belongs to whoever is running the console. */}
                 <span className="mcm-brand-mark">
-                  {mainSiteInfo?.small_logo ? (
-                    <img src={`${getEnv().VITE_API_BASE_URL}/${mainSiteInfo?.small_logo}`} alt="" />
-                  ) : (
-                    <span className="mcm-brand-initial">
-                      {(siteBrand.site_name || siteBrand.company_name || 'C')
-                        .trim()
-                        .charAt(0)
-                        .toUpperCase()}
-                    </span>
-                  )}
-                </span>
-                <span className="mcm-brand-text">
-                  <span className="mcm-brand-name">{siteBrand.site_name || 'Console'}</span>
-                  {/* Only rendered when the customer has set one — no vendor
-                      name is hardcoded here. */}
-                  {siteBrand.company_name ? (
-                    <span className="mcm-brand-sub">
-                      {String(siteBrand.company_name).toUpperCase()}
-                    </span>
-                  ) : null}
+                  <img src={ucaasLogo} alt="" />
                 </span>
               </a>
               <AreaNav />
@@ -430,8 +414,8 @@ const Header = () => {
               className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-3 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
             >
               {/* On desktop these five destinations collapse behind the
-                  "more" toggle and fan out along an arc. On narrow screens the
-                  header menu already reveals them, so they stay in flow. */}
+                  "more" toggle into a plain dropdown panel. On narrow screens
+                  the header menu already reveals them, so they stay in flow. */}
               <style>{`
                 /* Narrow screens keep the original row: the wrappers dissolve
                    so the icons stay direct children of the header flex line. */
@@ -446,42 +430,43 @@ const Header = () => {
                   .hdr-quick-toggle {
                     display: inline-flex; align-items: center; justify-content: center;
                     width: 36px; height: 36px; border-radius: 10px;
-                    background: #f3f4f6; color: #374151; cursor: pointer;
+                    background: rgba(255, 255, 255, 0.7);
+                    border: 1px solid rgba(255, 255, 255, 0.7);
+                    box-shadow: 0 1px 2px rgba(13, 21, 38, 0.06);
+                    color: #374151; cursor: pointer;
                     transition: transform .3s cubic-bezier(.34,1.56,.64,1),
-                                background .15s ease, color .15s ease;
+                                background .15s ease, color .15s ease, border-color .15s ease;
                   }
-                  .hdr-quick-toggle:hover { background: #e0e7ff; color: #2563eb; }
+                  .hdr-quick-toggle:hover {
+                    background: color-mix(in oklab, var(--primary) 15%, transparent);
+                    border-color: color-mix(in oklab, var(--primary) 25%, transparent);
+                    color: var(--primary);
+                  }
                   .hdr-quick-toggle.on {
-                    transform: rotate(135deg); background: #2563eb; color: #fff;
+                    transform: rotate(135deg); background: var(--primary); color: #fff;
                   }
 
                   .hdr-quick {
-                    display: block; position: absolute; top: 0; right: 0;
-                    width: 36px; height: 36px; z-index: 60;
-                    /* This box overlays the toggle exactly, so it has to let
-                       clicks through or it swallows them and the menu never
-                       opens. Only the fanned-out items take pointer events. */
-                    pointer-events: none;
+                    display: flex; align-items: center; gap: 6px;
+                    position: absolute; top: calc(100% + 8px); right: 0;
+                    padding: 8px; z-index: 60;
+                    background: #ffffff;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 14px;
+                    box-shadow: 0 12px 32px -8px rgba(15, 23, 42, .18);
+                    opacity: 0; visibility: hidden;
+                    transform: translateY(-4px) scale(.96);
+                    transform-origin: top right;
+                    transition: transform .16s ease, opacity .16s ease, visibility .16s;
                   }
-                  .hdr-quick > * {
-                    position: absolute; top: 0; left: 0;
-                    opacity: 0; pointer-events: none;
-                    transform: translate(0, 0) scale(.4);
-                    transition: transform .34s cubic-bezier(.34,1.56,.64,1),
-                                opacity .2s ease;
+                  .hdr-quick.open {
+                    opacity: 1; visibility: visible;
+                    transform: translateY(0) scale(1);
                   }
-                  .hdr-quick.open > * { opacity: 1; pointer-events: auto; }
-
-                  /* a quarter arc sweeping left then down, clear of the edge */
-                  .hdr-quick.open > *:nth-child(1) { transform: translate(-152px,   0px) scale(1); transition-delay: .02s; }
-                  .hdr-quick.open > *:nth-child(2) { transform: translate(-140px,  58px) scale(1); transition-delay: .06s; }
-                  .hdr-quick.open > *:nth-child(3) { transform: translate(-107px, 107px) scale(1); transition-delay: .10s; }
-                  .hdr-quick.open > *:nth-child(4) { transform: translate( -58px, 140px) scale(1); transition-delay: .14s; }
-                  .hdr-quick.open > *:nth-child(5) { transform: translate(   0px, 152px) scale(1); transition-delay: .18s; }
                 }
 
                 @media (prefers-reduced-motion: reduce) {
-                  .hdr-quick-toggle, .hdr-quick > * { transition-duration: .01ms; }
+                  .hdr-quick-toggle, .hdr-quick { transition-duration: .01ms; }
                 }
               `}</style>
 
@@ -605,7 +590,7 @@ const Header = () => {
               <div className="inline-flex items-center justify-center font-medium">
                 <CustomTooltip text={'Notification'} side="bottom">
                   <span
-                    className="cursor-pointer relative bg-gray-100 flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary"
+                    className="cursor-pointer relative bg-white/70 border border-white/70 shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary"
                     onClick={() => {
                       setNotificationState(true);
                       setIsMobileMenuOpen(false);
@@ -649,12 +634,18 @@ const Header = () => {
               ) : null}
 
               {/* User Profile */}
-              <div className="flex items-center  bg-gray-100 rounded-xl ">
+              <div className="flex items-center rounded-xl">
                 <Popover
                   open={profileState === 'profile'}
                   onOpenChange={(val) => setProfileState(val ? 'profile' : null)}
                 >
-                  <PopoverTrigger className="cursor-pointer flex items-center gap-4 h-9 p-1 pr-2 rounded-xl border border-transparent hover:bg-ucass-primary-200">
+                  <PopoverTrigger
+                    className={cn(
+                      'cursor-pointer flex items-center gap-2 h-10 pl-1 pr-2 rounded-xl border transition-colors',
+                      'bg-white/70 border-white/70 shadow-sm hover:bg-ucass-primary-200 hover:border-ucass-primary-100',
+                      profileState === 'profile' && 'bg-ucass-primary-200 border-ucass-primary-100',
+                    )}
+                  >
                     <CustomAvatar
                       name={`${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       showPresence
@@ -663,14 +654,20 @@ const Header = () => {
                       isActivityInfo={false}
                       size="32"
                     />
-                    <div className="flex flex-col items-start text-left min-w-[120px]">
+                    <div className="flex flex-col items-start text-left min-w-[82px]">
                       <h4 className="text-[12px] font-bold text-gray-900 leading-tight">
                         {`Hi, ${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       </h4>
-                      <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-widest">
+                      <div className="text-[10px] text-primary font-semibold uppercase tracking-widest">
                         {role}
                       </div>
                     </div>
+                    <ChevronDown
+                      className={cn(
+                        'w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200',
+                        profileState === 'profile' && 'rotate-180',
+                      )}
+                    />
                   </PopoverTrigger>
                   <PopoverContent className="w-72 p-3 mt-2 mr-2 shadow-xl ring-1 ring-black/5">
                     <AvatarContent setProfileState={setProfileState} />
@@ -681,16 +678,29 @@ const Header = () => {
           </nav>
         </header>
 
-        {notificationState && (
-          <SideDrawer
-            isOpen={notificationState}
-            handleClose={() => setNotificationState(false)}
-            content={<NotificationContent setNotificationState={setNotificationState} />}
-            isHeader={true}
-            width="30%"
-            isCloseIcon={false}
-          />
-        )}
+        {/* Always mounted, unlike the other SideDrawers here — the slide
+            transition needs the panel already sitting off-screen
+            (translate-x-full) before isOpen flips true, so there is
+            something to animate FROM. Conditionally mounting it (the old
+            `notificationState && <SideDrawer/>` pattern) meant it only
+            ever existed already fully open, so open and close both just
+            snapped instead of sliding. NotificationContent renders its own
+            close button (see isCloseIcon below), so it also gets `isOpen`
+            directly — being permanently mounted now, it can't rely on
+            mount-time effects to know when it has actually become visible. */}
+        <SideDrawer
+          isOpen={notificationState}
+          handleClose={() => setNotificationState(false)}
+          content={
+            <NotificationContent
+              isOpen={notificationState}
+              setNotificationState={setNotificationState}
+            />
+          }
+          isHeader={true}
+          width="30%"
+          isCloseIcon={false}
+        />
         {pendingChatState && (
           <SideDrawer
             isOpen={pendingChatState}

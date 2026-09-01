@@ -331,13 +331,13 @@ function TableManager({
   return (
     <>
       {customHeader && (
-        <div className="border-b border-b-gray-200 ">
+        <div className="border-b border-b-[#EEE7DD] ">
           <div className="px-3 py-2 ">{customHeader}</div>
         </div>
       )}
       <div
         ref={tableScrollRef}
-        className={`overflow-auto table-scroll rounded-xl border border-gray-200 bg-white ${customClass}`}
+        className={`overflow-auto table-scroll rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
         style={
           isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
         }
@@ -352,13 +352,13 @@ function TableManager({
           />
         )}
 
-        <Table className="w-full text-xs xxl:text-sm text-gray-700 h-full ">
-          <TableHeader className="bg-gray-50 text-gray-90/80 sticky top-0 left-0 z-10">
+        <Table className="w-full text-xs xxl:text-sm text-[#2E2D35] h-full ">
+          <TableHeader className="bg-[#FBE2C8]/45 text-gray-90/80 sticky top-0 left-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-gray-900/80`}
+                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-[#2E2D35]/80`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -368,7 +368,7 @@ function TableManager({
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-gray-200 last-of-type:border-r-0 text-gray-900/80`}
+                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-[#2E2D35]/80`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -380,7 +380,7 @@ function TableManager({
             ))}
           </TableHeader>
 
-          <TableBody className="divide-y divide-gray-200 bg-white h-full w-full font-normal">
+          <TableBody className="divide-y divide-[#EEE7DD] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] h-full w-full font-normal">
             {hasRows
               ? table.getRowModel().rows.map((row) => {
                   const isSummaryRow = row.original?.isSummary;
@@ -390,11 +390,11 @@ function TableManager({
                       <TableRow key={row.id}>
                         <TableCell
                           colSpan={columns.length - 1}
-                          className="px-2 xl:px-4 py-2 border-b  border-gray-200 text-right font-normal"
+                          className="px-2 xl:px-4 py-2 border-b  border-[#EEE7DD] text-right font-normal"
                         >
                           {row.original.desc}
                         </TableCell>
-                        <TableCell className="px-4 py-2 border-b  border-gray-200 font-normal">
+                        <TableCell className="px-4 py-2 border-b  border-[#EEE7DD] font-normal">
                           {row.original.total_price}
                         </TableCell>
                       </TableRow>
@@ -435,18 +435,18 @@ function TableManager({
             <img src={NotFound} alt="" className={imageSize} />
             {String(search || '').trim() ? (
               <>
-                <p className="text-md font-medium text-gray-900">
+                <p className="text-md font-medium text-[#2E2D35]">
                   Nothing matches &ldquo;{String(search).trim()}&rdquo;
                 </p>
-                <p className="max-w-md text-sm text-gray-700">
+                <p className="max-w-md text-sm text-[#2E2D35]">
                   Check the spelling, or clear the search to see everything.
                 </p>
               </>
             ) : (
               <>
-                <p className="text-md font-medium text-gray-900">{emptyTablePlaceholder}</p>
+                <p className="text-md font-medium text-[#2E2D35]">{emptyTablePlaceholder}</p>
                 {descriptionEmptyTable ? (
-                  <p className="max-w-md text-sm text-gray-700">{descriptionEmptyTable}</p>
+                  <p className="max-w-md text-sm text-[#2E2D35]">{descriptionEmptyTable}</p>
                 ) : null}
                 {emptyAction ? <div className="pt-2">{emptyAction}</div> : null}
               </>
@@ -470,10 +470,10 @@ function TableManager({
 
       {showPagination && (
         // sticky left-0 bottom-2
-        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
-              <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-gray-200">
+              <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-[#EEE7DD]">
                 <div className="flex items-center gap-2">
                   <div className="w-20 tableSelect">
                     <CustomSelect
@@ -494,9 +494,9 @@ function TableManager({
                       menuPlacement="top"
                     />
                   </div>
-                  <Label className="text-gray-900/80 sm:pr-3">per page</Label>
+                  <Label className="text-[#2E2D35]/80 sm:pr-3">per page</Label>
                 </div>
-                <Label className="text-gray-900/80 sm:pl-3">
+                <Label className="text-[#2E2D35]/80 sm:pl-3">
                   {tbldata?.data?.data?.result?.totalItems ||
                     tbldata?.data?.data?.result?.total ||
                     0}{' '}
@@ -504,7 +504,7 @@ function TableManager({
                 </Label>
               </div>
               <Button
-                className="cursor-pointer text-gray-900/80 hover:text-primary"
+                className="cursor-pointer text-[#2E2D35]/80 hover:text-primary"
                 type="button"
                 variant={'ghost'}
                 onClick={() => refetch()}
@@ -550,7 +550,7 @@ function TableManager({
                             ${
                               table?.getState()?.pagination?.pageIndex === index
                                 ? 'text-white font-semibold bg-primary rounded-xl'
-                                : ' text-gray-900'
+                                : ' text-[#2E2D35]'
                             }
                             `}
                       key={page}

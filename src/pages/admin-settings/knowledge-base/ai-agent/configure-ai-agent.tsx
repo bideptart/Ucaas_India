@@ -994,28 +994,9 @@ const ConfigureAiAgent = () => {
   };
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
+  const [, setIsPlaying] = useState(false);
+  const [, setCurrentAudio] = useState<string | null>(null);
 
-  const handlePlayPause = (audioUrl: string) => {
-    if (!audioUrl) return;
-    if (currentAudio !== audioUrl) {
-      audioRef.current?.pause();
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.play();
-      setCurrentAudio(audioUrl);
-      setIsPlaying(true);
-      audioRef.current.onended = () => setIsPlaying(false);
-    } else {
-      if (isPlaying) {
-        audioRef.current?.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current?.play();
-        setIsPlaying(true);
-      }
-    }
-  };
 
 
   const stopAudio = () => {

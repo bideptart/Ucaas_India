@@ -18,7 +18,7 @@ interface IWidgetViewModalProps {
 function WidgetViewModal({ modalState, setModalState, data }: IWidgetViewModalProps) {
   const [copied, setCopied] = useState(false);
   const [agent, setAgent] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'chat' | 'talk'>('chat');
+  const [activeTab] = useState<'chat' | 'talk'>('chat');
   const { agentId = '' } = data || {};
   // const baseURL = window.location.origin;
 

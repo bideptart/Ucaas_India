@@ -47,7 +47,7 @@ const unloadEmbedScript = () => {
 function AiAgent() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [, setSelectedRowData] = useState(null);
 
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [isUpdatingPrompt, setIsUpdatingPrompt] = useState(false);

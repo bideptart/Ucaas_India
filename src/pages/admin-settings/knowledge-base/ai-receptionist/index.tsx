@@ -564,9 +564,6 @@ const AiReceptionist = () => {
     return [{ label: 'Not assigned', value: '' }, ...options];
   }, [numbersData]);
 
-  const availableNumberOptions = useMemo(() => {
-    return numberOptions.filter((opt: any) => opt.value === '' || !opt.is_assigned);
-  }, [numberOptions]);
 
 
   const { mutate: mutateDeleteAgent, isPending: isDeletePending } = useMutation({
@@ -747,8 +744,8 @@ const AiReceptionist = () => {
   const openDrawer = (key: any) => {
     setDrawerState((prev: any) => ({ ...prev, [key]: true }));
   };
-  const [showMultipleAssignModal, setShowMultipleAssignModal] = useState(false);
-  const [multipleAssignUsers, setMultipleAssignUsers] = useState<any[]>([]);
+  const [, setShowMultipleAssignModal] = useState(false);
+  const [, setMultipleAssignUsers] = useState<any[]>([]);
 
   useEffect(() => {
     return () => {

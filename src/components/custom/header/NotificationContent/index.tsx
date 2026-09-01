@@ -327,7 +327,19 @@ const NotificationContent = ({
       if (event.key === 'Escape') setNotificationState(false);
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    // The page behind this drawer can be tall enough to need its own
+    // scrollbar. That scrollbar renders at the true window edge, outside
+    // this drawer's fixed positioning — which on some browsers/OS scaling
+    // setups shows as a bare strip of page background between the drawer's
+    // right edge and the edge of the window. Locking body scroll while the
+    // drawer is open removes that scrollbar entirely, same as any other
+    // modal/drawer that shouldn't let the page scroll underneath it.
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousBodyOverflow;
+    };
   }, [isOpen]);
   useEffect(() => {
     try {

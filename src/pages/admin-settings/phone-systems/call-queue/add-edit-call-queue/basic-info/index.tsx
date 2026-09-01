@@ -39,6 +39,7 @@ const BasicInformation: FC<IAddMembersProps> = ({ queueDetails }) => {
         >
           <SettingRow
             label="Name"
+            required
             description="Shown wherever this queue appears - reports, transfer lists, the queue list."
             control={
               <Input placeholder="Enter name" {...register('name')} error={errors?.name?.message} />
@@ -59,6 +60,7 @@ const BasicInformation: FC<IAddMembersProps> = ({ queueDetails }) => {
 
           <SettingRow
             label="Location"
+            required
             description="Sets the clock this queue works to, and the hours it follows."
             control={
               <CustomSelect
@@ -77,6 +79,7 @@ const BasicInformation: FC<IAddMembersProps> = ({ queueDetails }) => {
 
           <SettingRow
             label="Extension"
+            required
             description={
               queueDetails
                 ? 'Fixed once the queue exists, because people dial it and other screens point at it.'

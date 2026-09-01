@@ -143,10 +143,23 @@
   min-height: 0;
   overflow: hidden;
 }
-.mcm-page button {
+/* Tab triggers are excluded from `color`/`border` below. This reset is
+   unlayered, so it beats every Tailwind utility regardless of specificity (see
+   the flex-direction note above) - including the
+   `data-[state=active]:text-primary` and `data-[state=active]:border-b-primary`
+   that tab strips mark the open tab with. `border: 0` erased the underline and
+   `color: inherit` erased the accent, so every tab rendered identically and a
+   drawer gave no clue which tab you were on. The font, background and cursor
+   parts of the reset still apply; only the two the tabs own are left to them. */
+.mcm-page button:not([data-slot='tabs-trigger']) {
   font: inherit;
   color: inherit;
   border: 0;
+  background: none;
+  cursor: pointer;
+}
+.mcm-page button[data-slot='tabs-trigger'] {
+  font: inherit;
   background: none;
   cursor: pointer;
 }
@@ -3754,6 +3767,15 @@
   font-size: 13px;
   font-weight: 550;
   color: var(--ink);
+}
+/* The mandatory marker on a settings row. Rose rather than the brand accent:
+   the console accent is orange and these forms sit on an orange-tinted ground,
+   so an orange asterisk is the one thing someone scanning for required fields
+   would slide straight past. */
+.mcm-setrow-required {
+  margin-left: 3px;
+  color: #e11d48;
+  font-weight: 500;
 }
 .mcm-setrow-desc {
   margin: 4px 0 0;

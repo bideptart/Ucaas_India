@@ -87,9 +87,21 @@ const grant = (paths: string[]) => {
    reach each screen rather than bouncing to an upgrade prompt. */
 const PLAN_FEATURES = grant([
   'ai.IS_SHOW',
+  /* The AI screens gate their Create and Analytics buttons on `.add`, and the
+     row menus on `.edit`/`.delete` - not on `.view`. Granting only `view` left
+     the Chat Agents page with no way to create an agent at all. */
   'ai.action.agent.view',
+  'ai.action.agent.add',
+  'ai.action.agent.edit',
+  'ai.action.agent.delete',
   'ai.action.domain.view',
+  'ai.action.domain.add',
+  'ai.action.domain.edit',
+  'ai.action.domain.delete',
   'ai.action.knowledge_base.view',
+  'ai.action.knowledge_base.add',
+  'ai.action.knowledge_base.edit',
+  'ai.action.knowledge_base.delete',
   'ai.access.CHAT',
   'ai.access.VOICE',
   'account_setting.access.SITE.action.view',
@@ -304,16 +316,26 @@ const USER_SEED = DEMO_AGENTS.map((row) =>
   ),
 );
 
-type Store = { users: any[]; roles: any[] };
+type Store = { users: any[]; roles: any[]; receptionists?: any[]; chatAgents?: any[] };
 
 const readStore = (): Store => {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return JSON.parse(raw) as Store;
+    if (raw) {
+      /* The AI arrays were added after the first stores were written, so an
+         existing browser holds a record without them. Defaulting here rather
+         than bumping STORE_KEY keeps whatever that browser already created. */
+      const parsed = JSON.parse(raw) as Store;
+      return {
+        ...parsed,
+        receptionists: parsed.receptionists ?? [],
+        chatAgents: parsed.chatAgents ?? [],
+      };
+    }
   } catch {
     /* Corrupt or unavailable storage falls back to the seed. */
   }
-  return { users: [...USER_SEED], roles: [...ROLE_SEED] };
+  return { users: [...USER_SEED], roles: [...ROLE_SEED], receptionists: [], chatAgents: [] };
 };
 
 const writeStore = (store: Store) => {
@@ -339,8 +361,81 @@ const asObject = (data: unknown): Record<string, any> => {
 };
 
 /** Writes that the management screens make; returns null when none applies. */
+/**
+ * One row for an AI screen's table, from whatever its wizard posted.
+ *
+ * The list columns read `agentName`, `status`, `caller_id`, `sentiment` and
+ * `updatedAt`, so those are filled whether or not the payload carried them —
+ * a row missing them renders as a blank line rather than the thing just made.
+ * The rest of the payload is kept so reopening the record for edit finds its
+ * own answers again.
+ */
+const buildDemoAgentRecord = (body: Record<string, any>, kind: 'receptionist' | 'chat-agent') => {
+  const id = newUuid();
+  const now = new Date().toISOString();
+
+  return {
+    ...body,
+    _id: id,
+    uuid: id,
+    agentId: id,
+    agentName: body.agentName || body.name || body.agent_name || 'Untitled',
+    name: body.agentName || body.name || body.agent_name || 'Untitled',
+    /* The wizard posts `status: 'active'` on create; a draft posts nothing and
+       should not claim to be live. */
+    status: body.status || 'inactive',
+    agentStatus: body.status || 'inactive',
+    caller_id: body.caller_id ?? [],
+    sentiment: null,
+    type: kind,
+    createdAt: now,
+    updatedAt: now,
+  };
+};
+
 const applyWrite = (url: string, body: Record<string, any>) => {
   const store = readStore();
+  /* The AI builders create through these. Without somewhere to put the record
+     the wizard reported success and the list it returned to stayed empty, so
+     a receptionist could be created over and over and never appear. */
+  if (url.includes('/api/ai/receptionist/create') || url.includes('/api/ai/receptionist/draft/create')) {
+    const created = buildDemoAgentRecord(body, 'receptionist');
+    store.receptionists = [created, ...(store.receptionists ?? [])];
+    writeStore(store);
+    return ok(created);
+  }
+  if (url.includes('/api/ai/chat-agent/create') || url.includes('/api/ai/chat-agent/draft/create')) {
+    const created = buildDemoAgentRecord(body, 'chat-agent');
+    store.chatAgents = [created, ...(store.chatAgents ?? [])];
+    writeStore(store);
+    return ok(created);
+  }
+  if (url.includes('/api/ai/receptionist/update') || url.includes('/api/ai/chat-agent/update')) {
+    const isReceptionist = url.includes('/receptionist/');
+    const list = (isReceptionist ? store.receptionists : store.chatAgents) ?? [];
+    const targetId = String(body.agentId || body._id || body.uuid || '');
+    const next = list.map((row: any) =>
+      String(row._id) === targetId || String(row.agentId) === targetId
+        ? { ...row, ...body, updatedAt: new Date().toISOString() }
+        : row,
+    );
+    if (isReceptionist) store.receptionists = next;
+    else store.chatAgents = next;
+    writeStore(store);
+    return ok(next.find((row: any) => String(row._id) === targetId) ?? null);
+  }
+  if (url.includes('/api/ai/receptionist/delete') || url.includes('/api/ai/chat-agent/delete')) {
+    const isReceptionist = url.includes('/receptionist/');
+    const list = (isReceptionist ? store.receptionists : store.chatAgents) ?? [];
+    const targetId = String(body.agentId || body._id || body.uuid || body.id || '');
+    const next = list.filter(
+      (row: any) => String(row._id) !== targetId && String(row.agentId) !== targetId,
+    );
+    if (isReceptionist) store.receptionists = next;
+    else store.chatAgents = next;
+    writeStore(store);
+    return ok({ deleted: true });
+  }
 
   if (url.includes('/api/user/add-member')) {
     const created = {
@@ -605,6 +700,14 @@ const matchDemoPayload = (url: string, data: unknown) => {
   /* The AI Receptionist builder's Voice & Persona step. An empty list here
      leaves its required voice field with nothing to select, which stops the
      wizard at step 2 rather than just looking bare. */
+  /* The lists the two AI screens read. Answered from the store so a
+     receptionist or chat agent created in the wizard is there on return. */
+  if (url.includes('/api/ai/receptionist/list')) {
+    return ok(listPayload(readStore().receptionists ?? [], {}, data));
+  }
+  if (url.includes('/api/ai/chat-agent/list')) {
+    return ok(listPayload(readStore().chatAgents ?? [], {}, data));
+  }
   if (url.includes('/api/ai/voice/list')) return ok(listPayload(demoAiVoiceRows()));
   /* The website scan behind both knowledge-base builders. Deliberately a bare
      array rather than `ok(...)`: both read `Array.isArray(response.data)` and

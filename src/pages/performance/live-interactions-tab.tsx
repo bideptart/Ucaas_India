@@ -22,7 +22,9 @@ const LiveInteractionsTab = () => {
    * other area, and no other Performance view, is touched, and leaving this
    * view restores them on the same frame. Both classes are shared toggles —
    * other Performance tabs (Callbacks, Campaigns) opt into either
-   * independently for the same toolbar/backdrop look.
+   * independently for the same toolbar/backdrop look. The toolbar's own
+   * styling is the plain flat wash approved after review, not the earlier
+   * glass/blur/shadow version.
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-backdrop', 'perf-warm-toolbar');

@@ -31,10 +31,11 @@ const CallbacksTab = () => {
   /**
    * The Performance toolbar (filters, live status pill, Wallboard/My
    * dashboards) is rendered by the page shell above this tab, not by this
-   * component, so it needs the same body-class flag the Live view uses to
-   * reach it — `perf-warm-toolbar` in live-theme.css. Unlike Live, this tab
-   * does not add `perf-warm-backdrop`, so it picks up the toolbar look only,
-   * not the full-page ambient gradient.
+   * component, so it needs the same body-class flag Live and Campaigns use
+   * to reach it — `perf-warm-toolbar` in live-theme.css, styled as the
+   * plain flat wash approved after review. Unlike Live, this tab does not
+   * add `perf-warm-backdrop`, so it picks up the toolbar look only, not the
+   * full-page ambient gradient.
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-toolbar');

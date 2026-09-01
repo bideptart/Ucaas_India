@@ -19,10 +19,17 @@ import { meetingList } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Icon as IconComponent } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
+import { isDemoMode } from '@/lib/demo-mode';
 
-// Dev-only sample data so the notification drawer and its filters can be
-// eyeballed without a backend that actually has notifications queued up.
-// Never shipped to production — gated by import.meta.env.DEV below.
+// Sample data so the notification drawer and its filters can be eyeballed
+// without a backend that actually has notifications queued up. Gated by
+// isDemoMode() below — the same runtime check the rest of the app uses for
+// its invented data (see demo-mode.ts), so this only ever shows on a preview
+// host (localhost or a *.vercel.app deploy) and never on a real domain,
+// same as everywhere else. Using import.meta.env.DEV here instead would be
+// wrong: that's a build-time flag, always false for a production `vite
+// build` — including the one Vercel runs for its preview deploys — so it
+// would never show up there even though those are exactly a preview host.
 // 5-7 items per category so each filter has an actual list to scroll, not
 // just a single lonely row.
 const buildDummyGroup = (
@@ -274,7 +281,7 @@ const NotificationContent = ({
       return false;
     }
   });
-  const isShowingDummy = import.meta.env.DEV && !(notificationArr && notificationArr?.length > 0);
+  const isShowingDummy = isDemoMode() && !(notificationArr && notificationArr?.length > 0);
 
   const [notificationFilterValue, setNotificationFilterValue] = useState<any>(() => {
     try {

@@ -261,6 +261,11 @@
      card with no scrollbar because of exactly that. min-width: 0 lets it
      actually shrink to the card's width and scroll internally. */
   min-width: 0;
+  /* More rows than fit (live data growing — more queues, more interactions,
+     more agents) scrolls inside the card instead of pushing the card, and
+     the whole page, taller. */
+  max-height: 340px;
+  overflow-y: auto;
 }
 /* This table shares its row with Agent status distribution, so it only
    gets about half the page width — 8 columns needed ~24px more than

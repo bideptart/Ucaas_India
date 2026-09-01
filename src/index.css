@@ -194,7 +194,6 @@
      organization-context.tsx, but WITHOUT !important there — so unlike
      --primary, a blue org config silently wins unless matched here too. */
   --color-ucass-primary-100: #fff1e0 !important;
-  --color-ucass-primary-200: #f2994a !important;
   --color-ucass-active: #c96f1f !important;
   --color-ucass-active-bg: #fff1e0 !important;
   --color-ucass-login-bg: #fff1e0 !important;

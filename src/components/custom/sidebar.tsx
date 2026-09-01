@@ -234,11 +234,21 @@ const Sidebar = () => {
             <div className="flex flex-col gap-1.5 items-center">
               {visibleNavList?.map((navItem: any, index: number) => {
                 const { id, link, icon, name, enabled, viewKey, sep } = navItem;
-                // A view item shares its path with every sibling, so the `?view=`
-                // value decides which is lit — path alone would light them all.
+                /* A view item shares its path with every sibling, so the
+                   `?view=` value decides which is lit — path alone would light
+                   them all.
+
+                   The same is true of the rail items that open a route of their
+                   own: Tasks and Calendar are both `/calendar`, separated only
+                   by the query. Comparing the whole link against the pathname
+                   also never matched, because the link carries that query and
+                   the pathname does not, so neither ever lit. */
+                const [linkPath, linkQuery = ''] = String(link).split('?');
+                const linkView = new URLSearchParams(linkQuery).get('view');
+                const onLinkPath = Boolean(pathname?.startsWith(linkPath));
                 const activeLink = viewKey
-                  ? pathname?.startsWith(link.split('?')[0]) && currentView === viewKey
-                  : pathname?.startsWith(link);
+                  ? onLinkPath && currentView === viewKey
+                  : onLinkPath && (!linkView || new URLSearchParams(search).get('view') === linkView);
                 const isEnabled = enabled !== false;
 
                 return (
@@ -262,7 +272,10 @@ const Sidebar = () => {
                            `/directory?view=…` sibling reads as active and the
                            whole rail lights up. A view item is lit by
                            `activeLink`, which checks the view, and nothing else. */
-                        const lit = viewKey ? activeLink : activeLink || isActive;
+                        /* `isActive` compares pathnames only, so it cannot
+                           separate two items that share one — fall back to it
+                           only where the link has no view to compare. */
+                        const lit = viewKey || linkView ? activeLink : activeLink || isActive;
                         return `min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
                           lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
                         } hover:bg-ucass-active-bg hover:text-ucass-active ${

@@ -1,23 +1,31 @@
 /* ============================================================
    Performance › Live Interactions — gradient orange glassmorphism.
 
-   Scope, deliberately narrow. Everything here sits behind one of two
+   Scope, deliberately narrow. Everything here sits behind one of three
    scopes and nothing else in the app can be reached by it:
 
      .perf-live            the Live tab's own root element. Owns the ambient
                            backdrop, the stat cards, the live table and
                            everything inside it.
-     body.perf-live-theme  the Performance toolbar that sits OUTSIDE the tab
-                           in the DOM but is part of this view on screen
-                           (rendered by the Performance page shell).
+     body.perf-live-theme  the Live-only ambient page backdrop (section 0
+                           below) — nothing else reads this class any more.
+     body.perf-warm-toolbar the Performance toolbar that sits OUTSIDE the
+                           tab in the DOM but is part of the view on screen
+                           (rendered by the Performance page shell). Shared
+                           by every Performance tab that wants the warm
+                           toolbar look, not just Live — split out from
+                           `perf-live-theme` once Callbacks adopted the same
+                           toolbar treatment, so a tab can opt into the
+                           toolbar without inheriting Live's full-page
+                           gradient backdrop.
 
-   The body class is added on mount and removed on unmount by
-   live-interactions-tab.tsx, so leaving this view puts the toolbar back
-   exactly as every other Performance tab draws it.
+   Both body classes are added on mount and removed on unmount by each
+   tab's own component, so leaving a themed view puts the toolbar (and, for
+   Live, the backdrop) back exactly as every other Performance tab draws it.
 
    The left rail (`#mobile-sidebar-nav`) and the top area-nav tab bar
-   (`.mcm-areanav`) are NOT themed here any more — they were promoted to the
-   global sunset-orange design system in `src/index.css` once that theme was
+   (`.mcm-areanav`) are NOT themed here — they were promoted to the global
+   sunset-orange design system in `src/index.css` once that theme was
    approved for app-wide rollout, since both are the one shared component
    every area (Activity, Admin, Directory, Performance, and the standalone
    settings/reports/monitoring pages) renders through. Themeing them here as
@@ -25,7 +33,8 @@
    ============================================================ */
 
 .perf-live,
-body.perf-live-theme {
+body.perf-live-theme,
+body.perf-warm-toolbar {
   --pl-accent: #f97316;
   --pl-accent-deep: #ea580c;
   --pl-accent-ink: #c2410c;
@@ -62,7 +71,9 @@ body.perf-live-theme {
    ground rather than left as a bright block in it. */
 .dark .perf-live,
 .dark body.perf-live-theme,
-body.perf-live-theme.dark {
+.dark body.perf-warm-toolbar,
+body.perf-live-theme.dark,
+body.perf-warm-toolbar.dark {
   --pl-accent: #fb923c;
   --pl-accent-deep: #f97316;
   --pl-accent-ink: #fdba74;
@@ -116,19 +127,19 @@ body.perf-live-theme .mcm-page {
 /* ------------------------------------------------------------
    1. Toolbar — filters, live status, actions
    ------------------------------------------------------------ */
-body.perf-live-theme .mcm-page .page-bar {
+body.perf-warm-toolbar .mcm-page .page-bar {
   background: transparent;
   border-bottom-color: var(--pl-hairline);
 }
 
 /* Filter chips (Today, Division, Media) and the date dropdown — glass pills
    so the row reads as one translucent control group over the gradient. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip,
-body.perf-live-theme .mcm-page .perf-tbar .btn.sm {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip,
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.sm {
   height: 36px;
   border-radius: 11px;
 }
-body.perf-live-theme .mcm-page .perf-tbar .fchip {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip {
   background: var(--pl-glass);
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
@@ -141,22 +152,22 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip {
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
-body.perf-live-theme .mcm-page .perf-tbar .fchip:hover {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip:hover {
   border-color: var(--pl-edge);
   color: var(--pl-accent-ink);
   box-shadow: var(--pl-glass-shadow-hover);
 }
-body.perf-live-theme .mcm-page .perf-tbar input,
-body.perf-live-theme .mcm-page .perf-tbar select,
-body.perf-live-theme .mcm-page .perf-tbar [role='combobox'] {
+body.perf-warm-toolbar .mcm-page .perf-tbar input,
+body.perf-warm-toolbar .mcm-page .perf-tbar select,
+body.perf-warm-toolbar .mcm-page .perf-tbar [role='combobox'] {
   border-color: var(--pl-hairline);
   border-radius: 11px;
 }
 
 /* "Live — updates every 2s". Glass pill, subtle orange border, dark slate
    text, pulsing emerald dot. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live,
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live:hover {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live,
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live:hover {
   background: var(--pl-glass);
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
@@ -165,7 +176,7 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip.live:hover {
   letter-spacing: 0.01em;
   box-shadow: var(--pl-glass-shadow);
 }
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green {
   width: 8px;
   height: 8px;
   background: var(--pl-live);
@@ -173,7 +184,7 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green {
 }
 /* The shared `.pulsing` fades the whole dot out; a ring that expands off a
    dot that stays put reads as a heartbeat rather than a blink. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   animation: perf-live-pulse 2s ease-out infinite;
 }
 @keyframes perf-live-pulse {
@@ -188,13 +199,13 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
+  body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
     animation: none;
   }
 }
 
 /* Secondary action ("Wallboard") — glass pill, orange text on hover. */
-body.perf-live-theme .mcm-page .perf-tbar .btn.ghost {
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost {
   background: var(--pl-glass);
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
@@ -202,14 +213,14 @@ body.perf-live-theme .mcm-page .perf-tbar .btn.ghost {
   color: #334155;
   box-shadow: var(--pl-glass-shadow);
 }
-body.perf-live-theme .mcm-page .perf-tbar .btn.ghost:hover {
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost:hover {
   border-color: var(--pl-edge);
   color: var(--pl-accent-ink);
   box-shadow: var(--pl-glass-shadow-hover);
 }
 
 /* Primary CTA ("My dashboards") — rich sunset gradient. */
-body.perf-live-theme .mcm-page .perf-tbar .btn.primary {
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: #ffffff;
   font-weight: 600;
@@ -217,7 +228,7 @@ body.perf-live-theme .mcm-page .perf-tbar .btn.primary {
   border-color: transparent;
   box-shadow: 0 6px 20px -4px rgba(234, 88, 12, 0.5);
 }
-body.perf-live-theme .mcm-page .perf-tbar .btn.primary:hover {
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
   box-shadow: 0 8px 24px -4px rgba(234, 88, 12, 0.55);
 }

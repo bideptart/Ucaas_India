@@ -746,6 +746,134 @@
   border-color: var(--accent-edge);
   color: var(--accent-ink);
 }
+/* Custom filter dropdown (replaces a native <select> — see the comment on
+   `FilterChip` in page-shell.tsx for why: a native popup's hover/keyboard
+   highlight is OS-drawn and ignores page CSS in every browser that matters
+   here, so it kept showing the platform blue). Every state below is plain
+   CSS, so it always matches the app's own accent. */
+.mcm-page .fchip-select {
+  position: relative;
+  padding: 0;
+}
+
+/* Same custom dropdown, styled as a full-width bordered field instead of a
+   compact chip — used by Directory ▸ Blocked's "Block a number" form so its
+   dropdowns match the `.mcm-field` inputs beside them. */
+.mcm-page .mcm-field-select {
+  position: relative;
+  width: 100%;
+}
+.mcm-page .mcm-field-select .fchip-select-trigger {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-weight: 500;
+  font-size: 13px;
+  justify-content: space-between;
+}
+.mcm-page .mcm-field-select .fchip-select-trigger:hover {
+  border-color: var(--accent);
+}
+.mcm-page .mcm-field-select .fchip-select-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.mcm-page .fchip-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 11px;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+.mcm-page .fchip-select-value {
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .fchip-select-caret {
+  color: var(--ink-4);
+  transition: transform 0.15s ease;
+  /* The `chev` icon points right by default; rotated to point down when
+     closed (inviting a click to open the menu below) and up when open. */
+  transform: rotate(90deg);
+}
+.mcm-page .fchip-select-trigger[aria-expanded='true'] .fchip-select-caret {
+  transform: rotate(-90deg);
+}
+.mcm-page .fchip-select-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-lg);
+}
+/* Portalled into <body> (see FieldSelect in blocked.tsx), positioned by
+   inline top/left/min-width from the trigger's own screen coordinates —
+   fixed instead of absolute so it isn't clipped by `.panel-card`'s
+   `overflow: hidden`. Only `min-width` comes from the trigger; the box
+   itself is left to shrink-to-fit its content (the default sizing for a
+   fixed-position element with only `left` set) so a longer option like
+   "Calls, faxes and messages" gets the room it needs instead of forcing a
+   horizontal scrollbar inside a box pinned to the trigger's own width. A
+   `max-width` still caps it so it can't run off narrower screens, with
+   wrapping as the fallback if it ever does. */
+.mcm-page .fchip-select-menu-portal {
+  position: fixed;
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 24px));
+  overflow-x: hidden;
+}
+.mcm-page .fchip-select-menu-portal .fchip-select-option {
+  white-space: normal;
+}
+.mcm-page .fchip-select-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink-2);
+  background: transparent;
+  border: 0;
+  white-space: nowrap;
+}
+.mcm-page .fchip-select-option .ic {
+  color: var(--accent);
+  flex: none;
+}
+.mcm-page .fchip-select-option:hover,
+.mcm-page .fchip-select-option:focus-visible {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  outline: none;
+}
+.mcm-page .fchip-select-option.is-selected {
+  color: var(--accent-ink);
+  font-weight: 800;
+}
 .mcm-page .fchip.live {
   background: var(--live-wash);
   border-color: transparent;
@@ -3793,4 +3921,76 @@
 }
 .mcm-acctbanner-a:hover {
   background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* ============================================================
+   Directory ▸ Blocked — tighter spacing for the "Block a number" form and
+   the blocked list.
+
+   Opt-in via `.blocked-compact` on the page wrapper (DirectoryPage's
+   `className` prop), so only this page is affected — every other screen
+   built on `.page`/`.mcm-setcard`/`.mcm-setrow` (which SettingCard is
+   shared with, across several admin-settings screens) keeps its normal
+   spacing.
+
+   This page previously pinned `.page` itself to `overflow: hidden` so only
+   the table underneath could scroll — that's brittle: at some real window
+   sizes the content still ended up taller than the fixed box, and with
+   nothing left to scroll it, the list became genuinely unreachable. `.page`
+   now keeps the same `overflow-y: auto` every other Directory page already
+   relies on (the base rule above), so the page scrolls as a whole exactly
+   like People/Groups/etc. do whenever content doesn't fit — guaranteed
+   reachable regardless of viewport. The table still caps its own height
+   and scrolls internally first, so a long blocked-list doesn't balloon the
+   page — the page scroll is the fallback, not the only way to reach it. */
+.mcm-page .page.blocked-compact {
+  padding: 14px 18px;
+}
+.mcm-page .blocked-compact .page-head {
+  margin-bottom: 8px;
+}
+.mcm-page .blocked-compact .tbar {
+  margin-bottom: 6px;
+}
+.mcm-page .blocked-compact .blocked-table-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+}
+.mcm-page .blocked-compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+/* Tighter "Block a number" card — the same component other settings
+   screens use at their normal size, scaled down here so the whole form
+   fits without needing the page-level scroll this override removes. */
+.mcm-page .blocked-compact .mcm-setcard {
+  margin-bottom: 0;
+}
+.mcm-page .blocked-compact .mcm-setcard-h {
+  padding: 8px 12px 7px;
+}
+.mcm-page .blocked-compact .mcm-setcard-body {
+  padding: 0 12px;
+}
+.mcm-page .blocked-compact .mcm-setrow {
+  padding: 6px 0;
+}
+.mcm-page .blocked-compact .mcm-setcard-note {
+  padding: 7px 12px;
+}
+
+/* Tighter table + empty state below the form, same reasoning: this is the
+   normal shared table/empty styling other Directory pages use, just scaled
+   down here alone so everything keeps fitting without a page scroll. */
+.mcm-page .blocked-compact th {
+  padding: 7px 12px;
+}
+.mcm-page .blocked-compact td {
+  padding: 8px 12px;
+}
+.mcm-page .blocked-compact .empty {
+  padding: 20px 24px;
 }

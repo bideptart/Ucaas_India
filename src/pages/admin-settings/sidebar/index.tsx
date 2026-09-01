@@ -83,11 +83,11 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
       enabled: true,
       children: [
         { title: 'Profile', icon: 'ExtensionIcon', path: '/admin-settings/account/profile' },
-        { title: 'Preferences', icon: 'SettingIcon', path: '/admin-settings/account/preferences' },
+        { title: 'Preferences', icon: 'SettingsIcon', path: '/admin-settings/account/preferences' },
         { title: 'My Phone', icon: 'PhoneIcon', path: '/admin-settings/account/phone' },
         {
           title: 'Notifications',
-          icon: 'NotificationIcon',
+          icon: 'NotificationLine',
           path: '/admin-settings/account/notifications',
         },
         {
@@ -95,10 +95,10 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           icon: 'GreetingIcon',
           path: '/admin-settings/account/greetings',
         },
-        { title: 'Media Files', icon: 'MediaIcon', path: '/admin-settings/account/media' },
+        { title: 'Media Files', icon: 'MediaFilesIcon', path: '/admin-settings/account/media' },
         {
           title: 'Security & Privacy',
-          icon: 'ShieldIcon',
+          icon: 'SecurityCheckLine',
           path: '/admin-settings/account/security',
         },
       ].filter(Boolean),
@@ -339,7 +339,7 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
         { title: 'CRM', icon: 'IntegrationIcon', path: '/admin-settings/integration/crm' },
         {
           title: 'General Settings',
-          icon: 'SettingIcon',
+          icon: 'SettingsIcon',
           path: '/admin-settings/integration/data-reporting/general-settings',
         },
         {
@@ -659,7 +659,7 @@ const Sidebar = () => {
         )}
       </div>
 
-      <div className="hidden h-full min-h-0 overflow-y-auto overflow-x-hidden lg:flex lg:flex-col">
+      <div className="hidden h-full min-h-0 overflow-y-auto overflow-x-hidden lg:flex lg:flex-col [scrollbar-gutter:stable]">
         <div className="mcm-adminnav-search">
           <Icon name={'SearchLine' as IconType} className="h-4 w-4" />
           <input
@@ -701,10 +701,10 @@ const Sidebar = () => {
                     collapsible
                   >
                     <AccordionItem value={value} className="">
-                      <AccordionTrigger className="p-0 items-center" isActive={isActive}>
-                        <div className="flex items-center w-full px-3 h-14 gap-2 cursor-pointer font-medium whitespace-nowrap">
-                          <Icon name={icon as IconType} className="w-6 h-6 p-0.5" />
-                          {title}
+                      <AccordionTrigger className="p-0 items-center min-w-0" isActive={isActive}>
+                        <div className="flex items-center w-full min-w-0 px-3 h-14 gap-2 cursor-pointer font-medium">
+                          <Icon name={icon as IconType} className="w-6 h-6 p-0.5 shrink-0" />
+                          <span className="truncate">{title}</span>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="border md:border-0  md:bg-ucass-primary-200/20 bg-white z-10 relative">
@@ -753,7 +753,7 @@ const Tile = ({ title, path, icon, extraActiveTab, children, enabled }: any) => 
       }}
     >
       <Icon name={icon as IconType} className="w-5 h-5 p-0.5" />
-      <p title={title} className="font-medium truncate text-sm">
+      <p title={title} className="font-medium truncate">
         {title}
       </p>
       {!isEnabled && <span className="text-xs">🔒</span>}

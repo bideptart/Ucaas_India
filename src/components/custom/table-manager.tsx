@@ -353,12 +353,12 @@ function TableManager({
         )}
 
         <Table className="w-full text-xs xxl:text-sm text-[#2E2D35] h-full ">
-          <TableHeader className="bg-[#FBE2C8]/45 text-gray-90/80 sticky top-0 left-0 z-10">
+          <TableHeader className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-[#2E2D35]/80`}
+                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -368,7 +368,7 @@ function TableManager({
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-[#2E2D35]/80`}
+                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -471,7 +471,7 @@ function TableManager({
       {showPagination && (
         // sticky left-0 bottom-2
         <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
               <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-[#EEE7DD]">
                 <div className="flex items-center gap-2">

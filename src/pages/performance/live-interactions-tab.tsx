@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import AllUserMonitoring from '@/pages/monitoring/all-users';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import {
@@ -9,9 +9,25 @@ import {
 import { STATE_TYPE_NAME } from '@/pages/monitoring/constants';
 import PerfStatCard from './stat-card';
 import Timer from '@/components/timer';
+import './live-theme.css';
 
 const LiveInteractionsTab = () => {
   const { liveCalls, eventLiveCallsData } = useSocketEvents();
+
+  /**
+   * The view's warm theme covers two things this component does not render:
+   * the full-page ambient backdrop and the Performance toolbar (the page
+   * shell above this tab). Flagging the document while the view is open lets
+   * `live-theme.css` reach both without either file being edited — so no
+   * other area, and no other Performance view, is touched, and leaving this
+   * view restores them on the same frame. Both classes are shared toggles —
+   * other Performance tabs (Callbacks, Campaigns) opt into either
+   * independently for the same toolbar/backdrop look.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-backdrop', 'perf-warm-toolbar');
+    return () => document.body.classList.remove('perf-warm-backdrop', 'perf-warm-toolbar');
+  }, []);
 
   const activeCalls = useMemo(
     () => getMonitoringLiveCalls(liveCalls, eventLiveCallsData).filter(isActiveMonitoringCall),
@@ -48,8 +64,8 @@ const LiveInteractionsTab = () => {
   );
 
   return (
-    <div className="flex w-full flex-col gap-3 px-[22px] py-4">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+    <div className="perf-live flex w-full flex-col gap-4 px-[22px] py-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <PerfStatCard label="Total live calls" value={String(activeCalls.length)} />
         <PerfStatCard
           label="By state"

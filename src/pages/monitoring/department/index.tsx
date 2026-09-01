@@ -178,12 +178,12 @@ const DepartmentMonitoring = () => {
                   <p className="capitalize text-sm">{member?.label}</p>
                   <small className="text-primary text-[10px]">{member?.role}</small>
                 </div>
-                <div className="flex items-center gap-1 text-gray-500">
+                <div className="flex items-center gap-1 text-[#9A948F]">
                   <Icon name="Grid" className="w-4 h-4 " />
                   <div className="text-xs">{member?.extension || member?.value || ''}</div>
                 </div>
               </div>
-              <p className="text-gray-500 flex justify-between text-sm">
+              <p className="text-[#9A948F] flex justify-between text-sm">
                 <div>{member?.email}</div>
               </p>
             </div>
@@ -359,10 +359,10 @@ const DepartmentMonitoring = () => {
     <>
       <section className="w-full overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+        <div className="flex items-center justify-between p-3 border-b border-[rgba(225,200,165,0.9)] min-h-[65px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+          <p className="text-[#2E2D35] font-semibold text-lg flex items-center gap-1">
             Monitoring
-            <div className="-rotate-90 text-gray-800">
+            <div className="-rotate-90 text-[#2E2D35]">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Department </span>
@@ -373,7 +373,7 @@ const DepartmentMonitoring = () => {
           {/* <h6 className="text-gray-900 font-semibold text-lg">Department Monitoring</h6> */}
           <div className="flex flex-col gap-2 h-[calc(100vh_-_10rem)] overflow-auto">
             {isPending ? (
-              <h6 className="font-semibold text-gray-900 text-md">Loading...</h6>
+              <h6 className="font-semibold text-[#2E2D35] text-md">Loading...</h6>
             ) : (
               <>
                 {' '}
@@ -399,34 +399,34 @@ const DepartmentMonitoring = () => {
                           className={`flex items-center justify-between gap-3 p-4 cursor-pointer rounded-lg border transition-all duration-200 ${
                             isOpen
                               ? 'bg-primary/5 border-primary shadow-sm mb-3'
-                              : 'bg-white border-gray-200 hover:border-primary/50 hover:shadow-md mb-2'
+                              : 'bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border-[rgba(225,200,165,0.9)] hover:border-primary/50 hover:shadow-md mb-2'
                           }`}
                           onClick={() => toggleCollapse(departmentKey)}
                         >
                           <div className="flex items-center gap-3 flex-1">
                             <div
                               className={`p-1.5 rounded-md transition-colors ${
-                                isOpen ? 'bg-primary/10' : 'bg-gray-100'
+                                isOpen ? 'bg-primary/10' : 'bg-[#FBE2C8]/40'
                               }`}
                             >
                               <Icon
                                 name="ChevronIcon"
                                 className={`w-4 h-4 transition-transform duration-200 ${
-                                  isOpen ? 'text-primary' : 'text-gray-600 -rotate-90'
+                                  isOpen ? 'text-primary' : 'text-[#9A948F] -rotate-90'
                                 }`}
                               />
                             </div>
                             <div className="flex-1">
-                              <h6 className="font-semibold text-gray-900 text-base">
+                              <h6 className="font-semibold text-[#2E2D35] text-base">
                                 {item?.name}
                               </h6>
                               {!isOpen && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-[#9A948F] mt-0.5">
                                   {membersCount} member{membersCount !== 1 ? 's' : ''} in department
                                 </p>
                               )}
                               {isOpen && (
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-[#9A948F] mt-0.5">
                                   {liveCallsCount} live call{liveCallsCount !== 1 ? 's' : ''} in
                                   this department
                                 </p>
@@ -465,11 +465,11 @@ const DepartmentMonitoring = () => {
                 ) : (
                   <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                     <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-                    <p className="text-md font-medium text-gray-900">
+                    <p className="text-md font-medium text-[#2E2D35]">
                       {' '}
                       No department call activity!
                     </p>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-[#2E2D35]">
                       Department-wise calls will be displayed here.
                     </p>
                   </div>

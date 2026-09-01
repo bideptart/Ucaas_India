@@ -522,6 +522,14 @@ export const router = createBrowserRouter([
         element: <Departments />,
         children: [
           {
+            /* `:id` used to be nested under `extension` as `{ index: true,
+               path: ':id' }`, which isn't valid — an index route can't carry
+               a path — so it silently matched nothing and any link to a
+               specific person (Directory ▸ People, Favourites, the sidebar's
+               default-to-first-user redirect) landed on the 404 page. Two
+               flat sibling routes match both the bare and the `:id` URL
+               directly; `Departments` still reads `id` via `useParams()`
+               regardless of which of its descendants matched it. */
             path: 'extension',
             element: (
               <ProtectedRoute
@@ -531,13 +539,17 @@ export const router = createBrowserRouter([
                 }}
               />
             ),
-            children: [
-              {
-                index: true,
-                path: ':id',
-                element: <UserDetails />,
-              },
-            ],
+          },
+          {
+            path: 'extension/:id',
+            element: (
+              <ProtectedRoute
+                element={<UserDetails />}
+                guard={{
+                  permission: 'account_setting.access.USER.action.view',
+                }}
+              />
+            ),
           },
           {
             path: 'organization',
@@ -1439,7 +1451,11 @@ export const router = createBrowserRouter([
             path: 'templates',
             children: [
               {
-                index: true,
+                /* Was `{ index: true, path: 'user-settings' }` — invalid (an
+                   index route can't carry a path), so it matched nothing and
+                   the sidebar's and global search's link to this exact URL
+                   404'd. Nothing links to the bare `/templates`, so this only
+                   needs to be a normal path route. */
                 path: 'user-settings',
                 element: <ProtectedRoute element={<UserSettings />} guard={{ adminOnly: true }} />,
               },
@@ -1462,7 +1478,9 @@ export const router = createBrowserRouter([
             id: 'calling-rates',
             children: [
               {
-                index: true,
+                /* Same invalid `{ index: true, path: ... }` pairing as
+                   `templates` above — matched nothing, so the sidebar's and
+                   global search's link to this exact URL 404'd. */
                 path: 'outbound-rates',
                 id: 'outbound-rates',
                 element: (

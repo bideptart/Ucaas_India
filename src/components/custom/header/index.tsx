@@ -500,13 +500,22 @@ const Header = () => {
             something to animate FROM. Conditionally mounting it (the old
             `notificationState && <SideDrawer/>` pattern) meant it only
             ever existed already fully open, so open and close both just
-            snapped instead of sliding. */}
+            snapped instead of sliding. NotificationContent renders its own
+            close button (see isCloseIcon below), so it also gets `isOpen`
+            directly — being permanently mounted now, it can't rely on
+            mount-time effects to know when it has actually become visible. */}
         <SideDrawer
           isOpen={notificationState}
           handleClose={() => setNotificationState(false)}
-          content={<NotificationContent setNotificationState={setNotificationState} />}
+          content={
+            <NotificationContent
+              isOpen={notificationState}
+              setNotificationState={setNotificationState}
+            />
+          }
           isHeader={true}
           width="30%"
+          isCloseIcon={false}
         />
         {pendingChatState && (
           <SideDrawer

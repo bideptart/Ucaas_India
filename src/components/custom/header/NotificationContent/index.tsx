@@ -386,7 +386,7 @@ const NotificationContent = ({
     <div
       role="region"
       aria-label="Notifications"
-      className="relative w-full mx-auto -mx-4 lg:-mx-5 -mb-5 px-4 lg:px-5 pb-5 min-h-full bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
+      className="relative w-full h-full mx-auto -mx-4 lg:-mx-5 -mb-5 px-4 lg:px-5 pb-5 flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
     >
       {/* Visually hidden — announces count changes to screen readers without
           a visible element, since the badge itself only conveys meaning
@@ -542,7 +542,7 @@ const NotificationContent = ({
         </div>
       </div>
       <hr className="border-[#f0d6b4] p-2 mt-1" />
-      <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] [&::-webkit-scrollbar-thumb]:rounded-full">
+      <div className="w-full overflow-auto flex-1 min-h-0 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] [&::-webkit-scrollbar-thumb]:rounded-full [scrollbar-width:thin] [scrollbar-color:#e8b98a_transparent]">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div role="status" aria-label="Loading notifications" className="flex justify-center items-center h-full">
             <Loader variant="blue" />

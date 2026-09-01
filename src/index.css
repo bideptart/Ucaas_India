@@ -179,25 +179,31 @@
      can outrank that inline style, so this orange sticks regardless of what
      the org's API returns. */
   --primary: #f2994a !important;
-  /* Same problem as --primary, but this token is declared inside Tailwind's
-     @theme block, which strips !important before it reaches the generated
-     stylesheet — so overriding it there did nothing against the org API's
-     inline blue. A plain :root rule doesn't have that limitation. This is
-     what every hover state built on bg-ucass-primary-200 (bell, theme
-     toggle, avatar chip, quick-menu icons) actually reads. */
+  /* Same problem as --primary, but these tokens are declared inside
+     Tailwind's @theme block, which strips !important before it reaches the
+     generated stylesheet — so overriding them there did nothing against the
+     org API's inline blue (--color-ucass-primary-100/200 and
+     --color-ucass-active(-bg)/-login-bg are all set inline from
+     mainSiteInfo by organization-context.tsx, several of them without
+     !important). A plain :root rule doesn't have that limitation.
+
+     --color-ucass-primary-200 in particular MUST stay a light wash, not the
+     solid --primary orange: it's what every hover/active state built on
+     bg-ucass-primary-200 reads (bell, theme toggle, avatar chip, quick-menu
+     icons, nav items) alongside hover:text-primary — pairing a solid
+     background with solid-orange text made the icon disappear into its own
+     background, which is what "the notification bell turned into a blank
+     orange square" actually was. This block previously redefined the same
+     custom properties twice with a duplicate :root block (light-wash, then
+     solid) that had been carried over from a since-reverted merge; the
+     second definition silently won and broke every hover state that reads
+     it. Keep this as the one definition. */
+  --color-ucass-primary-100: #fff1e0 !important;
   --color-ucass-primary-200: #fde9d2 !important;
   --color-ucass-active: #c96f1f !important;
   --color-ucass-active-bg: #fde9d2 !important;
-  --primary-foreground: oklch(0.985 0 0);
-  /* Same story as --primary above: --color-ucass-primary-100/200 and
-     --color-ucass-active(-bg) are set inline from mainSiteInfo by
-     organization-context.tsx, but WITHOUT !important there — so unlike
-     --primary, a blue org config silently wins unless matched here too. */
-  --color-ucass-primary-100: #fff1e0 !important;
-  --color-ucass-primary-200: #f2994a !important;
-  --color-ucass-active: #c96f1f !important;
-  --color-ucass-active-bg: #fff1e0 !important;
   --color-ucass-login-bg: #fff1e0 !important;
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);

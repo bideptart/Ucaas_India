@@ -11,6 +11,7 @@ import {
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
+import FlowsTab from './flows-tab';
 import InteractionsTab from './interactions-tab';
 import DashboardsTab from './dashboards-tab';
 import LiveInteractionsTab from './live-interactions-tab';
@@ -44,6 +45,7 @@ const TABS = [
   { key: 'campaign-activity', label: 'Campaign Activity' },
   { key: 'agents', label: 'Agents' },
   { key: 'interactions', label: 'Interactions' },
+  { key: 'flows', label: 'Flows' },
   { key: 'dashboards', label: 'Dashboards' },
   { key: 'live-interactions', label: 'Live Interactions' },
   { key: 'callbacks', label: 'Callbacks' },
@@ -82,6 +84,10 @@ const Performance = () => {
   const activeTab =
     viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
   const setActiveTab = (key: string) => setParam({ view: key });
+  // The toolbar is shared chrome above every Performance tab, so its color
+  // theme only switches to the warm wallboard look while one of the four
+  // wallboard-family tabs is open — the other tabs keep the default look.
+  const isWallboardFamilyTab = WALLBOARD_TABS.some((tab) => tab.key === activeTab);
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
   const [isWallboardOpen, setIsWallboardOpen] = useState(false);
   const [dropdownVal, setDropdownVal] = useState(() => ({
@@ -292,9 +298,24 @@ const Performance = () => {
         .mcm-page .perf-tbar input,
         .mcm-page .perf-tbar select,
         .mcm-page .perf-tbar [role="combobox"] { border-color:var(--line); }
+
+        /* Wallboard-family toolbar: the fchip/btn/page-bar rules above all
+           read --surface/--line/--ink-2/--accent, so re-pointing those here
+           re-themes the whole bar without touching a single selector — the
+           "Live" chip keeps its own --live-wash/--live tokens, untouched.
+           --surface matches the sidebar's own background (#FFFAF4) exactly,
+           so the bar reads as one continuous surface with the rail. */
+        .mcm-page .page-bar.wallboard-toolbar-theme {
+          --surface: #FFFAF4;
+          --line: #E1C8A5;
+          --ink-2: #2E2D35;
+          --accent: #EA8A3F;
+          --accent-ink: #C96F1F;
+          --accent-edge: #F0C896;
+        }
       `}</style>
 
-      <div className="page-bar">
+      <div className={`page-bar${isWallboardFamilyTab ? ' wallboard-toolbar-theme' : ''}`}>
         {/* The views moved into the area rail, the way the console navigates
             Performance — a strip here as well would be a second row of the
             same navigation. The rail links through `?view=`, which is what
@@ -396,6 +417,7 @@ const Performance = () => {
           />
         )}
         {activeTab === 'interactions' && <InteractionsTab selectedRange={selectedRange} />}
+        {activeTab === 'flows' && <FlowsTab />}
         {activeTab === 'dashboards' && <DashboardsTab />}
         {activeTab === 'live-interactions' && <LiveInteractionsTab />}
         {activeTab === 'callbacks' && <CallbacksTab />}

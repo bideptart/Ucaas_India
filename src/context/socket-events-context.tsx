@@ -19,6 +19,14 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import notificationSound from '@/assets/audio/new-notification.mp3';
 import { chatEvents } from '@/context/socket-events';
+import { isDemoMode } from '@/lib/demo-mode';
+import {
+  demoAiLiveWallboardData,
+  demoCampaignAiLiveCallData,
+  demoLiveCalls,
+  demoLiveQueueCalls,
+  demoUsersOnlineStatus,
+} from '@/lib/demo-contact-centre';
 import { v4 as uuidV4 } from 'uuid';
 import { toast } from 'react-toastify';
 import AIChatRequestModal from '@/components/custom/ai-chat-request-modal';
@@ -804,7 +812,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [smsUnreadCountArray, setSmsUnreadCountArray] = useState([]);
   const [notificationArr, setNotificationArr] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState<boolean>(false);
-  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>([]);
+  /* Presence and in-progress calls arrive over the socket, which demo mode has
+     no backend for — seeding the initial state is the only way those screens
+     have a live picture to show. A real socket overwrites it on connect. */
+  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>(() =>
+    isDemoMode() ? demoUsersOnlineStatus() : [],
+  );
   const [conferenceTracker, setConferenceTracker] = useState<Array<any>>([]);
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
   const [liveTranscriptionList, setLiveTranscriptionList] = useState<Array<any>>([]);
@@ -894,14 +907,20 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [aiChatUnreadCount, setAiChatUnreadCount] = useState<number>(0);
   const [recentMeetings, setRecentMeetings] = useState<any[]>([]);
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
-  const [liveCalls, setLiveCalls] = useState<any[]>([]);
-  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>([]);
+  const [liveCalls, setLiveCalls] = useState<any[]>(() => (isDemoMode() ? demoLiveCalls() : []));
+  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>(() =>
+    isDemoMode() ? demoLiveQueueCalls() : [],
+  );
   const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
   const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(null);
   const [campaignAgents, setCampaignAgents] = useState<any>(null);
   const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(null);
-  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(null);
-  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(null);
+  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(() =>
+    isDemoMode() ? demoAiLiveWallboardData() : null,
+  );
+  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(() =>
+    isDemoMode() ? demoCampaignAiLiveCallData() : null,
+  );
   const [contactsInfo, setContactsInfo] = useState<Record<string, any>>({});
   const [aiChatRequests, setAiChatRequests] = useState<any[]>(() => {
     try {

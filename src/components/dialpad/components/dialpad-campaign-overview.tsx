@@ -1140,7 +1140,7 @@ const DialpadCampaignOverview = ({
   const leadValidationDialog = (
     <Dialog open={leadValidationAlert.open}>
       <DialogContent
-        className="z-[1401] w-[calc(100vw-2rem)] max-w-[430px] gap-0 rounded-xl border border-gray-200 bg-white p-0 shadow-2xl"
+        className="z-[1401] w-[calc(100vw-2rem)] max-w-[430px] gap-0 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-0 shadow-2xl"
         overlayClassName="z-[1400]"
         showCloseButton={false}
         onEscapeKeyDown={(event) => event.preventDefault()}
@@ -1151,8 +1151,8 @@ const DialpadCampaignOverview = ({
             <AlertTriangle className="h-6 w-6" />
           </span>
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-gray-900">Campaign lead updated</h3>
-            <p className="text-sm leading-6 text-gray-600">{leadValidationAlert.message}</p>
+            <h3 className="text-lg font-semibold text-[#2E2D35]">Campaign lead updated</h3>
+            <p className="text-sm leading-6 text-[#9A948F]">{leadValidationAlert.message}</p>
             <p className="text-sm font-semibold text-primary">
               Fetching a new lead in {leadValidationAlert.countdown}s...
             </p>

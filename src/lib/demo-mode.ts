@@ -404,6 +404,138 @@ const applyWrite = (url: string, body: Record<string, any>) => {
   return null;
 };
 
+/* ---------------------------------------------------------------------------
+   Phone console — its own dedicated calls/voicemails, distinct from the
+   shared contact-centre log `demoCalls()` answers for Reports/Performance/
+   Home. Scoped to just this page (see the `limit === 50` check below) rather
+   than swapping demoCalls() itself, which stays untouched for everyone else.
+--------------------------------------------------------------------------- */
+const phoneDemoMinutesAgo = (n: number) => new Date(Date.now() - n * 60_000).toISOString();
+
+const PHONE_CALL_SEED = [
+  {
+    uuid: 'demo-call-1',
+    direction: 'Inbound',
+    caller_id_number: '+14155550142',
+    caller_id_name: 'Sam Sub',
+    destination_number: '1002',
+    start_stamp: phoneDemoMinutesAgo(18),
+    billsec: 264,
+    disposition: 'Billing',
+    hangup_cause: 'NORMAL_CLEARING',
+  },
+  {
+    /* Same number as demo-call-1 — gives the History pane (which queries
+       /api/tenant/report/call-list filtered by phone) a real second entry
+       to show instead of "No previous calls logged for this number." */
+    uuid: 'demo-call-1b',
+    direction: 'Inbound',
+    caller_id_number: '+14155550142',
+    caller_id_name: 'Sam Sub',
+    destination_number: '1002',
+    start_stamp: phoneDemoMinutesAgo(60 * 24 * 9),
+    billsec: 187,
+    disposition: 'Billing',
+    hangup_cause: 'NORMAL_CLEARING',
+  },
+  {
+    uuid: 'demo-call-2',
+    direction: 'Outbound',
+    caller_id_number: '1001',
+    caller_id_name: 'Demo User',
+    destination_number: '+442071838750',
+    start_stamp: phoneDemoMinutesAgo(55),
+    billsec: 96,
+    disposition: 'Support',
+    hangup_cause: 'NORMAL_CLEARING',
+    record_file: 'demo-recording-2.mp3',
+  },
+  {
+    uuid: 'demo-call-3',
+    direction: 'Inbound',
+    caller_id_number: '+919812345678',
+    caller_id_name: 'Priya Nair',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(140),
+    billsec: 0,
+    disposition: 'Sales',
+    hangup_cause: 'NO_ANSWER',
+  },
+  {
+    uuid: 'demo-call-4',
+    direction: 'Inbound',
+    caller_id_number: '+13105550118',
+    caller_id_name: 'Mia Manager',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(320),
+    billsec: 512,
+    disposition: 'Account Review',
+    hangup_cause: 'NORMAL_CLEARING',
+    record_file: 'demo-recording-4.mp3',
+  },
+  {
+    uuid: 'demo-call-5',
+    direction: 'Outbound',
+    caller_id_number: '1001',
+    caller_id_name: 'Alex Agent',
+    destination_number: '1004',
+    start_stamp: phoneDemoMinutesAgo(1400),
+    billsec: 183,
+    disposition: 'Internal',
+    hangup_cause: 'NORMAL_CLEARING',
+  },
+  {
+    uuid: 'demo-call-6',
+    direction: 'Inbound',
+    caller_id_number: '+16465550199',
+    caller_id_name: 'Tom Walsh',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(2600),
+    billsec: 0,
+    disposition: 'Technical',
+    hangup_cause: 'NO_ANSWER',
+  },
+];
+
+const PHONE_VOICEMAIL_SEED = [
+  {
+    uuid: 'demo-voicemail-1',
+    direction: 'Inbound',
+    caller_id_number: '+919812345678',
+    caller_id_name: 'Priya Nair',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(142),
+    billsec: 34,
+    disposition: 'Voicemail — Sales enquiry',
+    hangup_cause: 'NO_ANSWER',
+    record_file: 'demo-voicemail-1.mp3',
+  },
+  {
+    uuid: 'demo-voicemail-2',
+    direction: 'Inbound',
+    caller_id_number: '+16465550199',
+    caller_id_name: 'Tom Walsh',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(2604),
+    billsec: 51,
+    disposition: 'Voicemail — Follow-up requested',
+    hangup_cause: 'NO_ANSWER',
+    record_file: 'demo-voicemail-2.mp3',
+  },
+  {
+    uuid: 'demo-voicemail-3',
+    direction: 'Inbound',
+    caller_id_number: '+442071838750',
+    caller_id_name: 'Unknown',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(4100),
+    billsec: 21,
+    disposition: 'Voicemail',
+    hangup_cause: 'NO_ANSWER',
+    record_file: 'demo-voicemail-3.mp3',
+  },
+];
+
 /** Endpoint-specific answers; everything else gets an empty list. */
 const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/user/info')) return ok(DEMO_USER);
@@ -420,6 +552,24 @@ const matchDemoPayload = (url: string, data: unknown) => {
   /* The contact centre the Performance views read. Empty lists would leave
      Queues, Agents, Calls, Flows and Boards as five empty states. */
   if (url.includes('/api/tenant/report/call-list')) {
+    /* The phone console's History pane (history-pane.tsx) is the only
+       caller that filters this endpoint by `phone` — everyone else (Reports,
+       Callbacks) filters by `direction` or not at all. Answer it from the
+       console's own PHONE_CALL_SEED instead of the shared demoCalls() log,
+       so it can actually find repeat calls for e.g. Sam Sub's number. */
+    const phoneFilterValue = (asObject(data)?.filter || []).find(
+      (row: any) => row?.key === 'phone',
+    )?.value;
+    if (phoneFilterValue) {
+      const digitsOnly = (value: unknown) => String(value || '').replace(/\D/g, '');
+      const target = digitsOnly(phoneFilterValue);
+      const rows = PHONE_CALL_SEED.filter(
+        (row) =>
+          digitsOnly(row.caller_id_number) === target || digitsOnly(row.destination_number) === target,
+      );
+      return ok(listPayload(rows, {}, data));
+    }
+
     const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     // Callbacks ▸ "Queue voicemail" calls this same endpoint with
     // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
@@ -559,6 +709,20 @@ const matchDemoPayload = (url: string, data: unknown) => {
      rather than the one `demoCalls()` already answers above. */
   if (url.includes('/api/tenant/report/phone-call-list')) {
     const params = asObject(data);
+    /* The phone console (call-list-column.tsx) is the only caller that pages
+       this endpoint 50 at a time — Home's digest above asks for 1 or 25. That
+       makes `limit` a safe way to give the console its own dedicated seed
+       (PHONE_CALL_SEED/PHONE_VOICEMAIL_SEED) without touching what Home's
+       "today" digest reads from the shared demoCalls() contact-centre log. */
+    if (Number(params?.limit) === 50) {
+      const rows =
+        params?.type === 'voicemail'
+          ? PHONE_VOICEMAIL_SEED
+          : params?.type === 'recording'
+            ? []
+            : PHONE_CALL_SEED;
+      return ok(listPayload(rows, { totalRecords: rows.length }, data));
+    }
     if (params?.type === 'voicemail') {
       const rows = demoVoicemailRows();
       return ok(listPayload(rows, { totalRecords: rows.length }, data));

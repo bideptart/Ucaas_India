@@ -688,6 +688,7 @@ const Header = () => {
             content={<NotificationContent setNotificationState={setNotificationState} />}
             isHeader={true}
             width="30%"
+            isCloseIcon={false}
           />
         )}
         {pendingChatState && (

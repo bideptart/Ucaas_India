@@ -7,18 +7,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 const Verification = ({ search }: { search: string }) => {
-  const [rowData, setRowData] = useState<any>(null);
-  //   const [drawerState, setDrawerState] = useState({
-  //     editAddress: false,
-  //   });
+  const [, setRowData] = useState<any>(null);
   const [modalState, setModalState] = useState({
     deleteAddress: false,
   });
   const queryClient: any = useQueryClient();
-  //   const handleDrawerClose = () => {
-  //     setDrawerState((prev) => ({ ...prev, editAddress: false }));
-  //     setRowData(null);
-  //   };
   const handleModalClose = () => {
     setModalState((prev) => ({ ...prev, deleteAddress: false }));
     setRowData(null);

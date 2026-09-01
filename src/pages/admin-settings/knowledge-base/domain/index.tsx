@@ -4,17 +4,16 @@ import TableManager from '@/components/custom/table-manager';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { handleAlert } from '@/lib/utils';
-import { deleteAIDomain, getAgentList, getAIDomainList } from '@/services/api';
+import { deleteAIDomain, getAIDomainList } from '@/services/api';
 import AlertConfirm from '@/components/custom/alert-confirm';
 import CustomTooltip from '@/components/custom/custom-tooltip';
-import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import WidgetViewModal from '../ai-agent/modal/widget-view-modal';
 import AddDomainModal from './modals/add-domain-modal';
 import TestTalkModal from './modals/test-talk-modal';
 import { useCompanyFeatures } from '@/hooks/rbac';
-import { getAi360WidgetKey, getChatWidgetScriptSrc } from '../ai-agent/chat-agent-configure-modal';
 
 const EMBED_SCRIPT_ID = 'ai-domain-test-embed-script';
 
@@ -48,25 +47,10 @@ function AIDomain() {
   const domainAccess = features?.plan_features?.ai?.action?.domain;
   const [search, setSearch] = useState('');
 
-  // Track which row currently has the embed script loaded (by _id)
-  const [activeEmbedId, setActiveEmbedId] = useState<string | null>(null);
-  const embedLoadingRef = useRef(false);
-
   const [modalState, setModalState] = useState({
     widget: false,
     addDomain: false,
     testTalk: false,
-  });
-
-  // Fetch agent list for widget colors when an embed is active
-  const activeEmbedAgentId = selectedRowData?.agentId || '';
-  const { data: agentList } = useQuery({
-    queryFn: getAgentList,
-    queryKey: ['getAgentList', activeEmbedAgentId],
-    select: (data: any) => {
-      return data?.data?.data?.result?.rows || [];
-    },
-    // enabled: Boolean(activeEmbedAgentId),
   });
 
   // Cleanup embed script on unmount
@@ -75,83 +59,6 @@ function AIDomain() {
       unloadEmbedScript();
     };
   }, []);
-
-  const handleTestChatClick = async (rowData: any) => {
-
-    if (rowData?.domain !== window.location.hostname) {
-      handleAlert({
-        text: 'You cannot test the chat widget on a different domain',
-        type: 'warning',
-      });
-      return;
-    }
-    const rowId = rowData?._id;
-
-    // Toggle off: same row clicked again
-    if (activeEmbedId === rowId) {
-      unloadEmbedScript();
-      setActiveEmbedId(null);
-      setSelectedRowData(null);
-      return;
-    }
-
-    // Remove any previously loaded script first
-    unloadEmbedScript();
-    setActiveEmbedId(null);
-
-    if (embedLoadingRef.current) return;
-    embedLoadingRef.current = true;
-
-    try {
-      const agentId = rowData?.agentId || '';
-
-      // Find agent widget colors from agentList (may be stale, fallback to empty)
-      const agent = agentList?.find(
-        (a: any) => a?._id === agentId || a?.agent_uuid === agentId || a?.id === agentId,
-      );
-      const widgetKey = getAi360WidgetKey(agent || rowData);
-      const widgetScriptSrc = getChatWidgetScriptSrc();
-
-      if (!widgetKey) {
-        handleAlert({ text: 'Widget key is missing for this agent.', type: 'error' });
-        return;
-      }
-
-      if (!widgetScriptSrc) {
-        handleAlert({ text: 'Widget URL is missing.', type: 'error' });
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.id = EMBED_SCRIPT_ID;
-      script.src = widgetScriptSrc;
-      script.setAttribute('data-widget-mode', 'chat');
-      script.setAttribute('data-widget-key', widgetKey);
-      script.setAttribute('data-position', 'bottom-right');
-      script.setAttribute('data-label', 'Need Help?');
-      script.async = true;
-      script.type = 'text/javascript';
-      script.onload = () => {
-        setTimeout(() => {
-          const widgetId = `ai360-widget-chat-${widgetKey.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-          document.getElementById(widgetId)?.querySelector('button')?.click();
-        }, 0);
-      };
-
-
-      document.body.appendChild(script);
-
-      setSelectedRowData(rowData);
-      setActiveEmbedId(rowId);
-    } catch (err) {
-      console.error('Failed to load embed script:', err);
-      handleAlert({ text: 'Failed to load chat widget. Please try again.', type: 'error' });
-      unloadEmbedScript();
-    } finally {
-      embedLoadingRef.current = false;
-    }
-  };
-
 
   const { mutate: mutateDeleteDomain, isPending: isDeletePending } = useMutation({
     mutationKey: ['deleteAIDomain'],

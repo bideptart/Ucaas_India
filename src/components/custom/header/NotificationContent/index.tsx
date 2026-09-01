@@ -35,7 +35,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
     id: 1,
     label: 'All',
     value: ['all'],
-    icon: <Bell className="text-[#2E2D35] w-full h-full" />,
+    icon: <Bell className="text-primary w-full h-full" />,
   });
   const { data: ongoingMeetingData } = useQuery({
     queryKey: ['ongoingMeetingList', 'notification-content'],
@@ -75,7 +75,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
           header line. */}
       <div className="flex flex-col  gap-2 pl-3 pr-16 pt-4 pb-2">
         <div className="flex justify-between items-center h-10">
-          <div className=" text-[#2E2D35] font-semibold flex gap-2 items-center justify-between w-full">
+          <div className=" text-gray-900 font-semibold flex gap-2 items-center justify-between w-full">
             <div className="flex items-center gap-3 ">
               <div className="flex w-5 h-5">{notificationFilterValue?.icon}</div>
               <div className="flex text-lg">{notificationFilterValue?.label}</div>
@@ -100,7 +100,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                 <DropdownMenuTrigger>
                   <div
                     className={
-                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white'
+                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white'
                     }
                   >
                     <FilterIcon className="w-5 h-5" />
@@ -113,7 +113,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                         className="cursor-pointer"
                         onClick={() => setNotificationFilterValue(filter)}
                       >
-                        <div className="w-6 h-6 p-1 bg-[#FBE2C8]/45 border-[#EEE7DD] border rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 p-1 bg-gray-50 border-gray-200 border rounded-full flex items-center justify-center">
                           {filter?.icon}
                         </div>
                         {filter?.label}
@@ -126,7 +126,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
           </div>
         </div>
       </div>
-      <hr className="text-[#9A948F] p-2 mt-1" />
+      <hr className="border-gray-200 mt-1" />
       <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div className="flex justify-center items-center h-full">
@@ -255,7 +255,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
             return (
               <div
                 key={notification?._id}
-                className={`relative w-full p-3 mt-2 bg-[#FBE2C8]/45 border rounded-lg border-[#EEE7DD] flex cursor-pointer flex-shrink-0 ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
+                className={`relative w-full p-3 mt-2 bg-gray-50 border rounded-lg border-gray-200 flex cursor-pointer flex-shrink-0 ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
                   notification?.unread ? 'opacity-100' : 'opacity-60'
                 }`}
                 onClick={() => markReadNotification(notification?._id)}
@@ -271,7 +271,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                   <div className="flex items-center justify-between w-full text-sm">
                     {notification?.description}
                   </div>
-                  <p className="focus:outline-none text-xs leading-3 pt-1 text-[#9A948F]">
+                  <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500">
                     {formatNotificationDate(notification?.createdAt)}
                   </p>
                 </div>
@@ -283,7 +283,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
         ) : (
           <div className="w-full max-w-96 min-h-52 h-full p-4 rounded-xl m-auto border border-ucass-primary-100 bg-ucass-primary-200/40 flex flex-col items-center justify-center gap-2">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="flex items-center justify-center text-[#2E2D35]  font-medium">
+            <p className="flex items-center justify-center text-gray-900 font-medium">
               No Notification(s) Found!
             </p>
           </div>

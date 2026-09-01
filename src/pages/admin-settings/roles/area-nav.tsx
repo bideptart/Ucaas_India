@@ -77,7 +77,7 @@ export const AreaNav = ({ current }: { current: string }) => {
             className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
               here
                 ? 'border-primary bg-primary/10 text-primary cursor-default'
-                : 'border-[#EEE7DD] bg-white text-[#2E2D35] hover:border-primary hover:text-primary'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary'
             }`}
           >
             <span className="opacity-60">{item.step}.</span> {item.title}

@@ -61,7 +61,7 @@ const DateDropdown = ({
         <div
           className={
             showCustomPickerBelow
-              ? 'absolute right-0 top-full z-50 mt-2 flex w-72 max-w-[calc(100vw-2rem)] items-center gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2 shadow-lg'
+              ? 'absolute right-0 top-full z-50 mt-2 flex w-72 max-w-[calc(100vw-2rem)] items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-lg'
               : 'flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap'
           }
         >
@@ -81,7 +81,7 @@ const DateDropdown = ({
                 startDate={dateRange.from ? new Date(dateRange.from) : undefined}
                 endDate={dateRange.to ? new Date(dateRange.to) : undefined}
                 monthsShown={isCompact ? 1 : 2}
-                className="h-9 min-h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 pr-8 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 min-h-9 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 pr-8 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showMonthDropdown
                 showYearDropdown
                 peekNextMonth
@@ -130,7 +130,7 @@ const DateDropdown = ({
                   to: date,
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
               showMonthDropdown
               showYearDropdown
               peekNextMonth
@@ -154,7 +154,7 @@ const DateDropdown = ({
                   to: newEndTime,
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
               showTimeSelect
               showTimeSelectOnly
               timeFormat="HH:mm"
@@ -171,7 +171,7 @@ const DateDropdown = ({
                   to: moment(time).format('HH:mm'),
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
               showTimeSelect
               showTimeSelectOnly
               timeFormat="HH:mm"

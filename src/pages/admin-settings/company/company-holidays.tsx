@@ -558,15 +558,15 @@ const CompanyHolidays = () => {
   };
 
   return (
-    <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4">
+    <div className="rounded-xl border border-gray-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ucass-primary-200 text-primary">
             <CalendarDays className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-base font-semibold text-[#2E2D35]">Your holiday list</p>
-            <p className="mt-0.5 text-xs text-[#9A948F]">
+            <p className="text-base font-semibold text-gray-900">Your holiday list</p>
+            <p className="mt-0.5 text-xs text-gray-600">
               One list of the days your company is closed, kept in one place instead of typed again
               into every IVR, queue and user.
             </p>
@@ -595,10 +595,10 @@ const CompanyHolidays = () => {
       <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-[#2E2D35]">
+          <p className="text-xs font-semibold text-gray-900">
             This list is recorded, but it does not close your lines yet
           </p>
-          <p className="mt-0.5 text-xs text-[#2E2D35]">
+          <p className="mt-0.5 text-xs text-gray-700">
             Calls are still routed from each object&apos;s own holiday list, set inside its
             business-hours dialog. Adding Christmas here does not make your IVR, queues or users
             close on Christmas — you still have to enter it on each of them. This page is the
@@ -608,10 +608,10 @@ const CompanyHolidays = () => {
         </div>
       </div>
 
-      <div className="mt-3 flex items-start gap-2 rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-3">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A948F]" />
-        <p className="text-xs text-[#2E2D35]">
-          <span className="font-semibold text-[#2E2D35]">What a holiday means.</span> On a holiday
+      <div className="mt-3 flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
+        <p className="text-xs text-gray-700">
+          <span className="font-semibold text-gray-900">What a holiday means.</span> On a holiday
           the normal open-hours routing is skipped for the whole day and the closed-hours action
           applies instead — whatever each object is set to do outside business hours, usually
           voicemail, a forward, or a closed greeting. A holiday does not have its own separate
@@ -622,8 +622,8 @@ const CompanyHolidays = () => {
       {/* Presets. The point of the panel: a year of holidays in one click rather
           than twelve rows typed by hand. */}
       <div className="mt-3 rounded-lg border border-ucass-primary-200 bg-ucass-primary-200/40 p-3">
-        <p className="text-xs font-semibold text-[#2E2D35]">Add a country&apos;s public holidays</p>
-        <p className="mt-0.5 text-xs text-[#9A948F]">
+        <p className="text-xs font-semibold text-gray-900">Add a country&apos;s public holidays</p>
+        <p className="mt-0.5 text-xs text-gray-600">
           Pick a country and a year, and the public holidays are added to the list below. You can
           edit or remove any of them afterwards.
         </p>
@@ -666,8 +666,8 @@ const CompanyHolidays = () => {
         </div>
 
         {selectedPreset && (
-          <p className="mt-2 text-xs text-[#9A948F]">
-            <span className="font-semibold text-[#2E2D35]">{selectedPreset.label}:</span>{' '}
+          <p className="mt-2 text-xs text-gray-600">
+            <span className="font-semibold text-gray-900">{selectedPreset.label}:</span>{' '}
             {selectedPreset.scope} Check the list against your own working year before you rely on
             it.
           </p>
@@ -677,10 +677,10 @@ const CompanyHolidays = () => {
       {/* The list. */}
       <div className="mt-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs font-semibold text-[#9A948F]">
+          <p className="text-xs font-semibold text-gray-500">
             {items.length} holiday{items.length === 1 ? '' : 's'}
             {items.length > 0 && (
-              <span className="font-normal text-[#9A948F]">
+              <span className="font-normal text-gray-500">
                 {' '}
                 · {repeatingCount} repeat every year · {items.length - repeatingCount} need
                 re-adding next year
@@ -691,11 +691,11 @@ const CompanyHolidays = () => {
         </div>
 
         {isLoading ? (
-          <p className="mt-3 text-sm text-[#9A948F]">Loading…</p>
+          <p className="mt-3 text-sm text-gray-500">Loading…</p>
         ) : sorted.length === 0 && !isAdding ? (
-          <div className="mt-2 rounded-lg border border-dashed border-[#EEE7DD] p-4 text-center">
-            <p className="text-xs font-semibold text-[#2E2D35]">No company holidays yet</p>
-            <p className="mt-0.5 text-xs text-[#9A948F]">
+          <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-4 text-center">
+            <p className="text-xs font-semibold text-gray-900">No company holidays yet</p>
+            <p className="mt-0.5 text-xs text-gray-600">
               Add a country&apos;s public holidays above, or add one by hand.
             </p>
           </div>
@@ -704,12 +704,12 @@ const CompanyHolidays = () => {
             {sorted.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-[#EEE7DD] p-3"
+                className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-gray-200 p-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[#2E2D35]">{item.title}</p>
-                  <p className="mt-0.5 text-xs text-[#9A948F]">{prettyRange(item)}</p>
-                  {item.note && <p className="mt-0.5 text-xs text-[#9A948F]">{item.note}</p>}
+                  <p className="truncate text-sm font-medium text-gray-900">{item.title}</p>
+                  <p className="mt-0.5 text-xs text-gray-600">{prettyRange(item)}</p>
+                  {item.note && <p className="mt-0.5 text-xs text-gray-500">{item.note}</p>}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -718,7 +718,7 @@ const CompanyHolidays = () => {
                       checked={item.repeats_yearly}
                       onCheckedChange={() => toggleRepeat(item.id)}
                     />
-                    <span className="text-xs text-[#9A948F]">
+                    <span className="text-xs text-gray-600">
                       {item.repeats_yearly ? 'Every year' : 'This year only'}
                     </span>
                   </label>
@@ -750,16 +750,16 @@ const CompanyHolidays = () => {
       {/* Add / edit row. Inline rather than a dialog: the list it changes stays
           visible, so a duplicate is obvious before it is added. */}
       {isAdding && (
-        <div className="mt-3 rounded-lg border border-ucass-primary-200 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
+        <div className="mt-3 rounded-lg border border-ucass-primary-200 bg-white p-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-[#2E2D35]">
+            <p className="text-xs font-semibold text-gray-900">
               {draft.id ? 'Edit holiday' : 'New holiday'}
             </p>
             <button
               type="button"
               onClick={closeDraft}
               aria-label="Cancel"
-              className="cursor-pointer rounded-md p-1 text-[#9A948F] hover:bg-[#FBE2C8]/45"
+              className="cursor-pointer rounded-md p-1 text-gray-500 hover:bg-gray-50"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -808,14 +808,14 @@ const CompanyHolidays = () => {
                 checked={draft.repeats_yearly}
                 onCheckedChange={(checked) => setDraft({ ...draft, repeats_yearly: !!checked })}
               />
-              <span className="text-xs text-[#9A948F]">Repeats every year</span>
+              <span className="text-xs text-gray-600">Repeats every year</span>
             </label>
             <Button type="button" variant="primary" onClick={commitDraft}>
               {draft.id ? 'Update' : 'Add'}
             </Button>
           </div>
 
-          <p className="mt-2 text-xs text-[#9A948F]">
+          <p className="mt-2 text-xs text-gray-500">
             Turn off &quot;repeats every year&quot; for anything that moves — Thanksgiving, Easter,
             Diwali, Eid — and add next year&apos;s date when you know it.
           </p>

@@ -6,13 +6,9 @@
  * route guards treat the app as authenticated and `/` lands on the dashboard,
  * and every API call is answered locally instead of going out.
  *
- * Most lists come back with no rows, so screens render their real empty
- * states. The exception is the contact centre in `demo-contact-centre.ts` —
- * queues, agents, a call log, IVR flows, campaigns, SMS, contact lists, tasks
- * and voicemail — because Performance's tables and stat cards cannot be
- * worked on against nothing. All of it is invented and Indian throughout
- * (agents, contacts, +91 numbers). Nothing here reflects a real account, and
- * no screen showing this data is showing anything true about a customer.
+ * The data is empty, not invented: lists come back with no rows so screens
+ * render their real empty states. Nothing here reflects a real account, and no
+ * screen showing this data is showing anything true about a customer.
  *
  * It can only ever run on a preview host — a `vercel.app` domain or a local dev
  * server, per `isPreviewHost`. On a real domain the checks below return false
@@ -22,20 +18,6 @@
  * preview host and sign in against the real API instead.
  */
 import { isPreviewHost } from '@/lib/utils';
-import {
-  DEMO_AGENTS,
-  demoAgentReportRows,
-  demoCallStats,
-  demoCalls,
-  demoCalendarTaskRows,
-  demoCampaignRows,
-  demoContactGroupRows,
-  demoFlowRows,
-  demoQueueReportRows,
-  demoQueueRows,
-  demoSmsLogRows,
-  demoVoicemailRows,
-} from '@/lib/demo-contact-centre';
 
 export const DEMO_SESSION_TOKEN = 'demo-mode-session-token';
 
@@ -109,10 +91,10 @@ export const DEMO_USER = {
   plan_uuid: 'demo-plan-0000-0000-0000-000000000001',
   user_info: {
     uuid: 'demo-user-0000-0000-0000-000000000001',
-    first_name: 'Arjun',
-    last_name: 'Mehta',
-    name: 'Arjun Mehta',
-    email: 'arjun.mehta@example.com',
+    first_name: 'Demo',
+    last_name: 'User',
+    name: 'Demo User',
+    email: 'demo.user@example.com',
     /* ADMIN so the guards read company plan features rather than a role's,
        and admin-only pages stay reachable. */
     role: 'ADMIN',
@@ -140,19 +122,14 @@ export const DEMO_USER = {
  * maps straight over it works, and it carries the same rows on the properties a
  * paginated screen reaches for.
  */
-const listPayload = (items: any[] = [], extra: Record<string, any> = {}) => {
+const listPayload = (items: any[] = []) => {
   const list: any = [...items];
   list.data = items;
   list.rows = items;
   list.total = items.length;
   list.count = items.length;
-  list.totalItems = items.length;
-  list.totalPages = 1;
   list.current_page = 1;
   list.last_page = 1;
-  /* Aggregates a screen reads off the result alongside the rows — the call
-     log's `call_stats`, for instance. */
-  Object.assign(list, extra);
   return list;
 };
 
@@ -176,9 +153,7 @@ const ok = (result: unknown) => ({
    nothing on screen can be mistaken for a real customer's data.
 --------------------------------------------------------------------------- */
 
-/* Bumped when the seed changes: the store is persisted, so an existing
-   browser would otherwise keep serving the previous, smaller roster. */
-const STORE_KEY = 'demo-mode-data-v3';
+const STORE_KEY = 'demo-mode-data';
 
 const ROLE_SEED = [
   { uuid: 'demo-role-admin', name: 'Administrator', slug: 'ADMIN', is_custom: false },
@@ -193,8 +168,6 @@ const buildUser = (
   role: string,
   roleName: string,
   extension: string,
-  phone = '',
-  site = '',
 ) => ({
   uuid: `demo-user-${extension}`,
   first_name: first,
@@ -203,8 +176,6 @@ const buildUser = (
   full_name: `${first} ${last}`,
   email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
   extension,
-  phone,
-  site: site ? { name: site } : null,
   role,
   role_name: roleName,
   role_data: { name: roleName, slug: role },
@@ -213,19 +184,12 @@ const buildUser = (
   created_at: '2026-01-01T00:00:00.000Z',
 });
 
-/* The same roster the contact-centre data is built around, so an agent in the
-   user list is the agent Performance reports handled calls for. */
-const USER_SEED = DEMO_AGENTS.map((row) =>
-  buildUser(
-    row.first_name,
-    row.last_name,
-    row.role,
-    row.role_name,
-    row.extension,
-    row.phone,
-    row.site,
-  ),
-);
+const USER_SEED = [
+  buildUser('Demo', 'User', 'ADMIN', 'Administrator', '1001'),
+  buildUser('Sam', 'Sub', 'SUB_ADMIN', 'Sub Admin', '1002'),
+  buildUser('Mia', 'Manager', 'MANAGER', 'Manager', '1003'),
+  buildUser('Alex', 'Agent', 'AGENT', 'Agent', '1004'),
+];
 
 type Store = { users: any[]; roles: any[] };
 
@@ -339,31 +303,6 @@ const matchDemoPayload = (url: string, data: unknown) => {
 
   const written = applyWrite(url, asObject(data));
   if (written) return written;
-
-  /* The contact centre the Performance views read. Empty lists would leave
-     Queues, Agents, Calls, Flows and Boards as five empty states. */
-  if (url.includes('/api/tenant/report/call-list')) {
-    // Callbacks ▸ "Queue voicemail" calls this same endpoint with
-    // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
-    // day's call log filtered down.
-    if (asObject(data)?.type === 'voicemail') return ok(listPayload(demoVoicemailRows()));
-    return ok(listPayload(demoCalls(), { call_stats: demoCallStats() }));
-  }
-  if (url.includes('/api/tenant/report/agents')) return ok(listPayload(demoAgentReportRows()));
-  if (url.includes('/api/tenant/report/call-queue/list')) {
-    return ok(listPayload(demoQueueReportRows()));
-  }
-  if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows()));
-  if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows()));
-  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
-  if (url.includes('/api/campaign/analytics')) {
-    const campaignId = asObject(data)?.campaignId;
-    const campaign = demoCampaignRows().find((row) => row._id === campaignId);
-    return ok(campaign?.campaignAnalytics || {});
-  }
-  if (url.includes('/api/calendar/event-task/list')) return ok(listPayload(demoCalendarTaskRows()));
-  if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows()));
-  if (url.includes('/api/contact/group/list')) return ok(listPayload(demoContactGroupRows()));
 
   if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles));
   if (url.includes('/api/user/list')) return ok(listPayload(readStore().users));

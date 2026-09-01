@@ -4,10 +4,37 @@ import { useUser } from '@/hooks/use-user';
 import TableManager from '@/components/custom/table-manager';
 import PerfStatCard from './stat-card';
 import { formatSecsToClock } from './format';
+import './speech-theme.css';
 
 /** Sentiment tone, on the shared status tokens rather than raw colours. */
 const toneColor = (value: number) =>
   value > 15 ? 'var(--live)' : value < -15 ? 'var(--crit)' : 'var(--warn)';
+
+/**
+ * Sentiment distribution bar segment colour, keyed by the bucket's own
+ * label rather than its position — an alternating even/odd-index scheme
+ * gave "Positive" and "Negative" the same colour (both even-indexed) and
+ * only "Neutral" a different one, which read as two segments blending into
+ * each other rather than three distinct sentiments. Gradients rather than
+ * the shared design system's flat `--live`/`--warn`/`--crit` tokens: `--warn`
+ * in particular is a dark amber-orange close enough to this view's own
+ * brand orange to look like a clashing, muddy repeat of it (the same issue
+ * fixed on Campaigns' "No answer" segment — a plain amber/gold reads as
+ * "more orange" here, not as its own colour, so this goes further and uses
+ * a true yellow instead).
+ */
+const SENTIMENT_COLORS: Record<'positive' | 'neutral' | 'negative', string> = {
+  positive: 'linear-gradient(90deg, #34d399 0%, #059669 100%)',
+  neutral: 'linear-gradient(90deg, #fde047 0%, #eab308 100%)',
+  negative: 'linear-gradient(90deg, #fb7185 0%, #e11d48 100%)',
+};
+
+const sentimentBucketKey = (label?: string): keyof typeof SENTIMENT_COLORS => {
+  const key = String(label || '').toLowerCase();
+  if (key.startsWith('pos')) return 'positive';
+  if (key.startsWith('neg')) return 'negative';
+  return 'neutral';
+};
 
 const SpeechTextTab = () => {
   const {
@@ -25,6 +52,16 @@ const SpeechTextTab = () => {
     user?.user_info?.uuid &&
     isSocketConnected,
   );
+
+  /**
+   * `perf-warm-backdrop` flags the document so speech-theme.css can paint
+   * the full-page ambient gradient on `.perf-speech` itself, the same
+   * pattern Callbacks and Campaigns use.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-backdrop');
+  }, []);
 
   useEffect(() => {
     if (!canRefresh) return;
@@ -132,7 +169,7 @@ const SpeechTextTab = () => {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-4 px-[22px] py-4">
+    <div className="perf-speech flex w-full flex-col gap-4 px-[22px] py-5">
       <p className="page-note">
         Sentiment for AI receptionist / chatbot handled calls, sourced from the same live data as
         the AI Wallboard. Human-agent call sentiment isn't aggregated yet — see individual calls'
@@ -192,22 +229,51 @@ const SpeechTextTab = () => {
           <div className="k">Sentiment distribution</div>
           {sentimentBuckets.length ? (
             <>
-              <div className="hbar-t" style={{ display: 'flex', marginTop: 9 }}>
+              <div className="hbar-t" style={{ display: 'flex', gap: 2, marginTop: 9 }}>
                 {sentimentBuckets.map((bucket: any, index: number) => (
                   <i
                     key={bucket?.label || index}
                     style={{
                       borderRadius: 0,
-                      background: index % 2 === 0 ? 'var(--accent)' : 'var(--accent-edge)',
+                      background: SENTIMENT_COLORS[sentimentBucketKey(bucket?.label)],
                       width: `${Math.max(0, Number(bucket?.percent) || 0)}%`,
                     }}
                   />
                 ))}
               </div>
-              <div className="d" style={{ color: 'var(--ink-3)', fontWeight: 500 }}>
-                {sentimentBuckets
-                  .map((bucket: any) => `${bucket?.label}: ${bucket?.count}`)
-                  .join(' · ')}
+              {/* A colour dot per label — without one, "Positive: 31 · Neutral:
+                  18 · Negative: 7" gives no way to tell which bar segment is
+                  which; the dot repeats each segment's own colour next to its
+                  name. */}
+              <div
+                className="d"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '4px 12px',
+                  marginTop: 6,
+                  color: 'var(--ink-3)',
+                  fontWeight: 500,
+                }}
+              >
+                {sentimentBuckets.map((bucket: any, index: number) => (
+                  <span
+                    key={bucket?.label || index}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                  >
+                    <i
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: SENTIMENT_COLORS[sentimentBucketKey(bucket?.label)],
+                        flex: 'none',
+                      }}
+                    />
+                    {bucket?.label}: {bucket?.count}
+                  </span>
+                ))}
               </div>
             </>
           ) : (

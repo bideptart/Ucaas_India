@@ -201,6 +201,14 @@ body.perf-warm-backdrop .mcm-page .page-band {
   background: transparent;
   border-bottom: none;
 }
+/* `.page-note` ("Waiting, Longest wait, ... are live right now") is
+   `var(--ink-4)`, a light cool gray meant to sit quietly on a plain white
+   band — low enough contrast against the warm gradient here that it read
+   as barely-there. Darkened to the same muted tone the KPI tiles' own
+   labels use. */
+body.perf-warm-backdrop .mcm-page .page-band .page-note {
+  color: var(--pl-muted);
+}
 body.perf-warm-backdrop .mcm-page .page-band .kpis {
   background: transparent;
   border: none;

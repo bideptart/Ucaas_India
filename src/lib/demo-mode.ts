@@ -472,6 +472,18 @@ const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/ai/knowledge-base/review-job')) {
     return startDemoReviewJob(asObject(data));
   }
+  /* Creating the receptionist ingests its knowledge first, and every ingest
+     is checked for an id before the next one runs — "Generated knowledge base
+     was created without an ingestion ID." is thrown on a missing one, which
+     stopped Create Receptionist on the last step. The id is read off the body
+     directly, so it sits at the top level rather than inside `ok()`. */
+  if (
+    url.includes('/api/ai/user/add-content') ||
+    url.includes('/api/ai/user/ingest/url') ||
+    url.includes('/api/ai/user/ingest/pdf')
+  ) {
+    return { ingestionId: `demo-ingestion-${Math.random().toString(36).slice(2, 10)}` };
+  }
   if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows(), {}, data));
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;

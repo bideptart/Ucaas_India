@@ -2251,9 +2251,20 @@
   height: 18px;
   background: #fff;
   box-shadow: 0 1px 2px rgb(13 21 38 / 0.25);
+  /* The travel below has to be set with `translate`, not `transform`.
+     Tailwind v4 compiles `translate-x-*` to the standalone `translate`
+     property, so a `transform` here never replaced it - the two composed,
+     and a checked thumb moved 17px + 16px and left the track entirely.
+     Setting the same property overrides it instead of adding to it. */
+  transform: none;
+  translate: 0 0;
 }
+/* 18px is the track's inner width (38px less its two 1px borders) minus the
+   18px thumb, so the thumb ends up inset by the same amount at either end
+   rather than hanging off one. */
 .mcm-page [data-slot='switch'][data-state='checked'] [data-slot='switch-thumb'] {
-  transform: translateX(17px);
+  transform: none;
+  translate: 18px 0;
 }
 
 /* 3. Radio dots were a hairline ring that all but vanished against the

@@ -516,6 +516,68 @@ export const demoChatThreads = () => {
   });
 };
 
+/** Activity ▸ Agent Chat's `allAgentChats` — website-widget conversations
+ *  already picked up by an agent (Active) or finished (Resolved). Seeds the
+ *  socket context's initial state the same way `demoChatThreads` does for
+ *  Activity ▸ Chat; see that function's comment for why. Visitors are
+ *  distinct people from the internal roster/address book — a website
+ *  visitor isn't necessarily someone already in the CRM. */
+export const demoAgentChatThreads = () => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta' };
+  const seed = [
+    {
+      visitor: 'Manish Tiwari',
+      minutesAgo: 6,
+      message: 'Do you support porting an existing number?',
+      isEnded: false,
+    },
+    {
+      visitor: 'Divya Menon',
+      minutesAgo: 240,
+      message: 'Thanks for the help, that answers it!',
+      isEnded: true,
+    },
+  ];
+  return seed.map((row, index) => {
+    const visitorUuid = `demo-visitor-${index + 1}`;
+    const createdAt = new Date(now - row.minutesAgo * MIN_MS).toISOString();
+    return {
+      chatId: `demo-agent-chat-${index + 1}`,
+      isGroupChat: false,
+      groupType: 'AI',
+      isEnded: row.isEnded,
+      users: [me, { uuid: visitorUuid, name: row.visitor }],
+      lastMessage: { message: row.message, createdAt, senderId: visitorUuid },
+      metaData: { status: row.isEnded ? 'resolved' : 'active', lastMessageTimeStamp: createdAt },
+      createdAt,
+      isHidden: [],
+      isDeleted: false,
+    };
+  });
+};
+
+/** Activity ▸ Agent Chat's `aiChatRequests` — visitors waiting in the
+ *  Unassigned queue (`status: 'pending'`) or who left before anyone picked
+ *  up (`status: 'abandoned'`, shown under Missed). */
+export const demoAiChatRequests = () => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  const seed = [
+    { visitor: 'Farhan Sheikh', minutesAgo: 2, status: 'pending', domain: 'letsdial.com' },
+    { visitor: 'Ritu Choudhary', minutesAgo: 5, status: 'pending', domain: 'letsdial.com' },
+    { visitor: 'Kavya Pillai', minutesAgo: 90, status: 'abandoned', domain: 'letsdial.com' },
+  ];
+  return seed.map((row, index) => ({
+    chatId: `demo-ai-request-${index + 1}`,
+    status: row.status,
+    domain: row.domain,
+    createdAt: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
+    users: { name: row.visitor, uuid: `demo-visitor-request-${index + 1}` },
+  }));
+};
+
 /** `/api/tenant/report/agents` — matched back to the roster by name. */
 export const demoAgentReportRows = () =>
   DEMO_AGENTS.map((row) => {
@@ -716,6 +778,59 @@ export const demoSmsThreadRows = (chatId: string) => {
     dlrStatus: row.fromMe ? 'delivered' : 'received',
     createdAt: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
   }));
+};
+
+/** `/api/fax/to-number-list` — Inbox ▸ Fax's conversation list for the
+ *  selected fax number. `faxMessageId` is read elsewhere as `"{from}_{to}"`
+ *  split on the underscore, so it has to be built that way here too. */
+export const demoFaxConversations = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const seed = [
+    { name: 'Rahul Deshmukh', status: 'Delivered', daysAgo: 1, inbound: true, pages: 3 },
+    { name: 'Pooja Bansal', status: 'Sent', daysAgo: 3, inbound: false, pages: 1 },
+  ];
+  return seed.map((row, index) => {
+    const phone = fakeCaller(410 + index);
+    const from = row.inbound ? phone : DIDS[0];
+    const to = row.inbound ? DIDS[0] : phone;
+    return {
+      _id: `demo-fax-${index + 1}`,
+      faxMessageId: `${from}_${to}`,
+      from,
+      to,
+      name: row.name,
+      toContactName: row.name,
+      contactPic: null,
+      metaData: {
+        direction: row.inbound ? 'inbound' : 'outbound',
+        lastMessage: row.status,
+        timestamp: new Date(now - row.daysAgo * DAY_MS).toISOString(),
+        pageCount: row.pages,
+      },
+    };
+  });
+};
+
+/** `/api/fax/list` — the open fax conversation's documents. */
+export const demoFaxMessages = (faxMessageId: string) => {
+  const conversation = demoFaxConversations().find((row) => row.faxMessageId === faxMessageId);
+  if (!conversation) return [];
+
+  return [
+    {
+      _id: `${conversation.faxMessageId}-fax-1`,
+      faxId: `${conversation.faxMessageId}-fax-1`,
+      direction: conversation.metaData.direction,
+      fileName:
+        conversation.metaData.direction === 'inbound'
+          ? 'Signed_Agreement.pdf'
+          : 'Invoice_Statement.pdf',
+      pageCount: conversation.metaData.pageCount,
+      status: conversation.metaData.lastMessage,
+      createdAt: conversation.metaData.timestamp,
+    },
+  ];
 };
 
 /** `/api/tenant/department/list` — Directory ▸ Groups and Admin ▸ Departments. */

@@ -248,23 +248,58 @@
   gap: 14px;
   align-items: start;
 }
-/* Queues sat noticeably shorter than the agent-status + agents column
-   beside it under the default align-items: start. Stretching this pair
-   makes Queues grow to match, instead of the empty-state message just
-   floating in a short box. */
-.mcm-page .grid2.grid2-stretch {
+/* Width fixes below apply to any .panel-card table in this 2-column row
+   (Queues beside Agent status distribution) — about the column fitting
+   the card's width, independent of the height-matching rules further
+   down. Descendant selectors (not direct-child >) because Queues sits
+   inside a .stack (with Interactions below it), which puts a wrapper
+   between .grid2 and .panel-card that a > selector would miss. */
+.mcm-page .grid2 .panel-card > .tbl-wrap {
+  /* Flex children default to min-width: auto, which lets content push the
+     box wider than its parent instead of triggering this element's own
+     overflow-x: auto — the ABANDON column was running off the edge of the
+     card with no scrollbar because of exactly that. min-width: 0 lets it
+     actually shrink to the card's width and scroll internally. */
+  min-width: 0;
+}
+/* This table shares its row with Agent status distribution, so it only
+   gets about half the page width — 8 columns needed ~24px more than
+   that to show every column without scrolling. Tightening the padding
+   just here (not every table in the app) closes that gap. */
+.mcm-page .grid2 .panel-card > .tbl-wrap th {
+  padding: 7px 6px;
+}
+.mcm-page .grid2 .panel-card > .tbl-wrap td {
+  padding: 8px 6px;
+}
+/* Agents specifically wants taller rows than the rest of this row's
+   tables — scoped so Queues/Interactions beside it stay as tight as
+   they were. */
+.mcm-page .grid2 .panel-card.roomy-rows > .tbl-wrap td {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* Queues+Interactions (left) beside Agent status distribution+Agents
+   (right): the row stretches to the taller column's natural height, and
+   within the shorter column only the last card (.fill-remaining —
+   Interactions) grows to close the gap. Queues itself stays at its own
+   natural height rather than stretching, since a tall empty-state
+   message in a stretched Queues card was the previous complaint. */
+.mcm-page .grid2.grid2-stretch-cols {
   align-items: stretch;
 }
-.mcm-page .grid2.grid2-stretch > .panel-card {
+.mcm-page .grid2.grid2-stretch-cols > .stack {
+  height: 100%;
+}
+.mcm-page .grid2.grid2-stretch-cols > .stack > .panel-card.fill-remaining {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;
 }
-.mcm-page .grid2.grid2-stretch > .panel-card > .tbl-wrap {
+.mcm-page .grid2.grid2-stretch-cols > .stack > .panel-card.fill-remaining > .tbl-wrap {
   flex: 1;
-}
-.mcm-page .grid2.grid2-stretch > .stack {
-  height: 100%;
 }
 @media (max-width: 1080px) {
   .mcm-page .grid2 {
@@ -276,6 +311,19 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
   align-items: start;
+}
+/* Dashboard home's "Your day so far / Since you logged off / Quick dial"
+   row: stretched to equal height instead of each hugging its own content. */
+.mcm-page .grid3.grid3-stretch {
+  grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
+}
+.mcm-page .grid3.grid3-stretch > .panel-card {
+  display: flex;
+  flex-direction: column;
+}
+.mcm-page .grid3.grid3-stretch > .panel-card > .pc-body {
+  flex: 1;
 }
 .mcm-page .grid4 {
   display: grid;
@@ -1081,6 +1129,48 @@
   text-align: right;
   flex: none;
 }
+
+/* Agent status distribution as one segmented bar (each state's share end
+   to end) plus a wrapping legend row, instead of a full-width bar per
+   state stacked vertically — shows the same breakdown in far less height
+   and keeps every segment comparable at a glance. */
+.mcm-page .dist-bar {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--surface-3);
+}
+.mcm-page .dist-bar-seg {
+  display: block;
+  height: 100%;
+}
+.mcm-page .dist-bar-seg:not(:last-child) {
+  border-right: 1.5px solid var(--surface);
+}
+.mcm-page .dist-legend {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 14px;
+}
+.mcm-page .dist-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.mcm-page .dist-legend-item .state {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+.mcm-page .dist-legend-item .num {
+  font-size: 10.5px;
+}
 .mcm-page .bar {
   height: 3px;
   border-radius: 99px;
@@ -1138,6 +1228,26 @@
 }
 .mcm-page .attn + .attn {
   margin-top: 8px;
+}
+/* "Needs you now" laid out as one row instead of a stack — each alert
+   shares the width equally and wraps to a second row only if the card
+   genuinely doesn't have room, rather than clipping. */
+.mcm-page .pc-body.attn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px;
+}
+.mcm-page .pc-body.attn-row .attn {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin-top: 0;
+}
+.mcm-page .pc-body.attn-row .attn + .attn {
+  margin-top: 0;
+}
+.mcm-page .pc-body.attn-row .attn-d {
+  white-space: normal;
 }
 .mcm-page .attn.crit {
   border-color: var(--crit);

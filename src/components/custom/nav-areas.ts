@@ -109,6 +109,13 @@ export type AreaView = {
   sep?: boolean;
   /** Plan feature that must be on for this view to appear. */
   feature?: 'ai' | 'video' | 'queue';
+  /**
+   * A view that opens somewhere other than `${base}?view=${key}` — one of the
+   * top-bar shortcuts moved into this rail. Static routes go straight in
+   * here; the handful that depend on the signed-in user (Activity,
+   * Monitoring) are resolved in useAreaNav instead, keyed by `key`.
+   */
+  href?: string;
 };
 
 /**
@@ -153,6 +160,15 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   { key: 'ai-wallboard', label: 'AI Wall', icon: 'AnalyticsIcon', feature: 'ai' },
   { key: 'call-queue', label: 'Queue', icon: 'PhoneIcon', feature: 'queue' },
   { key: 'video-dashboard', label: 'Video', icon: 'VideoIcon', feature: 'video' },
+  // The top-bar shortcuts, moved down here so the bar itself stays lean.
+  { key: 'ext-tasks', label: 'Tasks', icon: 'ReportsLineIcon', href: '/calendar?view=task-list', sep: true },
+  { key: 'ext-calendar', label: 'Calendar', icon: 'CalendarLine', href: '/calendar?view=calendar' },
+  { key: 'ext-campaigns', label: 'Dialer', icon: 'DialerIcon', href: '/my-campaigns' },
+  // Activity and Monitoring depend on the signed-in user (their uuid, their
+  // role/plan access) so their real href is resolved in useAreaNav — this
+  // placeholder just claims the slot and the icon.
+  { key: 'ext-activity', label: 'Activity', icon: 'PhoneIcon' },
+  { key: 'ext-monitoring', label: 'Monitor', icon: 'AnalyticsIcon' },
 ];
 
 /** The views an area carries in its rail, if it carries any. */

@@ -154,8 +154,20 @@ const DUMMY_NOTIFICATIONS: any[] = [
 // every time it closes (Header only renders <SideDrawer> while open), so
 // state stored on the component would forget every "read" click the moment
 // the drawer shut. Living outside the component lets it survive that.
+// Two stores, not one: dummy items start out a mix of read/unread (see
+// buildDummyGroup's `unread: index < 3`), so a single "read" override set
+// can only ever push items toward read — it has no way to force an
+// already-read item back to unread. A matching unread-override set covers
+// that direction; each store wins over the item's original state, and
+// marking an id one way clears it from the other.
 let dummyReadIdStore = new Set<string>();
+let dummyUnreadIdStore = new Set<string>();
 const markDummyIdRead = (id: string) => {
+  if (dummyUnreadIdStore.has(id)) {
+    const next = new Set(dummyUnreadIdStore);
+    next.delete(id);
+    dummyUnreadIdStore = next;
+  }
   if (!dummyReadIdStore.has(id)) dummyReadIdStore = new Set(dummyReadIdStore).add(id);
 };
 // Only offered for the local dev sample data — the real socket call
@@ -167,16 +179,19 @@ const markDummyIdUnread = (id: string) => {
     next.delete(id);
     dummyReadIdStore = next;
   }
+  if (!dummyUnreadIdStore.has(id)) dummyUnreadIdStore = new Set(dummyUnreadIdStore).add(id);
 };
 // Returns the pre-mark snapshot so a caller can offer an Undo that restores
 // exactly which items were unread before, not just "mark everything unread".
 const markAllDummyRead = () => {
-  const previous = dummyReadIdStore;
+  const previous = { read: dummyReadIdStore, unread: dummyUnreadIdStore };
   dummyReadIdStore = new Set(DUMMY_NOTIFICATIONS.map(({ _id }) => _id));
+  dummyUnreadIdStore = new Set();
   return previous;
 };
-const restoreDummyReadIds = (previous: Set<string>) => {
-  dummyReadIdStore = previous;
+const restoreDummyReadIds = (previous: { read: Set<string>; unread: Set<string> }) => {
+  dummyReadIdStore = previous.read;
+  dummyUnreadIdStore = previous.unread;
 };
 
 // "Today" / "Yesterday" / a full date — assumes the list arrives newest
@@ -334,9 +349,11 @@ const NotificationContent = ({
 
   const sourceNotifications = useMemo(() => {
     if (!isShowingDummy) return notificationArr;
-    return DUMMY_NOTIFICATIONS.map((notification) =>
-      dummyReadIdStore.has(notification._id) ? { ...notification, unread: false } : notification,
-    );
+    return DUMMY_NOTIFICATIONS.map((notification) => {
+      if (dummyReadIdStore.has(notification._id)) return { ...notification, unread: false };
+      if (dummyUnreadIdStore.has(notification._id)) return { ...notification, unread: true };
+      return notification;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowingDummy, notificationArr, dummyReadVersion]);
 
@@ -439,7 +456,7 @@ const NotificationContent = ({
                       // Only offered for the local dev sample data — there's
                       // no matching "unmark as read" call for real
                       // notifications, so a fake Undo there would just lie.
-                      const previousReadIds = markAllDummyRead();
+                      const previousReadState = markAllDummyRead();
                       setDummyReadVersion((v) => v + 1);
                       setNotificationState(false);
                       handleAlert({
@@ -451,7 +468,7 @@ const NotificationContent = ({
                               className="text-xs font-semibold underline shrink-0 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                restoreDummyReadIds(previousReadIds);
+                                restoreDummyReadIds(previousReadState);
                                 setDummyReadVersion((v) => v + 1);
                               }}
                             >

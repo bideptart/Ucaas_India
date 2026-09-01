@@ -21,6 +21,8 @@ import notificationSound from '@/assets/audio/new-notification.mp3';
 import { chatEvents } from '@/context/socket-events';
 import { isDemoMode } from '@/lib/demo-mode';
 import {
+  demoAgentChatThreads,
+  demoAiChatRequests,
   demoAiLiveWallboardData,
   demoCampaignAiLiveCallData,
   demoChatThreads,
@@ -848,7 +850,9 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
   const [allChats, setAllChats] = useState<any>(() => (isDemoMode() ? demoChatThreads() : []));
-  const [allAgentChats, setAllAgentChats] = useState<any>([]);
+  const [allAgentChats, setAllAgentChats] = useState<any>(() =>
+    isDemoMode() ? demoAgentChatThreads() : [],
+  );
   const [messageList, setMessageList] = useState<any>([]);
   const [pinnedList, setPinnedList] = useState<any>([]);
   const [threadsManager, setThreadsManager] = useState<any>([]);
@@ -924,6 +928,14 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   );
   const [contactsInfo, setContactsInfo] = useState<Record<string, any>>({});
   const [aiChatRequests, setAiChatRequests] = useState<any[]>(() => {
+    /* Demo mode seeds fresh every load rather than trusting localStorage: a
+       browser that ever visited this page before there was demo data to
+       seed cached an empty `"[]"` here, which — read first — would keep
+       shadowing the seed forever after, on every future visit, even once
+       this fix landed. The persist effect below overwrites that cache with
+       whatever demoAiChatRequests() (or a real accept/resolve) produces on
+       the very next state change, so this never fights a real session. */
+    if (isDemoMode()) return demoAiChatRequests();
     try {
       const stored = localStorage.getItem('ai_chat_requests');
       return stored ? (JSON.parse(stored) as any[]) : [];

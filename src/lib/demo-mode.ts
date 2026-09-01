@@ -22,6 +22,8 @@
  * preview host and sign in against the real API instead.
  */
 import { isPreviewHost } from '@/lib/utils';
+import { demoAiVoiceRows } from '@/lib/demo-ai-voices';
+import { demoCrawledPages } from '@/lib/demo-site-crawl';
 import { resolveCaptainRequest } from '@/lib/demo-captain';
 import {
   DEMO_AGENTS,
@@ -35,6 +37,8 @@ import {
   demoContactGroupRows,
   demoDepartmentRows,
   demoDncRows,
+  demoFaxConversations,
+  demoFaxMessages,
   demoFlowRows,
   demoInboundCallRows,
   demoLocalCallRows,
@@ -101,6 +105,12 @@ const PLAN_FEATURES = grant([
   'campaign.action.view',
   'chat.IS_SHOW',
   'chat.action.view',
+  'chat.access.DIRECT_MESSAGE',
+  'chat.access.TEAM_MESSAGE',
+  'chat.access.UPLOAD_FILES',
+  'chat.access.CHAT_VIDEO',
+  'chat.create_folder',
+  'chat.create_note',
   'contact.IS_SHOW',
   'contact.action.view',
   'integration.IS_SHOW',
@@ -398,6 +408,16 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows()));
   if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows()));
+  /* The AI Receptionist builder's Voice & Persona step. An empty list here
+     leaves its required voice field with nothing to select, which stops the
+     wizard at step 2 rather than just looking bare. */
+  if (url.includes('/api/ai/voice/list')) return ok(listPayload(demoAiVoiceRows()));
+  /* The website scan behind both knowledge-base builders. Deliberately a bare
+     array rather than `ok(...)`: both read `Array.isArray(response.data)` and
+     treat anything else as nothing found. */
+  if (url.includes('/api/ai/chat-agent/site-crawl')) {
+    return demoCrawledPages(String(asObject(data)?.site_url || ''));
+  }
   if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;
@@ -445,6 +465,11 @@ const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/v1/sms/list')) {
     const chatId = asObject(data)?.chat_id;
     return ok(listPayload(demoSmsThreadRows(chatId)));
+  }
+  if (url.includes('/api/fax/to-number-list')) return ok(listPayload(demoFaxConversations()));
+  if (url.includes('/api/fax/list')) {
+    const faxMessageId = asObject(data)?.filters?.faxMessageId;
+    return ok(listPayload(demoFaxMessages(faxMessageId)));
   }
 
   /* Home's "today" digest re-reads the call log through a second endpoint
@@ -514,4 +539,4 @@ export const seedDemoSession = (sessionKey: string) => {
   if (localStorage.getItem(sessionKey)) return;
 
   localStorage.setItem(sessionKey, DEMO_SESSION_TOKEN);
-};
+};

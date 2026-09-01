@@ -35,6 +35,8 @@ import {
   demoContactGroupRows,
   demoDepartmentRows,
   demoDncRows,
+  demoFaxConversations,
+  demoFaxMessages,
   demoFlowRows,
   demoInboundCallRows,
   demoLocalCallRows,
@@ -101,6 +103,12 @@ const PLAN_FEATURES = grant([
   'campaign.action.view',
   'chat.IS_SHOW',
   'chat.action.view',
+  'chat.access.DIRECT_MESSAGE',
+  'chat.access.TEAM_MESSAGE',
+  'chat.access.UPLOAD_FILES',
+  'chat.access.CHAT_VIDEO',
+  'chat.create_folder',
+  'chat.create_note',
   'contact.IS_SHOW',
   'contact.action.view',
   'integration.IS_SHOW',
@@ -446,6 +454,11 @@ const matchDemoPayload = (url: string, data: unknown) => {
     const chatId = asObject(data)?.chat_id;
     return ok(listPayload(demoSmsThreadRows(chatId)));
   }
+  if (url.includes('/api/fax/to-number-list')) return ok(listPayload(demoFaxConversations()));
+  if (url.includes('/api/fax/list')) {
+    const faxMessageId = asObject(data)?.filters?.faxMessageId;
+    return ok(listPayload(demoFaxMessages(faxMessageId)));
+  }
 
   /* Home's "today" digest re-reads the call log through a second endpoint
      rather than the one `demoCalls()` already answers above. */
@@ -514,4 +527,4 @@ export const seedDemoSession = (sessionKey: string) => {
   if (localStorage.getItem(sessionKey)) return;
 
   localStorage.setItem(sessionKey, DEMO_SESSION_TOKEN);
-};
+};

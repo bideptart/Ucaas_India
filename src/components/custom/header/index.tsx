@@ -662,15 +662,20 @@ const Header = () => {
           </nav>
         </header>
 
-        {notificationState && (
-          <SideDrawer
-            isOpen={notificationState}
-            handleClose={() => setNotificationState(false)}
-            content={<NotificationContent setNotificationState={setNotificationState} />}
-            isHeader={true}
-            width="30%"
-          />
-        )}
+        {/* Always mounted, unlike the other SideDrawers here — the slide
+            transition needs the panel already sitting off-screen
+            (translate-x-full) before isOpen flips true, so there is
+            something to animate FROM. Conditionally mounting it (the old
+            `notificationState && <SideDrawer/>` pattern) meant it only
+            ever existed already fully open, so open and close both just
+            snapped instead of sliding. */}
+        <SideDrawer
+          isOpen={notificationState}
+          handleClose={() => setNotificationState(false)}
+          content={<NotificationContent setNotificationState={setNotificationState} />}
+          isHeader={true}
+          width="30%"
+        />
         {pendingChatState && (
           <SideDrawer
             isOpen={pendingChatState}

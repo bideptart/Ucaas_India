@@ -35,7 +35,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
     id: 1,
     label: 'All',
     value: ['all'],
-    icon: <Bell className="text-gray-700 w-full h-full" />,
+    icon: <Bell className="text-primary w-full h-full" />,
   });
   const { data: ongoingMeetingData } = useQuery({
     queryKey: ['ongoingMeetingList', 'notification-content'],
@@ -126,7 +126,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
           </div>
         </div>
       </div>
-      <hr className="text-gray-400 p-2 mt-1" />
+      <hr className="border-gray-200 mt-1" />
       <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div className="flex justify-center items-center h-full">
@@ -281,9 +281,9 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
             );
           })
         ) : (
-          <div className="w-full max-w-96 min-h-52  h-full p-4 rounded-lg   m-auto border border-gray-100 flex flex-col items-center justify-center gap-2">
+          <div className="w-full max-w-96 min-h-52 h-full p-4 rounded-xl m-auto border border-ucass-primary-100 bg-ucass-primary-200/40 flex flex-col items-center justify-center gap-2">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="flex items-center justify-center text-gray-900  font-medium">
+            <p className="flex items-center justify-center text-gray-900 font-medium">
               No Notification(s) Found!
             </p>
           </div>

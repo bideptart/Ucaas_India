@@ -16,19 +16,20 @@ const parseMembers = (members: any) => {
 
 const CampaignActivityTab = () => {
   /**
-   * Same shared toggles the Live and Callbacks tabs use: `perf-warm-toolbar`
-   * reaches the Performance toolbar (rendered by the page shell above this
-   * tab, not by this component) — styled as the plain flat wash approved
-   * after review, not the earlier glass/blur/shadow version — and
    * `perf-warm-backdrop` flags the document so campaigns-theme.css can paint
    * the full-page ambient gradient and the live-queue KPI band — done on
    * `.perf-campaigns` itself rather than through the generic `.mcm-page`
    * rule, since the embedded `<Campaign />` below renders its own nested
    * `.mcm-page` panel.
+   *
+   * The toolbar itself (`perf-warm-toolbar`) is now toggled once in the
+   * parent `Performance` component (index.tsx), since the toolbar renders
+   * unconditionally there for every tab — adding it here too would race
+   * with the parent's own toggle on tab switches.
    */
   useEffect(() => {
-    document.body.classList.add('perf-warm-toolbar', 'perf-warm-backdrop');
-    return () => document.body.classList.remove('perf-warm-toolbar', 'perf-warm-backdrop');
+    document.body.classList.add('perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-backdrop');
   }, []);
 
   const { data: campaigns = [] } = useQuery({

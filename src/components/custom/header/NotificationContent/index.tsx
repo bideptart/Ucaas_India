@@ -554,7 +554,6 @@ const NotificationContent = ({
                 : notification?.type;
             const Icon =
               notificationIconLookup?.[notificationtype] || notificationIconLookup?.['default'];
-            console.log(notification?.type, 'notification');
             const eventStartTime =
               notification?.details?.startUtc &&
               (notification?.type === NOTIFICATION_TYPE_CONST.CALL_BACK_SCHEDULE ||

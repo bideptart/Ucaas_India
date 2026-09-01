@@ -14,7 +14,6 @@ import { useCompanyFeatures } from '@/hooks/rbac';
 import { useMyPresence } from '@/hooks/use-my-presence';
 import AvatarContent from './AvatarContent';
 import NotificationContent from './NotificationContent';
-// import { useCampaign } from '@/hooks/use-campaign';
 import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
 import ThemeToggle from '@/components/custom/theme-toggle';
@@ -83,8 +82,6 @@ const Header = () => {
 
   const { features } = useCompanyFeatures();
   const addFundsRoute = '/admin-settings/billing/purchase';
-  // const { isCampaignCall, isStartCampaign, selectedCampaign, setIsStopCampaign, isStopCampaign } =
-  //   useCampaign();
 
   const navigateToLazyRoute = useCallback(
     (route?: string) => {
@@ -268,7 +265,6 @@ const Header = () => {
   useEffect(() => {
     if (socketEventsManager) {
       const handleWalletUpdated = (data: any) => {
-        console.log('Header wallet-updated data:', data);
         queryClient.invalidateQueries({ queryKey: ['callListingLog'] });
         const nextAmount = Number(data?.amount);
         if (!Number.isFinite(nextAmount)) return;
@@ -371,37 +367,6 @@ const Header = () => {
               {/* The dialer button lived here. Calls are placed from
                   Activity ▸ Phone; the header keeps only notifications and
                   account controls. */}
-              {/* AI Chat Requests */}
-              {/* <div className="inline-flex items-center justify-center font-medium">
-                <CustomTooltip text={'AI Chat Requests'} side="bottom">
-                  <span
-                    className="cursor-pointer relative bg-gray-100 flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary"
-                    onClick={() => {
-                      setPendingChatState(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    {aiChatRequests && aiChatRequests.length > 0 && (
-                      <span className="bg-primary absolute text-white font-normal me-2  rounded-full -top-[4px] left-[20px] border-white border-2 text-xs px-1 min-w-5 min-h-5 flex items-center justify-center">
-                        {aiChatRequests.length > 9 ? '9+' : aiChatRequests.length}
-                      </span>
-                    )}
-                    <svg
-                      className="w-4.5 h-4.5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.8}
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15M14.25 3.104c.251.023.501.05.75.082M19.8 15l-1.539.924A13.484 13.484 0 0112 17.25a13.484 13.484 0 01-6.261-1.326L4.2 15m15.6 0-1.74 2.61a2.25 2.25 0 01-1.874 1.005H7.814a2.25 2.25 0 01-1.874-1.005L4.2 15"
-                      />
-                    </svg>
-                  </span>
-                </CustomTooltip>
-              </div> */}
               <div className="inline-flex items-center justify-center font-medium">
                 <CustomTooltip text={'Notification'} side="bottom">
                   <span

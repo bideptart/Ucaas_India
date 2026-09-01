@@ -21,7 +21,6 @@ function WidgetViewModal({ modalState, setModalState, data }: IWidgetViewModalPr
   const [activeTab, setActiveTab] = useState<'chat' | 'talk'>('chat');
   const { agentId = '' } = data || {};
   // const baseURL = window.location.origin;
-  console.log(setActiveTab, 'setActiveTab');
 
   const { data: agentList = [], isLoading: isAgentLoading } = useQuery({
     queryFn: getAgentList,

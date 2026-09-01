@@ -332,7 +332,6 @@ const wizardSteps = [
   'Review',
   'Advanced Settings',
 ];
-console.log(wizardSteps);
 
 const stepToTab: Record<ReceptionistStep, WizardReceptionistTab> = {
   1: 'basics',
@@ -2134,7 +2133,6 @@ function ForwardTypeCell({ data, onUpdate, optionsData, userExtension }: any) {
     </div>
   );
 }
-console.log(ForwardTypeCell);
 
 function NewAiReceptionistPage() {
   const navigate = useNavigate();
@@ -2169,7 +2167,6 @@ function NewAiReceptionistPage() {
     queryFn: () => getAIReceptionistList({ page: 1, limit: 1000, filters: [], search: '' }),
     select: (data: any) => data?.data?.data?.result || {},
   });
-  console.log(receptionistData, 'receptionistData');
 
   const receptionistRows = useMemo(
     () => (Array.isArray(receptionistData?.rows) ? receptionistData.rows : []),
@@ -3129,7 +3126,6 @@ function NewAiReceptionistBuilder({
   );
   const [selectedPersona, setSelectedPersona] = useState(initialVoicePersona);
   const [selectedPersonaObj, setSelectedPersonaObj] = useState<any>({});
-  console.log(selectedPersona, 'selectedPersona');
 
   const initialTextKnowledgeValue =
     builderState?.knowledge?.selectedKnowledgeBase?.text || initialData?.text_uuid;
@@ -3329,7 +3325,6 @@ function NewAiReceptionistBuilder({
       initialForwardActions?.enable_human_handoff ??
       true,
   );
-  console.log(setEnableHumanHandoff);
   const savedBusinessHoursForwardCall = initialForwardActions?.call_handling?.business_hours || {};
   const hasSavedBusinessHoursRouting = hasSavedBusinessHoursForwardCall(
     savedBusinessHoursForwardCall,
@@ -4547,7 +4542,6 @@ function NewAiReceptionistBuilder({
       setSelectedLinks((prev) => prev.filter((item) => item !== id));
     }
   };
-  console.log(handleDeleteKbItem);
 
   const validateStep = (step: ReceptionistStep) => {
     const errorsMap: Record<string, string> = {};
@@ -4761,7 +4755,6 @@ function NewAiReceptionistBuilder({
     setStepErrors({});
     setActiveStep(step);
   };
-  console.log(goToStep);
 
   const getReceptionistWizardStepId = (
     step: ReceptionistStep,
@@ -5774,7 +5767,6 @@ function NewAiReceptionistBuilder({
         getForwardDestinationValue(committedForwardState) ||
         '-';
 
-  console.log(committedForwardValueLabel, 'committedForwardValueLabel', committedForwardState);
 
   const forwardValueFieldLabel = getForwardValueFieldLabel(forwardCallState?.type?.value);
   const editHeaderAgentData = {
@@ -9075,7 +9067,6 @@ function SourceAnalysisList({ records }: { records: SourceRecord[] }) {
     </div>
   );
 }
-console.log(SourceAnalysisList);
 
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
@@ -9159,7 +9150,6 @@ function ActionCard({
     </div>
   );
 }
-console.log(ActionCard);
 
 function OverviewPanel({ title, children }: { title: string; children: ReactNode }) {
   return (

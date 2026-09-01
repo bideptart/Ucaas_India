@@ -65,7 +65,6 @@ const Storage = () => {
         onSuccess: (res) => {
           const buyData = res?.data?.data?.result;
 
-          console.log(buyData, 'buyDatabuyData', data);
 
           if (buyData?.requires_action) {
             paymentRef.current.handle3DSPayment(buyData?.payment_intent_id);

@@ -48,7 +48,6 @@ function AiAgent() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedRowData, setSelectedRowData] = useState(null);
-  console.log(selectedRowData, 'selectedRowData');
 
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [isUpdatingPrompt, setIsUpdatingPrompt] = useState(false);
@@ -93,7 +92,6 @@ function AiAgent() {
   }, []);
 
   const handleTestChatClick = async (rowData: any) => {
-    // console.log();
 
     // if (rowData?.domain !== window.location.hostname) {
     //   handleAlert({
@@ -136,7 +134,6 @@ function AiAgent() {
 
       // Find agent widget colors from agentList
       // const agent = agentList?.find((a: any) => a?.agentId === agentId || a?._id === agentId);
-      console.log(rowData, 'llllllOOOOO');
 
       const script = document.createElement('script');
       script.id = EMBED_SCRIPT_ID;
@@ -153,7 +150,6 @@ function AiAgent() {
           document.getElementById(widgetId)?.querySelector('button')?.click();
         }, 0);
       };
-      console.log(script, 'scriptscript', rowData, 'PPPPPPPPProwData');
 
       document.body.appendChild(script);
 
@@ -261,7 +257,6 @@ function AiAgent() {
         useMessageExactly,
         ...updatedData
       } = payload;
-      console.log(agent_uuid, uuid, did_uuid, company_uuid, created_at, useMessageExactly);
 
       submitAgent(updatedData, {
         onSuccess: () => {

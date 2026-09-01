@@ -413,7 +413,6 @@ const ConfigureAiAgent = () => {
     aiAgentDraft = null,
   } = location.state || {};
 
-  console.log(location?.state, 'initialTopicId');
 
   const { formData: initialData = {} } = rowData || {};
 
@@ -421,7 +420,6 @@ const ConfigureAiAgent = () => {
   const [currentStep, setCurrentStep] = useState(
     Number.isFinite(aiAgentDraft?.currentStep) ? Number(aiAgentDraft?.currentStep) : 0,
   );
-  console.log(currentStep, 'currentStepcurrentStep', initialData);
 
   const [agentName, setAgentName] = useState(
     aiAgentDraft?.agentName ?? initialData?.agentName ?? initialTemplateName ?? '',
@@ -571,7 +569,6 @@ const ConfigureAiAgent = () => {
   );
   const [managerSearch, setManagerSearch] = useState('');
 
-  // console.log(selectedTopicId, 'selectedTopicId', initialData);
 
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
   const [widgetColors] = useState({
@@ -1020,7 +1017,6 @@ const ConfigureAiAgent = () => {
     }
   };
 
-  console.log(handlePlayPause);
 
   const stopAudio = () => {
     if (audioRef.current) {

@@ -592,7 +592,12 @@ const MyCampaignListStandalone = () => {
 
   return (
     <>
-      <section className="w-full bg-[#F7F9FC] flex flex-col overflow-x-auto overflow-y-hidden h-full">
+      {/* `mcm-page mcm-admin` opts this screen into the console's design
+          system, the way the other full-page routes do. Without it none of
+          the glass rules applied here, and the hardcoded `bg-[#F7F9FC]`
+          painted an opaque grey over the app's gradient backdrop — this was
+          the one route still showing a flat background. */}
+      <section className="mcm-page mcm-admin w-full flex flex-col overflow-x-auto overflow-y-hidden h-full">
         <div className="flex items-center justify-between p-4 border-b border-gray-200/90 min-h-[68px] bg-white">
           <div className="flex flex-col">
             <p className="text-gray-900 font-semibold text-lg leading-tight">Campaign Workspace</p>
@@ -604,16 +609,21 @@ const MyCampaignListStandalone = () => {
 
         <div className="p-3 w-full h-full gap-2 flex flex-col">
           <div className="bg-white w-full rounded-2xl border border-gray-200/90 h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
-            <div className="border-b border-gray-200 bg-gradient-to-r from-slate-50 via-white to-slate-50 w-full">
+            {/* The slate/white gradient and grey tab rail were invisible
+                against the panel, so the tabs and the content below read as
+                one undivided white field. The shading now comes from the
+                page's own backdrop: each nested layer holds back a little
+                more white, so more of the warm gradient shows through and
+                the strip, the rail and the active tab separate as shades of
+                one colour instead of new greys. */}
+            <div className="mcm-tabstrip w-full">
               <div className="sm:px-3 sm:pt-3 sm:pb-2 flex-col sm:flex items-center justify-between gap-3 w-full ">
-                <div className="inline-flex items-center sm:rounded-xl bg-gray-100 p-1 gap-1 w-full">
+                <div className="mcm-tabstrip-rail inline-flex items-center sm:rounded-xl p-1 gap-1 w-full">
                   <button
                     type="button"
                     onClick={() => setActiveTab('running-campaign')}
-                    className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
-                      activeTab === 'running-campaign'
-                        ? 'bg-white text-slate-900'
-                        : 'text-slate-500 hover:text-slate-700'
+                    className={`mcm-tab relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                      activeTab === 'running-campaign' ? 'is-on' : ''
                     }`}
                   >
                     <Icon name="Grid2" className="w-4 h-4" />
@@ -623,10 +633,8 @@ const MyCampaignListStandalone = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('assigned-queues')}
-                    className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
-                      activeTab === 'assigned-queues'
-                        ? 'bg-white text-slate-900'
-                        : 'text-slate-500 hover:text-slate-700'
+                    className={`mcm-tab relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                      activeTab === 'assigned-queues' ? 'is-on' : ''
                     }`}
                   >
                     <Icon name="CallQueue" className="w-4 h-4" />

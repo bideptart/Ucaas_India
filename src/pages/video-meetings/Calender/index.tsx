@@ -275,6 +275,44 @@ const CalendarPage = () => {
   //   [taskListData],
   // );
 
+  /**
+   * How many events and tasks fall on each day, so the mini calendar shows
+   * something the month grid beside it cannot: where the month is busy.
+   *
+   * Keyed off `schedules` — the same list the big calendar renders — so the
+   * two never disagree, and the category filter above applies to both. The
+   * dot colours match that calendar's legend: events blue, tasks green.
+   */
+  const miniDayMarkers = useMemo(() => {
+    const byDay = new Map<string, { event: number; task: number }>();
+
+    schedules.forEach((schedule) => {
+      const start = moment(schedule.start).startOf('day');
+      if (!start.isValid()) return;
+
+      const rawEnd = moment(schedule.end).startOf('day');
+      /* Anything spanning midnight is marked on every day it covers, not
+         just the day it started. The guard is for end dates that arrive
+         corrupted — without it a bad year would spin here. */
+      const end = rawEnd.isValid() && rawEnd.isAfter(start) ? rawEnd : start;
+      const kind =
+        String(schedule?.raw?.category || '').toUpperCase() === 'TASK' ? 'task' : 'event';
+
+      const cursor = start.clone();
+      let guard = 0;
+      while (cursor.isSameOrBefore(end, 'day') && guard < 366) {
+        const key = cursor.format('YYYY-MM-DD');
+        const entry = byDay.get(key) || { event: 0, task: 0 };
+        entry[kind] += 1;
+        byDay.set(key, entry);
+        cursor.add(1, 'day');
+        guard += 1;
+      }
+    });
+
+    return byDay;
+  }, [schedules]);
+
   const miniCalendarDays = useMemo(() => {
     const start = miniCurrentDate.clone().startOf('month').startOf('week');
     const end = miniCurrentDate.clone().endOf('month').endOf('week');
@@ -1035,56 +1073,39 @@ const CalendarPage = () => {
     <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto overflow-x-hidden p-3 lg:overflow-hidden">
       <div className="rounded-lg bg-white border border-slate-200 overflow-visible lg:overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] min-h-[calc(100vh-88px)] overflow-visible lg:overflow-hidden">
-          <aside className="border-r border-slate-200 bg-slate-50 p-4">
+          <aside className="mcm-calpanel p-4">
             <div className="relative mb-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={handleMiniMonthClick}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-semibold text-slate-900 hover:bg-slate-100"
-                  >
-                    {miniCurrentDate.format('MMMM')}
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-600" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleMiniYearClick}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-semibold text-slate-900 hover:bg-slate-100"
-                  >
-                    {miniCurrentDate.format('YYYY')}
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-600" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    className="h-7 w-7 rounded-md border border-slate-200 bg-white grid place-items-center hover:bg-slate-100 cursor-pointer"
-                    onClick={() => {
-                      syncBigCalendarToDate(miniCurrentDate.clone().subtract(1, 'month'));
-                      setMiniPickerOpen(false);
-                    }}
-                  >
-                    <ArrowLeft className="w-4 h-4 text-slate-700" />
-                  </button>
-                  <button
-                    type="button"
-                    className="h-7 w-7 rounded-md border border-slate-200 bg-white grid place-items-center hover:bg-slate-100 cursor-pointer"
-                    onClick={() => {
-                      syncBigCalendarToDate(miniCurrentDate.clone().add(1, 'month'));
-                      setMiniPickerOpen(false);
-                    }}
-                  >
-                    <ArrowRight className="w-4 h-4 text-slate-700" />
-                  </button>
-                </div>
+              {/* No prev/next arrows here. The main calendar's header already
+                  steps through months, and two arrow pairs driving one date
+                  left it ambiguous which was authoritative. This picker jumps
+                  to a month or year; the main header walks through time.
+                  Dropping them also ends the overflow that pushed the next
+                  arrow past the panel edge — the two remaining buttons now
+                  split the full width instead of competing for it. */}
+              <div className="flex items-stretch gap-2">
+                <button
+                  type="button"
+                  onClick={handleMiniMonthClick}
+                  className="mcm-cal-ctrl cursor-pointer inline-flex min-w-0 flex-[3] items-center justify-center gap-1 truncate rounded-md border px-2 py-1.5 text-sm font-semibold text-mcm-ink"
+                >
+                  {miniCurrentDate.format('MMMM')}
+                  <ChevronDown className="w-3.5 h-3.5 shrink-0 text-mcm-ink-2" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleMiniYearClick}
+                  className="mcm-cal-ctrl cursor-pointer inline-flex min-w-0 flex-[2] items-center justify-center gap-1 truncate rounded-md border px-2 py-1.5 text-sm font-semibold text-mcm-ink"
+                >
+                  {miniCurrentDate.format('YYYY')}
+                  <ChevronDown className="w-3.5 h-3.5 shrink-0 text-mcm-ink-2" />
+                </button>
               </div>
 
               {miniPickerOpen && (
-                <div className="absolute z-30 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-lg">
+                <div className="absolute z-30 mt-2 w-full rounded-xl border border-mcm-line bg-white shadow-lg">
                   {miniPickerMode === 'year' ? (
                     <div className="p-2">
-                      <p className="px-1 pb-2 text-sm font-semibold text-slate-500  tracking-wide">
+                      <p className="px-1 pb-2 text-sm font-semibold text-mcm-ink-3  tracking-wide">
                         Select Year
                       </p>
                       <div className="grid grid-cols-3 gap-1 max-h-48 overflow-y-auto pr-1">
@@ -1096,7 +1117,7 @@ const CalendarPage = () => {
                             className={`cursor-pointer rounded-md px-2 py-1.5 text-sm font-medium transition ${
                               miniPickerSelectedYear === year
                                 ? 'bg-[var(--primary)] text-white'
-                                : 'text-slate-700 hover:bg-slate-100'
+                                : 'text-mcm-ink-2 hover:bg-mcm-surface-2'
                             }`}
                           >
                             {year}
@@ -1110,11 +1131,11 @@ const CalendarPage = () => {
                         <button
                           type="button"
                           onClick={() => setMiniPickerMode('year')}
-                          className="cursor-pointer text-sm font-semibold text-slate-600 hover:text-slate-900"
+                          className="cursor-pointer text-sm font-semibold text-mcm-ink-2 hover:text-mcm-ink"
                         >
                           Change Year
                         </button>
-                        <span className="text-sm font-semibold text-slate-800">
+                        <span className="text-sm font-semibold text-mcm-ink">
                           {miniPickerSelectedYear}
                         </span>
                       </div>
@@ -1128,7 +1149,7 @@ const CalendarPage = () => {
                               miniCurrentDate.year() === miniPickerSelectedYear &&
                               miniCurrentDate.month() === monthIndex
                                 ? 'bg-[var(--primary)] text-white'
-                                : 'text-slate-700 hover:bg-slate-100'
+                                : 'text-mcm-ink-2 hover:bg-mcm-surface-2'
                             }`}
                           >
                             {monthName.slice(0, 3)}
@@ -1141,7 +1162,7 @@ const CalendarPage = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-[11px] text-slate-500 mb-2">
+            <div className="mcm-cal-weekdays grid grid-cols-7 gap-1 text-[11px] mb-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                 <span key={day} className="text-center font-medium">
                   {day}
@@ -1151,26 +1172,58 @@ const CalendarPage = () => {
             <div className="grid grid-cols-7 gap-1 mb-5">
               {miniCalendarDays.map((item) => {
                 const isDisabled = isMiniDateDisabled(item.date);
+                const dayKey = item.date.format('YYYY-MM-DD');
+                const marks = miniDayMarkers.get(dayKey);
+                const eventCount = marks?.event || 0;
+                const taskCount = marks?.task || 0;
+                /* Three dots is what fits inside a 28px cell (3x4px plus two
+                   3px gaps). Past that the day is "busy" and the exact number
+                   belongs in the tooltip, not in the dots. */
+                const dots = [
+                  ...Array(Math.min(eventCount, 3)).fill('event'),
+                  ...Array(taskCount ? 1 : 0).fill('task'),
+                ].slice(0, 3);
+                const summary = [
+                  eventCount ? `${eventCount} event${eventCount > 1 ? 's' : ''}` : '',
+                  taskCount ? `${taskCount} task${taskCount > 1 ? 's' : ''}` : '',
+                ]
+                  .filter(Boolean)
+                  .join(', ');
+
                 return (
-                  <button
-                    key={item.date.format('YYYY-MM-DD')}
-                    type="button"
-                    disabled={isDisabled}
-                    onClick={() => handleMiniDateClick(item.date)}
-                    className={`h-7 w-7 rounded-full grid place-items-center text-xs transition ${
-                      item.isToday
-                        ? 'bg-[var(--primary)] text-white font-semibold'
-                        : item.isCurrentMonth
-                          ? 'text-slate-800'
-                          : 'text-slate-400'
-                    } ${
-                      isDisabled
-                        ? 'opacity-45 cursor-not-allowed'
-                        : 'cursor-pointer hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]'
-                    }`}
-                  >
-                    {item.date.date()}
-                  </button>
+                  /* The button stays a fixed 28px square so the "today"
+                     highlight is a circle; the dot row sits under it in this
+                     wrapper. Putting the dots inside the button instead would
+                     stretch that circle into an oval. */
+                  <div key={dayKey} className="flex flex-col items-center gap-[3px]">
+                    <button
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() => handleMiniDateClick(item.date)}
+                      title={summary ? `${item.date.format('D MMM')} — ${summary}` : undefined}
+                      className={`mcm-daycell h-7 w-7 rounded-full grid place-items-center text-xs transition ${
+                        item.isToday
+                          ? 'bg-[var(--primary)] text-white font-semibold'
+                          : item.isCurrentMonth
+                            ? 'text-mcm-ink'
+                            : 'text-mcm-ink-4'
+                      } ${
+                        isDisabled
+                          ? 'opacity-45 cursor-not-allowed'
+                          : 'cursor-pointer hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]'
+                      }`}
+                    >
+                      {item.date.date()}
+                    </button>
+                    {/* Always rendered, so rows keep a constant height whether
+                        or not the day has anything on it. */}
+                    <span className="mcm-cal-dots" aria-hidden="true">
+                      {dots.map((kind, dotIndex) => (
+                        <i key={`${dayKey}-${kind}-${dotIndex}`} className={`mcm-cal-dot is-${kind}`} />
+                      ))}
+                    </span>
+                    {summary ? <span className="sr-only">{summary}</span> : null}
+                  </div>
                 );
               })}
             </div>
@@ -1189,11 +1242,15 @@ const CalendarPage = () => {
               <ArrowRight className="h-4 w-4" />
             </button>
 
-            <div className="flex items-center justify-between mb-3 mt-4">
-              <p className="text-sm font-semibold text-slate-800">Today Events</p>
-              <span className="text-xs text-slate-500">{todayEventSchedules?.length || 0}</span>
+            <div className="mcm-cal-divider flex items-center justify-between mb-3 mt-4">
+              <p className="text-sm font-semibold text-mcm-ink">Today Events</p>
+              <span className="text-xs text-mcm-ink-3">{todayEventSchedules?.length || 0}</span>
             </div>
-            <div className="space-y-2 max-h-[calc(100vh-474px)] overflow-y-auto pr-1">
+            {/* `-mr-1` cancels the `pr-1`. The padding keeps the scrollbar
+                off the cards, but on its own it also pulled every card 4px
+                short of the "Tasks List View" button above, so the two
+                stacks had matching left edges and mismatched right ones. */}
+            <div className="space-y-2 max-h-[calc(100vh-474px)] overflow-y-auto pr-1 -mr-1">
               {todayEventSchedules?.map((schedule: Schedule) => {
                 const itemCategory = String(schedule?.raw?.category || '')?.toUpperCase();
                 const isEvent = itemCategory === 'EVENT';
@@ -1202,7 +1259,7 @@ const CalendarPage = () => {
                     key={schedule.id}
                     type="button"
                     onClick={() => handleTodayTaskClick(schedule)}
-                    className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
+                    className="w-full cursor-pointer rounded-xl border border-mcm-line bg-white p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-2">
                       {isEvent ? (
@@ -1211,7 +1268,7 @@ const CalendarPage = () => {
                         <ListTodo className="w-4 h-4 mt-0.5 text-[var(--primary)] shrink-0" />
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 truncate">
+                        <p className="text-sm font-semibold text-mcm-ink truncate">
                           {schedule.title}
                         </p>
                         <p className="text-[11px] text-[var(--primary)]">
@@ -1224,7 +1281,7 @@ const CalendarPage = () => {
                 );
               })}
               {!isTodayTaskListLoading && todayEventSchedules?.length === 0 && (
-                <div className="rounded-lg border border-dashed border-slate-300 p-3 text-xs text-slate-500 text-center bg-white">
+                <div className="mcm-cal-well rounded-xl border border-dashed p-3 text-xs text-mcm-ink-3 text-center">
                   No events for today.
                 </div>
               )}

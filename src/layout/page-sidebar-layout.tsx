@@ -28,7 +28,14 @@ const PageSidebarLayout = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        'relative bg-white transition-all duration-300  ease-in-out',
+        // Colours only. `transition-all` also animated the width, so
+        // collapsing slid the panel shut and dragged the page across with
+        // it; the panel now snaps open and shut while the hover border
+        // still eases.
+        // `bg-white` stays: the glass treatment is scoped to `.mcm-page`, so
+        // layouts used outside the console keep a solid panel rather than
+        // going transparent over whatever is behind them.
+        'mcm-sidepanel relative bg-white transition-colors duration-300 ease-in-out',
         isCampaignResponsiveTopbar
           ? 'h-auto lg:h-full'
           : isAdminResponsiveTopbar
@@ -91,7 +98,7 @@ const PageSidebarLayout = ({
         {(title || action) && (
           <div
             className={cn(
-              'flex items-center justify-between p-3 transition-opacity duration-300 border-b border-gray-200 min-h-[65px]',
+              'flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px]',
               title === 'Reports' && 'min-h-14 md:min-h-[65px]',
               collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100',
             )}
@@ -106,7 +113,7 @@ const PageSidebarLayout = ({
 
         <div
           className={cn(
-            'transition-all duration-500 ease-in-out flex-1 min-h-0',
+            'flex-1 min-h-0',
             fullHeightOnMobile
               ? 'overflow-hidden'
               : isCampaignResponsiveTopbar

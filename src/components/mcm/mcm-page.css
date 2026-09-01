@@ -26,12 +26,26 @@
 
 .mcm-page {
   --ground: transparent;
-  --surface: #ffffff;
-  --surface-2: #f6f8fc;
-  --surface-3: #eaeef7;
+  /* The three surfaces are translucent rather than flat, so every box
+     built on them — cards, chips, tiles, strips — sits on the backdrop as
+     glass instead of as a solid block dropped on it. Changing the tokens
+     covers all ~90 rules that paint with them; the alternative was
+     editing each one and still missing the ones written as utilities.
+     Each box keeps its own hue: only the alpha changes. */
+  --surface: rgba(255, 255, 255, 0.6);
+  --surface-2: rgba(246, 248, 252, 0.52);
+  --surface-3: rgba(234, 238, 247, 0.55);
+  /* Opaque originals, for the few places that must not show through:
+     sticky headers with rows scrolling beneath, and menus over content. */
+  --surface-solid: #ffffff;
+  --surface-2-solid: #f6f8fc;
   --ink: #0d1526;
   --ink-2: #3d4a63;
-  --ink-3: #6b7891;
+  /* Darkened from #6b7891 for the glass pass. Muted text is no longer on
+     flat white — over the strongest part of the orange backdrop the old
+     value measured 3.67:1, under the 4.5 AA needs for body text. This
+     measures 4.76:1 there, and better everywhere else on the page. */
+  --ink-3: #5a667e;
   --ink-4: #93a0b8;
   --line: #dfe5f0;
   --line-2: #eaeef6;
@@ -80,9 +94,12 @@
 }
 .dark .mcm-page {
   --ground: #0a0f1a;
-  --surface: #111827;
-  --surface-2: #161f31;
-  --surface-3: #1e293e;
+  /* Same translucency as light mode, tinted from the dark surfaces. */
+  --surface: rgba(23, 32, 50, 0.62);
+  --surface-2: rgba(30, 41, 62, 0.55);
+  --surface-3: rgba(38, 49, 74, 0.58);
+  --surface-solid: #111827;
+  --surface-2-solid: #161f31;
   --ink: #eef2f9;
   --ink-2: #c3cddf;
   --ink-3: #93a1ba;
@@ -108,6 +125,16 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
+
+  /* Glass, dark. Without these the light tokens carry over and every
+     frosted panel turns near-white under light body text. Tinted from the
+     dark surfaces rather than from white, so the panels read as smoked
+     glass instead of fog. */
+  --glass-surface: rgba(23, 32, 50, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-chrome: rgba(14, 21, 36, 0.62);
+  --glass-hairline: rgba(255, 255, 255, 0.08);
+  --glass-line: rgba(255, 255, 255, 0.1);
 }
 
 /* ---- base ---- */
@@ -2769,18 +2796,30 @@
 }
 
 /* ==================================================================
-   Admin nav — the console's list, not stacked cards.
+   Side nav — the console's list, not stacked cards.
    Rows were 56px with a 24px icon and a tinted block behind every
    accordion group. This makes it a quiet, dense list where the only
    emphasis is the page you are on.
+
+   Named for the Admin Hub it was written for, but it is the treatment
+   for any page sidebar's nav list — Monitoring uses it too. A list that
+   opts out keeps 56px divided rows, which match the sidebar heading's
+   own band and make the heading read as another row.
    ================================================================== */
 .mcm-admin .mcm-adminnav {
   padding: 4px 8px 14px;
 }
 
-/* No dividers between sections — the type carries the grouping. */
-.mcm-admin .mcm-adminnav.divide-y > * + * {
+/* No dividers between sections — the type carries the grouping.
+
+   Both edges, and every child rather than `* + *`: Tailwind draws `divide-y`
+   as a border-BOTTOM on `:not(:last-child)`, so a rule that only zeroed
+   border-top on `* + *` stopped matching what is actually painted and the
+   dividers came back. Zeroing both edges on all children survives either
+   shape. */
+.mcm-admin .mcm-adminnav.divide-y > * {
   border-top: 0;
+  border-bottom: 0;
 }
 
 /* Every row: section triggers and leaf tiles alike. */
@@ -3767,4 +3806,237 @@
 }
 .mcm-acctbanner-a:hover {
   background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+
+/* ==================================================================
+   Side-nav items.
+
+   Monitoring's page bar carries the section name, so its sidebar has no
+   heading of its own and the list starts at the top of the column. Opt a
+   nav list in with `mcm-subnav`.
+   ================================================================== */
+
+/* An even inset on both sides, and air above the first row.
+
+   This was `padding-left: 18px` over the base `4px 8px 14px` — an 18px
+   left inset against an 8px right one, dating from when the list was
+   indented under a heading that no longer exists. The list sat visibly
+   off-centre in its panel, and the active chip started 4px from the top,
+   touching the panel edge. */
+.mcm-admin .mcm-subnav {
+  padding: 10px 10px 14px;
+}
+
+/* Rows as separate chips. They were flush against each other, so the
+   active chip's rounded corners had nothing to sit in and the run read as
+   one block rather than five items. */
+.mcm-admin .mcm-subnav > * + * {
+  margin-top: 2px;
+}
+
+/* A little more room inside each row, and a radius that matches the
+   larger chip. */
+.mcm-admin .mcm-subnav .min-h-14 {
+  height: 40px;
+  min-height: 40px;
+  padding-left: 12px;
+  padding-right: 12px;
+  gap: 12px;
+  border-radius: 10px;
+}
+
+/* The icons ship at four different sizes (w-4, w-4.5, w-5). A fixed box
+   rather than a fixed glyph size, so every label starts on the same x
+   whatever the icon inside it does. */
+.mcm-admin .mcm-subnav .min-h-14 > svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+/* The current page: the rail reads as an edge of the chip rather than a
+   line parked beside it. */
+.mcm-admin .mcm-subnav .border-r-primary {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+/* `:not(.text-primary)` matters: the current-page rule above sets accent
+   ink at the same specificity as this one, and this block comes later in
+   the file, so without the exclusion it would win and the active row would
+   lose its accent label. */
+.mcm-admin .mcm-subnav .min-h-14:not(.text-primary) {
+  color: var(--ink-2);
+}
+
+/* ==================================================================
+   Glass pass — page chrome.
+
+   The orange gradient backdrop already sits behind every page, but only
+   the dashboard's KPI strip and panel cards were translucent, so most
+   screens read as solid white slabs dropped on top of it. This puts the
+   rest of the page chrome on the same glass.
+
+   Two depths, deliberately. Chrome that sits *behind* content (page
+   sidebars) takes more of the backdrop; surfaces you actually read off
+   (tables, cards, dialogs) stay closer to opaque, because body text on a
+   heavily tinted panel is where glassmorphism stops being legible.
+
+   Everything here is scoped to `.mcm-page`. Shared layouts keep their
+   solid `bg-white` on screens outside the console.
+   ================================================================== */
+
+.mcm-page {
+  /* Sits behind content — more backdrop, softer edge. */
+  --glass-chrome: rgba(255, 255, 255, 0.55);
+  --glass-hairline: rgba(255, 255, 255, 0.55);
+  /* Divider inside a glass panel: a tinted line, not a grey one, so it
+     does not reintroduce the flat-UI hairline the glass is replacing. */
+  --glass-line: rgba(180, 140, 100, 0.16);
+}
+
+/* ---- page sidebars (PageSidebarLayout) ---- */
+.mcm-page .mcm-sidepanel {
+  background: var(--glass-chrome);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.mcm-page .mcm-sidepanel,
+.mcm-page .mcm-sidepanel > div > div {
+  border-color: var(--glass-hairline);
+}
+
+/* ---- table shells (TableManager, used by most list screens) ---- */
+.mcm-page .table-scroll {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  border-radius: var(--r-lg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-lg);
+}
+
+/* The header strip and row rules inside a glass table have to be
+   translucent too — an opaque --surface-2 band reads as a solid bar
+   floating on the blur. */
+/* The header row is `sticky top-0` (TableManager), so rows scroll under
+   it. It has to stay dense enough to read through, and carry its own blur
+   — a 0.42 alpha here let table rows show straight through the column
+   labels the moment the body scrolled. */
+.mcm-admin .table-scroll table thead th {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom-color: var(--glass-line);
+}
+.dark .mcm-admin .table-scroll table thead th {
+  background: rgba(20, 28, 45, 0.88);
+}
+.mcm-admin .table-scroll table tbody td {
+  border-bottom-color: var(--glass-line);
+}
+.mcm-admin .table-scroll table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- empty states sit directly on the glass ---- */
+.mcm-page .table-scroll .bg-white {
+  background: transparent;
+}
+
+/* ---- card surfaces inside a page ----
+   Reached by attribute-substring the same way the radius rule above does,
+   rather than editing the ~390 places that hand-write
+   `rounded-* border-gray-200 bg-white`.
+
+   No `backdrop-filter` here, on purpose. The backdrop is a smooth
+   gradient, and blurring a smooth gradient produces almost the same
+   pixels — so a blur per card would buy nothing visually while putting
+   dozens of filtered layers on the compositor. Translucency alone reads
+   as glass against this backdrop; the blur is kept for the large chrome,
+   where it sits over page content that genuinely does need diffusing.
+
+   `rounded-full` is excluded: those are chips, avatars and toggle knobs,
+   which should stay solid. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+}
+
+/* Dividers and inner strips within those cards, so a solid grey band does
+   not sit on top of the glass. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white .divide-gray-200 > * + * {
+  border-color: var(--glass-line);
+}
+
+/* ---- dialogs ---- */
+.mcm-page [role='dialog'],
+[role='dialog'].mcm-glass {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* ==================================================================
+   Tab strip.
+
+   A band of tabs above a panel's content. The shades are alphas over the
+   page's warm backdrop rather than greys: the panel holds back the most
+   white, the strip less, the rail least, so each nested layer shows more
+   of the gradient and reads as a deeper shade of the same colour. The
+   active tab reverses it — nearly solid white, so it lifts off the rail.
+   ================================================================== */
+/* Tinted, not brightened. The first attempt laid white over a panel that
+   is already near-white, so the strip and the content below it came out a
+   couple of percent apart and only the hairline divided them. Warming the
+   band toward the accent moves it along a different axis to the panel, so
+   the two read as different shades rather than two whites. */
+.mcm-page .mcm-tabstrip {
+  background: rgba(242, 153, 74, 0.12);
+  border-bottom: 2px solid rgba(176, 122, 66, 0.22);
+}
+
+/* The content below sits in the strip's shadow, so the join reads as a
+   step down rather than a drawn line. */
+.mcm-page .mcm-tabstrip + * {
+  box-shadow: inset 0 7px 10px -8px rgba(120, 80, 40, 0.22);
+}
+
+.mcm-page .mcm-tabstrip-rail {
+  background: rgba(242, 153, 74, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--r);
+}
+
+.mcm-page .mcm-tab {
+  color: var(--ink-2);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.mcm-page .mcm-tab:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.4);
+}
+.mcm-page .mcm-tab.is-on {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Dark mode inverts the trick: the layers add light rather than hold back
+   white, so the same ordering still separates them. */
+.dark .mcm-page .mcm-tabstrip {
+  background: rgba(255, 255, 255, 0.04);
+}
+.dark .mcm-page .mcm-tabstrip-rail {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .mcm-page .mcm-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.dark .mcm-page .mcm-tab.is-on {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--accent-ink);
 }

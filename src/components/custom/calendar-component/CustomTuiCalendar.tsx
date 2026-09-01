@@ -247,16 +247,20 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
       let from = '';
       let to = '';
       const html = [];
+      /* This string is the page's heading, so it reads as a date rather than
+         as a machine format: "12 September 2026" and "September 2026" instead
+         of "2026-09-12" and "2026-09". `from`/`to` keep the ISO format — they
+         are what the API is queried with. */
       if (viewName === 'day') {
         const date = currentCalendarDate('YYYY-MM-DD');
-        html.push(date);
+        html.push(moment(date, 'YYYY-MM-DD').format('D MMMM YYYY'));
         from = to = date;
       } else if (
         viewName === 'month' &&
         (!options.month.visibleWeeksCount || options.month.visibleWeeksCount > 4)
       ) {
         const date = currentCalendarDate('YYYY-MM');
-        html.push(date);
+        html.push(moment(date, 'YYYY-MM').format('MMMM YYYY'));
         const start = instance.getDateRangeStart();
         const end = instance.getDateRangeEnd();
         from = moment(start.getTime()).format('YYYY-MM-DD');
@@ -266,9 +270,15 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
         const end = instance.getDateRangeEnd();
         from = moment(start.getTime()).format('YYYY-MM-DD');
         to = moment(end.getTime()).format('YYYY-MM-DD');
-        html.push(from);
-        html.push(' ~ ');
-        html.push(to);
+        const startLabel = moment(start.getTime());
+        const endLabel = moment(end.getTime());
+        /* Within one month the month name only needs saying once:
+           "6 – 12 September 2026", not "6 September 2026 – 12 September". */
+        html.push(
+          startLabel.isSame(endLabel, 'month')
+            ? `${startLabel.format('D')} – ${endLabel.format('D MMMM YYYY')}`
+            : `${startLabel.format('D MMM')} – ${endLabel.format('D MMM YYYY')}`,
+        );
       }
       setRenderRange(html.join(''));
       if (typeof onRangeChange === 'function') {
@@ -343,15 +353,31 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
 
     return (
       <div className="w-full">
-        <div className="flex flex-col gap-2 p-3">
-          <div className="flex justify-between items-center flex-col sm:flex-row">
-            <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex flex-col gap-2 px-4 py-3.5">
+          {/* Two zones with a wide gap between them, rather than one run of
+              items at an even gap. Everything sat in a single line at gap-4 —
+              heading, view control, Today, arrows, legend, sync — so nothing
+              grouped and the row read as clutter. Now: what you are looking at
+              and how you move through it on the left; what you can filter and
+              connect on the right. */}
+          <div className="mcm-calbar flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center sm:gap-x-8">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* The date leads, at heading weight. It used to sit fourth in
+                  the row — after the view dropdown, Today and the arrows —
+                  styled like a label, so the header had no anchor and read as
+                  a strip of controls with a stray date in it. */}
+              <h2 className="order-first mr-1 text-xl font-bold tracking-tight text-mcm-ink whitespace-nowrap">
+                {renderRange}
+              </h2>
               {showMenu && (
                 <div>
                   <span
                     ref={wrapperRef}
                     style={{ marginRight: '4px' }}
-                    className={`dropdown ${open && 'open'}`}
+                    /* Ternary, not `&&`: inside a template literal `open &&
+                       'open'` renders the string "false" when closed, so the
+                       element carried a literal `false` class. */
+                    className={`dropdown ${open ? 'open' : ''}`}
                   >
                     <button
                       id="dropdownMenu-calendarType"
@@ -501,78 +527,85 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                       {/* <i className="calendar-icon ic-arrow-line-right" data-action="move-next" /> */}
                     </button>
                   </span>
-                  <span id="renderRange" className="render-range ">
-                    {renderRange}
-                  </span>
                 </div>
               )}
             </div>
-            <div className="flex justify-end gap-2 items-center xs:mt-1 mt-0">
-              <Button
-                size={'sm'}
-                variant={'outline'}
-                className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
-                disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.GOOGLE?.google}
-                onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.GOOGLE?.google)}
-              >
-                <Icon name="GoogleIcon" className="w-4 h-4" />
-                {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS.GOOGLE.google
-                  ? SYNC_BUTTON_LABELS?.GOOGLE?.loading
-                  : googleAccessToken
-                    ? SYNC_BUTTON_LABELS?.GOOGLE?.disconnect
-                    : SYNC_BUTTON_LABELS?.GOOGLE?.syncWithGoogle}
-              </Button>
-              <Button
-                size={'sm'}
-                variant={'outline'}
-                className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
-                disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook}
-                onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.OUTLOOK?.outlook)}
-              >
-                <Icon name="OutlookIcon" className="w-5 h-5" />
-                {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook
-                  ? SYNC_BUTTON_LABELS?.OUTLOOK?.loading
-                  : outlookAccessToken
-                    ? SYNC_BUTTON_LABELS?.OUTLOOK?.disconnect
-                    : SYNC_BUTTON_LABELS?.OUTLOOK?.syncWithOutlook}
-              </Button>
-            </div>
-          </div>
-          <div className="flex justify-end w-full items-center">
-            {showFilters && (
-              <div className="lnb-calendars-d1">
-                {calendars?.map((element) => {
-                  const name = element?.name;
-                  const isChecked = category === name;
-                  return (
-                    <div key={element?.id} className="lnb-calendars-item">
-                      <label>
-                        <input
-                          type="checkbox"
-                          name="meetingFilter"
-                          className="tui-full-calendar-checkbox-round"
-                          value={name}
-                          checked={isChecked}
-                          onChange={() => handleCategoryFilter(name as calendarFilterType)}
-                        />
-                        <span
-                          style={{
-                            borderColor: element?.bgColor,
-                            backgroundColor: isChecked ? element?.bgColor : 'transparent',
-                          }}
-                        />
-                        <span>{capitalizeFirstLetter(element?.name)}</span>
-                      </label>
-                    </div>
-                  );
-                })}
+
+            {/* Right zone: filter legend, then the connect actions. */}
+            <div className="flex items-center justify-end gap-4 flex-wrap">
+              {showFilters && (
+                <div className="lnb-calendars-d1">
+                  {calendars?.map((element) => {
+                    const name = element?.name;
+                    const isChecked = category === name;
+                    return (
+                      <div key={element?.id} className="lnb-calendars-item">
+                        <label>
+                          <input
+                            type="checkbox"
+                            name="meetingFilter"
+                            className="tui-full-calendar-checkbox-round"
+                            value={name}
+                            checked={isChecked}
+                            onChange={() => handleCategoryFilter(name as calendarFilterType)}
+                          />
+                          <span
+                            style={{
+                              borderColor: element?.bgColor,
+                              backgroundColor: isChecked ? element?.bgColor : 'transparent',
+                            }}
+                          />
+                          <span>{capitalizeFirstLetter(element?.name)}</span>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Separates filtering from connecting — two different kinds of
+                  action that were previously only a gap apart. */}
+              {showFilters && (
+                <span
+                  className="hidden h-6 w-px shrink-0 bg-mcm-line sm:block"
+                  aria-hidden="true"
+                />
+              )}
+              <div className="flex justify-end gap-2 items-center">
+                <Button
+                  size={'sm'}
+                  variant={'outline'}
+                  className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
+                  disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.GOOGLE?.google}
+                  onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.GOOGLE?.google)}
+                >
+                  <Icon name="GoogleIcon" className="w-4 h-4" />
+                  {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS.GOOGLE.google
+                    ? SYNC_BUTTON_LABELS?.GOOGLE?.loading
+                    : googleAccessToken
+                      ? SYNC_BUTTON_LABELS?.GOOGLE?.disconnect
+                      : SYNC_BUTTON_LABELS?.GOOGLE?.syncWithGoogle}
+                </Button>
+                <Button
+                  size={'sm'}
+                  variant={'outline'}
+                  className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
+                  disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook}
+                  onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.OUTLOOK?.outlook)}
+                >
+                  <Icon name="OutlookIcon" className="w-5 h-5" />
+                  {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook
+                    ? SYNC_BUTTON_LABELS?.OUTLOOK?.loading
+                    : outlookAccessToken
+                      ? SYNC_BUTTON_LABELS?.OUTLOOK?.disconnect
+                      : SYNC_BUTTON_LABELS?.OUTLOOK?.syncWithOutlook}
+                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
         <div
           ref={tuiRef}
-          className="min-h-[calc(100vh-240px)] overflow-visible md:min-h-[calc(100vh-220px)] lg:min-h-[calc(100vh-190px)] lg:max-h-[calc(100vh-244px)] lg:overflow-auto"
+          className="mcm-calshell min-h-[calc(100vh-240px)] overflow-visible md:min-h-[calc(100vh-220px)] lg:min-h-[calc(100vh-190px)] lg:max-h-[calc(100vh-244px)] lg:overflow-auto"
         />
         {useInternalDetailsPopup && selectedSchedule && popoverPosition && (
           <Popover

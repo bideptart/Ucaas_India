@@ -32,6 +32,7 @@ import { getUserNameByExtension } from '@/lib/extension-utility';
 import { useUsersDirectory } from '@/hooks/use-users-directory';
 import { Ear, MicIcon, UsersIcon } from 'lucide-react';
 import { CallPathCell, CallPathDialog } from '../call-path-cell';
+import { MonitoringTopbarSlot } from '../topbar';
 import {
   getMonitoringCallDid,
   getMonitoringCallTimestamp,
@@ -471,25 +472,27 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
       <section className="w-full overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
         {!embedded && (
-          <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-            <div className="text-gray-900 font-semibold text-lg flex items-center gap-1 min-w-0">
-              <span className="truncate">Monitoring</span>
-              <div className="-rotate-90 text-gray-800 shrink-0">
-                <Icon name="ChevronIcon" className="w-5 h-5" />
+          <MonitoringTopbarSlot>
+            <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+              <div className="text-gray-900 font-semibold text-lg flex items-center gap-1 min-w-0">
+                <span className="truncate">Monitoring</span>
+                <div className="-rotate-90 text-gray-800 shrink-0">
+                  <Icon name="ChevronIcon" className="w-5 h-5" />
+                </div>
+                <span className="text-primary text-md truncate">All Extensions</span>
               </div>
-              <span className="text-primary text-md truncate">All Extensions</span>
+              <div className="relative z-30 flex gap-2 filters pointer-events-auto shrink-0">
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  onClick={() => setIshowSummary((prev) => !prev)}
+                  className="min-h-9 w-full sm:w-auto"
+                >
+                  Summary
+                </Button>
+              </div>
             </div>
-            <div className="relative z-30 flex gap-2 filters pointer-events-auto shrink-0">
-              <Button
-                type="button"
-                variant={'outline'}
-                onClick={() => setIshowSummary((prev) => !prev)}
-                className="min-h-9 w-full sm:w-auto"
-              >
-                Summary
-              </Button>
-            </div>
-          </div>
+          </MonitoringTopbarSlot>
         )}
         <div
           className={

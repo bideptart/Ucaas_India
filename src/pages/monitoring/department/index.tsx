@@ -22,6 +22,7 @@ import NotFound from '@/assets/images/not-found-img.svg';
 import { capitalizeFirstLetter } from '@/lib/utils';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { CallPathCell, CallPathDialog } from '../call-path-cell';
+import { MonitoringTopbarSlot } from '../topbar';
 import {
   findMonitoringCallForMember,
   getMonitoringCallDid,
@@ -359,16 +360,18 @@ const DepartmentMonitoring = () => {
     <>
       <section className="w-full overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
-            Monitoring
-            <div className="-rotate-90 text-gray-800">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
-            </div>
-            <span className="text-primary text-md">Department </span>
-          </p>
-          <div className="flex gap-2 "></div>
-        </div>
+        <MonitoringTopbarSlot>
+          <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+              Monitoring
+              <div className="-rotate-90 text-gray-800">
+                <Icon name="ChevronIcon" className="w-5 h-5" />
+              </div>
+              <span className="text-primary text-md">Department </span>
+            </p>
+            <div className="flex gap-2 "></div>
+          </div>
+        </MonitoringTopbarSlot>
         <div className="w-full h-full   p-3 flex flex-col gap-2">
           {/* <h6 className="text-gray-900 font-semibold text-lg">Department Monitoring</h6> */}
           <div className="flex flex-col gap-2 h-[calc(100vh_-_10rem)] overflow-auto">

@@ -1,15 +1,22 @@
+/* MCM Unified Console typeface pair. Plus Jakarta Sans for UI, IBM Plex
+   Mono for anything numeric — durations, counts, timestamps — so digits
+   stay tabular and stop jittering as they tick.
+
+   This must be the FIRST statement in the file. Every `@import` below is
+   inlined in place — Tailwind alone is ~13k lines — so a font import
+   placed after any of them lands deep in the bundle, where `@import` is
+   no longer legal. Postcss drops it and the fonts silently never load. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
+
 /* Loaded once here rather than from each page. Every rule in it is scoped to
    an .mcm- class, so it changes nothing on pages that do not use them, and it
    means a shared class like .mcm-stickyfoot works wherever it is applied
    instead of only on the 31 files that happened to import the stylesheet. */
 @import './components/mcm/mcm-page.css';
 
-/* MCM Unified Console typeface pair. Plus Jakarta Sans for UI, IBM Plex
-   Mono for anything numeric — durations, counts, timestamps — so digits
-   stay tabular and stop jittering as they tick. */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @theme {
   --color-ucass-gray: oklch(0.9612 0 0);
@@ -292,6 +299,21 @@
       radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
       radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
       linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+    background-attachment: fixed;
+  }
+
+  /* The same backdrop for dark mode. Without it the light warm gradient
+     stayed put under dark-mode surfaces and light body text, which left
+     whole screens unreadable. Same four warm pools, dropped to embers
+     over a near-black base so the frosted panels still have something to
+     pick up. */
+  .dark body {
+    background:
+      radial-gradient(1000px 750px at 4% -6%, rgba(255, 138, 46, 0.2), transparent 58%),
+      radial-gradient(900px 700px at 102% -4%, rgba(255, 105, 30, 0.16), transparent 55%),
+      radial-gradient(950px 700px at 50% 118%, rgba(255, 160, 90, 0.14), transparent 60%),
+      radial-gradient(650px 500px at 100% 100%, rgba(255, 130, 60, 0.12), transparent 55%),
+      linear-gradient(160deg, #0b1018 0%, #171019 100%);
     background-attachment: fixed;
   }
 
@@ -925,6 +947,22 @@
     color: var(--color-gray-500) !important;
     cursor: not-allowed !important;
     opacity: 50 !important;
+  }
+
+  /* Calendar day cells are buttons, but they are not form controls. The
+     rule above paints every disabled button with a grey-100 fill and
+     grey-500 text, which put filled grey discs behind the greyed-out days
+     of a month and coloured them from a different neutral family than the
+     rest of the panel — the one visibly "off" colour in the sidebar.
+
+     This has to stay inside `@layer base` alongside that rule: for
+     `!important` declarations the cascade reverses layer order and treats
+     unlayered styles as lowest priority, so an override outside the layer
+     would lose. Within the layer, specificity decides and this wins. */
+  .mcm-daycell:disabled {
+    background-color: transparent !important;
+    border: 0 !important;
+    color: var(--mcm-ink-4) !important;
   }
 
   input[type='radio']:disabled,
@@ -1939,4 +1977,97 @@
     justify-self: start;
     margin-top: 8px;
   }
+}
+
+/* ==================================================================
+   Calendar sidebar — tonal grading.
+
+   The panel was #f6f8fc, nine points off white, and the month/year pills
+   and the empty-state box were both plain #ffffff with no shadow. So a
+   raised control and a recessed well were painted identically and neither
+   separated from the panel behind them: one flat field of near-white.
+
+   Three levels instead, warmed so the panel belongs with the app's orange
+   backdrop rather than sitting in a cool slate of its own:
+
+     well    #f2e9dd   recessed — empty states, read as a hollow
+     panel   #faf5ef   the sidebar itself
+     raised  #ffffff   controls, lifted with a hairline and a shadow
+
+   Each step is ~13 points apart, so the boundaries are visible without
+   any of them turning into a hard box.
+   ================================================================== */
+.mcm-calpanel {
+  --cal-panel: #faf5ef;
+  --cal-raised: #ffffff;
+  --cal-well: #f2e9dd;
+  --cal-line: #ecdfd0;
+  --cal-line-strong: #d9c6ae;
+  --cal-muted: #9c8a76;
+
+  background: var(--cal-panel);
+  border-right: 1px solid var(--cal-line);
+}
+
+/* Raised: month, year and the two month-step arrows. */
+.mcm-calpanel .mcm-cal-ctrl {
+  background: var(--cal-raised);
+  border-color: var(--cal-line);
+  box-shadow: 0 1px 2px rgba(120, 85, 45, 0.06);
+}
+.mcm-calpanel .mcm-cal-ctrl:hover {
+  background: var(--cal-raised);
+  border-color: var(--cal-line-strong);
+  box-shadow: 0 2px 6px rgba(120, 85, 45, 0.1);
+}
+
+/* Recessed: the empty state is a hollow in the panel, not a card on it. */
+.mcm-calpanel .mcm-cal-well {
+  background: var(--cal-well);
+  border-color: var(--cal-line-strong);
+}
+
+/* The weekday header reads as a label row, not as more dates. */
+.mcm-calpanel .mcm-cal-weekdays {
+  color: var(--cal-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Days outside the shown month, warmed off the cool blue-grey so they sit
+   in the same family as everything else here. */
+.mcm-calpanel .mcm-daycell.is-outside,
+.mcm-calpanel .mcm-daycell:disabled {
+  color: var(--cal-muted) !important;
+}
+
+/* A rule between the calendar block and the events list below it. */
+.mcm-calpanel .mcm-cal-divider {
+  border-top: 1px solid var(--cal-line);
+  padding-top: 14px;
+}
+
+/* Density dots under each mini-calendar day. Colours are the big calendar's
+   legend — events #00a9ff, tasks #34C38F — so the two views agree on what a
+   colour means. The row keeps its height when empty so the weeks stay on a
+   even rhythm. */
+.mcm-calpanel .mcm-cal-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 4px;
+}
+
+.mcm-calpanel .mcm-cal-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+}
+.mcm-calpanel .mcm-cal-dot.is-event {
+  background: #00a9ff;
+}
+.mcm-calpanel .mcm-cal-dot.is-task {
+  background: #34c38f;
 }

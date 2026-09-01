@@ -20,6 +20,7 @@ import { useDialpad } from '@/hooks/use-dialpad';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Ear, MicIcon, UsersIcon } from 'lucide-react';
 import { CallPathCell, CallPathDialog } from '../call-path-cell';
+import { MonitoringTopbarSlot } from '../topbar';
 
 const STATE_TYPE_NAME = {
   answered: 'Connected',
@@ -616,16 +617,18 @@ const AllCallMonitoring = () => {
     <>
       <section className="w-full overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
-            Monitoring
-            <div className="-rotate-90 text-gray-800">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
-            </div>
-            <span className="text-primary text-md">All Calls</span>
-          </p>
-          <div className="flex gap-2 "></div>
-        </div>
+        <MonitoringTopbarSlot>
+          <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+              Monitoring
+              <div className="-rotate-90 text-gray-800">
+                <Icon name="ChevronIcon" className="w-5 h-5" />
+              </div>
+              <span className="text-primary text-md">All Calls</span>
+            </p>
+            <div className="flex gap-2 "></div>
+          </div>
+        </MonitoringTopbarSlot>
         <div className="w-full  p-3 flex flex-col gap-2 h-full">
           {/* <h6 className="text-gray-900 font-semibold text-lg">All Calls Monitoring</h6>
           <h5 className="font-semibold text-gray-900 text-md">Calls</h5> */}

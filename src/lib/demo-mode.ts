@@ -24,6 +24,7 @@
 import { isPreviewHost } from '@/lib/utils';
 import { demoAiVoiceRows } from '@/lib/demo-ai-voices';
 import { demoCrawledPages } from '@/lib/demo-site-crawl';
+import { getDemoReviewJob, startDemoReviewJob } from '@/lib/demo-knowledge-review';
 import { resolveCaptainRequest } from '@/lib/demo-captain';
 import {
   DEMO_AGENTS,
@@ -417,6 +418,16 @@ const matchDemoPayload = (url: string, data: unknown) => {
      treat anything else as nothing found. */
   if (url.includes('/api/ai/chat-agent/site-crawl')) {
     return demoCrawledPages(String(asObject(data)?.site_url || ''));
+  }
+  /* The Review step's job. Order matters: every path below contains the
+     `review-job` prefix, so the specific ones have to be tested first or they
+     would all be answered as a fresh job. */
+  if (url.includes('/api/ai/knowledge-base/review-job/status')) {
+    return getDemoReviewJob(String(asObject(data)?.jobId || ''));
+  }
+  if (url.includes('/api/ai/knowledge-base/review-job/cleanup')) return ok({ cleaned: true });
+  if (url.includes('/api/ai/knowledge-base/review-job')) {
+    return startDemoReviewJob(asObject(data));
   }
   if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
   if (url.includes('/api/campaign/analytics')) {

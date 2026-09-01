@@ -26,9 +26,9 @@ import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
 import ThemeToggle from '@/components/custom/theme-toggle';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
-import { List, Menu, Plus, Wallet, X } from 'lucide-react';
+import { ChevronDown, List, Menu, Plus, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { SESSION_NAME } from '@/lib/utils';
+import { cn, SESSION_NAME } from '@/lib/utils';
 import { DASHBOARDCONST } from '@/pages/dashboard/constant';
 import AlertConfirm from '../alert-confirm';
 import { toast } from 'react-toastify';
@@ -430,12 +430,16 @@ const Header = () => {
                   .hdr-quick-toggle {
                     display: inline-flex; align-items: center; justify-content: center;
                     width: 36px; height: 36px; border-radius: 10px;
-                    background: #f3f4f6; color: #374151; cursor: pointer;
+                    background: rgba(255, 255, 255, 0.7);
+                    border: 1px solid rgba(255, 255, 255, 0.7);
+                    box-shadow: 0 1px 2px rgba(13, 21, 38, 0.06);
+                    color: #374151; cursor: pointer;
                     transition: transform .3s cubic-bezier(.34,1.56,.64,1),
-                                background .15s ease, color .15s ease;
+                                background .15s ease, color .15s ease, border-color .15s ease;
                   }
                   .hdr-quick-toggle:hover {
                     background: color-mix(in oklab, var(--primary) 15%, transparent);
+                    border-color: color-mix(in oklab, var(--primary) 25%, transparent);
                     color: var(--primary);
                   }
                   .hdr-quick-toggle.on {
@@ -586,7 +590,7 @@ const Header = () => {
               <div className="inline-flex items-center justify-center font-medium">
                 <CustomTooltip text={'Notification'} side="bottom">
                   <span
-                    className="cursor-pointer relative bg-gray-100 flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary"
+                    className="cursor-pointer relative bg-white/70 border border-white/70 shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary"
                     onClick={() => {
                       setNotificationState(true);
                       setIsMobileMenuOpen(false);
@@ -630,12 +634,18 @@ const Header = () => {
               ) : null}
 
               {/* User Profile */}
-              <div className="flex items-center  bg-gray-100 rounded-xl ">
+              <div className="flex items-center rounded-xl">
                 <Popover
                   open={profileState === 'profile'}
                   onOpenChange={(val) => setProfileState(val ? 'profile' : null)}
                 >
-                  <PopoverTrigger className="cursor-pointer flex items-center gap-4 h-9 p-1 pr-2 rounded-xl border border-transparent hover:bg-ucass-primary-200">
+                  <PopoverTrigger
+                    className={cn(
+                      'cursor-pointer flex items-center gap-2 h-10 pl-1 pr-2 rounded-xl border transition-colors',
+                      'bg-white/70 border-white/70 shadow-sm hover:bg-ucass-primary-200 hover:border-ucass-primary-100',
+                      profileState === 'profile' && 'bg-ucass-primary-200 border-ucass-primary-100',
+                    )}
+                  >
                     <CustomAvatar
                       name={`${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       showPresence
@@ -644,14 +654,20 @@ const Header = () => {
                       isActivityInfo={false}
                       size="32"
                     />
-                    <div className="flex flex-col items-start text-left min-w-[120px]">
+                    <div className="flex flex-col items-start text-left min-w-[82px]">
                       <h4 className="text-[12px] font-bold text-gray-900 leading-tight">
                         {`Hi, ${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       </h4>
-                      <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-widest">
+                      <div className="text-[10px] text-primary font-semibold uppercase tracking-widest">
                         {role}
                       </div>
                     </div>
+                    <ChevronDown
+                      className={cn(
+                        'w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200',
+                        profileState === 'profile' && 'rotate-180',
+                      )}
+                    />
                   </PopoverTrigger>
                   <PopoverContent className="w-72 p-3 mt-2 mr-2 shadow-xl ring-1 ring-black/5">
                     <AvatarContent setProfileState={setProfileState} />

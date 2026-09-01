@@ -284,6 +284,58 @@ const CONNECTIONS = [
   },
 ];
 
+const SCENARIOS = [
+  {
+    id: 'demo-scenario-1',
+    assistant_id: ASSISTANT_ID,
+    name: 'Refund request',
+    description: 'Visitor is asking for money back on a recent invoice.',
+    triggers: ['I want a refund', 'cancel my plan', 'charge me back'],
+    instruction:
+      'Check the invoice date. Inside 30 days, hand over to a person. Outside 30 days, explain the policy and offer a callback.',
+    status: 'active',
+    created_at: isoAgo(2600),
+  },
+  {
+    id: 'demo-scenario-2',
+    assistant_id: ASSISTANT_ID,
+    name: 'Number porting',
+    description: 'Visitor wants to bring an existing number across.',
+    triggers: ['port my number', 'keep my existing number', 'transfer number'],
+    instruction:
+      'Ask which carrier holds the number and whether it is prepaid or postpaid, then link the porting guide.',
+    status: 'active',
+    created_at: isoAgo(1400),
+  },
+  {
+    id: 'demo-scenario-3',
+    assistant_id: ASSISTANT_ID,
+    name: 'Outage report',
+    description: 'Visitor says calls are failing.',
+    triggers: ['calls not connecting', 'service is down', 'no audio'],
+    instruction:
+      'Collect the affected number and the time it started, then hand over to a person immediately. Do not promise a fix time.',
+    status: 'draft',
+    created_at: isoAgo(320),
+  },
+];
+
+const SETTINGS = {
+  assistant_id: ASSISTANT_ID,
+  auto_reply: true,
+  reply_delay_seconds: 2,
+  language: 'en',
+  handoff_enabled: true,
+  handoff_after_failures: 2,
+  handoff_email: 'support@example.com',
+  office_hours_enabled: true,
+  office_hours_start: '09:00',
+  office_hours_end: '18:00',
+  away_message: 'We are away right now. Leave a message and we will reply the next working day.',
+  transcript_retention_days: 90,
+  collect_visitor_email: true,
+};
+
 type Store = Record<string, any[]>;
 
 const SEED: Store = {
@@ -292,6 +344,7 @@ const SEED: Store = {
   faqs: FAQS,
   inboxes: INBOXES,
   tools: TOOLS,
+  scenarios: SCENARIOS,
 };
 
 const readStore = (): Store => {
@@ -322,6 +375,7 @@ const collectionFor = (path: string) => {
   if (path.includes('/faqs')) return 'faqs';
   if (path.includes('/inboxes') || path.includes('/inbox-channels')) return 'inboxes';
   if (path.includes('/custom-tools')) return 'tools';
+  if (path.includes('/scenarios')) return 'scenarios';
   return '';
 };
 
@@ -364,6 +418,27 @@ export const resolveCaptainRequest = (url: string, init?: RequestInit): unknown 
   if (path.includes('/generate-faqs')) return { faqs: [] };
   if (path.includes('/custom-tools/test')) {
     return { ok: true, result: 'Demo mode: the request was not sent.' };
+  }
+
+  /* Settings is one record rather than a collection, and it is the whole
+     object that gets written back, so it keeps its own key in the store. */
+  if (path.includes('/settings')) {
+    if (method === 'PUT' || method === 'POST') {
+      const saved = { ...SETTINGS, ...body };
+      try {
+        localStorage.setItem(`${STORE_KEY}-settings`, JSON.stringify(saved));
+      } catch {
+        /* A blocked store only costs persistence, not the screen. */
+      }
+      return saved;
+    }
+    try {
+      const raw = localStorage.getItem(`${STORE_KEY}-settings`);
+      if (raw) return { ...SETTINGS, ...JSON.parse(raw) };
+    } catch {
+      /* Fall through to the seed. */
+    }
+    return SETTINGS;
   }
 
   if (!key) return [];

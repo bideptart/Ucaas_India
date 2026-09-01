@@ -22,6 +22,7 @@
  * preview host and sign in against the real API instead.
  */
 import { isPreviewHost } from '@/lib/utils';
+import { resolveCaptainRequest } from '@/lib/demo-captain';
 import {
   DEMO_AGENTS,
   demoAgentReportRows,
@@ -473,6 +474,39 @@ const matchDemoPayload = (url: string, data: unknown) => {
 };
 
 export const buildDemoPayload = (url: string, data?: unknown) => matchDemoPayload(url, data);
+
+/**
+ * The Captain screens call their own service with `fetch`, so the axios
+ * adapter never sees them. Answering them means intercepting `fetch` itself.
+ *
+ * Only `/captain-api/` paths are handled; everything else — the organisation
+ * lookup, fonts, the Vite dev client — is passed through to the real `fetch`
+ * untouched, so nothing outside Captain changes behaviour.
+ */
+const CAPTAIN_PREFIX = '/captain-api/';
+
+export const installCaptainDemoFetch = () => {
+  if (!isDemoMode()) return;
+  if ((window.fetch as { __demo?: boolean }).__demo) return;
+
+  const realFetch = window.fetch.bind(window);
+
+  const demoFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+
+    if (!url.includes(CAPTAIN_PREFIX)) return realFetch(input as RequestInfo, init);
+
+    const method = init?.method || (input instanceof Request ? input.method : undefined) || 'GET';
+
+    return new Response(
+      JSON.stringify({ data: resolveCaptainRequest(url, { ...init, method }) }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  };
+
+  (demoFetch as { __demo?: boolean }).__demo = true;
+  window.fetch = demoFetch as typeof window.fetch;
+};
 
 /** Seeded before React mounts so the guards see a session on first render. */
 export const seedDemoSession = (sessionKey: string) => {

@@ -837,7 +837,7 @@ const DescriptionModal = ({
           onValueChange={(value) => setActiveTab(value as InfoTab)}
           className="min-h-full w-full gap-0"
         >
-          <div className="shrink-0 border-b border-gray-200 bg-white">
+          <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] bg-white">
             <div className="relative flex flex-col items-center px-4 pb-4 pt-5 text-center">
               <input
                 ref={fileInputRef}

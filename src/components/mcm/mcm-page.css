@@ -27,14 +27,14 @@
 .mcm-page {
   --ground: transparent;
   --surface: #ffffff;
-  --surface-2: #f6f8fc;
-  --surface-3: #eaeef7;
+  --surface-2: #fbf3e8;
+  --surface-3: #f5e6d3;
   --ink: #0d1526;
   --ink-2: #3d4a63;
   --ink-3: #6b7891;
   --ink-4: #93a0b8;
-  --line: #dfe5f0;
-  --line-2: #eaeef6;
+  --line: #eee7dd;
+  --line-2: #f0e4d3;
 
   --accent: #f2994a;
   --accent-ink: #c96f1f;
@@ -44,10 +44,13 @@
   /* Glass surface — used by the KPI strip and panel cards instead of a
      flat --surface so the warm gradient body shows through the blur. Kept
      light on the blur and high on the opacity: a heavy fog reads as
-     unpolished, the reference keeps the glass barely-there. */
-  --glass-surface: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.85);
-  --glass-blur: blur(16px) saturate(180%);
+     unpolished, the reference keeps the glass barely-there.
+     Warm cream instead of white so it doesn't read as flat/cool against
+     the orange body gradient; no saturate() on the blur — boosting the
+     saturation of the vivid gradient behind it shifts the blend pink. */
+  --glass-surface: rgba(251, 249, 246, 0.85);
+  --glass-border: rgba(225, 200, 165, 0.9);
+  --glass-blur: blur(12px);
 
   /* AI gets its own hue on purpose: machine output must never be
      mistaken for system truth. Violet = "generated, verify me". */
@@ -89,10 +92,10 @@
   --ink-4: #6b7a96;
   --line: #26314a;
   --line-2: #1c2537;
-  --accent: #5b8dff;
-  --accent-ink: #87aaff;
-  --accent-wash: #16223d;
-  --accent-edge: #2c3f68;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
   --ai-wash: #231a3d;
@@ -3534,7 +3537,7 @@
 @keyframes mcm-flash-outline {
   0%,
   60% {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 45%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #f2994a) 45%, transparent);
   }
   100% {
     box-shadow: 0 0 0 3px transparent;

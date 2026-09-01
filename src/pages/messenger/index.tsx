@@ -44,6 +44,7 @@ import { canUseOmniChannel, getAllowedOmniChannels } from './omni-permissions';
 import useDebounce from '@/hooks/use-debounce';
 import { useLoadMoreUsersObserver, useMessengerUsers } from './hooks/use-messenger-users';
 import '@/components/mcm/mcm-page.css';
+import '@/styles/warm-glass.css';
 
 type ChannelType = keyof typeof CHANNELS_ICON;
 
@@ -1456,7 +1457,7 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
   };
 
   return (
-    <div className="mcm-page mcm-admin">
+    <div className="mcm-page mcm-admin mcm-warm-glass">
       <div className="w-full h-full min-h-0 flex overflow-hidden bg-white">
         {chatType === 'chat' ? (
           <>

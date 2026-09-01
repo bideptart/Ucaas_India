@@ -134,9 +134,78 @@
 }
 .perf-callbacks .table-scroll tbody td {
   color: #334155;
+  padding-top: 11px;
+  padding-bottom: 11px;
 }
 .dark .perf-callbacks .table-scroll tbody td {
   color: var(--pc-muted);
+}
+
+/* The first column carries the row's own subject — task title, or who left
+   the voicemail — so it reads bolder and darker than the supporting
+   Created/Due/DID columns beside it, the same weight Live gives a caller's
+   name. */
+.perf-callbacks .table-scroll tbody td:first-child {
+  color: var(--pc-ink);
+  font-weight: 600;
+}
+.dark .perf-callbacks .table-scroll tbody td:first-child {
+  color: #f1f5f9;
+}
+
+/* Timestamp-shaped columns (Created, Due, Left at, Length) get tabular
+   figures so the numbers stop jittering column to column. */
+.perf-callbacks .table-scroll tbody td:nth-child(2),
+.perf-callbacks .table-scroll tbody td:nth-child(3),
+.perf-callbacks .table-scroll tbody td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Task status ("Pending", "Completed", ...) renders as bare text via
+   `.capitalize` in callbacks-tab.tsx — the same soft rounded pill Live uses
+   for its Status/Direction columns, rather than plain text sitting loose in
+   the cell. */
+.perf-callbacks .table-scroll tbody td .capitalize {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--pc-wash);
+  color: var(--pc-accent-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.dark .perf-callbacks .table-scroll tbody td .capitalize {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
+/* Voicemail row actions (Play, Call back) — the same warm circular button
+   Live uses for its monitoring actions: glass at rest, filled on hover.
+   Call back keeps its own green (a distinct action from Play, same as
+   Live's separate red Hangup), just softened to the rounded, bordered
+   style instead of a flat tint. */
+.perf-callbacks .table-scroll tbody td [class*='rounded-full'][class*='bg-ucass-active-bg'] {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: var(--pc-accent-ink);
+  box-shadow: 0 1px 2px rgba(249, 115, 22, 0.06);
+}
+.perf-callbacks
+  .table-scroll
+  tbody
+  td
+  [class*='rounded-full'][class*='bg-ucass-active-bg']:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #fff;
+}
+.perf-callbacks .table-scroll tbody td [class*='rounded-full'][class*='bg-green-100'] {
+  background: rgba(220, 252, 231, 0.9);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  box-shadow: 0 1px 2px rgba(34, 197, 94, 0.06);
 }
 
 /* Empty state — dark charcoal title, muted description, matching the rest
@@ -148,8 +217,13 @@
   color: var(--pc-muted);
 }
 
-/* Pagination bar under the table. */
-.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200'] {
+/* Pagination bar under the table. `.table-scroll` also carries `rounded-xl
+   border-gray-200` (table-manager.tsx), so `:not(.table-scroll)` is load
+   bearing here — without it this rule also matched the table container
+   itself and, being more specific than the plain `.table-scroll` rule
+   above, silently overrode its transparent background/border/shadow with
+   a second, overlapping glass card right on top of it. */
+.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) {
   border-radius: 18px;
   border: 1px solid var(--pc-glass-border);
   background: var(--pc-glass);
@@ -157,6 +231,6 @@
   -webkit-backdrop-filter: var(--pc-glass-blur);
   box-shadow: var(--pc-glass-shadow);
 }
-.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200'] label {
+.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) label {
   color: var(--pc-muted);
 }

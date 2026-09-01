@@ -19,10 +19,17 @@ import { meetingList } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Icon as IconComponent } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
+import { isDemoMode } from '@/lib/demo-mode';
 
-// Dev-only sample data so the notification drawer and its filters can be
-// eyeballed without a backend that actually has notifications queued up.
-// Never shipped to production — gated by import.meta.env.DEV below.
+// Sample data so the notification drawer and its filters can be eyeballed
+// without a backend that actually has notifications queued up. Gated by
+// isDemoMode() below — the same runtime check the rest of the app uses for
+// its invented data (see demo-mode.ts), so this only ever shows on a preview
+// host (localhost or a *.vercel.app deploy) and never on a real domain,
+// same as everywhere else. Using import.meta.env.DEV here instead would be
+// wrong: that's a build-time flag, always false for a production `vite
+// build` — including the one Vercel runs for its preview deploys — so it
+// would never show up there even though those are exactly a preview host.
 // 5-7 items per category so each filter has an actual list to scroll, not
 // just a single lonely row.
 const buildDummyGroup = (
@@ -274,7 +281,7 @@ const NotificationContent = ({
       return false;
     }
   });
-  const isShowingDummy = import.meta.env.DEV && !(notificationArr && notificationArr?.length > 0);
+  const isShowingDummy = isDemoMode() && !(notificationArr && notificationArr?.length > 0);
 
   const [notificationFilterValue, setNotificationFilterValue] = useState<any>(() => {
     try {
@@ -395,11 +402,11 @@ const NotificationContent = ({
         onClick={() => setNotificationState(false)}
         aria-label="Close"
         title="Close"
-        className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#f0d6b4] bg-white/80 backdrop-blur-sm text-[#ea6b42] shadow-sm transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42]"
+        className="absolute right-6 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#f0d6b4] bg-white/80 backdrop-blur-sm text-[#ea6b42] shadow-sm transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42]"
       >
         <IconComponent name="CloseIcon" className="h-4 w-4" />
       </button>
-      <div className="flex flex-col gap-3 mx-1 mt-1 mb-2 py-3 pl-3 pr-12 rounded-2xl bg-white/45 backdrop-blur-md border border-white/70 shadow-sm">
+      <div className="flex flex-col gap-3 mt-1 mb-2 py-3 pl-3 pr-12 rounded-2xl bg-white/45 backdrop-blur-md border border-white/70 shadow-sm">
         <div className="flex items-center">
           <div className="text-gray-900 font-semibold flex flex-nowrap items-center gap-1 w-full">
             {/* Only this zone (icon + category name) scrolls when it's too
@@ -554,7 +561,6 @@ const NotificationContent = ({
                 : notification?.type;
             const Icon =
               notificationIconLookup?.[notificationtype] || notificationIconLookup?.['default'];
-            console.log(notification?.type, 'notification');
             const eventStartTime =
               notification?.details?.startUtc &&
               (notification?.type === NOTIFICATION_TYPE_CONST.CALL_BACK_SCHEDULE ||

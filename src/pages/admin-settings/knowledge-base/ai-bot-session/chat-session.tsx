@@ -64,14 +64,12 @@ const ChatSession = ({ handleClose, rowData }: any) => {
   //         });
 
   //         socket.on('disconnect', (reason: any) => {
-  //           console.log('disconnected');
   //           if (reason === 'io server disconnect') {
   //             socket.connect();
   //           }
   //         });
 
   //         socket.on('authorized', () => {
-  //           console.log('under auth');
   //           setIsAiLoading(false);
   //           if (safeChat && !safeChat?.length) {
   //             socket.emit('question', {

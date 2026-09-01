@@ -596,7 +596,6 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
     const ringStrategyLabel = CALL_DISTRIBUTION_DATA.find(
       (item: any) => item?.value === ring_strategy?.value,
     )?.label;
-    console.log(ringStrategyLabel, 'ringStrategyLabelringStrategyLabel', queueInfo?.settings);
 
     const scriptLabel = scriptList?.find((item: any) => item._id === queueInfo?.script)?.name;
     setValue('script', { label: scriptLabel || '', value: queueInfo?.script || '' });

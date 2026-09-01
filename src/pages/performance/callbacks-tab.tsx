@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import TableManager from '@/components/custom/table-manager';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,19 +27,6 @@ const CallbacksTab = () => {
   const [modalState, setModalState] = useState<any>(false);
   const [recordingUrl, setRecordingUrl] = useState('');
   const [view, setView] = useState<'tasks' | 'voicemail'>('tasks');
-
-  /**
-   * The Performance toolbar (filters, live status pill, Wallboard/My
-   * dashboards) is rendered by the page shell above this tab, not by this
-   * component, so it needs the same body-class flag the Live view uses to
-   * reach it — `perf-warm-toolbar` in live-theme.css. Unlike Live, this tab
-   * does not add `perf-warm-backdrop`, so it picks up the toolbar look only,
-   * not the full-page ambient gradient.
-   */
-  useEffect(() => {
-    document.body.classList.add('perf-warm-toolbar');
-    return () => document.body.classList.remove('perf-warm-toolbar');
-  }, []);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['performanceCallbackTasksSummary'],

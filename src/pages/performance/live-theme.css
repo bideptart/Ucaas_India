@@ -127,35 +127,21 @@ body.perf-warm-backdrop .mcm-page {
 /* ------------------------------------------------------------
    1. Toolbar — filters, live status, actions
    ------------------------------------------------------------ */
+/* The whole toolbar bar gets the exact flat tint the rail panel uses for
+   itself (`#fffaf4`, an inline style on `#mobile-sidebar-nav` in
+   sidebar.tsx) — not a colour on each chip. The chips/pill/buttons on top
+   stay their normal default styling, the same way the rail's own icons sit
+   plain against its tinted panel rather than each carrying their own
+   background. */
 body.perf-warm-toolbar .mcm-page .page-bar {
-  background: transparent;
+  background: #fffaf4;
   border-bottom-color: var(--pl-hairline);
 }
 
-/* Filter chips (Today, Division, Media) and the date dropdown — glass pills
-   so the row reads as one translucent control group over the gradient. */
 body.perf-warm-toolbar .mcm-page .perf-tbar .fchip,
 body.perf-warm-toolbar .mcm-page .perf-tbar .btn.sm {
   height: 36px;
   border-radius: 11px;
-}
-body.perf-warm-toolbar .mcm-page .perf-tbar .fchip {
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  border: 1px solid var(--pl-glass-border);
-  color: var(--pl-muted);
-  font-weight: 600;
-  box-shadow: var(--pl-glass-shadow);
-  transition:
-    border-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-body.perf-warm-toolbar .mcm-page .perf-tbar .fchip:hover {
-  border-color: var(--pl-edge);
-  color: var(--pl-accent-ink);
-  box-shadow: var(--pl-glass-shadow-hover);
 }
 body.perf-warm-toolbar .mcm-page .perf-tbar input,
 body.perf-warm-toolbar .mcm-page .perf-tbar select,
@@ -164,18 +150,7 @@ body.perf-warm-toolbar .mcm-page .perf-tbar [role='combobox'] {
   border-radius: 11px;
 }
 
-/* "Live — updates every 2s". Glass pill, subtle orange border, dark slate
-   text, pulsing emerald dot. */
-body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live,
-body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live:hover {
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  border: 1px solid var(--pl-edge);
-  color: var(--pl-ink-2);
-  letter-spacing: 0.01em;
-  box-shadow: var(--pl-glass-shadow);
-}
+/* "Live — updates every 2s" — pulsing emerald dot, otherwise left plain. */
 body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green {
   width: 8px;
   height: 8px;
@@ -204,53 +179,36 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   }
 }
 
-/* Secondary action ("Wallboard") — glass pill, orange text on hover. */
-body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost {
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  border: 1px solid var(--pl-glass-border);
-  color: #334155;
-  box-shadow: var(--pl-glass-shadow);
-}
-body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost:hover {
-  border-color: var(--pl-edge);
-  color: var(--pl-accent-ink);
-  box-shadow: var(--pl-glass-shadow-hover);
-}
+/* Secondary action ("Wallboard") is left at its default styling — same as
+   the chips, only the bar underneath it carries the colour now. */
 
-/* Primary CTA ("My dashboards") — rich sunset gradient. */
-body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #ffffff;
-  font-weight: 600;
-  border-radius: 12px;
-  border-color: transparent;
-  box-shadow: 0 6px 20px -4px rgba(234, 88, 12, 0.5);
-}
-body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-  box-shadow: 0 8px 24px -4px rgba(234, 88, 12, 0.55);
-}
+/* Primary CTA ("My dashboards") is NOT themed here on purpose — `.btn.primary`
+   already reads solid orange from the platform's own `--accent` token
+   (mcm-page.css, set globally), so adding a second, heavier gradient/shadow
+   on top of it would be exactly the kind of extra weight this pass just
+   traded for the plain, light look. */
 
 /* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
    directly below the toolbar, rendered by the same Performance page shell,
    on whichever tab is in SHOW_KPI_HEADER_TABS (index.tsx) — currently
-   Queues, Campaigns and Dashboards. Gated on the same `perf-warm-toolbar`
-   toggle, so it only themes on tabs that actually opt in (Campaigns);
-   Queues and Dashboards never add that class, so they render unchanged. */
-body.perf-warm-toolbar .mcm-page .page-band {
+   Queues, Campaigns and Dashboards. Gated on `perf-warm-backdrop` rather
+   than `perf-warm-toolbar`: the band sits on the ambient-gradient page, so
+   it stays themed together with that gradient even on a tab (Campaigns,
+   under review) that keeps the backdrop but has had the toolbar itself
+   reverted to plain. Queues and Dashboards never add either class, so they
+   render unchanged. */
+body.perf-warm-backdrop .mcm-page .page-band {
   background: transparent;
   border-bottom: none;
 }
-body.perf-warm-toolbar .mcm-page .page-band .kpis {
+body.perf-warm-backdrop .mcm-page .page-band .kpis {
   background: transparent;
   border: none;
   border-radius: 0;
   gap: 10px;
   overflow: visible;
 }
-body.perf-warm-toolbar .mcm-page .page-band .kpi {
+body.perf-warm-backdrop .mcm-page .page-band .kpi {
   background: var(--pl-glass);
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
@@ -258,13 +216,13 @@ body.perf-warm-toolbar .mcm-page .page-band .kpi {
   border-radius: 18px;
   box-shadow: var(--pl-glass-shadow);
 }
-body.perf-warm-toolbar .mcm-page .page-band .kpi .k {
+body.perf-warm-backdrop .mcm-page .page-band .kpi .k {
   color: var(--pl-muted);
 }
-body.perf-warm-toolbar .mcm-page .page-band .kpi .v {
+body.perf-warm-backdrop .mcm-page .page-band .kpi .v {
   color: var(--pl-ink);
 }
-body.perf-warm-toolbar .mcm-page .page-band .kpi .d {
+body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   color: var(--pl-muted);
 }
 

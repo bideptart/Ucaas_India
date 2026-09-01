@@ -16,15 +16,19 @@ const LiveInteractionsTab = () => {
 
   /**
    * The view's warm theme covers two things this component does not render:
-   * the Performance sub-rail (the shared sidebar) and the Performance toolbar
-   * (the page shell above this tab). Flagging the document while the view is
-   * open lets `live-theme.css` reach both without either file being edited —
-   * so no other area, and no other Performance view, is touched, and leaving
-   * this view restores them on the same frame.
+   * the full-page ambient backdrop and the Performance toolbar (the page
+   * shell above this tab). Flagging the document while the view is open lets
+   * `live-theme.css` reach both without either file being edited — so no
+   * other area, and no other Performance view, is touched, and leaving this
+   * view restores them on the same frame. Both classes are shared toggles —
+   * other Performance tabs (Callbacks, Campaigns) opt into either
+   * independently for the same toolbar/backdrop look. The toolbar's own
+   * styling is the plain flat wash approved after review, not the earlier
+   * glass/blur/shadow version.
    */
   useEffect(() => {
-    document.body.classList.add('perf-live-theme');
-    return () => document.body.classList.remove('perf-live-theme');
+    document.body.classList.add('perf-warm-backdrop', 'perf-warm-toolbar');
+    return () => document.body.classList.remove('perf-warm-backdrop', 'perf-warm-toolbar');
   }, []);
 
   const activeCalls = useMemo(

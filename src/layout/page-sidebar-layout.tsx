@@ -23,12 +23,16 @@ const PageSidebarLayout = ({
   const [hovered, setHovered] = useState(false);
   const isAdminResponsiveTopbar = !isTab && title === 'Admin Hub';
   const isCampaignResponsiveTopbar = !isTab && title === 'Campaign';
+  const isGlassSidebar = title === 'Meetings' || title === 'Campaign';
   return (
     <section
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        'relative bg-white transition-all duration-300  ease-in-out',
+        'relative transition-all duration-300  ease-in-out',
+        isGlassSidebar
+          ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)]'
+          : 'bg-white',
         isCampaignResponsiveTopbar
           ? 'h-auto lg:h-full'
           : isAdminResponsiveTopbar
@@ -41,9 +45,7 @@ const PageSidebarLayout = ({
                 ? 'h-auto md:h-full'
                 : 'h-full',
         isCampaignResponsiveTopbar
-          ? hovered
-            ? 'border-b border-primary lg:border-r lg:border-b-0'
-            : 'border-b border-gray-200 lg:border-r lg:border-b-0'
+          ? 'border-b lg:border-r lg:border-b-0'
           : isAdminResponsiveTopbar
             ? hovered
               ? 'border-b border-primary lg:border-r lg:border-b-0'
@@ -52,9 +54,11 @@ const PageSidebarLayout = ({
               ? hovered
                 ? 'border-b border-primary md:border-r md:border-b-0'
                 : 'border-b border-gray-200 md:border-r md:border-b-0'
-              : hovered
-                ? 'border-r border-primary'
-                : 'border-r border-gray-200 ',
+              : isGlassSidebar
+                ? 'border-r'
+                : hovered
+                  ? 'border-r border-primary'
+                  : 'border-r border-gray-200 ',
         collapsed
           ? 'w-[0rem] min-w-[0rem]'
           : isTab
@@ -67,6 +71,11 @@ const PageSidebarLayout = ({
                   ? 'w-full min-w-0 max-w-full lg:min-w-[16rem] lg:max-w-[16rem]'
                   : 'md:min-w-[16rem] md:max-w-[16rem] w-full xs:max-h-32 md:max-h-full',
       )}
+      style={
+        isGlassSidebar
+          ? { borderColor: hovered ? 'rgba(217,101,46,0.55)' : 'rgba(231,139,80,0.22)' }
+          : undefined
+      }
     >
       <button
         onClick={() => setCollapsed(!collapsed)}
@@ -76,8 +85,13 @@ const PageSidebarLayout = ({
           collapsed || hovered
             ? 'opacity-100 pointer-events-auto'
             : 'opacity-0 pointer-events-none',
-          hovered ? 'bg-primary text-white' : 'bg-white text-gray-600',
+          hovered
+            ? isGlassSidebar
+              ? 'text-white'
+              : 'bg-primary text-white'
+            : 'bg-white text-gray-600',
         )}
+        style={hovered && isGlassSidebar ? { background: '#E78B50' } : undefined}
       >
         <ChevronIcon
           className={cn(
@@ -91,14 +105,20 @@ const PageSidebarLayout = ({
         {(title || action) && (
           <div
             className={cn(
-              'flex items-center justify-between p-3 transition-opacity duration-300 border-b border-gray-200 min-h-[65px]',
+              'flex items-center justify-between p-3 transition-opacity duration-300 border-b min-h-[65px]',
+              isGlassSidebar ? 'border-orange-100/60' : 'border-gray-200',
               title === 'Reports' && 'min-h-14 md:min-h-[65px]',
               collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100',
             )}
           >
             <div className={`flex gap-1 items-center ${headerCustomClass}`}>
               <span>{icon}</span>
-              <h4 className="text-gray-900 font-semibold text-lg">{title}</h4>
+              <h4
+                className={cn('font-semibold text-lg', !isGlassSidebar && 'text-gray-900')}
+                style={isGlassSidebar ? { color: '#8A3F1C' } : undefined}
+              >
+                {title}
+              </h4>
             </div>
             {action && action}
           </div>

@@ -1,5 +1,5 @@
 import { FilterIcon, Bell, PhoneIcon, VideocameraAdd } from '@/assets/icons';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,239 @@ import { meetingList } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Icon as IconComponent } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
-const NotificationContent = ({ setNotificationState }: { setNotificationState: any }) => {
+
+// Dev-only sample data so the notification drawer and its filters can be
+// eyeballed without a backend that actually has notifications queued up.
+// Never shipped to production — gated by import.meta.env.DEV below.
+// 5-7 items per category so each filter has an actual list to scroll, not
+// just a single lonely row.
+const buildDummyGroup = (
+  prefix: string,
+  type: string,
+  descriptions: string[],
+  extra?: (index: number) => Record<string, any>,
+) =>
+  descriptions.map((description, index) => ({
+    _id: `dummy-${prefix}-${index + 1}`,
+    type,
+    description,
+    createdAt: new Date(Date.now() - (index + 1) * 37 * 60 * 1000).toISOString(),
+    unread: index < 3,
+    ...(extra ? extra(index) : {}),
+  }));
+
+const DUMMY_NOTIFICATIONS: any[] = [
+  ...buildDummyGroup('sms', 'sms', [
+    'New SMS from +1 (415) 555-0132: "Are we still on for 3pm?"',
+    'New SMS from +91 98765 43210: "Sent the invoice, please check."',
+    'New SMS from +1 (212) 555-0148: "Call me when you get a chance."',
+    'New SMS from +44 7700 900123: "Thanks for the quick turnaround!"',
+    'New SMS from +1 (628) 555-0110: "Can we reschedule to tomorrow?"',
+    'New SMS from +91 90000 12345: "Payment confirmation attached."',
+  ]),
+  ...buildDummyGroup('voicemail', 'voicemail', [
+    'New voicemail from Priya Shah (00:42)',
+    'New voicemail from Rohan Verma (01:15)',
+    'New voicemail from Unknown Caller (00:28)',
+    'New voicemail from Sarah Lee (02:03)',
+    'New voicemail from David Chen (00:51)',
+    'New voicemail from Support Line (01:37)',
+  ]),
+  ...buildDummyGroup('missedcall', 'missedcall', [
+    'Missed call from +91 98765 43210',
+    'Missed call from +1 (415) 555-0132',
+    'Missed call from +1 (646) 555-0177',
+    'Missed call from +44 20 7946 0958',
+    'Missed call from +91 87654 32109',
+    'Missed call from +1 (312) 555-0199',
+  ]),
+  ...buildDummyGroup(
+    'callback',
+    NOTIFICATION_TYPE_CONST.CALL_BACK_SCHEDULE,
+    [
+      'Call back scheduled with Arjun Mehta',
+      'Call back scheduled with Kavya Nair',
+      'Call back scheduled with James Carter',
+      'Call back scheduled with Ananya Rao',
+      'Call back scheduled with Michael Brown',
+      'Call back scheduled with Sneha Iyer',
+    ],
+    (index) => ({
+      value: '+14155550123',
+      details: { startUtc: new Date(Date.now() - (index === 0 ? 60 : -index) * 1000).toISOString() },
+    }),
+  ),
+  ...buildDummyGroup(
+    'event',
+    NOTIFICATION_TYPE_CONST.EVENT_REMINDER,
+    [
+      'Task due: Follow up on onboarding checklist',
+      'Task due: Review Q3 campaign performance',
+      'Event: Product roadmap review',
+      'Task due: Send renewal quote to client',
+      'Event: Team retrospective',
+      'Task due: Update call script for new offer',
+    ],
+    (index) => ({
+      details: {
+        category: index % 2 === 0 ? NOTIFICATION_TYPE_CONST.TASK : NOTIFICATION_TYPE_CONST.EVENT,
+      },
+    }),
+  ),
+  ...buildDummyGroup(
+    'meeting',
+    'meeting_invite',
+    [
+      'You were invited to "Weekly Sync" by Neha Kapoor',
+      'You were invited to "Client Onboarding" by Rahul Singh',
+      'You were invited to "Sprint Planning" by Emma Wilson',
+      'You were invited to "All Hands" by Vikram Joshi',
+      'You were invited to "1:1 Check-in" by Sara Ahmed',
+      'You were invited to "Design Review" by Tom Walker',
+    ],
+    (index) => ({
+      details: {
+        startUtc: new Date(Date.now() - (index === 0 ? 5 : -index * 10) * 60 * 1000).toISOString(),
+        endUtc: new Date(Date.now() + 25 * 60 * 1000).toISOString(),
+      },
+    }),
+  ),
+  ...buildDummyGroup('payment', NOTIFICATION_TYPE_CONST.PAYMENT_EVENT, [
+    'Payment of $50.00 received — wallet topped up',
+    'Payment of $120.00 received — wallet topped up',
+    'Payment failed for auto-recharge of $25.00',
+    'Payment of $200.00 received — wallet topped up',
+    'Invoice #INV-2291 paid successfully',
+    'Payment of $75.00 received — wallet topped up',
+  ]),
+  ...buildDummyGroup('group', 'department_create', [
+    'New group "Support Tier 2" was created',
+    'New group "East Coast Sales" was created',
+    'New group "Onboarding Specialists" was created',
+    'New group "Night Shift" was created',
+    'New group "VIP Accounts" was created',
+    'New group "QA & Compliance" was created',
+  ]),
+  ...buildDummyGroup('callqueue', 'call_queue_create', [
+    'New call queue "East Coast Sales" was created',
+    'New call queue "West Coast Support" was created',
+    'New call queue "Billing Escalations" was created',
+    'New call queue "Overflow Queue" was created',
+    'New call queue "VIP Priority" was created',
+    'New call queue "After Hours" was created',
+  ]),
+  ...buildDummyGroup('campaign', 'new_campaign', [
+    'Campaign "Q3 Renewals" is now live',
+    'Campaign "Summer Promo" is now live',
+    'Campaign "Win-back Outreach" is now live',
+    'Campaign "New Feature Announcement" is now live',
+    'Campaign "Holiday Sale" is now live',
+    'Campaign "Customer Feedback Survey" is now live',
+  ]),
+];
+
+// Module-level, not component state: the drawer unmounts NotificationContent
+// every time it closes (Header only renders <SideDrawer> while open), so
+// state stored on the component would forget every "read" click the moment
+// the drawer shut. Living outside the component lets it survive that.
+// Two stores, not one: dummy items start out a mix of read/unread (see
+// buildDummyGroup's `unread: index < 3`), so a single "read" override set
+// can only ever push items toward read — it has no way to force an
+// already-read item back to unread. A matching unread-override set covers
+// that direction; each store wins over the item's original state, and
+// marking an id one way clears it from the other.
+let dummyReadIdStore = new Set<string>();
+let dummyUnreadIdStore = new Set<string>();
+const markDummyIdRead = (id: string) => {
+  if (dummyUnreadIdStore.has(id)) {
+    const next = new Set(dummyUnreadIdStore);
+    next.delete(id);
+    dummyUnreadIdStore = next;
+  }
+  if (!dummyReadIdStore.has(id)) dummyReadIdStore = new Set(dummyReadIdStore).add(id);
+};
+// Only offered for the local dev sample data — the real socket call
+// (`notification-status`) only ever marks read, with no matching "unmark"
+// event, so a real notification can't actually go back to unread.
+const markDummyIdUnread = (id: string) => {
+  if (dummyReadIdStore.has(id)) {
+    const next = new Set(dummyReadIdStore);
+    next.delete(id);
+    dummyReadIdStore = next;
+  }
+  if (!dummyUnreadIdStore.has(id)) dummyUnreadIdStore = new Set(dummyUnreadIdStore).add(id);
+};
+// Returns the pre-mark snapshot so a caller can offer an Undo that restores
+// exactly which items were unread before, not just "mark everything unread".
+const markAllDummyRead = () => {
+  const previous = { read: dummyReadIdStore, unread: dummyUnreadIdStore };
+  dummyReadIdStore = new Set(DUMMY_NOTIFICATIONS.map(({ _id }) => _id));
+  dummyUnreadIdStore = new Set();
+  return previous;
+};
+const restoreDummyReadIds = (previous: { read: Set<string>; unread: Set<string> }) => {
+  dummyReadIdStore = previous.read;
+  dummyUnreadIdStore = previous.unread;
+};
+
+// "Today" / "Yesterday" / a full date — assumes the list arrives newest
+// first, which is what groups adjacent same-day rows under one header.
+const getDateGroupLabel = (createdAt?: string) => {
+  if (!createdAt) return 'Earlier';
+  const date = moment(createdAt);
+  if (!date.isValid()) return 'Earlier';
+  const today = moment();
+  if (date.isSame(today, 'day')) return 'Today';
+  if (date.isSame(moment(today).subtract(1, 'day'), 'day')) return 'Yesterday';
+  return date.format('MMMM D, YYYY');
+};
+
+// One consistent orange accent for every notification, used as the left-edge
+// stripe and the unread dot — the palette here stays strictly white + orange.
+const getCategoryAccent = () => '#ea6b42';
+
+// Short category names ("All", "Group") keep the normal title size; only
+// names with enough letters to threaten the header row's one-line layout
+// step down in size, and only as far as their length actually requires.
+const getFilterLabelSizeClass = (label?: string) => {
+  const length = label?.length || 0;
+  if (length > 15) return 'text-sm';
+  if (length > 10) return 'text-base';
+  return 'text-lg';
+};
+
+// So reopening the drawer picks up where the user left it (Gmail/Slack do
+// the same) instead of always resetting to "All".
+const NOTIFICATION_FILTER_STORAGE_KEY = 'mcm-notification-filter-label';
+const NOTIFICATION_UNREAD_ONLY_STORAGE_KEY = 'mcm-notification-unread-only';
+
+// One line per category so an empty inbox says something more specific than
+// a generic "not found" — matches what the filter is actually about.
+const EMPTY_STATE_MESSAGES: Record<string, string> = {
+  All: "You're all caught up!",
+  SMS: 'No new messages',
+  Voicemails: 'No voicemails yet',
+  'Missed Calls': 'No missed calls',
+  'Call Back Schedules': 'No call backs scheduled',
+  'Event & Tasks': 'No tasks or events',
+  'Meetings & Invites': 'No meeting invites',
+  Payments: 'No recent payments',
+  Group: 'No group updates',
+  'Call Queue': 'No queue updates',
+  Campaign: 'No campaign updates',
+};
+const getEmptyStateMessage = (label?: string, unreadOnly?: boolean) => {
+  if (unreadOnly) return "You're all caught up!";
+  return (label && EMPTY_STATE_MESSAGES[label]) || 'No Notification(s) Found!';
+};
+
+const NotificationContent = ({
+  isOpen,
+  setNotificationState,
+}: {
+  isOpen: boolean;
+  setNotificationState: any;
+}) => {
   const { user } = useUser();
   const { makeCall } = useDialpad();
   // const { user_info } = user;
@@ -30,16 +262,77 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
     notificationLoading,
   } = useSocketEvents();
   const [mutatedNotifications, setMutatedNotifications] = useState<any>([]);
-
-  const [notificationFilterValue, setNotificationFilterValue] = useState<any>({
-    id: 1,
-    label: 'All',
-    value: ['all'],
-    icon: <Bell className="text-primary w-full h-full" />,
+  // Dummy notifications aren't wired to the socket, so "read" state for them
+  // is tracked locally instead — otherwise marking one read would silently
+  // do nothing and look broken. This version counter just forces a re-render
+  // when the module-level dummyReadIdStore changes.
+  const [dummyReadVersion, setDummyReadVersion] = useState(0);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(() => {
+    try {
+      return localStorage.getItem(NOTIFICATION_UNREAD_ONLY_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
   });
+  const isShowingDummy = import.meta.env.DEV && !(notificationArr && notificationArr?.length > 0);
+
+  const [notificationFilterValue, setNotificationFilterValue] = useState<any>(() => {
+    try {
+      const savedLabel = localStorage.getItem(NOTIFICATION_FILTER_STORAGE_KEY);
+      const saved = savedLabel && notificationFilters?.find((f: any) => f.label === savedLabel);
+      if (saved) return saved;
+    } catch {
+      // localStorage can throw in private browsing — fall back to the default below.
+    }
+    return {
+      id: 1,
+      label: 'All',
+      value: ['all'],
+      icon: <Bell className="text-gray-700 w-full h-full" />,
+    };
+  });
+  // The header row scrolls horizontally when it's too narrow for every
+  // control. Picking a new filter swaps in a new label, but a leftover
+  // scroll position from browsing the dropdown would otherwise keep the
+  // row scrolled past it, cutting the new label's start off.
+  const headerRowRef = useRef<HTMLDivElement>(null);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (headerRowRef.current) headerRowRef.current.scrollLeft = 0;
+    try {
+      localStorage.setItem(NOTIFICATION_FILTER_STORAGE_KEY, notificationFilterValue?.label || '');
+    } catch {
+      // ignore — remembering the filter is a nicety, not a requirement
+    }
+  }, [notificationFilterValue]);
+  // The shared SideDrawer this renders inside doesn't close on Escape or
+  // move focus into itself when it opens, so a keyboard/screen-reader user
+  // has no obvious way in or out. Both are handled here instead, scoped to
+  // this component's lifetime rather than touching the shared drawer.
+  // SideDrawer now stays mounted permanently (for its slide animation), so
+  // this has to key off isOpen rather than run once on mount — otherwise
+  // focus and Escape would only ever work the very first time it opened.
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNotificationState(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(NOTIFICATION_UNREAD_ONLY_STORAGE_KEY, String(showUnreadOnly));
+    } catch {
+      // ignore — same as above
+    }
+  }, [showUnreadOnly]);
   const { data: ongoingMeetingData } = useQuery({
     queryKey: ['ongoingMeetingList', 'notification-content'],
     queryFn: () => meetingList({ listType: 'ongoing', page: 1, limit: 100 }),
+    enabled: isOpen,
   });
   const ongoingMeetingList =
     ongoingMeetingData?.data?.data?.result?.rows &&
@@ -47,73 +340,188 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
       ? ongoingMeetingData?.data?.data?.result?.rows
       : [];
 
+  // SideDrawer stays permanently mounted now, so a mount-only fetch would
+  // only ever run once — fetch fresh notifications on every open instead.
   useEffect(() => {
+    if (!isOpen) return;
     getNotifications();
-  }, []);
+  }, [isOpen]);
+
+  const sourceNotifications = useMemo(() => {
+    if (!isShowingDummy) return notificationArr;
+    return DUMMY_NOTIFICATIONS.map((notification) => {
+      if (dummyReadIdStore.has(notification._id)) return { ...notification, unread: false };
+      if (dummyUnreadIdStore.has(notification._id)) return { ...notification, unread: true };
+      return notification;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShowingDummy, notificationArr, dummyReadVersion]);
+
+  const categoryFilteredNotifications = useMemo(() => {
+    if (!sourceNotifications || sourceNotifications.length === 0) return [];
+    return notificationFilterValue?.value?.[0] && notificationFilterValue?.value?.[0] !== 'all'
+      ? sourceNotifications.filter(({ type }) => notificationFilterValue?.value?.includes(type))
+      : sourceNotifications;
+  }, [sourceNotifications, notificationFilterValue]);
+
+  const categoryUnreadCount = useMemo(
+    () => categoryFilteredNotifications.filter(({ unread }) => unread).length,
+    [categoryFilteredNotifications],
+  );
 
   useEffect(() => {
-    if (notificationArr && notificationArr?.length > 0) {
-      const filtered_notifications =
-        notificationArr?.length > 0
-          ? notificationFilterValue?.value?.[0] === 'unread'
-            ? notificationArr.filter(({ unread }) => unread)
-            : notificationFilterValue?.value?.[0] !== 'all'
-              ? notificationArr.filter(({ type }) => notificationFilterValue?.value?.includes(type))
-              : notificationArr
-          : [];
-      setMutatedNotifications(filtered_notifications || []);
-    } else {
-      setMutatedNotifications([]);
-    }
-  }, [notificationArr, notificationFilterValue]);
+    const filtered_notifications = showUnreadOnly
+      ? categoryFilteredNotifications.filter(({ unread }) => unread)
+      : categoryFilteredNotifications;
+    setMutatedNotifications(filtered_notifications || []);
+  }, [categoryFilteredNotifications, showUnreadOnly]);
   return (
-    <div className="w-full mx-auto ">
-      {/* pt-4 lines this row up with the drawer's close button (absolute,
-          top-4); pr-16 keeps the filter control clear of that same
-          40px-wide circle sitting at right-4. Without both, the row and
-          the close button read as two disconnected pieces instead of one
-          header line. */}
-      <div className="flex flex-col  gap-2 pl-3 pr-16 pt-4 pb-2">
-        <div className="flex justify-between items-center h-10">
-          <div className=" text-gray-900 font-semibold flex gap-2 items-center justify-between w-full">
-            <div className="flex items-center gap-3 ">
-              <div className="flex w-5 h-5">{notificationFilterValue?.icon}</div>
-              <div className="flex text-lg">{notificationFilterValue?.label}</div>
+    <div
+      role="region"
+      aria-label="Notifications"
+      className="relative w-full mx-auto -mx-4 lg:-mx-5 -mb-5 px-4 lg:px-5 pb-5 min-h-full bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
+    >
+      {/* Visually hidden — announces count changes to screen readers without
+          a visible element, since the badge itself only conveys meaning
+          through color/position that assistive tech can't see. */}
+      <div aria-live="polite" className="sr-only">
+        {categoryUnreadCount > 0
+          ? `${categoryUnreadCount} unread notification${categoryUnreadCount === 1 ? '' : 's'} in ${notificationFilterValue?.label}`
+          : `No unread notifications in ${notificationFilterValue?.label}`}
+      </div>
+      <button
+        ref={closeButtonRef}
+        type="button"
+        onClick={() => setNotificationState(false)}
+        aria-label="Close"
+        title="Close"
+        className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#f0d6b4] bg-white/80 backdrop-blur-sm text-[#ea6b42] shadow-sm transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42]"
+      >
+        <IconComponent name="CloseIcon" className="h-4 w-4" />
+      </button>
+      <div className="flex flex-col gap-3 mx-1 mt-1 mb-2 py-3 pl-3 pr-12 rounded-2xl bg-white/45 backdrop-blur-md border border-white/70 shadow-sm">
+        <div className="flex items-center">
+          <div className="text-gray-900 font-semibold flex flex-nowrap items-center gap-1 w-full">
+            {/* Only this zone (icon + category name) scrolls when it's too
+                long — the action buttons below live outside it entirely, on
+                fixed shrink-0 layout, so they're either fully visible or
+                fully off to the side. Never a half-cut circle. */}
+            <div
+              ref={headerRowRef}
+              className="flex items-center gap-1 min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+              <div className="flex w-4 h-4 shrink-0">{notificationFilterValue?.icon}</div>
+              <div
+                className={`flex ${getFilterLabelSizeClass(notificationFilterValue?.label)} font-semibold whitespace-nowrap shrink-0`}
+              >
+                {notificationFilterValue?.label}
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 flex-nowrap shrink-0 ml-auto">
+              <button
+                type="button"
+                title="Unread"
+                aria-label={`Unread only${categoryUnreadCount > 0 ? `, ${categoryUnreadCount}` : ''}`}
+                aria-pressed={showUnreadOnly}
+                onClick={() => setShowUnreadOnly((prev) => !prev)}
+                className={`relative flex items-center justify-center w-8 h-8 rounded-full shrink-0 border cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${
+                  showUnreadOnly
+                    ? 'bg-gradient-to-r from-[#f2794f] to-[#ea5c34] text-white border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.08),0_0_0_4px_rgba(234,107,66,0.14)]'
+                    : 'bg-white/60 text-[#b5502f] border-[#f0d6b4] hover:bg-white/90 hover:-translate-y-px'
+                }`}
+              >
+                <Bell className="w-4 h-4" />
+                {categoryUnreadCount > 0 && (
+                  <span
+                    className={`absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 rounded-full text-[9px] font-semibold flex items-center justify-center ${
+                      // #ea6b42 only clears ~3.2:1 against white/white-on-it —
+                      // under the 4.5:1 WCAG AA text minimum. #b5502f clears
+                      // ~5.3:1 either way round, so this badge uses that
+                      // instead of the lighter accent used everywhere else.
+                      showUnreadOnly ? 'bg-white text-[#b5502f]' : 'bg-[#b5502f] text-white'
+                    }`}
+                  >
+                    {categoryUnreadCount > 9 ? '9+' : categoryUnreadCount}
+                  </span>
+                )}
+              </button>
               {mutatedNotifications && mutatedNotifications?.length > 0 ? (
-                <div
-                  className="text-xs text-primary cursor-pointer"
+                <button
+                  type="button"
+                  title="Mark all as read"
+                  aria-label="Mark all as read"
+                  className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 cursor-pointer text-[#ea6b42] bg-white/60 border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent transition-colors"
                   onClick={() => {
-                    markReadNotification('all');
-                    setNotificationState(false);
-                    handleAlert({
-                      text: 'All the notifications has been marked as read.',
-                      type: 'success',
-                    });
+                    if (isShowingDummy) {
+                      // Only offered for the local dev sample data — there's
+                      // no matching "unmark as read" call for real
+                      // notifications, so a fake Undo there would just lie.
+                      const previousReadState = markAllDummyRead();
+                      setDummyReadVersion((v) => v + 1);
+                      setNotificationState(false);
+                      handleAlert({
+                        text: (
+                          <div className="flex items-center gap-3">
+                            <span>All notifications marked as read.</span>
+                            <button
+                              type="button"
+                              className="text-xs font-semibold underline shrink-0 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                restoreDummyReadIds(previousReadState);
+                                setDummyReadVersion((v) => v + 1);
+                              }}
+                            >
+                              Undo
+                            </button>
+                          </div>
+                        ) as any,
+                        type: 'success',
+                      });
+                    } else {
+                      markReadNotification('all');
+                      setNotificationState(false);
+                      handleAlert({
+                        text: 'All the notifications has been marked as read.',
+                        type: 'success',
+                      });
+                    }
                   }}
                 >
-                  Mark all as read
-                </div>
+                  <IconComponent name="DoneIcon" className="w-4 h-4" />
+                </button>
               ) : null}
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger ref={filterTriggerRef}>
                   <div
                     className={
-                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white'
+                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 shrink-0 bg-white/60 text-[#b5502f] border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent'
                     }
                   >
                     <FilterIcon className="w-5 h-5" />
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {notificationFilters?.map((filter: any) => {
+                <DropdownMenuContent
+                  onCloseAutoFocus={(e) => {
+                    // Radix returns focus to the trigger on close, and the
+                    // browser's default focus scrolls that trigger into
+                    // view — which drags our horizontally-scrolling header
+                    // row back to the right, hiding the label we just
+                    // switched to. Restore focus ourselves without letting
+                    // it scroll, then reset the row's scroll position.
+                    e.preventDefault();
+                    filterTriggerRef.current?.focus({ preventScroll: true });
+                    if (headerRowRef.current) headerRowRef.current.scrollLeft = 0;
+                  }}
+                >
+                  {notificationFilters?.map((filter: any, filterIndex: number) => {
                     return (
                       <DropdownMenuItem
+                        key={`${filter?.label}-${filterIndex}`}
                         className="cursor-pointer"
                         onClick={() => setNotificationFilterValue(filter)}
                       >
-                        <div className="w-6 h-6 p-1 bg-gray-50 border-gray-200 border rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 p-1 bg-[#FBE2C8]/45 border-[#EEE7DD] border rounded-full flex items-center justify-center">
                           {filter?.icon}
                         </div>
                         {filter?.label}
@@ -126,14 +534,20 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
           </div>
         </div>
       </div>
-      <hr className="border-gray-200 mt-1" />
-      <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1">
+      <hr className="border-[#f0d6b4] p-2 mt-1" />
+      <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] [&::-webkit-scrollbar-thumb]:rounded-full">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
-          <div className="flex justify-center items-center h-full">
+          <div role="status" aria-label="Loading notifications" className="flex justify-center items-center h-full">
             <Loader variant="blue" />
           </div>
         ) : mutatedNotifications && mutatedNotifications?.length > 0 ? (
-          mutatedNotifications?.map((notification: any) => {
+          mutatedNotifications?.map((notification: any, notificationIndex: number) => {
+            const dateGroupLabel = getDateGroupLabel(notification?.createdAt);
+            const previousDateGroupLabel =
+              notificationIndex > 0
+                ? getDateGroupLabel(mutatedNotifications[notificationIndex - 1]?.createdAt)
+                : null;
+            const showDateGroupHeader = dateGroupLabel !== previousDateGroupLabel;
             const notificationtype =
               notification?.type === NOTIFICATION_TYPE_CONST.EVENT_REMINDER
                 ? notification?.details?.category || NOTIFICATION_TYPE_CONST.EVENT
@@ -190,16 +604,29 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
               eventStartTime &&
               now.isSameOrAfter(eventStartTime)
             ) {
+              const triggerCallBack = () => {
+                const number = String(notification?.value || '').trim();
+                if (!number) return;
+                const extraHeaders = notification?.didNumber
+                  ? [`X-CallerId: ${notification?.didNumber}`]
+                  : [];
+                makeCall(number, { extraHeaders });
+              };
               actionIcon = (
                 <span
-                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-green-100 text-green-500 hover:bg-green-400 hover:text-white"
-                  onClick={() => {
-                    const number = String(notification?.value || '').trim();
-                    if (!number) return;
-                    const extraHeaders = notification?.didNumber
-                      ? [`X-CallerId: ${notification?.didNumber}`]
-                      : [];
-                    makeCall(number, { extraHeaders });
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Call back"
+                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-green-100 text-green-500 hover:bg-green-400 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerCallBack();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    triggerCallBack();
                   }}
                 >
                   <PhoneIcon className="w-4 h-4" />
@@ -228,7 +655,12 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
                   className="min-h-8 h-8 px-3 text-xs text-primary border-primary bg-white hover:bg-primary/10 hover:text-primary"
                   onClick={(e) => {
                     e.stopPropagation();
-                    markReadNotification(notification?._id);
+                    if (isShowingDummy) {
+                      markDummyIdRead(notification?._id);
+                      setDummyReadVersion((v) => v + 1);
+                    } else {
+                      markReadNotification(notification?._id);
+                    }
                     setNotificationState(false);
                     window.open(`/video-meet?meetCode=${matchedOngoingMeeting?.meetingId}`);
                   }}
@@ -252,39 +684,83 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
             //   );
             // }
 
+            // Clicking a read dummy item flips it back to unread — lets you
+            // re-flag something for follow-up. Real notifications only ever
+            // go one way (see markDummyIdUnread above for why).
+            const toggleReadState = () => {
+              if (isShowingDummy) {
+                if (notification?.unread) {
+                  markDummyIdRead(notification?._id);
+                } else {
+                  markDummyIdUnread(notification?._id);
+                }
+                setDummyReadVersion((v) => v + 1);
+              } else {
+                markReadNotification(notification?._id);
+              }
+            };
+            const categoryAccent = getCategoryAccent();
+            const enterDelayMs = Math.min(notificationIndex, 14) * 25;
+
             return (
-              <div
-                key={notification?._id}
-                className={`relative w-full p-3 mt-2 bg-gray-50 border rounded-lg border-gray-200 flex cursor-pointer flex-shrink-0 ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
-                  notification?.unread ? 'opacity-100' : 'opacity-60'
-                }`}
-                onClick={() => markReadNotification(notification?._id)}
-              >
-                <div
-                  aria-label="group icon"
-                  role="img"
-                  className="focus:outline-none w-11 h-11 border rounded-full border-gray-200 bg-white flex flex-shrink-0 items-center justify-center p-2"
-                >
-                  {Icon ? <div className="flex w-5 h-5">{Icon}</div> : null}
-                </div>
-                <div className="pl-3 w-full">
-                  <div className="flex items-center justify-between w-full text-sm">
-                    {notification?.description}
+              <Fragment key={notification?._id}>
+                {showDateGroupHeader && (
+                  <div
+                    className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
+                  >
+                    {dateGroupLabel}
                   </div>
-                  <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500">
-                    {formatNotificationDate(notification?.createdAt)}
-                  </p>
+                )}
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${notification?.description || 'Notification'}${isShowingDummy ? `, ${notification?.unread ? 'unread' : 'read, activate to mark unread'}` : ''}`}
+                  style={{ borderLeftColor: categoryAccent, animationDelay: `${enterDelayMs}ms` }}
+                  className={`animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 shadow-sm flex cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
+                    notification?.unread ? 'opacity-100' : 'opacity-60'
+                  }`}
+                  onClick={toggleReadState}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Enter' && e.key !== ' ') return;
+                    e.preventDefault();
+                    toggleReadState();
+                  }}
+                >
+                  <div
+                    aria-label="group icon"
+                    role="img"
+                    className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] bg-[#fdeee0] flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f]"
+                  >
+                    {Icon ? <div className="flex w-5 h-5">{Icon}</div> : null}
+                    {notification?.unread && (
+                      <span
+                        aria-hidden="true"
+                        style={{ backgroundColor: categoryAccent }}
+                        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full ring-2 ring-white"
+                      />
+                    )}
+                  </div>
+                  <div className="pl-3 w-full">
+                    <div
+                      className={`flex items-center justify-between w-full text-sm text-gray-900 ${notification?.unread ? 'font-medium' : 'font-normal'}`}
+                    >
+                      {notification?.description}
+                    </div>
+                    <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500">
+                      {formatNotificationDate(notification?.createdAt)}
+                    </p>
+                  </div>
+                  {actionIcon && <div className="flex items-start gap-2 ml-2">{actionIcon}</div>}
+                  {actionButton && <div className="absolute bottom-3 right-3">{actionButton}</div>}
                 </div>
-                {actionIcon && <div className="flex items-start gap-2 ml-2">{actionIcon}</div>}
-                {actionButton && <div className="absolute bottom-3 right-3">{actionButton}</div>}
-              </div>
+              </Fragment>
             );
           })
         ) : (
-          <div className="w-full max-w-96 min-h-52 h-full p-4 rounded-xl m-auto border border-ucass-primary-100 bg-ucass-primary-200/40 flex flex-col items-center justify-center gap-2">
+          <div className="w-full max-w-96 min-h-52  h-full p-4 rounded-xl   m-auto border border-[#f0d6b4] bg-white/40 flex flex-col items-center justify-center gap-2">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="flex items-center justify-center text-gray-900 font-medium">
-              No Notification(s) Found!
+            <p className="flex items-center justify-center text-gray-900  font-medium">
+              {getEmptyStateMessage(notificationFilterValue?.label, showUnreadOnly)}
             </p>
           </div>
         )}

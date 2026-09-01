@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Campaign from '@/pages/auto-dialer/campaign';
 import { campaignList } from '@/services/api';
 import PerfStatCard from './stat-card';
+import './campaigns-theme.css';
 
 const parseMembers = (members: any) => {
   try {
@@ -14,6 +15,22 @@ const parseMembers = (members: any) => {
 };
 
 const CampaignActivityTab = () => {
+  /**
+   * Same shared toggles the Live and Callbacks tabs use: `perf-warm-toolbar`
+   * reaches the Performance toolbar (rendered by the page shell above this
+   * tab, not by this component) — styled as the plain flat wash approved
+   * after review, not the earlier glass/blur/shadow version — and
+   * `perf-warm-backdrop` flags the document so campaigns-theme.css can paint
+   * the full-page ambient gradient and the live-queue KPI band — done on
+   * `.perf-campaigns` itself rather than through the generic `.mcm-page`
+   * rule, since the embedded `<Campaign />` below renders its own nested
+   * `.mcm-page` panel.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-toolbar', 'perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-toolbar', 'perf-warm-backdrop');
+  }, []);
+
   const { data: campaigns = [] } = useQuery({
     queryKey: ['performanceCampaignActivityList'],
     queryFn: () => campaignList({ page: 1, limit: 100, filters: [] }),
@@ -59,8 +76,8 @@ const CampaignActivityTab = () => {
   const dialMethodEntries = Object.entries(totals.byDialMethod).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="flex w-full flex-col gap-3 px-[22px] py-4">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+    <div className="perf-campaigns flex w-full flex-col gap-4 px-[22px] py-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <PerfStatCard
           label="Total leads"
           value={String(totals.assignedLeads)}

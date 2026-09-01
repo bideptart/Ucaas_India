@@ -14,21 +14,21 @@
    ============================================================ */
 
 .mcm-console {
-  --ground: #eef1f8;
+  --ground: transparent;
   --surface: #ffffff;
-  --surface-2: #f6f8fc;
-  --surface-3: #eaeef7;
+  --surface-2: #fbf3e8;
+  --surface-3: #f5e6d3;
   --ink: #0d1526;
   --ink-2: #3d4a63;
   --ink-3: #6b7891;
   --ink-4: #93a0b8;
-  --line: #dfe5f0;
-  --line-2: #eaeef6;
+  --line: #eee7dd;
+  --line-2: #f0e4d3;
 
-  --accent: #2563eb;
-  --accent-ink: #1d4ed8;
-  --accent-wash: #e8efff;
-  --accent-edge: #c3d6ff;
+  --accent: #f2994a;
+  --accent-ink: #c96f1f;
+  --accent-wash: #fff1e0;
+  --accent-edge: #ffd9ad;
 
   /* AI gets its own hue on purpose: machine output must never be
      mistaken for system truth. Violet = "generated, verify me". */
@@ -72,10 +72,10 @@
   --ink-4: #6b7a96;
   --line: #26314a;
   --line-2: #1c2537;
-  --accent: #5b8dff;
-  --accent-ink: #87aaff;
-  --accent-wash: #16223d;
-  --accent-edge: #2c3f68;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
   --ai-wash: #231a3d;
@@ -2871,12 +2871,30 @@
   color: initial;
 }
 
-/* date filter sits in the call-list header */
+/* date filter sits in the call-list header — right-aligned and a touch
+   smaller than the search bar above it, rather than stretching full width. */
 .mcm-console .console-datefilter {
   display: flex;
+  justify-content: flex-end;
 }
 .mcm-console .console-datefilter > * {
-  width: 100%;
+  width: auto;
+  max-width: 150px;
+  min-width: 0;
+  flex: none;
+}
+.mcm-console .console-datefilter .custom-react-select__control {
+  min-height: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 12.5px;
+}
+.mcm-console .console-datefilter .custom-react-select__value-container {
+  padding: 0 8px;
+}
+.mcm-console .console-datefilter .custom-react-select__indicators,
+.mcm-console .console-datefilter .custom-react-select__dropdown-indicator {
+  height: 32px;
 }
 
 /* back chevron */
@@ -3694,4 +3712,156 @@
   margin-left: 0;
   color: var(--ink-3);
   font-weight: 600;
+}
+
+
+/* ============================================================
+   Calls list — visual polish only.
+
+   Every selector here is scoped under `.col.calls` (the left column of the
+   phone console) so nothing outside that list is touched — same markup,
+   same classes, same behavior, just a nicer look: rows read as soft cards
+   with a lift on hover, the tabs/segmented control/search feel a bit more
+   deliberate, and tags/avatars carry a touch more weight.
+   ============================================================ */
+/* Calls/Voicemails tabs share their row with the date filter instead of it
+   sitting on its own line further down. */
+.mcm-console .col.calls .calls-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mcm-console .col.calls .calls-tabs-row .console-datefilter {
+  flex: none;
+}
+.mcm-console .col.calls .calls-tabs-row .console-datefilter > * {
+  max-width: 118px;
+}
+
+.mcm-console .col.calls .panel-tabs {
+  gap: 4px;
+}
+.mcm-console .col.calls .ptab {
+  border-radius: var(--r-sm);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mcm-console .col.calls .ptab:hover {
+  background: var(--surface-2);
+}
+.mcm-console .col.calls .ptab.on {
+  border-bottom-width: 2.5px;
+}
+
+.mcm-console .col.calls .seg {
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+}
+.mcm-console .col.calls .seg button {
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.mcm-console .col.calls .seg button.on {
+  /* A solid gradient pill instead of plain white + ink, so the active
+     filter reads with the same weight as the orange Call button. */
+  background: linear-gradient(135deg, var(--accent), #f9c159);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(234, 124, 30, 0.35);
+}
+
+.mcm-console .col.calls .search-mini input {
+  border-radius: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.mcm-console .col.calls .search-mini input:focus {
+  outline: none;
+  border-color: var(--accent-edge);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
+.mcm-console .col.calls .list {
+  padding: 6px 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mcm-console .col.calls .call-row {
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  padding: 12px 12px;
+  /* A soft card by default, not just plain text on the page background —
+     the list reads as a stack of items even before touching one. */
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.mcm-console .col.calls .call-row:hover {
+  background: var(--surface-2);
+  border-color: var(--accent-edge);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+.mcm-console .col.calls .call-row.on {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  box-shadow: 0 4px 14px rgba(234, 124, 30, 0.2);
+}
+.mcm-console .col.calls .call-row.on::before {
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 6px var(--accent);
+}
+.mcm-console .col.calls .cr-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+/* Every direction gets its own gradient instead of a flat wash, so the list
+   reads with some color even before anything is selected. */
+.mcm-console .col.calls .cr-av.in {
+  background: linear-gradient(150deg, var(--live), #5eead4);
+}
+.mcm-console .col.calls .cr-av.out {
+  background: linear-gradient(150deg, var(--accent-ink), var(--accent-edge));
+}
+.mcm-console .col.calls .cr-av.miss {
+  background: linear-gradient(150deg, var(--crit), #f59e9e);
+}
+/* The clicked/selected row's icon box picks up the orange theme instead of
+   its direction color, so it reads as "this is the one you opened". */
+.mcm-console .col.calls .call-row.on .cr-av {
+  background: linear-gradient(150deg, var(--accent), #f9c159);
+  box-shadow: 0 3px 8px rgba(234, 124, 30, 0.35);
+}
+.mcm-console .col.calls .cr-name {
+  font-weight: 800;
+}
+.mcm-console .col.calls .col-head {
+  position: relative;
+  background: linear-gradient(180deg, var(--surface-2), transparent);
+}
+.mcm-console .col.calls .col-title h2 {
+  background: linear-gradient(120deg, var(--ink), var(--accent-ink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.mcm-console .col.calls .thumb {
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.mcm-console .col.calls .thumb:hover {
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+  transform: rotate(90deg);
+}
+.mcm-console .col.calls .tag {
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-weight: 800;
+}
+.mcm-console .col.calls .tag.acc {
+  box-shadow: 0 1px 3px rgba(234, 124, 30, 0.18);
 }

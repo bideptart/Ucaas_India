@@ -1,23 +1,31 @@
 /* ============================================================
    Performance › Live Interactions — gradient orange glassmorphism.
 
-   Scope, deliberately narrow. Everything here sits behind one of two
+   Scope, deliberately narrow. Everything here sits behind one of three
    scopes and nothing else in the app can be reached by it:
 
-     .perf-live            the Live tab's own root element. Owns the ambient
-                           backdrop, the stat cards, the live table and
-                           everything inside it.
-     body.perf-live-theme  the Performance toolbar that sits OUTSIDE the tab
-                           in the DOM but is part of this view on screen
-                           (rendered by the Performance page shell).
+     .perf-live               the Live tab's own root element. Owns the
+                              stat cards, the live table and everything
+                              inside it.
+     body.perf-warm-backdrop  the full-page ambient gradient (section 0
+                              below). Started Live-only; any Performance tab
+                              that wants the same warm backdrop toggles it —
+                              Campaigns is the second adopter.
+     body.perf-warm-toolbar   the Performance toolbar that sits OUTSIDE the
+                              tab in the DOM but is part of the view on
+                              screen (rendered by the Performance page
+                              shell). Independent of the backdrop toggle
+                              above, so a tab can opt into the toolbar look
+                              without the full-page gradient, which is what
+                              Callbacks does.
 
-   The body class is added on mount and removed on unmount by
-   live-interactions-tab.tsx, so leaving this view puts the toolbar back
-   exactly as every other Performance tab draws it.
+   Both body classes are added on mount and removed on unmount by each
+   tab's own component, so leaving a themed view puts the toolbar and the
+   backdrop back exactly as every other Performance tab draws them.
 
    The left rail (`#mobile-sidebar-nav`) and the top area-nav tab bar
-   (`.mcm-areanav`) are NOT themed here any more — they were promoted to the
-   global sunset-orange design system in `src/index.css` once that theme was
+   (`.mcm-areanav`) are NOT themed here — they were promoted to the global
+   sunset-orange design system in `src/index.css` once that theme was
    approved for app-wide rollout, since both are the one shared component
    every area (Activity, Admin, Directory, Performance, and the standalone
    settings/reports/monitoring pages) renders through. Themeing them here as
@@ -25,7 +33,8 @@
    ============================================================ */
 
 .perf-live,
-body.perf-live-theme {
+body.perf-warm-backdrop,
+body.perf-warm-toolbar {
   --pl-accent: #f97316;
   --pl-accent-deep: #ea580c;
   --pl-accent-ink: #c2410c;
@@ -61,8 +70,10 @@ body.perf-live-theme {
 /* The console still owns dark mode; the glass is re-stated against the dark
    ground rather than left as a bright block in it. */
 .dark .perf-live,
-.dark body.perf-live-theme,
-body.perf-live-theme.dark {
+.dark body.perf-warm-backdrop,
+.dark body.perf-warm-toolbar,
+body.perf-warm-backdrop.dark,
+body.perf-warm-toolbar.dark {
   --pl-accent: #fb923c;
   --pl-accent-deep: #f97316;
   --pl-accent-ink: #fdba74;
@@ -96,7 +107,7 @@ body.perf-live-theme.dark {
    patch of gradient.
    ------------------------------------------------------------ */
 .mcm-page .perf-live,
-body.perf-live-theme .mcm-page {
+body.perf-warm-backdrop .mcm-page {
   background:
     radial-gradient(circle at 15% 15%, rgba(254, 215, 170, 0.65) 0%, transparent 50%),
     radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.45) 0%, transparent 45%),
@@ -105,7 +116,7 @@ body.perf-live-theme .mcm-page {
   min-height: 100vh;
 }
 .dark .mcm-page .perf-live,
-.dark body.perf-live-theme .mcm-page {
+.dark body.perf-warm-backdrop .mcm-page {
   background:
     radial-gradient(circle at 15% 15%, rgba(154, 82, 30, 0.4) 0%, transparent 50%),
     radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
@@ -116,56 +127,31 @@ body.perf-live-theme .mcm-page {
 /* ------------------------------------------------------------
    1. Toolbar — filters, live status, actions
    ------------------------------------------------------------ */
-body.perf-live-theme .mcm-page .page-bar {
-  background: transparent;
+/* The whole toolbar bar gets the exact flat tint the rail panel uses for
+   itself (`#fffaf4`, an inline style on `#mobile-sidebar-nav` in
+   sidebar.tsx) — not a colour on each chip. The chips/pill/buttons on top
+   stay their normal default styling, the same way the rail's own icons sit
+   plain against its tinted panel rather than each carrying their own
+   background. */
+body.perf-warm-toolbar .mcm-page .page-bar {
+  background: #fffaf4;
   border-bottom-color: var(--pl-hairline);
 }
 
-/* Filter chips (Today, Division, Media) and the date dropdown — glass pills
-   so the row reads as one translucent control group over the gradient. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip,
-body.perf-live-theme .mcm-page .perf-tbar .btn.sm {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip,
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.sm {
   height: 36px;
   border-radius: 11px;
 }
-body.perf-live-theme .mcm-page .perf-tbar .fchip {
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  border: 1px solid var(--pl-glass-border);
-  color: var(--pl-muted);
-  font-weight: 600;
-  box-shadow: var(--pl-glass-shadow);
-  transition:
-    border-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-body.perf-live-theme .mcm-page .perf-tbar .fchip:hover {
-  border-color: var(--pl-edge);
-  color: var(--pl-accent-ink);
-  box-shadow: var(--pl-glass-shadow-hover);
-}
-body.perf-live-theme .mcm-page .perf-tbar input,
-body.perf-live-theme .mcm-page .perf-tbar select,
-body.perf-live-theme .mcm-page .perf-tbar [role='combobox'] {
+body.perf-warm-toolbar .mcm-page .perf-tbar input,
+body.perf-warm-toolbar .mcm-page .perf-tbar select,
+body.perf-warm-toolbar .mcm-page .perf-tbar [role='combobox'] {
   border-color: var(--pl-hairline);
   border-radius: 11px;
 }
 
-/* "Live — updates every 2s". Glass pill, subtle orange border, dark slate
-   text, pulsing emerald dot. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live,
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live:hover {
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  border: 1px solid var(--pl-edge);
-  color: var(--pl-ink-2);
-  letter-spacing: 0.01em;
-  box-shadow: var(--pl-glass-shadow);
-}
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green {
+/* "Live — updates every 2s" — pulsing emerald dot, otherwise left plain. */
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green {
   width: 8px;
   height: 8px;
   background: var(--pl-live);
@@ -173,7 +159,7 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green {
 }
 /* The shared `.pulsing` fades the whole dot out; a ring that expands off a
    dot that stays put reads as a heartbeat rather than a blink. */
-body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
+body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   animation: perf-live-pulse 2s ease-out infinite;
 }
 @keyframes perf-live-pulse {
@@ -188,38 +174,56 @@ body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  body.perf-live-theme .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
+  body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
     animation: none;
   }
 }
 
-/* Secondary action ("Wallboard") — glass pill, orange text on hover. */
-body.perf-live-theme .mcm-page .perf-tbar .btn.ghost {
+/* Secondary action ("Wallboard") is left at its default styling — same as
+   the chips, only the bar underneath it carries the colour now. */
+
+/* Primary CTA ("My dashboards") is NOT themed here on purpose — `.btn.primary`
+   already reads solid orange from the platform's own `--accent` token
+   (mcm-page.css, set globally), so adding a second, heavier gradient/shadow
+   on top of it would be exactly the kind of extra weight this pass just
+   traded for the plain, light look. */
+
+/* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
+   directly below the toolbar, rendered by the same Performance page shell,
+   on whichever tab is in SHOW_KPI_HEADER_TABS (index.tsx) — currently
+   Queues, Campaigns and Dashboards. Gated on `perf-warm-backdrop` rather
+   than `perf-warm-toolbar`: the band sits on the ambient-gradient page, so
+   it stays themed together with that gradient even on a tab (Campaigns,
+   under review) that keeps the backdrop but has had the toolbar itself
+   reverted to plain. Queues and Dashboards never add either class, so they
+   render unchanged. */
+body.perf-warm-backdrop .mcm-page .page-band {
+  background: transparent;
+  border-bottom: none;
+}
+body.perf-warm-backdrop .mcm-page .page-band .kpis {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  gap: 10px;
+  overflow: visible;
+}
+body.perf-warm-backdrop .mcm-page .page-band .kpi {
   background: var(--pl-glass);
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
   border: 1px solid var(--pl-glass-border);
-  color: #334155;
+  border-radius: 18px;
   box-shadow: var(--pl-glass-shadow);
 }
-body.perf-live-theme .mcm-page .perf-tbar .btn.ghost:hover {
-  border-color: var(--pl-edge);
-  color: var(--pl-accent-ink);
-  box-shadow: var(--pl-glass-shadow-hover);
+body.perf-warm-backdrop .mcm-page .page-band .kpi .k {
+  color: var(--pl-muted);
 }
-
-/* Primary CTA ("My dashboards") — rich sunset gradient. */
-body.perf-live-theme .mcm-page .perf-tbar .btn.primary {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #ffffff;
-  font-weight: 600;
-  border-radius: 12px;
-  border-color: transparent;
-  box-shadow: 0 6px 20px -4px rgba(234, 88, 12, 0.5);
+body.perf-warm-backdrop .mcm-page .page-band .kpi .v {
+  color: var(--pl-ink);
 }
-body.perf-live-theme .mcm-page .perf-tbar .btn.primary:hover {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-  box-shadow: 0 8px 24px -4px rgba(234, 88, 12, 0.55);
+body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
+  color: var(--pl-muted);
 }
 
 /* ------------------------------------------------------------
@@ -278,11 +282,20 @@ body.perf-live-theme .mcm-page .perf-tbar .btn.primary:hover {
 }
 
 /* Header — translucent light tint, uppercase muted slate. */
+/* The header is `sticky` (table-manager.tsx), so it sits over rows as the
+   body scrolls underneath it — a translucent fill here let row text show
+   straight through the header labels instead of being covered by them.
+   Opaque + its own blur keeps the frosted look without that bleed-through,
+   and each `th` matches rather than staying transparent, since a sticky
+   header is only as opaque as its least-opaque layer. */
 .mcm-page .perf-live .table-scroll thead {
-  background: rgba(255, 246, 238, 0.6);
+  background: rgba(255, 246, 238, 0.97);
+  backdrop-filter: var(--pl-glass-blur);
+  -webkit-backdrop-filter: var(--pl-glass-blur);
+  box-shadow: 0 1px 0 0 var(--pl-hairline);
 }
 .dark .mcm-page .perf-live .table-scroll thead {
-  background: rgba(251, 146, 60, 0.08);
+  background: rgba(23, 15, 10, 0.97);
 }
 .mcm-page .perf-live .table-scroll thead th {
   color: var(--pl-muted);
@@ -398,8 +411,13 @@ body.perf-live-theme .mcm-page .perf-tbar .btn.primary:hover {
   box-shadow: 0 6px 14px rgba(249, 115, 22, 0.26);
 }
 
-/* Pagination bar, matched to the table it belongs to. */
-.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200'] {
+/* Pagination bar, matched to the table it belongs to. `.table-scroll` also
+   carries `rounded-xl border-gray-200` (table-manager.tsx), so
+   `:not(.table-scroll)` is load bearing — without it this rule also matched
+   the table container itself and, being more specific than the plain
+   `.table-scroll` rule above, silently overrode its background/border/
+   shadow with a second, overlapping glass card right on top of it. */
+.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) {
   border-radius: var(--pl-r);
   border: 1px solid var(--pl-glass-border);
   background: var(--pl-glass);
@@ -407,7 +425,7 @@ body.perf-live-theme .mcm-page .perf-tbar .btn.primary:hover {
   -webkit-backdrop-filter: var(--pl-glass-blur);
   box-shadow: var(--pl-glass-shadow);
 }
-.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200'] .tableSelect,
-.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200'] label {
+.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) .tableSelect,
+.mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) label {
   color: var(--pl-muted);
 }

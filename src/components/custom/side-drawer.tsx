@@ -72,7 +72,7 @@ const SideDrawer: FC<SideDrawerProps> = ({
       <div
         id="drawer-example"
         className={cn(
-          `fixed top-0 shadow-lg bg-white right-0 ${isHeader ? 'z-30' : 'z-10'} transition-transform ease-in-out duration-300 backdrop-blur-md gap-4 flex flex-col`,
+          `fixed top-0 shadow-lg bg-[rgba(251,249,246,0.88)] right-0 ${isHeader ? 'z-30' : 'z-10'} transition-transform ease-in-out duration-300 backdrop-blur-[12px] gap-4 flex flex-col`,
           enableResponsive && isSmallScreen ? 'min-w-0 max-w-full' : 'min-w-84 sm:min-w-100',
           isHeader ? 'mt-0 h-full' : 'mt-16 h-[calc(100vh_-_4rem)]',
           isOpen ? 'translate-x-0 right-0' : 'translate-x-full right-[-1rem]',
@@ -87,7 +87,7 @@ const SideDrawer: FC<SideDrawerProps> = ({
         {title && (
           <div
             className={cn(
-              'flex min-h-11 items-center justify-between gap-1.5 px-5 text-gray-900',
+              'flex min-h-11 items-center justify-between gap-1.5 px-5 text-[#2E2D35]',
               /* Room for the close button so a long title cannot run underneath it. */
               isCloseIcon && 'pr-16',
               headerClassName,
@@ -116,9 +116,9 @@ const SideDrawer: FC<SideDrawerProps> = ({
             title="Close"
             className={cn(
               'group absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center',
-              'rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm',
+              'rounded-full border border-[#EEE7DD] bg-[rgba(251,249,246,0.88)] text-[#9A948F] shadow-sm',
               'transition-all duration-200 ease-out',
-              'hover:border-ucass-primary-100 hover:bg-ucass-primary-200 hover:text-primary hover:scale-110 hover:shadow-md',
+              'hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35] hover:scale-110 hover:shadow-md',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
             )}
           >

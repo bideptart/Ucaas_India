@@ -120,25 +120,25 @@ const OutboundRates = () => {
   console.log('ratesBlock', ratesBlock);
   return (
     <section className="w-full overflow-x-auto overflow-y-hidden">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+      <div className="flex items-center justify-between p-3 border-b border-[rgba(225,200,165,0.9)] min-h-[65px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
         <div>
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <p className="text-[#2E2D35] font-semibold text-lg flex items-center gap-1">
             SMS/Calling Rates
-            <div className="-rotate-90 text-gray-800">
+            <div className="-rotate-90 text-[#2E2D35]">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Outbound Rates</span>
           </p>
-          <p className="text-gray-500 text-xs">
+          <p className="text-[#9A948F] text-xs">
             What each destination costs to call or text, per minute or per message.
           </p>
         </div>
       </div>
       <div className="w-full flex justify-center gap-3 p-3">
         <div className="md:w-2/3 w-full">
-          <div className="flex flex-col  border border-gray-200 rounded-lg bg-white p-5 w-full gap-3  h-[calc(100vh-10rem)] overflow-y-auto">
+          <div className="flex flex-col  border border-[rgba(225,200,165,0.9)] rounded-lg bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 w-full gap-3  h-[calc(100vh-10rem)] overflow-y-auto">
             <div className="w-full ">
-              <p className="text-gray-900 font-semibold text-md mb-2">Search By</p>
+              <p className="text-[#2E2D35] font-semibold text-md mb-2">Search By</p>
               <div className="w-full flex gap-3  flex-col sm:flex-row">
                 <CustomSelect
                   className=""
@@ -182,7 +182,7 @@ const OutboundRates = () => {
                   {ratesBlock?.map((e: any) => (
                     <div
                       key={e?.countryName}
-                      className="w-full rounded-lg bg-white border border-gray-200 px-4 py-8 h-full"
+                      className="w-full rounded-lg bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] px-4 py-8 h-full"
                     >
                       <div className="flex flex-col items-center justify-center gap-2 w-full">
                         <ReactCountryFlag
@@ -191,11 +191,11 @@ const OutboundRates = () => {
                           style={{ width: '100px', height: '100px' }}
                           className="rounded-full border w-16 h-16 mb-2 object-cover"
                         />
-                        <p className="flex items-center gap-2 text-sm text-gray-500">
+                        <p className="flex items-center gap-2 text-sm text-[#9A948F]">
                           {e?.countryName}
                         </p>
                         <div className="flex items-center gap-1">
-                          <p className="flex items-center gap-2 text-gray-500">{e?.type}</p>
+                          <p className="flex items-center gap-2 text-[#9A948F]">{e?.type}</p>
                           <p className="text-sm">{e?.typeName}</p>
                         </div>
                         <p className="text-sm">
@@ -208,7 +208,7 @@ const OutboundRates = () => {
               </div>
             ) : (
               <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-[#2E2D35]">
                   {'No matching records were found for the selected country or phone number.'}
                 </p>
               </div>

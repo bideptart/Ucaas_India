@@ -35,7 +35,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
     id: 1,
     label: 'All',
     value: ['all'],
-    icon: <Bell className="text-gray-700 w-full h-full" />,
+    icon: <Bell className="text-primary w-full h-full" />,
   });
   const { data: ongoingMeetingData } = useQuery({
     queryKey: ['ongoingMeetingList', 'notification-content'],
@@ -68,8 +68,13 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
   }, [notificationArr, notificationFilterValue]);
   return (
     <div className="w-full mx-auto ">
-      <div className="flex flex-col  gap-2 px-1 py-2">
-        <div className="flex justify-between items-center ">
+      {/* pt-4 lines this row up with the drawer's close button (absolute,
+          top-4); pr-16 keeps the filter control clear of that same
+          40px-wide circle sitting at right-4. Without both, the row and
+          the close button read as two disconnected pieces instead of one
+          header line. */}
+      <div className="flex flex-col  gap-2 pl-3 pr-16 pt-4 pb-2">
+        <div className="flex justify-between items-center h-10">
           <div className=" text-gray-900 font-semibold flex gap-2 items-center justify-between w-full">
             <div className="flex items-center gap-3 ">
               <div className="flex w-5 h-5">{notificationFilterValue?.icon}</div>
@@ -121,7 +126,7 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
           </div>
         </div>
       </div>
-      <hr className="text-gray-400 p-2 mt-1" />
+      <hr className="border-gray-200 mt-1" />
       <div className="w-full overflow-auto h-[calc(100vh_-_5rem)] pr-1">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div className="flex justify-center items-center h-full">
@@ -276,9 +281,9 @@ const NotificationContent = ({ setNotificationState }: { setNotificationState: a
             );
           })
         ) : (
-          <div className="w-full max-w-96 min-h-52  h-full p-4 rounded-lg   m-auto border border-gray-100 flex flex-col items-center justify-center gap-2">
+          <div className="w-full max-w-96 min-h-52 h-full p-4 rounded-xl m-auto border border-ucass-primary-100 bg-ucass-primary-200/40 flex flex-col items-center justify-center gap-2">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="flex items-center justify-center text-gray-900  font-medium">
+            <p className="flex items-center justify-center text-gray-900 font-medium">
               No Notification(s) Found!
             </p>
           </div>

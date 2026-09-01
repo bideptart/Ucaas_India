@@ -38,7 +38,7 @@
  * can be used from a component, a hook, or a form submit handler alike.
  */
 
-import { POLICY_FIELDS, type PolicyField } from '@/lib/company-policy';
+import { POLICY_FIELDS, type PolicyField } from '@/lib/company-policy-fields';
 
 /* Re-exported rather than restated: the paths live in POLICY_FIELDS and having them
    written down twice is how the two copies quietly drift apart. */

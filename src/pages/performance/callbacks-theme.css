@@ -1,0 +1,162 @@
+/* ============================================================
+   Performance › Callbacks — warm sunset orange glassmorphism.
+
+   Scoped to `.perf-callbacks`, the tab's own root element, exactly the way
+   `live-theme.css` scopes to `.perf-live` — nothing outside this component
+   is reachable from here, so no other Performance tab, the shared toolbar,
+   or the rail is affected.
+   ============================================================ */
+
+.perf-callbacks {
+  --pc-accent: #f97316;
+  --pc-accent-ink: #ea580c;
+  --pc-wash: #fff1eb;
+  --pc-muted: #666666;
+  --pc-ink: #1a1a1a;
+
+  --pc-glass: rgba(255, 255, 255, 0.85);
+  --pc-glass-border: rgba(255, 255, 255, 0.95);
+  --pc-glass-blur: blur(20px) saturate(190%);
+  --pc-glass-shadow:
+    0 10px 30px -5px rgba(234, 88, 12, 0.1),
+    0 4px 12px -2px rgba(60, 40, 30, 0.06),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+}
+.dark .perf-callbacks {
+  --pc-wash: #2a1710;
+  --pc-muted: #93a1ba;
+  --pc-ink: #f4f6fb;
+  --pc-glass: rgba(17, 24, 39, 0.72);
+  --pc-glass-border: rgba(251, 146, 60, 0.18);
+  --pc-glass-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ------------------------------------------------------------
+   1. Metric summary cards (Scheduled tasks, Overdue, Tasks by source,
+   Voicemails today, Voicemail time)
+   ------------------------------------------------------------ */
+.perf-callbacks .stat {
+  background: var(--pc-glass);
+  backdrop-filter: var(--pc-glass-blur);
+  -webkit-backdrop-filter: var(--pc-glass-blur);
+  border: 1px solid var(--pc-glass-border);
+  border-radius: 18px;
+  box-shadow: var(--pc-glass-shadow);
+}
+.perf-callbacks .stat .k {
+  color: var(--pc-muted);
+  letter-spacing: 0.1em;
+}
+.perf-callbacks .stat .v {
+  color: var(--pc-ink);
+  font-weight: 800;
+}
+.perf-callbacks .stat .d {
+  color: var(--pc-muted) !important;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   2. Sub-tab switcher ("Scheduled tasks" / "Queue voicemail")
+   ------------------------------------------------------------ */
+.perf-callbacks [data-slot='tabs-list'] {
+  background: transparent;
+  gap: 6px;
+  padding: 0;
+  height: auto;
+}
+
+.perf-callbacks [data-slot='tabs-trigger'] {
+  flex: none;
+  height: 31px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  box-shadow: none;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+.perf-callbacks [data-slot='tabs-trigger']:hover {
+  background: rgba(255, 241, 235, 0.7);
+  color: var(--pc-accent-ink);
+}
+.perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
+.perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
+  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 3px 10px -3px rgba(249, 115, 22, 0.22);
+  color: var(--pc-accent-ink);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------
+   3. Main data container — table + pagination, and the empty state
+   ------------------------------------------------------------ */
+.perf-callbacks .table-scroll {
+  border-radius: 20px;
+  border: 1px solid var(--pc-glass-border);
+  background: var(--pc-glass);
+  backdrop-filter: var(--pc-glass-blur);
+  -webkit-backdrop-filter: var(--pc-glass-blur);
+  box-shadow: var(--pc-glass-shadow);
+}
+.perf-callbacks .table-scroll thead {
+  background: rgba(255, 246, 238, 0.97);
+  backdrop-filter: var(--pc-glass-blur);
+  -webkit-backdrop-filter: var(--pc-glass-blur);
+  box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.08);
+}
+.dark .perf-callbacks .table-scroll thead {
+  background: rgba(23, 15, 10, 0.97);
+}
+.perf-callbacks .table-scroll thead th {
+  color: var(--pc-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+}
+.perf-callbacks .table-scroll tbody tr {
+  background: transparent;
+  transition: background-color 0.16s ease;
+}
+.perf-callbacks .table-scroll tbody tr:hover {
+  background: rgba(255, 241, 235, 0.5);
+}
+.perf-callbacks .table-scroll tbody td {
+  color: #334155;
+}
+.dark .perf-callbacks .table-scroll tbody td {
+  color: var(--pc-muted);
+}
+
+/* Empty state — dark charcoal title, muted description, matching the rest
+   of the view rather than the plain gray TableManager ships by default. */
+.perf-callbacks .table-scroll .text-gray-900 {
+  color: var(--pc-ink);
+}
+.perf-callbacks .table-scroll .text-gray-700 {
+  color: var(--pc-muted);
+}
+
+/* Pagination bar under the table. */
+.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200'] {
+  border-radius: 18px;
+  border: 1px solid var(--pc-glass-border);
+  background: var(--pc-glass);
+  backdrop-filter: var(--pc-glass-blur);
+  -webkit-backdrop-filter: var(--pc-glass-blur);
+  box-shadow: var(--pc-glass-shadow);
+}
+.perf-callbacks div[class*='rounded-xl'][class*='border-gray-200'] label {
+  color: var(--pc-muted);
+}

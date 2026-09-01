@@ -145,7 +145,7 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   { key: 'dashboards', label: 'Boards', icon: 'AnalyticsIcon' },
   // everything the platform has that the console does not
   { key: 'live-interactions', label: 'Live', icon: 'PhoneIcon', sep: true },
-  { key: 'callbacks', label: 'Callbacks', icon: 'DialerIcon' },
+  { key: 'callbacks', label: 'Callbacks', icon: 'PhoneForwardingIcon' },
   { key: 'campaign-activity', label: 'Campaigns', icon: 'DialerIcon' },
   { key: 'speech-text', label: 'Speech', icon: 'MessageIcon' },
   { key: 'reports', label: 'Reports', icon: 'ReportsLineIcon' },

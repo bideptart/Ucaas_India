@@ -22,6 +22,8 @@
  * preview host and sign in against the real API instead.
  */
 import { isPreviewHost } from '@/lib/utils';
+import { demoAiVoiceRows } from '@/lib/demo-ai-voices';
+import { demoCrawledPages } from '@/lib/demo-site-crawl';
 import { resolveCaptainRequest } from '@/lib/demo-captain';
 import {
   DEMO_AGENTS,
@@ -406,6 +408,16 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows()));
   if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows()));
+  /* The AI Receptionist builder's Voice & Persona step. An empty list here
+     leaves its required voice field with nothing to select, which stops the
+     wizard at step 2 rather than just looking bare. */
+  if (url.includes('/api/ai/voice/list')) return ok(listPayload(demoAiVoiceRows()));
+  /* The website scan behind both knowledge-base builders. Deliberately a bare
+     array rather than `ok(...)`: both read `Array.isArray(response.data)` and
+     treat anything else as nothing found. */
+  if (url.includes('/api/ai/chat-agent/site-crawl')) {
+    return demoCrawledPages(String(asObject(data)?.site_url || ''));
+  }
   if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows()));
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;

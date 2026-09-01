@@ -18,11 +18,13 @@ const CampaignActivityTab = () => {
   /**
    * Same shared toggles the Live and Callbacks tabs use: `perf-warm-toolbar`
    * reaches the Performance toolbar (rendered by the page shell above this
-   * tab, not by this component), and `perf-warm-backdrop` flags the document
-   * so campaigns-theme.css can paint the full-page ambient gradient — done
-   * there on `.perf-campaigns` itself rather than through the generic
-   * `.mcm-page` rule, since the embedded `<Campaign />` below renders its
-   * own nested `.mcm-page` panel.
+   * tab, not by this component) — styled as the plain flat wash approved
+   * after review, not the earlier glass/blur/shadow version — and
+   * `perf-warm-backdrop` flags the document so campaigns-theme.css can paint
+   * the full-page ambient gradient and the live-queue KPI band — done on
+   * `.perf-campaigns` itself rather than through the generic `.mcm-page`
+   * rule, since the embedded `<Campaign />` below renders its own nested
+   * `.mcm-page` panel.
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-toolbar', 'perf-warm-backdrop');

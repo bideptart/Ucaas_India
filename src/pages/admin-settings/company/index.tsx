@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import CompanyDetails from './company-details';
 import LocationFacts from './location-facts';
 import CompanyRecord from './company-record';
+import CompanyLogo from './company-logo';
 import CompanySettingsCard from './company-settings-card';
 import SetupGuide from '@/components/mcm/setup-guide';
 import { Button } from '@/components/ui/button';
@@ -205,6 +206,10 @@ const CompanyInfo = () => {
             <div id="setup-company-record" className="rounded-xl">
               <CompanyRecord companyInfo={user?.company_info} defaultSite={defaultSite} />
             </div>
+
+            {/* Between the record and the rules: it is part of who the company
+                is, not how its phones behave. */}
+            <CompanyLogo companyInfo={user?.company_info} />
 
             {/* Company-wide rules belong on the company screen, which is where
                 established systems put them and where an admin looks. The editor

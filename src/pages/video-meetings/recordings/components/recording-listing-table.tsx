@@ -390,7 +390,7 @@ const RecordingListingTable = ({
             value={searchText}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search recordings..."
-            className="h-10 w-full rounded-xl border border-ucass-active bg-white pl-9 pr-3 text-sm text-[#0f172a] shadow-[inset_0_0_0_1px_rgba(59,130,246,0.12)] outline-none placeholder:text-[#94a3b8] focus:ring-2 focus:ring-ucass-active/20"
+            className="h-10 w-full rounded-xl border border-ucass-active bg-white pl-9 pr-3 text-sm text-[#0f172a] shadow-[inset_0_0_0_1px_rgba(242,153,74,0.12)] outline-none placeholder:text-[#94a3b8] focus:ring-2 focus:ring-ucass-active/20"
           />
         </div>
         <div className="flex items-center gap-2">

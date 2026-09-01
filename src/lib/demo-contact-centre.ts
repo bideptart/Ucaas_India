@@ -464,6 +464,58 @@ export const demoTemplateRows = () => {
   }));
 };
 
+/* Matches `DEMO_USER.uuid` in demo-mode.ts. Not imported from there —
+   demo-mode.ts already imports this module, and the reverse import would be
+   circular — so the id is repeated here rather than shared. */
+const DEMO_USER_UUID = 'demo-user-0000-0000-0000-000000000001';
+
+/** Activity ▸ Chat's `allChats` — arrives over the socket, which demo mode has
+ *  no server for, so like presence and in-progress calls this seeds the
+ *  socket context's initial state instead. A handful of real direct threads
+ *  with the roster Chat already lists as "available", each with a last
+ *  message, so the list shows real conversations rather than every colleague
+ *  reading "Click to start a new chat". Full message history inside an
+ *  opened thread is a live `socket.emit(GET_CHAT_MESSAGES, ...)` round trip
+ *  this doesn't answer — demo mode has no server on the other end of that
+ *  socket at all, so opening one of these still comes back empty. */
+export const demoChatThreads = () => {
+  const now = Date.now();
+  const HOUR_MS = 60 * 60 * 1000;
+  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta' };
+  const seed = [
+    { extension: '1004', hoursAgo: 1, message: 'Can you take the Sales queue for the next hour?' },
+    { extension: '1006', hoursAgo: 4, message: 'Sent over the Retention numbers from this morning.' },
+    { extension: '1003', hoursAgo: 26, message: 'Approved your leave request for next week.' },
+  ];
+  return seed.map((row, index) => {
+    const other = DEMO_AGENTS.find((agent) => agent.extension === row.extension) as DemoAgent;
+    const createdAt = new Date(now - row.hoursAgo * HOUR_MS).toISOString();
+    return {
+      chatId: `demo-chat-${index + 1}`,
+      isGroupChat: false,
+      groupType: 'DM',
+      users: [
+        me,
+        {
+          uuid: other.uuid,
+          first_name: other.first_name,
+          last_name: other.last_name,
+          extension: other.extension,
+        },
+      ],
+      lastMessage: {
+        message: row.message,
+        createdAt,
+        senderId: other.uuid,
+      },
+      createdAt,
+      favoriteChats: [],
+      isHidden: [],
+      isDeleted: false,
+    };
+  });
+};
+
 /** `/api/tenant/report/agents` — matched back to the roster by name. */
 export const demoAgentReportRows = () =>
   DEMO_AGENTS.map((row) => {

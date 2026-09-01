@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import { fetchPhone } from '@/services/api';
@@ -159,12 +159,24 @@ export const toCallRow = (raw: any, contactsByNumber: Record<string, any>): Cons
 type Props = {
   selectedId: string | null;
   onSelect: (row: ConsoleCallRow) => void;
+  /** Same data as onSelect, but for the list choosing a row on its own
+      (landing the panel on real content) rather than someone clicking one —
+      so it does not also pull the stage off the dialer and onto that call's
+      record the way an actual click does. */
+  onAutoSelect?: (row: ConsoleCallRow) => void;
   source: ConsoleLogSource;
   onSourceChange: (source: ConsoleLogSource) => void;
   liveNumber?: string;
 };
 
-const CallListColumn = ({ selectedId, onSelect, source, onSourceChange, liveNumber }: Props) => {
+const CallListColumn = ({
+  selectedId,
+  onSelect,
+  onAutoSelect,
+  source,
+  onSourceChange,
+  liveNumber,
+}: Props) => {
   const { dial } = useConsoleDialer();
   const [direction, setDirection] = useState<'all' | 'in' | 'out' | 'miss'>('all');
   const [search, setSearch] = useState('');
@@ -256,6 +268,20 @@ const CallListColumn = ({ selectedId, onSelect, source, onSourceChange, liveNumb
     );
   }, [data, contactsByNumber, search, filterMissedLocally]);
 
+  /* Land the panel on real content instead of an empty "pick a call" one:
+     pick the newest call the first time the list has rows, as long as
+     nothing is already selected (a live call, or a row the person already
+     clicked). Goes through onAutoSelect, not onSelect, so the stage stays on
+     the dialer — only clicking a row should pull it onto that call's record. */
+  const hasAutoSelected = useRef(false);
+  useEffect(() => {
+    if (hasAutoSelected.current) return;
+    if (source !== 'call') return;
+    if (selectedId || !rows.length) return;
+    hasAutoSelected.current = true;
+    (onAutoSelect || onSelect)(rows[0]);
+  }, [rows, selectedId, source, onAutoSelect, onSelect]);
+
   const sources: { key: ConsoleLogSource; label: string; show: boolean }[] = [
     { key: 'call', label: 'Calls', show: true },
     { key: 'recording', label: 'Recordings', show: Boolean(callAccess?.RECORDING) },
@@ -280,20 +306,32 @@ const CallListColumn = ({ selectedId, onSelect, source, onSourceChange, liveNumb
           </button>
         </div>
 
-        {/* source tabs — same tabType values the old phone page sent */}
-        <div className="panel-tabs" style={{ padding: 0, margin: '0 0 2px' }}>
-          {sources
-            .filter((s) => s.show)
-            .map((s) => (
-              <button
-                type="button"
-                key={s.key}
-                className={`ptab ${source === s.key ? 'on' : ''}`}
-                onClick={() => onSourceChange(s.key)}
-              >
-                {s.label}
-              </button>
-            ))}
+        {/* source tabs — same tabType values the old phone page sent — with
+            the date filter sharing their row instead of sitting on its own
+            line below the search box. */}
+        <div className="calls-tabs-row">
+          <div className="panel-tabs" style={{ padding: 0, margin: 0 }}>
+            {sources
+              .filter((s) => s.show)
+              .map((s) => (
+                <button
+                  type="button"
+                  key={s.key}
+                  className={`ptab ${source === s.key ? 'on' : ''}`}
+                  onClick={() => onSourceChange(s.key)}
+                >
+                  {s.label}
+                </button>
+              ))}
+          </div>
+
+          <div className="console-datefilter">
+            <DateDropdown
+              dropdownVal={dropdownVal}
+              setDropdownVal={setDropdownVal}
+              customPickerPlacement="bottom"
+            />
+          </div>
         </div>
 
         {source !== 'voicemail' ? (
@@ -320,14 +358,6 @@ const CallListColumn = ({ selectedId, onSelect, source, onSourceChange, liveNumb
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search calls"
-          />
-        </div>
-
-        <div className="console-datefilter">
-          <DateDropdown
-            dropdownVal={dropdownVal}
-            setDropdownVal={setDropdownVal}
-            customPickerPlacement="bottom"
           />
         </div>
       </div>

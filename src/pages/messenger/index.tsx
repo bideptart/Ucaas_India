@@ -35,6 +35,7 @@ import { useQuery } from '@tanstack/react-query';
 import { allOmniChannelsList } from '@/services/api';
 import { capitalizeFirstLetter, cn } from '@/lib/utils';
 import { chatEvents } from '@/context/socket-events';
+import { isDemoMode } from '@/lib/demo-mode';
 import { toast } from 'react-toastify';
 import Sidebar from './sidebar';
 import { CHANNELS_ICON, ChatChannels } from './constants';
@@ -621,6 +622,7 @@ const SidebarContent = ({
     createPrivateChatId,
     socketEventsManager,
     chatExist,
+    updateChatLists,
   } = useSocketEvents();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
@@ -771,22 +773,50 @@ const SidebarContent = ({
     }
     console.log(selectedUser, 'selectedUser');
 
-    if (socketEventsManager) {
-      const usersToSend = [
-        {
-          uuid: user?.uuid,
-          name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
-          email: user?.email || user?.user_info?.email,
-          extension: user?.extension || user?.user_info?.extension,
-        },
-        {
-          uuid: selectedUser?.uuid,
-          name: `${selectedUser?.first_name || ''} ${selectedUser?.last_name || ''}`.trim(),
-          email: selectedUser?.email,
-          extension: selectedUser?.extension || selectedUser?.value,
-        },
-      ];
+    const usersToSend = [
+      {
+        uuid: user?.uuid,
+        name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
+        email: user?.email || user?.user_info?.email,
+        extension: user?.extension || user?.user_info?.extension,
+      },
+      {
+        uuid: selectedUser?.uuid,
+        name: `${selectedUser?.first_name || ''} ${selectedUser?.last_name || ''}`.trim(),
+        email: selectedUser?.email,
+        extension: selectedUser?.extension || selectedUser?.value,
+      },
+    ];
 
+    /* Demo mode has no server to answer CREATE_NEW_CHAT, so the socket
+       branch below would leave the URL pointing at a chatId nothing in
+       allChats ever matches — the workspace has no chat to resolve and
+       renders blank rather than a ready-to-type new conversation. Adding
+       the same chat record locally is what a real create would have
+       produced once its ack came back. */
+    if (isDemoMode()) {
+      updateChatLists(
+        (chats: any[]) => [
+          {
+            chatId: requiredChatId,
+            isGroupChat: false,
+            groupType: isAgentChat ? 'AI' : 'DM',
+            users: usersToSend,
+            lastMessage: null,
+            createdAt: new Date().toISOString(),
+            favoriteChats: [],
+            isHidden: [],
+            isDeleted: false,
+          },
+          ...chats,
+        ],
+        { targetChatId: requiredChatId, upsertInAgentList: isAgentChat },
+      );
+      handleOpenChatInWindow(requiredChatId, false, false);
+      return;
+    }
+
+    if (socketEventsManager) {
       socketEventsManager.emit(
         chatEvents.CREATE_NEW_CHAT,
         {

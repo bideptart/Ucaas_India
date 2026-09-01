@@ -2887,14 +2887,23 @@
   min-height: 32px;
   height: 32px;
   border-radius: 10px;
+  display: flex;
+  align-items: center;
   font-size: 12.5px;
 }
 .mcm-console .console-datefilter .custom-react-select__value-container {
   padding: 0 8px;
 }
-.mcm-console .console-datefilter .custom-react-select__indicators,
+.mcm-console .console-datefilter .custom-react-select__indicators {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
 .mcm-console .console-datefilter .custom-react-select__dropdown-indicator {
-  height: 32px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 0;
 }
 
 /* back chevron */
@@ -3741,6 +3750,11 @@
 
 .mcm-console .col.calls .panel-tabs {
   gap: 4px;
+  /* This row now shares space with the date filter instead of stretching
+     full width, so the base rule's overflow-x:auto was rendering a thin
+     scrollbar sliver even with just two short tabs — this never needs to
+     scroll here, so drop it instead of just hiding its thumb. */
+  overflow-x: visible;
 }
 .mcm-console .col.calls .ptab {
   border-radius: var(--r-sm);
@@ -3761,11 +3775,12 @@
   transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 .mcm-console .col.calls .seg button.on {
-  /* A solid gradient pill instead of plain white + ink, so the active
-     filter reads with the same weight as the orange Call button. */
-  background: linear-gradient(135deg, var(--accent), #f9c159);
-  color: #fff;
-  box-shadow: 0 3px 10px rgba(234, 124, 30, 0.35);
+  /* A gradient pill instead of plain white + ink, so the active filter
+     reads with some weight — kept light rather than a solid saturated
+     fill, so it doesn't read as heavy/dark next to the rest of the list. */
+  background: linear-gradient(135deg, #ffcf94, #fff1de);
+  color: var(--accent-ink);
+  box-shadow: 0 2px 6px rgba(234, 124, 30, 0.18);
 }
 
 .mcm-console .col.calls .search-mini input {
@@ -3822,19 +3837,19 @@
 /* Every direction gets its own gradient instead of a flat wash, so the list
    reads with some color even before anything is selected. */
 .mcm-console .col.calls .cr-av.in {
-  background: linear-gradient(150deg, var(--live), #5eead4);
+  background: linear-gradient(150deg, #2dd4bf, #99f6e4);
 }
 .mcm-console .col.calls .cr-av.out {
-  background: linear-gradient(150deg, var(--accent-ink), var(--accent-edge));
+  background: linear-gradient(150deg, #f0973d, #ffd9ad);
 }
 .mcm-console .col.calls .cr-av.miss {
-  background: linear-gradient(150deg, var(--crit), #f59e9e);
+  background: linear-gradient(150deg, #ef6a6a, #ffc9c9);
 }
 /* The clicked/selected row's icon box picks up the orange theme instead of
    its direction color, so it reads as "this is the one you opened". */
 .mcm-console .col.calls .call-row.on .cr-av {
-  background: linear-gradient(150deg, var(--accent), #f9c159);
-  box-shadow: 0 3px 8px rgba(234, 124, 30, 0.35);
+  background: linear-gradient(150deg, #f0973d, #ffd48a);
+  box-shadow: 0 3px 8px rgba(234, 124, 30, 0.25);
 }
 .mcm-console .col.calls .cr-name {
   font-weight: 800;

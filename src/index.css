@@ -1598,15 +1598,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   /* min-width, not width: a hard fixed width forced every tab to the same
      size, but "Directory" and "Performance" don't fit 90px next to a 16px
      icon with white-space: nowrap. Flexbox had nowhere else to take the
      overflow from but the icon (shrinkable) since the text can't wrap —
      so the icon collapsed toward 0 instead of the tab widening. */
-  min-width: 90px;
+  min-width: 74px;
   height: 30px;
-  padding: 6px 12px;
+  padding: 6px 8px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -1643,8 +1643,15 @@
   .mcm-areanav-btn span {
     display: none;
   }
-  /* icon-only at this width, so the tint needs to sit evenly around it */
+  /* icon-only at this width, so the tint needs to sit evenly around it.
+     min-width: 90px (set to stop the icon getting squeezed to 0 next to a
+     long label — see the flex-shrink comment above) has no label to
+     protect here, so it was just holding each tab at 90px around a 16px
+     icon. Across 5 tabs that is ~370px of dead width, which is what was
+     pushing bell/theme-toggle/avatar off the right edge of the header on
+     laptop-width screens. */
   .mcm-areanav-btn {
+    min-width: 0;
     padding: 9px 13px;
   }
 }

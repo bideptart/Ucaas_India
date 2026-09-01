@@ -19,6 +19,7 @@ import SideDrawer from '../side-drawer';
 import ChangePassword from '@/pages/change-password';
 import CustomTooltip from '../custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import { useMyPresence } from '@/hooks/use-my-presence';
 import AvatarContent from './AvatarContent';
 import NotificationContent from './NotificationContent';
 // import { useCampaign } from '@/hooks/use-campaign';
@@ -26,7 +27,7 @@ import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
 import ThemeToggle from '@/components/custom/theme-toggle';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
-import { ChevronDown, List, Menu, Plus, Wallet, X } from 'lucide-react';
+import { ChevronDown, List, Menu, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn, SESSION_NAME } from '@/lib/utils';
 import { DASHBOARDCONST } from '@/pages/dashboard/constant';
@@ -37,6 +38,7 @@ import { getRoutePrefetchHandlers, prefetchRoute } from '@/router/route-prefetch
 const Header = () => {
   const { user, handleRemoveUser } = useUser();
   const queryClient = useQueryClient();
+  const { status: myPresenceStatus } = useMyPresence();
   const ACTIVE_PATH = {
     CALENDAR: 'calendar',
     RUNNING_CAMPAIGN: 'running-campaign',
@@ -66,7 +68,6 @@ const Header = () => {
     'profile' | 'changePassword' | 'notification' | null
   >(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
   const [walletUpdatedAmount, setWalletUpdatedAmount] = useState<number | null>(null);
   const navigate = useNavigate();
   const { pathname = '' } = useLocation();
@@ -146,30 +147,7 @@ const Header = () => {
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
-    setIsQuickMenuOpen(false);
   }, [pathname]);
-
-  // A fan-out that stays open once the pointer leaves it feels stuck, and it
-  // overlays the page, so dismiss on outside click and on Escape.
-  useEffect(() => {
-    if (!isQuickMenuOpen) return;
-
-    const onPointerDown = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && target.closest('.hdr-quick-wrap')) return;
-      setIsQuickMenuOpen(false);
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsQuickMenuOpen(false);
-    };
-
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isQuickMenuOpen]);
 
   useEffect(() => {
     const logoutUuid = userLogoutData?.uuid;
@@ -346,7 +324,7 @@ const Header = () => {
           }}
         >
           <nav
-            className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-3"
+            className="flex w-full flex-col gap-3 md:flex-row md:items-center md:gap-3"
             aria-label="Global"
           >
             <div className="mcm-brandbar hidden md:order-1 md:flex md:items-center md:gap-3">
@@ -368,7 +346,7 @@ const Header = () => {
               </a>
               <AreaNav />
             </div>
-            <div className="flex w-full items-center gap-2 text-gray-900/80 md:order-2 md:w-auto md:flex-1 relative">
+            <div className="flex w-full items-center gap-2 text-gray-900/80 md:order-2 md:w-auto relative">
               {hasActiveCampaign && (
                 <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5">
                   <span className="relative flex h-2.5 w-2.5">
@@ -413,141 +391,61 @@ const Header = () => {
               id="mobile-header-actions"
               className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-3 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
             >
-              {/* On desktop these five destinations collapse behind the
-                  "more" toggle into a plain dropdown panel. On narrow screens
-                  the header menu already reveals them, so they stay in flow. */}
-              <style>{`
-                /* Narrow screens keep the original row: the wrappers dissolve
-                   so the icons stay direct children of the header flex line. */
-                .hdr-quick-wrap, .hdr-quick { display: contents; }
-                .hdr-quick-toggle { display: none; }
-
-                @media (min-width: 768px) {
-                  .hdr-quick-wrap {
-                    display: inline-flex; align-items: center;
-                    position: relative; width: 36px; height: 36px; flex: none;
-                  }
-                  .hdr-quick-toggle {
-                    display: inline-flex; align-items: center; justify-content: center;
-                    width: 36px; height: 36px; border-radius: 10px;
-                    background: rgba(255, 255, 255, 0.7);
-                    border: 1px solid rgba(255, 255, 255, 0.7);
-                    box-shadow: 0 1px 2px rgba(13, 21, 38, 0.06);
-                    color: #374151; cursor: pointer;
-                    transition: transform .3s cubic-bezier(.34,1.56,.64,1),
-                                background .15s ease, color .15s ease, border-color .15s ease;
-                  }
-                  .hdr-quick-toggle:hover {
-                    background: color-mix(in oklab, var(--primary) 15%, transparent);
-                    border-color: color-mix(in oklab, var(--primary) 25%, transparent);
-                    color: var(--primary);
-                  }
-                  .hdr-quick-toggle.on {
-                    transform: rotate(135deg); background: var(--primary); color: #fff;
-                  }
-
-                  .hdr-quick {
-                    display: flex; align-items: center; gap: 6px;
-                    position: absolute; top: calc(100% + 8px); right: 0;
-                    padding: 8px; z-index: 60;
-                    background: #ffffff;
-                    border: 1px solid #e5e7eb;
-                    border-radius: 14px;
-                    box-shadow: 0 12px 32px -8px rgba(15, 23, 42, .18);
-                    opacity: 0; visibility: hidden;
-                    transform: translateY(-4px) scale(.96);
-                    transform-origin: top right;
-                    transition: transform .16s ease, opacity .16s ease, visibility .16s;
-                  }
-                  .hdr-quick.open {
-                    opacity: 1; visibility: visible;
-                    transform: translateY(0) scale(1);
-                  }
-                }
-
-                @media (prefers-reduced-motion: reduce) {
-                  .hdr-quick-toggle, .hdr-quick { transition-duration: .01ms; }
-                }
-              `}</style>
-
-              <div className="hdr-quick-wrap">
-                <button
-                  type="button"
-                  className={`hdr-quick-toggle ${isQuickMenuOpen ? 'on' : ''}`}
-                  onClick={() => setIsQuickMenuOpen((prev) => !prev)}
-                  aria-expanded={isQuickMenuOpen}
-                  aria-label={isQuickMenuOpen ? 'Hide quick links' : 'Show quick links'}
-                >
-                  <Plus className="w-4.5 h-4.5" />
-                </button>
-
-                <div
-                  className={`hdr-quick ${isQuickMenuOpen ? 'open' : ''}`}
-                  aria-hidden={!isQuickMenuOpen}
-                >
-                  <div className="inline-flex items-center justify-center font-medium">
-                    <CustomTooltip text={'Tasks'} side="bottom">
-                      <span
-                        className={`cursor-pointer relative flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg transition-all ${activePath === ACTIVE_PATH.CALENDAR && currentView === 'task-list' ? 'bg-ucass-primary-200 text-primary' : 'bg-gray-100 text-gray-700 hover:bg-ucass-primary-200 hover:text-primary'}`}
-                        {...getHeaderRouteHandlers(taskRoute)}
-                      >
-                        {unreadTaskCount > 0 ? (
-                          <span className="bg-primary absolute text-white font-normal rounded-full -top-1 -right-1 border-white border-2 text-[10px] min-w-[20px] h-5 flex items-center justify-center shadow-sm z-10">
-                            {unreadTaskCount > 9 ? '9+' : unreadTaskCount}
-                          </span>
-                        ) : null}
-                        <List className="w-4.5 h-4.5" />
+              {/* These used to collapse behind a "+" toggle into a floating
+                  popup panel. Now they sit inline in the bar itself, styled
+                  like the bell/theme-toggle glass buttons beside them —
+                  no extra click needed to reach any of them. */}
+              <div className="flex items-center gap-2 min-[1440px]:gap-3">
+                <CustomTooltip text={'Tasks'} side="bottom">
+                  <span
+                    className={`cursor-pointer relative flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${activePath === ACTIVE_PATH.CALENDAR && currentView === 'task-list' ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
+                    {...getHeaderRouteHandlers(taskRoute)}
+                  >
+                    {unreadTaskCount > 0 ? (
+                      <span className="bg-primary absolute text-white font-normal rounded-full -top-1 -right-1 border-white border-2 text-[10px] min-w-[20px] h-5 flex items-center justify-center shadow-sm z-10">
+                        {unreadTaskCount > 9 ? '9+' : unreadTaskCount}
                       </span>
-                    </CustomTooltip>
-                  </div>
+                    ) : null}
+                    <List className="w-4.5 h-4.5" />
+                  </span>
+                </CustomTooltip>
 
-                  <CustomTooltip text={'Calendar'} side="bottom">
+                <CustomTooltip text={'Calendar'} side="bottom">
+                  <span
+                    className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.CALENDAR === activePath && currentView === 'calendar' ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
+                    {...getHeaderRouteHandlers(calendarRoute)}
+                  >
+                    <CalendarIcon className="w-4.5 h-4.5" />
+                  </span>
+                </CustomTooltip>
+                {campaignAccess && (
+                  <CustomTooltip text={'My Campaigns'} side="bottom">
                     <span
-                      className={`cursor-pointer ${ACTIVE_PATH?.CALENDAR === activePath && currentView === 'calendar' ? 'bg-ucass-primary-200 text-primary hover:text-primary' : 'bg-gray-100 text-gray-700'} flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary`}
-                      {...getHeaderRouteHandlers(calendarRoute)}
+                      className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.RUNNING_CAMPAIGN === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
+                      {...getHeaderRouteHandlers(myCampaignsRoute)}
                     >
-                      <CalendarIcon className="w-4.5 h-4.5" />
+                      <Headphones className="w-4.5 h-4.5" />
                     </span>
                   </CustomTooltip>
-                  {campaignAccess && (
-                    <CustomTooltip text={'My Campaigns'} side="bottom">
-                      <span
-                        className={`cursor-pointer ${ACTIVE_PATH?.RUNNING_CAMPAIGN === activePath ? 'bg-ucass-primary-200 text-primary hover:text-primary' : 'bg-gray-100 text-gray-700'} flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary`}
-                        {...getHeaderRouteHandlers(myCampaignsRoute)}
-                      >
-                        <Headphones className="w-4.5 h-4.5" />
-                      </span>
-                    </CustomTooltip>
-                  )}
-                  {/* <CustomTooltip text={'Running Campaigns'} side="bottom">
-              <span
-                className={`cursor-pointer ${ACTIVE_PATH?.RUNNING_CAMPAIGN === activePath ? 'bg-ucass-primary-200 text-primary hover:text-primary' : 'bg-white text-gray-700'} flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary`}
-                onClick={() => openPowerCampaign()}
-              >
-                <CallForwardLine className="w-4.5 h-4.5" />
-              </span>
-            </CustomTooltip> */}
-                  <CustomTooltip text={'Activity'} side="bottom">
+                )}
+                <CustomTooltip text={'Activity'} side="bottom">
+                  <span
+                    className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.ACTIVITY === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
+                    {...getHeaderRouteHandlers(activityRoute)}
+                  >
+                    <ActivityIcon className="w-4.5 h-4.5" />
+                  </span>
+                </CustomTooltip>
+                {monitoringAccess?.view && (
+                  <CustomTooltip text={'Monitoring'} side="bottom">
                     <span
-                      className={`cursor-pointer ${ACTIVE_PATH?.ACTIVITY === activePath ? 'bg-ucass-primary-200 text-primary hover:text-primary' : 'bg-gray-100 text-gray-700'} flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary`}
-                      {...getHeaderRouteHandlers(activityRoute)}
+                      className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg border shadow-sm transition-all ${ACTIVE_PATH?.ALL_CALLS === activePath ? 'bg-ucass-primary-200 border-ucass-primary-100 text-primary' : 'bg-white/70 border-white/70 text-gray-700 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary'}`}
+                      {...getHeaderRouteHandlers(monitoringRoute)}
                     >
-                      <ActivityIcon className="w-4.5 h-4.5" />
+                      <Monitor className="w-4.5 h-4.5" />
                     </span>
                   </CustomTooltip>
-                  {monitoringAccess?.view && (
-                    <div className="inline-flex items-center justify-center font-medium">
-                      <CustomTooltip text={'Monitoring'} side="bottom">
-                        <span
-                          className={`cursor-pointer ${ACTIVE_PATH?.ALL_CALLS === activePath ? 'bg-ucass-primary-200 text-primary hover:text-primary' : 'bg-gray-100 text-gray-700'} flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:text-primary`}
-                          {...getHeaderRouteHandlers(monitoringRoute)}
-                        >
-                          <Monitor className="w-4.5 h-4.5" />
-                        </span>
-                      </CustomTooltip>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
 
               {/* The WebRTC and presence chips lived here. Registration state is
@@ -614,7 +512,7 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-wallet-profile"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 pt-3 md:order-5 md:flex md:w-auto md:flex-nowrap md:justify-end md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 pt-3 md:order-5 md:ml-auto md:flex md:w-auto md:flex-nowrap md:justify-end md:border-t-0 md:pt-0`}
             >
               {/* Wallet / Add Funds */}
               {features?.plan_features?.billing?.action?.view ? (
@@ -653,12 +551,13 @@ const Header = () => {
                       image={user?.user_info?.profile}
                       isActivityInfo={false}
                       size="32"
+                      presenceOverride={myPresenceStatus}
                     />
-                    <div className="flex flex-col items-start text-left min-w-[82px]">
-                      <h4 className="text-[12px] font-bold text-gray-900 leading-tight">
+                    <div className="hidden lg:flex flex-col items-start text-left min-w-0 max-w-[110px]">
+                      <h4 className="w-full truncate text-[12px] font-bold text-gray-900 leading-tight">
                         {`Hi, ${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       </h4>
-                      <div className="text-[10px] text-primary font-semibold uppercase tracking-widest">
+                      <div className="w-full truncate text-[10px] text-primary font-semibold uppercase tracking-widest">
                         {role}
                       </div>
                     </div>

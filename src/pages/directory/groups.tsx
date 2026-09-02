@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getDepartmentList, getUserList } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { Icon } from '@/assets/icons/icon';
@@ -64,7 +64,6 @@ const PersonRow = ({ name, extension, email }: { name: string; extension: string
 );
 
 const Groups = () => {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null);

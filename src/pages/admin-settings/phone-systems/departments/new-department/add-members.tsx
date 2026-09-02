@@ -20,7 +20,7 @@ interface Member {
   uuid: string;
   profile?: string;
   custom_role_data?: { name: string };
-  role_data?: { name: string };
+  role_data?: { name: string; slug?: string };
   value?: string;
   label?: string;
 }

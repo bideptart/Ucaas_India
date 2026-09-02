@@ -41,7 +41,6 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
   audioCustomClass = '',
   selectCustomClass = '',
   selectCustomClassSecond = '',
-  width = '',
   isRefetchable = true,
   refetch = () => {},
   onGreetingUploadStart = () => {},

@@ -55,6 +55,9 @@ const PLAN_FEATURES = grant([
   'ai.action.domain.view',
   'ai.action.knowledge_base.view',
   'account_setting.access.SITE.action.view',
+  'account_setting.access.SITE.action.add',
+  'account_setting.access.SITE.action.edit',
+  'account_setting.access.SITE.action.delete',
   'account_setting.access.USER.action.view',
   'calling_rates.IS_SHOW',
   'calling_rates.action.view',
@@ -74,6 +77,7 @@ const PLAN_FEATURES = grant([
   'phone_system_action.access.IVR',
   'phone_system_action.access.QUEUE',
   'phone_system_action.action.view',
+  'phone_system_action.action.add',
   'reports.IS_SHOW',
   'reports.action.call_recording_listen',
   'reports.action.sms',
@@ -154,12 +158,160 @@ const ok = (result: unknown) => ({
 --------------------------------------------------------------------------- */
 
 const STORE_KEY = 'demo-mode-data';
+/* Bump this whenever USER_SEED/ROLE_SEED change shape or content. Without a
+   version check, a browser's cached store (see `readStore`) would keep
+   serving whatever the seed looked like the first time that browser ever
+   ran demo mode, silently ignoring every later fix to the seed itself —
+   which is exactly what happened while building this: the seed grew a
+   `description` and `company_uuid` on each role, but browsers that had
+   already cached a store kept the old shape indefinitely. */
+const SEED_VERSION = 5;
 
+/* `company_uuid: 'PREDEFINED'` is what marks a role as one of the platform's
+   built-in starting points — `add-new-role/select-role` filters on exactly
+   this to build its "Select a role to use as a starting point" list, and
+   `permission.plan_features` is what its permissions accordion reads. Seed
+   roles carried neither, so both of those rendered empty. */
 const ROLE_SEED = [
-  { uuid: 'demo-role-admin', name: 'Administrator', slug: 'ADMIN', is_custom: false },
-  { uuid: 'demo-role-subadmin', name: 'Sub Admin', slug: 'SUB_ADMIN', is_custom: false },
-  { uuid: 'demo-role-manager', name: 'Manager', slug: 'MANAGER', is_custom: false },
-  { uuid: 'demo-role-agent', name: 'Agent', slug: 'AGENT', is_custom: false },
+  {
+    uuid: 'demo-role-admin',
+    role_uuid: 'demo-role-admin',
+    name: 'Administrator',
+    slug: 'ADMIN',
+    is_custom: false,
+    company_uuid: 'PREDEFINED',
+    description: 'Full access — billing, users, numbers and every setting.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-subadmin',
+    role_uuid: 'demo-role-subadmin',
+    name: 'Sub Admin',
+    slug: 'SUB_ADMIN',
+    is_custom: false,
+    company_uuid: 'PREDEFINED',
+    description: 'Runs day-to-day settings without billing or plan changes.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-manager',
+    role_uuid: 'demo-role-manager',
+    name: 'Manager',
+    slug: 'MANAGER',
+    is_custom: false,
+    company_uuid: 'PREDEFINED',
+    description: 'Oversees a team — queues, reports and their own department.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-agent',
+    role_uuid: 'demo-role-agent',
+    name: 'Agent',
+    slug: 'AGENT',
+    is_custom: false,
+    company_uuid: 'PREDEFINED',
+    description: 'Takes calls and chats — no settings or other people’s data.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-supervisor',
+    role_uuid: 'demo-role-supervisor',
+    name: 'Supervisor',
+    slug: 'SUPERVISOR',
+    is_custom: true,
+    description: 'Monitors live queues and can barge into calls.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-billing',
+    role_uuid: 'demo-role-billing',
+    name: 'Billing Specialist',
+    slug: 'BILLING_SPECIALIST',
+    is_custom: true,
+    description: 'Invoices, refunds and payment methods only.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+  {
+    uuid: 'demo-role-readonly',
+    role_uuid: 'demo-role-readonly',
+    name: 'Read Only',
+    slug: 'READ_ONLY',
+    is_custom: true,
+    description: 'Can view every screen, cannot change anything.',
+    permission: { plan_features: PLAN_FEATURES },
+  },
+];
+
+/** A couple of voices per language the greeting text-to-speech screen offers. */
+const DEMO_VOICES = [
+  { short_name: 'en-US-demo-1', display_name: 'Ava', gender: 'Female', locale: 'en-US' },
+  { short_name: 'en-US-demo-2', display_name: 'Guy', gender: 'Male', locale: 'en-US' },
+  { short_name: 'hi-IN-demo-1', display_name: 'Swara', gender: 'Female', locale: 'hi-IN' },
+  { short_name: 'hi-IN-demo-2', display_name: 'Madhur', gender: 'Male', locale: 'hi-IN' },
+  { short_name: 'es-ES-demo-1', display_name: 'Elvira', gender: 'Female', locale: 'es-ES' },
+  { short_name: 'ar-SA-demo-1', display_name: 'Hamed', gender: 'Male', locale: 'ar-SA' },
+];
+
+/* A ~1-second silent WAV — there is no real speech engine behind demo mode,
+   so this stands in for "the synthesized clip" wherever one is needed
+   (audio preview player, the file handed to Upload). */
+const DEMO_SILENT_WAV_BASE64 =
+  'UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=';
+
+/** Enough sites that Directory ▸ Locations has more than two near-empty
+   rows, and ▸ People's Location filter offers a real choice. */
+const SITE_SEED = [
+  {
+    uuid: 'demo-site-hq',
+    name: 'Bengaluru HQ',
+    address: '4th Floor, Prestige Tech Park',
+    city: 'Bengaluru',
+    state: 'Karnataka',
+    country: 'India',
+    postal_code: '560103',
+    timezone: 'Asia/Kolkata',
+    is_default: '1',
+  },
+  {
+    uuid: 'demo-site-remote',
+    name: 'Remote',
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    postal_code: '',
+    timezone: '',
+  },
+  {
+    uuid: 'demo-site-mumbai',
+    name: 'Mumbai Office',
+    address: '12th Floor, One World Center',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    country: 'India',
+    postal_code: '400013',
+    timezone: 'Asia/Kolkata',
+  },
+  {
+    uuid: 'demo-site-austin',
+    name: 'Austin Office',
+    address: '500 W 2nd St, Suite 1900',
+    city: 'Austin',
+    state: 'Texas',
+    country: 'United States',
+    postal_code: '78701',
+    timezone: 'America/Chicago',
+  },
+  {
+    uuid: 'demo-site-london',
+    name: 'London Office',
+    address: '1 Canada Square, Canary Wharf',
+    city: 'London',
+    state: '',
+    country: 'United Kingdom',
+    postal_code: 'E14 5AB',
+    timezone: 'Europe/London',
+  },
 ];
 
 const buildUser = (
@@ -168,6 +320,7 @@ const buildUser = (
   role: string,
   roleName: string,
   extension: string,
+  site: (typeof SITE_SEED)[number] = SITE_SEED[0],
 ) => ({
   uuid: `demo-user-${extension}`,
   first_name: first,
@@ -182,25 +335,101 @@ const buildUser = (
   status: 1,
   is_active: true,
   created_at: '2026-01-01T00:00:00.000Z',
+  site_uuid: site.uuid,
+  site: { name: site.name },
 });
 
 const USER_SEED = [
-  buildUser('Demo', 'User', 'ADMIN', 'Administrator', '1001'),
-  buildUser('Sam', 'Sub', 'SUB_ADMIN', 'Sub Admin', '1002'),
-  buildUser('Mia', 'Manager', 'MANAGER', 'Manager', '1003'),
-  buildUser('Alex', 'Agent', 'AGENT', 'Agent', '1004'),
+  buildUser('Demo', 'User', 'ADMIN', 'Administrator', '1001', SITE_SEED[0]),
+  buildUser('Sam', 'Sub', 'SUB_ADMIN', 'Sub Admin', '1002', SITE_SEED[0]),
+  buildUser('Mia', 'Manager', 'MANAGER', 'Manager', '1003', SITE_SEED[1]),
+  buildUser('Alex', 'Agent', 'AGENT', 'Agent', '1004', SITE_SEED[1]),
+  buildUser('Priya', 'Sharma', 'MANAGER', 'Manager', '1005', SITE_SEED[0]),
+  buildUser('David', 'Park', 'AGENT', 'Agent', '1006', SITE_SEED[1]),
 ];
 
-type Store = { users: any[]; roles: any[] };
+/** Four departments with managers and varied member counts, so the Groups
+   view has more than two near-empty rows to show. Membership and manager
+   are keyed by the same `demo-user-<extension>` uuids `buildUser` mints. */
+const DEPARTMENT_SEED = [
+  {
+    uuid: 'demo-dept-sales',
+    name: 'Sales',
+    extension: '7001',
+    description: 'Inbound and outbound sales calls, routed to whoever is free first.',
+    manager: JSON.stringify({ user_uuid: 'demo-user-1005' }),
+    members: JSON.stringify([
+      { user_uuid: 'demo-user-1002' },
+      { user_uuid: 'demo-user-1004' },
+      { user_uuid: 'demo-user-1006' },
+    ]),
+  },
+  {
+    uuid: 'demo-dept-support',
+    name: 'Customer Support',
+    extension: '7002',
+    description: 'Existing-customer tickets and calls — billing questions go to Finance instead.',
+    manager: JSON.stringify({ user_uuid: 'demo-user-1003' }),
+    members: JSON.stringify([{ user_uuid: 'demo-user-1003' }, { user_uuid: 'demo-user-1004' }]),
+  },
+  {
+    uuid: 'demo-dept-engineering',
+    name: 'Engineering',
+    extension: '7003',
+    description: 'Internal extension for the on-call engineer, not customer-facing.',
+    manager: JSON.stringify({ user_uuid: 'demo-user-1005' }),
+    members: JSON.stringify([{ user_uuid: 'demo-user-1005' }, { user_uuid: 'demo-user-1006' }]),
+  },
+  {
+    uuid: 'demo-dept-finance',
+    name: 'Finance & Billing',
+    extension: '7004',
+    description: 'Invoices, refunds and payment method updates.',
+    members: JSON.stringify([{ user_uuid: 'demo-user-1002' }]),
+  },
+];
+
+type Store = { version: number; users: any[]; roles: any[]; departments: any[]; sites: any[] };
+
+const freshStore = (): Store => ({
+  version: SEED_VERSION,
+  users: [...USER_SEED],
+  roles: [...ROLE_SEED],
+  departments: [...DEPARTMENT_SEED],
+  sites: [...SITE_SEED],
+});
 
 const readStore = (): Store => {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return JSON.parse(raw) as Store;
+    if (raw) {
+      const parsed = JSON.parse(raw) as Store;
+      // A cache from an older seed version is discarded rather than trusted —
+      // it may be missing fields (or whole roles/users) that only exist in
+      // the current seed, and there is no reliable way to merge the two.
+      if (parsed?.version === SEED_VERSION) return parsed;
+    }
   } catch {
     /* Corrupt or unavailable storage falls back to the seed. */
   }
-  return { users: [...USER_SEED], roles: [...ROLE_SEED] };
+  return freshStore();
+};
+
+/** The Roles table's "People" column reads `user_count` off each role — the
+   seed never carried one, which is why it always showed 0. Computed here
+   instead of hardcoded so it stays right as users are added, edited or
+   reassigned rather than drifting from a number typed in once. */
+const withUserCounts = (roles: any[], users: any[]) => {
+  const bySlug = new Map<string, number>();
+  users.forEach((user: any) => {
+    const slug = String(user?.role || '').toUpperCase();
+    if (!slug) return;
+    bySlug.set(slug, (bySlug.get(slug) || 0) + 1);
+  });
+  return roles.map((role: any) => ({
+    ...role,
+    user_count: bySlug.get(String(role?.slug || '').toUpperCase()) || 0,
+  }));
 };
 
 const writeStore = (store: Store) => {
@@ -288,6 +517,51 @@ const applyWrite = (url: string, body: Record<string, any>) => {
     return ok({ deleted: true });
   }
 
+  /* `createDeparment` puts an edit's uuid on the URL (`.../upsert/<uuid>`)
+     rather than the body, so a create is whatever's left after that path
+     segment is stripped off — no uuid there at all. */
+  if (url.includes('/api/tenant/department/upsert')) {
+    const urlUuid = url.split('/api/tenant/department/upsert/')[1]?.split(/[/?]/)[0];
+    const existing = urlUuid && store.departments.find((dept) => dept.uuid === urlUuid);
+    const record = existing
+      ? { ...existing, ...body, uuid: existing.uuid }
+      : { ...body, uuid: newUuid() };
+    store.departments = existing
+      ? store.departments.map((dept) => (dept.uuid === existing.uuid ? record : dept))
+      : [...store.departments, record];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/tenant/department/delete')) {
+    const target = body.uuid || url.split('/').filter(Boolean).pop();
+    store.departments = store.departments.filter((dept) => dept.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  /* `upsertSite` puts an edit's uuid on the URL (`.../upsert/<uuid>`), same
+     as department upsert above. */
+  if (url.includes('/api/site/upsert')) {
+    const urlUuid = url.split('/api/site/upsert/')[1]?.split(/[/?]/)[0];
+    const existing = urlUuid && store.sites.find((site) => site.uuid === urlUuid);
+    const record = existing
+      ? { ...existing, ...body, uuid: existing.uuid }
+      : { ...body, uuid: newUuid() };
+    store.sites = existing
+      ? store.sites.map((site) => (site.uuid === existing.uuid ? record : site))
+      : [...store.sites, record];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/site/delete')) {
+    const target = body.uuid || body.id || url.split('/').filter(Boolean).pop();
+    store.sites = store.sites.filter((site) => site.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
   return null;
 };
 
@@ -304,9 +578,61 @@ const matchDemoPayload = (url: string, data: unknown) => {
   const written = applyWrite(url, asObject(data));
   if (written) return written;
 
-  if (url.includes('/api/user/role/list')) return ok(listPayload(readStore().roles));
+  if (url.includes('/api/user/role/list')) {
+    const store = readStore();
+    return ok(listPayload(withUserCounts(store.roles, store.users)));
+  }
   if (url.includes('/api/user/list')) return ok(listPayload(readStore().users));
   if (url.includes('/api/user/detail')) return ok(readStore().users[0] ?? null);
+  if (url.includes('/api/site/list')) return ok(listPayload(readStore().sites));
+  if (url.includes('/api/tenant/department/list')) return ok(listPayload(readStore().departments));
+
+  /* Whoever can be forwarded to — the same roster new-department's "Add
+     Members" step, and anywhere else in the app that offers "who should
+     this go to", picks from. Unhandled before, so every one of those
+     pickers always came back empty ("Nobody to add") regardless of how
+     many people exist. */
+  if (url.includes('/api/tenant/forwarding-action/type')) {
+    const params = asObject(data);
+    let rows = readStore().users;
+    if (params.site_uuid) {
+      rows = rows.filter((user: any) => user?.site_uuid === params.site_uuid);
+    }
+    const needle = String(params.search || '')
+      .trim()
+      .toLowerCase();
+    if (needle) {
+      rows = rows.filter((user: any) =>
+        [user?.first_name, user?.last_name, user?.email, user?.extension]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(needle)),
+      );
+    }
+    return ok(listPayload(rows));
+  }
+
+  /* Text-to-speech has no real synthesis engine to call from a static
+     preview, so this hands back a tiny (silent) WAV instead of the actual
+     spoken text — enough for the "convert" round-trip (voice list → speak →
+     preview → attach) to work end to end rather than silently doing
+     nothing, which is what every screen using this flow did before. */
+  if (url.includes('/api/tenant/greeting/voice-list')) {
+    const params = asObject(data);
+    const locale = String(params.locale || 'en-US');
+    return ok({
+      voices: DEMO_VOICES.filter((voice) => voice.locale === locale),
+    });
+  }
+  if (url.includes('/api/tenant/greeting/upload-v2')) {
+    return ok(DEMO_SILENT_WAV_BASE64);
+  }
+  if (url.includes('/api/media/upload/url')) {
+    const params = asObject(data);
+    return ok({ url: 'demo://upload', file_name: params.file_name || 'audio.mp3' });
+  }
+  if (url.includes('/api/tenant/greeting/create') || url.includes('/api/tenant/greeting/update')) {
+    return ok({ uuid: `demo-greeting-${Date.now()}` });
+  }
 
   return ok(listPayload());
 };

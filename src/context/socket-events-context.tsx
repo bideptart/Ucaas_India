@@ -784,6 +784,38 @@ export const SocketEvents = createContext<SocketEventsType>({
   updateMeetingSubtitleEnabled: () => void 0,
 });
 
+/* Demo mode never opens a real socket, so `usersOnlineStatus` would otherwise
+   stay empty forever and every screen that reads presence off it — Directory
+   People included — would show everyone Offline with no way to demonstrate
+   otherwise. Seeded with a mix of states so the Presence filter has more than
+   one option to pick from.
+
+   This duplicates `isDemoMode`'s host check rather than importing it from
+   `@/lib/demo-mode` — that import, added here, shifted this file's module
+   load order enough to surface a pre-existing circular import between
+   `company-policy.ts` and `company-rule-flags.ts` (unrelated to demo mode).
+   Inlining the check avoids adding that edge. */
+const isDemoPreviewHost = () => {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  const isPreview =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host === '[::1]' ||
+    host.endsWith('.local') ||
+    host.endsWith('.vercel.app');
+  if (!isPreview) return false;
+  return String(import.meta.env.VITE_DEMO_MODE ?? '').toLowerCase() !== 'false';
+};
+
+const DEMO_ONLINE_STATUS = [
+  { userId: '1001', online: true, status: 'available' },
+  { userId: '1002', online: true, status: 'available' },
+  { userId: '1003', online: true, status: 'busy' },
+];
+
 export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const { mainSiteInfo } = useOrganization();
@@ -804,7 +836,9 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [smsUnreadCountArray, setSmsUnreadCountArray] = useState([]);
   const [notificationArr, setNotificationArr] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState<boolean>(false);
-  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>([]);
+  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>(() =>
+    isDemoPreviewHost() ? DEMO_ONLINE_STATUS : [],
+  );
   const [conferenceTracker, setConferenceTracker] = useState<Array<any>>([]);
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
   const [liveTranscriptionList, setLiveTranscriptionList] = useState<Array<any>>([]);

@@ -4,11 +4,13 @@ import { deleteCustomRole, userRolesList } from '@/services/api';
 import { handleAlert } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { Ic } from '@/components/mcm/icons';
-import SideDrawer from '@/components/custom/side-drawer';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Icon } from '@/assets/icons/icon';
 import AlertConfirm from '@/components/custom/alert-confirm';
 import AddNewRole from '@/pages/admin-settings/roles/add-new-role';
 import AssignUsersModal from '@/pages/admin-settings/roles/assign-users-modal';
 import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
+import './roles-glass.css';
 
 /**
  * Directory ▸ Roles — what people are allowed to do.
@@ -87,28 +89,10 @@ const Roles = () => {
   };
 
   return (
-    <>
+    <div className="gp-roles">
       <DirectoryPage
         title="Roles"
         description="What each person sees in this app — and how many people hold each role."
-        /* The description used to say "what each person is allowed to do", which
-           is the one thing a role here does not decide. The three screens that
-           only describe this model — the capability table, Admin scope and
-           Default permissions — all warn that the platform does not check
-           permissions when it answers a request. This screen and the permission
-           tick-boxes are where an administrator actually builds and saves the
-           thing, and they were the two carrying no warning at all, so the
-           caveat was on the map and not on the controls. */
-        note={
-          <>
-            <b>These decide what the app shows, not what the platform allows.</b> A role is checked
-            when this app draws a screen, and it is not checked again when the platform answers a
-            request. So tightening a role makes the product simpler for the person using it rather
-            than locking anything away, and it is not a security control on its own. The one thing
-            that does hold is the kind of person somebody is — administrator, agent — which is
-            checked properly.
-          </>
-        }
         actions={
           isAdmin ? (
             <button type="button" className="btn primary" onClick={() => setCreating(true)}>
@@ -132,7 +116,7 @@ const Roles = () => {
               <th>Role</th>
               <th>Type</th>
               <th>People</th>
-              <th>Actions</th>
+              <th className="gp-role-actions-head">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -153,8 +137,8 @@ const Roles = () => {
                       </span>
                     </td>
                     <td className="num">{usersOn(role)}</td>
-                    <td>
-                      <span className="flex items-center gap-1">
+                    <td className="gp-role-actions-cell">
+                      <span className="flex items-center gap-2 gp-role-actions">
                         {isAdmin ? (
                           <button
                             type="button"
@@ -163,31 +147,35 @@ const Roles = () => {
                             aria-label={`Assign people to ${role?.name}`}
                             onClick={() => setAssigning(role)}
                           >
-                            <Ic n="users" size={12} />
+                            <Ic n="users" size={16} />
                           </button>
                         ) : null}
                         {/* Predefined roles belong to the platform — the
-                            platform's own screen refuses these too. */}
-                        {isAdmin && !system ? (
+                            platform's own screen refuses these too. Shown
+                            disabled rather than hidden, so the column reads
+                            the same width and shape on every row. */}
+                        {isAdmin ? (
                           <button
                             type="button"
                             className="mini"
-                            title={`Edit ${role?.name}`}
+                            disabled={system}
+                            title={system ? `${role?.name} is a system role and can't be edited` : `Edit ${role?.name}`}
                             aria-label={`Edit ${role?.name}`}
                             onClick={() => setEditing(role)}
                           >
-                            <Ic n="sliders" size={12} />
+                            <Ic n="sliders" size={16} />
                           </button>
                         ) : null}
-                        {isAdmin && !system ? (
+                        {isAdmin ? (
                           <button
                             type="button"
                             className="mini"
-                            title={`Delete ${role?.name}`}
+                            disabled={system}
+                            title={system ? `${role?.name} is a system role and can't be deleted` : `Delete ${role?.name}`}
                             aria-label={`Delete ${role?.name}`}
                             onClick={() => setDeleting(role)}
                           >
-                            <Ic n="trash" size={12} />
+                            <Ic n="trash" size={16} />
                           </button>
                         ) : null}
                       </span>
@@ -205,29 +193,35 @@ const Roles = () => {
         </table>
       </DirectoryPage>
 
-      {(creating || editing) && (
-        <SideDrawer
-          isOpen={creating || Boolean(editing)}
-          title={editing ? `Update role (${editing?.name || ''})` : 'New role'}
-          width="min(980px, 80vw)"
-          isTab={false}
-          enableResponsive
-          handleClose={closeForm}
-          content={
+      <Dialog open={creating || Boolean(editing)} onOpenChange={(next) => !next && closeForm()}>
+        <DialogContent className="gp-create-group-dialog sm:max-w-[860px]" showCloseButton={false}>
+          <div className="gp-create-group-head">
+            <h2>{editing ? `Update role (${editing?.name || ''})` : 'New role'}</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={closeForm}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
             <AddNewRole
               drawerState={creating || Boolean(editing)}
               roleData={editing || null}
               setDrawerState={closeForm}
             />
-          }
-        />
-      )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {assigning ? (
         <AssignUsersModal
           open={Boolean(assigning)}
           setOpen={(value: boolean) => !value && setAssigning(null)}
           roleData={assigning}
+          className="gp-assign-users-dialog"
         />
       ) : null}
 
@@ -256,7 +250,7 @@ const Roles = () => {
           ),
         }}
       />
-    </>
+    </div>
   );
 };
 

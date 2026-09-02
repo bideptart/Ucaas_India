@@ -485,7 +485,7 @@ const People = () => {
                               <MoreVertical size={12} />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="gp-person-menu">
                             {canEdit ? (
                               <DropdownMenuItem onClick={() => setEditing(row)}>
                                 <Ic n="sliders" size={12} />
@@ -512,7 +512,7 @@ const People = () => {
                             ) : null}
                             {canAssignCallerId ? (
                               <DropdownMenuItem onClick={() => setAssigningCallerId(row)}>
-                                <Ic n="vm" size={12} />
+                                <Ic n="grid" size={12} />
                                 Assign caller ID
                               </DropdownMenuItem>
                             ) : null}

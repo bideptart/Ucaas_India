@@ -383,3 +383,20 @@ input.gp-field-v:disabled {
   stroke-width: 1.8;
   flex: none;
 }
+
+/* Row "more actions" menu — same portal caveat as the dialog above: `.ic`
+   with no `.mcm-page` ancestor to inherit fill/stroke from renders as a
+   solid black blob instead of an outline glyph. */
+.gp-person-menu .ic {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  flex: none;
+}
+.gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
+.gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
+  background: #fff1e0;
+  color: #c96f1f;
+}

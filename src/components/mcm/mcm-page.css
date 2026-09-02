@@ -4611,13 +4611,20 @@
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
+  /* Below this the columns fall under the minimums the colgroup is built
+     from and the chip starts colliding with the timer again. The wrapper
+     scrolls instead. */
+  min-width: 880px;
 }
 
 .mcm-console-table thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 11px 14px;
+  /* 10px, not 14. Seven columns pay for side padding twice each, so the
+     wider inset cost 56px of a 910px table -- which is what pushed
+     STATUS, DURATION and QUALITY under their content widths. */
+  padding: 11px 10px;
   /* White. The band was previously the deployed build's warm
      rgb(251, 243, 232); the rule underneath now carries the separation
      from the rows instead of a fill.
@@ -4662,7 +4669,7 @@
 
 .mcm-console-table tbody td {
   height: 72px;
-  padding: 10px 14px;
+  padding: 10px 10px;
   vertical-align: middle;
   border-bottom: 1px solid var(--line-2);
 }
@@ -4755,11 +4762,38 @@
 }
 
 /* ---- the path a call took ---- */
+/* One row, and it no longer wraps. Three chips wrapping to three lines is
+   what pushed these rows from the 72px they are designed for to 106. */
 .mcm-console-route {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+/* Direction, which used to be a full "Inbound" chip repeated identically
+   down the whole column. Down-right for a call coming in, up-right for one
+   going out; the cell's title spells the path out in words. */
+.mcm-console-dir {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  background: var(--surface-2-solid);
+  color: var(--ink-3);
+}
+.mcm-console-dir.is-in {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.mcm-console-dir.is-out {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
 }
 .mcm-console-hop {
   padding: 3px 9px;
@@ -4769,23 +4803,15 @@
   font-size: 11.5px;
   font-weight: 600;
   color: var(--ink-2);
+  /* Now that the route is a single line, a long queue name has to end in an
+     ellipsis rather than push the column open. */
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
-.mcm-console-hop.is-end {
-  background: var(--live-wash);
-  border-color: transparent;
-  color: var(--live);
-}
-/* No agent yet: the last hop is an outline waiting to be filled. */
-.mcm-console-hop.is-pending {
-  background: transparent;
-  border-style: dashed;
-  color: var(--ink-4);
-}
-.mcm-console-arrow {
-  font-size: 12px;
-  color: var(--ink-4);
-}
+/* The is-end / is-pending hop variants and the arrow between hops went with
+   the agent and direction chips they styled. */
 
 .mcm-console-agent {
   margin: 0;

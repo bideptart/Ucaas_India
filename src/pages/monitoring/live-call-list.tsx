@@ -220,12 +220,23 @@ const LiveCallList = ({
               horizontal scrollbar for one hidden button. The percentages
               below give back the difference. */}
           <colgroup>
-            <col style={{ width: '23%' }} />
-            <col style={{ width: '11%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '19%' }} />
+            {/* Percentages only where the content can actually give: the
+                caller line truncates, and the route and agent cells wrap.
+                Everything else is sized in px from what it measures, because
+                `table-layout: fixed` will not grow a column to fit -- it
+                overflows into the next one instead, which is how the status
+                chip ended up sitting on top of the timer. */}
+            <col style={{ width: '19.5%' }} />
+            {/* 91px chip + 2x10px padding. Was 11%, i.e. 89px at this width. */}
+            <col style={{ width: '112px' }} />
+            {/* The DURATION heading is wider than the MM:SS value below it. */}
+            <col style={{ width: '84px' }} />
+            <col style={{ width: '13.5%' }} />
+            {/* The agent name and extension both fit inside this; the caller
+                column needed the point more than this one did. */}
             <col style={{ width: '14%' }} />
-            <col style={{ width: '9%' }} />
+            {/* Likewise: the QUALITY heading, not the dash under it. */}
+            <col style={{ width: '74px' }} />
             <col style={{ width: '214px' }} />
           </colgroup>
 
@@ -250,6 +261,7 @@ const LiveCallList = ({
               const queue = prettyQueue(call?.forward_value || call?.queue_uuid);
               const extension = call?.agent_extension;
               const agent = extension ? getAgentName(extension) : '';
+              const isInbound = String(call?.direction || 'inbound').toLowerCase() === 'inbound';
 
               return (
                 <tr
@@ -279,23 +291,28 @@ const LiveCallList = ({
                     <span className="mcm-console-note">MM:SS</span>
                   </td>
 
+                  {/* One line, not three stacked chips. Of the old hops only
+                      the queue varied between rows: the direction read
+                      "Inbound" on every call, and the final hop repeated the
+                      agent name from the very next column. The arrows implied
+                      a left-to-right path while the chips were wrapping
+                      downwards, so they pointed at nothing. Direction is kept
+                      as a glyph because it can legitimately differ; the full
+                      path stays available on hover. */}
                   <td>
-                    <div className="mcm-console-route">
-                      <span className="mcm-console-hop">
-                        {String(call?.direction || 'inbound').toLowerCase() === 'inbound'
-                          ? 'Inbound'
-                          : 'Outbound'}
+                    <div
+                      className="mcm-console-route"
+                      title={`${isInbound ? 'Inbound' : 'Outbound'} → ${queue || 'Direct'} → ${
+                        agent || 'Unassigned'
+                      }`}
+                    >
+                      <span
+                        className={`mcm-console-dir ${isInbound ? 'is-in' : 'is-out'}`}
+                        aria-label={isInbound ? 'Inbound' : 'Outbound'}
+                      >
+                        {isInbound ? '↘' : '↗'}
                       </span>
-                      {queue ? (
-                        <>
-                          <span className="mcm-console-arrow">→</span>
-                          <span className="mcm-console-hop">{queue}</span>
-                        </>
-                      ) : null}
-                      <span className="mcm-console-arrow">→</span>
-                      <span className={`mcm-console-hop ${agent ? 'is-end' : 'is-pending'}`}>
-                        {agent || 'Unassigned'}
-                      </span>
+                      <span className="mcm-console-hop">{queue || 'Direct'}</span>
                     </div>
                   </td>
 

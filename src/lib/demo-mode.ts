@@ -110,6 +110,8 @@ const PLAN_FEATURES = grant([
   'account_setting.access.SITE.action.delete',
   'account_setting.access.USER.action.view',
   'account_setting.access.USER.action.add',
+  'account_setting.access.USER.action.edit',
+  'account_setting.access.USER.action.delete',
   'advance_call_management.access.RECORDING',
   'advance_call_management.access.TRANSCRIPTION',
   'billing.action.view',

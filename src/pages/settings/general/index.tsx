@@ -263,8 +263,11 @@ export const General: FC<GeneralProps> = ({ heading = 'General' }) => {
                   variant={'primary'}
                   type="submit"
                   disabled={PendingGeneralSettings || companyPolicy.isLoading}
+                  /* Same `.mcm-page button` reset as elsewhere strips this
+                     button's background/text-color — `!` forces them back. */
+                  className="!bg-primary !text-white !border-primary hover:!bg-primary/90 min-w-[130px] justify-center"
                 >
-                  {PendingGeneralSettings ? 'Submiting...' : 'Submit'}
+                  {PendingGeneralSettings ? 'Saving…' : 'Save changes'}
                 </Button>
               </div>
             </form>

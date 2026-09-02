@@ -1374,23 +1374,44 @@ export const demoLiveCalls = () => {
   ];
 
   return [
-    ...talking.map((call, index) => ({
-      uuid: `demo-live-answered-${index + 1}`,
-      call_id: `demo-live-answered-${index + 1}`,
-      status: 'answered',
-      direction: 'inbound',
-      forward_type: 'QUEUE',
-      forward_value: call.queue,
-      queue_uuid: call.queue,
-      agent_extension: call.extension,
-      called_number: call.extension,
-      caller_number: call.caller,
-      caller_id_number: call.caller,
-      contact_name: CONTACT_NAMES[index],
-      did_number: DIDS[index % DIDS.length],
-      start_time: startedSecondsAgo(call.since),
-      answered_time: startedSecondsAgo(call.since),
-    })),
+    ...talking.map((call, index) => {
+      const queueInfo = DEMO_QUEUES.find((row) => row.uuid === call.queue);
+      const agentInfo = DEMO_AGENTS.find((row) => row.extension === call.extension);
+      const queueName = queueInfo?.name || 'Queue';
+      return {
+        uuid: `demo-live-answered-${index + 1}`,
+        call_id: `demo-live-answered-${index + 1}`,
+        status: 'answered',
+        direction: 'inbound',
+        forward_type: 'QUEUE',
+        forward_value: call.queue,
+        queue_uuid: call.queue,
+        agent_extension: call.extension,
+        called_number: call.extension,
+        caller_number: call.caller,
+        caller_id_number: call.caller,
+        contact_name: CONTACT_NAMES[index],
+        did_number: DIDS[index % DIDS.length],
+        start_time: startedSecondsAgo(call.since),
+        answered_time: startedSecondsAgo(call.since),
+        /* Read by the wallboard's monitoring buttons (Listen/Whisper/Barge/
+           Intercept/Hangup) to resolve which call leg to dial into or hang
+           up — production's real switch payload carries the same field
+           names (see socket-events-context's own b_leg_uuid handling), so
+           this is what lets those buttons exercise their real code path
+           against a call at all, in demo mode. */
+        call_uuid: `demo-live-answered-${index + 1}-a-leg`,
+        b_leg_uuid: `demo-live-answered-${index + 1}-b-leg`,
+        /* Read by CallPathCell for the "Queue / Campaign" column and its
+           call-path dialog — without these it falls back to "---". */
+        current_context: `${queueName} Queue`,
+        context_path: [
+          'IVR: Main Menu',
+          `Queue: ${queueName}`,
+          `Agent: ${agentInfo ? `${agentInfo.first_name} ${agentInfo.last_name}` : call.extension}`,
+        ],
+      };
+    }),
     ...waiting.map((call, index) => ({
       uuid: `demo-live-waiting-${index + 1}`,
       call_id: `demo-live-waiting-${index + 1}`,
@@ -1427,6 +1448,107 @@ export const demoLiveQueueCalls = () => {
       available_count: available,
     };
   });
+};
+
+/** The wallboard's KPI band, funnel and per-agent utilization all read this
+ *  one socket payload (`DASH_LIVE_CALLS_RESPONSE` → `campaignLiveCallsData`),
+ *  which demo mode's socket has no server behind to ever send — so it seeds
+ *  the socket context's initial state instead, same reasoning as the live
+ *  call/queue data above. Volume figures reuse `demoCallStats()` so the KPI
+ *  band and the call log agree on Total/Inbound/Outbound/Missed. */
+export const demoCampaignLiveCallsData = () => {
+  const stats = demoCallStats();
+  return {
+    data: {
+      summary: {
+        total_call: stats.total_calls,
+        inbound_call: stats.inbound_calls,
+        outbound_call: stats.outbound_calls,
+        missed_call: stats.missed_calls,
+        ivr_call: 22,
+        abandoned_in_call_percent: 4,
+        callback_count: 5,
+        answered_within_20_sec: 41,
+        service_level_percent: 82,
+        avg_speed_answer: 14,
+        avg_handle_time: 246,
+        avg_talk_time: 198,
+        avg_hold_time: 22,
+        avg_wrap_time_sec: 26,
+        max_wait_time: 187,
+        longest_active: 431,
+      },
+      call_log_summary: {
+        ringing_calls: 1,
+        hold_calls: 1,
+      },
+    },
+  };
+};
+
+/** The three-stage funnel on the wallboard (`CAMPAIGN_CALL_FLOW_FUNNEL`). */
+export const demoCampaignCallFlowFunnel = () => ({
+  entered_ivr_percent: 100,
+  entered_ivr_count: 64,
+  queued_percent: 78,
+  queued_count: 50,
+  assigned_agent_percent: 66,
+  assigned_agent_count: 42,
+});
+
+/** "Active Campaigns" panel (`ACTIVE_CAMPAIGN_RESPONSE`). */
+export const demoActiveCampaigns = () => [
+  {
+    uuid: 'demo-campaign-renewal',
+    name: 'Festive Renewal Drive',
+    dialed: 340,
+    connected: 214,
+    connectedPercent: 63,
+    conversions: 58,
+    failed: 22,
+  },
+  {
+    uuid: 'demo-campaign-winback',
+    name: 'Q3 Win-back',
+    dialed: 180,
+    connected: 96,
+    connectedPercent: 53,
+    conversions: 21,
+    failed: 14,
+  },
+];
+
+/** Per-agent utilization/AHT plus the Top/Bottom callers strip
+ *  (`CAMPAIGN_AGENT_RESPONSE`) — extensions match `DEMO_AGENTS` so the same
+ *  people shown "on call" in the roster also show real utilization here. */
+export const demoCampaignAgents = () => {
+  const rows = [
+    { extension: '1001', total_calls: 4, utilization_percent: 12, avg_handle_time: 198.5 },
+    { extension: '1002', total_calls: 9, utilization_percent: 33, avg_handle_time: 288.3 },
+    { extension: '1003', total_calls: 7, utilization_percent: 21, avg_handle_time: 245.0 },
+    { extension: '1004', total_calls: 22, utilization_percent: 78, avg_handle_time: 252.4 },
+    { extension: '1005', total_calls: 15, utilization_percent: 54, avg_handle_time: 216.8 },
+    { extension: '1006', total_calls: 19, utilization_percent: 68, avg_handle_time: 234.1 },
+    { extension: '1007', total_calls: 12, utilization_percent: 41, avg_handle_time: 306.7 },
+    { extension: '1008', total_calls: 17, utilization_percent: 61, avg_handle_time: 227.6 },
+  ];
+  const agents = rows.map((row) => {
+    const agentInfo = DEMO_AGENTS.find((a) => a.extension === row.extension);
+    return {
+      agent_extension: row.extension,
+      agent_name: agentInfo ? `${agentInfo.first_name} ${agentInfo.last_name}` : row.extension,
+      total_calls: row.total_calls,
+      utilization_percent: row.utilization_percent,
+      avg_handle_time: row.avg_handle_time,
+    };
+  });
+  const top = agents.reduce((a, b) => (b.total_calls > a.total_calls ? b : a));
+  const bottom = agents.reduce((a, b) => (b.total_calls < a.total_calls ? b : a));
+  return {
+    agents,
+    top_calls: { agent_name: top.agent_name, total_calls: top.total_calls },
+    bottom_calls: { agent_name: bottom.agent_name, total_calls: bottom.total_calls },
+  };
 };
 
 /* ---------------------------------------------------------------------------

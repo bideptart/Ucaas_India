@@ -1274,7 +1274,12 @@ const CalendarPage = () => {
             </div>
           </aside>
 
-          <section className="min-h-0 p-2">
+          {/* min-w-0 matters as much as min-h-0 here. A grid item defaults to
+              min-width:auto, so this section could not shrink below its
+              content and sat 12px wider than the 1fr track -- which the grid
+              clips, since it is lg:overflow-hidden. That is what cut the
+              Actions column and the pager off at the right edge. */}
+          <section className="min-h-0 min-w-0 p-2">
             <div
               className={
                 mainView === 'calendar' ? 'block h-auto lg:h-full' : 'hidden h-auto lg:h-full'
@@ -1979,9 +1984,9 @@ const CalendarPage = () => {
         )} */}
 
         <Dialog modal open={modal} onOpenChange={toggle}>
-          {/* `mcm-glassform` rather than `bg-white`: the dialog sits over the
-              page's warm backdrop, so a frosted panel lets that colour carry
-              through instead of dropping a flat white sheet on top of it. */}
+          {/* `mcm-glassform` in place of `bg-white`: the dialog sits over the
+              page's warm gradient, so a frosted panel lets that carry through
+              rather than dropping a flat sheet on top of it. */}
           <DialogContent className="mcm-glassform max-h-[90vh] max-w-3xl w-full flex flex-col overflow-hidden p-6">
             <DialogTitle className="shrink-0">Schedule</DialogTitle>
             <ScheduleModal

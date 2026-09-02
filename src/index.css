@@ -2201,22 +2201,38 @@
 .mcm-tasktable thead th:nth-child(2),
 .mcm-tasktable tbody td:nth-child(2) {
   width: 100%;
+  /* `max-width: 0` against `width: 100%` is what lets this cell fall below
+     its content width. Without it the cell reports its full title as a
+     minimum, the table cannot compress, and it overflows its container
+     instead -- 27px past the edge at a 1100px viewport. Title is the only
+     column that should give up space: every other one holds a date, a
+     chip or a control that cannot compress at all. */
+  max-width: 0;
+  /* ...but only down to a point. Left unbounded it reached 63px in a
+     800px container, which is narrower than the word "Onboarding" and
+     shows nothing useful. Past this floor the wrapper scrolls, which is
+     the honest outcome for a table that has genuinely run out of room. */
+  min-width: 170px;
 }
 
 /* 8px on all four sides was the same inset between two dense columns as
    at the table's outer edge, which is what made the rows feel crowded
    and unfinished. Vertical air is what a two-line cell actually needs. */
+/* 13px rather than the 16 this started at: seven columns pay for side
+   padding twice each, so the wider inset alone put the table 11px past
+   its container at 1280 and forced a horizontal scroll. The vertical
+   figure is what the two-line cells actually needed. */
 .mcm-tasktable tbody td,
 .mcm-tasktable thead th {
-  padding: 10px 16px;
+  padding: 10px 13px;
 }
 .mcm-tasktable tbody td:first-child,
 .mcm-tasktable thead th:first-child {
-  padding-left: 20px;
+  padding-left: 18px;
 }
 .mcm-tasktable tbody td:last-child,
 .mcm-tasktable thead th:last-child {
-  padding-right: 20px;
+  padding-right: 18px;
 }
 
 /* `height` on a cell behaves as a minimum, so short rows match the
@@ -2298,6 +2314,26 @@
 .mcm-tasktable .mcm-task-empty {
   color: #cbd5e1;
   user-select: none;
+}
+
+/* The pager is TableManager's next sibling and the two bordered cards sat
+   with a 0px gap between them, so the table's bottom edge and the pager's
+   top edge read as one doubled line. */
+.mcm-tasktable + div {
+  margin-top: 10px;
+}
+
+/* TableManager sizes the scroll box from `window.innerHeight` less a flat
+   66px, but the panel it sits in ends 12px above the window bottom, so
+   the pager was already hanging 3px into the clip before the gap above
+   pushed it to 13. `max-height` wins over the inline `height` it sets, so
+   this caps the box without touching a component ~80 tables share.
+
+   Budget below the scroll box: 57 pager + 10 gap + 12 panel inset + 12
+   gutter, against a 133px offset from the top of the viewport, which is
+   fixed by this page's chrome and so does not vary with window height. */
+.mcm-tasktable {
+  max-height: calc(100vh - 224px);
 }
 
 /* The trigger only revealed itself on hover, so the control looked like
@@ -2393,59 +2429,105 @@
 }
 
 /* ==================================================================
-   Glass form dialog.
+   Schedule dialog — bright glass.
 
-   A frosted panel rather than a white sheet: the page's warm backdrop
-   carries through it, and the fields inside sit on their own faint tint
-   so they still read as inputs against a translucent ground.
+   Not scoped under `.mcm-page`: Radix portals its dialogs to the end of
+   `body`, outside the page wrapper, so a `.mcm-page` selector would
+   never match here.
 
-   Not scoped under `.mcm-page` — Radix portals its dialogs to the end of
-   `body`, outside the page wrapper, so a `.mcm-page` selector would never
-   match. That is why the earlier `[role='dialog']` glass rule scoped that
-   way did nothing here.
+   Two rules this block has to keep:
+
+   1. Fields are addressed by tag or by their own component class, never
+      by shape. An earlier version used `[class*='rounded'][class*='border']`,
+      which is equally true of the submit button and the selected duration
+      chip -- it painted them white while their text stayed white, and
+      "Schedule Meeting" became an invisible label on a blank button.
+   2. Disabled controls keep their grey. On the Task tab the date and time
+      fields really are disabled, so lifting them to match the live fields
+      would throw away the only signal saying so.
    ================================================================== */
 .mcm-glassform {
-  background: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  /* 0.94, not 0.76. What sits behind this dialog is not the page's warm
+     gradient -- Radix lays a `bg-black/50` scrim at z-50 directly beneath
+     it, so anything meaningfully translucent composites toward black and
+     the whole panel goes grey. The glass has to come from the blur and
+     the bright edge, not from letting a black scrim through. */
+  background: rgba(255, 253, 250, 0.94) !important;
+  backdrop-filter: blur(22px) saturate(185%);
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
   box-shadow:
-    0 24px 60px rgba(13, 21, 38, 0.18),
-    0 2px 8px rgba(13, 21, 38, 0.06) !important;
+    0 24px 64px rgba(120, 72, 30, 0.16),
+    0 2px 10px rgba(120, 72, 30, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Inputs need to stay legible on a translucent panel, so they carry a
-   little more white than the ground they sit on rather than less.
+/* The action bar ships with its own `bg-white`, which on a frosted panel
+   read as an opaque slab with a band of panel showing beneath it -- the
+   white-bar-over-grey-strip in the footer.
 
-   Fields only. This used to include
-   `[class*='rounded'][class*='border']`, which is true of the primary
-   button and the selected duration chip as well — both are rounded and
-   bordered — so it painted them white while their text stayed white, and
-   "Schedule Meeting" became an invisible label on an empty-looking
-   button. A form's controls must never be caught by its field styling. */
-.mcm-glassform input:not([type='checkbox']):not([type='radio']),
-.mcm-glassform textarea,
-.mcm-glassform select {
-  background-color: rgba(255, 255, 255, 0.72);
+   `px-2` also left its buttons 4px right of every field above: the scroll
+   area above carries pr-2 *plus* a 4px custom scrollbar, so matching the
+   fields means 8 + 4. */
+.mcm-glassform .border-t.bg-white {
+  background-color: transparent !important;
+  border-top-color: rgba(255, 255, 255, 0.9) !important;
+  padding-right: 12px;
 }
 
-/* The banded rows — timezone strip, date and time fields — were solid
-   grey blocks, which read as opaque patches on the frosted panel. */
-.mcm-glassform .bg-gray-50,
-.mcm-glassform .bg-gray-100,
+/* The banded cards -- timezone strip, Reminder row -- were slate-50,
+   which is a cool grey block sitting on a warm panel. */
 .mcm-glassform .bg-slate-50,
-.mcm-glassform .bg-slate-100 {
-  background-color: rgba(255, 255, 255, 0.55) !important;
+.mcm-glassform .bg-slate-100,
+.mcm-glassform .bg-gray-50,
+.mcm-glassform .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Fields carry more white than the panel they sit on, so they still read
+   as somewhere to type against a translucent ground. Tag-scoped, and
+   never while disabled. */
+.mcm-glassform input:not([type='checkbox']):not([type='radio']):not(:disabled),
+.mcm-glassform textarea:not(:disabled),
+.mcm-glassform select:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(226, 232, 240, 0.95);
+}
+
+/* react-select renders its own div rather than a <select>, so it needs
+   its own line -- again only when it is not the disabled variant. */
+.mcm-glassform
+  .custom-react-select__control:not(.custom-react-select__control--is-disabled) {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(226, 232, 240, 0.95) !important;
+}
+.mcm-glassform .custom-react-select__menu {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Brighter than the flat #e6e6e6 these ship with. */
+.mcm-glassform .custom-react-select__indicator-separator {
+  background-color: rgba(203, 213, 225, 0.55) !important;
+}
+
+/* Hairlines go bright instead of grey, or they cut the frosted panel into
+   visible boxes. */
+.mcm-glassform .border-slate-100,
+.mcm-glassform .border-slate-200 {
+  border-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .dark .mcm-glassform {
-  background: rgba(20, 26, 36, 0.85) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(24, 30, 41, 0.86) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
-.dark .mcm-glassform input,
-.dark .mcm-glassform textarea,
-.dark .mcm-glassform select {
-  background-color: rgba(255, 255, 255, 0.06);
+.dark .mcm-glassform input:not(:disabled),
+.dark .mcm-glassform textarea:not(:disabled),
+.dark .mcm-glassform select:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* "Mark all as read" toast — react-toastify's default green success skin

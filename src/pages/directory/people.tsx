@@ -29,7 +29,16 @@ import AssignCallerIdModal from '@/pages/admin-settings/people/add-users/assign-
 import AddUsers from '@/pages/admin-settings/people/add-users';
 import { invalidateNumberLists } from '@/lib/number-list-cache';
 import { buildRosterCsv, rosterFileName, toExportRow } from '@/lib/user-roster-export';
+import { Icon } from '@/assets/icons/icon';
+import { MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import './people-glass.css';
+import './groups-glass.css';
 
 /**
  * Directory ▸ People — the organisation roster.
@@ -459,74 +468,68 @@ const People = () => {
                       >
                         <Ic n="video" size={12} />
                       </button>
-                      {canEdit ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Edit ${row.name}`}
-                          aria-label={`Edit ${row.name}`}
-                          onClick={() => setEditing(row)}
-                        >
-                          <Ic n="sliders" size={12} />
-                        </button>
-                      ) : null}
-                      {isAdmin ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`${row.name}'s activity`}
-                          aria-label={`${row.name}'s activity`}
-                          onClick={() => navigate(`/activity/${row.uuid}`)}
-                        >
-                          <Ic n="clock" size={12} />
-                        </button>
-                      ) : null}
-                      {canChangeRoleOf(row) ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Change ${row.name}'s role`}
-                          aria-label={`Change ${row.name}'s role`}
-                          onClick={() => setChangingRole(row)}
-                        >
-                          <Ic n="shield" size={12} />
-                        </button>
-                      ) : null}
-                      {canAssignCallerId && row.callerId ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Remove ${row.name}'s caller ID`}
-                          aria-label={`Remove ${row.name}'s caller ID`}
-                          onClick={() => setUnassigning(row)}
-                        >
-                          <Ic n="x" size={12} />
-                        </button>
-                      ) : null}
-                      {/* Admins can remove a person; never yourself, and never
-                          another admin unless you are one. */}
-                      {canDelete && row.uuid !== myUuid ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Remove ${row.name}`}
-                          aria-label={`Remove ${row.name}`}
-                          onClick={() => setDeleting(row)}
-                        >
-                          <Ic n="trash" size={12} />
-                        </button>
-                      ) : null}
-                      {canAssignCallerId ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Assign a caller ID to ${row.name}`}
-                          aria-label={`Assign a caller ID to ${row.name}`}
-                          onClick={() => setAssigningCallerId(row)}
-                        >
-                          <Ic n="vm" size={12} />
-                        </button>
-                      ) : null}
+                      {(canEdit ||
+                        isAdmin ||
+                        canChangeRoleOf(row) ||
+                        (canAssignCallerId && row.callerId) ||
+                        (canDelete && row.uuid !== myUuid) ||
+                        canAssignCallerId) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="mini"
+                              title={`More actions for ${row.name}`}
+                              aria-label={`More actions for ${row.name}`}
+                            >
+                              <MoreVertical size={12} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {canEdit ? (
+                              <DropdownMenuItem onClick={() => setEditing(row)}>
+                                <Ic n="sliders" size={12} />
+                                Edit
+                              </DropdownMenuItem>
+                            ) : null}
+                            {isAdmin ? (
+                              <DropdownMenuItem onClick={() => navigate(`/activity/${row.uuid}`)}>
+                                <Ic n="clock" size={12} />
+                                Activity
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canChangeRoleOf(row) ? (
+                              <DropdownMenuItem onClick={() => setChangingRole(row)}>
+                                <Ic n="shield" size={12} />
+                                Change role
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId && row.callerId ? (
+                              <DropdownMenuItem onClick={() => setUnassigning(row)}>
+                                <Ic n="x" size={12} />
+                                Remove caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId ? (
+                              <DropdownMenuItem onClick={() => setAssigningCallerId(row)}>
+                                <Ic n="vm" size={12} />
+                                Assign caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {/* Admins can remove a person; never yourself, and
+                                never another admin unless you are one. */}
+                            {canDelete && row.uuid !== myUuid ? (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setDeleting(row)}
+                              >
+                                <Ic n="trash" size={12} />
+                                Remove
+                              </DropdownMenuItem>
+                            ) : null}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </span>
                   </td>
                 </tr>
@@ -657,16 +660,27 @@ const People = () => {
 
       {/* The platform's own add-user flow, opened in place rather than
           bouncing to Admin — the console keeps you in Directory. */}
-      {inviting && (
-        <SideDrawer
-          isOpen={inviting}
-          title="Invite people"
-          width="min(1180px, 88vw)"
-          isTab={false}
-          handleClose={() => setInviting(false)}
-          content={<AddUsers setDrawerState={() => setInviting(false)} />}
-        />
-      )}
+      <Dialog open={inviting} onOpenChange={(next) => !next && setInviting(false)}>
+        <DialogContent
+          className="gp-create-group-dialog sm:max-w-[1100px]"
+          showCloseButton={false}
+        >
+          <div className="gp-create-group-head">
+            <h2>Invite people</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setInviting(false)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            <AddUsers setDrawerState={() => setInviting(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertConfirm
         {...{

@@ -1,5 +1,6 @@
 import { FilterIcon, Bell, PhoneIcon, VideocameraAdd } from '@/assets/icons';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -201,6 +202,33 @@ const restoreDummyReadIds = (previous: { read: Set<string>; unread: Set<string> 
   dummyUnreadIdStore = previous.unread;
 };
 
+// Where clicking a notification should take you — only for types that have
+// an obvious "go look at this" destination. Types left unmapped (payments,
+// group/queue creation) just toggle read state, same as before; a wrong
+// guess at a route is worse than no navigation at all.
+const getNotificationRoute = (notification?: { type?: string }) => {
+  switch (notification?.type) {
+    case 'sms':
+      return '/messenger';
+    case 'voicemail':
+    case 'voicemailgroup':
+    case 'missedcall':
+    case NOTIFICATION_TYPE_CONST.CALL_BACK_SCHEDULE:
+      return '/phone';
+    case 'meeting_invite':
+    case NOTIFICATION_TYPE_CONST.MEETING_REMINDER:
+      return '/video/upcoming-meetings';
+    case 'new_campaign':
+      return '/campaign/all-campaigns';
+    case 'department_create':
+      return '/admin-settings/phone/departments';
+    case 'call_queue_create':
+      return '/admin-settings/phone/queues';
+    default:
+      return null;
+  }
+};
+
 // "Today" / "Yesterday" / a full date — assumes the list arrives newest
 // first, which is what groups adjacent same-day rows under one header.
 const getDateGroupLabel = (createdAt?: string) => {
@@ -261,6 +289,7 @@ const NotificationContent = ({
 }) => {
   const { user } = useUser();
   const { makeCall } = useDialpad();
+  const navigate = useNavigate();
   // const { user_info } = user;
   const {
     getNotifications,
@@ -706,8 +735,13 @@ const NotificationContent = ({
             // re-flag something for follow-up. Real notifications only ever
             // go one way (see markDummyIdUnread above for why).
             const toggleReadState = () => {
+              // Only navigate on the "attending to it" transition (unread ->
+              // read) — re-clicking an already-read dummy row to flip it back
+              // to unread is a local testing affordance (see markDummyIdUnread
+              // above), not a real intent to go somewhere.
+              const wasUnread = !!notification?.unread;
               if (isShowingDummy) {
-                if (notification?.unread) {
+                if (wasUnread) {
                   markDummyIdRead(notification?._id);
                 } else {
                   markDummyIdUnread(notification?._id);
@@ -715,6 +749,13 @@ const NotificationContent = ({
                 setDummyReadVersion((v) => v + 1);
               } else {
                 markReadNotification(notification?._id);
+              }
+              if (wasUnread) {
+                const route = getNotificationRoute(notification);
+                if (route) {
+                  setNotificationState(false);
+                  navigate(route);
+                }
               }
             };
             const categoryAccent = getCategoryAccent();

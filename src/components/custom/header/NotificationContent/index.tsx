@@ -398,7 +398,7 @@ const NotificationContent = ({
     <div
       role="region"
       aria-label="Notifications"
-      className="relative w-full h-full mx-auto -mx-4 lg:-mx-5 -mb-5 px-4 lg:px-5 pb-5 flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
+      className="relative h-full -ml-4 lg:-ml-5 -mb-5 w-[calc(100%+2rem)] lg:w-[calc(100%+2.5rem)] px-4 lg:px-5 pb-5 flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
     >
       {/* Visually hidden — announces count changes to screen readers without
           a visible element, since the badge itself only conveys meaning

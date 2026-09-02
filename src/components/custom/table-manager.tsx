@@ -471,7 +471,11 @@ function TableManager({
       {showPagination && (
         // sticky left-0 bottom-2
         <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-gray-200 bg-white px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-between">
+          {/* `sm:w-full`, not `sm:w-auto`: the wrapper hugged its contents, so
+              `justify-between` had no slack to work with and both groups sat
+              bunched at the left of the bar. Full width pushes the pager out
+              to the right corner, opposite the per-page and record count. */}
+          <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
               <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-gray-200">
                 <div className="flex items-center gap-2">
@@ -516,9 +520,9 @@ function TableManager({
                 )}
               </Button>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-1 sm:justify-end">
+            <div className="mcm-pager flex flex-wrap items-center justify-between gap-1 sm:justify-end">
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handleFirstPage()}
@@ -527,7 +531,7 @@ function TableManager({
                 <ChevronsLeft className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handlePreviousPage()}
@@ -546,13 +550,9 @@ function TableManager({
                 if (page < end && page >= start) {
                   return (
                     <div
-                      className={`max-w-7 min-w-7 max-h-7 min-h-7  font-medium rounded-xl flex items-center justify-center cursor-pointer shadow-none text-sm
-                            ${
-                              table?.getState()?.pagination?.pageIndex === index
-                                ? 'text-white font-semibold bg-primary rounded-xl'
-                                : ' text-gray-900'
-                            }
-                            `}
+                      className={`mcm-pager-page ${
+                        table?.getState()?.pagination?.pageIndex === index ? 'is-current' : ''
+                      }`}
                       key={page}
                       onClick={() => table?.setPageIndex(index)}
                     >
@@ -565,7 +565,7 @@ function TableManager({
               })}
 
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleNextPage()}
@@ -574,7 +574,7 @@ function TableManager({
                 <ChevronRight className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleLastPage()}

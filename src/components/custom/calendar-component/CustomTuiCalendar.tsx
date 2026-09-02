@@ -17,7 +17,6 @@ import AlertConfirm from '../alert-confirm';
 import { capitalizeFirstLetter } from '@/lib/utils';
 import { calendarFilterType } from '@/pages/video-meetings/Calender/constants';
 import { useUser } from '@/hooks/use-user';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
   (
@@ -129,6 +128,50 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
       refreshCalendar,
     }));
 
+    /**
+     * How many events and tasks fall on each day, keyed 'YYYY-MM-DD'.
+     *
+     * A ref rather than state because the calendar's templates are handed to
+     * the library once at construction; a closure over state would keep
+     * reading the first render's value forever. The ref is refreshed
+     * whenever the schedules change, just before asking for a re-render.
+     */
+    const dayCountsRef = useRef<Map<string, { event: number; task: number }>>(new Map());
+
+    useEffect(() => {
+      const counts = new Map<string, { event: number; task: number }>();
+
+      (schedules || []).forEach((schedule: any) => {
+        const start = moment(
+          schedule?.start?.toDate ? schedule.start.toDate() : schedule?.start,
+        ).startOf('day');
+        if (!start.isValid()) return;
+
+        const rawEnd = moment(schedule?.end?.toDate ? schedule.end.toDate() : schedule?.end).startOf(
+          'day',
+        );
+        /* Anything spanning midnight counts on every day it covers. The
+           guard stops a corrupted end date spinning here. */
+        const end = rawEnd.isValid() && rawEnd.isAfter(start) ? rawEnd : start;
+        const kind =
+          String(schedule?.raw?.category || '').toUpperCase() === 'TASK' ? 'task' : 'event';
+
+        const cursor = start.clone();
+        let guard = 0;
+        while (cursor.isSameOrBefore(end, 'day') && guard < 366) {
+          const key = cursor.format('YYYY-MM-DD');
+          const entry = counts.get(key) || { event: 0, task: 0 };
+          entry[kind] += 1;
+          counts.set(key, entry);
+          cursor.add(1, 'day');
+          guard += 1;
+        }
+      });
+
+      dayCountsRef.current = counts;
+      calendarInstRef.current?.render?.();
+    }, [schedules]);
+
     useEffect(() => {
       const container = tuiRef.current;
       if (!container) return;
@@ -141,23 +184,52 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
           taskView: false,
           scheduleView: ['time'],
           calendars,
+          /* One preview per day. Enough to say what the day holds without a
+             busy cell stacking four clipped titles; anything beyond it is
+             reached through the day itself. */
+          month: { visibleScheduleCount: 1 },
           template: {
+            /* A dot, the title, and the time beneath it. */
             time: (schedule) => {
-              const startDate = (schedule?.start as TZDate).toDate();
-              const endDate = (schedule?.end as TZDate)?.toDate();
-              const title = schedule?.title;
-              const startTime = moment(startDate).format('hh:mm A');
-              const endTime =
-                schedule?.raw?.category === 'EVENT' && endDate
-                  ? ` - ${moment(endDate).format('hh:mm A')}`
-                  : '';
+              const title = schedule?.title || '';
+              const startDate = (schedule?.start as TZDate)?.toDate();
+              const startTime = startDate ? moment(startDate).format('hh:mm A') : '';
+              const category = String(schedule?.raw?.category || '').toUpperCase();
+              const kind =
+                category === 'TASK' ? 'task' : category === 'MEETING' ? 'meeting' : 'event';
 
-              return `
-                      <div class="flex flex-col leading-[1.2] gap-[2px]">
-                        <span class="font-semibold text-[13px] truncate block max-w-[180px]">${title}</span>
-                        <span class="text-[9px]">${startTime}${endTime}</span>
-                      </div>
-                    `;
+              return `<span class="mcm-evt is-${kind}">
+                  <span class="mcm-evt-line">
+                    <i class="mcm-evt-dot"></i>
+                    <span class="mcm-evt-title">${title}</span>
+                  </span>
+                  ${startTime ? `<span class="mcm-evt-time">${startTime}</span>` : ''}
+                </span>`;
+            },
+            /* The date number on its own. The count pill that used to sit
+               here is gone — the cell now previews the day's first entry
+               instead, which says more than a tally did. */
+            monthGridHeader: (model: any) => {
+              /* `model.ymd` is `YYYYMMDD` in this version, not `YYYY-MM-DD`.
+                 Parsing it against both shapes and re-formatting is what
+                 makes the lookup hit — keyed on the raw value the map never
+                 matched, so every day came back empty and no pill rendered.
+                 The day number looked right throughout, because moment
+                 parses the compact form leniently. */
+              const raw =
+                model?.ymd || (model?.date?.toDate ? model.date.toDate() : model?.date);
+              const parsed = moment(raw, ['YYYY-MM-DD', 'YYYYMMDD', moment.ISO_8601]);
+              const ymd = parsed.isValid() ? parsed.format('YYYY-MM-DD') : '';
+              const dayNumber = parsed.isValid() ? parsed.date() : '';
+              const isToday = Boolean(model?.isToday);
+
+              const numberClass = `tui-full-calendar-weekday-grid-date${
+                isToday ? ' tui-full-calendar-weekday-grid-date-decorator' : ''
+              }`;
+
+              return `<div class="mcm-dayhead" data-ymd="${ymd}">
+                  <span class="${numberClass}">${dayNumber}</span>
+                </div>`;
             },
             popupDetailDate: (isAllDay, start, end) => {
               const startDate = (start as TZDate).toDate();
@@ -370,13 +442,65 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                 {renderRange}
               </h2>
               {showMenu && (
-                <div>
+                <div className="flex items-center gap-3">
+                  {/* Three views, three buttons. As a dropdown you had to open
+                      it to find out which view you were in and what the others
+                      were; laid out flat, the current one is visible and any
+                      other is one click away. */}
+                  <div className="mcm-viewswitch" role="group" aria-label="Calendar view">
+                    {[
+                      { label: 'Day', value: 'Daily', view: 'day' },
+                      { label: 'Week', value: 'Weekly', view: 'week' },
+                      { label: 'Month', value: 'Month', view: 'month' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={type === option.value}
+                        className={`mcm-viewswitch-btn ${type === option.value ? 'is-on' : ''}`}
+                        onClick={() => {
+                          if (option.view === 'month') {
+                            /* The month view needs its week count restored;
+                               the other views do not carry the option. */
+                            calendarInstRef.current.setOptions(
+                              { month: { visibleWeeksCount: 6 } },
+                              true,
+                            );
+                          }
+                          calendarInstRef.current.changeView(option.view, true);
+                          setType(option.value);
+                          setRenderRangeText();
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Weekends is a setting, not a view, so it stays a toggle
+                      rather than joining the switch above. */}
+                  <button
+                    type="button"
+                    aria-pressed={workweek}
+                    className={`mcm-weekendtoggle ${workweek ? 'is-on' : ''}`}
+                    onClick={() => {
+                      calendarInstRef.current.setOptions({ month: { workweek } }, true);
+                      calendarInstRef.current.setOptions({ week: { workweek } }, true);
+                      calendarInstRef.current.changeView(
+                        calendarInstRef.current.getViewName(),
+                        true,
+                      );
+                      setWorkweek(!workweek);
+                    }}
+                  >
+                    Weekends
+                  </button>
+
                   <span
                     ref={wrapperRef}
-                    style={{ marginRight: '4px' }}
-                    /* Ternary, not `&&`: inside a template literal `open &&
-                       'open'` renders the string "false" when closed, so the
-                       element carried a literal `false` class. */
+                    style={{ display: 'none' }}
+                    /* The old dropdown markup is kept mounted but hidden: the
+                       outside-click handler still references this ref. */
                     className={`dropdown ${open ? 'open' : ''}`}
                   >
                     <button
@@ -487,46 +611,11 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                     </ul>
                   </span>
 
-                  <span id="menu-navi">
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-today"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-today"
-                      onClick={() => {
-                        calendarInstRef.current.today();
-                        setRenderRangeText();
-                      }}
-                    >
-                      Today
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-day"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-prev"
-                      onClick={() => {
-                        calendarInstRef.current.prev();
-                        setRenderRangeText();
-                      }}
-                    >
-                      <ChevronLeftIcon className="w-4 h-4" />
-                      {/* <i className="calendar-icon ic-arrow-line-left" data-action="move-prev" /> */}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-day"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-next"
-                      onClick={() => {
-                        calendarInstRef.current.next();
-                        setRenderRangeText();
-                      }}
-                    >
-                      <ChevronRightIcon className="w-4 h-4" />
-                      {/* <i className="calendar-icon ic-arrow-line-right" data-action="move-next" /> */}
-                    </button>
-                  </span>
+                  {/* The prev/next arrows and the "Today" button both used to
+                      sit here and have been removed by request. Stepping
+                      through months is now the mini calendar's job — its own
+                      arrows drive this view through `setCurrentDate`. Nothing
+                      here returns to today in one step any more. */}
                 </div>
               )}
             </div>

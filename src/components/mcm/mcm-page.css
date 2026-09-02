@@ -3951,9 +3951,12 @@
   flex: 0 0 18px;
 }
 
-/* The current page: the rail reads as an edge of the chip rather than a
-   line parked beside it. */
+/* The current page: the warm tone the sidebar itself used to carry, now
+   doing a job — marking the selected category against a white column
+   instead of tinting the whole panel. The rail reads as an edge of the
+   chip rather than a line parked beside it. */
 .mcm-admin .mcm-subnav .border-r-primary {
+  background: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
   box-shadow: inset 3px 0 0 var(--accent);
 }
 /* `:not(.text-primary)` matters: the current-page rule above sets accent
@@ -3990,15 +3993,21 @@
   --glass-line: rgba(180, 140, 100, 0.16);
 }
 
-/* ---- page sidebars (PageSidebarLayout) ---- */
+/* ---- page sidebars (PageSidebarLayout) ----
+   Solid white. It was translucent, so the backdrop's gradient showed
+   through and the column shaded down its own height; the warm tone it
+   used to carry now marks the current category instead. No blur, since
+   nothing shows through an opaque panel. */
 .mcm-page .mcm-sidepanel {
-  background: var(--glass-chrome);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: #ffffff;
 }
 .mcm-page .mcm-sidepanel,
 .mcm-page .mcm-sidepanel > div > div {
-  border-color: var(--glass-hairline);
+  border-color: var(--mcm-line);
+}
+
+.dark .mcm-page .mcm-sidepanel {
+  background: var(--surface-solid);
 }
 
 /* ---- table shells (TableManager, used by most list screens) ---- */
@@ -4135,4 +4144,532 @@
 .dark .mcm-page .mcm-tab.is-on {
   background: rgba(255, 255, 255, 0.12);
   color: var(--accent-ink);
+}
+
+/* ==================================================================
+   Page bar under the app navbar.
+
+   A plain rule, no tint: the bar keeps its white surface and is closed off
+   by a grey divider, the same `--line` the tables and panels use. The one
+   it had was Tailwind's `border-gray-200` at 0.67px, which renders as a
+   sub-pixel smear rather than a line — this makes it a full pixel in the
+   design system's own colour so it actually reads as a boundary.
+   ================================================================== */
+/* Solid, not translucent. The bar was white at 0.6 alpha, so the page's
+   warm gradient showed straight through it and the band shaded left to
+   right — it read as a gradient strip rather than a surface. Opaque white
+   matches the table card below it, and the grey rules above and below now
+   do the separating. */
+/* A step darker than the navbar above, in the page's own warm family
+   rather than another shade of white — white on white was what made the
+   two bands merge. Still solid, so the tone holds steady across the
+   backdrop's gradient instead of shading left to right. */
+.mcm-page .mcm-topbar > * {
+  background-color: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
+  border-bottom: 1px solid rgba(176, 122, 66, 0.24) !important;
+}
+
+.dark .mcm-page .mcm-topbar > * {
+  background-color: #141a24 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ==================================================================
+   Monitoring's call table.
+
+   The box keeps the shared glass surface — translucent, blurred, so the
+   page's backdrop reads through it. A solid white version was tried here
+   and painted over that backdrop, which is the one thing this panel
+   should not do.
+
+   What stays scoped to `.mcm-monitoring` is the sticky header band and
+   the per-row state edges below, not the surface itself. `.table-scroll`
+   is the same element on roughly 79 screens.
+   ================================================================== */
+
+/* The header is a band in the page's warm family, not a translucent strip
+   the rows show through. Still opaque, since it is sticky and rows scroll
+   beneath it. */
+.mcm-monitoring .table-scroll table thead th {
+  background: color-mix(in srgb, var(--primary) 9%, #fff9f4) !important;
+  border-bottom: 1px solid rgba(176, 122, 66, 0.26) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .mcm-monitoring .table-scroll {
+  background: var(--surface-solid) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.dark .mcm-monitoring .table-scroll table thead th {
+  background: #1b2333 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ---- call rows carry their state ----
+   A coloured edge down the left of each row, so the wall is readable as a
+   column of state rather than by scanning the Status cell on every line.
+   The critical rows also take a wash, because a queue in trouble should be
+   visible from across a room. */
+.mcm-monitoring tr.mcm-callrow td:first-child {
+  box-shadow: inset 4px 0 0 var(--line);
+}
+.mcm-monitoring tr.mcm-callrow.is-connected td:first-child {
+  box-shadow: inset 4px 0 0 var(--live);
+}
+.mcm-monitoring tr.mcm-callrow.is-ringing td:first-child {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.mcm-monitoring tr.mcm-callrow.is-hold td:first-child {
+  box-shadow: inset 4px 0 0 var(--hold);
+}
+.mcm-monitoring tr.mcm-callrow.is-waiting td:first-child {
+  box-shadow: inset 4px 0 0 var(--warn);
+}
+.mcm-monitoring tr.mcm-callrow.is-critical td:first-child {
+  box-shadow: inset 4px 0 0 var(--crit);
+}
+
+.mcm-monitoring tr.mcm-callrow.is-critical {
+  background: var(--crit-wash) !important;
+}
+
+.mcm-monitoring tr.mcm-callrow:hover {
+  background: var(--surface-2) !important;
+}
+
+/* The row-card experiment that used to live here has been removed. It
+   styled `.table-scroll` rows as separated cards, and All Calls no
+   longer uses that table at all. One of its rules forced the header
+   cells transparent with `!important`, which beat the real header band
+   below and let rows scroll straight through the sticky header. */
+
+/* ==================================================================
+   Live Call Console (LiveCallList).
+
+   A counts strip over a monitoring panel. Everything here is derived from
+   the same live-calls feed as the rows, so the strip cannot disagree with
+   the list beneath it.
+
+   No trend sparklines: they need call history this page does not receive.
+   The quality column and its stat card are present but explicitly empty
+   for the same reason — see the component's header comment.
+   ================================================================== */
+/* The whole console scrolls, not just the list inside it. With the scroll
+   on the panel the counts strip stayed pinned while only the rows moved;
+   scrolling out here carries the strip up with them and leaves the table's
+   sticky header as the one thing that holds. */
+.mcm-console {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+/* ---- counts strip ---- */
+.mcm-console-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.mcm-stat {
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  /* The tone shows as a bar down the leading edge rather than a coloured
+     icon tile, so four cards side by side stay quiet. */
+  box-shadow:
+    inset 4px 0 0 var(--stat-tone, var(--line)),
+    var(--shadow-sm);
+}
+
+.mcm-stat.is-live {
+  --stat-tone: var(--live);
+}
+.mcm-stat.is-warn {
+  --stat-tone: var(--warn);
+}
+.mcm-stat.is-hold {
+  --stat-tone: var(--hold);
+}
+.mcm-stat.is-muted {
+  --stat-tone: var(--line);
+}
+
+.mcm-stat-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.mcm-stat-value {
+  margin: 4px 0 2px;
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.mcm-stat-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* A card with nothing behind it says so plainly instead of dressing up. */
+.mcm-stat.is-unavailable .mcm-stat-value {
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.mcm-stat.is-unavailable .mcm-stat-note {
+  font-style: italic;
+}
+
+/* ---- the panel ---- */
+/* `visible`, so the panel does not become its own scroll container — that
+   would capture the sticky header and pin the counts strip above it. */
+/* The panel needs an edge of its own, not a tone that happens to differ
+   from the page. Its header band and the warm backdrop sit at almost the
+   same value, so with only a cool 1px hairline and a barely-there shadow
+   the top of the table read as more page rather than as the start of a
+   panel.
+
+   Solved with the border and shadow rather than by recolouring the
+   header: the backdrop is a gradient, so any single header tone would
+   coincide with it somewhere on the page, and lightening it toward white
+   would stop it separating from the white rows underneath. An edge holds
+   whatever is behind it. */
+.mcm-console-panel {
+  background: #ffffff;
+  border: 1px solid rgba(176, 122, 66, 0.28);
+  border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(120, 80, 40, 0.06),
+    0 6px 20px rgba(120, 80, 40, 0.1);
+  overflow: visible;
+  flex: none;
+}
+
+.dark .mcm-console-panel {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* The strip scrolls away with everything else. */
+.mcm-console-stats {
+  flex: none;
+}
+
+.mcm-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+}
+
+.mcm-console-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The live marker: this panel updates itself. */
+.mcm-console-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--live);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--live) 18%, transparent);
+}
+
+.mcm-console-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.mcm-console-subtitle {
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mcm-console-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mcm-console-select {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.mcm-console-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #ffffff;
+}
+.mcm-console-search input {
+  width: 170px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* ---- the calls ---- */
+.mcm-console-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.mcm-console-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 11px 14px;
+  /* White. The band was previously the deployed build's warm
+     rgb(251, 243, 232); the rule underneath now carries the separation
+     from the rows instead of a fill.
+
+     Still fully opaque — the glass tokens are translucent, and rows
+     scrolling under a see-through header is what a sticky header exists
+     to prevent. */
+  background: #ffffff !important;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(107, 120, 145);
+  white-space: nowrap;
+}
+
+/* Scoped through `.mcm-console` to outrank `.mcm-admin table thead th`,
+   which is one type-selector more specific than this rule on its own and
+   was keeping the divider on the old cool --line. The colour is the
+   deployed build's own rule under its header. */
+.mcm-console .mcm-console-table thead th {
+  border-bottom: 1px solid rgb(238, 231, 221);
+  /* The label colour needs the same scoping. Set on the rule above it was
+     losing to `.mcm-admin table thead th`, which resolves `--ink-3` — and
+     that token was darkened locally for contrast, so the header came out
+     rgb(90, 102, 126) instead of the deployed rgb(107, 120, 145). */
+  color: rgb(107, 120, 145);
+}
+
+/* The band keeps its colour and gets closed off at each end instead — a
+   hard edge on the outer edges only, so the row reads as a bounded strip
+   rather than a fill that runs out of the panel. Nothing between the
+   columns: an edge on every cell would rebuild the spreadsheet grid. */
+/* No end marks on the header. The rule underneath it is what separates
+   the band from the rows. */
+
+.mcm-console-table th.is-right,
+.mcm-console-table td.is-right {
+  text-align: right;
+}
+
+.mcm-console-table tbody td {
+  height: 72px;
+  padding: 10px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The call's state, down the leading edge of its row. */
+.mcm-console-table tbody td:first-child {
+  box-shadow: inset 4px 0 0 var(--row-edge, var(--line));
+}
+
+.mcm-console-table tbody tr {
+  transition: background 0.14s ease;
+}
+.mcm-console-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.mcm-console-table tbody tr.is-critical {
+  background: color-mix(in srgb, var(--crit-wash) 55%, #ffffff);
+}
+
+/* ---- cells ---- */
+.mcm-console-caller {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.mcm-console-caller-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mcm-console-caller-number {
+  margin: 1px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mcm-console-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mcm-console-chip.is-connected {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.mcm-console-chip.is-ringing {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console-chip.is-hold {
+  background: var(--hold-wash);
+  color: var(--hold);
+}
+.mcm-console-chip.is-waiting {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+.mcm-console-chip.is-critical {
+  background: var(--crit-wash);
+  color: var(--crit);
+}
+
+.mcm-console-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+}
+
+.mcm-console-timer {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ---- the path a call took ---- */
+.mcm-console-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mcm-console-hop {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-2-solid);
+  border: 1px solid var(--line-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.mcm-console-hop.is-end {
+  background: var(--live-wash);
+  border-color: transparent;
+  color: var(--live);
+}
+/* No agent yet: the last hop is an outline waiting to be filled. */
+.mcm-console-hop.is-pending {
+  background: transparent;
+  border-style: dashed;
+  color: var(--ink-4);
+}
+.mcm-console-arrow {
+  font-size: 12px;
+  color: var(--ink-4);
+}
+
+.mcm-console-agent {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Empty on purpose — there is no quality figure in the feed. */
+.mcm-console-quality {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-4);
+  cursor: help;
+}
+
+/* ---- nothing to show ---- */
+.mcm-console-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 48px 20px;
+  text-align: center;
+}
+.mcm-console-empty-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.mcm-console-empty-note {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-4);
+}
+
+.dark .mcm-stat,
+.dark .mcm-console-panel,
+.dark .mcm-console-select,
+.dark .mcm-console-search {
+  background: var(--surface-solid);
+  border-color: rgba(255, 255, 255, 0.1);
 }

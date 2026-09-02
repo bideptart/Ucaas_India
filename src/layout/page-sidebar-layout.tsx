@@ -10,6 +10,7 @@ const PageSidebarLayout = ({
   isTab = true,
   headerCustomClass = '',
   fullHeightOnMobile = false,
+  collapsible = true,
 }: {
   title?: string;
   headerCustomClass?: string;
@@ -18,8 +19,15 @@ const PageSidebarLayout = ({
   action?: any;
   isTab?: boolean;
   fullHeightOnMobile?: boolean;
+  /** Whether the panel offers its collapse toggle. Sections whose sidebar
+      is the only way to move between their screens pass `false`. */
+  collapsible?: boolean;
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  /* A panel that cannot be collapsed can never be in the collapsed state,
+     whatever the stored value says — so the rest of the component reads
+     this rather than the raw flag. */
+  const collapsed = collapsible && isCollapsed;
   const [hovered, setHovered] = useState(false);
   const isAdminResponsiveTopbar = !isTab && title === 'Admin Hub';
   const isCampaignResponsiveTopbar = !isTab && title === 'Campaign';
@@ -75,24 +83,26 @@ const PageSidebarLayout = ({
                   : 'md:min-w-[16rem] md:max-w-[16rem] w-full xs:max-h-32 md:max-h-full',
       )}
     >
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className={cn(
-          'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
-          isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
-          collapsed || hovered
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none',
-          hovered ? 'bg-primary text-white' : 'bg-white text-gray-600',
-        )}
-      >
-        <ChevronIcon
+      {collapsible && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            'w-5 h-5 transition-transform duration-200',
-            collapsed ? '-rotate-90' : 'rotate-90',
+            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
+            isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
+            collapsed || hovered
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none',
+            hovered ? 'bg-primary text-white' : 'bg-white text-gray-600',
           )}
-        />
-      </button>
+        >
+          <ChevronIcon
+            className={cn(
+              'w-5 h-5 transition-transform duration-200',
+              collapsed ? '-rotate-90' : 'rotate-90',
+            )}
+          />
+        </button>
+      )}
 
       <div className={cn('flex flex-col', fullHeightOnMobile ? 'h-full' : 'h-auto sm:h-full')}>
         {(title || action) && (

@@ -974,6 +974,19 @@
     color: var(--mcm-ink-4) !important;
   }
 
+  /* Same story for the pagination arrows. On a single page all four are
+     disabled, and the form-control rule filled each with a grey pill —
+     four grey blobs around one orange page number. They should read as
+     dimmed, not as filled controls. Inside the layer for the same reason
+     as the rule above. */
+  .mcm-pager-btn:disabled {
+    background-color: transparent !important;
+    border: 0 !important;
+    color: var(--mcm-ink-4) !important;
+    opacity: 0.4 !important;
+    cursor: default !important;
+  }
+
   input[type='radio']:disabled,
   input[type='checkbox']:disabled {
     opacity: 0 !important;
@@ -2069,18 +2082,32 @@
    legend — events #00a9ff, tasks #34C38F — so the two views agree on what a
    colour means. The row keeps its height when empty so the weeks stay on a
    even rhythm. */
+/* One size for every dot, and a gap derived from it rather than set on its
+   own — so the row keeps the same proportion whatever `--cal-dot` becomes,
+   instead of the spacing having to be re-guessed each time the size moves.
+   At 5px the gap lands on 3px, and three dots span 21px inside a 28px
+   cell. */
+.mcm-calpanel {
+  --cal-dot: 5px;
+  --cal-dot-gap: calc(var(--cal-dot) * 0.6);
+}
+
 .mcm-calpanel .mcm-cal-dots {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  height: 4px;
+  gap: var(--cal-dot-gap);
+  height: var(--cal-dot);
 }
 
 .mcm-calpanel .mcm-cal-dot {
   display: block;
-  width: 4px;
-  height: 4px;
+  /* Fixed on both axes and `flex: none`: in a flex row a dot would
+     otherwise shrink when three of them crowd a narrow cell, and the set
+     would stop being uniform exactly when it matters most. */
+  flex: none;
+  width: var(--cal-dot);
+  height: var(--cal-dot);
   border-radius: 999px;
 }
 .mcm-calpanel .mcm-cal-dot.is-event {
@@ -2088,4 +2115,142 @@
 }
 .mcm-calpanel .mcm-cal-dot.is-task {
   background: #34c38f;
+}
+
+/* ==================================================================
+   Table pagination.
+
+   One segmented control rather than six loose targets: the arrows and the
+   page numbers share a bordered group, all at the same size and radius,
+   with only the current page carrying colour.
+
+   The `!important`s are doing real work. These arrows are `Button`
+   components whose own variant classes set a grey fill and a 12px radius,
+   which beat plain selectors here — the result was pill-shaped grey
+   arrows sitting next to a 7px orange square, which is what made the
+   group look mismatched.
+
+   Global on purpose: TableManager renders on ~79 screens and they should
+   all page the same way.
+   ================================================================== */
+.mcm-pager {
+  gap: 2px !important;
+  padding: 4px;
+  border: 1px solid var(--mcm-line);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(13, 21, 38, 0.04);
+}
+
+.mcm-pager-btn,
+.mcm-pager-page {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: var(--mcm-ink-3) !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+/* Only live controls answer the pointer. */
+.mcm-pager-btn:not(:disabled):hover,
+.mcm-pager-page:not(.is-current):hover {
+  background: var(--mcm-surface-2) !important;
+  color: var(--mcm-ink) !important;
+}
+
+/* Nowhere to go: present but plainly inert, so the control still reads as
+   a complete set rather than losing buttons at the edges. */
+
+
+/* The page you are on — the one piece of colour in the group. */
+.mcm-pager-page.is-current {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--primary) 45%, transparent) !important;
+}
+
+.dark .mcm-pager {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.dark .mcm-pager-btn:not(:disabled):hover,
+.dark .mcm-pager-page:not(.is-current):hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ==================================================================
+   Glass form dialog.
+
+   A frosted panel rather than a white sheet: the page's warm backdrop
+   carries through it, and the fields inside sit on their own faint tint
+   so they still read as inputs against a translucent ground.
+
+   Not scoped under `.mcm-page` — Radix portals its dialogs to the end of
+   `body`, outside the page wrapper, so a `.mcm-page` selector would never
+   match. That is why the earlier `[role='dialog']` glass rule scoped that
+   way did nothing here.
+   ================================================================== */
+.mcm-glassform {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 24px 60px rgba(13, 21, 38, 0.18),
+    0 2px 8px rgba(13, 21, 38, 0.06) !important;
+}
+
+/* Inputs need to stay legible on a translucent panel, so they carry a
+   little more white than the ground they sit on rather than less.
+
+   Fields only. This used to include
+   `[class*='rounded'][class*='border']`, which is true of the primary
+   button and the selected duration chip as well — both are rounded and
+   bordered — so it painted them white while their text stayed white, and
+   "Schedule Meeting" became an invisible label on an empty-looking
+   button. A form's controls must never be caught by its field styling. */
+.mcm-glassform input:not([type='checkbox']):not([type='radio']),
+.mcm-glassform textarea,
+.mcm-glassform select {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+/* The banded rows — timezone strip, date and time fields — were solid
+   grey blocks, which read as opaque patches on the frosted panel. */
+.mcm-glassform .bg-gray-50,
+.mcm-glassform .bg-gray-100,
+.mcm-glassform .bg-slate-50,
+.mcm-glassform .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.dark .mcm-glassform {
+  background: rgba(20, 26, 36, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.dark .mcm-glassform input,
+.dark .mcm-glassform textarea,
+.dark .mcm-glassform select {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Meeting, the third calendar category — violet, matching colour id 4 in
+   the calendar's `findColors` and the dot on its month previews. */
+.mcm-calpanel .mcm-cal-dot.is-meeting {
+  background: #a78bfa;
 }

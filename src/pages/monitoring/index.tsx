@@ -23,8 +23,11 @@ import '@/components/mcm/mcm-page.css';
 const Monitoring = () => {
   const [topbar, setTopbar] = useState<HTMLDivElement | null>(null);
 
+  /* `mcm-monitoring` scopes this section's table treatment. TableManager
+     renders on ~79 screens, so restyling `.table-scroll` unscoped would
+     change all of them. */
   return (
-    <div className="mcm-page mcm-admin">
+    <div className="mcm-page mcm-admin mcm-monitoring">
       <div className="flex h-full min-h-0 w-full flex-col">
         <div ref={setTopbar} className="mcm-topbar" />
         <div className="sm:flex flex-col md:flex-row xs:gap-1 md:gap-0 w-full flex-1 min-h-0">
@@ -33,7 +36,10 @@ const Monitoring = () => {
               itself and spent a 62px band to do it. PageSidebarLayout skips
               its header block when there is no title, so the category list
               starts at the top of the column. */}
-          <PageSidebarLayout content={<Sidebar />} isTab={false} />
+          {/* Not collapsible: this list is the only way to move between the
+              Monitoring screens, so hiding it strands you on whichever one
+              you are looking at. */}
+          <PageSidebarLayout content={<Sidebar />} isTab={false} collapsible={false} />
           <MonitoringTopbarProvider value={topbar}>
             <SuspenseOutlet />
           </MonitoringTopbarProvider>

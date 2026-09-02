@@ -709,3 +709,223 @@ input::-moz-focus-inner {
   line-height: 24px !important;
   font-size: 12.5px !important;
 }
+
+/* ---- day head: date number + busy pill ----
+   The cell's space below the number now carries a count instead of a stack
+   of clipped titles. */
+.mcm-calshell .mcm-dayhead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.mcm-calshell .mcm-daypill {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mcm-calshell .mcm-daypill.is-event {
+  background: rgba(0, 169, 255, 0.12);
+  color: #0b6ea8;
+}
+
+.mcm-calshell .mcm-daypill.is-task {
+  background: rgba(52, 195, 143, 0.14);
+  color: #1d7a58;
+}
+
+/* ==================================================================
+   Month cell previews.
+
+   One entry per day, shown as a dot, its title and the time beneath —
+   rather than the coloured bar the library draws by default. The bars
+   were hidden here while the cells carried a count pill instead; they are
+   back now, restyled as plain text so a cell reads as a small list.
+   ================================================================== */
+.mcm-calshell .tui-full-calendar-month .tui-full-calendar-weekday-schedule {
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 0 !important;
+  margin: 0 !important;
+  /* Clears the cell's left rule, so the dot has air on both sides rather
+     than sitting against the grid line. */
+  padding: 0 6px 0 8px !important;
+  height: auto !important;
+  line-height: 1.25 !important;
+  color: var(--mcm-ink-2) !important;
+}
+
+/* The library draws its own bullet as well as the one in the template, and
+   the two stacked read as a single stretched capsule rather than a dot.
+   Ours carries the category colour by class, so the library's inline-styled
+   one is the redundant half. */
+.mcm-calshell .tui-full-calendar-weekday-schedule-bullet {
+  display: none !important;
+}
+
+/* Centred in the space under the date rather than tucked directly beneath
+   it. The number ends 34px into a 95px cell, leaving 61px; a 30px preview
+   centres in that at 50px, and the block's own inline `top` is 34px — so
+   16px of margin puts it there. Tied to the month view's uniform cell
+   height, which `visibleWeeksCount: 6` keeps constant. */
+.mcm-calshell .tui-full-calendar-month .tui-full-calendar-weekday-schedule-block {
+  margin-top: 16px !important;
+}
+
+/* The library sets the bar's own colour inline; the text below takes the
+   category colour from the dot instead. */
+.mcm-calshell .tui-full-calendar-weekday-schedule-title {
+  padding: 0 !important;
+  color: var(--mcm-ink-2) !important;
+}
+
+.mcm-calshell .mcm-evt {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.25;
+  overflow: hidden;
+}
+
+.mcm-calshell .mcm-evt-line {
+  display: flex;
+  align-items: center;
+  /* Room on both sides of the dot rather than it sitting against the
+     title. */
+  gap: 8px;
+  padding-left: 2px;
+  min-width: 0;
+}
+
+/* One colour per category, matching the ids in `findColors`:
+   event blue (2), task green (3), meeting violet (4). The same three are
+   used by the legend and the mini calendar's dots, so a colour means the
+   same thing everywhere on the page. */
+/* `align-self: center` with a fixed box: as a flex child the dot was being
+   stretched to the line's height and rendering as a capsule rather than a
+   circle. */
+.mcm-calshell .mcm-evt-dot {
+  flex: 0 0 6px;
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  min-height: 6px;
+  border-radius: 999px;
+  background: #00a9ff;
+}
+.mcm-calshell .mcm-evt.is-task .mcm-evt-dot {
+  background: #34c38f;
+}
+.mcm-calshell .mcm-evt.is-meeting .mcm-evt-dot {
+  background: #a78bfa;
+}
+
+/* Lighter than the 600 it started on — at preview size the bolder weight
+   made a cell of entries read heavier than the dates above them. */
+.mcm-calshell .mcm-evt-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mcm-ink-2);
+}
+
+/* The time sits under the title, indented to line up with it rather than
+   with the dot. Indent tracks the dot (6px) plus the gap (8px). */
+.mcm-calshell .mcm-evt-time {
+  padding-left: 16px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--mcm-ink-4);
+}
+
+/* "N more" when a day holds more than the one preview. */
+.mcm-calshell .tui-full-calendar-weekday-exceed-in-week {
+  font-size: 11px !important;
+  color: var(--mcm-ink-3) !important;
+}
+
+/* ==================================================================
+   View switch.
+
+   Day / Week / Month as three buttons in one segmented control, replacing
+   the dropdown that hid two of the three options behind a click. The
+   current view is the filled segment, so what you are looking at is
+   readable without opening anything.
+   ================================================================== */
+.mcm-calbar .mcm-viewswitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--mcm-line);
+  border-radius: 10px;
+  background: var(--mcm-surface-2);
+}
+
+.mcm-calbar .mcm-viewswitch-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mcm-ink-3);
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.mcm-calbar .mcm-viewswitch-btn:hover {
+  color: var(--mcm-ink);
+}
+
+/* The segment you are on: a raised white tile, the way a segmented
+   control shows its selection. */
+.mcm-calbar .mcm-viewswitch-btn.is-on {
+  background: #ffffff;
+  color: color-mix(in srgb, var(--primary) 78%, #2b1a08);
+  box-shadow: 0 1px 2px rgba(13, 21, 38, 0.08);
+}
+
+/* ---- weekends ----
+   A setting rather than a view, so it reads as a toggle rather than a
+   fourth segment of the switch beside it. */
+.mcm-calbar .mcm-weekendtoggle {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--mcm-line);
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mcm-ink-3);
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
+}
+
+.mcm-calbar .mcm-weekendtoggle:hover {
+  color: var(--mcm-ink);
+}
+
+.mcm-calbar .mcm-weekendtoggle.is-on {
+  background: color-mix(in srgb, var(--primary) 12%, #ffffff);
+  border-color: color-mix(in srgb, var(--primary) 38%, #ffffff);
+  color: color-mix(in srgb, var(--primary) 78%, #2b1a08);
+}

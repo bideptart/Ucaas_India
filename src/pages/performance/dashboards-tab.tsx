@@ -1,6 +1,5 @@
 import { useContext, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Bot, Headset, Megaphone, PhoneCall, Timer as TimerIcon, Users } from 'lucide-react';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { SocketEvents } from '@/context/socket-events-context';
 import { useUser } from '@/hooks/use-user';
@@ -9,40 +8,9 @@ import { callQueueList, campaignList } from '@/services/api';
 import { useAnimatedNumber } from './use-animated-number';
 import { useCallStats } from '@/hooks/use-call-stats';
 import { formatSecsToClock } from './format';
+import KpiStrip from './kpi-strip';
 
 const TODAY_RANGE = handleDate('Today');
-
-const StatCard = ({
-  index,
-  label,
-  value,
-  sub,
-  Icon,
-}: {
-  index: number;
-  label: string;
-  value: string;
-  sub?: string;
-  Icon: any;
-}) => (
-  <div className="animate-dashboard-card-in stat" style={{ animationDelay: `${index * 70}ms` }}>
-    <div className="flex items-start justify-between gap-2">
-      <span className="k">{label}</span>
-      <span
-        className="flex h-6 w-6 items-center justify-center rounded-full"
-        style={{ background: 'var(--accent-wash)', color: 'var(--accent-ink)' }}
-      >
-        <Icon className="h-3.5 w-3.5" />
-      </span>
-    </div>
-    <div className="v num">{value}</div>
-    {sub && (
-      <div className="d" style={{ color: 'var(--ink-3)', fontWeight: 500 }}>
-        {sub}
-      </div>
-    )}
-  </div>
-);
 
 const DashboardsTab = () => {
   const { usersOnlineStatus } = useSocketEvents();
@@ -99,57 +67,81 @@ const DashboardsTab = () => {
   return (
     <div className="w-full px-[22px] py-4">
       <style>{`
-        @keyframes dashboard-card-in {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
+        .mcm-page .kpi-strip {
+          display:flex; align-items:stretch;
+          background:var(--surface); border-radius:16px; overflow:hidden;
+          border:1px solid var(--line);
+          box-shadow: 0 1px 2px rgba(46,45,53,0.05);
+          margin-bottom: 4px;
         }
-        .animate-dashboard-card-in {
-          animation: dashboard-card-in 0.4s ease-out both;
+        .mcm-page .kpi-strip-cell {
+          flex:1; min-width:0; padding:14px 16px;
+          display:flex; flex-direction:column; gap:4px;
+          border-left:1px solid var(--line);
+        }
+        .mcm-page .kpi-strip-cell:first-child { border-left:none; }
+        .mcm-page .kpi-strip-cell-breach { background:var(--crit-wash); }
+        .mcm-page .kpi-strip-label {
+          font-size:10.5px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
+          color:var(--ink-3, #9A948F); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .mcm-page .kpi-strip-value {
+          font-size:26px; font-weight:800; letter-spacing:-0.02em; line-height:1.15;
+          color:var(--ink, #2E2D35); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .mcm-page .kpi-strip-value-success { color:var(--live); }
+        .mcm-page .kpi-strip-value-danger { color:var(--crit); }
+        .mcm-page .kpi-strip-sub {
+          font-size:11.5px; color:var(--ink-3, #9A948F);
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        @media (max-width: 1180px) {
+          .mcm-page .kpi-strip { flex-wrap:wrap; }
+          .mcm-page .kpi-strip-cell { flex:1 1 33.33%; min-width:150px; border-bottom:1px solid var(--line); }
+        }
+        @media (max-width: 620px) {
+          .mcm-page .kpi-strip-cell { flex:1 1 50%; }
         }
       `}</style>
       <p className="page-note" style={{ marginBottom: 12 }}>
         A quick-glance overview across queues, campaigns and agents.
       </p>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-        <StatCard
-          index={0}
-          label="Active Queues"
-          value={String(Math.round(queuesAnimated))}
-          Icon={Headset}
-        />
-        <StatCard
-          index={1}
-          label="Active Campaigns"
-          value={String(Math.round(campaignsAnimated))}
-          sub={`of ${campaigns.length} total`}
-          Icon={Megaphone}
-        />
-        <StatCard
-          index={2}
-          label="Agents Online"
-          value={String(Math.round(agentsAnimated))}
-          Icon={Users}
-        />
-        <StatCard
-          index={3}
-          label="Answered Today"
-          value={String(Math.round(answeredAnimated))}
-          Icon={PhoneCall}
-        />
-        <StatCard
-          index={4}
-          label="Avg Handle Time"
-          value={callStats.avgHandleSec === null ? '—' : formatSecsToClock(ahtAnimated)}
-          Icon={TimerIcon}
-        />
-        <StatCard
-          index={5}
-          label="AI Containment"
-          value={typeof aiContainment === 'number' ? `${Math.round(aiContainment)}%` : '—'}
-          sub="resolved without a human"
-          Icon={Bot}
-        />
-      </div>
+      <KpiStrip
+        items={[
+          {
+            key: 'active-queues',
+            label: 'Active Queues',
+            value: Math.round(queuesAnimated),
+          },
+          {
+            key: 'active-campaigns',
+            label: 'Active Campaigns',
+            value: Math.round(campaignsAnimated),
+            sub: `of ${campaigns.length} total`,
+          },
+          {
+            key: 'agents-online',
+            label: 'Agents Online',
+            value: Math.round(agentsAnimated),
+          },
+          {
+            key: 'answered-today',
+            label: 'Answered Today',
+            value: Math.round(answeredAnimated),
+          },
+          {
+            key: 'avg-handle-time',
+            label: 'Avg Handle Time',
+            value: callStats.avgHandleSec === null ? '—' : formatSecsToClock(ahtAnimated),
+          },
+          {
+            key: 'ai-containment',
+            label: 'AI Containment',
+            value: typeof aiContainment === 'number' ? `${Math.round(aiContainment)}%` : '—',
+            sub: 'resolved without a human',
+          },
+        ]}
+      />
     </div>
   );
 };

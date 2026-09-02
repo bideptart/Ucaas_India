@@ -408,6 +408,23 @@
     overflow: hidden !important;
   }
 
+  /* Toolbar icon buttons (refresh/export/filter) declare their own
+     `bg-white` utility, but the app-wide `.mcm-page button:not(...)` reset
+     strips background/border/color off every plain button and wins on
+     specificity — leaving them see-through next to the white-card preset
+     dropdown. Restore the white card look here. */
+  .mcm-page .filters button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: #ffffff !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+  }
+  .mcm-page
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+  }
+
   .custom-react-select__control:hover {
     border-color: var(--primary) !important;
   }

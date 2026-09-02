@@ -1256,7 +1256,15 @@ export const demoCampaignRows = () => {
 
 const OFFLINE_EXTENSIONS = ['1003'];
 const DND_EXTENSIONS = ['1002'];
-const ON_CALL_EXTENSIONS = ['1004', '1006', '1007'];
+/* Every online, queue-carrying agent gets a live call so Performance ▸
+   Agents' Queue/Campaign and Caller ID columns read as real activity
+   instead of "--" for anyone not one of the original three. Arjun Mehta
+   (1001) is left out on purpose - he's ADMIN and a member of no queue (see
+   DEMO_QUEUES), so "covers 0 queues" elsewhere on his own row would
+   contradict a fabricated live call here. Offline/DND agents are excluded
+   for the same reason: those states exist to demo not being reachable, and
+   giving them a call anyway would undercut that. */
+const ON_CALL_EXTENSIONS = ['1004', '1005', '1006', '1007', '1008'];
 
 export const demoUsersOnlineStatus = () =>
   DEMO_AGENTS.map((row) => ({
@@ -1268,7 +1276,8 @@ export const demoUsersOnlineStatus = () =>
     onCall: ON_CALL_EXTENSIONS.includes(row.extension),
   }));
 
-/** In-progress calls: three agents talking, two callers still waiting. */
+/** In-progress calls: every online, queue-carrying agent is talking to
+ *  someone, plus two callers still waiting. */
 export const demoLiveCalls = () => {
   const now = Date.now();
   /* The monitoring helpers read epoch seconds as readily as milliseconds. */
@@ -1278,6 +1287,8 @@ export const demoLiveCalls = () => {
     { extension: '1004', queue: 'demo-queue-support', since: 214, caller: fakeCaller(101) },
     { extension: '1006', queue: 'demo-queue-sales', since: 96, caller: fakeCaller(102) },
     { extension: '1007', queue: 'demo-queue-billing', since: 431, caller: fakeCaller(103) },
+    { extension: '1005', queue: 'demo-queue-onboarding', since: 152, caller: fakeCaller(106) },
+    { extension: '1008', queue: 'demo-queue-retention', since: 68, caller: fakeCaller(107) },
   ];
 
   const waiting = [

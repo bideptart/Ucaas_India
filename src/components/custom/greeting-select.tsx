@@ -7,8 +7,8 @@ import { CloseIcon, Play, UploadLineIcon } from '@/assets/icons';
 import { DEFAULT_RECORDING_UUIDS, getEnv, MEDIA_URL } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import ErrorTooltip from './error-tooltip';
-import SideDrawer from './side-drawer';
 import ReadyAudio from './ready-audio';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 
 interface IGREETINGPROPS {
   options: ISELECTVALUE[];
@@ -41,7 +41,6 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
   audioCustomClass = '',
   selectCustomClass = '',
   selectCustomClassSecond = '',
-  width = '',
   isRefetchable = true,
   refetch = () => {},
   onGreetingUploadStart = () => {},
@@ -121,31 +120,28 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
         </div>
       )}
 
-      {drawerState?.addGreeting && (
-        <SideDrawer
-          width={width}
-          isOpen={drawerState?.addGreeting}
-          title="Upload File"
-          handleClose={() =>
-            setDrawerState((prev) => ({ ...prev, addGreeting: false, greetingType: '' }))
-          }
-          isHeader
-          content={
-            <AddGreeting
-              drawerState={drawerState?.addGreeting}
-              setDrawerState={(val) =>
-                setDrawerState((prev) => ({ ...prev, addGreeting: val, greetingType: '' }))
-              }
-              greetingType={name}
-              refetch={() => {
-                refetch();
-                onGreetingUploadSuccess();
-              }}
-              isRefetchable={isRefetchable}
-            />
-          }
-        />
-      )}
+      <Dialog
+        open={Boolean(drawerState?.addGreeting)}
+        onOpenChange={(next) =>
+          !next && setDrawerState((prev) => ({ ...prev, addGreeting: false, greetingType: '' }))
+        }
+      >
+        <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
+          <DialogTitle>Upload File</DialogTitle>
+          <AddGreeting
+            drawerState={drawerState?.addGreeting}
+            setDrawerState={(val) =>
+              setDrawerState((prev) => ({ ...prev, addGreeting: val, greetingType: '' }))
+            }
+            greetingType={name}
+            refetch={() => {
+              refetch();
+              onGreetingUploadSuccess();
+            }}
+            isRefetchable={isRefetchable}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

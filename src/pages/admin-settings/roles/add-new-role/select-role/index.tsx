@@ -69,6 +69,7 @@ const SelectRole: FC<any> = ({
                   {...register(`name`)}
                   placeholder={'Enter Name'}
                   label="Enter Role Name"
+                  required
                   error={errors?.name?.message}
                   maxLength={ROLE_NAME_MAX_LENGTH}
                 />
@@ -80,7 +81,7 @@ const SelectRole: FC<any> = ({
               <div className="flex w-full gap-1 relative">
                 <div className="flex flex-col gap-1.5 w-full">
                   <div className="flex items-center justify-between">
-                    <Label>Description</Label>
+                    <Label required>Description</Label>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-medium text-[#9A948F]">
                         {descriptionLength}/{ROLE_DESCRIPTION_MAX_LENGTH}

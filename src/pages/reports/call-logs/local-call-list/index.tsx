@@ -11,7 +11,6 @@ import { CALL_DIRECTIONS, FORWARD_ICONS } from '@/pages/dashboard/constant';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import NumberWithFlag from '@/components/custom/number-with-flag';
 import AudioModal from '@/pages/phone/audio-dialog';
-import { Loader2 } from 'lucide-react';
 import { ACTIVITYLIST } from '@/components/activity-list/constants';
 
 import { handleStatus } from '../constant';
@@ -100,16 +99,13 @@ const LocalCallList = () => {
   const { users: extensionUsers = [] } = useUsersDirectory();
   const departmentList: any[] = [];
 
-  const handleRefetchTableData = async () => {
-    if (tableRef?.current) {
-      setIsLoading(true);
-      try {
-        await tableRef.current.refetchTable();
-        handleAlert({ text: 'Refreshed', type: 'success' });
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const handleRefetchTableData = () => {
+    if (!tableRef?.current) return;
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 450);
+    tableRef.current.refetchTable().then(() => {
+      handleAlert({ text: 'Refreshed', type: 'success' });
+    });
   };
 
   const columns = [
@@ -300,6 +296,10 @@ const LocalCallList = () => {
     {
       header: 'Charge',
       accessorKey: 'charge',
+      cell: ({ row }: any) => {
+        const value = Number(row?.original?.charge ?? 0);
+        return `$${value.toFixed(2)}`;
+      },
     },
     {
       header: 'Action',
@@ -381,11 +381,7 @@ const LocalCallList = () => {
         onClick={() => handleRefetchTableData()}
         className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
-        {isLoading ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <Icon name="Refresh" className="w-5 h-5" />
-        )}
+        <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
       </Button>
     </div>
   );

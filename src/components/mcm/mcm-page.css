@@ -475,6 +475,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .mcm-page .pc-head {
@@ -948,6 +949,9 @@
 .mcm-page tbody tr:last-child td {
   border-bottom: 0;
 }
+.mcm-page tbody tr {
+  transition: background-color 0.15s ease;
+}
 .mcm-page tbody tr:hover {
   background: var(--surface-2);
 }
@@ -964,6 +968,92 @@
 }
 .mcm-page tr.breach td {
   background: var(--crit-wash);
+}
+
+/* ---- row action icons (edit/delete circles in Admin tables) ----
+   These were instant-snap colour changes with no press feedback — the
+   hover class was already there, just nothing to animate into it. */
+.mcm-page .mcm-row-action {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+.mcm-page .mcm-row-action:active {
+  transform: scale(0.94);
+}
+
+/* ---- member avatar stack (queue/department "who's assigned" chips) ----
+   Flat overlapping circles with no life to them; a quiet lift on hover is
+   enough to say "this is the one you're pointing at" without touching
+   colour.
+
+   This is deliberately split into two elements: `.mcm-avatar-hit` (the
+   Radix tooltip trigger — the thing `CustomTooltip` actually wraps) never
+   animates at all, and `.mcm-avatar-chip` (a plain decorative child inside
+   it) carries every bit of the hover motion. Whatever changes size,
+   position or shadow on hover was, in every earlier version of this fix,
+   also the tooltip's own trigger element — so any animation on it,
+   including one that never changes the box's screen position (`scale()`
+   alone, which stays centred over a stationary cursor), still touches the
+   exact element Radix is tracking for open/close. Moving the animation to
+   an inner element the trigger doesn't otherwise depend on removes that
+   coupling entirely: the trigger's geometry is 100% static from the
+   moment the pointer arrives, so there is nothing left that could race
+   with, delay, or re-trigger the tooltip's own logic. */
+.mcm-page .mcm-avatar-hit {
+  position: relative;
+}
+.mcm-page .mcm-avatar-hit:hover {
+  z-index: 2;
+}
+/* Only `transform` and `opacity` are animated here, and nothing else —
+   those two are the only properties the compositor can animate without
+   going back to the main thread for layout or paint.
+
+   Two things that were in an earlier pass of this and are deliberately
+   gone now, because both were making the hover *cost* more, not less:
+   - `will-change: transform` on every chip. There are 13+ of these on a
+     page, and will-change permanently promotes each to its own GPU layer.
+     Handing the compositor a dozen standing layers to manage is the
+     documented way to make things slower, not faster; it is meant for an
+     element that is about to animate, not a whole list of them sitting
+     idle.
+   - a `box-shadow` transition. box-shadow is a paint property: animating
+     it repaints a blurred region every single frame for the whole
+     transition, on the main thread. The raised look is done with a
+     pseudo-element instead, which holds a *static* shadow and is faded in
+     with `opacity` — same visual, but composited and effectively free. */
+.mcm-page .mcm-avatar-chip {
+  position: relative;
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-page .mcm-avatar-chip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 6px 14px -4px rgba(13, 21, 38, 0.35);
+  opacity: 0;
+  transition: opacity 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.mcm-page .mcm-avatar-hit:hover .mcm-avatar-chip {
+  transform: scale(1.1);
+}
+.mcm-page .mcm-avatar-hit:hover .mcm-avatar-chip::after {
+  opacity: 1;
+}
+.mcm-page .mcm-avatar-more {
+  position: relative;
+  transition:
+    opacity 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-page .mcm-avatar-more:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
+  z-index: 2;
 }
 
 .mcm-page .state {

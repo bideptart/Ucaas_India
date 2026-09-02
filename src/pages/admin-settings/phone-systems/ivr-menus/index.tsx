@@ -13,7 +13,6 @@ import SideDrawer from '@/components/custom/side-drawer';
 import { IVR_PATH, IVR_DEFAULT_TAB } from './ivr-tabs';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { Icon, IconName } from '@/assets/icons/icon';
-// import Breadcrumb from '@/components/custom/breadcrumb';
 import useDebounce from '@/hooks/use-debounce';
 import { Input } from '@/components/ui/input';
 import { useCompanyFeatures } from '@/hooks/rbac';
@@ -23,7 +22,6 @@ interface IIVR {
   extension: string;
   site: string;
 }
-// const breadcrumbData = [{ label: 'Phone System' }, { label: 'IVR Menus' }];
 
 const IvrMenus: FC = () => {
   /* Which IVR is open, and which tab, both come from the URL so an IVR can be
@@ -76,13 +74,19 @@ const IvrMenus: FC = () => {
     {
       header: 'Site',
       accessorKey: 'site',
+      /* `site` arrives as a JSON string on some rows and as a plain name (or
+         nothing) on others. Parsing unconditionally threw on every row that
+         wasn't JSON, and the catch returned nothing at all — so the cell
+         rendered blank and logged an error per row, per render. */
       cell: ({ row }) => {
-        const data = row?.original;
+        const raw = row?.original?.site;
+        if (!raw) return '---';
+        if (typeof raw !== 'string') return (raw as any)?.label || '---';
+        if (!raw.trim().startsWith('{')) return raw;
         try {
-          const getSiteObj = JSON.parse(data?.site);
-          return getSiteObj?.label || '---';
-        } catch (error) {
-          console.error('ERROR ON SITE: ', error);
+          return JSON.parse(raw)?.label || '---';
+        } catch {
+          return raw;
         }
       },
     },
@@ -113,16 +117,17 @@ const IvrMenus: FC = () => {
         return (
           <div className="flex items-center gap-2">
             {actions?.map((action, index) => (
-              <CustomTooltip text={action.tooltipText} side="top">
-                <div
-                  key={index}
-                  className={`cursor-pointer flex items-center justify-center rounded-full w-8 h-8  ${action.className}`}
+              <CustomTooltip key={index} text={action.tooltipText} side="top">
+                <button
+                  type="button"
+                  aria-label={action.tooltipText}
+                  className={`mcm-row-action cursor-pointer flex items-center justify-center rounded-full w-8 h-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${action.className}`}
                   onClick={() => {
                     action.onClick();
                   }}
                 >
-                  <Icon name={action.icon as IconName} className="w-5 h-5" />
-                </div>
+                  <Icon name={action.icon as IconName} className="w-5 h-5" aria-hidden="true" />
+                </button>
               </CustomTooltip>
             ))}
           </div>
@@ -152,7 +157,11 @@ const IvrMenus: FC = () => {
         filters={
           <Input
             type="search"
-            placeholder="Search IVR menus"
+            name="ivr-search"
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Search IVR menus"
+            placeholder="Search IVR menus…"
             onChange={(e) => setSearchedText(e.target.value)}
             className="w-full min-h-9 rounded-lg"
           />

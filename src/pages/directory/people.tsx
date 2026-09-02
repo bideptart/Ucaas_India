@@ -430,7 +430,7 @@ const People = () => {
                         aria-pressed={isFavourite('person', row.uuid)}
                         onClick={() => toggleFavourite('person', row.uuid)}
                       >
-                        <Ic n="star" size={12} fill={isFavourite('person', row.uuid)} />
+                        <Ic n="star" size={16} fill={isFavourite('person', row.uuid)} />
                       </button>
                       <button
                         type="button"
@@ -442,7 +442,7 @@ const People = () => {
                           row.extension && dial(row.extension, { forceRefreshContactInfo: true })
                         }
                       >
-                        <Ic n="phone" size={12} />
+                        <Ic n="phone" size={16} />
                       </button>
                       <button
                         type="button"
@@ -451,7 +451,7 @@ const People = () => {
                         aria-label={`Message ${row.name}`}
                         onClick={() => navigate(`/messenger?chatId=${row.uuid}&chatType=chat`)}
                       >
-                        <Ic n="chat" size={12} />
+                        <Ic n="chat" size={16} />
                       </button>
                       <button
                         type="button"
@@ -466,7 +466,7 @@ const People = () => {
                           )
                         }
                       >
-                        <Ic n="video" size={12} />
+                        <Ic n="video" size={16} />
                       </button>
                       {(canEdit ||
                         isAdmin ||
@@ -482,37 +482,37 @@ const People = () => {
                               title={`More actions for ${row.name}`}
                               aria-label={`More actions for ${row.name}`}
                             >
-                              <MoreVertical size={12} />
+                              <MoreVertical size={15} />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="gp-person-menu">
                             {canEdit ? (
                               <DropdownMenuItem onClick={() => setEditing(row)}>
-                                <Ic n="sliders" size={12} />
+                                <Ic n="sliders" size={15} />
                                 Edit
                               </DropdownMenuItem>
                             ) : null}
                             {isAdmin ? (
                               <DropdownMenuItem onClick={() => navigate(`/activity/${row.uuid}`)}>
-                                <Ic n="clock" size={12} />
+                                <Ic n="clock" size={15} />
                                 Activity
                               </DropdownMenuItem>
                             ) : null}
                             {canChangeRoleOf(row) ? (
                               <DropdownMenuItem onClick={() => setChangingRole(row)}>
-                                <Ic n="shield" size={12} />
+                                <Ic n="shield" size={15} />
                                 Change role
                               </DropdownMenuItem>
                             ) : null}
                             {canAssignCallerId && row.callerId ? (
                               <DropdownMenuItem onClick={() => setUnassigning(row)}>
-                                <Ic n="x" size={12} />
+                                <Ic n="x" size={15} />
                                 Remove caller ID
                               </DropdownMenuItem>
                             ) : null}
                             {canAssignCallerId ? (
                               <DropdownMenuItem onClick={() => setAssigningCallerId(row)}>
-                                <Ic n="grid" size={12} />
+                                <Ic n="grid" size={15} />
                                 Assign caller ID
                               </DropdownMenuItem>
                             ) : null}
@@ -523,7 +523,7 @@ const People = () => {
                                 variant="destructive"
                                 onClick={() => setDeleting(row)}
                               >
-                                <Ic n="trash" size={12} />
+                                <Ic n="trash" size={15} />
                                 Remove
                               </DropdownMenuItem>
                             ) : null}

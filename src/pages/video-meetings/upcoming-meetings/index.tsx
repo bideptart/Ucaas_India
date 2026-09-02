@@ -234,40 +234,27 @@ const UpcomingMeetings = () => {
   };
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 bg-transparent ">
-      <div className=" flex h-full min-h-0 w-full flex-col justify-start gap-4 ">
-        <div className="w-full max-w-250 mx-auto px-4 xs:pt-4 sm:pt-0">
-          <MeetingHeader formInstance={formInstance} />
-        </div>
-        <div className="w-full h-full overflow-auto">
-          <div className="max-w-250 mx-auto flex min-h-0 flex-1 flex-col gap-3 mt-2 px-4">
-            <div className="flex justify-between items-center mb-1">
-              <div className="flex flex-col gap-0.5">
-                <h4
-                  className="font-bold text-xl flex items-center gap-2.5"
-                  style={{ color: '#8A3F1C' }}
-                >
-                  <span
-                    className="h-5 w-1.5 rounded-full"
-                    style={{ background: 'linear-gradient(180deg, #E78B50, #D9652E)' }}
-                  />
-                  Upcoming Meetings
-                  <InfoIcon className="w-3.5 h-3.5 text-[#9A948F]" />
-                </h4>
-                <p className="text-xs text-[#9A948F] pl-4">Everything on your calendar, in order</p>
-              </div>
-              <Button
-                variant="outline"
-                className="justify-center gap-1.5 shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:w-auto hover:bg-white/70 hover:text-[#9A948F] border-white/70 bg-white/45 backdrop-blur-md h-9 min-h-9 rounded-full px-4 text-xs text-[#9A948F]"
-                type="button"
-              >
-                <span className="font-bold text-sm" style={{ color: '#B5642F' }}>
-                  {upcomingMeetingList?.length || 0}
-                </span>
-                Meeting(s)
-              </Button>
-            </div>
-            <div ref={scrollContainerRef} className="flex flex-1 min-h-0 flex-col gap-3.5 ">
+    <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 overflow-auto p-3 sm:p-4">
+      <div className="mx-auto max-w-250 flex h-full min-h-0 w-full flex-col justify-start gap-6 sm:gap-8">
+        <MeetingHeader formInstance={formInstance} />
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
+          <div className="flex justify-between items-center">
+            <h4
+              className="font-semibold text-lg flex items-center gap-1"
+              style={{ color: '#8A3F1C' }}
+            >
+              Upcoming Meetings <InfoIcon className="w-3 h-3 text-[#9A948F]" />
+            </h4>
+            <Button
+              variant="outline"
+              className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F]"
+              type="button"
+            >
+              <span style={{ color: '#B5642F' }}>{upcomingMeetingList?.length || 0}</span>
+              meeting(s)
+            </Button>
+          </div>
+          <div ref={scrollContainerRef} className="flex flex-1 min-h-0 flex-col gap-3 ">
               {isPendingUpcomingMeeting ? (
                 <div className="flex items-center justify-center p-5">
                   <Loader variant="blue" size="sm" />
@@ -577,8 +564,6 @@ const UpcomingMeetings = () => {
             </div>
           </div>
         </div>
-      </div>
-
       <AlertConfirm
         {...{
           apiLoading: isPending,

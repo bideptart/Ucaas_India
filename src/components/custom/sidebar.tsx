@@ -154,9 +154,15 @@ const Sidebar = () => {
   const { railTop: visibleNavList, railBottom: visibleBottomNavList, hasRail } = useAreaNav();
 
   // Landing on an area without `?view=` shows its first view, so the rail lights
-  // the same one the page opens on.
+  // the same one the page opens on — unless the path itself is another view's
+  // `altPaths` (e.g. `/contact`, reached from External Contacts' own "New
+  // contact" button), in which case that view should light instead of the
+  // area's default first item.
   const firstViewKey = (visibleNavList[0] as any)?.viewKey;
-  const currentView = new URLSearchParams(search).get('view') || firstViewKey;
+  const altPathViewKey = (visibleNavList as any[])?.find((item) =>
+    item?.altPaths?.some((path: string) => pathname === path || pathname?.startsWith(`${path}/`)),
+  )?.viewKey;
+  const currentView = new URLSearchParams(search).get('view') || altPathViewKey || firstViewKey;
 
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -233,7 +239,7 @@ const Sidebar = () => {
           <div className="rail-scroll flex h-full min-h-0 flex-col justify-between gap-1 overflow-y-auto px-2 w-full pt-4 pb-3">
             <div className="flex flex-col gap-1.5 items-center">
               {visibleNavList?.map((navItem: any, index: number) => {
-                const { id, link, icon, name, enabled, viewKey, sep } = navItem;
+                const { id, link, icon, name, enabled, viewKey, sep, altPaths } = navItem;
                 /* A view item shares its path with every sibling, so the
                    `?view=` value decides which is lit — path alone would light
                    them all.
@@ -245,7 +251,10 @@ const Sidebar = () => {
                    the pathname does not, so neither ever lit. */
                 const [linkPath, linkQuery = ''] = String(link).split('?');
                 const linkView = new URLSearchParams(linkQuery).get('view');
-                const onLinkPath = Boolean(pathname?.startsWith(linkPath));
+                const onAltPath = Boolean(
+                  altPaths?.some((path: string) => pathname === path || pathname?.startsWith(`${path}/`)),
+                );
+                const onLinkPath = Boolean(pathname?.startsWith(linkPath)) || onAltPath;
                 const activeLink = viewKey
                   ? onLinkPath && currentView === viewKey
                   : onLinkPath && (!linkView || new URLSearchParams(search).get('view') === linkView);

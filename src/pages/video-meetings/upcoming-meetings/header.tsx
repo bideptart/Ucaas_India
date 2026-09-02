@@ -97,8 +97,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                     InstantMeeting();
                   }}
                 >
-                  <Icon name="VideocameraAdd" className="w-4 h-4" />
-                  <h6 className="font-semibold text-center text-sm">
+                  <Icon name="VideocameraAdd" className="w-4 h-4 shrink-0" />
+                  <h6 className="font-semibold text-center text-sm whitespace-nowrap">
                     {isPendingInstantMeeting ? 'Please Wait' : 'Start Meeting'}
                   </h6>
                 </div>
@@ -109,8 +109,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                   onClick={() => setModalState(true)}
                   className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                 >
-                  <Icon name="PlusIcon" className="w-4 h-4" />
-                  <h6 className="font-medium text-center text-sm">Join</h6>
+                  <Icon name="PlusIcon" className="w-4 h-4 shrink-0" />
+                  <h6 className="font-medium text-center text-sm whitespace-nowrap">Join</h6>
                 </div>
                 {videAccess?.create && (
                   <>
@@ -119,8 +119,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                       className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                       onClick={() => setDrawerState(true)}
                     >
-                      <Icon name="CalendarIcon" className="w-4 h-4" />
-                      <h6 className="font-medium text-center text-sm">Schedule</h6>
+                      <Icon name="CalendarIcon" className="w-4 h-4 shrink-0" />
+                      <h6 className="font-medium text-center text-sm whitespace-nowrap">Schedule</h6>
                     </div>
                   </>
                 )}

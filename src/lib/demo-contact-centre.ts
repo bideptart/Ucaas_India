@@ -1591,7 +1591,20 @@ export const demoCalendarTaskRows = () => {
     { name: 'Monthly Performance Review', dueInHours: 390, source: 'Manual', status: 'PENDING', category: 'EVENT' },
   ];
   return seed.map((task, index) => {
-    const startAt = now + task.dueInHours * HOUR_MS;
+    /* Offsets are whole hours from `now`, so the wall clock decides what
+       time of day these land on. Once it drifts past ~23:00 the +1h end
+       crosses midnight, and a one-hour meeting becomes a two-day booking:
+       the month grid then draws it as a bar across two cells, pushes the
+       real entry behind a "1 more", and renders it through the multi-day
+       path instead of the single-day preview template.
+
+       Keeping the day the offset chose and pulling only the clock into
+       working hours fixes it without changing which day anything is on. */
+    const startsAt = new Date(now + task.dueInHours * HOUR_MS);
+    const hour = startsAt.getHours();
+    if (hour >= 21) startsAt.setHours(20, 0, 0, 0);
+    else if (hour < 7) startsAt.setHours(9, 0, 0, 0);
+    const startAt = startsAt.getTime();
     return {
       uuid: `demo-task-${index + 1}`,
       name: task.name,

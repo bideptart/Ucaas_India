@@ -118,6 +118,28 @@ const formatDateTimeInTimezone = (value: unknown, timezone: string): string => {
   }
 };
 
+/**
+ * The month grid draws by start date.
+ *
+ * tui-calendar treats any schedule whose start and end fall on different
+ * dates as a multi-day booking: it spans the cells as a bar, repeats it on
+ * both sides of a week boundary, and renders it through the multi-day path
+ * rather than the single-day preview template. A 23:30 call running half an
+ * hour past midnight is not a two-day event to a reader scanning the month,
+ * and because the grid shows one preview per day, that bar also takes the
+ * only slot and pushes the day's real entry behind a "1 more".
+ *
+ * So the end is pulled back to the close of the day it started on, for the
+ * grid only. `raw` keeps the true times, and the detail popup reads them
+ * from there, so nothing downstream loses the real finish time.
+ */
+const clampScheduleToStartDay = (schedule: Schedule): Schedule => {
+  const start = moment(schedule.start as Date);
+  const end = moment(schedule.end as Date);
+  if (!start.isValid() || !end.isValid() || start.isSame(end, 'day')) return schedule;
+  return { ...schedule, end: start.clone().endOf('day').toDate() };
+};
+
 const transformEventTaskToSchedule = (item: MeetingRawData): Schedule => {
   const { _id = '', name = '', category, assignTo = [] } = item;
 
@@ -415,7 +437,7 @@ const CalendarPage = () => {
     }
 
     const transformedSchedules = calendarMeetingListData?.map((item: MeetingRawData) =>
-      transformEventTaskToSchedule(item),
+      clampScheduleToStartDay(transformEventTaskToSchedule(item)),
     );
 
     setSchedules(transformedSchedules);
@@ -613,8 +635,16 @@ const CalendarPage = () => {
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
-  const detailsStartDate = getScheduleDate(detailsModal?.start);
-  const detailsEndDate = getScheduleDate(detailsModal?.end);
+  /* Off `raw` first. A schedule that crossed midnight has had its `end`
+     pulled back to 23:59 for the month grid, so reading the schedule here
+     would report the wrong finish time on the very events the clamp
+     touched. `raw` is the untouched record. */
+  const detailsStartDate =
+    getScheduleDate(getLocalScheduleMoment(detailsModal?.raw, 'start')?.toDate()) ??
+    getScheduleDate(detailsModal?.start);
+  const detailsEndDate =
+    getScheduleDate(getLocalScheduleMoment(detailsModal?.raw, 'end')?.toDate()) ??
+    getScheduleDate(detailsModal?.end);
   const detailsTimezone = getScheduleTimezone(detailsModal?.raw || detailsModal);
   const detailsCategory = String(detailsModal?.raw?.category || '')?.toUpperCase();
   const isEvent = detailsCategory === 'EVENT';

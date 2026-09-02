@@ -40,19 +40,27 @@
   background: rgba(255, 205, 155, 0.25);
 }
 .gp-groups .list-row.on {
-  background: var(--accent);
+  /* Lighter than --accent (#f2994a) — the full-strength shade read as too
+     dark/heavy for a list row selection compared to the rest of the page's
+     softer palette. */
+  background: #f6ad70;
 }
 .gp-groups .list-row.on::before {
   background: var(--accent-ink);
 }
-/* The row's own text/sub-text colors are tuned for a light background —
-   on solid orange they need to flip to light/white to stay readable.
-   `.tag` and the avatar circle (`.rounded-full`) are excluded: both carry
-   their own background (the member-count pill, the avatar's pastel fill),
-   and forcing white text on them left the number and the initials
-   unreadable against their own light background rather than the row's. */
-.gp-groups .list-row.on,
-.gp-groups .list-row.on :not(.tag):not(.rounded-full) {
+/* The row's own text colors are tuned for a light background — on solid
+   orange they need to flip to white to stay readable. Named individually
+   rather than "everything except X": a blanket `:not(...)` still reached
+   the avatar's initials <span>, which isn't itself `.rounded-full` (only
+   its parent is) — forcing white text there made the initials disappear
+   against the avatar's own near-white fill, the same way it did for the
+   member-count tag before that was excluded. */
+.gp-groups .list-row.on {
+  color: #fff !important;
+}
+.gp-groups .list-row.on .list-row-name,
+.gp-groups .list-row.on .list-row-meta,
+.gp-groups .list-row.on p {
   color: #fff !important;
 }
 

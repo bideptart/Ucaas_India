@@ -1124,10 +1124,34 @@ export const demoFaxMessages = (faxMessageId: string) => {
 /** `/api/tenant/department/list` — Directory ▸ Groups and Admin ▸ Departments. */
 export const demoDepartmentRows = () => {
   const seed = [
-    { name: 'Sales Team', extension: '7001', memberExtensions: ['1004', '1005', '1006'], managerExt: '1003' },
-    { name: 'Customer Support', extension: '7002', memberExtensions: ['1004', '1006', '1007', '1008'], managerExt: '1003' },
-    { name: 'Finance & Billing', extension: '7003', memberExtensions: ['1002', '1007'], managerExt: '1002' },
-    { name: 'Engineering', extension: '7004', memberExtensions: ['1006', '1008'], managerExt: '1001' },
+    {
+      name: 'Sales Team',
+      extension: '7001',
+      memberExtensions: ['1004', '1005', '1006'],
+      managerExt: '1003',
+      description: 'Inbound and outbound sales calls, routed to whoever is free first.',
+    },
+    {
+      name: 'Customer Support',
+      extension: '7002',
+      memberExtensions: ['1004', '1006', '1007', '1008'],
+      managerExt: '1003',
+      description: 'Existing-customer tickets and calls — billing questions go to Finance instead.',
+    },
+    {
+      name: 'Finance & Billing',
+      extension: '7003',
+      memberExtensions: ['1002', '1007'],
+      managerExt: '1002',
+      description: 'Invoices, refunds and payment method updates.',
+    },
+    {
+      name: 'Engineering',
+      extension: '7004',
+      memberExtensions: ['1006', '1008'],
+      managerExt: '1001',
+      description: 'Internal extension for the on-call engineer, not customer-facing.',
+    },
   ];
   return seed.map((dept, index) => {
     const manager = DEMO_AGENTS.find((row) => row.extension === dept.managerExt) as DemoAgent;
@@ -1135,7 +1159,10 @@ export const demoDepartmentRows = () => {
       uuid: `demo-dept-${index + 1}`,
       name: dept.name,
       extension: dept.extension,
+      description: dept.description,
       manager: JSON.stringify({
+        uuid: manager.uuid,
+        user_uuid: manager.uuid,
         first_name: manager.first_name,
         last_name: manager.last_name,
         name: `${manager.first_name} ${manager.last_name}`,

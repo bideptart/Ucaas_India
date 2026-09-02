@@ -1021,7 +1021,7 @@ const matchDemoPayload = (url: string, data: unknown) => {
         params?.type === 'voicemail'
           ? PHONE_VOICEMAIL_SEED
           : params?.type === 'recording'
-            ? []
+            ? PHONE_CALL_SEED.filter((row) => Boolean(row.record_file))
             : PHONE_CALL_SEED;
       return ok(listPayload(rows, { totalRecords: rows.length }, data));
     }

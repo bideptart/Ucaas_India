@@ -179,14 +179,41 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
   }
 }
 
-/* Secondary action ("Wallboard") is left at its default styling — same as
-   the chips, only the bar underneath it carries the colour now. */
+/* Secondary action ("Wallboard") — `.btn.ghost`'s default styling
+   (`var(--surface-2)` fill, `var(--line)` border) is a near-white on
+   near-white against this toolbar's `#fffaf4` tint, reading as barely
+   there. Warm glass instead, matching every other secondary action across
+   Performance (Reports' toolbar buttons, Campaigns' row actions): visible
+   border at rest, filled gradient on hover — one step down from "My
+   dashboards" (`.btn.primary`, left alone, already solid accent orange). */
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm {
+  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: var(--pl-accent-ink);
+  backdrop-filter: var(--pl-glass-blur);
+  -webkit-backdrop-filter: var(--pl-glass-blur);
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm:hover {
+  border-color: rgba(249, 115, 22, 0.55);
+  box-shadow: 0 3px 10px -3px rgba(249, 115, 22, 0.3);
+}
 
-/* Primary CTA ("My dashboards") is NOT themed here on purpose — `.btn.primary`
-   already reads solid orange from the platform's own `--accent` token
-   (mcm-page.css, set globally), so adding a second, heavier gradient/shadow
-   on top of it would be exactly the kind of extra weight this pass just
-   traded for the plain, light look. */
+/* Primary CTA ("My dashboards") stays `.btn.primary`'s flat solid accent at
+   rest on purpose — it already reads correctly, and re-declaring the fill
+   here would just be a second copy of the same colour. Hover gets a richer
+   sunset gradient + glow, scoped to this one toolbar button via `.perf-tbar`
+   rather than on `.btn.primary` itself, which is a global class used by
+   buttons across the whole app — not just this one. */
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 60%, #c2410c 100%);
+  box-shadow:
+    0 6px 18px -4px rgba(234, 88, 12, 0.45),
+    0 2px 6px -1px rgba(234, 88, 12, 0.3);
+}
 
 /* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
    directly below the toolbar, rendered by the same Performance page shell,

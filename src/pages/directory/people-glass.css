@@ -395,6 +395,12 @@ input.gp-field-v:disabled {
   stroke-width: 1.8;
   flex: none;
 }
+.gp-person-menu [data-slot='dropdown-menu-item'] {
+  /* The base `rounded-xl` (12px) reads as a full pill/stadium shape at this
+     row's height — a smaller radius keeps the hover a rectangle with just
+     softened corners instead. */
+  border-radius: 6px;
+}
 .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
 .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
   background: #fff1e0;

@@ -4,18 +4,25 @@
  * Normally this panel loads an external widget from `VITE_AI_URL`. That
  * variable is unset on a preview host, so `getAiWidgetScriptUrl()` returns an
  * empty string, the loader bailed with "AI widget URL is missing." and the
- * panel sat on its spinner for ever. There is no widget service to point at, so
- * the fix is not a URL - it is to stop pretending one is being fetched.
+ * panel sat on its spinner. There is no widget service to point at, so the fix
+ * is not a URL - it is to stop pretending one is being fetched.
  *
- * What this renders instead is a sandbox: the shape of a chat and of a call, so
- * the surrounding screen can be worked on, with nothing behind either. It says
- * so on its face rather than only in a comment, because a convincing-looking
- * reply from an agent badged "Live" is exactly the thing someone would take for
- * a working product. Replies are canned and chosen by keyword; no model is
- * called, no audio is captured, and nothing typed here is stored anywhere.
+ * What renders instead is the widget's own shape: the dark launcher card, then
+ * the conversation it opens into. Following the real widget matters because
+ * this screen exists to show somebody what a caller or visitor would meet, and
+ * a panel that looks nothing like the thing being configured teaches the wrong
+ * expectation.
+ *
+ * Nothing is behind either surface. A one-line note under the launcher says so,
+ * and the panel header above already reads "Sandbox mode" - kept deliberately,
+ * because a convincing reply from an agent badged "Live" is exactly what
+ * somebody would take for a working product. Replies are canned and chosen by
+ * keyword; no model is called, no audio is captured, and nothing typed here is
+ * stored anywhere. No microphone is opened either: a real permission prompt for
+ * something that is not happening would be worse than the spinner was.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mic, PhoneOff, Send, Sparkles } from 'lucide-react';
+import { Bot, MessageSquare, Mic, Phone, PhoneOff, Send } from 'lucide-react';
 
 type Mode = 'chat' | 'call';
 
@@ -65,21 +72,91 @@ const replyTo = (text: string) => CANNED.find((row) => row.match.test(text))?.re
 const formatDuration = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
-/** Shared by both panels so they say the same thing about themselves. */
-const SandboxNotice = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-start gap-2 border-b border-[#EEE7DD] bg-[#FBE2C8]/40 px-4 py-2.5">
-    <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-    <p className="text-[11px] leading-relaxed text-[#6b6560]">{children}</p>
+/**
+ * The widget shell: a dark header over a white body, centred in the panel.
+ *
+ * Both modes and every state share it, so the launcher and the conversation it
+ * opens into are visibly the same surface rather than two different screens.
+ */
+const WidgetCard = ({
+  icon,
+  title,
+  subtitle,
+  children,
+  footer,
+}: {
+  icon: React.ReactNode;
+  title: React.ReactNode;
+  subtitle: React.ReactNode;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}) => (
+  <div className="flex h-full w-full items-center justify-center overflow-auto p-4">
+    <div className="flex max-h-full w-full max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_50px_-12px_rgba(15,23,42,0.35)]">
+      <div className="flex flex-col items-center gap-2 bg-[#111114] px-6 py-7 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#111114]">
+          {icon}
+        </div>
+        <h3 className="mt-1 text-[22px] font-extrabold leading-tight text-white">{title}</h3>
+        <p className="text-[13px] text-white/70">{subtitle}</p>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+
+      {footer ? <div className="px-5 pb-5 pt-1">{footer}</div> : null}
+    </div>
   </div>
 );
 
+/** The widget's own call to action - a full-width black pill. */
+const WidgetButton = ({
+  onClick,
+  icon,
+  children,
+  tone = 'dark',
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  tone?: 'dark' | 'danger';
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-bold text-white transition-opacity hover:opacity-90 ${
+      tone === 'danger' ? 'bg-rose-600' : 'bg-[#111114]'
+    }`}
+  >
+    {icon}
+    {children}
+  </button>
+);
+
+/* Said once, under the launcher, rather than as a banner across the panel: the
+   point of this screen is to show the widget, and a bar above it would be the
+   first thing read every time. */
+const SandboxNote = ({ children }: { children: React.ReactNode }) => (
+  <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-400">{children}</p>
+);
+
 const ChatPreview = ({ agentName }: { agentName: string }) => {
+  const [started, setStarted] = useState(false);
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [draft, setDraft] = useState('');
   const nextId = useRef(0);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setStarted(false);
+    setLines([]);
+    setDraft('');
+  }, [agentName]);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end' });
+  }, [lines]);
+
+  const start = () => {
     nextId.current = 2;
     setLines([
       {
@@ -93,17 +170,12 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
         text: 'Nothing you type is sent anywhere, and the answers are written in advance.',
       },
     ]);
-    setDraft('');
-  }, [agentName]);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ block: 'end' });
-  }, [lines]);
+    setStarted(true);
+  };
 
   const send = () => {
     const text = draft.trim();
     if (!text) return;
-
     setLines((prev) => [
       ...prev,
       { id: nextId.current++, from: 'caller', text },
@@ -112,24 +184,90 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
     setDraft('');
   };
 
-  return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
-      <SandboxNotice>
-        Sandbox preview. No AI is connected - the replies below are written in advance, and nothing
-        you type is stored.
-      </SandboxNotice>
+  const header = {
+    icon: <Bot className="h-7 w-7" />,
+    title: (
+      <>
+        Hi, welcome <span aria-hidden="true">👋</span>
+      </>
+    ),
+    subtitle: (
+      <>
+        Chat with <span className="font-bold text-white">{agentName}</span>
+      </>
+    ),
+  };
 
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+  if (!started) {
+    return (
+      <WidgetCard
+        {...header}
+        footer={
+          <>
+            <WidgetButton onClick={start} icon={<MessageSquare className="h-[18px] w-[18px]" />}>
+              New conversation
+            </WidgetButton>
+            <SandboxNote>
+              Sandbox preview - no AI is connected and the replies are written in advance.
+            </SandboxNote>
+          </>
+        }
+      >
+        <div className="flex min-h-[220px] flex-1 flex-col px-5 pt-5">
+          <p className="text-[13px] font-bold text-primary">Your conversations</p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 py-6">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FBE2C8]/50">
+              <MessageSquare className="h-6 w-6 text-primary" />
+            </div>
+            <p className="text-sm font-bold text-primary">No recent conversations</p>
+            <p className="text-xs text-slate-400">Start a new one below</p>
+          </div>
+        </div>
+      </WidgetCard>
+    );
+  }
+
+  return (
+    <WidgetCard
+      {...header}
+      footer={
+        <div className="flex items-center gap-2">
+          <input
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                send();
+              }
+            }}
+            placeholder="Type a message..."
+            maxLength={300}
+            className="h-11 flex-1 rounded-full border border-slate-200 bg-white px-4 text-[13px] text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
+          />
+          <button
+            type="button"
+            onClick={send}
+            disabled={!draft.trim()}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#111114] text-white transition-opacity disabled:opacity-40"
+            aria-label="Send message"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </div>
+      }
+    >
+      <div className="min-h-[220px] flex-1 space-y-3 overflow-y-auto px-5 py-4">
         {lines.map((line) => (
           <div
             key={line.id}
             className={`flex ${line.from === 'caller' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed ${
+              className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed ${
                 line.from === 'caller'
-                  ? 'rounded-br-sm bg-primary text-white'
-                  : 'rounded-bl-sm border border-[#EEE7DD] bg-[#FBE2C8]/40 text-[#2E2D35]'
+                  ? 'rounded-br-sm bg-[#111114] text-white'
+                  : 'rounded-bl-sm bg-[#FBE2C8]/50 text-slate-800'
               }`}
             >
               {line.text}
@@ -138,38 +276,12 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
         ))}
         <div ref={endRef} />
       </div>
-
-      <div className="flex items-center gap-2 border-t border-[#EEE7DD] bg-[rgba(251,249,246,0.88)] px-3 py-2.5">
-        <input
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
-              event.preventDefault();
-              send();
-            }
-          }}
-          placeholder="Type a message..."
-          maxLength={300}
-          className="h-9 flex-1 rounded-lg border border-[rgba(225,200,165,0.9)] bg-white px-3 text-xs text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] focus:border-primary"
-        />
-        <button
-          type="button"
-          onClick={send}
-          disabled={!draft.trim()}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition-opacity disabled:opacity-40"
-          aria-label="Send message"
-        >
-          <Send className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
+    </WidgetCard>
   );
 };
 
 /* The call is a rehearsal of the shape of one - ringing, answered, a transcript
-   filling in, a timer. No microphone is opened: asking for one would raise a
-   real permission prompt for something that is not happening. */
+   filling in, a timer - and nothing more. */
 const TRANSCRIPT = [
   { at: 1, from: 'agent', text: 'Thank you for calling. How can I help?' },
   { at: 4, from: 'caller', text: 'I wanted to ask about my account.' },
@@ -200,71 +312,102 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
   }, [state]);
 
   const shownLines = useMemo(
-    () =>
-      state === 'idle' || state === 'ringing'
-        ? []
-        : TRANSCRIPT.filter((line) => line.at <= seconds),
+    () => (state === 'idle' || state === 'ringing' ? [] : TRANSCRIPT.filter((l) => l.at <= seconds)),
     [seconds, state],
   );
 
-  return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
-      <SandboxNotice>
-        Sandbox preview. No call is placed and no microphone is opened - the transcript below is
-        scripted.
-      </SandboxNotice>
+  const header = {
+    icon: <Phone className="h-7 w-7" />,
+    title: (
+      <>
+        Prefer to Talk? <span aria-hidden="true">👋</span>
+      </>
+    ),
+    subtitle: 'Click here to call our AI assistant',
+  };
 
-      <div className="flex flex-col items-center px-4 pt-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-bold uppercase text-white">
-          {agentName.charAt(0) || 'A'}
-        </div>
-        <p className="mt-2 text-sm font-bold text-[#2E2D35]">{agentName}</p>
-        <p className="text-[11px] font-semibold text-[#9A948F]">
-          {state === 'idle' && 'Ready to start a test call'}
-          {state === 'ringing' && 'Connecting...'}
-          {state === 'connected' && formatDuration(seconds)}
-          {state === 'ended' && `Ended - ${formatDuration(seconds)}`}
-        </p>
-      </div>
-
-      <div className="mt-4 flex-1 space-y-2 overflow-y-auto px-4">
-        {shownLines.map((line) => (
-          <div key={line.at} className="text-[11px] leading-relaxed">
-            <span
-              className={`font-bold ${line.from === 'agent' ? 'text-primary' : 'text-[#2E2D35]'}`}
+  if (state === 'idle' || state === 'ended') {
+    return (
+      <WidgetCard
+        {...header}
+        footer={
+          <>
+            <WidgetButton
+              onClick={() => {
+                setSeconds(0);
+                setState('ringing');
+              }}
+              icon={<Phone className="h-[18px] w-[18px]" />}
             >
-              {line.from === 'agent' ? agentName : 'Caller'}:
-            </span>{' '}
-            <span className="text-[#6b6560]">{line.text}</span>
+              {state === 'ended' ? 'Start again' : 'Start conversation'}
+            </WidgetButton>
+            <SandboxNote>
+              Sandbox preview - no call is placed, no microphone is opened, and the transcript is
+              scripted.
+            </SandboxNote>
+          </>
+        }
+      >
+        <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center gap-5 px-8 py-8 text-center">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-100">
+            <Mic className="h-9 w-9 text-slate-400" />
           </div>
-        ))}
-      </div>
+          <p className="text-[15px] leading-relaxed text-slate-500">
+            {state === 'ended' ? (
+              <>
+                Call with <span className="font-bold text-slate-800">{agentName}</span> ended after{' '}
+                {formatDuration(seconds)}.
+              </>
+            ) : (
+              <>
+                Our AI agent <span className="font-bold text-slate-800">{agentName}</span> is ready
+                to assist you over a voice call.
+              </>
+            )}
+          </p>
+        </div>
+      </WidgetCard>
+    );
+  }
 
-      <div className="flex items-center justify-center gap-3 border-t border-[#EEE7DD] bg-[rgba(251,249,246,0.88)] px-3 py-3">
-        {state === 'idle' || state === 'ended' ? (
-          <button
-            type="button"
-            onClick={() => {
-              setSeconds(0);
-              setState('ringing');
-            }}
-            className="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-xs font-semibold text-white"
-          >
-            <Mic className="h-3.5 w-3.5" />
-            {state === 'ended' ? 'Start again' : 'Start test call'}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setState('ended')}
-            className="flex h-9 items-center gap-2 rounded-lg bg-rose-500 px-4 text-xs font-semibold text-white"
-          >
-            <PhoneOff className="h-3.5 w-3.5" />
-            End call
-          </button>
-        )}
+  return (
+    <WidgetCard
+      {...header}
+      footer={
+        <WidgetButton
+          onClick={() => setState('ended')}
+          icon={<PhoneOff className="h-[18px] w-[18px]" />}
+          tone="danger"
+        >
+          End call
+        </WidgetButton>
+      }
+    >
+      <div className="flex min-h-[220px] flex-1 flex-col px-5 py-5">
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FBE2C8]/60 text-xl font-extrabold uppercase text-primary">
+            {agentName.charAt(0) || 'A'}
+          </div>
+          <p className="mt-1 text-sm font-bold text-slate-800">{agentName}</p>
+          <p className="text-[12px] font-semibold text-slate-400">
+            {state === 'ringing' ? 'Connecting...' : formatDuration(seconds)}
+          </p>
+        </div>
+
+        <div className="mt-4 flex-1 space-y-2 overflow-y-auto">
+          {shownLines.map((line) => (
+            <div key={line.at} className="text-[12px] leading-relaxed">
+              <span
+                className={`font-bold ${line.from === 'agent' ? 'text-primary' : 'text-slate-800'}`}
+              >
+                {line.from === 'agent' ? agentName : 'Caller'}:
+              </span>{' '}
+              <span className="text-slate-500">{line.text}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </WidgetCard>
   );
 };
 

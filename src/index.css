@@ -1303,6 +1303,33 @@
   }
 }
 
+/* A refresh click's only feedback used to be swapping the icon for a
+   spinner - too easy to miss when the underlying fetch resolves in well
+   under 100ms. A quick shake plus a nudge along the arrow's own direction
+   reads as "this was clicked" instantly, without changing what icon is on
+   screen. */
+@keyframes refreshNudge {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-1.5px) rotate(-6deg);
+  }
+  45% {
+    transform: translateX(2px) rotate(22deg);
+  }
+  70% {
+    transform: translateX(-1px) rotate(10deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+.animate-refresh-nudge {
+  animation: refreshNudge 0.45s ease-in-out;
+}
+
 @media (max-width: 1024px) {
   .call-handling-template-form {
     min-height: 100%;

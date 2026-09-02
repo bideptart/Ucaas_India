@@ -41,6 +41,7 @@ import {
   demoFaxConversations,
   demoFaxMessages,
   demoFlowRows,
+  demoQueueCallLogDetail,
   filterCallsByDateRange,
   demoInboundCallRows,
   demoLocalCallRows,
@@ -697,6 +698,10 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows(), {}, data));
   if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows(), {}, data));
+  if (url.includes('/api/tenant/xml/call-logs')) {
+    const params = asObject(data);
+    return ok(demoQueueCallLogDetail(String(params?.call_id || ''), String(params?.type || '')));
+  }
   /* The AI Receptionist builder's Voice & Persona step. An empty list here
      leaves its required voice field with nothing to select, which stops the
      wizard at step 2 rather than just looking bare. */

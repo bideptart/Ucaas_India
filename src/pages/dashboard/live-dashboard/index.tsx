@@ -1338,30 +1338,30 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   className="block max-h-190 overflow-auto overflow-x-auto lg:block"
                 >
                   <Table className="min-w-245 xl:min-w-280">
-                    <TableHeader className="sticky top-0 z-10 bg-[#FBE2C8]/45">
+                    <TableHeader className="sticky top-0 z-10 bg-[#FBE2C8]">
                       <TableRow>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Agent Info
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Live Status
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Time In State
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Queue / Campaign
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Caller ID
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Utilization
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Daily Stats
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
                           Actions
                         </TableHead>
                       </TableRow>

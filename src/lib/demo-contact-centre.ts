@@ -270,86 +270,138 @@ export const demoContactBookRows = () => {
 
 export type DemoCall = Record<string, any>;
 
+/* Spans the last 35 days (covers Today, Last 7/30 Days, This Month and a
+   sliver of Last Month) rather than clustering everything into one day —
+   otherwise every date-range filter shows the identical set, and switching
+   Week to Month proves nothing. Today keeps the original per-day volume so
+   nothing that read this as "today's calls" before sees fewer; each earlier
+   day gets its own smaller, weekday-shaped count. */
+const HISTORY_DAYS = 35;
+const TODAY_CALL_COUNT = 64;
+
 const buildCalls = (now: number): DemoCall[] => {
   const random = mulberry32(20260831);
   const rows: DemoCall[] = [];
+  let globalIndex = 0;
 
-  const dayStart = new Date(now);
-  dayStart.setHours(DAY_START_HOUR, 0, 0, 0);
-  /* Before the working day has started, still lay the calls out behind us. */
-  const windowStart = Math.min(dayStart.getTime(), now - 60 * 60 * 1000);
-  const span = Math.max(now - windowStart, 60 * 60 * 1000);
+  for (let daysAgo = 0; daysAgo < HISTORY_DAYS; daysAgo += 1) {
+    const dayNow = now - daysAgo * 24 * 60 * 60 * 1000;
+    const dayOfWeek = new Date(dayNow).getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-  const total = 64;
+    const dayStart = new Date(dayNow);
+    dayStart.setHours(DAY_START_HOUR, 0, 0, 0);
+    /* Before the working day has started, still lay today's calls out
+       behind "now" rather than in the future. */
+    const windowEnd = daysAgo === 0 ? dayNow : new Date(dayNow).setHours(18, 30, 0, 0);
+    const windowStart =
+      daysAgo === 0 ? Math.min(dayStart.getTime(), dayNow - 60 * 60 * 1000) : dayStart.getTime();
+    const span = Math.max(windowEnd - windowStart, 60 * 60 * 1000);
 
-  for (let index = 0; index < total; index += 1) {
-    const roll = random();
-    const kind = roll < 0.58 ? 'QUEUE' : roll < 0.78 ? 'IVR' : 'DIRECT';
-    const outbound = kind === 'DIRECT' && random() < 0.62;
+    const total =
+      daysAgo === 0
+        ? TODAY_CALL_COUNT
+        : Math.round((isWeekend ? 3 : 10) + random() * (isWeekend ? 4 : 12));
 
-    const queue = DEMO_QUEUES[Math.floor(random() * DEMO_QUEUES.length)];
-    const flow = DEMO_FLOWS[Math.floor(random() * DEMO_FLOWS.length)];
-    const handler =
-      kind === 'QUEUE'
-        ? queue.memberExtensions[Math.floor(random() * queue.memberExtensions.length)]
-        : DEMO_AGENTS[Math.floor(random() * DEMO_AGENTS.length)].extension;
-    const handlerAgent = DEMO_AGENTS.find((row) => row.extension === handler) as DemoAgent;
+    for (let index = 0; index < total; index += 1) {
+      const roll = random();
+      const kind = roll < 0.58 ? 'QUEUE' : roll < 0.78 ? 'IVR' : 'DIRECT';
+      const outbound = kind === 'DIRECT' && random() < 0.62;
 
-    /* Retention is the queue that is struggling — it abandons more, which is
-       what gives the SLA and abandon-rate cards something to say. */
-    const abandonChance = kind === 'IVR' ? 0.12 : queue.uuid === 'demo-queue-retention' ? 0.34 : 0.1;
-    const answered = outbound ? random() > 0.14 : random() > abandonChance;
+      const queue = DEMO_QUEUES[Math.floor(random() * DEMO_QUEUES.length)];
+      const flow = DEMO_FLOWS[Math.floor(random() * DEMO_FLOWS.length)];
+      const handler =
+        kind === 'QUEUE'
+          ? queue.memberExtensions[Math.floor(random() * queue.memberExtensions.length)]
+          : DEMO_AGENTS[Math.floor(random() * DEMO_AGENTS.length)].extension;
+      const handlerAgent = DEMO_AGENTS.find((row) => row.extension === handler) as DemoAgent;
 
-    const wait = answered ? Math.round(4 + random() * 46) : Math.round(20 + random() * 70);
-    const talk = answered ? Math.round(45 + random() * 520) : 0;
+      /* Retention is the queue that is struggling — it abandons more, which
+         is what gives the SLA and abandon-rate cards something to say. */
+      const abandonChance =
+        kind === 'IVR' ? 0.12 : queue.uuid === 'demo-queue-retention' ? 0.34 : 0.1;
+      const answered = outbound ? random() > 0.14 : random() > abandonChance;
 
-    const startedAt = windowStart + Math.floor((span * (index + random())) / total);
-    const contact = CONTACT_NAMES[index % CONTACT_NAMES.length];
-    const caller = fakeCaller(index);
-    const did = DIDS[index % DIDS.length];
+      const wait = answered ? Math.round(4 + random() * 46) : Math.round(20 + random() * 70);
+      const talk = answered ? Math.round(45 + random() * 520) : 0;
 
-    rows.push({
-      uuid: `demo-cdr-${index + 1}`,
-      sipcall_id: `demo-sip-${index + 1}`,
-      count: 1,
-      start_stamp: new Date(startedAt).toISOString(),
-      answer_stamp: answered ? new Date(startedAt + wait * 1000).toISOString() : null,
-      end_stamp: new Date(startedAt + (wait + talk) * 1000).toISOString(),
-      direction: outbound ? 'Outbound' : 'Inbound',
-      status: answered ? 'ANSWERED' : 'NO ANSWER',
-      caller_id_number: outbound ? handler : caller,
-      display_caller_number: caller,
-      from_display_name: outbound ? `${handlerAgent.first_name} ${handlerAgent.last_name}` : contact,
-      contact_name: contact,
-      contact_type: index % 5 === 0 ? 'LEAD' : '',
-      extension: handler,
-      agent_extension: handler,
-      via_did: kind === 'IVR' ? flow.extension : did,
-      destination_number: kind === 'IVR' ? flow.extension : outbound ? caller : did,
-      forward_type: kind === 'DIRECT' ? null : kind,
-      forward_value: kind === 'QUEUE' ? queue.uuid : kind === 'IVR' ? flow.uuid : null,
-      forward_name: kind === 'QUEUE' ? queue.name : kind === 'IVR' ? flow.name : null,
-      queue_uuid: kind === 'QUEUE' ? queue.uuid : null,
-      is_voicemail: 0,
-      hangup_cause: answered ? 'NORMAL_CLEARING' : 'NO_ANSWER',
-      /* The report pages (Call History, Outbound, Voicemail, Call Recording,
-         Inbound, Local Call List — and Performance ▸ Calls, which embeds
-         Call History) all parse `billsec` as an "HH:MM:SS" string themselves
-         (`timeStringToSeconds`, or sliced straight as a fallback duration);
-         `billsectotal` is the one every page's primary duration column reads
-         as a plain number, so that stays numeric. Internally, every demo
-         aggregation below reads `billsectotal`, never `billsec`, for exactly
-         this reason. */
-      billsec: secondsToClock(talk),
-      billsectotal: talk,
-      duration: wait + talk,
-      durationtotal: wait + talk,
-      charge: Number(((talk / 60) * 0.012).toFixed(4)),
-      chargeTotal: Number(((talk / 60) * 0.012).toFixed(4)),
-    });
+      const startedAt = windowStart + Math.floor((span * (index + random())) / total);
+      const contact = CONTACT_NAMES[globalIndex % CONTACT_NAMES.length];
+      const caller = fakeCaller(globalIndex);
+      const did = DIDS[globalIndex % DIDS.length];
+
+      /* Outbound minutes are billed at a real carrier rate, inbound/queue
+         minutes at a much smaller one (the DID cost, not the call itself) —
+         a flat $0.012/min made every charge, even a 9-minute call, land
+         under $0.12, so the Charge column never showed real variation. This
+         still keeps most calls under a dollar (a real contact centre's
+         typical case) while letting a long outbound call clear it. */
+      const ratePerMinute = outbound ? 0.05 + random() * 0.15 : 0.006 + random() * 0.02;
+      const charge = Number(((talk / 60) * ratePerMinute).toFixed(4));
+
+      rows.push({
+        uuid: `demo-cdr-${globalIndex + 1}`,
+        sipcall_id: `demo-sip-${globalIndex + 1}`,
+        count: 1,
+        start_stamp: new Date(startedAt).toISOString(),
+        answer_stamp: answered ? new Date(startedAt + wait * 1000).toISOString() : null,
+        end_stamp: new Date(startedAt + (wait + talk) * 1000).toISOString(),
+        direction: outbound ? 'Outbound' : 'Inbound',
+        status: answered ? 'ANSWERED' : 'NO ANSWER',
+        caller_id_number: outbound ? handler : caller,
+        display_caller_number: caller,
+        from_display_name: outbound
+          ? `${handlerAgent.first_name} ${handlerAgent.last_name}`
+          : contact,
+        contact_name: contact,
+        contact_type: globalIndex % 5 === 0 ? 'LEAD' : '',
+        extension: handler,
+        agent_extension: handler,
+        via_did: kind === 'IVR' ? flow.extension : did,
+        destination_number: kind === 'IVR' ? flow.extension : outbound ? caller : did,
+        forward_type: kind === 'DIRECT' ? null : kind,
+        forward_value: kind === 'QUEUE' ? queue.uuid : kind === 'IVR' ? flow.uuid : null,
+        forward_name: kind === 'QUEUE' ? queue.name : kind === 'IVR' ? flow.name : null,
+        queue_uuid: kind === 'QUEUE' ? queue.uuid : null,
+        is_voicemail: 0,
+        hangup_cause: answered ? 'NORMAL_CLEARING' : 'NO_ANSWER',
+        /* The report pages (Call History, Outbound, Voicemail, Call
+           Recording, Inbound, Local Call List — and Performance ▸ Calls,
+           which embeds Call History) all parse `billsec` as an "HH:MM:SS"
+           string themselves (`timeStringToSeconds`, or sliced straight as a
+           fallback duration); `billsectotal` is the one every page's
+           primary duration column reads as a plain number, so that stays
+           numeric. Internally, every demo aggregation below reads
+           `billsectotal`, never `billsec`, for exactly this reason. */
+        billsec: secondsToClock(talk),
+        billsectotal: talk,
+        duration: wait + talk,
+        durationtotal: wait + talk,
+        charge,
+        chargeTotal: charge,
+      });
+
+      globalIndex += 1;
+    }
   }
 
   return rows.sort((left, right) => Date.parse(right.start_stamp) - Date.parse(left.start_stamp));
+};
+
+/** Inclusive "YYYY-MM-DD" bounds, the shape every date-range picker sends as
+ *  `filter_date`. Missing `from`/`to` leaves that side open. */
+export const filterCallsByDateRange = (
+  rows: DemoCall[],
+  range?: { from?: string; to?: string } | null,
+): DemoCall[] => {
+  if (!range?.from && !range?.to) return rows;
+  const startMs = range.from ? new Date(`${range.from}T00:00:00`).getTime() : -Infinity;
+  const endMs = range.to ? new Date(`${range.to}T23:59:59.999`).getTime() : Infinity;
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) return rows;
+  return rows.filter((row) => {
+    const timestamp = Date.parse(row.start_stamp);
+    return timestamp >= startMs && timestamp <= endMs;
+  });
 };
 
 /* Built once per page load: the figures then hold still across the 2s refetch
@@ -362,8 +414,7 @@ export const demoCalls = () => {
 
 const isMissed = (row: DemoCall) => row.direction === 'Inbound' && row.billsectotal === 0;
 
-export const demoCallStats = () => {
-  const rows = demoCalls();
+export const demoCallStats = (rows: DemoCall[] = demoCalls()) => {
   return {
     total_calls: rows.length,
     missed_calls: rows.filter(isMissed).length,
@@ -375,8 +426,8 @@ export const demoCallStats = () => {
 
 /** `/api/tenant/report/inbound-calls` — Reports ▸ Inbound, the same log
  *  filtered to one direction. */
-export const demoInboundCallRows = () =>
-  demoCalls()
+export const demoInboundCallRows = (rows: DemoCall[] = demoCalls()) =>
+  rows
     .filter((row) => row.direction === 'Inbound')
     /* `billsec` already arrives as the "HH:MM:SS" string this page (and every
        other call-list report) expects; only `waitsec` is specific to this
@@ -481,13 +532,13 @@ const DEMO_USER_UUID = 'demo-user-0000-0000-0000-000000000001';
 export const demoChatThreads = () => {
   const now = Date.now();
   const HOUR_MS = 60 * 60 * 1000;
-  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta' };
+  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta', name: 'Arjun Mehta' };
   const seed = [
     { extension: '1004', hoursAgo: 1, message: 'Can you take the Sales queue for the next hour?' },
     { extension: '1006', hoursAgo: 4, message: 'Sent over the Retention numbers from this morning.' },
     { extension: '1003', hoursAgo: 26, message: 'Approved your leave request for next week.' },
   ];
-  return seed.map((row, index) => {
+  const directChats = seed.map((row, index) => {
     const other = DEMO_AGENTS.find((agent) => agent.extension === row.extension) as DemoAgent;
     const createdAt = new Date(now - row.hoursAgo * HOUR_MS).toISOString();
     return {
@@ -500,6 +551,7 @@ export const demoChatThreads = () => {
           uuid: other.uuid,
           first_name: other.first_name,
           last_name: other.last_name,
+          name: `${other.first_name} ${other.last_name}`,
           extension: other.extension,
         },
       ],
@@ -514,6 +566,163 @@ export const demoChatThreads = () => {
       isDeleted: false,
     };
   });
+
+  /* The Team tab — group chats, distinguished by `isGroupChat: true` and a
+     `name` of their own rather than a single other person's. */
+  const teamSeed = [
+    {
+      name: 'Sales Team',
+      memberExtensions: ['1004', '1005', '1006'],
+      hoursAgo: 3,
+      message: 'Q3 Renewals is at 55% dialed, on pace for Friday.',
+      senderExt: '1005',
+    },
+    {
+      name: 'Support Escalations',
+      memberExtensions: ['1004', '1006', '1007', '1008'],
+      hoursAgo: 20,
+      message: "Retention's abandon rate dipped below 30% today.",
+      senderExt: '1008',
+    },
+  ];
+  const teamChats = teamSeed.map((row, index) => {
+    const members = row.memberExtensions.map((extension) => {
+      const agent = DEMO_AGENTS.find((a) => a.extension === extension) as DemoAgent;
+      return {
+        uuid: agent.uuid,
+        first_name: agent.first_name,
+        last_name: agent.last_name,
+        name: `${agent.first_name} ${agent.last_name}`,
+        extension: agent.extension,
+      };
+    });
+    const sender = DEMO_AGENTS.find((a) => a.extension === row.senderExt) as DemoAgent;
+    const createdAt = new Date(now - row.hoursAgo * HOUR_MS).toISOString();
+    return {
+      chatId: `demo-team-chat-${index + 1}`,
+      isGroupChat: true,
+      groupType: 'TEAM',
+      name: row.name,
+      admins: [DEMO_USER_UUID],
+      users: [me, ...members],
+      lastMessage: {
+        message: row.message,
+        createdAt,
+        senderId: sender.uuid,
+      },
+      createdAt,
+      favoriteChats: [],
+      isHidden: [],
+      isDeleted: false,
+    };
+  });
+
+  return [...directChats, ...teamChats];
+};
+
+/** The chat body renders `message.message` through `normalizeMessageNodes`,
+ *  which only accepts an actual array (or a JSON string of one) — a plain
+ *  string parses to `[]` and the bubble renders empty — so every seeded
+ *  message body has to be this Slate paragraph shape, the same one the
+ *  compose box itself sends. */
+const toSlateMessage = (text: string) => [{ type: 'paragraph', children: [{ text }] }];
+
+/** `messageList` — the actual message history behind each `demoChatThreads()`
+ *  entry. Without this, opening any seeded chat shows "No messages found"
+ *  even though the sidebar preview (`lastMessage`) has text, because
+ *  `messageList` otherwise only ever grows from messages sent live in the
+ *  session. The final line of each thread matches that chat's `lastMessage`
+ *  exactly, so the preview and the opened thread never disagree. */
+export const demoMessageList = () => {
+  const now = Date.now();
+  const HOUR_MS = 60 * 60 * 1000;
+  const meUuid = DEMO_USER_UUID;
+  const agent = (extension: string) =>
+    DEMO_AGENTS.find((row) => row.extension === extension) as DemoAgent;
+
+  const directThreads: Array<{
+    chatId: string;
+    extension: string;
+    lines: Array<{ hoursAgo: number; fromMe: boolean; text: string }>;
+  }> = [
+    {
+      chatId: 'demo-chat-1',
+      extension: '1004',
+      lines: [
+        { hoursAgo: 3, fromMe: true, text: 'Priya, how is the Sales queue looking this afternoon?' },
+        { hoursAgo: 2.5, fromMe: false, text: 'Busy — two agents out, but we are keeping up.' },
+        { hoursAgo: 1, fromMe: false, text: 'Can you take the Sales queue for the next hour?' },
+      ],
+    },
+    {
+      chatId: 'demo-chat-2',
+      extension: '1006',
+      lines: [
+        { hoursAgo: 6, fromMe: true, text: 'Ananya, did the Retention list from this morning go out?' },
+        { hoursAgo: 5.5, fromMe: false, text: 'Pulling it together now, give me a few minutes.' },
+        { hoursAgo: 4, fromMe: false, text: 'Sent over the Retention numbers from this morning.' },
+      ],
+    },
+    {
+      chatId: 'demo-chat-3',
+      extension: '1003',
+      lines: [
+        { hoursAgo: 30, fromMe: true, text: 'Meera, I put in a leave request for next week — can you review it?' },
+        { hoursAgo: 26, fromMe: false, text: 'Approved your leave request for next week.' },
+      ],
+    },
+  ];
+
+  const directMessages = directThreads.map((thread) => {
+    const other = agent(thread.extension);
+    return {
+      chatId: thread.chatId,
+      messages: thread.lines.map((line, index) => ({
+        messageId: `${thread.chatId}-msg-${index + 1}`,
+        chatId: thread.chatId,
+        message: toSlateMessage(line.text),
+        senderId: line.fromMe ? meUuid : other.uuid,
+        createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
+        messageType: 'text',
+      })),
+    };
+  });
+
+  const teamThreads: Array<{
+    chatId: string;
+    lines: Array<{ hoursAgo: number; senderExt: string | null; text: string }>;
+  }> = [
+    {
+      chatId: 'demo-team-chat-1',
+      lines: [
+        { hoursAgo: 8, senderExt: null, text: 'Morning team — Q3 Renewals push starts today, target is 55% dialed by EOD.' },
+        { hoursAgo: 5, senderExt: '1004', text: 'On it, starting with the Mumbai HQ list.' },
+        { hoursAgo: 3, senderExt: '1005', text: 'Q3 Renewals is at 55% dialed, on pace for Friday.' },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-2',
+      lines: [
+        { hoursAgo: 24, senderExt: '1007', text: "Retention's abandon rate crept up overnight, keeping an eye on it." },
+        { hoursAgo: 22, senderExt: null, text: 'Added two more agents to the Retention queue for the morning.' },
+        { hoursAgo: 20, senderExt: '1008', text: "Retention's abandon rate dipped below 30% today." },
+      ],
+    },
+  ];
+
+  const teamMessages = teamThreads.map((thread) => ({
+    chatId: thread.chatId,
+    messages: thread.lines.map((line, index) => ({
+      messageId: `${thread.chatId}-msg-${index + 1}`,
+      chatId: thread.chatId,
+      message: toSlateMessage(line.text),
+      senderId: line.senderExt ? agent(line.senderExt).uuid : meUuid,
+      createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
+      messageType: 'text',
+    })),
+  }));
+
+  return [...directMessages, ...teamMessages];
 };
 
 /** Activity ▸ Agent Chat's `allAgentChats` — website-widget conversations
@@ -525,7 +734,7 @@ export const demoChatThreads = () => {
 export const demoAgentChatThreads = () => {
   const now = Date.now();
   const MIN_MS = 60 * 1000;
-  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta' };
+  const me = { uuid: DEMO_USER_UUID, first_name: 'Arjun', last_name: 'Mehta', name: 'Arjun Mehta' };
   const seed = [
     {
       visitor: 'Manish Tiwari',
@@ -579,9 +788,9 @@ export const demoAiChatRequests = () => {
 };
 
 /** `/api/tenant/report/agents` — matched back to the roster by name. */
-export const demoAgentReportRows = () =>
+export const demoAgentReportRows = (rows: DemoCall[] = demoCalls()) =>
   DEMO_AGENTS.map((row) => {
-    const handled = demoCalls().filter((call) => call.extension === row.extension);
+    const handled = rows.filter((call) => call.extension === row.extension);
     const answered = handled.filter((call) => call.billsectotal > 0);
     const talkSeconds = answered.reduce((sum, call) => sum + call.billsectotal, 0);
     return {
@@ -601,9 +810,9 @@ export const demoAgentReportRows = () =>
   });
 
 /** `/api/tenant/report/call-queue/list` — the per-queue REST report. */
-export const demoQueueReportRows = () =>
+export const demoQueueReportRows = (rows: DemoCall[] = demoCalls()) =>
   DEMO_QUEUES.map((queue) => {
-    const handled = demoCalls().filter((call) => call.forward_value === queue.uuid);
+    const handled = rows.filter((call) => call.forward_value === queue.uuid);
     const answered = handled.filter((call) => call.billsectotal > 0);
     const waitTotal = handled.reduce((sum, call) => sum + (call.duration - call.billsectotal), 0);
     return {
@@ -677,6 +886,85 @@ export const demoFlowRows = () =>
     site: JSON.stringify({ label: flow.site, value: flow.site.toLowerCase() }),
     status: 1,
   }));
+
+/** `/api/tenant/xml/call-logs` — the "Queue Info" / "IVR Info" side drawer a
+ *  CDR row's forward-path icon opens. Shaped once and reused for both types:
+ *  `queue-details-view.tsx` reads `result.queue`, `ivr-details-view.tsx`
+ *  reads `result.ivr`, and both fall back to reading `result` itself when
+ *  neither key is present — matching the field names here (`members`,
+ *  `manager`, `forward_call_actions`, `site` as JSON strings) is what turns
+ *  that "unavailable" empty state into the actual queue/flow record. */
+export const demoQueueCallLogDetail = (callId: string, type: string) => {
+  const call = demoCalls().find((row) => row.sipcall_id === callId);
+  const manager = DEMO_AGENTS.find((row) => row.role === 'MANAGER') as DemoAgent;
+  const toMemberEntry = (agentRow: DemoAgent) => ({
+    uuid: agentRow.uuid,
+    label: `${agentRow.first_name} ${agentRow.last_name}`,
+    extension: agentRow.extension,
+    value: agentRow.extension,
+    role: agentRow.role_name,
+    email: `${agentRow.first_name.toLowerCase()}.${agentRow.last_name.toLowerCase()}@example.com`,
+    profile: '',
+  });
+  /* `CallHistoryLogs` (the sub-table both drawers render below their info
+     card) reads `billsec` as a plain number of seconds, unlike every other
+     CDR-report consumer in the app which reads it as an "HH:MM:SS" string —
+     without this remap its Duration column shows NaN:NaN:NaN. */
+  const relatedCalls = call
+    ? demoCalls()
+        .filter((row) => row.forward_value === call.forward_value)
+        .slice(0, 8)
+        .map((row) => ({ ...row, billsec: row.billsectotal }))
+    : [];
+
+  if (type === 'IVR') {
+    const flow = DEMO_FLOWS.find((row) => row.uuid === call?.forward_value) || DEMO_FLOWS[0];
+    return {
+      result: {
+        ivr: {
+          name: flow.name,
+          extension: flow.extension,
+          site: JSON.stringify({ label: flow.site, value: flow.site.toLowerCase() }),
+          /* Keys 1/2 route to a queue, 0 reaches the operator, anything else
+             hangs up - `ivr-details-view.tsx` renders one row per entry. */
+          ivr_option: JSON.stringify([
+            { key: '1', type: 'QUEUE', label: 'Sales', value: 'demo-queue-sales' },
+            { key: '2', type: 'QUEUE', label: 'Support', value: 'demo-queue-support' },
+            { key: '0', type: 'EXTENSION', label: `${manager.first_name} ${manager.last_name}`, value: manager.extension },
+            { key: '*', type: 'HANGUP', label: '', value: '' },
+          ]),
+          generic_keys: JSON.stringify({
+            timeout_action: { status: 'HANGUP', type: '', label: '' },
+            failure_action: { status: 'HANGUP', type: '', label: '' },
+          }),
+        },
+      },
+      calls: relatedCalls,
+    };
+  }
+
+  const queueIndex = DEMO_QUEUES.findIndex((row) => row.uuid === call?.forward_value);
+  const queue = queueIndex >= 0 ? DEMO_QUEUES[queueIndex] : DEMO_QUEUES[0];
+  const members = queue.memberExtensions
+    .map((extension) => DEMO_AGENTS.find((row) => row.extension === extension))
+    .filter((row): row is DemoAgent => Boolean(row));
+  return {
+    result: {
+      queue: {
+        name: queue.name,
+        extension: String(9001 + Math.max(queueIndex, 0)),
+        description: `${queue.name} queue, service level target ${queue.sla}%.`,
+        site: JSON.stringify({ label: members[0]?.site || 'Mumbai HQ' }),
+        manager: JSON.stringify(toMemberEntry(manager)),
+        members: JSON.stringify(members.map(toMemberEntry)),
+        forward_call_actions: JSON.stringify({
+          call_handling: { failover: { type: 'VOICEMAIL', value: 'Company Voicemail' } },
+        }),
+      },
+    },
+    calls: relatedCalls,
+  };
+};
 
 /** `/api/fax/did/number/assigned` and `DEMO_USER.assigned_did` — the numbers
  *  Inbox's "Your number" / fax-number pickers offer, and what the admin

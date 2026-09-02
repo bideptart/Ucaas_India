@@ -413,7 +413,6 @@ const ConfigureAiAgent = () => {
     aiAgentDraft = null,
   } = location.state || {};
 
-  console.log(location?.state, 'initialTopicId');
 
   const { formData: initialData = {} } = rowData || {};
 
@@ -421,7 +420,6 @@ const ConfigureAiAgent = () => {
   const [currentStep, setCurrentStep] = useState(
     Number.isFinite(aiAgentDraft?.currentStep) ? Number(aiAgentDraft?.currentStep) : 0,
   );
-  console.log(currentStep, 'currentStepcurrentStep', initialData);
 
   const [agentName, setAgentName] = useState(
     aiAgentDraft?.agentName ?? initialData?.agentName ?? initialTemplateName ?? '',
@@ -571,7 +569,6 @@ const ConfigureAiAgent = () => {
   );
   const [managerSearch, setManagerSearch] = useState('');
 
-  // console.log(selectedTopicId, 'selectedTopicId', initialData);
 
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
   const [widgetColors] = useState({
@@ -997,30 +994,8 @@ const ConfigureAiAgent = () => {
   };
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
-
-  const handlePlayPause = (audioUrl: string) => {
-    if (!audioUrl) return;
-    if (currentAudio !== audioUrl) {
-      audioRef.current?.pause();
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.play();
-      setCurrentAudio(audioUrl);
-      setIsPlaying(true);
-      audioRef.current.onended = () => setIsPlaying(false);
-    } else {
-      if (isPlaying) {
-        audioRef.current?.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current?.play();
-        setIsPlaying(true);
-      }
-    }
-  };
-
-  console.log(handlePlayPause);
+  const [, setIsPlaying] = useState(false);
+  const [, setCurrentAudio] = useState<string | null>(null);
 
   const stopAudio = () => {
     if (audioRef.current) {

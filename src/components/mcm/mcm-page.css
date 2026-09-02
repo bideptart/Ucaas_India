@@ -143,10 +143,23 @@
   min-height: 0;
   overflow: hidden;
 }
-.mcm-page button {
+/* Tab triggers are excluded from `color`/`border` below. This reset is
+   unlayered, so it beats every Tailwind utility regardless of specificity (see
+   the flex-direction note above) - including the
+   `data-[state=active]:text-primary` and `data-[state=active]:border-b-primary`
+   that tab strips mark the open tab with. `border: 0` erased the underline and
+   `color: inherit` erased the accent, so every tab rendered identically and a
+   drawer gave no clue which tab you were on. The font, background and cursor
+   parts of the reset still apply; only the two the tabs own are left to them. */
+.mcm-page button:not([data-slot='tabs-trigger']) {
   font: inherit;
   color: inherit;
   border: 0;
+  background: none;
+  cursor: pointer;
+}
+.mcm-page button[data-slot='tabs-trigger'] {
+  font: inherit;
   background: none;
   cursor: pointer;
 }
@@ -766,6 +779,9 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   white-space: nowrap;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .mcm-page .ptabstrip button:hover {
   color: var(--ink);
@@ -2376,9 +2392,20 @@
   height: 18px;
   background: #fff;
   box-shadow: 0 1px 2px rgb(13 21 38 / 0.25);
+  /* The travel below has to be set with `translate`, not `transform`.
+     Tailwind v4 compiles `translate-x-*` to the standalone `translate`
+     property, so a `transform` here never replaced it - the two composed,
+     and a checked thumb moved 17px + 16px and left the track entirely.
+     Setting the same property overrides it instead of adding to it. */
+  transform: none;
+  translate: 0 0;
 }
+/* 18px is the track's inner width (38px less its two 1px borders) minus the
+   18px thumb, so the thumb ends up inset by the same amount at either end
+   rather than hanging off one. */
 .mcm-page [data-slot='switch'][data-state='checked'] [data-slot='switch-thumb'] {
-  transform: translateX(17px);
+  transform: none;
+  translate: 18px 0;
 }
 
 /* 3. Radio dots were a hairline ring that all but vanished against the
@@ -3605,6 +3632,9 @@
   color: var(--ink-3);
   font-size: 12px;
   font-weight: 600;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 .mcm-adminhome-clear:hover {
   color: var(--crit);
@@ -3865,6 +3895,15 @@
   font-size: 13px;
   font-weight: 550;
   color: var(--ink);
+}
+/* The mandatory marker on a settings row. Rose rather than the brand accent:
+   the console accent is orange and these forms sit on an orange-tinted ground,
+   so an orange asterisk is the one thing someone scanning for required fields
+   would slide straight past. */
+.mcm-setrow-required {
+  margin-left: 3px;
+  color: #e11d48;
+  font-weight: 500;
 }
 .mcm-setrow-desc {
   margin: 4px 0 0;

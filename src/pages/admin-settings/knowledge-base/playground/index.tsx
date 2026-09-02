@@ -7,6 +7,8 @@ import Loader from '@/components/custom/loader';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAi360WidgetKey, getChatWidgetScriptSrc } from '../ai-agent/chat-agent-configure-modal';
+import { isDemoMode } from '@/lib/demo-mode';
+import PlaygroundDemoPreview from './demo-preview';
 
 const EMBED_SCRIPT_ID = 'ai-agent-test-embed-script';
 const CHAT_WIDGET_MAX_WIDTH = 423;
@@ -171,6 +173,14 @@ function Playground() {
     (rowData: any) => {
       const rowId = rowData?.agent_uuid || rowData?.id;
       const mode = activeTab === 'voice' ? 'call' : 'chat';
+
+      /* Demo mode has no widget host to fetch from, so asking for one only
+         produced "AI widget URL is missing." and left the panel spinning on a
+         script that was never going to arrive. The sandbox renders instead. */
+      if (isDemoMode()) {
+        setActiveEmbedId(rowId);
+        return;
+      }
       const widgetKey = getAi360WidgetKey(rowData);
       const widgetScriptSrc = getChatWidgetScriptSrc();
 
@@ -551,9 +561,16 @@ function Playground() {
                 {/* Inline Sandbox Console */}
                 <div className="flex-1 flex flex-col min-h-0 overflow-auto">
                   <div ref={containerRef} className="w-full flex-1 relative bg-[#FBE2C8]/50">
-                    <div id="ai-chat-widget-root" className="w-full h-full" />
+                    {isDemoMode() ? (
+                      <PlaygroundDemoPreview
+                        agentName={String(selectedAgent?.agentName || selectedAgent?.name || '')}
+                        mode={activeWidgetMode === 'call' ? 'call' : 'chat'}
+                      />
+                    ) : (
+                      <div id="ai-chat-widget-root" className="w-full h-full" />
+                    )}
 
-                    {!activeWidgetKey ? (
+                    {isDemoMode() ? null : !activeWidgetKey ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
                         <p className="text-sm font-semibold text-[#2E2D35]">Widget key missing</p>
                         <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#9A948F]">

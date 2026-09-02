@@ -18,10 +18,9 @@ interface IWidgetViewModalProps {
 function WidgetViewModal({ modalState, setModalState, data }: IWidgetViewModalProps) {
   const [copied, setCopied] = useState(false);
   const [agent, setAgent] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'chat' | 'talk'>('chat');
+  const [activeTab] = useState<'chat' | 'talk'>('chat');
   const { agentId = '' } = data || {};
   // const baseURL = window.location.origin;
-  console.log(setActiveTab, 'setActiveTab');
 
   const { data: agentList = [], isLoading: isAgentLoading } = useQuery({
     queryFn: getAgentList,
@@ -86,26 +85,7 @@ function WidgetViewModal({ modalState, setModalState, data }: IWidgetViewModalPr
               <h3 className="text-base font-semibold text-[#2E2D35]">Code Preview</h3>
 
               <div className="flex justify-between items-end">
-                <div className="flex gap-1 p-1 bg-[#FBE2C8]/40 rounded-md w-fit">
-                  {/* <button
-                    onClick={() => setActiveTab('chat')}
-                    className={`px-4 py-1.5 text-sm font-medium rounded-sm transition-all ${activeTab === 'chat'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                  >
-                    Chat
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('talk')}
-                    className={`px-4 py-1.5 text-sm font-medium rounded-sm transition-all ${activeTab === 'talk'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                  >
-                    Talk
-                  </button> */}
-                </div>
+                <div className="flex gap-1 p-1 bg-[#FBE2C8]/40 rounded-md w-fit"></div>
 
                 <Button
                   onClick={handleCopy}

@@ -324,15 +324,6 @@ const getAgentTypeTemplateOptions = (agentTypeData: any): UseCaseTemplateOption[
     .filter(Boolean) as UseCaseTemplateOption[];
 };
 
-const wizardSteps = [
-  'Basics',
-  'Voice & Persona',
-  'Greeting & Hours',
-  'Knowledge Base',
-  'Review',
-  'Advanced Settings',
-];
-console.log(wizardSteps);
 
 const stepToTab: Record<ReceptionistStep, WizardReceptionistTab> = {
   1: 'basics',
@@ -1787,8 +1778,6 @@ const normalizeBoundedIntegerInput = (
   return normalizeBoundedInteger(value, min, max, min);
 };
 
-const isUuidLike = (value: string) =>
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const normalizeSourceStage = (value: unknown, fallback: SourceStage): SourceStage => {
   const numericValue = Number(value);
   return numericValue === 1 || numericValue === 2 || numericValue === 3 ? numericValue : fallback;
@@ -1830,312 +1819,6 @@ const mergeReceptionistMetrics = (agent: any, metricsByAgentId: Map<string, any>
   };
 };
 
-function ForwardTypeCell({ data, onUpdate, optionsData, userExtension }: any) {
-  const originalBusinessHours = data?.forward_call_actions?.call_handling?.business_hours || {};
-  const originalType = originalBusinessHours.type || 'HANGUP';
-  const originalTypeLabel = getForwardTypeLabel(originalType);
-  const extensionList = optionsData?.extensionList || [];
-  const greetingList = optionsData?.greetingList || [];
-  const departmentList = optionsData?.departmentList || [];
-  const IVRList = optionsData?.IVRList || [];
-  const queueList = optionsData?.queueList || [];
-
-  const showForwardToForType = (type?: string) => type !== 'HANGUP';
-  const getResolvedForwardValueLabel = useCallback(
-    (type: string, value: any, isPersonal?: boolean) => {
-      const rawValue = String(value || '').trim();
-      if (!rawValue) return '';
-
-      if (type === 'VOICEMAIL' && isPersonal) return 'My Voicemail';
-
-      if (type === 'EXTENSION' || type === 'VOICEMAIL') {
-        const matched = Array.isArray(extensionList)
-          ? extensionList.find((extension: any) => {
-              const extensionNumber = String(extension?.extension || '').trim();
-              const extensionUuid = String(extension?.uuid || '').trim();
-              const extensionUserUuid = String(
-                extension?.user_uuid || extension?.userId || '',
-              ).trim();
-              return (
-                rawValue === extensionNumber ||
-                rawValue === extensionUuid ||
-                rawValue === extensionUserUuid
-              );
-            })
-          : null;
-        if (matched) {
-          return `${matched?.first_name || ''}${matched?.last_name ? ` ${matched.last_name}` : ''}`.trim();
-        }
-        if (!isUuidLike(rawValue)) return rawValue;
-      }
-
-      if (type === 'GREETING') {
-        const matched = Array.isArray(greetingList)
-          ? greetingList.find((greeting: any) => String(greeting?.filename || '') === rawValue)
-          : null;
-        return matched?.name || '';
-      }
-
-      if (type === 'DEPARTMENT') {
-        const matched = Array.isArray(departmentList)
-          ? departmentList.find((department: any) => String(department?.uuid || '') === rawValue)
-          : null;
-        return matched?.name || '';
-      }
-
-      if (type === 'IVR') {
-        const matched = Array.isArray(IVRList)
-          ? IVRList.find((ivr: any) => String(ivr?.uuid || '') === rawValue)
-          : null;
-        return matched?.name || '';
-      }
-
-      if (type === 'QUEUE') {
-        const matched = Array.isArray(queueList)
-          ? queueList.find((queue: any) =>
-              [queue?.uuid, queue?._id, queue?.id].map((id) => String(id || '')).includes(rawValue),
-            )
-          : null;
-        return matched?.name || '';
-      }
-
-      if (type === 'PHONE') return rawValue;
-
-      return '';
-    },
-    [extensionList, greetingList, departmentList, IVRList, queueList],
-  );
-
-  const resolvedOriginalValueLabel = useMemo(
-    () =>
-      getResolvedForwardValueLabel(
-        originalType,
-        originalBusinessHours.value,
-        originalBusinessHours.personal,
-      ),
-    [
-      getResolvedForwardValueLabel,
-      originalType,
-      originalBusinessHours.value,
-      originalBusinessHours.personal,
-    ],
-  );
-  const isGenericOriginalLabel =
-    !originalBusinessHours.label ||
-    originalBusinessHours.label === 'Select' ||
-    originalBusinessHours.label === originalTypeLabel;
-  const initialForwardValueLabel = originalBusinessHours.personal
-    ? 'My Voicemail'
-    : isGenericOriginalLabel
-      ? resolvedOriginalValueLabel
-      : originalBusinessHours.label;
-  const originalValueLabel = showForwardToForType(originalType)
-    ? originalBusinessHours.personal
-      ? 'My Voicemail'
-      : isGenericOriginalLabel
-        ? resolvedOriginalValueLabel || '-'
-        : originalBusinessHours.label
-    : '-';
-
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const {
-    watch,
-    setValue,
-    reset,
-    getValues,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      forwardState: {
-        type: {
-          label: originalTypeLabel,
-          value: originalType,
-        },
-        value: {
-          label: initialForwardValueLabel || 'Select',
-          value: originalBusinessHours.value || '',
-        },
-        personal: originalBusinessHours.personal ?? false,
-      },
-    },
-  });
-
-  const originalBusinessHoursKey = useMemo(
-    () => JSON.stringify(originalBusinessHours),
-    [originalBusinessHours],
-  );
-
-  useEffect(() => {
-    if (isUpdating) return;
-
-    reset({
-      forwardState: {
-        type: {
-          label: originalTypeLabel,
-          value: originalType,
-        },
-        value: {
-          label: initialForwardValueLabel || 'Select',
-          value: originalBusinessHours.value || '',
-        },
-        personal: originalBusinessHours.personal ?? false,
-      },
-    });
-  }, [
-    initialForwardValueLabel,
-    isUpdating,
-    originalBusinessHours.value,
-    originalBusinessHours.personal,
-    originalBusinessHoursKey,
-    originalType,
-    originalTypeLabel,
-    reset,
-  ]);
-
-  const currentValues = watch('forwardState') || {};
-  const hasChanged =
-    currentValues.type?.value !== originalType ||
-    currentValues.value?.value !== (originalBusinessHours.value || '') ||
-    currentValues.personal !== (originalBusinessHours.personal ?? false);
-  const selectedTypeLabel =
-    currentValues.type?.label || getForwardTypeLabel(currentValues.type?.value || originalType);
-  const shouldShowForwardTo = showForwardToForType(currentValues.type?.value || originalType);
-  const summaryShouldShowForwardTo = showForwardToForType(originalType);
-  const forwardValueFieldLabel = getForwardValueFieldLabel(originalType);
-  const resolvedCurrentValueLabel = getResolvedForwardValueLabel(
-    currentValues.type?.value || originalType,
-    currentValues.value?.value,
-    currentValues.personal,
-  );
-  const currentLabel = currentValues.value?.label;
-  const isGenericCurrentLabel =
-    !currentLabel || currentLabel === 'Select' || currentLabel === selectedTypeLabel;
-  const selectedValueLabel = shouldShowForwardTo
-    ? currentValues.type?.value === 'VOICEMAIL' && currentValues.personal
-      ? 'My Voicemail'
-      : !isGenericCurrentLabel
-        ? currentLabel
-        : resolvedCurrentValueLabel || originalValueLabel
-    : '-';
-
-  const handleUpdateClick = () => {
-    const formValues = getValues('forwardState');
-    const selectedType = formValues.type.value;
-    const shouldShowForwardToValue = showForwardToForType(selectedType);
-    const businessHours = {
-      type: selectedType,
-      value: shouldShowForwardToValue ? formValues.value.value : '',
-      label: shouldShowForwardToValue
-        ? formValues.value.label || formValues.type.label
-        : formValues.type.label,
-      personal: formValues.personal,
-    };
-    setIsUpdating(true);
-    onUpdate(data, businessHours, (success: boolean) => {
-      setIsUpdating(false);
-      if (success) {
-        setIsEditModalOpen(false);
-      } else {
-        reset();
-      }
-    });
-  };
-
-  return (
-    <div className="flex min-w-[270px] flex-col gap-2">
-      <div className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className={cx('min-w-0', summaryShouldShowForwardTo ? '' : 'flex-1')}>
-            <p className="text-xs text-[#9A948F]">Forward Type</p>
-            <p className="truncate text-sm font-semibold text-[#2E2D35]">{originalTypeLabel}</p>
-          </div>
-          {summaryShouldShowForwardTo ? (
-            <div className="min-w-0">
-              <p className="text-xs text-[#9A948F]">{forwardValueFieldLabel}</p>
-              <p className="truncate text-sm font-semibold text-[#2E2D35]">{originalValueLabel}</p>
-            </div>
-          ) : null}
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-8 shrink-0"
-            onClick={() => setIsEditModalOpen(true)}
-          >
-            <Edit3 className="h-3.5 w-3.5" />
-            Edit
-          </Button>
-        </div>
-      </div>
-
-      <Dialog
-        open={isEditModalOpen}
-        onOpenChange={(open) => {
-          if (!open && isUpdating) return;
-          setIsEditModalOpen(open);
-          if (!open) reset();
-        }}
-      >
-        <DialogContent className="max-w-[520px]">
-          <DialogHeader>
-            <DialogTitle>Edit Forwarding Destination</DialogTitle>
-          </DialogHeader>
-          <div className="pt-1">
-            <ForwardActionAllAi
-              watch={watch}
-              setValue={setValue}
-              forwardType="forwardState.type"
-              forwardValue="forwardState.value"
-              enableVoicemailChoice={true}
-              voicemailPersonalField="forwardState.personal"
-              optionsData={optionsData}
-              userExtension={userExtension}
-              forwardTypeError={(errors as any)?.forwardState?.type?.message || ''}
-              forwardValueError={(errors as any)?.forwardState?.value?.message || ''}
-              forwardTypeClass="w-full"
-              forwardValueClass="w-full"
-              selectCustomClassSecond="w-full"
-            />
-            <div className="mt-4 rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-3">
-              <p className="text-xs text-[#9A948F]">Selected</p>
-              <p className="text-sm font-medium text-[#2E2D35]">
-                {shouldShowForwardTo
-                  ? `${selectedTypeLabel} - ${selectedValueLabel}`
-                  : selectedTypeLabel}
-              </p>
-            </div>
-          </div>
-          <DialogFooter className="sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                reset();
-                setIsEditModalOpen(false);
-              }}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleUpdateClick} disabled={isUpdating || !hasChanged}>
-              {isUpdating ? (
-                <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </span>
-              ) : (
-                'Save'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-console.log(ForwardTypeCell);
-
 function NewAiReceptionistPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -2169,7 +1852,6 @@ function NewAiReceptionistPage() {
     queryFn: () => getAIReceptionistList({ page: 1, limit: 1000, filters: [], search: '' }),
     select: (data: any) => data?.data?.data?.result || {},
   });
-  console.log(receptionistData, 'receptionistData');
 
   const receptionistRows = useMemo(
     () => (Array.isArray(receptionistData?.rows) ? receptionistData.rows : []),
@@ -3129,7 +2811,6 @@ function NewAiReceptionistBuilder({
   );
   const [selectedPersona, setSelectedPersona] = useState(initialVoicePersona);
   const [selectedPersonaObj, setSelectedPersonaObj] = useState<any>({});
-  console.log(selectedPersona, 'selectedPersona');
 
   const initialTextKnowledgeValue =
     builderState?.knowledge?.selectedKnowledgeBase?.text || initialData?.text_uuid;
@@ -3329,7 +3010,6 @@ function NewAiReceptionistBuilder({
       initialForwardActions?.enable_human_handoff ??
       true,
   );
-  console.log(setEnableHumanHandoff);
   const savedBusinessHoursForwardCall = initialForwardActions?.call_handling?.business_hours || {};
   const hasSavedBusinessHoursRouting = hasSavedBusinessHoursForwardCall(
     savedBusinessHoursForwardCall,
@@ -4541,14 +4221,6 @@ function NewAiReceptionistBuilder({
     };
   }, []);
 
-  const handleDeleteKbItem = (id: string, type?: string) => {
-    void type;
-    if (selectedLinks.includes(id)) {
-      setSelectedLinks((prev) => prev.filter((item) => item !== id));
-    }
-  };
-  console.log(handleDeleteKbItem);
-
   const validateStep = (step: ReceptionistStep) => {
     const errorsMap: Record<string, string> = {};
     if (step === 1) {
@@ -4733,35 +4405,6 @@ function NewAiReceptionistBuilder({
 
     return createdIds;
   };
-
-  const goToStep = async (step: ReceptionistStep) => {
-    if (isKnowledgeSummaryNavigationLocked) return;
-
-    if (isReadOnly) {
-      setStepErrors({});
-      setActiveStep(step);
-      return;
-    }
-
-    if (step <= activeStep) {
-      setStepErrors({});
-      setActiveStep(step);
-      return;
-    }
-    const mergedErrors: Record<string, string> = {};
-    for (let index = 1; index < step; index += 1) {
-      Object.assign(mergedErrors, validateStep(index as ReceptionistStep));
-    }
-    if (Object.keys(mergedErrors).length) {
-      setStepErrors(mergedErrors);
-      scrollToFirstValidationError(mergedErrors);
-      return;
-    }
-    await stopAudio();
-    setStepErrors({});
-    setActiveStep(step);
-  };
-  console.log(goToStep);
 
   const getReceptionistWizardStepId = (
     step: ReceptionistStep,
@@ -5774,7 +5417,6 @@ function NewAiReceptionistBuilder({
         getForwardDestinationValue(committedForwardState) ||
         '-';
 
-  console.log(committedForwardValueLabel, 'committedForwardValueLabel', committedForwardState);
 
   const forwardValueFieldLabel = getForwardValueFieldLabel(forwardCallState?.type?.value);
   const editHeaderAgentData = {
@@ -9052,31 +8694,6 @@ function KnowledgeActionCard({
   );
 }
 
-function SourceAnalysisList({ records }: { records: SourceRecord[] }) {
-  if (!records.length) return <NoRecordFound />;
-  return (
-    <div className="overflow-hidden rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
-      <div className="border-b border-[#EEE7DD] px-4 py-3">
-        <p className="text-sm font-bold text-[#2E2D35]">Sources</p>
-      </div>
-      {records.map((record) => (
-        <div
-          key={record.id}
-          className="flex items-center gap-3 border-b border-[#EEE7DD] px-4 py-3 text-sm last:border-b-0"
-        >
-          <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-          <span className="min-w-0 flex-1 truncate font-semibold text-[#2E2D35]">
-            {record.title}
-          </span>
-          <span className="text-xs text-slate-500">{record.type}</span>
-          <span className="max-w-[260px] truncate text-xs text-slate-500">{record.source}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-console.log(SourceAnalysisList);
-
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
@@ -9130,36 +8747,6 @@ function SettingsRow({
     </div>
   );
 }
-
-function ActionCard({
-  icon,
-  title,
-  copy,
-  action,
-  onClick,
-}: {
-  icon: ReactNode;
-  title: string;
-  copy: string;
-  action: string;
-  onClick: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-[#EEE7DD] p-4">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="mt-0.5 text-primary">{icon}</span>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-[#2E2D35]">{title}</p>
-          <p className="mt-1 truncate text-xs text-slate-500">{copy}</p>
-        </div>
-      </div>
-      <Button variant="outline" size="sm" onClick={onClick}>
-        {action}
-      </Button>
-    </div>
-  );
-}
-console.log(ActionCard);
 
 function OverviewPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -9249,14 +8836,6 @@ function SecondaryButton({
     >
       {children}
     </button>
-  );
-}
-
-function NoRecordFound() {
-  return (
-    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500">
-      No record found.
-    </div>
   );
 }
 

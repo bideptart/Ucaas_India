@@ -547,7 +547,6 @@ const CreateAiReceptionist = ({
   const isForwardModalSavingRef = useRef(false);
   const [bussinessHourError, setBussinessHourError] = useState<string | null>('');
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
-  console.log(stepErrors, 'stepErrorsstepErrors');
 
   const [invalidStepIndexes, setInvalidStepIndexes] = useState<number[]>([]);
   const userRegionalSettings = user?.settings?.operational_hours?.regional;

@@ -1,4 +1,4 @@
-import { FilterIcon, Bell, PhoneIcon, VideocameraAdd } from '@/assets/icons';
+import { FilterIcon, Bell, PhoneIcon, VideocameraAdd, Clock } from '@/assets/icons';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -67,9 +67,12 @@ const DUMMY_NOTIFICATIONS: any[] = [
     'New voicemail from Support Line (01:37)',
   ]),
   ...buildDummyGroup('missedcall', 'missedcall', [
+    // Same number 3 times on purpose — a customer calling back after
+    // nobody picked up is exactly the case sender-grouping collapses into
+    // one row instead of three, so this needs a real repeat to demo.
     'Missed call from +91 98765 43210',
-    'Missed call from +1 (415) 555-0132',
-    'Missed call from +1 (646) 555-0177',
+    'Missed call from +91 98765 43210',
+    'Missed call from +91 98765 43210',
     'Missed call from +44 20 7946 0958',
     'Missed call from +91 87654 32109',
     'Missed call from +1 (312) 555-0199',
@@ -203,6 +206,27 @@ const restoreDummyReadIds = (previous: { read: Set<string>; unread: Set<string> 
   dummyUnreadIdStore = previous.unread;
 };
 
+// Snoozed ids hide from the list until the chosen time passes, then fall
+// back into view on their own — same module-level pattern as the read
+// stores above, for the same reason (survives the drawer unmounting).
+let dummySnoozedUntilStore = new Map<string, number>();
+const snoozeDummyId = (id: string, forMs: number) => {
+  const next = new Map(dummySnoozedUntilStore);
+  next.set(id, Date.now() + forMs);
+  dummySnoozedUntilStore = next;
+};
+const unsnoozeDummyId = (id: string) => {
+  if (!dummySnoozedUntilStore.has(id)) return;
+  const next = new Map(dummySnoozedUntilStore);
+  next.delete(id);
+  dummySnoozedUntilStore = next;
+};
+const SNOOZE_OPTIONS = [
+  { label: '1 hour', ms: 60 * 60 * 1000 },
+  { label: '4 hours', ms: 4 * 60 * 60 * 1000 },
+  { label: 'Tomorrow', ms: 24 * 60 * 60 * 1000 },
+];
+
 // Where clicking a notification should take you — only for types that have
 // an obvious "go look at this" destination. Types left unmapped (payments,
 // group/queue creation) just toggle read state, same as before; a wrong
@@ -228,6 +252,25 @@ const getNotificationRoute = (notification?: { type?: string }) => {
     default:
       return null;
   }
+};
+
+// Pulls "who this is from" out of the description text so repeats from the
+// same caller/sender can collapse into one row instead of cluttering the
+// list with N near-identical entries — three missed calls from the same
+// number in ten minutes is one thing to deal with, not three. Only defined
+// for the types where that's actually likely to happen; everything else
+// (payments, campaigns, admin events) is inherently one-off, so grouping it
+// would just hide information instead of reducing noise.
+const SENDER_KEY_PATTERNS: Partial<Record<string, RegExp>> = {
+  sms: /from ([^:]+):/,
+  missedcall: /from (.+)$/,
+  voicemail: /from (.+?)\s*\(\d/,
+  [NOTIFICATION_TYPE_CONST.CALL_BACK_SCHEDULE]: /with (.+)$/,
+};
+const getSenderGroupKey = (notification?: { type?: string; description?: string }) => {
+  const pattern = notification?.type ? SENDER_KEY_PATTERNS[notification.type] : undefined;
+  const match = pattern ? notification?.description?.match(pattern) : null;
+  return match?.[1]?.trim() || null;
 };
 
 // "Today" / "Yesterday" / a full date — assumes the list arrives newest
@@ -311,6 +354,9 @@ const NotificationContent = ({
       return false;
     }
   });
+  // Not persisted like the other toggles — snoozed items are meant to stay
+  // out of the way by default every time the drawer opens, not just once.
+  const [showSnoozed, setShowSnoozed] = useState(false);
   const isShowingDummy = isDemoMode() && !(notificationArr && notificationArr?.length > 0);
 
   const [notificationFilterValue, setNotificationFilterValue] = useState<any>(() => {
@@ -406,6 +452,14 @@ const NotificationContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowingDummy, notificationArr, dummyReadVersion]);
 
+  // A snoozed item should reappear on its own once the time passes, not
+  // just the next time something else happens to force a re-render.
+  useEffect(() => {
+    if (!isShowingDummy) return;
+    const interval = setInterval(() => setDummyReadVersion((v) => v + 1), 30_000);
+    return () => clearInterval(interval);
+  }, [isShowingDummy]);
+
   const categoryFilteredNotifications = useMemo(() => {
     if (!sourceNotifications || sourceNotifications.length === 0) return [];
     return notificationFilterValue?.value?.[0] && notificationFilterValue?.value?.[0] !== 'all'
@@ -418,12 +472,71 @@ const NotificationContent = ({
     [categoryFilteredNotifications],
   );
 
+  // Snoozed items hide from the main list by default (that's the point of
+  // snoozing them) but stay countable so there's a way back to them instead
+  // of just trusting the Undo toast wasn't missed.
+  const categorySnoozedCount = useMemo(() => {
+    if (!isShowingDummy) return 0;
+    const now = Date.now();
+    return categoryFilteredNotifications.filter((n) => {
+      const until = dummySnoozedUntilStore.get(n._id);
+      return until && until > now;
+    }).length;
+  }, [categoryFilteredNotifications, isShowingDummy, dummyReadVersion]);
+
   useEffect(() => {
-    const filtered_notifications = showUnreadOnly
-      ? categoryFilteredNotifications.filter(({ unread }) => unread)
-      : categoryFilteredNotifications;
+    const now = Date.now();
+    let filtered_notifications = categoryFilteredNotifications;
+    if (isShowingDummy && !showSnoozed) {
+      filtered_notifications = filtered_notifications.filter((n) => {
+        const until = dummySnoozedUntilStore.get(n._id);
+        return !until || until <= now;
+      });
+    }
+    if (showUnreadOnly) {
+      filtered_notifications = filtered_notifications.filter(({ unread }) => unread);
+    }
     setMutatedNotifications(filtered_notifications || []);
-  }, [categoryFilteredNotifications, showUnreadOnly]);
+  }, [categoryFilteredNotifications, showUnreadOnly, showSnoozed, isShowingDummy, dummyReadVersion]);
+
+  // Collapse consecutive same-type-same-sender items into one row. Only
+  // consecutive ones — merging across items separated by something else
+  // would group things that aren't actually adjacent in the list the user
+  // is scanning, which reads as a bug, not a feature.
+  const groupedDisplayItems = useMemo(() => {
+    const result: any[] = [];
+    for (const notification of mutatedNotifications || []) {
+      const senderKey = getSenderGroupKey(notification);
+      const last = result[result.length - 1];
+      if (
+        senderKey &&
+        last?.isGroup &&
+        last.type === notification?.type &&
+        last.senderKey === senderKey
+      ) {
+        last.items.push(notification);
+        last.anyUnread = last.anyUnread || !!notification?.unread;
+        continue;
+      }
+      if (senderKey && last && !last.isGroup && last.type === notification?.type) {
+        const lastSenderKey = getSenderGroupKey(last);
+        if (lastSenderKey === senderKey) {
+          result[result.length - 1] = {
+            isGroup: true,
+            _id: `group-${notification?.type}-${senderKey}`,
+            type: notification?.type,
+            senderKey,
+            items: [last, notification],
+            anyUnread: !!last?.unread || !!notification?.unread,
+            createdAt: notification?.createdAt,
+          };
+          continue;
+        }
+      }
+      result.push(notification);
+    }
+    return result;
+  }, [mutatedNotifications]);
   return (
     <div
       role="region"
@@ -591,19 +704,98 @@ const NotificationContent = ({
         </div>
       </div>
       <hr className="border-[#f0d6b4] p-2 mt-1" />
+      {isShowingDummy && categorySnoozedCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowSnoozed((prev) => !prev)}
+          className="flex items-center gap-1.5 shrink-0 mx-1 mb-2 px-3 py-1.5 rounded-full cursor-pointer text-xs font-medium text-[#b5502f] bg-white/50 border border-[#f0d6b4] hover:bg-white/80 transition-colors self-start"
+        >
+          <Clock className="w-3.5 h-3.5" />
+          {showSnoozed
+            ? 'Hide snoozed'
+            : `${categorySnoozedCount} snoozed — Show`}
+        </button>
+      )}
       <div className="w-full overflow-auto flex-1 min-h-0 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] [&::-webkit-scrollbar-thumb]:rounded-full [scrollbar-width:thin] [scrollbar-color:#e8b98a_transparent]">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div role="status" aria-label="Loading notifications" className="flex justify-center items-center h-full">
             <Loader variant="blue" />
           </div>
         ) : mutatedNotifications && mutatedNotifications?.length > 0 ? (
-          mutatedNotifications?.map((notification: any, notificationIndex: number) => {
+          groupedDisplayItems?.map((notification: any, notificationIndex: number) => {
             const dateGroupLabel = getDateGroupLabel(notification?.createdAt);
             const previousDateGroupLabel =
               notificationIndex > 0
-                ? getDateGroupLabel(mutatedNotifications[notificationIndex - 1]?.createdAt)
+                ? getDateGroupLabel(groupedDisplayItems[notificationIndex - 1]?.createdAt)
                 : null;
             const showDateGroupHeader = dateGroupLabel !== previousDateGroupLabel;
+
+            if (notification.isGroup) {
+              const GroupIcon =
+                notificationIconLookup?.[notification.type] || notificationIconLookup?.['default'];
+              const groupLabel =
+                notification.type === 'sms'
+                  ? 'new messages'
+                  : notification.type === 'missedcall'
+                    ? 'missed calls'
+                    : notification.type === 'voicemail'
+                      ? 'voicemails'
+                      : 'updates';
+              return (
+                <Fragment key={notification._id}>
+                  {showDateGroupHeader && (
+                    <div
+                      className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
+                    >
+                      {dateGroupLabel}
+                    </div>
+                  )}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${notification.senderKey}, ${notification.items.length} ${groupLabel}${notification.anyUnread ? ', unread' : ''}`}
+                    className={`animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 shadow-sm flex items-center cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${notification.anyUnread ? 'opacity-100' : 'opacity-60'}`}
+                    style={{ borderLeftColor: getCategoryAccent() }}
+                    onClick={() => {
+                      notification.items.forEach((item: any) => {
+                        if (isShowingDummy) markDummyIdRead(item?._id);
+                        else markReadNotification(item?._id);
+                      });
+                      setDummyReadVersion((v) => v + 1);
+                      const route = getNotificationRoute(notification);
+                      if (route) {
+                        setNotificationState(false);
+                        navigate(route);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== 'Enter' && e.key !== ' ') return;
+                      e.preventDefault();
+                      e.currentTarget.click();
+                    }}
+                  >
+                    <div
+                      aria-label="group icon"
+                      role="img"
+                      className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] bg-[#fdeee0] flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f]"
+                    >
+                      {GroupIcon ? <div className="flex w-5 h-5">{GroupIcon}</div> : null}
+                      <span className="absolute -bottom-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center bg-[#b5502f] text-white ring-2 ring-white">
+                        {notification.items.length}
+                      </span>
+                    </div>
+                    <div className="pl-3 w-full">
+                      <div className="text-sm text-gray-900 font-medium">
+                        {notification.senderKey}
+                      </div>
+                      <p className="text-xs leading-3 pt-1 text-gray-500">
+                        {notification.items.length} {groupLabel}
+                      </p>
+                    </div>
+                  </div>
+                </Fragment>
+              );
+            }
             const notificationtype =
               notification?.type === NOTIFICATION_TYPE_CONST.EVENT_REMINDER
                 ? notification?.details?.category || NOTIFICATION_TYPE_CONST.EVENT
@@ -768,6 +960,10 @@ const NotificationContent = ({
             };
             const categoryAccent = getCategoryAccent();
             const enterDelayMs = Math.min(notificationIndex, 14) * 25;
+            const snoozedUntilMs = isShowingDummy
+              ? dummySnoozedUntilStore.get(notification?._id)
+              : undefined;
+            const isSnoozed = !!snoozedUntilMs && snoozedUntilMs > Date.now();
 
             return (
               <Fragment key={notification?._id}>
@@ -813,11 +1009,94 @@ const NotificationContent = ({
                     >
                       {notification?.description}
                     </div>
-                    <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500">
+                    <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500 flex items-center gap-1.5">
                       {formatNotificationDate(notification?.createdAt)}
+                      {isSnoozed && (
+                        <span className="inline-flex items-center gap-1 text-[#b5502f] font-medium">
+                          <Clock className="w-3 h-3" />
+                          Snoozed
+                        </span>
+                      )}
                     </p>
                   </div>
                   {actionIcon && <div className="flex items-start gap-2 ml-2">{actionIcon}</div>}
+                  {isShowingDummy &&
+                    (isSnoozed ? (
+                      // Already snoozed — one click cancels it instead of
+                      // reopening the same duration picker.
+                      <div className="flex items-start ml-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          aria-label="Cancel snooze"
+                          title="Cancel snooze"
+                          onClick={() => {
+                            unsnoozeDummyId(notification?._id);
+                            setDummyReadVersion((v) => v + 1);
+                          }}
+                          className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-white bg-gradient-to-r from-[#f2794f] to-[#ea5c34] border border-transparent hover:opacity-90 transition-opacity"
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      // Dummy-only, same as mark-as-unread — there's no real
+                      // "remind me later" call to make against a live
+                      // notification yet, only the local demo state to snooze.
+                      <div className="flex items-start ml-2" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger>
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              aria-label="Snooze"
+                              title="Snooze"
+                              className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-[#b5502f] bg-white/60 border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent transition-colors"
+                            >
+                              <Clock className="w-3.5 h-3.5" />
+                            </span>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {SNOOZE_OPTIONS.map((option) => (
+                              <DropdownMenuItem
+                                key={option.label}
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  const id = notification?._id;
+                                  snoozeDummyId(id, option.ms);
+                                  setDummyReadVersion((v) => v + 1);
+                                  const until = moment(Date.now() + option.ms);
+                                  const untilLabel =
+                                    option.label === 'Tomorrow'
+                                      ? `tomorrow at ${until.format('h:mm A')}`
+                                      : until.format('h:mm A');
+                                  handleAlert({
+                                    text: (
+                                      <div className="flex items-center gap-3">
+                                        <span>Snoozed until {untilLabel}.</span>
+                                        <button
+                                          type="button"
+                                          className="text-xs font-semibold underline shrink-0 cursor-pointer"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            unsnoozeDummyId(id);
+                                            setDummyReadVersion((v) => v + 1);
+                                          }}
+                                        >
+                                          Undo
+                                        </button>
+                                      </div>
+                                    ) as any,
+                                    type: 'success',
+                                  });
+                                }}
+                              >
+                                {option.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    ))}
                   {actionButton && <div className="absolute bottom-3 right-3">{actionButton}</div>}
                 </div>
               </Fragment>

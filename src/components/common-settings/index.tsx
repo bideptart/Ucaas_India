@@ -329,9 +329,16 @@ const CommonSettingPermission: FC<any> = ({
               disabled={!canEditField('regional')}
               onClick={() => {
                 if (!canEditField('regional')) return;
-                const currentValues = JSON.parse(
-                  JSON.stringify(watch('settings.operational_hours.regional')),
-                );
+                /* `JSON.stringify(undefined)` returns the *value* `undefined`,
+                   not a string — `JSON.parse` then coerces that to the text
+                   "undefined", which throws as invalid JSON. A department
+                   with no regional settings saved yet watches as exactly
+                   `undefined` here, so opening the picker on a fresh
+                   department crashed before this guard. */
+                const watchedRegional = watch('settings.operational_hours.regional');
+                const currentValues = watchedRegional
+                  ? JSON.parse(JSON.stringify(watchedRegional))
+                  : {};
                 setInitialRegionalSettings(currentValues);
                 openModal('regionalModal');
               }}

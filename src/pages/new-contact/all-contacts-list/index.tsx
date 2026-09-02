@@ -69,7 +69,29 @@ const extractUpdatedByName = (
   );
 };
 
-const GroupAssignCell: FC<{ contact: any; groupList: any[] }> = ({ contact, groupList }) => {
+/* Some group list responses (the `displayType: 'dropdown'` shape this popover
+   and the toolbar's "Group" filter both fetch) don't carry `_id`, only `id`
+   or `uuid` — reading `group._id` alone then resolves to `undefined` for
+   every group, so every checkbox in the list reads the same (missing) key
+   and toggling one appears to check them all. A single-select dropdown
+   never surfaces this (only one item can be "selected" regardless), which
+   is why the toolbar filter looked fine while this multi-select list broke.
+   `id` also shows up nested (`{ id: { _id, groupName } }`) elsewhere in this
+   codebase (see the shape comment in `create-new-contact.tsx`), so that's
+   unwrapped too rather than stringified into a useless "[object Object]". */
+const groupIdOf = (group: any): string =>
+  String(
+    group?._id ??
+      (typeof group?.id === 'string' ? group.id : group?.id?._id) ??
+      group?.uuid ??
+      '',
+  ).trim();
+
+const GroupAssignCell: FC<{
+  contact: any;
+  groupList: any[];
+  onGroupsSaved?: (contactId: string, groups: any[]) => void;
+}> = ({ contact, groupList, onGroupsSaved }) => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -78,9 +100,7 @@ const GroupAssignCell: FC<{ contact: any; groupList: any[] }> = ({ contact, grou
 
   // Find already added group ids
   const existingMembers = Array.isArray(contact.groupMeta) ? contact?.groupMeta : [];
-  const initialGroupIds = existingMembers
-    ?.map((item: any) => String(item?._id || '').trim())
-    ?.filter(Boolean);
+  const initialGroupIds = existingMembers?.map(groupIdOf)?.filter(Boolean);
 
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(initialGroupIds);
 
@@ -96,6 +116,10 @@ const GroupAssignCell: FC<{ contact: any; groupList: any[] }> = ({ contact, grou
       toast.success(`${isLead ? 'Lead' : 'Contact'} groups updated successfully`);
       queryClient.invalidateQueries({ queryKey: ['getContactList'] });
       queryClient.invalidateQueries({ queryKey: ['getGroupContactsById'] });
+      if (contact?._id) {
+        const savedGroups = groupList.filter((group) => selectedGroupIds.includes(groupIdOf(group)));
+        onGroupsSaved?.(contact._id, savedGroups);
+      }
       setOpen(false);
     },
     onError: (error: any) => {
@@ -184,20 +208,21 @@ const GroupAssignCell: FC<{ contact: any; groupList: any[] }> = ({ contact, grou
               <div className="px-2 py-1.5 text-xs text-[#9A948F]">No groups available</div>
             ) : (
               groupList.map((group: any) => {
-                const isChecked = selectedGroupIds.includes(group._id);
+                const groupId = groupIdOf(group);
+                const isChecked = selectedGroupIds.includes(groupId);
                 return (
                   <div
-                    key={group._id}
+                    key={groupId}
                     className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#FBE2C8]/45 rounded-md cursor-pointer text-sm"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleToggle(group._id);
+                      handleToggle(groupId);
                     }}
                   >
                     <Checkbox
                       checked={isChecked}
-                      onCheckedChange={() => handleToggle(group._id)}
+                      onCheckedChange={() => handleToggle(groupId)}
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
@@ -275,6 +300,10 @@ const AllNewContactsList: FC<any> = ({
   // actionMode = 'full',
   handleNotesOpen = () => {},
   handleWhatsappOpen = () => {},
+  /* Additive only: default '' matches TableManager's own default, so the
+     other caller of this component (Leads ▸ Contact Logs) is unaffected
+     unless it explicitly opts in. */
+  tableWrapperClassName = '',
 }) => {
   const navigate = useNavigate();
   const tableRef = useRef<any>(null);
@@ -320,6 +349,16 @@ const AllNewContactsList: FC<any> = ({
     type: null,
     data: [],
   });
+
+  /* The "Groups" column reads `groupMeta` off each row, same field the
+     "Assign Group" popover saves against — but the list this table re-fetches
+     from doesn't come back with `groupMeta` populated right after a save, so
+     the column kept showing "---" even though the assignment itself worked.
+     This keeps what was actually just saved, per contact id, so the column
+     reflects it immediately; a real refetch that does bring back `groupMeta`
+     (see the `groupMeta` key check in the Groups column below) still wins,
+     so this is only a stand-in for however long the list takes to agree. */
+  const [savedGroupsByContactId, setSavedGroupsByContactId] = useState<Record<string, any[]>>({});
 
   const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false);
@@ -410,6 +449,7 @@ const AllNewContactsList: FC<any> = ({
             }
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             aria-label="Select all"
+            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white shadow-sm hover:border-primary data-[state=checked]:border-primary"
           />
         </div>
       ),
@@ -419,6 +459,7 @@ const AllNewContactsList: FC<any> = ({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
+            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white shadow-sm hover:border-primary data-[state=checked]:border-primary"
           />
         </div>
       ),
@@ -528,13 +569,14 @@ const AllNewContactsList: FC<any> = ({
     {
       header: 'Groups',
       accessorKey: 'groupMeta',
-      cell: ({ getValue }: any) => {
+      cell: ({ getValue, row }: any) => {
         let members = [];
         try {
           const parsed = getValue();
-          members = Array.isArray(parsed)
-            ? Array.from(new Map(parsed?.map((item: any) => [item?._id, item])).values())
-            : [];
+          const fromRow = Array.isArray(parsed) ? parsed : [];
+          const fromLastSave = savedGroupsByContactId[row.original?._id] || [];
+          const source = fromRow.length ? fromRow : fromLastSave;
+          members = Array.from(new Map(source.map((item: any) => [groupIdOf(item), item])).values());
         } catch (error) {
           console.error('Error parsing members:', error);
         }
@@ -578,7 +620,15 @@ const AllNewContactsList: FC<any> = ({
       id: 'assignGroup',
       cell: ({ row }) => {
         const contact = row.original;
-        return <GroupAssignCell contact={contact} groupList={groupList} />;
+        return (
+          <GroupAssignCell
+            contact={contact}
+            groupList={groupList}
+            onGroupsSaved={(contactId, groups) =>
+              setSavedGroupsByContactId((prev) => ({ ...prev, [contactId]: groups }))
+            }
+          />
+        );
       },
     },
     {
@@ -785,15 +835,27 @@ const AllNewContactsList: FC<any> = ({
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col gap-2 p-3 sm:p-4">
       {selectedContactIds.length > 0 && (
-        <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg animate-fade-in mb-2 shadow-2xs">
-          <span className="text-sm font-semibold text-red-800">
+        <div
+          className={`flex items-center justify-between p-3 rounded-lg animate-fade-in mb-2 shadow-2xs ${
+            tableWrapperClassName
+              ? 'contact-bulk-bar-warm'
+              : 'bg-red-50 border border-red-200'
+          }`}
+        >
+          <span
+            className={`text-sm font-semibold ${tableWrapperClassName ? 'contact-bulk-bar-warm-text' : 'text-red-800'}`}
+          >
             {selectedContactIds.length} contact{selectedContactIds.length > 1 ? 's' : ''} selected
           </span>
           <Button
             variant="destructive"
             size="sm"
             onClick={() => setShowBulkDeleteConfirmation(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 h-9 bg-red-600 hover:bg-red-700 text-white border-none animate-fade-in"
+            className={`flex items-center gap-1.5 px-3 py-1.5 h-9 border-none animate-fade-in ${
+              tableWrapperClassName
+                ? 'contact-bulk-delete-btn'
+                : 'bg-red-600 hover:bg-red-700 text-white'
+            }`}
           >
             <Icon name="TrashBin" className="w-4 h-4" />
             Delete Selected
@@ -815,6 +877,7 @@ const AllNewContactsList: FC<any> = ({
             ? 'No contacts match your search.'
             : 'No contacts found',
           descriptionEmptyTable: payloadExtraParams?.search ? '' : 'Add contacts to get started.',
+          customClass: tableWrapperClassName,
         }}
       />
       <AlertConfirm

@@ -119,19 +119,12 @@ const CallQueues: FC = () => {
          it is occasionally used to find a queue somebody made last week. */
       header: 'Name',
       accessorKey: 'name',
-      cell: ({ row }) => {
-        const name = row?.original?.name;
-        return (
-          <div className="flex flex-col gap-1.5">
-            <span>{name}</span>
-          </div>
-        );
-      },
+      cell: ({ row }) => <span className="break-words">{row?.original?.name}</span>,
     },
     {
       header: 'Site',
       accessorKey: 'site_uuid',
-      cell: ({ row }: any) => <> {row?.original?.site_uuid?.name || ''}</>,
+      cell: ({ row }: any) => <span>{row?.original?.site_uuid?.name || '---'}</span>,
     },
     {
       header: 'Extension',
@@ -178,36 +171,39 @@ const CallQueues: FC = () => {
               const username = item?.name || 'Unknown';
               const imageUrl = item?.imageUrl || '';
               return (
-                <CustomTooltip text={username} side="top">
-                  <div
-                    key={index}
-                    className="w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800 capitalizes cursor-pointer"
-                  >
-                    {imageUrl ? (
-                      <img
-                        className="w-9 h-9 rounded-full"
-                        src={imageUrl}
-                        alt={username}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
-                        {getInitials(username)}
-                      </div>
-                    )}
+                <CustomTooltip key={index} text={username} side="top">
+                  <div className="mcm-avatar-hit w-9 h-9 cursor-pointer">
+                    <div className="mcm-avatar-chip w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800">
+                      {imageUrl ? (
+                        <img
+                          className="w-9 h-9 rounded-full"
+                          src={imageUrl}
+                          alt={username}
+                          width={36}
+                          height={36}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
+                          {getInitials(username)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CustomTooltip>
               );
             })}
             {members?.length > 5 && (
-              <div
+              <button
+                type="button"
+                aria-label={`Show all ${members.length} members`}
                 onClick={() => {
                   setModalState({ open: true, data: members || [], type: 'Total Members' });
                 }}
-                className="w-9 h-9 flex items-center justify-center border border-gray-500 !space-x-10 rounded-full bg-gray-500 text-white font-medium cursor-pointer"
+                className="mcm-avatar-more w-9 h-9 flex items-center justify-center border border-gray-500 rounded-full bg-gray-500 text-white font-medium cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 +{members?.length - 5}
-              </div>
+              </button>
             )}
           </div>
         ) : (
@@ -250,16 +246,17 @@ const CallQueues: FC = () => {
         return (
           <div className="flex items-center gap-2">
             {actions?.map((action, index) => (
-              <CustomTooltip text={action.tooltipText} side="top">
-                <div
-                  key={index}
-                  className={`cursor-pointer flex items-center justify-center rounded-full w-8 h-8 ${action.className}`}
+              <CustomTooltip key={index} text={action.tooltipText} side="top">
+                <button
+                  type="button"
+                  aria-label={action.tooltipText}
+                  className={`mcm-row-action cursor-pointer flex items-center justify-center rounded-full w-8 h-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${action.className}`}
                   onClick={() => {
                     action.onClick();
                   }}
                 >
-                  <Icon name={action.icon as IconName} className="w-5 h-5" />
-                </div>
+                  <Icon name={action.icon as IconName} className="w-5 h-5" aria-hidden="true" />
+                </button>
               </CustomTooltip>
             ))}
           </div>
@@ -296,11 +293,15 @@ const CallQueues: FC = () => {
           <>
             <Input
               type="search"
-              placeholder="Search queues"
+              name="queue-search"
+              autoComplete="off"
+              spellCheck={false}
+              aria-label="Search call queues"
+              placeholder="Search queues…"
               onChange={(e) => {
                 const value = e.target.value;
                 if (value.startsWith(' ')) return;
-                setSearchedText(e.target.value);
+                setSearchedText(value);
               }}
               className="w-full min-h-9 rounded-lg"
             />

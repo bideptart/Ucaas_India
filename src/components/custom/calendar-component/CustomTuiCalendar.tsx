@@ -17,7 +17,6 @@ import AlertConfirm from '../alert-confirm';
 import { capitalizeFirstLetter } from '@/lib/utils';
 import { calendarFilterType } from '@/pages/video-meetings/Calender/constants';
 import { useUser } from '@/hooks/use-user';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
   (
@@ -129,6 +128,50 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
       refreshCalendar,
     }));
 
+    /**
+     * How many events and tasks fall on each day, keyed 'YYYY-MM-DD'.
+     *
+     * A ref rather than state because the calendar's templates are handed to
+     * the library once at construction; a closure over state would keep
+     * reading the first render's value forever. The ref is refreshed
+     * whenever the schedules change, just before asking for a re-render.
+     */
+    const dayCountsRef = useRef<Map<string, { event: number; task: number }>>(new Map());
+
+    useEffect(() => {
+      const counts = new Map<string, { event: number; task: number }>();
+
+      (schedules || []).forEach((schedule: any) => {
+        const start = moment(
+          schedule?.start?.toDate ? schedule.start.toDate() : schedule?.start,
+        ).startOf('day');
+        if (!start.isValid()) return;
+
+        const rawEnd = moment(schedule?.end?.toDate ? schedule.end.toDate() : schedule?.end).startOf(
+          'day',
+        );
+        /* Anything spanning midnight counts on every day it covers. The
+           guard stops a corrupted end date spinning here. */
+        const end = rawEnd.isValid() && rawEnd.isAfter(start) ? rawEnd : start;
+        const kind =
+          String(schedule?.raw?.category || '').toUpperCase() === 'TASK' ? 'task' : 'event';
+
+        const cursor = start.clone();
+        let guard = 0;
+        while (cursor.isSameOrBefore(end, 'day') && guard < 366) {
+          const key = cursor.format('YYYY-MM-DD');
+          const entry = counts.get(key) || { event: 0, task: 0 };
+          entry[kind] += 1;
+          counts.set(key, entry);
+          cursor.add(1, 'day');
+          guard += 1;
+        }
+      });
+
+      dayCountsRef.current = counts;
+      calendarInstRef.current?.render?.();
+    }, [schedules]);
+
     useEffect(() => {
       const container = tuiRef.current;
       if (!container) return;
@@ -141,23 +184,52 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
           taskView: false,
           scheduleView: ['time'],
           calendars,
+          /* One preview per day. Enough to say what the day holds without a
+             busy cell stacking four clipped titles; anything beyond it is
+             reached through the day itself. */
+          month: { visibleScheduleCount: 1 },
           template: {
+            /* A dot, the title, and the time beneath it. */
             time: (schedule) => {
-              const startDate = (schedule?.start as TZDate).toDate();
-              const endDate = (schedule?.end as TZDate)?.toDate();
-              const title = schedule?.title;
-              const startTime = moment(startDate).format('hh:mm A');
-              const endTime =
-                schedule?.raw?.category === 'EVENT' && endDate
-                  ? ` - ${moment(endDate).format('hh:mm A')}`
-                  : '';
+              const title = schedule?.title || '';
+              const startDate = (schedule?.start as TZDate)?.toDate();
+              const startTime = startDate ? moment(startDate).format('hh:mm A') : '';
+              const category = String(schedule?.raw?.category || '').toUpperCase();
+              const kind =
+                category === 'TASK' ? 'task' : category === 'MEETING' ? 'meeting' : 'event';
 
-              return `
-                      <div class="flex flex-col leading-[1.2] gap-[2px]">
-                        <span class="font-semibold text-[13px] truncate block max-w-[180px]">${title}</span>
-                        <span class="text-[9px]">${startTime}${endTime}</span>
-                      </div>
-                    `;
+              return `<span class="mcm-evt is-${kind}">
+                  <span class="mcm-evt-line">
+                    <i class="mcm-evt-dot"></i>
+                    <span class="mcm-evt-title">${title}</span>
+                  </span>
+                  ${startTime ? `<span class="mcm-evt-time">${startTime}</span>` : ''}
+                </span>`;
+            },
+            /* The date number on its own. The count pill that used to sit
+               here is gone — the cell now previews the day's first entry
+               instead, which says more than a tally did. */
+            monthGridHeader: (model: any) => {
+              /* `model.ymd` is `YYYYMMDD` in this version, not `YYYY-MM-DD`.
+                 Parsing it against both shapes and re-formatting is what
+                 makes the lookup hit — keyed on the raw value the map never
+                 matched, so every day came back empty and no pill rendered.
+                 The day number looked right throughout, because moment
+                 parses the compact form leniently. */
+              const raw =
+                model?.ymd || (model?.date?.toDate ? model.date.toDate() : model?.date);
+              const parsed = moment(raw, ['YYYY-MM-DD', 'YYYYMMDD', moment.ISO_8601]);
+              const ymd = parsed.isValid() ? parsed.format('YYYY-MM-DD') : '';
+              const dayNumber = parsed.isValid() ? parsed.date() : '';
+              const isToday = Boolean(model?.isToday);
+
+              const numberClass = `tui-full-calendar-weekday-grid-date${
+                isToday ? ' tui-full-calendar-weekday-grid-date-decorator' : ''
+              }`;
+
+              return `<div class="mcm-dayhead" data-ymd="${ymd}">
+                  <span class="${numberClass}">${dayNumber}</span>
+                </div>`;
             },
             popupDetailDate: (isAllDay, start, end) => {
               const startDate = (start as TZDate).toDate();
@@ -247,16 +319,20 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
       let from = '';
       let to = '';
       const html = [];
+      /* This string is the page's heading, so it reads as a date rather than
+         as a machine format: "12 September 2026" and "September 2026" instead
+         of "2026-09-12" and "2026-09". `from`/`to` keep the ISO format — they
+         are what the API is queried with. */
       if (viewName === 'day') {
         const date = currentCalendarDate('YYYY-MM-DD');
-        html.push(date);
+        html.push(moment(date, 'YYYY-MM-DD').format('D MMMM YYYY'));
         from = to = date;
       } else if (
         viewName === 'month' &&
         (!options.month.visibleWeeksCount || options.month.visibleWeeksCount > 4)
       ) {
         const date = currentCalendarDate('YYYY-MM');
-        html.push(date);
+        html.push(moment(date, 'YYYY-MM').format('MMMM YYYY'));
         const start = instance.getDateRangeStart();
         const end = instance.getDateRangeEnd();
         from = moment(start.getTime()).format('YYYY-MM-DD');
@@ -266,9 +342,15 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
         const end = instance.getDateRangeEnd();
         from = moment(start.getTime()).format('YYYY-MM-DD');
         to = moment(end.getTime()).format('YYYY-MM-DD');
-        html.push(from);
-        html.push(' ~ ');
-        html.push(to);
+        const startLabel = moment(start.getTime());
+        const endLabel = moment(end.getTime());
+        /* Within one month the month name only needs saying once:
+           "6 – 12 September 2026", not "6 September 2026 – 12 September". */
+        html.push(
+          startLabel.isSame(endLabel, 'month')
+            ? `${startLabel.format('D')} – ${endLabel.format('D MMMM YYYY')}`
+            : `${startLabel.format('D MMM')} – ${endLabel.format('D MMM YYYY')}`,
+        );
       }
       setRenderRange(html.join(''));
       if (typeof onRangeChange === 'function') {
@@ -343,15 +425,83 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
 
     return (
       <div className="w-full">
-        <div className="flex flex-col gap-2 p-3">
-          <div className="flex justify-between items-center flex-col sm:flex-row">
-            <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex flex-col gap-2 px-4 py-3.5">
+          {/* Two zones with a wide gap between them, rather than one run of
+              items at an even gap. Everything sat in a single line at gap-4 —
+              heading, view control, Today, arrows, legend, sync — so nothing
+              grouped and the row read as clutter. Now: what you are looking at
+              and how you move through it on the left; what you can filter and
+              connect on the right. */}
+          <div className="mcm-calbar flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center sm:gap-x-8">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* The date leads, at heading weight. It used to sit fourth in
+                  the row — after the view dropdown, Today and the arrows —
+                  styled like a label, so the header had no anchor and read as
+                  a strip of controls with a stray date in it. */}
+              <h2 className="order-first mr-1 text-xl font-bold tracking-tight text-mcm-ink whitespace-nowrap">
+                {renderRange}
+              </h2>
               {showMenu && (
-                <div>
+                <div className="flex items-center gap-3">
+                  {/* Three views, three buttons. As a dropdown you had to open
+                      it to find out which view you were in and what the others
+                      were; laid out flat, the current one is visible and any
+                      other is one click away. */}
+                  <div className="mcm-viewswitch" role="group" aria-label="Calendar view">
+                    {[
+                      { label: 'Day', value: 'Daily', view: 'day' },
+                      { label: 'Week', value: 'Weekly', view: 'week' },
+                      { label: 'Month', value: 'Month', view: 'month' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={type === option.value}
+                        className={`mcm-viewswitch-btn ${type === option.value ? 'is-on' : ''}`}
+                        onClick={() => {
+                          if (option.view === 'month') {
+                            /* The month view needs its week count restored;
+                               the other views do not carry the option. */
+                            calendarInstRef.current.setOptions(
+                              { month: { visibleWeeksCount: 6 } },
+                              true,
+                            );
+                          }
+                          calendarInstRef.current.changeView(option.view, true);
+                          setType(option.value);
+                          setRenderRangeText();
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Weekends is a setting, not a view, so it stays a toggle
+                      rather than joining the switch above. */}
+                  <button
+                    type="button"
+                    aria-pressed={workweek}
+                    className={`mcm-weekendtoggle ${workweek ? 'is-on' : ''}`}
+                    onClick={() => {
+                      calendarInstRef.current.setOptions({ month: { workweek } }, true);
+                      calendarInstRef.current.setOptions({ week: { workweek } }, true);
+                      calendarInstRef.current.changeView(
+                        calendarInstRef.current.getViewName(),
+                        true,
+                      );
+                      setWorkweek(!workweek);
+                    }}
+                  >
+                    Weekends
+                  </button>
+
                   <span
                     ref={wrapperRef}
-                    style={{ marginRight: '4px' }}
-                    className={`dropdown ${open && 'open'}`}
+                    style={{ display: 'none' }}
+                    /* The old dropdown markup is kept mounted but hidden: the
+                       outside-click handler still references this ref. */
+                    className={`dropdown ${open ? 'open' : ''}`}
                   >
                     <button
                       id="dropdownMenu-calendarType"
@@ -461,118 +611,90 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                     </ul>
                   </span>
 
-                  <span id="menu-navi">
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-today"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-today"
-                      onClick={() => {
-                        calendarInstRef.current.today();
-                        setRenderRangeText();
-                      }}
-                    >
-                      Today
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-day"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-prev"
-                      onClick={() => {
-                        calendarInstRef.current.prev();
-                        setRenderRangeText();
-                      }}
-                    >
-                      <ChevronLeftIcon className="w-4 h-4" />
-                      {/* <i className="calendar-icon ic-arrow-line-left" data-action="move-prev" /> */}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-default btn-sm move-day"
-                      style={{ marginRight: '4px' }}
-                      data-action="move-next"
-                      onClick={() => {
-                        calendarInstRef.current.next();
-                        setRenderRangeText();
-                      }}
-                    >
-                      <ChevronRightIcon className="w-4 h-4" />
-                      {/* <i className="calendar-icon ic-arrow-line-right" data-action="move-next" /> */}
-                    </button>
-                  </span>
-                  <span id="renderRange" className="render-range ">
-                    {renderRange}
-                  </span>
+                  {/* The prev/next arrows and the "Today" button both used to
+                      sit here and have been removed by request. Stepping
+                      through months is now the mini calendar's job — its own
+                      arrows drive this view through `setCurrentDate`. Nothing
+                      here returns to today in one step any more. */}
                 </div>
               )}
             </div>
-            <div className="flex justify-end gap-2 items-center xs:mt-1 mt-0">
-              <Button
-                size={'sm'}
-                variant={'outline'}
-                className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
-                disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.GOOGLE?.google}
-                onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.GOOGLE?.google)}
-              >
-                <Icon name="GoogleIcon" className="w-4 h-4" />
-                {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS.GOOGLE.google
-                  ? SYNC_BUTTON_LABELS?.GOOGLE?.loading
-                  : googleAccessToken
-                    ? SYNC_BUTTON_LABELS?.GOOGLE?.disconnect
-                    : SYNC_BUTTON_LABELS?.GOOGLE?.syncWithGoogle}
-              </Button>
-              <Button
-                size={'sm'}
-                variant={'outline'}
-                className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
-                disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook}
-                onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.OUTLOOK?.outlook)}
-              >
-                <Icon name="OutlookIcon" className="w-5 h-5" />
-                {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook
-                  ? SYNC_BUTTON_LABELS?.OUTLOOK?.loading
-                  : outlookAccessToken
-                    ? SYNC_BUTTON_LABELS?.OUTLOOK?.disconnect
-                    : SYNC_BUTTON_LABELS?.OUTLOOK?.syncWithOutlook}
-              </Button>
-            </div>
-          </div>
-          <div className="flex justify-end w-full items-center">
-            {showFilters && (
-              <div className="lnb-calendars-d1">
-                {calendars?.map((element) => {
-                  const name = element?.name;
-                  const isChecked = category === name;
-                  return (
-                    <div key={element?.id} className="lnb-calendars-item">
-                      <label>
-                        <input
-                          type="checkbox"
-                          name="meetingFilter"
-                          className="tui-full-calendar-checkbox-round"
-                          value={name}
-                          checked={isChecked}
-                          onChange={() => handleCategoryFilter(name as calendarFilterType)}
-                        />
-                        <span
-                          style={{
-                            borderColor: element?.bgColor,
-                            backgroundColor: isChecked ? element?.bgColor : 'transparent',
-                          }}
-                        />
-                        <span>{capitalizeFirstLetter(element?.name)}</span>
-                      </label>
-                    </div>
-                  );
-                })}
+
+            {/* Right zone: filter legend, then the connect actions. */}
+            <div className="flex items-center justify-end gap-4 flex-wrap">
+              {showFilters && (
+                <div className="lnb-calendars-d1">
+                  {calendars?.map((element) => {
+                    const name = element?.name;
+                    const isChecked = category === name;
+                    return (
+                      <div key={element?.id} className="lnb-calendars-item">
+                        <label>
+                          <input
+                            type="checkbox"
+                            name="meetingFilter"
+                            className="tui-full-calendar-checkbox-round"
+                            value={name}
+                            checked={isChecked}
+                            onChange={() => handleCategoryFilter(name as calendarFilterType)}
+                          />
+                          <span
+                            style={{
+                              borderColor: element?.bgColor,
+                              backgroundColor: isChecked ? element?.bgColor : 'transparent',
+                            }}
+                          />
+                          <span>{capitalizeFirstLetter(element?.name)}</span>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Separates filtering from connecting — two different kinds of
+                  action that were previously only a gap apart. */}
+              {showFilters && (
+                <span
+                  className="hidden h-6 w-px shrink-0 bg-mcm-line sm:block"
+                  aria-hidden="true"
+                />
+              )}
+              <div className="flex justify-end gap-2 items-center">
+                <Button
+                  size={'sm'}
+                  variant={'outline'}
+                  className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
+                  disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.GOOGLE?.google}
+                  onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.GOOGLE?.google)}
+                >
+                  <Icon name="GoogleIcon" className="w-4 h-4" />
+                  {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS.GOOGLE.google
+                    ? SYNC_BUTTON_LABELS?.GOOGLE?.loading
+                    : googleAccessToken
+                      ? SYNC_BUTTON_LABELS?.GOOGLE?.disconnect
+                      : SYNC_BUTTON_LABELS?.GOOGLE?.syncWithGoogle}
+                </Button>
+                <Button
+                  size={'sm'}
+                  variant={'outline'}
+                  className="rounded-xl border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all font-semibold px-4 shadow-sm"
+                  disabled={isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook}
+                  onClick={() => handleOutlookOAuthPopup(SYNC_BUTTON_LABELS?.OUTLOOK?.outlook)}
+                >
+                  <Icon name="OutlookIcon" className="w-5 h-5" />
+                  {isLoading || syncButtonClicked === SYNC_BUTTON_LABELS?.OUTLOOK?.outlook
+                    ? SYNC_BUTTON_LABELS?.OUTLOOK?.loading
+                    : outlookAccessToken
+                      ? SYNC_BUTTON_LABELS?.OUTLOOK?.disconnect
+                      : SYNC_BUTTON_LABELS?.OUTLOOK?.syncWithOutlook}
+                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
         <div
           ref={tuiRef}
-          className="min-h-[calc(100vh-240px)] overflow-visible md:min-h-[calc(100vh-220px)] lg:min-h-[calc(100vh-190px)] lg:max-h-[calc(100vh-244px)] lg:overflow-auto"
+          className="mcm-calshell min-h-[calc(100vh-240px)] overflow-visible md:min-h-[calc(100vh-220px)] lg:min-h-[calc(100vh-190px)] lg:max-h-[calc(100vh-244px)] lg:overflow-auto"
         />
         {useInternalDetailsPopup && selectedSchedule && popoverPosition && (
           <Popover

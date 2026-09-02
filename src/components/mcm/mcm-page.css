@@ -26,12 +26,27 @@
 
 .mcm-page {
   --ground: transparent;
+  /* Upstream's warm, opaque surfaces, which replace the translucent ones
+     the glass pass introduced. They also settle a bug those caused: these
+     tokens back the sticky table-header class, and while translucent the
+     rows scrolled visibly through the column labels on every list in the
+     console. */
   --surface: #ffffff;
   --surface-2: #fbf3e8;
   --surface-3: #f5e6d3;
+  /* The `-solid` aliases are now the same values, since nothing here is
+     translucent any more. They stay because rules that must never show
+     through — sticky headers, menus over content — ask for them by name,
+     and that intent should survive the next time these are retinted. */
+  --surface-solid: #ffffff;
+  --surface-2-solid: #fbf3e8;
   --ink: #0d1526;
   --ink-2: #3d4a63;
-  --ink-3: #6b7891;
+  /* Darkened from #6b7891 for the glass pass. Muted text is no longer on
+     flat white — over the strongest part of the orange backdrop the old
+     value measured 3.67:1, under the 4.5 AA needs for body text. This
+     measures 4.76:1 there, and better everywhere else on the page. */
+  --ink-3: #5a667e;
   --ink-4: #93a0b8;
   --line: #eee7dd;
   --line-2: #f0e4d3;
@@ -83,9 +98,12 @@
 }
 .dark .mcm-page {
   --ground: #0a0f1a;
-  --surface: #111827;
-  --surface-2: #161f31;
-  --surface-3: #1e293e;
+  /* Same translucency as light mode, tinted from the dark surfaces. */
+  --surface: rgba(23, 32, 50, 0.62);
+  --surface-2: rgba(30, 41, 62, 0.55);
+  --surface-3: rgba(38, 49, 74, 0.58);
+  --surface-solid: #111827;
+  --surface-2-solid: #161f31;
   --ink: #eef2f9;
   --ink-2: #c3cddf;
   --ink-3: #93a1ba;
@@ -112,11 +130,23 @@
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
 
-  /* Same glass tokens, retinted for the dark surface so a blurred panel
-     picks up the page's own ink instead of a leftover white fog. */
+  /* Glass, dark. Without these the light tokens carry over and every
+     frosted panel turns near-white under light body text.
+
+     Both sides of the merge fixed this gap independently. The shared three
+     take upstream's values: its surface is more transparent and it pairs
+     that with a stronger blur, which only works as a pair. */
   --glass-surface: rgba(17, 24, 39, 0.55);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(16px) saturate(180%);
+
+  /* These three have no upstream counterpart, and the page sidebar, table
+     shell and tab-strip divider are painted with them — dropping them in
+     favour of upstream's set would leave those surfaces on the light
+     values and put the white fog back under dark-mode text. */
+  --glass-chrome: rgba(14, 21, 36, 0.62);
+  --glass-hairline: rgba(255, 255, 255, 0.08);
+  --glass-line: rgba(255, 255, 255, 0.1);
 }
 
 /* ---- base ---- */
@@ -445,6 +475,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .mcm-page .pc-head {
@@ -824,6 +855,134 @@
   border-color: var(--accent-edge);
   color: var(--accent-ink);
 }
+/* Custom filter dropdown (replaces a native <select> — see the comment on
+   `FilterChip` in page-shell.tsx for why: a native popup's hover/keyboard
+   highlight is OS-drawn and ignores page CSS in every browser that matters
+   here, so it kept showing the platform blue). Every state below is plain
+   CSS, so it always matches the app's own accent. */
+.mcm-page .fchip-select {
+  position: relative;
+  padding: 0;
+}
+
+/* Same custom dropdown, styled as a full-width bordered field instead of a
+   compact chip — used by Directory ▸ Blocked's "Block a number" form so its
+   dropdowns match the `.mcm-field` inputs beside them. */
+.mcm-page .mcm-field-select {
+  position: relative;
+  width: 100%;
+}
+.mcm-page .mcm-field-select .fchip-select-trigger {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-weight: 500;
+  font-size: 13px;
+  justify-content: space-between;
+}
+.mcm-page .mcm-field-select .fchip-select-trigger:hover {
+  border-color: var(--accent);
+}
+.mcm-page .mcm-field-select .fchip-select-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.mcm-page .fchip-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 11px;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+.mcm-page .fchip-select-value {
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .fchip-select-caret {
+  color: var(--ink-4);
+  transition: transform 0.15s ease;
+  /* The `chev` icon points right by default; rotated to point down when
+     closed (inviting a click to open the menu below) and up when open. */
+  transform: rotate(90deg);
+}
+.mcm-page .fchip-select-trigger[aria-expanded='true'] .fchip-select-caret {
+  transform: rotate(-90deg);
+}
+.mcm-page .fchip-select-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-lg);
+}
+/* Portalled into <body> (see FieldSelect in blocked.tsx), positioned by
+   inline top/left/min-width from the trigger's own screen coordinates —
+   fixed instead of absolute so it isn't clipped by `.panel-card`'s
+   `overflow: hidden`. Only `min-width` comes from the trigger; the box
+   itself is left to shrink-to-fit its content (the default sizing for a
+   fixed-position element with only `left` set) so a longer option like
+   "Calls, faxes and messages" gets the room it needs instead of forcing a
+   horizontal scrollbar inside a box pinned to the trigger's own width. A
+   `max-width` still caps it so it can't run off narrower screens, with
+   wrapping as the fallback if it ever does. */
+.mcm-page .fchip-select-menu-portal {
+  position: fixed;
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 24px));
+  overflow-x: hidden;
+}
+.mcm-page .fchip-select-menu-portal .fchip-select-option {
+  white-space: normal;
+}
+.mcm-page .fchip-select-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink-2);
+  background: transparent;
+  border: 0;
+  white-space: nowrap;
+}
+.mcm-page .fchip-select-option .ic {
+  color: var(--accent);
+  flex: none;
+}
+.mcm-page .fchip-select-option:hover,
+.mcm-page .fchip-select-option:focus-visible {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  outline: none;
+}
+.mcm-page .fchip-select-option.is-selected {
+  color: var(--accent-ink);
+  font-weight: 800;
+}
 .mcm-page .fchip.live {
   background: var(--live-wash);
   border-color: transparent;
@@ -918,6 +1077,9 @@
 .mcm-page tbody tr:last-child td {
   border-bottom: 0;
 }
+.mcm-page tbody tr {
+  transition: background-color 0.15s ease;
+}
 .mcm-page tbody tr:hover {
   background: var(--surface-2);
 }
@@ -934,6 +1096,92 @@
 }
 .mcm-page tr.breach td {
   background: var(--crit-wash);
+}
+
+/* ---- row action icons (edit/delete circles in Admin tables) ----
+   These were instant-snap colour changes with no press feedback — the
+   hover class was already there, just nothing to animate into it. */
+.mcm-page .mcm-row-action {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+.mcm-page .mcm-row-action:active {
+  transform: scale(0.94);
+}
+
+/* ---- member avatar stack (queue/department "who's assigned" chips) ----
+   Flat overlapping circles with no life to them; a quiet lift on hover is
+   enough to say "this is the one you're pointing at" without touching
+   colour.
+
+   This is deliberately split into two elements: `.mcm-avatar-hit` (the
+   Radix tooltip trigger — the thing `CustomTooltip` actually wraps) never
+   animates at all, and `.mcm-avatar-chip` (a plain decorative child inside
+   it) carries every bit of the hover motion. Whatever changes size,
+   position or shadow on hover was, in every earlier version of this fix,
+   also the tooltip's own trigger element — so any animation on it,
+   including one that never changes the box's screen position (`scale()`
+   alone, which stays centred over a stationary cursor), still touches the
+   exact element Radix is tracking for open/close. Moving the animation to
+   an inner element the trigger doesn't otherwise depend on removes that
+   coupling entirely: the trigger's geometry is 100% static from the
+   moment the pointer arrives, so there is nothing left that could race
+   with, delay, or re-trigger the tooltip's own logic. */
+.mcm-page .mcm-avatar-hit {
+  position: relative;
+}
+.mcm-page .mcm-avatar-hit:hover {
+  z-index: 2;
+}
+/* Only `transform` and `opacity` are animated here, and nothing else —
+   those two are the only properties the compositor can animate without
+   going back to the main thread for layout or paint.
+
+   Two things that were in an earlier pass of this and are deliberately
+   gone now, because both were making the hover *cost* more, not less:
+   - `will-change: transform` on every chip. There are 13+ of these on a
+     page, and will-change permanently promotes each to its own GPU layer.
+     Handing the compositor a dozen standing layers to manage is the
+     documented way to make things slower, not faster; it is meant for an
+     element that is about to animate, not a whole list of them sitting
+     idle.
+   - a `box-shadow` transition. box-shadow is a paint property: animating
+     it repaints a blurred region every single frame for the whole
+     transition, on the main thread. The raised look is done with a
+     pseudo-element instead, which holds a *static* shadow and is faded in
+     with `opacity` — same visual, but composited and effectively free. */
+.mcm-page .mcm-avatar-chip {
+  position: relative;
+  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-page .mcm-avatar-chip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 6px 14px -4px rgba(13, 21, 38, 0.35);
+  opacity: 0;
+  transition: opacity 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.mcm-page .mcm-avatar-hit:hover .mcm-avatar-chip {
+  transform: scale(1.1);
+}
+.mcm-page .mcm-avatar-hit:hover .mcm-avatar-chip::after {
+  opacity: 1;
+}
+.mcm-page .mcm-avatar-more {
+  position: relative;
+  transition:
+    opacity 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-page .mcm-avatar-more:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
+  z-index: 2;
 }
 
 .mcm-page .state {
@@ -3008,18 +3256,30 @@
 }
 
 /* ==================================================================
-   Admin nav — the console's list, not stacked cards.
+   Side nav — the console's list, not stacked cards.
    Rows were 56px with a 24px icon and a tinted block behind every
    accordion group. This makes it a quiet, dense list where the only
    emphasis is the page you are on.
+
+   Named for the Admin Hub it was written for, but it is the treatment
+   for any page sidebar's nav list — Monitoring uses it too. A list that
+   opts out keeps 56px divided rows, which match the sidebar heading's
+   own band and make the heading read as another row.
    ================================================================== */
 .mcm-admin .mcm-adminnav {
   padding: 4px 8px 14px;
 }
 
-/* No dividers between sections — the type carries the grouping. */
-.mcm-admin .mcm-adminnav.divide-y > * + * {
+/* No dividers between sections — the type carries the grouping.
+
+   Both edges, and every child rather than `* + *`: Tailwind draws `divide-y`
+   as a border-BOTTOM on `:not(:last-child)`, so a rule that only zeroed
+   border-top on `* + *` stopped matching what is actually painted and the
+   dividers came back. Zeroing both edges on all children survives either
+   shape. */
+.mcm-admin .mcm-adminnav.divide-y > * {
   border-top: 0;
+  border-bottom: 0;
 }
 
 /* Every row: section triggers and leaf tiles alike. */
@@ -4018,4 +4278,936 @@
 }
 .mcm-acctbanner-a:hover {
   background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* ============================================================
+   Directory ▸ Blocked — tighter spacing for the "Block a number" form and
+   the blocked list.
+
+   Opt-in via `.blocked-compact` on the page wrapper (DirectoryPage's
+   `className` prop), so only this page is affected — every other screen
+   built on `.page`/`.mcm-setcard`/`.mcm-setrow` (which SettingCard is
+   shared with, across several admin-settings screens) keeps its normal
+   spacing.
+
+   This page previously pinned `.page` itself to `overflow: hidden` so only
+   the table underneath could scroll — that's brittle: at some real window
+   sizes the content still ended up taller than the fixed box, and with
+   nothing left to scroll it, the list became genuinely unreachable. `.page`
+   now keeps the same `overflow-y: auto` every other Directory page already
+   relies on (the base rule above), so the page scrolls as a whole exactly
+   like People/Groups/etc. do whenever content doesn't fit — guaranteed
+   reachable regardless of viewport. The table still caps its own height
+   and scrolls internally first, so a long blocked-list doesn't balloon the
+   page — the page scroll is the fallback, not the only way to reach it. */
+.mcm-page .page.blocked-compact {
+  padding: 14px 18px;
+}
+.mcm-page .blocked-compact .page-head {
+  margin-bottom: 8px;
+}
+.mcm-page .blocked-compact .tbar {
+  margin-bottom: 6px;
+}
+.mcm-page .blocked-compact .blocked-table-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+}
+.mcm-page .blocked-compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+/* Tighter "Block a number" card — the same component other settings
+   screens use at their normal size, scaled down here so the whole form
+   fits without needing the page-level scroll this override removes. */
+.mcm-page .blocked-compact .mcm-setcard {
+  margin-bottom: 0;
+}
+.mcm-page .blocked-compact .mcm-setcard-h {
+  padding: 8px 12px 7px;
+}
+.mcm-page .blocked-compact .mcm-setcard-body {
+  padding: 0 12px;
+}
+.mcm-page .blocked-compact .mcm-setrow {
+  padding: 6px 0;
+}
+.mcm-page .blocked-compact .mcm-setcard-note {
+  padding: 7px 12px;
+}
+
+/* Tighter table + empty state below the form, same reasoning: this is the
+   normal shared table/empty styling other Directory pages use, just scaled
+   down here alone so everything keeps fitting without a page scroll. */
+.mcm-page .blocked-compact th {
+  padding: 7px 12px;
+}
+.mcm-page .blocked-compact td {
+  padding: 8px 12px;
+}
+.mcm-page .blocked-compact .empty {
+  padding: 20px 24px;
+}
+
+/* A further visual pass on Blocked — the search chip and the "Block a
+   number" card's icon were still the design system's default flat/neutral
+   look, standing out against how warm the rest of this page (and the
+   Contact view/External Contacts pages) already reads. Scoped to
+   `.blocked-compact` only, same as everything else above. */
+.mcm-page .blocked-compact .tbar .fchip {
+  border-color: rgba(194, 65, 12, 0.16);
+  box-shadow: var(--shadow-sm);
+}
+.mcm-page .blocked-compact .tbar .fchip:hover {
+  border-color: var(--accent-edge);
+}
+.mcm-page .blocked-compact .tbar .fchip:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
+}
+.mcm-page .blocked-compact .mcm-setcard {
+  box-shadow: var(--shadow-sm);
+}
+.mcm-page .blocked-compact .mcm-setcard-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .blocked-compact tbody tr:hover {
+  background: var(--accent-wash);
+}
+.mcm-page .blocked-compact .mini:hover {
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+
+/* ============================================================
+   Directory ▸ Favourites — the page itself shouldn't need scrolling to see
+   the list; only the list should.
+
+   Opt-in via `.favourites-compact` (DirectoryPage's `className` prop), so
+   only this page is affected. Same reasoning as `.blocked-compact` above:
+   `.page` keeps its normal `overflow-y: auto` as a fallback (so content is
+   always reachable regardless of viewport), and the table caps its own
+   height and scrolls internally first — that's what actually satisfies
+   "the page doesn't scroll, the data does" for any realistic favourites
+   list length. */
+.mcm-page .page.favourites-compact {
+  padding: 14px 18px;
+}
+.mcm-page .favourites-compact .page-head {
+  margin-bottom: 8px;
+}
+.mcm-page .favourites-compact .tbar {
+  margin-bottom: 6px;
+}
+.mcm-page .favourites-compact .favourites-table-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.mcm-page .favourites-compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+/* ==================================================================
+   Side-nav items.
+
+   Monitoring's page bar carries the section name, so its sidebar has no
+   heading of its own and the list starts at the top of the column. Opt a
+   nav list in with `mcm-subnav`.
+   ================================================================== */
+
+/* An even inset on both sides, and air above the first row.
+
+   This was `padding-left: 18px` over the base `4px 8px 14px` — an 18px
+   left inset against an 8px right one, dating from when the list was
+   indented under a heading that no longer exists. The list sat visibly
+   off-centre in its panel, and the active chip started 4px from the top,
+   touching the panel edge. */
+.mcm-admin .mcm-subnav {
+  padding: 10px 10px 14px;
+}
+
+/* Rows as separate chips. They were flush against each other, so the
+   active chip's rounded corners had nothing to sit in and the run read as
+   one block rather than five items. */
+.mcm-admin .mcm-subnav > * + * {
+  margin-top: 2px;
+}
+
+/* A little more room inside each row, and a radius that matches the
+   larger chip. */
+.mcm-admin .mcm-subnav .min-h-14 {
+  height: 40px;
+  min-height: 40px;
+  padding-left: 12px;
+  padding-right: 12px;
+  gap: 12px;
+  border-radius: 10px;
+}
+
+/* The icons ship at four different sizes (w-4, w-4.5, w-5). A fixed box
+   rather than a fixed glyph size, so every label starts on the same x
+   whatever the icon inside it does. */
+.mcm-admin .mcm-subnav .min-h-14 > svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+/* The current page: the warm tone the sidebar itself used to carry, now
+   doing a job — marking the selected category against a white column
+   instead of tinting the whole panel. The rail reads as an edge of the
+   chip rather than a line parked beside it. */
+.mcm-admin .mcm-subnav .border-r-primary {
+  background: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+/* `:not(.text-primary)` matters: the current-page rule above sets accent
+   ink at the same specificity as this one, and this block comes later in
+   the file, so without the exclusion it would win and the active row would
+   lose its accent label. */
+.mcm-admin .mcm-subnav .min-h-14:not(.text-primary) {
+  color: var(--ink-2);
+}
+
+/* ==================================================================
+   Glass pass — page chrome.
+
+   The orange gradient backdrop already sits behind every page, but only
+   the dashboard's KPI strip and panel cards were translucent, so most
+   screens read as solid white slabs dropped on top of it. This puts the
+   rest of the page chrome on the same glass.
+
+   Two depths, deliberately. Chrome that sits *behind* content (page
+   sidebars) takes more of the backdrop; surfaces you actually read off
+   (tables, cards, dialogs) stay closer to opaque, because body text on a
+   heavily tinted panel is where glassmorphism stops being legible.
+
+   Everything here is scoped to `.mcm-page`. Shared layouts keep their
+   solid `bg-white` on screens outside the console.
+   ================================================================== */
+
+.mcm-page {
+  /* Sits behind content — more backdrop, softer edge. */
+  --glass-chrome: rgba(255, 255, 255, 0.55);
+  --glass-hairline: rgba(255, 255, 255, 0.55);
+  /* Divider inside a glass panel: a tinted line, not a grey one, so it
+     does not reintroduce the flat-UI hairline the glass is replacing. */
+  --glass-line: rgba(180, 140, 100, 0.16);
+}
+
+/* ---- page sidebars (PageSidebarLayout) ----
+   Solid white. It was translucent, so the backdrop's gradient showed
+   through and the column shaded down its own height; the warm tone it
+   used to carry now marks the current category instead. No blur, since
+   nothing shows through an opaque panel. */
+.mcm-page .mcm-sidepanel {
+  background: #ffffff;
+}
+.mcm-page .mcm-sidepanel,
+.mcm-page .mcm-sidepanel > div > div {
+  border-color: var(--mcm-line);
+}
+
+.dark .mcm-page .mcm-sidepanel {
+  background: var(--surface-solid);
+}
+
+/* ---- table shells (TableManager, used by most list screens) ---- */
+.mcm-page .table-scroll {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  border-radius: var(--r-lg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-lg);
+}
+
+/* The header strip and row rules inside a glass table have to be
+   translucent too — an opaque --surface-2 band reads as a solid bar
+   floating on the blur. */
+/* The header row is `sticky top-0` (TableManager), so rows scroll under
+   it. It has to stay dense enough to read through, and carry its own blur
+   — a 0.42 alpha here let table rows show straight through the column
+   labels the moment the body scrolled. */
+.mcm-admin .table-scroll table thead th {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom-color: var(--glass-line);
+}
+.dark .mcm-admin .table-scroll table thead th {
+  background: rgba(20, 28, 45, 0.88);
+}
+.mcm-admin .table-scroll table tbody td {
+  border-bottom-color: var(--glass-line);
+}
+.mcm-admin .table-scroll table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- empty states sit directly on the glass ---- */
+.mcm-page .table-scroll .bg-white {
+  background: transparent;
+}
+
+/* ---- card surfaces inside a page ----
+   Reached by attribute-substring the same way the radius rule above does,
+   rather than editing the ~390 places that hand-write
+   `rounded-* border-gray-200 bg-white`.
+
+   No `backdrop-filter` here, on purpose. The backdrop is a smooth
+   gradient, and blurring a smooth gradient produces almost the same
+   pixels — so a blur per card would buy nothing visually while putting
+   dozens of filtered layers on the compositor. Translucency alone reads
+   as glass against this backdrop; the blur is kept for the large chrome,
+   where it sits over page content that genuinely does need diffusing.
+
+   `rounded-full` is excluded: those are chips, avatars and toggle knobs,
+   which should stay solid. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+}
+
+/* Dividers and inner strips within those cards, so a solid grey band does
+   not sit on top of the glass. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white .divide-gray-200 > * + * {
+  border-color: var(--glass-line);
+}
+
+/* ---- dialogs ---- */
+.mcm-page [role='dialog'],
+[role='dialog'].mcm-glass {
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* ==================================================================
+   Tab strip.
+
+   A band of tabs above a panel's content. The shades are alphas over the
+   page's warm backdrop rather than greys: the panel holds back the most
+   white, the strip less, the rail least, so each nested layer shows more
+   of the gradient and reads as a deeper shade of the same colour. The
+   active tab reverses it — nearly solid white, so it lifts off the rail.
+   ================================================================== */
+/* Tinted, not brightened. The first attempt laid white over a panel that
+   is already near-white, so the strip and the content below it came out a
+   couple of percent apart and only the hairline divided them. Warming the
+   band toward the accent moves it along a different axis to the panel, so
+   the two read as different shades rather than two whites. */
+.mcm-page .mcm-tabstrip {
+  background: rgba(242, 153, 74, 0.12);
+  border-bottom: 2px solid rgba(176, 122, 66, 0.22);
+}
+
+/* The content below sits in the strip's shadow, so the join reads as a
+   step down rather than a drawn line. */
+.mcm-page .mcm-tabstrip + * {
+  box-shadow: inset 0 7px 10px -8px rgba(120, 80, 40, 0.22);
+}
+
+.mcm-page .mcm-tabstrip-rail {
+  background: rgba(242, 153, 74, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--r);
+}
+
+.mcm-page .mcm-tab {
+  color: var(--ink-2);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.mcm-page .mcm-tab:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.4);
+}
+.mcm-page .mcm-tab.is-on {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Dark mode inverts the trick: the layers add light rather than hold back
+   white, so the same ordering still separates them. */
+.dark .mcm-page .mcm-tabstrip {
+  background: rgba(255, 255, 255, 0.04);
+}
+.dark .mcm-page .mcm-tabstrip-rail {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .mcm-page .mcm-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.dark .mcm-page .mcm-tab.is-on {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--accent-ink);
+}
+
+/* ==================================================================
+   Page bar under the app navbar.
+
+   A plain rule, no tint: the bar keeps its white surface and is closed off
+   by a grey divider, the same `--line` the tables and panels use. The one
+   it had was Tailwind's `border-gray-200` at 0.67px, which renders as a
+   sub-pixel smear rather than a line — this makes it a full pixel in the
+   design system's own colour so it actually reads as a boundary.
+   ================================================================== */
+/* Solid, not translucent. The bar was white at 0.6 alpha, so the page's
+   warm gradient showed straight through it and the band shaded left to
+   right — it read as a gradient strip rather than a surface. Opaque white
+   matches the table card below it, and the grey rules above and below now
+   do the separating. */
+/* A step darker than the navbar above, in the page's own warm family
+   rather than another shade of white — white on white was what made the
+   two bands merge. Still solid, so the tone holds steady across the
+   backdrop's gradient instead of shading left to right. */
+.mcm-page .mcm-topbar > * {
+  background-color: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
+  border-bottom: 1px solid rgba(176, 122, 66, 0.24) !important;
+}
+
+.dark .mcm-page .mcm-topbar > * {
+  background-color: #141a24 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ==================================================================
+   Monitoring's call table.
+
+   The box keeps the shared glass surface — translucent, blurred, so the
+   page's backdrop reads through it. A solid white version was tried here
+   and painted over that backdrop, which is the one thing this panel
+   should not do.
+
+   What stays scoped to `.mcm-monitoring` is the sticky header band and
+   the per-row state edges below, not the surface itself. `.table-scroll`
+   is the same element on roughly 79 screens.
+   ================================================================== */
+
+/* The header is a band in the page's warm family, not a translucent strip
+   the rows show through. Still opaque, since it is sticky and rows scroll
+   beneath it. */
+.mcm-monitoring .table-scroll table thead th {
+  background: color-mix(in srgb, var(--primary) 9%, #fff9f4) !important;
+  border-bottom: 1px solid rgba(176, 122, 66, 0.26) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .mcm-monitoring .table-scroll {
+  background: var(--surface-solid) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.dark .mcm-monitoring .table-scroll table thead th {
+  background: #1b2333 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ---- call rows carry their state ----
+   A coloured edge down the left of each row, so the wall is readable as a
+   column of state rather than by scanning the Status cell on every line.
+   The critical rows also take a wash, because a queue in trouble should be
+   visible from across a room. */
+.mcm-monitoring tr.mcm-callrow td:first-child {
+  box-shadow: inset 4px 0 0 var(--line);
+}
+.mcm-monitoring tr.mcm-callrow.is-connected td:first-child {
+  box-shadow: inset 4px 0 0 var(--live);
+}
+.mcm-monitoring tr.mcm-callrow.is-ringing td:first-child {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.mcm-monitoring tr.mcm-callrow.is-hold td:first-child {
+  box-shadow: inset 4px 0 0 var(--hold);
+}
+.mcm-monitoring tr.mcm-callrow.is-waiting td:first-child {
+  box-shadow: inset 4px 0 0 var(--warn);
+}
+.mcm-monitoring tr.mcm-callrow.is-critical td:first-child {
+  box-shadow: inset 4px 0 0 var(--crit);
+}
+
+.mcm-monitoring tr.mcm-callrow.is-critical {
+  background: var(--crit-wash) !important;
+}
+
+.mcm-monitoring tr.mcm-callrow:hover {
+  background: var(--surface-2) !important;
+}
+
+/* The row-card experiment that used to live here has been removed. It
+   styled `.table-scroll` rows as separated cards, and All Calls no
+   longer uses that table at all. One of its rules forced the header
+   cells transparent with `!important`, which beat the real header band
+   below and let rows scroll straight through the sticky header. */
+
+/* ==================================================================
+   Live Call Console (LiveCallList).
+
+   A counts strip over a monitoring panel. Everything here is derived from
+   the same live-calls feed as the rows, so the strip cannot disagree with
+   the list beneath it.
+
+   No trend sparklines: they need call history this page does not receive.
+   The quality column and its stat card are present but explicitly empty
+   for the same reason — see the component's header comment.
+   ================================================================== */
+/* The whole console scrolls, not just the list inside it. With the scroll
+   on the panel the counts strip stayed pinned while only the rows moved;
+   scrolling out here carries the strip up with them and leaves the table's
+   sticky header as the one thing that holds. */
+.mcm-console {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+/* ---- counts strip ---- */
+.mcm-console-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.mcm-stat {
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  /* The tone shows as a bar down the leading edge rather than a coloured
+     icon tile, so four cards side by side stay quiet. */
+  box-shadow:
+    inset 4px 0 0 var(--stat-tone, var(--line)),
+    var(--shadow-sm);
+}
+
+.mcm-stat.is-live {
+  --stat-tone: var(--live);
+}
+.mcm-stat.is-warn {
+  --stat-tone: var(--warn);
+}
+.mcm-stat.is-hold {
+  --stat-tone: var(--hold);
+}
+.mcm-stat.is-muted {
+  --stat-tone: var(--line);
+}
+
+.mcm-stat-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.mcm-stat-value {
+  margin: 4px 0 2px;
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.mcm-stat-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* A card with nothing behind it says so plainly instead of dressing up. */
+.mcm-stat.is-unavailable .mcm-stat-value {
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.mcm-stat.is-unavailable .mcm-stat-note {
+  font-style: italic;
+}
+
+/* ---- the panel ---- */
+/* `visible`, so the panel does not become its own scroll container — that
+   would capture the sticky header and pin the counts strip above it. */
+/* The panel needs an edge of its own, not a tone that happens to differ
+   from the page. Its header band and the warm backdrop sit at almost the
+   same value, so with only a cool 1px hairline and a barely-there shadow
+   the top of the table read as more page rather than as the start of a
+   panel.
+
+   Solved with the border and shadow rather than by recolouring the
+   header: the backdrop is a gradient, so any single header tone would
+   coincide with it somewhere on the page, and lightening it toward white
+   would stop it separating from the white rows underneath. An edge holds
+   whatever is behind it. */
+.mcm-console-panel {
+  background: #ffffff;
+  border: 1px solid rgba(176, 122, 66, 0.28);
+  border-radius: var(--r-lg);
+  box-shadow:
+    0 1px 2px rgba(120, 80, 40, 0.06),
+    0 6px 20px rgba(120, 80, 40, 0.1);
+  overflow: visible;
+  flex: none;
+}
+
+.dark .mcm-console-panel {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* The strip scrolls away with everything else. */
+.mcm-console-stats {
+  flex: none;
+}
+
+.mcm-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+}
+
+.mcm-console-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The live marker: this panel updates itself. */
+.mcm-console-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--live);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--live) 18%, transparent);
+}
+
+.mcm-console-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.mcm-console-subtitle {
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mcm-console-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mcm-console-select {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.mcm-console-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #ffffff;
+}
+.mcm-console-search input {
+  width: 170px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* ---- the calls ---- */
+.mcm-console-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  /* Below this the columns fall under the minimums the colgroup is built
+     from and the chip starts colliding with the timer again. The wrapper
+     scrolls instead. */
+  min-width: 880px;
+}
+
+.mcm-console-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  /* 10px, not 14. Seven columns pay for side padding twice each, so the
+     wider inset cost 56px of a 910px table -- which is what pushed
+     STATUS, DURATION and QUALITY under their content widths. */
+  padding: 11px 10px;
+  /* White. The band was previously the deployed build's warm
+     rgb(251, 243, 232); the rule underneath now carries the separation
+     from the rows instead of a fill.
+
+     Still fully opaque — the glass tokens are translucent, and rows
+     scrolling under a see-through header is what a sticky header exists
+     to prevent. */
+  background: #ffffff !important;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(107, 120, 145);
+  white-space: nowrap;
+}
+
+/* Scoped through `.mcm-console` to outrank `.mcm-admin table thead th`,
+   which is one type-selector more specific than this rule on its own and
+   was keeping the divider on the old cool --line. The colour is the
+   deployed build's own rule under its header. */
+.mcm-console .mcm-console-table thead th {
+  border-bottom: 1px solid rgb(238, 231, 221);
+  /* The label colour needs the same scoping. Set on the rule above it was
+     losing to `.mcm-admin table thead th`, which resolves `--ink-3` — and
+     that token was darkened locally for contrast, so the header came out
+     rgb(90, 102, 126) instead of the deployed rgb(107, 120, 145). */
+  color: rgb(107, 120, 145);
+}
+
+/* The band keeps its colour and gets closed off at each end instead — a
+   hard edge on the outer edges only, so the row reads as a bounded strip
+   rather than a fill that runs out of the panel. Nothing between the
+   columns: an edge on every cell would rebuild the spreadsheet grid. */
+/* No end marks on the header. The rule underneath it is what separates
+   the band from the rows. */
+
+.mcm-console-table th.is-right,
+.mcm-console-table td.is-right {
+  text-align: right;
+}
+
+.mcm-console-table tbody td {
+  height: 72px;
+  padding: 10px 10px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The call's state, down the leading edge of its row. */
+.mcm-console-table tbody td:first-child {
+  box-shadow: inset 4px 0 0 var(--row-edge, var(--line));
+}
+
+.mcm-console-table tbody tr {
+  transition: background 0.14s ease;
+}
+.mcm-console-table tbody tr:hover {
+  background: var(--surface-2);
+}
+.mcm-console-table tbody tr.is-critical {
+  background: color-mix(in srgb, var(--crit-wash) 55%, #ffffff);
+}
+
+/* ---- cells ---- */
+.mcm-console-caller {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.mcm-console-caller-name {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mcm-console-caller-number {
+  margin: 1px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mcm-console-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mcm-console-chip.is-connected {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.mcm-console-chip.is-ringing {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console-chip.is-hold {
+  background: var(--hold-wash);
+  color: var(--hold);
+}
+.mcm-console-chip.is-waiting {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+.mcm-console-chip.is-critical {
+  background: var(--crit-wash);
+  color: var(--crit);
+}
+
+.mcm-console-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--ink-4);
+}
+
+.mcm-console-timer {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ---- the path a call took ---- */
+/* One row, and it no longer wraps. Three chips wrapping to three lines is
+   what pushed these rows from the 72px they are designed for to 106. */
+.mcm-console-route {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+/* Direction, which used to be a full "Inbound" chip repeated identically
+   down the whole column. Down-right for a call coming in, up-right for one
+   going out; the cell's title spells the path out in words. */
+.mcm-console-dir {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  background: var(--surface-2-solid);
+  color: var(--ink-3);
+}
+.mcm-console-dir.is-in {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.mcm-console-dir.is-out {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console-hop {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-2-solid);
+  border: 1px solid var(--line-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  /* Now that the route is a single line, a long queue name has to end in an
+     ellipsis rather than push the column open. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* The is-end / is-pending hop variants and the arrow between hops went with
+   the agent and direction chips they styled. */
+
+.mcm-console-agent {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Empty on purpose — there is no quality figure in the feed. */
+.mcm-console-quality {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-4);
+  cursor: help;
+}
+
+/* ---- nothing to show ---- */
+.mcm-console-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 48px 20px;
+  text-align: center;
+}
+.mcm-console-empty-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.mcm-console-empty-note {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-4);
+}
+
+.dark .mcm-stat,
+.dark .mcm-console-panel,
+.dark .mcm-console-select,
+.dark .mcm-console-search {
+  background: var(--surface-solid);
+  border-color: rgba(255, 255, 255, 0.1);
 }

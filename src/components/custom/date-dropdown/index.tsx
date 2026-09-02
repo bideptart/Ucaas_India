@@ -36,10 +36,17 @@ const DateFieldInput = forwardRef<
 ));
 DateFieldInput.displayName = 'DateFieldInput';
 
+/* The closed pill shows this instead of the full option label — "Last 30
+   Days" becomes "30 Days" — for callers tight on horizontal space (the
+   phone console's calls-tabs-row). The open menu is unaffected: it always
+   lists the full label. */
+const shortenDateLabel = (label: string) => String(label || '').replace(/^Last\s+/i, '');
+
 const DateDropdown = ({
   dropdownVal,
   setDropdownVal = () => {},
   customPickerPlacement = 'inline',
+  shortenSelectedLabel = false,
 }: any) => {
   const showCustomPickerBelow = customPickerPlacement === 'bottom';
   const toDatePickerRef = useRef<any>(null);
@@ -88,6 +95,15 @@ const DateDropdown = ({
           // click-to-pick reads as a real dropdown; a text cursor inside it
           // invited typing that this list was never built to search.
           isSearchable={false}
+          FormatOptionLabel={
+            shortenSelectedLabel
+              ? ({ option, context }: any) => (
+                  <span>
+                    {context === 'value' ? shortenDateLabel(option?.label) : option?.label}
+                  </span>
+                )
+              : null
+          }
         />
       </div>
       {date_type && date_type === 'Custom' ? (

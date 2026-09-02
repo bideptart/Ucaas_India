@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Ic } from '@/components/mcm/icons';
 import SideDrawer from '@/components/custom/side-drawer';
 import UpdateForwarding from '@/pages/admin-settings/people/update-forwarding';
-import { DirectoryDrawer, DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { useInstantMeeting } from '@/hooks/use-instant-meeting';
@@ -11,7 +12,7 @@ import { usePeopleRows, type PersonRow } from './people-rows';
 import { useDirectoryFavourites } from './use-directory-favourites';
 import { useUser } from '@/hooks/use-user';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteMember, removeAssignNumber } from '@/services/api';
+import { deleteMember, removeAssignNumber, updateMemberForwading } from '@/services/api';
 import { handleAlert } from '@/lib/utils';
 import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-directory';
 import AlertConfirm from '@/components/custom/alert-confirm';
@@ -28,6 +29,16 @@ import AssignCallerIdModal from '@/pages/admin-settings/people/add-users/assign-
 import AddUsers from '@/pages/admin-settings/people/add-users';
 import { invalidateNumberLists } from '@/lib/number-list-cache';
 import { buildRosterCsv, rosterFileName, toExportRow } from '@/lib/user-roster-export';
+import { Icon } from '@/assets/icons/icon';
+import { MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import './people-glass.css';
+import './groups-glass.css';
 
 /**
  * Directory ▸ People — the organisation roster.
@@ -47,6 +58,15 @@ const TONE_CLASS: Record<string, string> = {
   busy: 'tag neg',
   warn: 'tag warn',
   idle: 'tag neu',
+};
+
+/* Role hierarchy, darkest/most solid at the top — so seniority reads at a
+   glance instead of every role wearing the identical badge. */
+const ROLE_CLASS: Record<string, string> = {
+  Administrator: 'role-badge role-admin',
+  'Sub Admin': 'role-badge role-subadmin',
+  Manager: 'role-badge role-manager',
+  Agent: 'role-badge role-agent',
 };
 
 const People = () => {
@@ -126,6 +146,41 @@ const People = () => {
   const [open, setOpen] = useState<PersonRow | null>(null);
   const [editing, setEditing] = useState<PersonRow | null>(null);
 
+  /* The popup's own editable copy of the fields it shows — set fresh each
+     time a different person opens it, so typing in one person's form never
+     bleeds into the next. */
+  const [personForm, setPersonForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    site: '',
+    extension: '',
+  });
+
+  const openPerson = (row: PersonRow) => {
+    setOpen(row);
+    setPersonForm({
+      first_name: row.raw?.first_name || row.name.split(' ')[0] || '',
+      last_name: row.raw?.last_name || row.name.split(' ').slice(1).join(' ') || '',
+      email: row.email || '',
+      phone: row.phone || '',
+      site: row.location || '',
+      extension: row.extension || '',
+    });
+  };
+
+  const { mutate: savePerson, isPending: isSavingPerson } = useMutation({
+    mutationFn: (payload: Record<string, string>) =>
+      updateMemberForwading({ userID: open?.uuid, uuid: open?.uuid, ...payload }),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['directoryPeople'] });
+      invalidateGlobalUsersDirectory(queryClient);
+      handleAlert({ text: data?.data?.data?.message || 'Saved', type: 'success' });
+      setOpen(null);
+    },
+  });
+
   const departments = useMemo(() => {
     const found = new Set<string>();
     rows.forEach((row) => row.department !== '—' && found.add(row.department));
@@ -200,6 +255,7 @@ const People = () => {
 
   return (
     <>
+      <div className="gp-people">
       <DirectoryPage
         title="People"
         description="Everyone in the organisation, with live presence, skills and one-click contact."
@@ -228,7 +284,7 @@ const People = () => {
               onClick={exportRoster}
             >
               <Ic n="dl" />
-              Export {visible.length}
+              Export
             </button>
             {canInvite ? (
               <button type="button" className="btn primary" onClick={() => setInviting(true)}>
@@ -288,7 +344,7 @@ const People = () => {
               <EmptyRow span={8} message="Loading the roster…" />
             ) : visible.length ? (
               visible.map((row: PersonRow) => (
-                <tr key={row.uuid}>
+                <tr key={row.uuid} className="gp-person-row" onClick={() => openPerson(row)}>
                   <td>
                     <span className="flex items-center gap-2.5">
                       <CustomAvatar name={row.name} image={row.image} size="30" />
@@ -305,7 +361,11 @@ const People = () => {
                       </span>
                     </span>
                   </td>
-                  <td>{row.role}</td>
+                  <td>
+                    <span className={ROLE_CLASS[row.role] || 'role-badge role-agent'}>
+                      {row.role}
+                    </span>
+                  </td>
                   <td>{row.department}</td>
                   <td>
                     <span style={{ display: 'block' }}>{row.location}</span>
@@ -352,7 +412,7 @@ const People = () => {
                       </select>
                     ) : null}
                   </td>
-                  <td>
+                  <td onClick={(event) => event.stopPropagation()}>
                     <span className="flex items-center gap-1">
                       <button
                         type="button"
@@ -370,7 +430,7 @@ const People = () => {
                         aria-pressed={isFavourite('person', row.uuid)}
                         onClick={() => toggleFavourite('person', row.uuid)}
                       >
-                        <Ic n="star" size={12} fill={isFavourite('person', row.uuid)} />
+                        <Ic n="star" size={16} fill={isFavourite('person', row.uuid)} />
                       </button>
                       <button
                         type="button"
@@ -382,7 +442,7 @@ const People = () => {
                           row.extension && dial(row.extension, { forceRefreshContactInfo: true })
                         }
                       >
-                        <Ic n="phone" size={12} />
+                        <Ic n="phone" size={16} />
                       </button>
                       <button
                         type="button"
@@ -391,7 +451,7 @@ const People = () => {
                         aria-label={`Message ${row.name}`}
                         onClick={() => navigate(`/messenger?chatId=${row.uuid}&chatType=chat`)}
                       >
-                        <Ic n="chat" size={12} />
+                        <Ic n="chat" size={16} />
                       </button>
                       <button
                         type="button"
@@ -406,76 +466,70 @@ const People = () => {
                           )
                         }
                       >
-                        <Ic n="video" size={12} />
+                        <Ic n="video" size={16} />
                       </button>
-                      {canEdit ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Edit ${row.name}`}
-                          aria-label={`Edit ${row.name}`}
-                          onClick={() => setEditing(row)}
-                        >
-                          <Ic n="sliders" size={12} />
-                        </button>
-                      ) : null}
-                      {isAdmin ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`${row.name}'s activity`}
-                          aria-label={`${row.name}'s activity`}
-                          onClick={() => navigate(`/activity/${row.uuid}`)}
-                        >
-                          <Ic n="clock" size={12} />
-                        </button>
-                      ) : null}
-                      {canChangeRoleOf(row) ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Change ${row.name}'s role`}
-                          aria-label={`Change ${row.name}'s role`}
-                          onClick={() => setChangingRole(row)}
-                        >
-                          <Ic n="shield" size={12} />
-                        </button>
-                      ) : null}
-                      {canAssignCallerId && row.callerId ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Remove ${row.name}'s caller ID`}
-                          aria-label={`Remove ${row.name}'s caller ID`}
-                          onClick={() => setUnassigning(row)}
-                        >
-                          <Ic n="x" size={12} />
-                        </button>
-                      ) : null}
-                      {/* Admins can remove a person; never yourself, and never
-                          another admin unless you are one. */}
-                      {canDelete && row.uuid !== myUuid ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Remove ${row.name}`}
-                          aria-label={`Remove ${row.name}`}
-                          onClick={() => setDeleting(row)}
-                        >
-                          <Ic n="trash" size={12} />
-                        </button>
-                      ) : null}
-                      {canAssignCallerId ? (
-                        <button
-                          type="button"
-                          className="mini"
-                          title={`Assign a caller ID to ${row.name}`}
-                          aria-label={`Assign a caller ID to ${row.name}`}
-                          onClick={() => setAssigningCallerId(row)}
-                        >
-                          <Ic n="vm" size={12} />
-                        </button>
-                      ) : null}
+                      {(canEdit ||
+                        isAdmin ||
+                        canChangeRoleOf(row) ||
+                        (canAssignCallerId && row.callerId) ||
+                        (canDelete && row.uuid !== myUuid) ||
+                        canAssignCallerId) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="mini"
+                              title={`More actions for ${row.name}`}
+                              aria-label={`More actions for ${row.name}`}
+                            >
+                              <MoreVertical size={15} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="gp-person-menu">
+                            {canEdit ? (
+                              <DropdownMenuItem onClick={() => setEditing(row)}>
+                                <Ic n="sliders" size={15} />
+                                Edit
+                              </DropdownMenuItem>
+                            ) : null}
+                            {isAdmin ? (
+                              <DropdownMenuItem onClick={() => navigate(`/activity/${row.uuid}`)}>
+                                <Ic n="clock" size={15} />
+                                Activity
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canChangeRoleOf(row) ? (
+                              <DropdownMenuItem onClick={() => setChangingRole(row)}>
+                                <Ic n="shield" size={15} />
+                                Change role
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId && row.callerId ? (
+                              <DropdownMenuItem onClick={() => setUnassigning(row)}>
+                                <Ic n="x" size={15} />
+                                Remove caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId ? (
+                              <DropdownMenuItem onClick={() => setAssigningCallerId(row)}>
+                                <Ic n="grid" size={15} />
+                                Assign caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {/* Admins can remove a person; never yourself, and
+                                never another admin unless you are one. */}
+                            {canDelete && row.uuid !== myUuid ? (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setDeleting(row)}
+                              >
+                                <Ic n="trash" size={15} />
+                                Remove
+                              </DropdownMenuItem>
+                            ) : null}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </span>
                   </td>
                 </tr>
@@ -492,132 +546,141 @@ const People = () => {
         </table>
 
         {open ? (
-          <DirectoryDrawer
-            title={open.name}
-            onClose={() => setOpen(null)}
-            footer={
-              <>
-                <button type="button" className="btn ghost" onClick={() => setOpen(null)}>
-                  Close
+          <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
+            <DialogContent className="gp-person-dialog sm:max-w-[620px]">
+              <div className="gp-person-fields">
+                <label className="gp-field">
+                  <span className="gp-field-l">First Name</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.first_name}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, first_name: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Last Name</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.last_name}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, last_name: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Email</span>
+                  <input
+                    className="gp-field-v"
+                    type="email"
+                    value={personForm.email}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, email: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Phone</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.phone}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, phone: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Site</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.site}
+                    disabled
+                    title="Site is set from the person's assigned location, not edited here"
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Extension</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.extension}
+                    disabled
+                    title="Extension is provisioned, not edited here"
+                  />
+                </label>
+              </div>
+
+              <div className="gp-person-callerid">
+                <span className="gp-field-l">Caller ID</span>
+                {open.callerId ? (
+                  <span className="gp-field-v" style={{ flex: 'none' }}>
+                    {open.callerId}
+                  </span>
+                ) : canAssignCallerId ? (
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => setAssigningCallerId(open)}
+                  >
+                    <Ic n="vm" size={12} />
+                    Assign Number
+                  </button>
+                ) : (
+                  <span className="gp-field-v" style={{ flex: 'none' }}>
+                    Not assigned
+                  </span>
+                )}
+              </div>
+
+              <div className="gp-person-actions">
+                <button type="button" className="btn ghost sm" onClick={() => setOpen(null)}>
+                  Cancel
                 </button>
                 <button
                   type="button"
-                  className="btn ghost"
-                  onClick={() => navigate(`/department/extension/${open.uuid}`)}
+                  className="btn primary sm"
+                  disabled={isSavingPerson}
+                  onClick={() =>
+                    savePerson({
+                      first_name: personForm.first_name,
+                      last_name: personForm.last_name,
+                      email: personForm.email,
+                      phone: personForm.phone,
+                    })
+                  }
                 >
-                  <Ic n="user" />
-                  Full record
+                  {isSavingPerson ? 'Saving…' : 'Save'}
                 </button>
-                {canEdit ? (
-                  <button type="button" className="btn primary" onClick={() => setEditing(open)}>
-                    <Ic n="sliders" />
-                    Edit
-                  </button>
-                ) : null}
-              </>
-            }
-          >
-            <div className="flex items-center gap-3" style={{ marginBottom: 14 }}>
-              <CustomAvatar name={open.name} image={open.image} size="44" />
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>{open.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{open.role}</div>
               </div>
-              <span
-                className={`${TONE_CLASS[open.tone] || 'tag neu'}`}
-                style={{ marginLeft: 'auto' }}
-              >
-                {open.presence}
-              </span>
-            </div>
-
-            <div className="kv">
-              <span className="k">Groups</span>
-              <span className="v">{open.department}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Job title</span>
-              <span className="v">{open.jobTitle || '—'}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Location</span>
-              <span className="v">
-                {open.location}
-                {open.locationPlace ? ` · ${open.locationPlace}` : ''}
-              </span>
-            </div>
-            <div className="kv">
-              <span className="k">Extension</span>
-              <span className="v num">{open.extension || '—'}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Email</span>
-              <span className="v">{open.email || '—'}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Caller ID</span>
-              <span className="v">{open.callerId || 'Not assigned'}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Phone</span>
-              <span className="v num">{open.phone || '—'}</span>
-            </div>
-            <div className="kv">
-              <span className="k">ACD skills</span>
-              <span className="v">{open.skills.length ? open.skills.join(', ') : '—'}</span>
-            </div>
-
-            <div className="ac-acts" style={{ marginTop: 14 }}>
-              <button
-                type="button"
-                className="mini solid"
-                disabled={!open.extension}
-                onClick={() =>
-                  open.extension && dial(open.extension, { forceRefreshContactInfo: true })
-                }
-              >
-                <Ic n="phone" size={12} />
-                Call
-              </button>
-              <button
-                type="button"
-                className="mini"
-                onClick={() => navigate(`/messenger?chatId=${open.uuid}&chatType=chat`)}
-              >
-                <Ic n="chat" size={12} />
-                Message
-              </button>
-              <button
-                type="button"
-                className="mini"
-                disabled={isStarting}
-                onClick={() =>
-                  startVideoCall(
-                    { user_uuid: open.uuid, name: open.name, email: open.email },
-                    `Call with ${open.name}`,
-                  )
-                }
-              >
-                <Ic n="video" size={12} />
-                Video
-              </button>
-            </div>
-          </DirectoryDrawer>
+            </DialogContent>
+          </Dialog>
         ) : null}
       </DirectoryPage>
+      </div>
 
       {/* The platform's own add-user flow, opened in place rather than
           bouncing to Admin — the console keeps you in Directory. */}
-      {inviting && (
-        <SideDrawer
-          isOpen={inviting}
-          title="Invite people"
-          width="min(1180px, 88vw)"
-          isTab={false}
-          handleClose={() => setInviting(false)}
-          content={<AddUsers setDrawerState={() => setInviting(false)} />}
-        />
-      )}
+      <Dialog open={inviting} onOpenChange={(next) => !next && setInviting(false)}>
+        <DialogContent
+          className="gp-create-group-dialog sm:max-w-[1100px]"
+          showCloseButton={false}
+        >
+          <div className="gp-create-group-head">
+            <h2>Invite people</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setInviting(false)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            <AddUsers setDrawerState={() => setInviting(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertConfirm
         {...{

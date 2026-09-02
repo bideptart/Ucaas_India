@@ -21,6 +21,7 @@ import { createGreeting, mediaUploadUrl, textToSpeech } from '@/services/api';
 import { AddGreetingProps, GreetingForm } from '@/interfaces/audio-interface';
 import { Input } from '@/components/ui/input';
 import CustomSelect from '@/components/custom/custom-select';
+import { isDemoMode } from '@/lib/demo-mode';
 
 interface IAddgreetings extends AddGreetingProps {
   refetch?: () => void;
@@ -161,13 +162,20 @@ const AddGreeting: FC<IAddgreetings> = ({
           is_default: false,
         };
 
-        const uploadFileResponse = await fetch(url, {
-          method: 'PUT',
-          body: fileToUpload,
-        });
-
-        if (uploadFileResponse.status === 200) {
+        /* `url` is a demo placeholder in demo mode (there is no real storage
+           behind it), so skip the real PUT rather than let it fail against a
+           non-existent endpoint. */
+        if (isDemoMode()) {
           upsertGreetingsMutate(greetingPayload);
+        } else {
+          const uploadFileResponse = await fetch(url, {
+            method: 'PUT',
+            body: fileToUpload,
+          });
+
+          if (uploadFileResponse.status === 200) {
+            upsertGreetingsMutate(greetingPayload);
+          }
         }
       }
     } catch (error) {

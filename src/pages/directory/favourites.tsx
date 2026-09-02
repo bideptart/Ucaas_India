@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getContactList } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import SideDrawer from '@/components/custom/side-drawer';
+import '@/styles/warm-glass.css';
 import SendWhatsappMessage from '@/pages/messenger/drawers/send-whatsapp-message';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { Ic } from '@/components/mcm/icons';
@@ -140,6 +141,7 @@ const Favourites = () => {
   return (
     <>
       <DirectoryPage
+        className="favourites-compact"
         title="Favourites"
         description="The people you reach most, colleagues and outside contacts together, one click from here."
         filters={
@@ -157,6 +159,7 @@ const Favourites = () => {
           </>
         }
       >
+        <div className="favourites-table-scroll">
         <table>
           <thead>
             <tr>
@@ -290,6 +293,7 @@ const Favourites = () => {
             )}
           </tbody>
         </table>
+        </div>
 
         {rows.length ? (
           <div className="mcm-tblfoot">
@@ -304,7 +308,13 @@ const Favourites = () => {
           handleClose={() => setWhatsappTo('')}
           title="Send WhatsApp message"
           content={
-            <SendWhatsappMessage handleClose={() => setWhatsappTo('')} initialNumber={whatsappTo} />
+            <div className="mcm-warm-glass whatsapp-drawer-glass flex h-full min-h-0 w-full flex-col">
+              <SendWhatsappMessage
+                handleClose={() => setWhatsappTo('')}
+                initialNumber={whatsappTo}
+                selectClassName="whatsapp-drawer-select"
+              />
+            </div>
           }
         />
       ) : null}

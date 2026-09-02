@@ -164,7 +164,6 @@ const DialpadCampaignOverview = ({
   });
 
   const cards = Array.isArray(campaignContactCards) ? campaignContactCards : [];
-  console.log('🚀 ~ DialpadCampaignOverview ~ campaignContactCards:', campaignContactCards);
   const totalContacts = cards.length;
   const firstCampaignCard: CampaignContactCard = cards[0] || {};
   const activeCampaignId = String(activeCampaign?._id || '').trim();

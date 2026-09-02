@@ -213,16 +213,36 @@ function TableManager({
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row: any, index: number) =>
       String(row?._id ?? row?.id ?? row?.uuid ?? row?.value ?? index),
-    pageCount: tbldata?.data?.data?.result?.totalPages
-      ? tbldata?.data?.data?.result?.totalPages
-      : -1,
+    /* Static mode has no fetch response to read totalPages off of — it never
+       runs the remote query at all, so this always fell through to -1
+       ("unknown page count" to react-table), which renders zero page-number
+       buttons no matter how many rows there are. Computed from the data
+       itself instead, the same fallback the record-count footer already
+       uses in this mode. */
+    pageCount: usesStaticData
+      ? Math.max(1, Math.ceil((tableData?.length || 0) / pageSize))
+      : tbldata?.data?.data?.result?.totalPages
+        ? tbldata?.data?.data?.result?.totalPages
+        : -1,
     getPaginationRowModel: getPaginationRowModel(),
     state: {
       pagination,
       rowSelection,
     },
     onPaginationChange: setPagination,
-    manualPagination: true,
+    /* manualPagination assumes the caller already sliced `data` down to one
+       page — true for the remote-fetch modes, where the server returns just
+       that page. Static mode hands over its full filtered list every time,
+       so with manualPagination left on nothing ever sliced it: every row
+       rendered regardless of page size or which page number was "selected".
+       Turning it off here lets react-table's own getPaginationRowModel do
+       the slicing it already has the state to do.
+       Only when pagination is actually shown, though — several callers pass
+       staticData with showPagination={false} specifically to render one
+       full scrollable list with no pager, relying on nothing slicing it.
+       Enabling real slicing there would silently cap them at one page size
+       with no control left to reach the rest. */
+    manualPagination: !(usesStaticData && showPagination),
     enableRowSelection: true,
   });
   const hasRows = table.getRowModel().rows.length > 0;
@@ -387,17 +407,35 @@ function TableManager({
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-bold border-b  bborder-gray-200 last-of-type:border-r-0 text-black first:rounded-tl-xl bg-[#FBE2C8]`}
+                    className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black first:rounded-tl-xl bg-[#FBE2C8]`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
                   const textAlign =
                     header.id === 'action' ? 'center' : header.column.columnDef?.meta?.textAlign;
+                  /* Tailwind's compiler only picks up complete class-name
+                     strings it can find in source — `text-${textAlign}`
+                     never matched anything, so every "center"/"right"
+                     alignment on every table in the app silently rendered
+                     as left the whole time (the class was in the DOM, the
+                     CSS rule just never got generated). A literal ternary
+                     gives it the whole class names to find.
+                     Even fixed, a plain class still loses: `.mcm-page th`
+                     (mcm-page.css) sets text-align:left on every <th> in
+                     the app at higher specificity than a single utility
+                     class. The `!` modifier forces !important so a
+                     column's own alignment choice actually wins. */
+                  const alignClass =
+                    textAlign === 'center'
+                      ? '!text-center'
+                      : textAlign === 'right'
+                        ? '!text-right'
+                        : 'text-left';
 
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-bold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl`}
+                      className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -499,7 +537,10 @@ function TableManager({
       </div>
 
       {showPagination && (
-        // sticky left-0 bottom-2
+        // Upstream's warm card treatment for the bar. `sm:w-full` on the
+        // inner wrapper below is kept: it hugged its contents, so
+        // `justify-between` had no slack and both groups bunched at the
+        // left instead of the pager sitting out at the right corner.
         <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
@@ -527,8 +568,12 @@ function TableManager({
                   <Label className="text-[#2E2D35]/80 sm:pr-3">per page</Label>
                 </div>
                 <Label className="text-[#2E2D35]/80 sm:pl-3">
+                  {/* Static mode has no fetch response to read a total off of —
+                      tableData is already the caller's full (filtered) list in
+                      that case, so its length IS the total. */}
                   {tbldata?.data?.data?.result?.totalItems ||
                     tbldata?.data?.data?.result?.total ||
+                    (usesStaticData ? tableData?.length : 0) ||
                     0}{' '}
                   record(s)
                 </Label>
@@ -546,9 +591,9 @@ function TableManager({
                 />
               </Button>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-1 sm:justify-end">
+            <div className="mcm-pager flex flex-wrap items-center justify-between gap-1 sm:justify-end">
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handleFirstPage()}
@@ -557,7 +602,7 @@ function TableManager({
                 <ChevronsLeft className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handlePreviousPage()}
@@ -576,13 +621,13 @@ function TableManager({
                 if (page < end && page >= start) {
                   return (
                     <div
-                      className={`max-w-7 min-w-7 max-h-7 min-h-7  font-medium rounded-xl flex items-center justify-center cursor-pointer shadow-none text-sm
-                            ${
-                              table?.getState()?.pagination?.pageIndex === index
-                                ? 'text-white font-semibold bg-primary rounded-xl'
-                                : ' text-[#2E2D35]'
-                            }
-                            `}
+                      /* The pager's sizing and states live in `.mcm-pager-*`
+                         so every control in the group shares one size and
+                         radius; upstream's inline classes styled the page
+                         number differently from the arrows beside it. */
+                      className={`mcm-pager-page ${
+                        table?.getState()?.pagination?.pageIndex === index ? 'is-current' : ''
+                      }`}
                       key={page}
                       onClick={() => table?.setPageIndex(index)}
                     >
@@ -595,7 +640,7 @@ function TableManager({
               })}
 
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleNextPage()}
@@ -604,7 +649,7 @@ function TableManager({
                 <ChevronRight className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleLastPage()}

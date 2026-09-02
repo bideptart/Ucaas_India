@@ -298,7 +298,7 @@ const LocalCallList = () => {
       accessorKey: 'charge',
       cell: ({ row }: any) => {
         const value = Number(row?.original?.charge ?? 0);
-        return `$${value.toFixed(4)}`;
+        return `$${value.toFixed(2)}`;
       },
     },
     {

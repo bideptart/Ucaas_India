@@ -379,7 +379,7 @@ function TableManager({
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
+                    className={`px-2 xl:px-4 py-2 font-bold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -389,7 +389,7 @@ function TableManager({
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
+                      className={`px-2 xl:px-4 py-2 font-bold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
                     >
                       {header.isPlaceholder
                         ? null

@@ -671,7 +671,7 @@ const CallHistory = ({
         cell: ({ row }: any) => {
           const data = row?.original;
           const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
-          return `$${value.toFixed(4)}`;
+          return `$${value.toFixed(2)}`;
         },
       },
       {

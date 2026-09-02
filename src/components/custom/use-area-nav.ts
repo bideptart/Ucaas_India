@@ -91,6 +91,7 @@ export const useAreaNav = () => {
         // is lit by its own path, same as any other route item — only the
         // in-page `?view=` tabs need the viewKey comparison.
         viewKey: resolvedHref ? undefined : view.key,
+        altPaths: view.altPaths,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

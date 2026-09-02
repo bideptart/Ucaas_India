@@ -709,16 +709,9 @@ const CalendarPage = () => {
         cell: ({ row }: any) => {
           const createdAt = row.original?.createdAt;
           return (
-            <div
-              className="flex flex-col cursor-pointer"
-              // onClick={() => handleTodayTaskClick(row.original)}
-            >
-              <span className="text-xs text-slate-600">
-                {moment(createdAt).format('MMM DD, YYYY')}
-              </span>
-              <span className="text-[10px] text-slate-500 uppercase">
-                {moment(createdAt).format('hh:mm A')}
-              </span>
+            <div className="mcm-task-when">
+              <span className="mcm-task-date">{moment(createdAt).format('MMM DD, YYYY')}</span>
+              <span className="mcm-task-time">{moment(createdAt).format('hh:mm A')}</span>
             </div>
           );
         },
@@ -726,11 +719,11 @@ const CalendarPage = () => {
       {
         header: 'Title',
         accessorKey: 'name',
+        /* Truncation is left to the column width rather than a fixed max-width.
+           The caps here were 100px/160px, so the title clipped even once the
+           column had room to show it. */
         cell: ({ row }: any) => (
-          <span
-            className="min-w-0 truncate inline-block sm:max-w-25 xl:max-w-40 xxl:max-w-50 text-xs font-medium text-slate-900 cursor-pointer"
-            // onClick={() => handleTodayTaskClick(row.original)}
-          >
+          <span className="mcm-task-title" title={row.original.name || ''}>
             {row.original.name}
           </span>
         ),
@@ -766,42 +759,34 @@ const CalendarPage = () => {
           const timezone = getScheduleTimezone(row.original);
           const isToday = start?.isSame(moment(), 'day');
           return (
-            <div
-              className="flex flex-col cursor-pointer"
-              // onClick={() => handleTodayTaskClick(row.original)}
-            >
-              <span className="text-xs font-medium text-slate-700">
-                {start?.isValid() ? start.format('MMM DD, YYYY') : '-'}
+            <div className="mcm-task-when">
+              <span className="mcm-task-date">
+                {start?.isValid() ? start.format('MMM DD, YYYY') : '—'}
               </span>
-              <span className="text-[10px] text-slate-500">
-                {start?.isValid() ? start.format('hh:mm A') : '-'}
+              {/* Time and countdown share one line. As a third line the badge
+                  made this row 69px against 49px for every other row, so the
+                  list had no vertical rhythm. */}
+              <span className="mcm-task-time">
+                {start?.isValid() ? start.format('hh:mm A') : '—'}
                 {timezone ? ` (${timezone})` : ''}
+                {isToday &&
+                  row.original.status !== 'COMPLETED' &&
+                  row.original.category === 'TASK' &&
+                  start?.isAfter(moment()) && <CountdownTimer targetDate={start.toISOString()} />}
               </span>
-              {isToday &&
-                row.original.status !== 'COMPLETED' &&
-                row.original.category === 'TASK' &&
-                start?.isAfter(moment()) && <CountdownTimer targetDate={start.toISOString()} />}
             </div>
           );
         },
       },
-      {
-        header: 'Created By',
-        accessorKey: 'createdById.name',
-        cell: ({ row }: any) => (
-          <span
-            className="text-xs text-slate-600 cursor-pointer"
-            // onClick={() => handleTodayTaskClick(row.original)}
-          >
-            {row.original?.createdByDetails?.name || ''}
-          </span>
-        ),
-      },
+      /* No Created By column. `createdByDetails` is absent on every task the
+         list endpoint returns, so the column rendered an empty cell on all 12
+         rows while holding 94px -- width Title needed, since Title was
+         truncating at 134px. Same reasoning as Category and Call above. */
       {
         header: 'Source',
         // accessorKey: 'source',
         cell: ({ row }: any) => (
-          <span className="text-xs text-slate-600 capitalize ">
+          <span className="mcm-task-source">
             {row.original?.source === 'CALENDAR' ? 'Meeting' : row?.original?.source?.toLowerCase()}
           </span>
         ),
@@ -848,7 +833,7 @@ const CalendarPage = () => {
                   Assign
                 </button>
               ) : (
-                <span>--</span>
+                <span className="mcm-task-empty">—</span>
               )}
             </div>
           );
@@ -1548,6 +1533,7 @@ const CalendarPage = () => {
                 <TableManager
                   {...{
                     columns,
+                    customClass: 'mcm-tasktable',
                     fetcherKey: 'calendarMeetingListTaskList',
                     fetcherFn: calendarMeetingList,
                     onSuccess: (data: any) => {

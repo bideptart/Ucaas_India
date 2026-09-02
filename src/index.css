@@ -2180,6 +2180,143 @@
 }
 
 /* ==================================================================
+   Task Listing table (Calendar > Tasks List View).
+
+   Scoped through `.mcm-tasktable`, which the page passes to TableManager
+   as `customClass`. TableManager backs roughly eighty tables, so none of
+   this may be written against its own selectors.
+   ================================================================== */
+
+/* Content-sized columns with Title absorbing the slack. Measured before
+   this pass: Title truncated at 134px while "Created By" held 94px of
+   empty cells beside it. Sizing by content means a title clips only when
+   the viewport genuinely cannot fit it, never because a neighbour is
+   hoarding width. Columns are sized here rather than with percentages
+   because none of these cells can compress below their content. */
+.mcm-tasktable thead th,
+.mcm-tasktable tbody td {
+  width: 1%;
+  white-space: nowrap;
+}
+.mcm-tasktable thead th:nth-child(2),
+.mcm-tasktable tbody td:nth-child(2) {
+  width: 100%;
+}
+
+/* 8px on all four sides was the same inset between two dense columns as
+   at the table's outer edge, which is what made the rows feel crowded
+   and unfinished. Vertical air is what a two-line cell actually needs. */
+.mcm-tasktable tbody td,
+.mcm-tasktable thead th {
+  padding: 10px 16px;
+}
+.mcm-tasktable tbody td:first-child,
+.mcm-tasktable thead th:first-child {
+  padding-left: 20px;
+}
+.mcm-tasktable tbody td:last-child,
+.mcm-tasktable thead th:last-child {
+  padding-right: 20px;
+}
+
+/* `height` on a cell behaves as a minimum, so short rows match the
+   two-line ones instead of collapsing. Rows measured 49/69/49/49 before
+   this -- the 69 was the countdown badge taking a third line. */
+.mcm-tasktable tbody td {
+  height: 56px;
+  vertical-align: middle;
+}
+
+.mcm-tasktable thead th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Both date columns. They had drifted apart -- one 12px slate-600 over a
+   10px uppercase time, the other 12px medium slate-700 over a 10px time
+   that was not uppercase -- so two adjacent columns of the same data
+   type read as unrelated. */
+.mcm-tasktable .mcm-task-when {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.35;
+}
+.mcm-tasktable .mcm-task-date {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #334155;
+}
+.mcm-tasktable .mcm-task-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  /* Times sit directly above one another down the column. */
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+  /* Fixed line box so the countdown badge cannot make its row taller
+     than the rest. Without it that row came out 1.4px over. */
+  min-height: 16px;
+}
+
+/* The countdown is a shared component styled for a card, where a top
+   margin and a 112px floor are right. Neutralised for this row rather
+   than changed at the source, which would move it for its other callers.
+   The pulse goes too: one row breathing in a still list draws the eye
+   away from whatever the reader was actually reading. */
+.mcm-tasktable .mcm-task-time > span {
+  margin-top: 0;
+  min-width: 0;
+  animation: none;
+  height: 16px;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+}
+
+.mcm-tasktable .mcm-task-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.mcm-tasktable .mcm-task-source {
+  font-size: 12px;
+  color: #475569;
+  text-transform: capitalize;
+}
+
+/* Placeholder, not data: a bare "--" inherited body ink and read as
+   loudly as a real value. */
+.mcm-tasktable .mcm-task-empty {
+  color: #cbd5e1;
+  user-select: none;
+}
+
+/* The trigger only revealed itself on hover, so the control looked like
+   loose punctuation until the pointer found it. */
+.mcm-tasktable tbody td:last-child button {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.mcm-tasktable tbody tr:hover td:last-child button {
+  border-color: rgba(225, 200, 165, 0.9);
+  background: rgba(255, 255, 255, 0.7);
+  color: #475569;
+}
+
+/* ==================================================================
    Table pagination.
 
    One segmented control rather than six loose targets: the arrows and the

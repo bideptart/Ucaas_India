@@ -592,7 +592,12 @@ const MyCampaignListStandalone = () => {
 
   return (
     <>
-      <section className="w-full flex flex-col overflow-x-auto overflow-y-hidden h-full">
+      {/* `mcm-page mcm-admin` opts this screen into the console's design
+          system, the way the other full-page routes do. Upstream has since
+          given the bar its own warm treatment, which is kept — the classes
+          matter because without them none of the console's shared rules
+          reach this route at all. */}
+      <section className="mcm-page mcm-admin w-full flex flex-col overflow-x-auto overflow-y-hidden h-full">
         <div className="flex items-center justify-between p-4 border-b border-[rgba(225,200,165,0.9)] min-h-[68px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
           <div className="flex flex-col">
             <p className="text-[#2E2D35] font-semibold text-lg leading-tight">Campaign Workspace</p>
@@ -603,17 +608,22 @@ const MyCampaignListStandalone = () => {
         </div>
 
         <div className="p-3 w-full h-full gap-2 flex flex-col">
+          {/* Upstream's warm panel, but the strip and rail keep their
+              `mcm-tabstrip*` classes. Upstream's version is the slate/white
+              gradient over a grey rail that was invisible against the panel
+              — the tabs and the content below read as one undivided field.
+              Those classes shade each nested layer from the page's own
+              backdrop instead, and the tab buttons below already depend on
+              them. */}
           <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] w-full rounded-2xl border border-[rgba(225,200,165,0.9)] h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
-            <div className="border-b border-[#EEE7DD] bg-gradient-to-r from-slate-50 via-white to-slate-50 w-full">
+            <div className="mcm-tabstrip w-full">
               <div className="sm:px-3 sm:pt-3 sm:pb-2 flex-col sm:flex items-center justify-between gap-3 w-full ">
-                <div className="inline-flex items-center sm:rounded-xl bg-[#FBE2C8]/40 p-1 gap-1 w-full">
+                <div className="mcm-tabstrip-rail inline-flex items-center sm:rounded-xl p-1 gap-1 w-full">
                   <button
                     type="button"
                     onClick={() => setActiveTab('running-campaign')}
-                    className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
-                      activeTab === 'running-campaign'
-                        ? 'bg-white text-slate-900'
-                        : 'text-slate-500 hover:text-slate-700'
+                    className={`mcm-tab relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                      activeTab === 'running-campaign' ? 'is-on' : ''
                     }`}
                   >
                     <Icon name="Grid2" className="w-4 h-4" />
@@ -623,10 +633,8 @@ const MyCampaignListStandalone = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('assigned-queues')}
-                    className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
-                      activeTab === 'assigned-queues'
-                        ? 'bg-white text-slate-900'
-                        : 'text-slate-500 hover:text-slate-700'
+                    className={`mcm-tab relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                      activeTab === 'assigned-queues' ? 'is-on' : ''
                     }`}
                   >
                     <Icon name="CallQueue" className="w-4 h-4" />

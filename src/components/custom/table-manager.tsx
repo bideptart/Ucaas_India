@@ -379,7 +379,7 @@ function TableManager({
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-bold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
+                    className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -490,7 +490,10 @@ function TableManager({
       </div>
 
       {showPagination && (
-        // sticky left-0 bottom-2
+        // Upstream's warm card treatment for the bar. `sm:w-full` on the
+        // inner wrapper below is kept: it hugged its contents, so
+        // `justify-between` had no slack and both groups bunched at the
+        // left instead of the pager sitting out at the right corner.
         <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
@@ -537,9 +540,9 @@ function TableManager({
                 />
               </Button>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-1 sm:justify-end">
+            <div className="mcm-pager flex flex-wrap items-center justify-between gap-1 sm:justify-end">
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handleFirstPage()}
@@ -548,7 +551,7 @@ function TableManager({
                 <ChevronsLeft className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 variant={'ghost'}
                 type="button"
                 onClick={() => handlePreviousPage()}
@@ -567,13 +570,13 @@ function TableManager({
                 if (page < end && page >= start) {
                   return (
                     <div
-                      className={`max-w-7 min-w-7 max-h-7 min-h-7  font-medium rounded-xl flex items-center justify-center cursor-pointer shadow-none text-sm
-                            ${
-                              table?.getState()?.pagination?.pageIndex === index
-                                ? 'text-white font-semibold bg-primary rounded-xl'
-                                : ' text-[#2E2D35]'
-                            }
-                            `}
+                      /* The pager's sizing and states live in `.mcm-pager-*`
+                         so every control in the group shares one size and
+                         radius; upstream's inline classes styled the page
+                         number differently from the arrows beside it. */
+                      className={`mcm-pager-page ${
+                        table?.getState()?.pagination?.pageIndex === index ? 'is-current' : ''
+                      }`}
                       key={page}
                       onClick={() => table?.setPageIndex(index)}
                     >
@@ -586,7 +589,7 @@ function TableManager({
               })}
 
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleNextPage()}
@@ -595,7 +598,7 @@ function TableManager({
                 <ChevronRight className="w-4 h-4" />
               </Button>
               <Button
-                className="cursor-pointer hover:text-primary max-w-7 min-w-7 max-h-7 min-h-7"
+                className="mcm-pager-btn"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleLastPage()}

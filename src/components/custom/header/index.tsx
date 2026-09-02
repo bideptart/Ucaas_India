@@ -282,8 +282,20 @@ const Header = () => {
   return (
     <>
       <div className="fixed left-0 top-0 z-30 h-16 w-full">
+        {/* `border-gray-200`, not `border-white/50`: the old rule was white
+            on a white bar sitting above white page content, so the header had
+            no visible bottom edge and merged into whatever was beneath it.
+
+            `h-16` rather than `min-h-16` because the wrapper above is a fixed
+            64px and page content is offset by `pt-16` (64px) — `min-h-16`
+            plus this 1px border made the bar 65px, so it painted over the
+            first row of the content below. Border-box keeps the border
+            inside the 64px. */}
         <header
-          className="min-h-16 text-gray-900/80 border-b border-white/50 px-4 py-2.5 "
+          /* Upstream's px-4/py-2.5 padding, but keeping `h-16` over
+             `min-h-16` and a visible `border-gray-200` over
+             `border-white/50` — see the note above the tag. */
+          className="h-16 text-gray-900/80 border-b border-gray-200 px-4 py-2.5"
           style={{
             background: 'rgba(255, 255, 255, 0.78)',
             backdropFilter: 'blur(12px) saturate(160%)',

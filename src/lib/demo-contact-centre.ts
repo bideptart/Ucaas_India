@@ -1485,22 +1485,38 @@ export const demoContactGroupRows = () => {
 export const demoCalendarTaskRows = () => {
   const now = Date.now();
   const HOUR_MS = 60 * 60 * 1000;
+  /* Spread across the month rather than bunched into the next two days, so
+     the calendar grid has something on most weeks. `category` drives the
+     colour each entry gets — EVENT blue, TASK green, MEETING violet. */
   const seed = [
-    { name: 'Callback - Rahul Deshmukh (Sales)', dueInHours: -3, source: 'Queue', status: 'PENDING' },
-    { name: 'Follow up - Sneha Joshi (Billing)', dueInHours: 4, source: 'Manual', status: 'PENDING' },
-    { name: 'Renewal call - Aditya Kumar', dueInHours: -18, source: 'Campaign', status: 'PENDING' },
-    { name: 'Callback - Pooja Bansal (Support)', dueInHours: 9, source: 'Queue', status: 'PENDING' },
-    { name: 'Demo follow-up - Rohan Chatterjee', dueInHours: 26, source: 'Manual', status: 'PENDING' },
-    { name: 'Callback - Kavya Pillai (Onboarding)', dueInHours: 48, source: 'Queue', status: 'PENDING' },
+    { name: 'Callback - Rahul Deshmukh (Sales)', dueInHours: -3, source: 'Queue', status: 'PENDING', category: 'TASK' },
+    { name: 'Follow up - Sneha Joshi (Billing)', dueInHours: 4, source: 'Manual', status: 'PENDING', category: 'TASK' },
+    { name: 'Renewal call - Aditya Kumar', dueInHours: -18, source: 'Campaign', status: 'PENDING', category: 'TASK' },
+    { name: 'Quarterly Business Review', dueInHours: 30, source: 'Manual', status: 'PENDING', category: 'MEETING' },
+    { name: 'Demo follow-up - Rohan Chatterjee', dueInHours: 54, source: 'Manual', status: 'PENDING', category: 'EVENT' },
+    { name: 'Bengaluru Team Standup', dueInHours: 78, source: 'Manual', status: 'PENDING', category: 'MEETING' },
+    { name: 'Callback - Kavya Pillai (Onboarding)', dueInHours: 102, source: 'Queue', status: 'PENDING', category: 'TASK' },
+    { name: 'Product Roadmap Review', dueInHours: 150, source: 'Manual', status: 'PENDING', category: 'MEETING' },
+    { name: 'Support Escalation Sync', dueInHours: 198, source: 'Queue', status: 'PENDING', category: 'EVENT' },
+    { name: 'Renewal Pipeline Check', dueInHours: 246, source: 'Campaign', status: 'PENDING', category: 'TASK' },
+    { name: 'Partner Onboarding Call', dueInHours: 318, source: 'Manual', status: 'PENDING', category: 'MEETING' },
+    { name: 'Monthly Performance Review', dueInHours: 390, source: 'Manual', status: 'PENDING', category: 'EVENT' },
   ];
-  return seed.map((task, index) => ({
-    uuid: `demo-task-${index + 1}`,
-    name: task.name,
-    source: task.source,
-    status: task.status,
-    createdAt: new Date(now - (Math.abs(task.dueInHours) + 20) * HOUR_MS).toISOString(),
-    startTime: new Date(now + task.dueInHours * HOUR_MS).toISOString(),
-  }));
+  return seed.map((task, index) => {
+    const startAt = now + task.dueInHours * HOUR_MS;
+    return {
+      uuid: `demo-task-${index + 1}`,
+      name: task.name,
+      source: task.source,
+      status: task.status,
+      category: task.category,
+      createdAt: new Date(now - (Math.abs(task.dueInHours) + 20) * HOUR_MS).toISOString(),
+      startTime: new Date(startAt).toISOString(),
+      /* An end an hour on, so a preview can show a span rather than a
+         zero-length entry. */
+      endTime: new Date(startAt + HOUR_MS).toISOString(),
+    };
+  });
 };
 
 /** `/api/tenant/report/call-list` with `type: 'voicemail'` — Callbacks ▸ "Queue voicemail". */

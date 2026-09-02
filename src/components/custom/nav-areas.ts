@@ -134,6 +134,16 @@ export type AreaView = {
    * area cannot recognise its own page when the user is standing on it.
    */
   match?: string;
+  /**
+   * Other routes that count as "on" this view for the rail's own highlight,
+   * distinct from `match` (which decides which *area* a path belongs to).
+   * `/contact` is a separate, older contact-book page that isn't reachable
+   * through `?view=external` at all, but External Contacts' own "New
+   * contact" button sends people there — without this the rail item that
+   * sent them goes dark the moment they land, which reads as if the click
+   * had left Directory entirely.
+   */
+  altPaths?: string[];
 };
 
 /**
@@ -156,7 +166,7 @@ export const DIRECTORY_VIEWS: AreaView[] = [
   { key: 'groups', label: 'Groups', icon: 'DepartmentIcon' },
   { key: 'roles', label: 'Roles', icon: 'AdminIcon' },
   { key: 'locations', label: 'Locations', icon: 'IntegrationIcon' },
-  { key: 'external', label: 'External Contacts', icon: 'InboxIcon' },
+  { key: 'external', label: 'External Contacts', icon: 'InboxIcon', altPaths: ['/contact'] },
   { key: 'favourites', label: 'Favourites', icon: 'Star' },
   { key: 'blocked', label: 'Blocked', icon: 'AdminIcon' },
 ];

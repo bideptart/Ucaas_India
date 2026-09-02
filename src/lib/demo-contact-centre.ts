@@ -77,6 +77,13 @@ export const DEMO_AGENTS: DemoAgent[] = [
   agent('Ananya', 'Iyer', '1006', 'Bengaluru'),
   agent('Vikram', 'Reddy', '1007', 'Bengaluru'),
   agent('Neha', 'Gupta', '1008', 'Bengaluru'),
+  agent('Rohan', 'Verma', '1009', 'Mumbai HQ'),
+  agent('Ishita', 'Bose', '1010', 'Bengaluru'),
+  agent('Aditya', 'Rao', '1011', 'Mumbai HQ', 'SUPERVISOR', 'Supervisor'),
+  agent('Kavya', 'Menon', '1012', 'Bengaluru'),
+  agent('Rahul', 'Chatterjee', '1013', 'Mumbai HQ', 'BILLING_SPECIALIST', 'Billing Specialist'),
+  agent('Divya', 'Pillai', '1014', 'Bengaluru'),
+  agent('Farhan', 'Sheikh', '1015', 'Mumbai HQ', 'READ_ONLY', 'Read Only'),
 ];
 
 type DemoQueue = {
@@ -501,12 +508,55 @@ export const demoDncRows = () => {
 export const demoTemplateRows = () => {
   const now = Date.now();
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const seed = [
+  type TemplateSeedRow = { name: string; daysAgo: number; uuidSuffix?: number };
+  const seed: TemplateSeedRow[] = [
     { name: 'Sales Team Defaults', daysAgo: 60 },
     { name: 'Support Agent Defaults', daysAgo: 45 },
+    { name: 'Management Defaults', daysAgo: 38 },
+    { name: 'Remote Team Defaults', daysAgo: 30 },
+    { name: 'Billing Team Defaults', daysAgo: 21 },
+    { name: 'Onboarding Defaults', daysAgo: 10 },
+    /* uuidSuffix picked so dummy-template-meta.ts's deterministic status
+       roll lands on Pending/Draft — otherwise the seed set never showed
+       either of those two statuses even once, only Active/Archived. */
+    { name: 'Trial Team Defaults', daysAgo: 4, uuidSuffix: 8 },
+    { name: 'New Hire Draft', daysAgo: 1, uuidSuffix: 12 },
   ];
-  return seed.map((row, index) => ({
-    uuid: `demo-template-${index + 1}`,
+  /* A second department-named batch — mainly so the list is long enough to
+     span more than one page. `per page` defaults to 25, so this pushes the
+     total past that boundary and onto a real page 2, not just a longer
+     single page. */
+  const BULK_TEAMS = [
+    'Marketing', 'Product', 'Legal', 'HR', 'Finance', 'Logistics', 'Customer Success', 'IT',
+    'Procurement', 'Field Ops', 'Data', 'Design', 'QA', 'DevOps', 'Partnerships', 'Growth',
+    'Retail Ops', 'Warehouse', 'Compliance', 'Risk', 'Treasury', 'Payroll', 'Recruiting',
+    'Training', 'Facilities', 'Security', 'Analytics', 'Localization', 'Content', 'Events',
+  ];
+  const bulkSeed: TemplateSeedRow[] = BULK_TEAMS.map((team, i) => ({
+    name: `${team} Team Defaults`,
+    daysAgo: 2 + ((i * 7) % 88),
+  }));
+  /* A third batch, pairing the same team list with a site, to push the
+     total well past two pages of 25 for pagination testing. */
+  const BULK_SITES = ['Mumbai HQ', 'Bengaluru'];
+  const bulkSeed2: TemplateSeedRow[] = BULK_TEAMS.flatMap((team, i) =>
+    BULK_SITES.map((site, s) => ({
+      name: `${team} (${site})`,
+      daysAgo: 2 + ((i * 11 + s * 5) % 88),
+    })),
+  );
+  /* uuid used to come from array position (`demo-template-${index + 1}`),
+     which quietly broke the moment a batch got inserted ahead of one of the
+     two uuidSuffix-pinned rows below: two rows landed on the same position
+     and so the same uuid, each silently overwriting the other's meta and
+     tripping a duplicate-key warning in the table. Deriving it from the
+     name instead is stable no matter how the array is reordered or grown —
+     the two pinned suffixes get their own separate namespace so they can
+     never collide with a slugified name. */
+  const slugify = (value: string) =>
+    value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return [...seed, ...bulkSeed, ...bulkSeed2].map((row) => ({
+    uuid: row.uuidSuffix ? `demo-template-fixed-${row.uuidSuffix}` : `demo-template-${slugify(row.name)}`,
     name: row.name,
     settings: JSON.stringify({}),
     greetings: JSON.stringify({}),
@@ -1124,10 +1174,34 @@ export const demoFaxMessages = (faxMessageId: string) => {
 /** `/api/tenant/department/list` — Directory ▸ Groups and Admin ▸ Departments. */
 export const demoDepartmentRows = () => {
   const seed = [
-    { name: 'Sales Team', extension: '7001', memberExtensions: ['1004', '1005', '1006'], managerExt: '1003' },
-    { name: 'Customer Support', extension: '7002', memberExtensions: ['1004', '1006', '1007', '1008'], managerExt: '1003' },
-    { name: 'Finance & Billing', extension: '7003', memberExtensions: ['1002', '1007'], managerExt: '1002' },
-    { name: 'Engineering', extension: '7004', memberExtensions: ['1006', '1008'], managerExt: '1001' },
+    {
+      name: 'Sales Team',
+      extension: '7001',
+      memberExtensions: ['1004', '1005', '1006'],
+      managerExt: '1003',
+      description: 'Inbound and outbound sales calls, routed to whoever is free first.',
+    },
+    {
+      name: 'Customer Support',
+      extension: '7002',
+      memberExtensions: ['1004', '1006', '1007', '1008'],
+      managerExt: '1003',
+      description: 'Existing-customer tickets and calls — billing questions go to Finance instead.',
+    },
+    {
+      name: 'Finance & Billing',
+      extension: '7003',
+      memberExtensions: ['1002', '1007'],
+      managerExt: '1002',
+      description: 'Invoices, refunds and payment method updates.',
+    },
+    {
+      name: 'Engineering',
+      extension: '7004',
+      memberExtensions: ['1006', '1008'],
+      managerExt: '1001',
+      description: 'Internal extension for the on-call engineer, not customer-facing.',
+    },
   ];
   return seed.map((dept, index) => {
     const manager = DEMO_AGENTS.find((row) => row.extension === dept.managerExt) as DemoAgent;
@@ -1135,7 +1209,10 @@ export const demoDepartmentRows = () => {
       uuid: `demo-dept-${index + 1}`,
       name: dept.name,
       extension: dept.extension,
+      description: dept.description,
       manager: JSON.stringify({
+        uuid: manager.uuid,
+        user_uuid: manager.uuid,
         first_name: manager.first_name,
         last_name: manager.last_name,
         name: `${manager.first_name} ${manager.last_name}`,

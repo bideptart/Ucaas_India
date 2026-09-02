@@ -25,12 +25,17 @@
 
 .gp-people .page-head,
 .gp-people .tbar .fchip {
-  background: #fff6e9;
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow:
     0 10px 34px rgba(160, 95, 30, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   border-radius: 20px;
+}
+.gp-people .page-head {
+  background: #fff;
+}
+.gp-people .tbar .fchip {
+  background: #fff6e9;
 }
 
 /* The roster itself stays a solid, light whitish surface rather than glass —
@@ -58,10 +63,7 @@
   margin-bottom: 16px;
 }
 .gp-people .page-head h1 {
-  background: linear-gradient(120deg, #c96f1f, #f2994a 60%, #f8b76a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1a1a1a;
 }
 .gp-people .page-head p {
   color: #6b5c4d;
@@ -178,18 +180,23 @@
    as off-theme here. Orange border + text by default, filled orange on
    hover, matching every other action on this page. */
 .gp-people .btn.ghost {
+  /* Full shorthand, not just `border-color` — a global reset
+     (`.mcm-page button:not([data-slot="tabs-trigger"]) { border: 0 }`) beats
+     a color-only override on width/style, since that reset's specificity is
+     higher than `.mcm-page .btn`'s own `border: 1px solid transparent` for
+     those two channels and a bare `border-color` never touches them. */
   background: rgba(255, 255, 255, 0.6);
-  border-color: var(--accent-edge);
+  border: 1px solid var(--accent);
   color: var(--accent-ink);
 }
 .gp-people .btn.ghost:hover {
   background: var(--accent);
-  border-color: var(--accent);
+  border: 1px solid var(--accent);
   color: #fff;
 }
 .gp-people .btn.ghost:disabled {
   background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(150, 100, 50, 0.15);
+  border: 1px solid rgba(150, 100, 50, 0.15);
   color: var(--ink-2);
 }
 
@@ -375,4 +382,27 @@ input.gp-field-v:disabled {
   stroke: currentColor;
   stroke-width: 1.8;
   flex: none;
+}
+
+/* Row "more actions" menu — same portal caveat as the dialog above: `.ic`
+   with no `.mcm-page` ancestor to inherit fill/stroke from renders as a
+   solid black blob instead of an outline glyph. */
+.gp-person-menu .ic {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  flex: none;
+}
+.gp-person-menu [data-slot='dropdown-menu-item'] {
+  /* The base `rounded-xl` (12px) reads as a full pill/stadium shape at this
+     row's height — a smaller radius keeps the hover a rectangle with just
+     softened corners instead. */
+  border-radius: 6px;
+}
+.gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
+.gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
+  background: #fff1e0;
+  color: #c96f1f;
 }

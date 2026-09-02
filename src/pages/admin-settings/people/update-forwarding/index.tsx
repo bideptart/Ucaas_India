@@ -23,6 +23,10 @@ import { COMPANY_DEFAULTS_QUERY_KEY, fetchCompanyDefaults } from '@/lib/company-
 import { seedDeviceRingTime } from '@/lib/company-ring-time';
 import { getCompanyNewUserDefaults } from '@/lib/company-new-user-defaults';
 import { readRuleFlags } from '@/lib/company-rule-flags';
+import {
+  buildTemplateGreetingsWrites,
+  buildTemplateSettingsWrites,
+} from '@/lib/apply-user-settings-template';
 import ErrorTooltip from '@/components/custom/error-tooltip';
 import { CUSTOM_HOURS_SCHEDULE_OPTIONS } from '@/pages/admin-settings/numbers/set-number-forwarding/constants';
 import Loader from '@/components/custom/loader';
@@ -800,120 +804,20 @@ const UpdateForwarding: FC<UpdateForwardingProps> = ({ setDrawerState, data, set
     }
   }, [isSelectedTemplate, chooseTemplate?.selectedTemplate]);
 
-  /* Every test below asks the same question — should this company value be put onto
-     the person — which is the `apply` half of the rule, not the `locked` half the raw
-     `override` flag was also being used for. `readRuleFlags` reads a record that only
-     carries the old flag exactly as this code read it before, so nothing changes for
-     existing data; what it adds is the ability for a company to apply a value AND lock
-     it, which one flag could never say. */
+  /* Which fields a template applies, and to what value, is decided in
+     src/lib/apply-user-settings-template.ts — the same question this used to
+     answer inline, now asked somewhere a future bulk "apply to many people"
+     screen can ask it too, instead of re-deriving its own answer. */
   const seSettingsData = (settingsData: any) => {
-    if (readRuleFlags(settingsData, 'regional').apply)
-      setValue('settings.operational_hours.regional', settingsData?.operational_hours?.regional);
-    if (
-      readRuleFlags(settingsData, 'display_number').apply ||
-      chooseTemplate?.isChooseTemplate === 'Yes'
-    ) {
-      const maskingType = settingsData?.display_number?.masking?.type;
-      const typeValue = typeof maskingType === 'object' ? maskingType?.value : maskingType;
-      const typeLabel =
-        typeof maskingType === 'object'
-          ? maskingType?.label
-          : settingsData?.display_number?.masking?.label;
-
-      setValue('settings.display_number', {
-        incoming: settingsData?.display_number?.incoming || { label: 'Yes', value: true },
-        masking: {
-          type: {
-            label: typeLabel || 'None',
-            value: typeValue || 'N',
-          },
-          value: settingsData?.display_number?.masking?.value || '',
-        },
-        show_number_if_blocked: settingsData?.display_number?.show_number_if_blocked || 'NO',
-      });
-    }
-    if (readRuleFlags(settingsData, 'business_hours').apply) {
-      setValue('settings.operational_hours', settingsData?.operational_hours);
-      const holidays =
-        settingsData?.operational_hours?.holidays &&
-        settingsData?.operational_hours?.holidays?.length
-          ? getHolidaysFormVal(settingsData?.operational_hours?.holidays)
-          : [];
-      setValue('settings.operational_hours.holidays', holidays);
-      setValue('settings.operational_hours.closed_hour_action', {
-        type: {
-          label: settingsData?.operational_hours?.closed_hour_action?.type_label || '',
-          value: settingsData?.operational_hours?.closed_hour_action?.type || '',
-        },
-        value: {
-          label: settingsData?.operational_hours?.closed_hour_action?.value_label || '',
-          value: settingsData?.operational_hours?.closed_hour_action?.value || '',
-        },
-        enabled: settingsData?.operational_hours?.closed_hour_action?.enabled,
-        personal: settingsData?.operational_hours?.closed_hour_action?.personal,
-      });
-    }
-    if (readRuleFlags(settingsData, 'voicemail').apply) {
-      setValue('settings.voicemail_pin', settingsData?.voicemail_pin);
-    }
-    if (readRuleFlags(settingsData, 'recording').apply) {
-      setValue('settings.recording', settingsData?.recording);
-    }
-    if (readRuleFlags(settingsData, 'transcription').apply) {
-      setValue('settings.transcription', settingsData?.transcription?.enabled || false);
-    }
-    if (readRuleFlags(settingsData, 'ai_call_monitoring').apply) {
-      setValue('settings.ai_call_monitoring', settingsData?.ai_call_monitoring?.enabled || false);
-    }
+    buildTemplateSettingsWrites(settingsData, {
+      forceDisplayNumber: chooseTemplate?.isChooseTemplate === 'Yes',
+    }).forEach(({ path, value }) => setValue(path as any, value));
   };
 
-  /* The greetings record has the same one-flag-two-meanings problem as the settings
-     record, so it gets the same treatment. Paths are given with the trailing
-     `.override` because that is literally where the old flag sits, and because the
-     bare name `voicemail` is already a settings rule pointing at `voicemail_pin` —
-     spelling the path out keeps the greeting's own flag from being read from there. */
   const setGreetingsData = (greetingsData: any) => {
-    const welcomeGreetingKey = greetingsData?.welcome_greeting ? 'welcome_greeting' : 'welcome';
-    const onHoldMusicKey = greetingsData?.on_hold_music ? 'on_hold_music' : 'hold';
-    const welcomeGreetingData = greetingsData?.welcome_greeting || greetingsData?.welcome;
-    const onHoldMusicData = greetingsData?.on_hold_music || greetingsData?.hold;
-
-    if (readRuleFlags(greetingsData, `${welcomeGreetingKey}.override`).apply) {
-      setValue('greetings.welcome_greeting', {
-        enabled: welcomeGreetingData?.enabled || false,
-        value: {
-          label: welcomeGreetingData?.label || 'Select',
-          value: welcomeGreetingData?.value || '',
-        },
-      });
-    }
-    if (readRuleFlags(greetingsData, 'voicemail.override').apply) {
-      setValue('greetings.voicemail', {
-        enabled: greetingsData?.voicemail?.enabled || false,
-        value: {
-          label: greetingsData?.voicemail?.label || 'Select',
-          value: greetingsData?.voicemail?.value || '',
-        },
-      });
-    }
-    if (readRuleFlags(greetingsData, 'ring_tone.override').apply) {
-      setValue('greetings.ring_tone', {
-        enabled: greetingsData?.ring_tone?.enabled || false,
-        value: {
-          label: greetingsData?.ring_tone?.label || 'Select',
-          value: greetingsData?.ring_tone?.value || '',
-        },
-      });
-    }
-    if (readRuleFlags(greetingsData, `${onHoldMusicKey}.override`).apply) {
-      setValue('greetings.on_hold_music', {
-        enabled: onHoldMusicData?.enabled || false,
-        value: {
-          label: onHoldMusicData?.label || 'Select',
-          value: onHoldMusicData?.value || '',
-        },
-      });
-    }
+    buildTemplateGreetingsWrites(greetingsData).forEach(({ path, value }) =>
+      setValue(path as any, value),
+    );
   };
 
   return (

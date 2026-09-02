@@ -169,7 +169,7 @@ const SpeechTextTab = () => {
   ];
 
   return (
-    <div className="perf-speech flex w-full flex-col gap-4 px-[22px] pt-5 pb-16">
+    <div className="perf-speech flex w-full flex-col gap-4 px-[22px] pt-5 pb-32">
       <p className="page-note">
         Sentiment for AI receptionist / chatbot handled calls, sourced from the same live data as
         the AI Wallboard. Human-agent call sentiment isn't aggregated yet — see individual calls'

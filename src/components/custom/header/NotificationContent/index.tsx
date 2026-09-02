@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Icon as IconComponent } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { isDemoMode } from '@/lib/demo-mode';
+import { toast } from 'react-toastify';
 
 // Sample data so the notification drawer and its filters can be eyeballed
 // without a backend that actually has notifications queued up. Gated by
@@ -617,20 +618,27 @@ const NotificationContent = ({
                       // Only offered for the local dev sample data — there's
                       // no matching "unmark as read" call for real
                       // notifications, so a fake Undo there would just lie.
+                      // The drawer stays open (rather than closing like the
+                      // real-notifications branch below) specifically so
+                      // Undo has a visible list to restore — closing it here
+                      // used to leave Undo appearing to do nothing, since the
+                      // change it reverted was on a screen no longer open.
                       const previousReadState = markAllDummyRead();
                       setDummyReadVersion((v) => v + 1);
-                      setNotificationState(false);
                       handleAlert({
+                        icon: <IconComponent name="ChecksLineIcon" className="w-4 h-4 text-white" />,
+                        className: 'mcm-toast-markread',
                         text: (
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-between gap-3 w-full">
                             <span>All notifications marked as read.</span>
                             <button
                               type="button"
-                              className="text-xs font-semibold underline shrink-0 cursor-pointer"
+                              className="mcm-toast-undo shrink-0 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 restoreDummyReadIds(previousReadState);
                                 setDummyReadVersion((v) => v + 1);
+                                toast.dismiss();
                               }}
                             >
                               Undo
@@ -649,7 +657,7 @@ const NotificationContent = ({
                     }
                   }}
                 >
-                  <IconComponent name="DoneIcon" className="w-4 h-4" />
+                  <IconComponent name="ChecksLineIcon" className="w-4 h-4" />
                 </button>
               ) : null}
               <DropdownMenu>

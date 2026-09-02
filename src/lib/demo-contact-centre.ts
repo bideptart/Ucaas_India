@@ -330,6 +330,15 @@ const buildCalls = (now: number): DemoCall[] => {
       const caller = fakeCaller(globalIndex);
       const did = DIDS[globalIndex % DIDS.length];
 
+      /* Outbound minutes are billed at a real carrier rate, inbound/queue
+         minutes at a much smaller one (the DID cost, not the call itself) —
+         a flat $0.012/min made every charge, even a 9-minute call, land
+         under $0.12, so the Charge column never showed real variation. This
+         still keeps most calls under a dollar (a real contact centre's
+         typical case) while letting a long outbound call clear it. */
+      const ratePerMinute = outbound ? 0.05 + random() * 0.15 : 0.006 + random() * 0.02;
+      const charge = Number(((talk / 60) * ratePerMinute).toFixed(4));
+
       rows.push({
         uuid: `demo-cdr-${globalIndex + 1}`,
         sipcall_id: `demo-sip-${globalIndex + 1}`,
@@ -368,8 +377,8 @@ const buildCalls = (now: number): DemoCall[] => {
         billsectotal: talk,
         duration: wait + talk,
         durationtotal: wait + talk,
-        charge: Number(((talk / 60) * 0.012).toFixed(4)),
-        chargeTotal: Number(((talk / 60) * 0.012).toFixed(4)),
+        charge,
+        chargeTotal: charge,
       });
 
       globalIndex += 1;
@@ -877,6 +886,85 @@ export const demoFlowRows = () =>
     site: JSON.stringify({ label: flow.site, value: flow.site.toLowerCase() }),
     status: 1,
   }));
+
+/** `/api/tenant/xml/call-logs` — the "Queue Info" / "IVR Info" side drawer a
+ *  CDR row's forward-path icon opens. Shaped once and reused for both types:
+ *  `queue-details-view.tsx` reads `result.queue`, `ivr-details-view.tsx`
+ *  reads `result.ivr`, and both fall back to reading `result` itself when
+ *  neither key is present — matching the field names here (`members`,
+ *  `manager`, `forward_call_actions`, `site` as JSON strings) is what turns
+ *  that "unavailable" empty state into the actual queue/flow record. */
+export const demoQueueCallLogDetail = (callId: string, type: string) => {
+  const call = demoCalls().find((row) => row.sipcall_id === callId);
+  const manager = DEMO_AGENTS.find((row) => row.role === 'MANAGER') as DemoAgent;
+  const toMemberEntry = (agentRow: DemoAgent) => ({
+    uuid: agentRow.uuid,
+    label: `${agentRow.first_name} ${agentRow.last_name}`,
+    extension: agentRow.extension,
+    value: agentRow.extension,
+    role: agentRow.role_name,
+    email: `${agentRow.first_name.toLowerCase()}.${agentRow.last_name.toLowerCase()}@example.com`,
+    profile: '',
+  });
+  /* `CallHistoryLogs` (the sub-table both drawers render below their info
+     card) reads `billsec` as a plain number of seconds, unlike every other
+     CDR-report consumer in the app which reads it as an "HH:MM:SS" string —
+     without this remap its Duration column shows NaN:NaN:NaN. */
+  const relatedCalls = call
+    ? demoCalls()
+        .filter((row) => row.forward_value === call.forward_value)
+        .slice(0, 8)
+        .map((row) => ({ ...row, billsec: row.billsectotal }))
+    : [];
+
+  if (type === 'IVR') {
+    const flow = DEMO_FLOWS.find((row) => row.uuid === call?.forward_value) || DEMO_FLOWS[0];
+    return {
+      result: {
+        ivr: {
+          name: flow.name,
+          extension: flow.extension,
+          site: JSON.stringify({ label: flow.site, value: flow.site.toLowerCase() }),
+          /* Keys 1/2 route to a queue, 0 reaches the operator, anything else
+             hangs up - `ivr-details-view.tsx` renders one row per entry. */
+          ivr_option: JSON.stringify([
+            { key: '1', type: 'QUEUE', label: 'Sales', value: 'demo-queue-sales' },
+            { key: '2', type: 'QUEUE', label: 'Support', value: 'demo-queue-support' },
+            { key: '0', type: 'EXTENSION', label: `${manager.first_name} ${manager.last_name}`, value: manager.extension },
+            { key: '*', type: 'HANGUP', label: '', value: '' },
+          ]),
+          generic_keys: JSON.stringify({
+            timeout_action: { status: 'HANGUP', type: '', label: '' },
+            failure_action: { status: 'HANGUP', type: '', label: '' },
+          }),
+        },
+      },
+      calls: relatedCalls,
+    };
+  }
+
+  const queueIndex = DEMO_QUEUES.findIndex((row) => row.uuid === call?.forward_value);
+  const queue = queueIndex >= 0 ? DEMO_QUEUES[queueIndex] : DEMO_QUEUES[0];
+  const members = queue.memberExtensions
+    .map((extension) => DEMO_AGENTS.find((row) => row.extension === extension))
+    .filter((row): row is DemoAgent => Boolean(row));
+  return {
+    result: {
+      queue: {
+        name: queue.name,
+        extension: String(9001 + Math.max(queueIndex, 0)),
+        description: `${queue.name} queue, service level target ${queue.sla}%.`,
+        site: JSON.stringify({ label: members[0]?.site || 'Mumbai HQ' }),
+        manager: JSON.stringify(toMemberEntry(manager)),
+        members: JSON.stringify(members.map(toMemberEntry)),
+        forward_call_actions: JSON.stringify({
+          call_handling: { failover: { type: 'VOICEMAIL', value: 'Company Voicemail' } },
+        }),
+      },
+    },
+    calls: relatedCalls,
+  };
+};
 
 /** `/api/fax/did/number/assigned` and `DEMO_USER.assigned_did` — the numbers
  *  Inbox's "Your number" / fax-number pickers offer, and what the admin

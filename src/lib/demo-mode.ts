@@ -23,6 +23,7 @@
  */
 import { isPreviewHost } from '@/lib/utils';
 import { demoAiVoiceRows } from '@/lib/demo-ai-voices';
+import { demoAiSessionRows } from '@/lib/demo-ai-sessions';
 import { demoCrawledPages } from '@/lib/demo-site-crawl';
 import { getDemoReviewJob, startDemoReviewJob } from '@/lib/demo-knowledge-review';
 import { resolveCaptainRequest } from '@/lib/demo-captain';
@@ -41,6 +42,7 @@ import {
   demoFaxConversations,
   demoFaxMessages,
   demoFlowRows,
+  demoQueueCallLogDetail,
   filterCallsByDateRange,
   demoInboundCallRows,
   demoLocalCallRows,
@@ -110,6 +112,8 @@ const PLAN_FEATURES = grant([
   'account_setting.access.SITE.action.delete',
   'account_setting.access.USER.action.view',
   'account_setting.access.USER.action.add',
+  'account_setting.access.USER.action.edit',
+  'account_setting.access.USER.action.delete',
   'advance_call_management.access.RECORDING',
   'advance_call_management.access.TRANSCRIPTION',
   'billing.action.view',
@@ -697,9 +701,15 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/call-queue/list')) return ok(listPayload(demoQueueRows(), {}, data));
   if (url.includes('/api/tenant/ivr/list')) return ok(listPayload(demoFlowRows(), {}, data));
-  /* The AI Receptionist builder's Voice & Persona step. An empty list here
-     leaves its required voice field with nothing to select, which stops the
-     wizard at step 2 rather than just looking bare. */
+  if (url.includes('/api/tenant/xml/call-logs')) {
+    const params = asObject(data);
+    return ok(demoQueueCallLogDetail(String(params?.call_id || ''), String(params?.type || '')));
+  }
+  /* Sessions derives seven stat cards, both filter rows and the CSV export
+     from these rows, so an empty list left the whole screen at zero. */
+  if (url.includes('/api/ai/agent/session/list')) {
+    return ok(listPayload(demoAiSessionRows(), {}, data));
+  }
   /* The lists the two AI screens read. Answered from the store so a
      receptionist or chat agent created in the wizard is there on return. */
   if (url.includes('/api/ai/receptionist/list')) {
@@ -708,6 +718,9 @@ const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/ai/chat-agent/list')) {
     return ok(listPayload(readStore().chatAgents ?? [], {}, data));
   }
+  /* The AI Receptionist builder's Voice & Persona step. An empty list here
+     leaves its required voice field with nothing to select, which stops the
+     wizard at step 2 rather than just looking bare. */
   if (url.includes('/api/ai/voice/list')) return ok(listPayload(demoAiVoiceRows()));
   /* The website scan behind both knowledge-base builders. Deliberately a bare
      array rather than `ok(...)`: both read `Array.isArray(response.data)` and

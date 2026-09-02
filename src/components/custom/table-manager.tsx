@@ -18,7 +18,6 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Loader2,
   RefreshCcw,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -131,6 +130,11 @@ function TableManager({
   renderSubComponent?: (rowOriginal: any) => React.ReactNode;
 }>) {
   const [rowSelection, setRowSelection] = useState(initiallySelectedRows);
+  /* A demo/cached refetch can resolve in well under 100ms - too fast for the
+     spin animation to register as "this button did something" rather than a
+     flicker. Holding the icon spinning for a minimum stretch makes the click
+     visibly land every time, independent of how fast the fetch actually is. */
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
   const [maxPageNumberListLimit, setMaxPageNumberListLimit] = useState(5);
   const [minPageNumberListLimit, setMinPageNumberListLimit] = useState(0);
   const [{ pageIndex, pageSize }, setPagination] = useState({
@@ -178,7 +182,6 @@ function TableManager({
     data: tbldata,
     isLoading,
     refetch,
-    isRefetching,
     isFetching,
   }: any = useQuery({
     queryFn: ({ queryKey }) => fetcherFn(queryKey[1] || {}),
@@ -226,15 +229,18 @@ function TableManager({
   const showInitialLoader = !hasRows && (isLoading || loading);
 
   /* The data underneath a refresh is often unchanged (demo data, or a real
-     list that just hasn't moved) - with no toast, clicking refresh and
-     seeing the exact same rows reads as the button doing nothing. This is
-     only wired to the manual refresh icon below, not to `refetchTable()` on
-     `tableRef` - that imperative handle is also called after mutations
+     list that just hasn't moved) - with no feedback, clicking refresh and
+     seeing the exact same rows reads as the button doing nothing. The nudge
+     animation fires the instant the click registers (not gated on the fetch
+     resolving); the toast confirms once the fetch actually completes. This
+     is only wired to the manual refresh icon below, not to `refetchTable()`
+     on `tableRef` - that imperative handle is also called after mutations
      (delete/create) that already show their own success toast, and doubling
      up there would stack an unrelated "Refreshed" on top. */
-  const handleManualRefetch = async () => {
-    await refetch();
-    handleAlert({ text: 'Refreshed', type: 'success' });
+  const handleManualRefetch = () => {
+    setIsManualRefreshing(true);
+    setTimeout(() => setIsManualRefreshing(false), 450);
+    refetch().then(() => handleAlert({ text: 'Refreshed', type: 'success' }));
   };
 
   const handleNextPage = () => {
@@ -365,12 +371,15 @@ function TableManager({
         )}
 
         <Table className="w-full text-xs xxl:text-sm text-[#2E2D35] h-full ">
-          <TableHeader className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10">
+          <TableHeader
+            className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10 isolate"
+            style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-semibold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
+                    className={`px-2 xl:px-4 py-2 font-bold border-b  bborder-gray-200 last-of-type:border-r-0 text-black`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -380,7 +389,7 @@ function TableManager({
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-semibold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
+                      className={`px-2 xl:px-4 py-2 font-bold text-${textAlign ?? 'left'} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -516,16 +525,16 @@ function TableManager({
                 </Label>
               </div>
               <Button
-                className="cursor-pointer text-[#2E2D35]/80 hover:text-primary"
+                className="cursor-pointer text-[#2E2D35]/80 hover:text-primary rounded-full border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleManualRefetch()}
               >
-                {isRefetching || isFetching ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <RefreshCcw width={16} height={16} className="cursor-pointer" />
-                )}
+                <RefreshCcw
+                  width={16}
+                  height={16}
+                  className={`cursor-pointer ${isManualRefreshing ? 'animate-refresh-nudge' : ''}`}
+                />
               </Button>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-1 sm:justify-end">

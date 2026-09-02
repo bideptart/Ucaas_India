@@ -146,7 +146,21 @@ export const getDomainNameFromLocation = () => {
 
   return getDomain(host, { allowPrivateDomains: true }) || host;
 };
-export function handleAlert({ text = '', type = 'success' }: { text: any; type: TypeOptions }) {
+export function handleAlert({
+  text = '',
+  type = 'success',
+  icon,
+  className,
+  autoClose,
+}: {
+  text: any;
+  type: TypeOptions;
+  /** Overrides react-toastify's default type icon — pass `false` to hide it entirely. */
+  icon?: any;
+  /** Extra class on the toast's own element, for a one-off restyle. */
+  className?: string;
+  autoClose?: number | false;
+}) {
   if (typeof window !== 'undefined' && (window as any).isSessionTerminated) {
     toast.dismiss();
     return null;
@@ -156,6 +170,9 @@ export function handleAlert({ text = '', type = 'success' }: { text: any; type: 
     type: type,
     position: 'top-center',
     transition: Slide,
+    ...(icon !== undefined ? { icon } : {}),
+    ...(className ? { className } : {}),
+    ...(autoClose !== undefined ? { autoClose } : {}),
   });
 }
 

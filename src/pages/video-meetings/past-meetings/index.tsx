@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { Icon } from '@/assets/icons/icon';
 import Loader from '@/components/custom/loader';
+import MeetingHeader from '../upcoming-meetings/header';
 import { formatMeetingDate, formatTime, getAbbreviationByTimeZone, handleAlert } from '@/lib/utils';
 import { meetingDelete, meetingList } from '@/services/api';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
@@ -81,6 +83,13 @@ const PastMeetings = () => {
   });
   const observerTarget = useRef(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const formInstance = useForm<any>({
+    defaultValues: {
+      inviteOthers: [],
+      members: [],
+      meeting_id: '',
+    },
+  });
 
   const {
     data,
@@ -187,6 +196,7 @@ const PastMeetings = () => {
   return (
     <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 overflow-auto p-3 sm:p-4">
       <div className="mx-auto max-w-250 flex h-full min-h-0 w-full flex-col justify-start gap-6 sm:gap-8">
+        <MeetingHeader formInstance={formInstance} />
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           <div className="flex justify-between items-center">
             <h4

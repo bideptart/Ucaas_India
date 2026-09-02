@@ -1303,6 +1303,33 @@
   }
 }
 
+/* A refresh click's only feedback used to be swapping the icon for a
+   spinner - too easy to miss when the underlying fetch resolves in well
+   under 100ms. A quick shake plus a nudge along the arrow's own direction
+   reads as "this was clicked" instantly, without changing what icon is on
+   screen. */
+@keyframes refreshNudge {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-1.5px) rotate(-6deg);
+  }
+  45% {
+    transform: translateX(2px) rotate(22deg);
+  }
+  70% {
+    transform: translateX(-1px) rotate(10deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+.animate-refresh-nudge {
+  animation: refreshNudge 0.45s ease-in-out;
+}
+
 @media (max-width: 1024px) {
   .call-handling-template-form {
     min-height: 100%;
@@ -1987,4 +2014,44 @@
     justify-self: start;
     margin-top: 8px;
   }
+}
+
+/* "Mark all as read" toast — react-toastify's default green success skin
+   read as a generic system alert rather than something from this console.
+   Warm-orange icon and a proper pill for Undo (was plain underlined text)
+   match the notification drawer it's confirming an action from. */
+.mcm-toast-markread {
+  border-radius: 12px !important;
+  box-shadow:
+    0 12px 28px -6px rgba(194, 98, 46, 0.22),
+    0 2px 8px rgba(194, 98, 46, 0.12) !important;
+}
+.mcm-toast-markread .Toastify__toast-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f2794f, #ea5c34);
+}
+.mcm-toast-markread .Toastify__progress-bar {
+  background: linear-gradient(90deg, #f2794f, #ea5c34) !important;
+}
+.mcm-toast-undo {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ea6b42;
+  background: #fff1e0;
+  border: 1px solid #ffd9ad;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.mcm-toast-undo:hover {
+  background: linear-gradient(135deg, #f2794f, #ea5c34);
+  color: #fff;
+  border-color: transparent;
 }

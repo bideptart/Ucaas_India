@@ -735,6 +735,48 @@
     padding-bottom: 0.35rem !important;
   }
 
+  /* Directory ▸ Contact view's Group/Tag toolbar filters — same
+     `.custom-react-select__control` component used everywhere, given its
+     own prefix (via `CustomSelect`'s `inputClass` prop) so only these two
+     dropdowns on this one page pick up the warm, rounded look matching the
+     rest of that toolbar (Search input, tabs). */
+  .contact-toolbar-select.custom-react-select__control {
+    height: 36px !important;
+    min-height: 36px !important;
+    border-radius: 10px !important;
+    border-color: rgba(225, 200, 165, 0.9) !important;
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .contact-toolbar-select.custom-react-select__control:hover,
+  .contact-toolbar-select.custom-react-select__control--is-focused {
+    border-color: var(--primary) !important;
+  }
+
+  /* Contact view's "Send WhatsApp Message" drawer (`SendWhatsappMessage`,
+     opted in via its own `selectClassName`/wrapper class only from this
+     page — External Contacts' separate WhatsApp drawer doesn't pass either,
+     so it is unaffected). Same reasoning as `.contact-toolbar-select`
+     above: the template dropdown and the phone number field both carry
+     fixed, unscoped styling (`.custom-react-select__control`,
+     `react-phone-input-2`'s `.form-control`) that a plain `.mcm-warm-glass`
+     ancestor can't reach. */
+  .whatsapp-drawer-select.custom-react-select__control {
+    border-radius: 10px !important;
+    border-color: rgba(225, 200, 165, 0.9) !important;
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .whatsapp-drawer-select.custom-react-select__control:hover,
+  .whatsapp-drawer-select.custom-react-select__control--is-focused {
+    border-color: var(--primary) !important;
+  }
+  .whatsapp-drawer-glass .form-control {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(225, 200, 165, 0.9) !important;
+  }
+  .whatsapp-drawer-glass .form-control:focus {
+    border-color: var(--primary) !important;
+  }
+
   .epr-search-container input {
     border: 1px solid var(--color-gray-300) !important;
     background-color: var(--color-white) !important;

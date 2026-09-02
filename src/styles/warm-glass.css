@@ -175,3 +175,43 @@
 .mcm-warm-glass .border-destructive\/30 {
   border-color: rgba(211, 47, 47, 0.35) !important;
 }
+
+/* Directory ▸ Contact view's sticky table header (`TableManager`, shared by
+   ~70 other tables across the app) paints itself with an arbitrary-value
+   45%-opacity background, so rows show through it while scrolling. Fixed
+   only for this one table by requiring BOTH `.mcm-warm-glass` and
+   `.contact-table-glass` — the latter is passed as `TableManager`'s own
+   `customClass` prop only from the Contact view page (see
+   `tableWrapperClassName` in `all-contacts-list/index.tsx`), so no other
+   table using this shared component is touched. */
+.mcm-warm-glass .contact-table-glass thead {
+  background-color: var(--cg-surface) !important;
+  backdrop-filter: var(--cg-blur);
+  -webkit-backdrop-filter: var(--cg-blur);
+}
+
+/* Contact view's "N contacts selected" bulk-action bar used flat
+   bg-red-50/border-red-200, which read as a jarring, unthemed block against
+   this page's warm glass surfaces. Softened to the same translucent,
+   blurred surface as the rest of the page while keeping the delete action
+   itself solid red — it's still a destructive action and should read as
+   one. Scoped the same way as `.contact-table-glass` above: only applies
+   when `tableWrapperClassName` is passed (Contact view only), so the
+   original red banner is untouched everywhere else `AllNewContactsList` is
+   used (e.g. the lead/group contact-logs drill-down). */
+.mcm-warm-glass .contact-bulk-bar-warm {
+  background: var(--cg-surface-2) !important;
+  border: 1px solid rgba(211, 47, 47, 0.28) !important;
+  backdrop-filter: var(--cg-blur);
+  -webkit-backdrop-filter: var(--cg-blur);
+}
+.mcm-warm-glass .contact-bulk-bar-warm-text {
+  color: #b3261e !important;
+}
+.mcm-warm-glass .contact-bulk-delete-btn {
+  background-color: #d32f2f !important;
+  color: #fff !important;
+}
+.mcm-warm-glass .contact-bulk-delete-btn:hover {
+  background-color: #b3261e !important;
+}

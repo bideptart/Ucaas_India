@@ -8,6 +8,7 @@ import { Icon } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import ContactCallLogContent from '@/components/custom/contact-call-log-content';
+import '@/styles/warm-glass.css';
 
 const ContactActivity = () => {
   const { state } = useLocation();
@@ -148,7 +149,7 @@ const ContactActivity = () => {
   );
 
   return (
-    <div className="h-[calc(100vh-64px)] w-full overflow-hidden bg-white flex flex-col">
+    <div className="h-[calc(100vh-64px)] w-full overflow-hidden bg-white flex flex-col mcm-warm-glass">
       <div className="bg-white overflow-hidden">{renderUnifiedHeader()}</div>
 
       <div className="grid grid-cols-1 md:grid-cols-[26rem_minmax(0,1fr)] flex-1 min-h-0">

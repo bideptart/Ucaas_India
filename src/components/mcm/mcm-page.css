@@ -4180,3 +4180,68 @@
 .mcm-page .blocked-compact .empty {
   padding: 20px 24px;
 }
+
+/* A further visual pass on Blocked — the search chip and the "Block a
+   number" card's icon were still the design system's default flat/neutral
+   look, standing out against how warm the rest of this page (and the
+   Contact view/External Contacts pages) already reads. Scoped to
+   `.blocked-compact` only, same as everything else above. */
+.mcm-page .blocked-compact .tbar .fchip {
+  border-color: rgba(194, 65, 12, 0.16);
+  box-shadow: var(--shadow-sm);
+}
+.mcm-page .blocked-compact .tbar .fchip:hover {
+  border-color: var(--accent-edge);
+}
+.mcm-page .blocked-compact .tbar .fchip:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
+}
+.mcm-page .blocked-compact .mcm-setcard {
+  box-shadow: var(--shadow-sm);
+}
+.mcm-page .blocked-compact .mcm-setcard-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .blocked-compact tbody tr:hover {
+  background: var(--accent-wash);
+}
+.mcm-page .blocked-compact .mini:hover {
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+
+/* ============================================================
+   Directory ▸ Favourites — the page itself shouldn't need scrolling to see
+   the list; only the list should.
+
+   Opt-in via `.favourites-compact` (DirectoryPage's `className` prop), so
+   only this page is affected. Same reasoning as `.blocked-compact` above:
+   `.page` keeps its normal `overflow-y: auto` as a fallback (so content is
+   always reachable regardless of viewport), and the table caps its own
+   height and scrolls internally first — that's what actually satisfies
+   "the page doesn't scroll, the data does" for any realistic favourites
+   list length. */
+.mcm-page .page.favourites-compact {
+  padding: 14px 18px;
+}
+.mcm-page .favourites-compact .page-head {
+  margin-bottom: 8px;
+}
+.mcm-page .favourites-compact .tbar {
+  margin-bottom: 6px;
+}
+.mcm-page .favourites-compact .favourites-table-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.mcm-page .favourites-compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}

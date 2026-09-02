@@ -170,12 +170,11 @@ const FieldSelect = ({
   );
 };
 
-/* Sample rows shown only while the account has no real blocked numbers yet,
-   so the list's design can be seen populated instead of only as an empty
-   state. Real data always wins: the moment an actual number is blocked,
-   these disappear on their own (see `blockedWithDemo` below) — they never
-   mix with or hide genuine records. Their `_id`s aren't real contact ids,
-   so their "Unblock" action is disabled rather than wired to the API. */
+/* Sample rows appended after any real blocked numbers, so the list always
+   has enough entries to show its design properly instead of looking sparse.
+   Real data always comes first and is never hidden or replaced by these —
+   see `blockedWithDemo` below. Their `_id`s aren't real contact ids, so
+   their "Unblock" action is disabled rather than wired to the API. */
 const DEMO_BLOCKED_NUMBERS: (BlockableContact & { _demo: true })[] = [
   {
     _id: 'demo-1',
@@ -263,7 +262,7 @@ const Blocked = () => {
   const typed = number.trim().length > 0;
 
   const blockedWithDemo = useMemo(
-    () => (blocked.length ? blocked : DEMO_BLOCKED_NUMBERS),
+    () => [...blocked, ...DEMO_BLOCKED_NUMBERS],
     [blocked],
   );
 

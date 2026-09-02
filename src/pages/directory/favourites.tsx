@@ -140,6 +140,7 @@ const Favourites = () => {
   return (
     <>
       <DirectoryPage
+        className="favourites-compact"
         title="Favourites"
         description="The people you reach most, colleagues and outside contacts together, one click from here."
         filters={
@@ -157,6 +158,7 @@ const Favourites = () => {
           </>
         }
       >
+        <div className="favourites-table-scroll">
         <table>
           <thead>
             <tr>
@@ -290,6 +292,7 @@ const Favourites = () => {
             )}
           </tbody>
         </table>
+        </div>
 
         {rows.length ? (
           <div className="mcm-tblfoot">

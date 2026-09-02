@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useState } from 'react';
 import JoinMeetingModal from './join-meeting-modal';
 import ScheduleMeeting from '../schedule-meeting';
-import SideDrawer from '@/components/custom/side-drawer';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
 
 const MeetingHeader = ({ formInstance, showActions = true }: any) => {
@@ -136,19 +136,16 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
           formInstance={formInstance}
         />
       )}
-      {drawerState && (
-        <SideDrawer
-          isOpen={drawerState}
-          title="Schedule New Meeting"
-          handleClose={() => setDrawerState(false)}
-          content={<ScheduleMeeting setDrawerState={setDrawerState} />}
-          isHeader={true}
-          width="650px"
-          enableResponsive
-          responsiveWidth="96vw"
-          responsiveBreakpoint={1024}
-        />
-      )}
+      <Dialog open={drawerState} onOpenChange={setDrawerState}>
+        <DialogContent className="flex w-[96vw] flex-col gap-0 rounded-2xl p-0 sm:max-w-[650px] max-h-[85vh] overflow-y-auto">
+          <div className="sticky top-0 z-10 border-b border-[#EEE7DD] bg-[rgba(251,249,246,0.97)] px-5 py-4 backdrop-blur-[6px]">
+            <h5 className="text-base font-semibold text-[#2E2D35]">Schedule New Meeting</h5>
+          </div>
+          <div className="px-4 pt-4 pb-5 lg:px-5">
+            <ScheduleMeeting setDrawerState={setDrawerState} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -10,6 +10,7 @@ const PageSidebarLayout = ({
   isTab = true,
   headerCustomClass = '',
   fullHeightOnMobile = false,
+  collapsible = true,
 }: {
   title?: string;
   headerCustomClass?: string;
@@ -18,8 +19,15 @@ const PageSidebarLayout = ({
   action?: any;
   isTab?: boolean;
   fullHeightOnMobile?: boolean;
+  /** Whether the panel offers its collapse toggle. Sections whose sidebar
+      is the only way to move between their screens pass `false`. */
+  collapsible?: boolean;
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  /* A panel that cannot be collapsed can never be in the collapsed state,
+     whatever the stored value says — so the rest of the component reads
+     this rather than the raw flag. */
+  const collapsed = collapsible && isCollapsed;
   const [hovered, setHovered] = useState(false);
   const isAdminResponsiveTopbar = !isTab && title === 'Admin Hub';
   const isCampaignResponsiveTopbar = !isTab && title === 'Campaign';
@@ -29,7 +37,15 @@ const PageSidebarLayout = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        'relative transition-all duration-300  ease-in-out',
+        // `transition-colors`, not upstream's `transition-all`: the latter
+        // also animates the width, so collapsing slid the panel shut and
+        // dragged the page across with it. The panel snaps open and shut
+        // while the hover border still eases.
+        //
+        // `mcm-sidepanel` is the hook the console's glass rules target; it
+        // is kept alongside upstream's own glass variant for Meetings and
+        // Campaign, which those two pages style directly.
+        'mcm-sidepanel relative transition-colors duration-300 ease-in-out',
         isGlassSidebar
           ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)]'
           : 'bg-white',
@@ -77,35 +93,40 @@ const PageSidebarLayout = ({
           : undefined
       }
     >
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className={cn(
-          'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
-          isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
-          collapsed || hovered
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none',
-          hovered
-            ? isGlassSidebar
-              ? 'text-white'
-              : 'bg-primary text-white'
-            : 'bg-white text-gray-600',
-        )}
-        style={hovered && isGlassSidebar ? { background: '#E78B50' } : undefined}
-      >
-        <ChevronIcon
+      {collapsible && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            'w-5 h-5 transition-transform duration-200',
-            collapsed ? '-rotate-90' : 'rotate-90',
+            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
+            isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
+            collapsed || hovered
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none',
+            hovered
+              ? isGlassSidebar
+                ? 'text-white'
+                : 'bg-primary text-white'
+              : 'bg-white text-gray-600',
           )}
-        />
-      </button>
+          style={hovered && isGlassSidebar ? { background: '#E78B50' } : undefined}
+        >
+          <ChevronIcon
+            className={cn(
+              'w-5 h-5 transition-transform duration-200',
+              collapsed ? '-rotate-90' : 'rotate-90',
+            )}
+          />
+        </button>
+      )}
 
       <div className={cn('flex flex-col', fullHeightOnMobile ? 'h-full' : 'h-auto sm:h-full')}>
         {(title || action) && (
           <div
             className={cn(
-              'flex items-center justify-between p-3 transition-opacity duration-300 border-b min-h-[65px]',
+              // No `transition-opacity`: it faded the header on collapse
+              // while the panel itself snaps, so the two moved at different
+              // speeds. Upstream's glass border variant is kept.
+              'flex items-center justify-between p-3 border-b min-h-[65px]',
               isGlassSidebar ? 'border-orange-100/60' : 'border-gray-200',
               title === 'Reports' && 'min-h-14 md:min-h-[65px]',
               collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100',
@@ -126,7 +147,7 @@ const PageSidebarLayout = ({
 
         <div
           className={cn(
-            'transition-all duration-500 ease-in-out flex-1 min-h-0',
+            'flex-1 min-h-0',
             fullHeightOnMobile
               ? 'overflow-hidden'
               : isCampaignResponsiveTopbar

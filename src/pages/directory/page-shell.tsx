@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Ic, McmIconSprite } from '@/components/mcm/icons';
 
 /**
@@ -20,6 +20,7 @@ export const DirectoryPage = ({
   actions,
   filters,
   children,
+  className,
 }: {
   title: string;
   description: string;
@@ -29,8 +30,12 @@ export const DirectoryPage = ({
   actions?: ReactNode;
   filters?: ReactNode;
   children: ReactNode;
+  /* Opt-in extra class on the page wrapper, so a single Directory view can
+     carry its own layout/spacing tweaks without touching the others that
+     share this shell. */
+  className?: string;
 }) => (
-  <div className="page">
+  <div className={`page${className ? ` ${className}` : ''}`}>
     <McmIconSprite />
     <div className="page-head">
       <div>
@@ -47,7 +52,17 @@ export const DirectoryPage = ({
   </div>
 );
 
-/** A filter chip that wraps a native control, so the chip is the whole hit area. */
+/**
+ * A filter chip driving a small custom dropdown, so the chip is the whole
+ * hit area.
+ *
+ * Not a native `<select>`: browsers draw a `<select>` popup's hover/keyboard
+ * highlight as an OS-level layer that page CSS cannot restyle (only the
+ * `:checked` row takes app colours in the browsers that support it at all),
+ * so it kept showing the platform's blue instead of this app's accent no
+ * matter what was tried here. This listbox is plain HTML + CSS, so every
+ * state — hover, selected, focus — is fully themeable.
+ */
 export const FilterChip = ({
   label,
   value,
@@ -58,22 +73,62 @@ export const FilterChip = ({
   value: string;
   options: string[];
   onChange: (value: string) => void;
-}) => (
-  <label className="fchip">
-    {label}:
-    <select
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      style={{ border: 0, background: 'transparent', fontWeight: 700, outline: 'none' }}
-    >
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
-  </label>
-);
+}) => {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeIfOutside = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', closeIfOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeIfOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div className="fchip fchip-select" ref={rootRef}>
+      <button
+        type="button"
+        className="fchip-select-trigger"
+        onClick={() => setOpen((state) => !state)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        {label}: <span className="fchip-select-value">{value}</span>
+        <Ic n="chev" size={12} className="fchip-select-caret" />
+      </button>
+      {open ? (
+        <ul className="fchip-select-menu" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <li key={option} role="presentation">
+              <button
+                type="button"
+                role="option"
+                aria-selected={option === value}
+                className={`fchip-select-option${option === value ? ' is-selected' : ''}`}
+                onClick={() => {
+                  onChange(option);
+                  setOpen(false);
+                }}
+              >
+                {option === value ? <Ic n="check" size={12} /> : null}
+                {option}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+};
 
 export const SearchChip = ({
   value,

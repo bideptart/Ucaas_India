@@ -948,7 +948,28 @@ const matchDemoPayload = (url: string, data: unknown) => {
   ) {
     return { ingestionId: `demo-ingestion-${Math.random().toString(36).slice(2, 10)}` };
   }
-  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows(), {}, data));
+  if (url.includes('/api/campaign/list')) {
+    /* The KPI strip's own aggregate query (limit=500, no filters) needs the
+       full set, so filtering has to apply only when the caller actually
+       asked for it — same shape as /api/contact/list's tag filter below. */
+    const requested = asObject(data);
+    const filters: Array<{ key?: string; value?: unknown }> = Array.isArray(requested?.filters)
+      ? requested.filters
+      : [];
+    const search = String(requested?.search || '')
+      .trim()
+      .toLowerCase();
+
+    const rows = demoCampaignRows().filter((row) => {
+      if (search && !String(row.name || '').toLowerCase().includes(search)) return false;
+      return filters.every((filter) => {
+        if (!filter?.key) return true;
+        return String((row as Record<string, unknown>)[filter.key] ?? '') === String(filter.value);
+      });
+    });
+
+    return ok(listPayload(rows, {}, data));
+  }
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;
     const campaign = demoCampaignRows().find((row) => row._id === campaignId);
@@ -1040,7 +1061,7 @@ const matchDemoPayload = (url: string, data: unknown) => {
         params?.type === 'voicemail'
           ? PHONE_VOICEMAIL_SEED
           : params?.type === 'recording'
-            ? []
+            ? PHONE_CALL_SEED.filter((row) => Boolean(row.record_file))
             : PHONE_CALL_SEED;
       return ok(listPayload(rows, { totalRecords: rows.length }, data));
     }

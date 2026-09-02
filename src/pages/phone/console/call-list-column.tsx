@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import { fetchPhone } from '@/services/api';
@@ -269,16 +269,13 @@ const CallListColumn = ({
   }, [data, contactsByNumber, search, filterMissedLocally]);
 
   /* Land the panel on real content instead of an empty "pick a call" one:
-     pick the newest call the first time the list has rows, as long as
-     nothing is already selected (a live call, or a row the person already
-     clicked). Goes through onAutoSelect, not onSelect, so the stage stays on
-     the dialer — only clicking a row should pull it onto that call's record. */
-  const hasAutoSelected = useRef(false);
+     pick the newest row whenever nothing is selected — on first load, and
+     again whenever switching tabs clears the selection (onSourceChange in
+     index.tsx resets it), so Voicemails/Recordings land populated too, not
+     just Calls. Goes through onAutoSelect, not onSelect, so the stage stays
+     on the dialer — only clicking a row should pull it onto that record. */
   useEffect(() => {
-    if (hasAutoSelected.current) return;
-    if (source !== 'call') return;
     if (selectedId || !rows.length) return;
-    hasAutoSelected.current = true;
     (onAutoSelect || onSelect)(rows[0]);
   }, [rows, selectedId, source, onAutoSelect, onSelect]);
 
@@ -330,6 +327,7 @@ const CallListColumn = ({
               dropdownVal={dropdownVal}
               setDropdownVal={setDropdownVal}
               customPickerPlacement="bottom"
+              shortenSelectedLabel
             />
           </div>
         </div>

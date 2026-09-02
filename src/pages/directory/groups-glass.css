@@ -23,14 +23,14 @@
   color: #f2994a;
 }
 .gp-groups .gp-groups-refresh:hover {
-  background: #f2994a;
+  background: #fff1e0;
   border-color: #f2994a;
-  color: #fff;
+  color: #c96f1f;
 }
 
-/* ---- left: list panel, cream instead of plain white ---- */
+/* ---- left: list panel ---- */
 .gp-groups .gp-ug-left {
-  background: #fff6e9 !important;
+  background: #fff !important;
   border-right-color: rgba(242, 153, 74, 0.25) !important;
 }
 .gp-groups .list-row {
@@ -40,14 +40,32 @@
   background: rgba(255, 205, 155, 0.25);
 }
 .gp-groups .list-row.on {
-  background: var(--accent-wash);
+  /* Lighter than --accent (#f2994a) — the full-strength shade read as too
+     dark/heavy for a list row selection compared to the rest of the page's
+     softer palette. */
+  background: #f6ad70;
 }
 .gp-groups .list-row.on::before {
-  background: var(--accent);
+  background: var(--accent-ink);
+}
+/* The row's own text colors are tuned for a light background — on solid
+   orange they need to flip to white to stay readable. Named individually
+   rather than "everything except X": a blanket `:not(...)` still reached
+   the avatar's initials <span>, which isn't itself `.rounded-full` (only
+   its parent is) — forcing white text there made the initials disappear
+   against the avatar's own near-white fill, the same way it did for the
+   member-count tag before that was excluded. */
+.gp-groups .list-row.on {
+  color: #fff !important;
+}
+.gp-groups .list-row.on .list-row-name,
+.gp-groups .list-row.on .list-row-meta,
+.gp-groups .list-row.on p {
+  color: #fff !important;
 }
 
 .gp-groups .gp-ug-detail-head {
-  background: #fff6e9 !important;
+  background: #fff !important;
   border-bottom-color: rgba(242, 153, 74, 0.25) !important;
 }
 

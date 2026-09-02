@@ -11,11 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatDate, handleAlert } from '@/lib/utils';
 import { templateDelete, templateList, upsertTemplate } from '@/services/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 import UpsertUserSettingsTemplate from './add-edit-user-settings';
 import ApplyUserSettingsTemplate from './apply-template';
 import AlertConfirm from '@/components/custom/alert-confirm';
@@ -83,6 +84,149 @@ const EMPTY_FILTERS: DummyFilters = {
    150ms pause company-bulk-settings.tsx uses, for the same reason: a burst of
    simultaneous writes is how a bulk action turns into an outage. */
 const BULK_DELETE_PAUSE_MS = 150;
+
+/** The small card a click on a row's "dead space" (Tags/Access/Status/Created
+ *  By/Created/Updated) opens — a quick look at that template without the
+ *  weight of the full edit drawer, which stays reserved for the Name link. */
+const TemplateInfoCard = ({
+  template,
+  onEdit,
+}: {
+  template: any;
+  onEdit: (template: any) => void;
+}) => {
+  const meta = getDummyTemplateMeta(template);
+  const status = getDummyTemplateStatus(template?.uuid, meta.baseStatus);
+  const statusColours = getStatusColours(status);
+  const accessColours = getAccessColours(meta.access);
+
+  return (
+    <div className="flex flex-col gap-2 text-xs">
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-sm font-semibold text-gray-900">{template?.name}</span>
+        <span
+          className="shrink-0 rounded-full px-2 py-0.5 font-semibold"
+          style={{ backgroundColor: statusColours.bg, color: statusColours.text }}
+        >
+          {status}
+        </span>
+      </div>
+
+      {meta.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {meta.tags.map((tag) => {
+            const colours = getTagColours(tag);
+            return (
+              <span
+                key={tag}
+                className="rounded-full px-2 py-0.5 font-semibold"
+                style={{ backgroundColor: colours.bg, color: colours.text }}
+              >
+                {tag}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 text-gray-600">
+        <span
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
+          style={{ backgroundColor: meta.author.colour }}
+        >
+          {meta.author.initials}
+        </span>
+        {meta.author.name}
+      </div>
+
+      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-gray-500">
+        <span>Access</span>
+        <span className="justify-self-end font-medium" style={{ color: accessColours.text }}>
+          {meta.access}
+        </span>
+        <span>Used in</span>
+        <span className="justify-self-end font-medium text-gray-700">
+          {meta.profileCount} user profiles
+        </span>
+        <span>Created</span>
+        <span className="justify-self-end font-medium text-gray-700">
+          {formatDate(template?.created_at)}
+        </span>
+        <span>Updated</span>
+        <span className="justify-self-end font-medium text-gray-700">
+          {formatDate(template?.updated_at)}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onEdit(template)}
+        className="mt-1 text-left text-xs font-semibold text-primary hover:underline"
+      >
+        Open full details →
+      </button>
+    </div>
+  );
+};
+
+/** The click-target wrapper opens the card on click AND hover — a plain
+ *  function can't hold this open/close state itself (every cell in a
+ *  98-row table would share one hook slot), so this is its own component.
+ *  Small delays on both ends: opening waits a beat so sweeping the mouse
+ *  across the table doesn't flash a card per row it passes over; closing
+ *  waits so moving from the badge to the "Open full details" link inside
+ *  the card doesn't close it out from under the pointer first. */
+const RowInfoPopover = ({
+  trigger,
+  template,
+  onEdit,
+}: {
+  trigger: React.ReactNode;
+  template: any;
+  onEdit: (template: any) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearPendingTimeout = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+  const openSoon = () => {
+    clearPendingTimeout();
+    timeoutRef.current = setTimeout(() => setOpen(true), 200);
+  };
+  const closeSoon = () => {
+    clearPendingTimeout();
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div
+          className="-ml-[12px] -mt-[12px] flex h-[calc(100%+24px)] w-[calc(100%+24px)] cursor-pointer items-center justify-center"
+          onMouseEnter={openSoon}
+          onMouseLeave={closeSoon}
+          onClick={() => {
+            clearPendingTimeout();
+            setOpen(true);
+          }}
+        >
+          {trigger}
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-72"
+        align="start"
+        onMouseEnter={openSoon}
+        onMouseLeave={closeSoon}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TemplateInfoCard template={template} onEdit={onEdit} />
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 const UserSettings: FC = () => {
   const navigate = useNavigate();
@@ -288,6 +432,24 @@ const UserSettings: FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const openEditDrawer = (data: any) => {
+    if (data?.name === COMPANY_DEFAULT_TEMPLATE_NAME) {
+      navigate('/admin-settings/company/policies');
+      return;
+    }
+    setDrawerState((prev) => ({ ...prev, isAddEdit: true, tempDetails: data }));
+  };
+
+  /* Only the Name cell's own link opened anything — every other cell in a
+     row (Tags, Access, Status, Created By, the date columns) was dead space
+     to click on. Wrapping their content in a popover means clicking (or
+     hovering) anywhere on a row's info shows a quick-look card for that
+     record, without opening the full edit drawer just to glance at it —
+     "Open full details" inside the card is what reaches that. */
+  const renderInfoPopover = (trigger: React.ReactNode, template: any) => (
+    <RowInfoPopover trigger={trigger} template={template} onEdit={openEditDrawer} />
+  );
+
   const columns: ColumnDef<any>[] = [
     ...(demo
       ? ([
@@ -397,7 +559,7 @@ const UserSettings: FC = () => {
             cell: ({ row }: any) => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
-              return (
+              return renderInfoPopover(
                 <div className="flex flex-wrap gap-1">
                   {meta.tags.map((tag) => {
                     const colours = getTagColours(tag);
@@ -411,7 +573,8 @@ const UserSettings: FC = () => {
                       </span>
                     );
                   })}
-                </div>
+                </div>,
+                row?.original,
               );
             },
           },
@@ -423,13 +586,14 @@ const UserSettings: FC = () => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
               const colours = getAccessColours(meta.access);
-              return (
+              return renderInfoPopover(
                 <span
                   className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold"
                   style={{ backgroundColor: colours.bg, color: colours.text }}
                 >
                   {meta.access}
-                </span>
+                </span>,
+                row?.original,
               );
             },
           },
@@ -442,13 +606,14 @@ const UserSettings: FC = () => {
               const meta = getDummyTemplateMeta(row?.original);
               const status = getDummyTemplateStatus(row?.original?.uuid, meta.baseStatus);
               const colours = getStatusColours(status);
-              return (
+              return renderInfoPopover(
                 <span
                   className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
                   style={{ backgroundColor: colours.bg, color: colours.text }}
                 >
                   {status}
-                </span>
+                </span>,
+                row?.original,
               );
             },
           },
@@ -459,7 +624,7 @@ const UserSettings: FC = () => {
             cell: ({ row }: any) => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
-              return (
+              return renderInfoPopover(
                 <div className="flex items-center gap-2">
                   <span
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
@@ -468,7 +633,8 @@ const UserSettings: FC = () => {
                     {meta.author.initials}
                   </span>
                   <span className="text-xs text-gray-700">{meta.author.name}</span>
-                </div>
+                </div>,
+                row?.original,
               );
             },
           },
@@ -478,14 +644,20 @@ const UserSettings: FC = () => {
       header: 'Created',
       accessorKey: 'created_at',
       meta: { textAlign: 'center' },
-      cell: ({ row }) => <span>{formatDate(row?.original?.created_at)}</span>,
+      cell: ({ row }) =>
+        demo && row?.original?.name !== COMPANY_DEFAULT_TEMPLATE_NAME
+          ? renderInfoPopover(<span>{formatDate(row?.original?.created_at)}</span>, row?.original)
+          : <span>{formatDate(row?.original?.created_at)}</span>,
     },
 
     {
       header: 'Updated',
       accessorKey: 'updated_at',
       meta: { textAlign: 'center' },
-      cell: ({ row }) => <span>{formatDate(row?.original?.updated_at)}</span>,
+      cell: ({ row }) =>
+        demo && row?.original?.name !== COMPANY_DEFAULT_TEMPLATE_NAME
+          ? renderInfoPopover(<span>{formatDate(row?.original?.updated_at)}</span>, row?.original)
+          : <span>{formatDate(row?.original?.updated_at)}</span>,
     },
     {
       header: 'Actions',

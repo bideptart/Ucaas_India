@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Ic, McmIconSprite } from '@/components/mcm/icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import './page-shell.css';
 
 /**
  * The shape every Directory page takes.
@@ -52,17 +60,13 @@ export const DirectoryPage = ({
   </div>
 );
 
-/**
- * A filter chip driving a small custom dropdown, so the chip is the whole
- * hit area.
- *
- * Not a native `<select>`: browsers draw a `<select>` popup's hover/keyboard
- * highlight as an OS-level layer that page CSS cannot restyle (only the
- * `:checked` row takes app colours in the browsers that support it at all),
- * so it kept showing the platform's blue instead of this app's accent no
- * matter what was tried here. This listbox is plain HTML + CSS, so every
- * state — hover, selected, focus — is fully themeable.
- */
+/* A native `<select>` used to back this — its closed control is stylable,
+   but the open options popup is drawn by the browser/OS and cannot be
+   themed at all, which is why it always looked like a stray unstyled list
+   dropped onto an otherwise orange-themed page. Rebuilt on the same
+   DropdownMenu every row-action menu in Directory already uses, so the
+   open list gets the same border, rounded rows and orange hover as
+   everything else. */
 export const FilterChip = ({
   label,
   value,
@@ -73,62 +77,23 @@ export const FilterChip = ({
   value: string;
   options: string[];
   onChange: (value: string) => void;
-}) => {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const closeIfOutside = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', closeIfOutside);
-    document.addEventListener('keydown', closeOnEscape);
-    return () => {
-      document.removeEventListener('mousedown', closeIfOutside);
-      document.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [open]);
-
-  return (
-    <div className="fchip fchip-select" ref={rootRef}>
-      <button
-        type="button"
-        className="fchip-select-trigger"
-        onClick={() => setOpen((state) => !state)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        {label}: <span className="fchip-select-value">{value}</span>
-        <Ic n="chev" size={12} className="fchip-select-caret" />
+}) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <button type="button" className="fchip">
+        {label}: <strong>{value}</strong>
+        <ChevronDown size={14} />
       </button>
-      {open ? (
-        <ul className="fchip-select-menu" role="listbox" aria-label={label}>
-          {options.map((option) => (
-            <li key={option} role="presentation">
-              <button
-                type="button"
-                role="option"
-                aria-selected={option === value}
-                className={`fchip-select-option${option === value ? ' is-selected' : ''}`}
-                onClick={() => {
-                  onChange(option);
-                  setOpen(false);
-                }}
-              >
-                {option === value ? <Ic n="check" size={12} /> : null}
-                {option}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-};
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start" className="gp-filter-menu">
+      {options.map((option) => (
+        <DropdownMenuItem key={option} onClick={() => onChange(option)}>
+          {option}
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
 
 export const SearchChip = ({
   value,
@@ -145,7 +110,13 @@ export const SearchChip = ({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      style={{ border: 0, background: 'transparent', width: '100%', outline: 'none' }}
+      style={{
+        border: 0,
+        background: 'transparent',
+        width: '100%',
+        outline: 'none',
+        color: '#1a1a1a',
+      }}
     />
   </label>
 );

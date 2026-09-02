@@ -433,9 +433,9 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               isDisabled={!watchTimezone}
             />
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 py-1">
             <Label>Estimated Duration</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-y-3 gap-x-2">
               {durationOptions?.map((item: any) => (
                 <div
                   key={item.value}

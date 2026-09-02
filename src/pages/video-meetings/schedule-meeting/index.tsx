@@ -332,7 +332,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
         className="flex h-full w-full min-h-0 flex-col justify-between gap-2"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pr-1 sm:pr-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1 sm:pr-2">
           <Input
             {...register('name')}
             placeholder={'Enter Topic'}
@@ -433,7 +433,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               isDisabled={!watchTimezone}
             />
           </div>
-          <div className="flex flex-col gap-3 py-1">
+          <div className="flex flex-col gap-3">
             <Label>Estimated Duration</Label>
             <div className="flex flex-wrap gap-y-3 gap-x-2">
               {durationOptions?.map((item: any) => (
@@ -449,7 +449,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           </div>
 
           <div className="flex flex-col">
-            <div className="flex min-h-10 flex-col gap-2 py-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-h-9 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Label>Allow join meeting before host</Label>
               <Switch
                 className="cursor-pointer"
@@ -460,7 +460,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               />
             </div>
 
-            <div className="mb-4 flex min-h-10 flex-col gap-3 py-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-3 flex min-h-9 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Label>Need Password to join meeting</Label>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 {watch('need_password') === 'Yes' && (

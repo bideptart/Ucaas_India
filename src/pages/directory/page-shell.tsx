@@ -28,6 +28,7 @@ export const DirectoryPage = ({
   actions,
   filters,
   children,
+  className,
 }: {
   title: string;
   description: string;
@@ -37,8 +38,12 @@ export const DirectoryPage = ({
   actions?: ReactNode;
   filters?: ReactNode;
   children: ReactNode;
+  /* Opt-in extra class on the page wrapper, so a single Directory view can
+     carry its own layout/spacing tweaks without touching the others that
+     share this shell. */
+  className?: string;
 }) => (
-  <div className="page">
+  <div className={`page${className ? ` ${className}` : ''}`}>
     <McmIconSprite />
     <div className="page-head">
       <div>
@@ -55,7 +60,6 @@ export const DirectoryPage = ({
   </div>
 );
 
-/** A filter chip that wraps a native control, so the chip is the whole hit area. */
 /* A native `<select>` used to back this — its closed control is stylable,
    but the open options popup is drawn by the browser/OS and cannot be
    themed at all, which is why it always looked like a stray unstyled list

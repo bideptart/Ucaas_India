@@ -175,3 +175,62 @@
 .mcm-warm-glass .border-destructive\/30 {
   border-color: rgba(211, 47, 47, 0.35) !important;
 }
+
+/* Directory ▸ Contact view's sticky table header used to paint itself with
+   an arbitrary-value 45%-opacity background, so rows showed through it
+   while scrolling — this rule forced it opaque for this one table only.
+   `TableManager`'s header is now a solid, non-transparent background with
+   `backdropFilter: none` set directly on the element, so the underlying bug
+   is fixed at the source and this override is no longer needed. Kept
+   removed rather than left in place: with `!important` it was overriding
+   that solid background with a translucent one, which reintroduced the
+   exact ghosting it was written to prevent. */
+
+/* Directory ▸ Contact view's sticky table header sits inside a container
+   with `backdrop-blur-[12px]` (`TableManager`'s own scroll wrapper). Chromium
+   has a known compositing quirk where a `position: sticky` element inside a
+   `backdrop-filter` ancestor doesn't always get its own paint layer, so the
+   row scrolling underneath can bleed through the header's otherwise fully
+   opaque background. Promoting the header to its own GPU layer (a
+   no-op transform + explicit stacking context) forces Chromium to composite
+   it correctly. Scoped to Contact view's table only via `.contact-table-glass`
+   (see `tableWrapperClassName` in `all-contacts-list/index.tsx`), so no
+   other table using this shared component is touched.
+
+   `will-change: transform` keeps that promoted layer alive for the whole
+   scroll gesture rather than being created/dropped per frame (dropping and
+   re-creating it is what produces the single-frame ghosting), and
+   `contain: paint` stops the browser from ever painting the header's box
+   using content from outside it. */
+.mcm-warm-glass .contact-table-glass thead {
+  transform: translateZ(0);
+  isolation: isolate;
+  will-change: transform;
+  contain: paint;
+}
+
+/* Contact view's "N contacts selected" bulk-action bar used flat
+   bg-red-50/border-red-200, which read as a jarring, unthemed block against
+   this page's warm glass surfaces. Softened to the same translucent,
+   blurred surface as the rest of the page while keeping the delete action
+   itself solid red — it's still a destructive action and should read as
+   one. Scoped the same way as `.contact-table-glass` above: only applies
+   when `tableWrapperClassName` is passed (Contact view only), so the
+   original red banner is untouched everywhere else `AllNewContactsList` is
+   used (e.g. the lead/group contact-logs drill-down). */
+.mcm-warm-glass .contact-bulk-bar-warm {
+  background: var(--cg-surface-2) !important;
+  border: 1px solid rgba(211, 47, 47, 0.28) !important;
+  backdrop-filter: var(--cg-blur);
+  -webkit-backdrop-filter: var(--cg-blur);
+}
+.mcm-warm-glass .contact-bulk-bar-warm-text {
+  color: #b3261e !important;
+}
+.mcm-warm-glass .contact-bulk-delete-btn {
+  background-color: #d32f2f !important;
+  color: #fff !important;
+}
+.mcm-warm-glass .contact-bulk-delete-btn:hover {
+  background-color: #b3261e !important;
+}

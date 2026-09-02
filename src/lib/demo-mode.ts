@@ -404,6 +404,7 @@ type Store = {
   chatAgents?: any[];
   departments?: any[];
   sites?: any[];
+  templates?: any[];
 };
 
 const readStore = (): Store => {
@@ -415,12 +416,25 @@ const readStore = (): Store => {
          without them. Defaulting here rather than bumping STORE_KEY again
          keeps whatever that browser already created. */
       const parsed = JSON.parse(raw) as Store;
+      /* Rows added to a seed list later (more demo users, more demo
+         templates) need to reach a browser that already wrote a store
+         before that seed grew — a plain `??` only fires when the field is
+         missing entirely, not when it's present but shorter than the
+         current seed. Appending whichever seed rows aren't already present
+         (matched by uuid) shows the new rows without touching or
+         reordering anything already there, including any edits made to it. */
+      const mergeSeed = <T extends { uuid: string }>(existing: T[] | undefined, seed: T[]): T[] => {
+        const present = new Set((existing ?? []).map((row) => row.uuid));
+        return [...(existing ?? []), ...seed.filter((row) => !present.has(row.uuid))];
+      };
       return {
         ...parsed,
+        users: mergeSeed(parsed.users, USER_SEED),
         receptionists: parsed.receptionists ?? [],
         chatAgents: parsed.chatAgents ?? [],
         departments: parsed.departments ?? demoDepartmentRows(),
         sites: parsed.sites ?? demoSiteRows(),
+        templates: mergeSeed(parsed.templates, demoTemplateRows()),
       };
     }
   } catch {
@@ -433,6 +447,7 @@ const readStore = (): Store => {
     chatAgents: [],
     departments: demoDepartmentRows(),
     sites: demoSiteRows(),
+    templates: demoTemplateRows(),
   };
 };
 
@@ -654,6 +669,31 @@ const applyWrite = (url: string, body: Record<string, any>) => {
   if (url.includes('/api/site/delete')) {
     const target = body.uuid || body.id || url.split('/').filter(Boolean).pop();
     store.sites = (store.sites ?? []).filter((site) => site.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  /* `upsertTemplate` puts an edit's uuid on the URL (`.../upsert/<uuid>`),
+     same shape as department/site upsert above — Duplicate and Create both
+     post here with no uuid, so both fall into the "new record" branch. */
+  if (url.includes('/api/tenant/user/template/upsert')) {
+    const templates = store.templates ?? [];
+    const urlUuid = url.split('/api/tenant/user/template/upsert/')[1]?.split(/[/?]/)[0];
+    const existing = urlUuid && templates.find((template) => template.uuid === urlUuid);
+    const now = new Date().toISOString();
+    const record = existing
+      ? { ...existing, ...body, uuid: existing.uuid, updated_at: now }
+      : { ...body, uuid: newUuid(), created_at: now, updated_at: now };
+    store.templates = existing
+      ? templates.map((template) => (template.uuid === existing.uuid ? record : template))
+      : [...templates, record];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/tenant/user/template/delete')) {
+    const target = body.uuid || url.split('/').filter(Boolean).pop();
+    store.templates = (store.templates ?? []).filter((template) => template.uuid !== target);
     writeStore(store);
     return ok({ deleted: true });
   }
@@ -908,7 +948,28 @@ const matchDemoPayload = (url: string, data: unknown) => {
   ) {
     return { ingestionId: `demo-ingestion-${Math.random().toString(36).slice(2, 10)}` };
   }
-  if (url.includes('/api/campaign/list')) return ok(listPayload(demoCampaignRows(), {}, data));
+  if (url.includes('/api/campaign/list')) {
+    /* The KPI strip's own aggregate query (limit=500, no filters) needs the
+       full set, so filtering has to apply only when the caller actually
+       asked for it — same shape as /api/contact/list's tag filter below. */
+    const requested = asObject(data);
+    const filters: Array<{ key?: string; value?: unknown }> = Array.isArray(requested?.filters)
+      ? requested.filters
+      : [];
+    const search = String(requested?.search || '')
+      .trim()
+      .toLowerCase();
+
+    const rows = demoCampaignRows().filter((row) => {
+      if (search && !String(row.name || '').toLowerCase().includes(search)) return false;
+      return filters.every((filter) => {
+        if (!filter?.key) return true;
+        return String((row as Record<string, unknown>)[filter.key] ?? '') === String(filter.value);
+      });
+    });
+
+    return ok(listPayload(rows, {}, data));
+  }
   if (url.includes('/api/campaign/analytics')) {
     const campaignId = asObject(data)?.campaignId;
     const campaign = demoCampaignRows().find((row) => row._id === campaignId);
@@ -962,7 +1023,7 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows(), {}, data));
   if (url.includes('/api/tenant/user/template/list')) {
-    return ok(listPayload(demoTemplateRows(), {}, data));
+    return ok(listPayload(readStore().templates ?? demoTemplateRows(), {}, data));
   }
   if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows(), {}, data));
 
@@ -1000,7 +1061,7 @@ const matchDemoPayload = (url: string, data: unknown) => {
         params?.type === 'voicemail'
           ? PHONE_VOICEMAIL_SEED
           : params?.type === 'recording'
-            ? []
+            ? PHONE_CALL_SEED.filter((row) => Boolean(row.record_file))
             : PHONE_CALL_SEED;
       return ok(listPayload(rows, { totalRecords: rows.length }, data));
     }

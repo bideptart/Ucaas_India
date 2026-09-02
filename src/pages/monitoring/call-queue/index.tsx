@@ -22,6 +22,7 @@ import {
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { CallPathCell, CallPathDialog } from '../call-path-cell';
+import { MonitoringTopbarSlot } from '../topbar';
 import {
   findMonitoringCallForMember,
   getMonitoringCallDid,
@@ -498,42 +499,44 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
   return (
     <>
       <section className="w-full  ">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
-            Monitoring
-            <div className="-rotate-90 text-gray-800">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
+        <MonitoringTopbarSlot>
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+              Monitoring
+              <div className="-rotate-90 text-gray-800">
+                <Icon name="ChevronIcon" className="w-5 h-5" />
+              </div>
+              <span className="text-primary text-md">
+                {queueType === QUEUE_TYPE.campaign ? 'Campaign' : 'Call Queue'}{' '}
+              </span>
+              {activeQueueId && (
+                <>
+                  <div className="-rotate-90 text-gray-800">
+                    <Icon name="ChevronIcon" className="w-5 h-5" />
+                  </div>
+                  <span className="text-primary text-md font-medium">
+                    {callQueueList?.find((item: any) => getQueueId(item) === activeQueueId)?.name}
+                  </span>
+                </>
+              )}
+            </p>
+            <div className="flex gap-2 ">
+              <CustomSelect
+                options={callQueueList}
+                value={callQueueList?.find((item: any) => getQueueId(item) === activeQueueId)}
+                handleChange={(option: any) => {
+                  if (option) {
+                    const queueId = getQueueId(option);
+                    setActiveQueueId(queueId);
+                  }
+                }}
+                className="w-64"
+                isClearable={false}
+                placeholder={isCampaignMonitoring ? 'Select Campaign' : 'Select Queue'}
+              />
             </div>
-            <span className="text-primary text-md">
-              {queueType === QUEUE_TYPE.campaign ? 'Campaign' : 'Call Queue'}{' '}
-            </span>
-            {activeQueueId && (
-              <>
-                <div className="-rotate-90 text-gray-800">
-                  <Icon name="ChevronIcon" className="w-5 h-5" />
-                </div>
-                <span className="text-primary text-md font-medium">
-                  {callQueueList?.find((item: any) => getQueueId(item) === activeQueueId)?.name}
-                </span>
-              </>
-            )}
-          </p>
-          <div className="flex gap-2 ">
-            <CustomSelect
-              options={callQueueList}
-              value={callQueueList?.find((item: any) => getQueueId(item) === activeQueueId)}
-              handleChange={(option: any) => {
-                if (option) {
-                  const queueId = getQueueId(option);
-                  setActiveQueueId(queueId);
-                }
-              }}
-              className="w-64"
-              isClearable={false}
-              placeholder={isCampaignMonitoring ? 'Select Campaign' : 'Select Queue'}
-            />
           </div>
-        </div>
+        </MonitoringTopbarSlot>
         <div className="w-full p-3 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-8rem)]">
           {isPending ? (
             <div>Loading...</div>

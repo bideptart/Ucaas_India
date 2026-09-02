@@ -2173,6 +2173,11 @@
 .mcm-calpanel .mcm-cal-dot.is-task {
   background: #34c38f;
 }
+/* Meeting, the third calendar category — violet, matching colour id 4 in
+   the calendar's `findColors` and the dot on its month previews. */
+.mcm-calpanel .mcm-cal-dot.is-meeting {
+  background: #a78bfa;
+}
 
 /* ==================================================================
    Table pagination.
@@ -2306,10 +2311,6 @@
   background-color: rgba(255, 255, 255, 0.06);
 }
 
-/* Meeting, the third calendar category — violet, matching colour id 4 in
-   the calendar's `findColors` and the dot on its month previews. */
-.mcm-calpanel .mcm-cal-dot.is-meeting {
-  background: #a78bfa;
 /* "Mark all as read" toast — react-toastify's default green success skin
    read as a generic system alert rather than something from this console.
    Warm-orange icon and a proper pill for Undo (was plain underlined text)

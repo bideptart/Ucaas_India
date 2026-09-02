@@ -180,18 +180,23 @@
    as off-theme here. Orange border + text by default, filled orange on
    hover, matching every other action on this page. */
 .gp-people .btn.ghost {
+  /* Full shorthand, not just `border-color` — a global reset
+     (`.mcm-page button:not([data-slot="tabs-trigger"]) { border: 0 }`) beats
+     a color-only override on width/style, since that reset's specificity is
+     higher than `.mcm-page .btn`'s own `border: 1px solid transparent` for
+     those two channels and a bare `border-color` never touches them. */
   background: rgba(255, 255, 255, 0.6);
-  border-color: var(--accent);
+  border: 1px solid var(--accent);
   color: var(--accent-ink);
 }
 .gp-people .btn.ghost:hover {
   background: var(--accent);
-  border-color: var(--accent);
+  border: 1px solid var(--accent);
   color: #fff;
 }
 .gp-people .btn.ghost:disabled {
   background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(150, 100, 50, 0.15);
+  border: 1px solid rgba(150, 100, 50, 0.15);
   color: var(--ink-2);
 }
 

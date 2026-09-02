@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DialpadMaxiTabDispositions from '@/components/dialpad/components/dialpad-maxi-tab-dispositions';
 import DialpadEndedScreen from '@/components/dialpad/components/dialpad-ended-screen';
 import DialpadAddUserList from '@/components/dialpad/components/dialpad-add-user-list';
@@ -356,6 +356,32 @@ const StageColumn = ({
   const { users } = useUsersDirectory();
   const { dial: dial2 } = useConsoleDialer();
 
+  /* Demo call — this console has no live SIP/WebRTC registration in this
+     environment (no telephony backend behind the demo account), so a real
+     `dialpad.makeCall` never connects. Rather than dead-end on an error
+     toast, an unregistered station simulates the call locally (ringing,
+     then connected, with a running timer) using the same caller-card UI a
+     real call renders, so the flow still feels complete end to end. */
+  const [demoCall, setDemoCall] = useState<null | {
+    number: string;
+    phase: 'dialing' | 'active';
+    secs: number;
+  }>(null);
+
+  useEffect(() => {
+    if (!demoCall) return;
+    if (demoCall.phase === 'dialing') {
+      const t = setTimeout(() => {
+        setDemoCall((c) => (c ? { ...c, phase: 'active' } : c));
+      }, 1600);
+      return () => clearTimeout(t);
+    }
+    const t = setInterval(() => {
+      setDemoCall((c) => (c ? { ...c, secs: c.secs + 1 } : c));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [demoCall?.phase]);
+
   // same resolution order the dialpad's maxi side panel uses
   const scriptId = String(
     session?.queueMetaData?.response?.script ||
@@ -392,6 +418,13 @@ const StageColumn = ({
   }, [users, dial]);
 
   const placeCall = (target: string) => {
+    const value = String(target || '').trim();
+    if (!value) return;
+    if (!dialpad.isRegistered) {
+      setDemoCall({ number: value, phase: 'dialing', secs: 0 });
+      setDial('');
+      return;
+    }
     if (dial2(target)) setDial('');
   };
 
@@ -402,6 +435,41 @@ const StageColumn = ({
     }
     setDial((d) => d + key);
   };
+
+  /* ---------------------------------------------------------- demo call ---- */
+  if (state === 'idle' && demoCall) {
+    const connected = demoCall.phase === 'active';
+    const demoSession = { remoteNumber: demoCall.number, direction: 'outgoing' } as unknown as DialpadSession;
+    return (
+      <div className="col stage">
+        <div className="stage-inner">
+          <CallerBlock
+            session={demoSession}
+            state={connected ? 'active' : 'dialing'}
+            secs={demoCall.secs}
+          />
+          <div
+            className="card card-pad"
+            style={{ fontSize: 11.5, color: 'var(--ink-4)', textAlign: 'center' }}
+          >
+            Demo call — no telephony backend is connected in this environment, so this is
+            simulated rather than a real connection.
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              type="button"
+              className="btn danger"
+              style={{ flex: 1, height: 46 }}
+              onClick={() => setDemoCall(null)}
+            >
+              <Ic n="hangup" size={18} fill />
+              {connected ? 'End call' : 'Cancel'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* --------------------------------------------------- idle · call record ---- */
   // A past call picked from the left column takes the stage while nothing is

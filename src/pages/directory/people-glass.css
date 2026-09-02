@@ -63,10 +63,7 @@
   margin-bottom: 16px;
 }
 .gp-people .page-head h1 {
-  background: linear-gradient(120deg, #c96f1f, #f2994a 60%, #f8b76a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1a1a1a;
 }
 .gp-people .page-head p {
   color: #6b5c4d;
@@ -184,7 +181,7 @@
    hover, matching every other action on this page. */
 .gp-people .btn.ghost {
   background: rgba(255, 255, 255, 0.6);
-  border-color: var(--accent-edge);
+  border-color: var(--accent);
   color: var(--accent-ink);
 }
 .gp-people .btn.ghost:hover {

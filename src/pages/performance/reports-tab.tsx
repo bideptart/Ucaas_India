@@ -1,8 +1,16 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Download, Info, LayoutGrid, Lock } from 'lucide-react';
+import { Calendar, ChevronDown, Download, Info, LayoutGrid, Lock } from 'lucide-react';
 import { useContext, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Loader from '@/components/custom/loader';
 import { SocketEvents } from '@/context/socket-events-context';
 import { useUser } from '@/hooks/use-user';
@@ -16,6 +24,7 @@ import {
   findReport,
 } from './reports/catalog';
 import type { ReportTable } from './reports/builders';
+import './reports-theme.css';
 
 type LinkedReport = {
   title: string;
@@ -73,6 +82,16 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
 
   const selected = findReport(selectedId);
   const callStats = useCallStats(selectedRange);
+
+  /**
+   * `perf-warm-backdrop` flags the document so reports-theme.css can paint
+   * the full-page ambient gradient on `.perf-reports`, the same pattern
+   * Callbacks/Campaigns/Speech & Text use.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-backdrop');
+  }, []);
 
   const { campaignAiLiveCallData, getAiLiveWallboardData, isSocketConnected } =
     useContext(SocketEvents);
@@ -192,11 +211,12 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
 
   return (
     <div
+      className="perf-reports"
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
-        padding: '16px 22px 32px',
+        padding: '16px 22px 96px',
       }}
     >
       {/* ---- headline totals for the range ---- */}
@@ -217,63 +237,78 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
 
       {/* ---- toolbar: pick a report, browse the catalog, export ---- */}
       <div
+        className="rp-toolbar"
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: 8,
           flexWrap: 'wrap',
           padding: '10px 12px',
-          border: '1px solid var(--line)',
-          borderRadius: 'var(--r-lg)',
-          background: 'var(--surface)',
         }}
       >
-        <button
-          type="button"
-          className={`btn ${isCatalogOpen ? 'primary' : 'ghost'} sm`}
-          onClick={() => setIsCatalogOpen((open) => !open)}
-        >
-          <LayoutGrid style={{ width: 14, height: 14 }} />
-          All reports ({AVAILABLE_REPORT_COUNT} of {TOTAL_REPORT_COUNT})
-        </button>
+        <div className="rp-toolbar-group">
+          <button
+            type="button"
+            className={`btn ${isCatalogOpen ? 'primary' : 'ghost'} sm`}
+            onClick={() => setIsCatalogOpen((open) => !open)}
+          >
+            <LayoutGrid style={{ width: 14, height: 14 }} />
+            All reports ({AVAILABLE_REPORT_COUNT} of {TOTAL_REPORT_COUNT})
+          </button>
 
-        <select
-          value={selectedId}
-          onChange={(event) => setSelectedId(event.target.value)}
-          style={{
-            height: 30,
-            maxWidth: 250,
-            padding: '0 8px',
-            fontSize: 12.5,
-            fontWeight: 600,
-            borderRadius: 8,
-            border: '1px solid var(--line)',
-            background: 'var(--surface)',
-            color: 'var(--ink)',
-            cursor: 'pointer',
-          }}
-        >
-          {REPORT_CATALOG.map((group) => (
-            <optgroup key={group.group} label={group.group}>
-              {group.reports.map((definition) => (
-                <option
-                  key={definition.id}
-                  value={definition.id}
-                  disabled={!definition.build}
-                  title={definition.unavailableReason}
-                >
-                  {definition.title}
-                  {definition.build ? '' : ' — no data source'}
-                </option>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className="rp-select-trigger">
+                <span className="rp-select-value">{selected?.title || 'Select a report'}</span>
+                <ChevronDown className="rp-select-chevron" style={{ width: 14, height: 14 }} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="rp-report-menu" align="start">
+              {REPORT_CATALOG.map((group) => (
+                <DropdownMenuGroup key={group.group} className="rp-report-menu-group">
+                  <DropdownMenuLabel className="rp-report-menu-label">
+                    {group.group}
+                  </DropdownMenuLabel>
+                  {group.reports.map((definition) => {
+                    const isAvailable = Boolean(definition.build);
+                    const isSelected = definition.id === selectedId;
+                    return (
+                      <DropdownMenuItem
+                        key={definition.id}
+                        disabled={!isAvailable}
+                        title={definition.unavailableReason}
+                        data-selected={isSelected ? '' : undefined}
+                        onSelect={() => {
+                          if (!isAvailable) return;
+                          setSelectedId(definition.id);
+                        }}
+                        className="rp-report-menu-item"
+                      >
+                        {!isAvailable && (
+                          <Lock className="rp-report-menu-lock" style={{ width: 11, height: 11 }} />
+                        )}
+                        <span>{definition.title}</span>
+                        {!isAvailable && (
+                          <span className="rp-report-menu-hint">no data source</span>
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuGroup>
               ))}
-            </optgroup>
-          ))}
-        </select>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <span style={{ fontSize: 12, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>
-          {selectedRange.from} <span style={{ color: 'var(--ink-4)' }}>→</span> {selectedRange.to}
-        </span>
-        <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>(set by the date filter above)</span>
+        <span className="rp-toolbar-divider" />
+
+        <div className="rp-range">
+          <Calendar style={{ width: 12.5, height: 12.5 }} />
+          <span>
+            {selectedRange.from} <span className="rp-range-arrow">→</span> {selectedRange.to}
+          </span>
+          <span className="rp-range-hint">(set by the date filter above)</span>
+        </div>
 
         <span style={{ flex: 1 }} />
 
@@ -304,13 +339,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                 <div className="sect-title" style={{ margin: '14px 0 8px' }}>
                   {group.group}
                 </div>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))',
-                    gap: 10,
-                  }}
-                >
+                <div className="rp-catalog-grid">
                   {group.reports.map((definition) => {
                     const isSelected = definition.id === selectedId;
                     const isAvailable = Boolean(definition.build);
@@ -318,51 +347,28 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                       <button
                         type="button"
                         key={definition.id}
-                        disabled={!isAvailable}
+                        // Native `disabled` makes Chromium paint its own
+                        // form-control background under the locked card,
+                        // ignoring this file's CSS regardless of specificity
+                        // or `!important` — `aria-disabled` plus the guard
+                        // below keeps it un-clickable without that native
+                        // rendering taking over.
+                        aria-disabled={!isAvailable}
                         title={definition.unavailableReason}
                         onClick={() => {
                           if (!isAvailable) return;
                           setSelectedId(definition.id);
                           setIsCatalogOpen(false);
                         }}
-                        style={{
-                          textAlign: 'left',
-                          padding: '11px 14px',
-                          borderRadius: 'var(--r)',
-                          border: `1px ${isAvailable ? 'solid' : 'dashed'} ${
-                            isSelected ? 'var(--accent)' : 'var(--line)'
-                          }`,
-                          background: isSelected
-                            ? 'var(--accent-wash)'
-                            : isAvailable
-                              ? 'var(--surface)'
-                              : 'var(--surface-2)',
-                          cursor: isAvailable ? 'pointer' : 'not-allowed',
-                          opacity: isAvailable ? 1 : 0.75,
-                        }}
+                        className={`rp-catalog-card${isSelected ? ' is-selected' : ''}${
+                          !isAvailable ? ' is-locked' : ''
+                        }`}
                       >
-                        <span
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 6,
-                            fontSize: 13,
-                            fontWeight: 800,
-                            color: isAvailable ? 'var(--ink)' : 'var(--ink-3)',
-                          }}
-                        >
-                          {!isAvailable && <Lock style={{ width: 12, height: 12, flex: 'none' }} />}
+                        <span className="rp-catalog-title">
+                          {!isAvailable && <Lock className="rp-catalog-lock" />}
                           {definition.title}
                         </span>
-                        <span
-                          style={{
-                            display: 'block',
-                            marginTop: 3,
-                            fontSize: 11.5,
-                            lineHeight: 1.45,
-                            color: 'var(--ink-3)',
-                          }}
-                        >
+                        <span className="rp-catalog-desc">
                           {isAvailable ? definition.description : definition.unavailableReason}
                         </span>
                       </button>
@@ -387,6 +393,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
         <div className="pc-body tight">
           {report?.note && (
             <div
+              className="rp-notice"
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -394,9 +401,6 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                 margin: '10px 0',
                 padding: '9px 12px',
                 borderRadius: 'var(--r)',
-                border: '1px solid var(--accent-edge)',
-                background: 'var(--accent-wash)',
-                color: 'var(--accent-ink)',
                 fontSize: 11.5,
                 lineHeight: 1.5,
               }}
@@ -417,7 +421,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
               <Loader variant="blue" size="md" />
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
+            <div className="rp-table-wrap" style={{ overflowX: 'auto' }}>
               <table
                 style={{
                   width: '100%',
@@ -439,7 +443,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           fontWeight: 700,
                           letterSpacing: '.09em',
                           textTransform: 'uppercase',
-                          color: 'var(--ink-4)',
+                          color: 'var(--rp-muted)',
                         }}
                       >
                         {heading}
@@ -459,7 +463,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                               whiteSpace: 'nowrap',
                               padding: '8px 12px',
                               fontWeight: cellIndex === 0 ? 700 : 500,
-                              color: cellIndex === 0 ? 'var(--ink)' : 'var(--ink-2)',
+                              color: cellIndex === 0 ? 'var(--rp-ink)' : '#334155',
                             }}
                           >
                             {cell}
@@ -482,7 +486,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                     </tr>
                   )}
                   {report?.total && report.rows.length ? (
-                    <tr style={{ background: 'var(--surface-2)', fontWeight: 800 }}>
+                    <tr className="rp-total-row" style={{ fontWeight: 800 }}>
                       {report.total.map((cell, cellIndex) => (
                         <td
                           key={cellIndex}
@@ -490,7 +494,6 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           style={{
                             whiteSpace: 'nowrap',
                             padding: '8px 12px',
-                            color: 'var(--ink)',
                           }}
                         >
                           {cell}

@@ -26,19 +26,20 @@
 
 .mcm-page {
   --ground: transparent;
-  /* The three surfaces are translucent rather than flat, so every box
-     built on them — cards, chips, tiles, strips — sits on the backdrop as
-     glass instead of as a solid block dropped on it. Changing the tokens
-     covers all ~90 rules that paint with them; the alternative was
-     editing each one and still missing the ones written as utilities.
-     Each box keeps its own hue: only the alpha changes. */
-  --surface: rgba(255, 255, 255, 0.6);
-  --surface-2: rgba(246, 248, 252, 0.52);
-  --surface-3: rgba(234, 238, 247, 0.55);
-  /* Opaque originals, for the few places that must not show through:
-     sticky headers with rows scrolling beneath, and menus over content. */
+  /* Upstream's warm, opaque surfaces, which replace the translucent ones
+     the glass pass introduced. They also settle a bug those caused: these
+     tokens back the sticky table-header class, and while translucent the
+     rows scrolled visibly through the column labels on every list in the
+     console. */
+  --surface: #ffffff;
+  --surface-2: #fbf3e8;
+  --surface-3: #f5e6d3;
+  /* The `-solid` aliases are now the same values, since nothing here is
+     translucent any more. They stay because rules that must never show
+     through — sticky headers, menus over content — ask for them by name,
+     and that intent should survive the next time these are retinted. */
   --surface-solid: #ffffff;
-  --surface-2-solid: #f6f8fc;
+  --surface-2-solid: #fbf3e8;
   --ink: #0d1526;
   --ink-2: #3d4a63;
   /* Darkened from #6b7891 for the glass pass. Muted text is no longer on
@@ -47,8 +48,8 @@
      measures 4.76:1 there, and better everywhere else on the page. */
   --ink-3: #5a667e;
   --ink-4: #93a0b8;
-  --line: #dfe5f0;
-  --line-2: #eaeef6;
+  --line: #eee7dd;
+  --line-2: #f0e4d3;
 
   --accent: #f2994a;
   --accent-ink: #c96f1f;
@@ -58,10 +59,13 @@
   /* Glass surface — used by the KPI strip and panel cards instead of a
      flat --surface so the warm gradient body shows through the blur. Kept
      light on the blur and high on the opacity: a heavy fog reads as
-     unpolished, the reference keeps the glass barely-there. */
-  --glass-surface: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.85);
-  --glass-blur: blur(16px) saturate(180%);
+     unpolished, the reference keeps the glass barely-there.
+     Warm cream instead of white so it doesn't read as flat/cool against
+     the orange body gradient; no saturate() on the blur — boosting the
+     saturation of the vivid gradient behind it shifts the blend pink. */
+  --glass-surface: rgba(251, 249, 246, 0.85);
+  --glass-border: rgba(225, 200, 165, 0.9);
+  --glass-blur: blur(12px);
 
   /* AI gets its own hue on purpose: machine output must never be
      mistaken for system truth. Violet = "generated, verify me". */
@@ -106,10 +110,10 @@
   --ink-4: #6b7a96;
   --line: #26314a;
   --line-2: #1c2537;
-  --accent: #5b8dff;
-  --accent-ink: #87aaff;
-  --accent-wash: #16223d;
-  --accent-edge: #2c3f68;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
   --ai-wash: #231a3d;
@@ -169,10 +173,23 @@
   min-height: 0;
   overflow: hidden;
 }
-.mcm-page button {
+/* Tab triggers are excluded from `color`/`border` below. This reset is
+   unlayered, so it beats every Tailwind utility regardless of specificity (see
+   the flex-direction note above) - including the
+   `data-[state=active]:text-primary` and `data-[state=active]:border-b-primary`
+   that tab strips mark the open tab with. `border: 0` erased the underline and
+   `color: inherit` erased the accent, so every tab rendered identically and a
+   drawer gave no clue which tab you were on. The font, background and cursor
+   parts of the reset still apply; only the two the tabs own are left to them. */
+.mcm-page button:not([data-slot='tabs-trigger']) {
   font: inherit;
   color: inherit;
   border: 0;
+  background: none;
+  cursor: pointer;
+}
+.mcm-page button[data-slot='tabs-trigger'] {
+  font: inherit;
   background: none;
   cursor: pointer;
 }
@@ -274,23 +291,63 @@
   gap: 14px;
   align-items: start;
 }
-/* Queues sat noticeably shorter than the agent-status + agents column
-   beside it under the default align-items: start. Stretching this pair
-   makes Queues grow to match, instead of the empty-state message just
-   floating in a short box. */
-.mcm-page .grid2.grid2-stretch {
+/* Width fixes below apply to any .panel-card table in this 2-column row
+   (Queues beside Agent status distribution) — about the column fitting
+   the card's width, independent of the height-matching rules further
+   down. Descendant selectors (not direct-child >) because Queues sits
+   inside a .stack (with Interactions below it), which puts a wrapper
+   between .grid2 and .panel-card that a > selector would miss. */
+.mcm-page .grid2 .panel-card > .tbl-wrap {
+  /* Flex children default to min-width: auto, which lets content push the
+     box wider than its parent instead of triggering this element's own
+     overflow-x: auto — the ABANDON column was running off the edge of the
+     card with no scrollbar because of exactly that. min-width: 0 lets it
+     actually shrink to the card's width and scroll internally. */
+  min-width: 0;
+  /* More rows than fit (live data growing — more queues, more interactions,
+     more agents) scrolls inside the card instead of pushing the card, and
+     the whole page, taller. */
+  max-height: 340px;
+  overflow-y: auto;
+}
+/* This table shares its row with Agent status distribution, so it only
+   gets about half the page width — 8 columns needed ~24px more than
+   that to show every column without scrolling. Tightening the padding
+   just here (not every table in the app) closes that gap. */
+.mcm-page .grid2 .panel-card > .tbl-wrap th {
+  padding: 7px 6px;
+}
+.mcm-page .grid2 .panel-card > .tbl-wrap td {
+  padding: 8px 6px;
+}
+/* Agents specifically wants taller rows than the rest of this row's
+   tables — scoped so Queues/Interactions beside it stay as tight as
+   they were. */
+.mcm-page .grid2 .panel-card.roomy-rows > .tbl-wrap td {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* Queues+Interactions (left) beside Agent status distribution+Agents
+   (right): the row stretches to the taller column's natural height, and
+   within the shorter column only the last card (.fill-remaining —
+   Interactions) grows to close the gap. Queues itself stays at its own
+   natural height rather than stretching, since a tall empty-state
+   message in a stretched Queues card was the previous complaint. */
+.mcm-page .grid2.grid2-stretch-cols {
   align-items: stretch;
 }
-.mcm-page .grid2.grid2-stretch > .panel-card {
+.mcm-page .grid2.grid2-stretch-cols > .stack {
+  height: 100%;
+}
+.mcm-page .grid2.grid2-stretch-cols > .stack > .panel-card.fill-remaining {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;
 }
-.mcm-page .grid2.grid2-stretch > .panel-card > .tbl-wrap {
+.mcm-page .grid2.grid2-stretch-cols > .stack > .panel-card.fill-remaining > .tbl-wrap {
   flex: 1;
-}
-.mcm-page .grid2.grid2-stretch > .stack {
-  height: 100%;
 }
 @media (max-width: 1080px) {
   .mcm-page .grid2 {
@@ -302,6 +359,19 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
   align-items: start;
+}
+/* Dashboard home's "Your day so far / Since you logged off / Quick dial"
+   row: stretched to equal height instead of each hugging its own content. */
+.mcm-page .grid3.grid3-stretch {
+  grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
+}
+.mcm-page .grid3.grid3-stretch > .panel-card {
+  display: flex;
+  flex-direction: column;
+}
+.mcm-page .grid3.grid3-stretch > .panel-card > .pc-body {
+  flex: 1;
 }
 .mcm-page .grid4 {
   display: grid;
@@ -739,6 +809,9 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   white-space: nowrap;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .mcm-page .ptabstrip button:hover {
   color: var(--ink);
@@ -1107,6 +1180,48 @@
   text-align: right;
   flex: none;
 }
+
+/* Agent status distribution as one segmented bar (each state's share end
+   to end) plus a wrapping legend row, instead of a full-width bar per
+   state stacked vertically — shows the same breakdown in far less height
+   and keeps every segment comparable at a glance. */
+.mcm-page .dist-bar {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--surface-3);
+}
+.mcm-page .dist-bar-seg {
+  display: block;
+  height: 100%;
+}
+.mcm-page .dist-bar-seg:not(:last-child) {
+  border-right: 1.5px solid var(--surface);
+}
+.mcm-page .dist-legend {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 14px;
+}
+.mcm-page .dist-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.mcm-page .dist-legend-item .state {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+.mcm-page .dist-legend-item .num {
+  font-size: 10.5px;
+}
 .mcm-page .bar {
   height: 3px;
   border-radius: 99px;
@@ -1164,6 +1279,26 @@
 }
 .mcm-page .attn + .attn {
   margin-top: 8px;
+}
+/* "Needs you now" laid out as one row instead of a stack — each alert
+   shares the width equally and wraps to a second row only if the card
+   genuinely doesn't have room, rather than clipping. */
+.mcm-page .pc-body.attn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px;
+}
+.mcm-page .pc-body.attn-row .attn {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin-top: 0;
+}
+.mcm-page .pc-body.attn-row .attn + .attn {
+  margin-top: 0;
+}
+.mcm-page .pc-body.attn-row .attn-d {
+  white-space: normal;
 }
 .mcm-page .attn.crit {
   border-color: var(--crit);
@@ -2159,9 +2294,20 @@
   height: 18px;
   background: #fff;
   box-shadow: 0 1px 2px rgb(13 21 38 / 0.25);
+  /* The travel below has to be set with `translate`, not `transform`.
+     Tailwind v4 compiles `translate-x-*` to the standalone `translate`
+     property, so a `transform` here never replaced it - the two composed,
+     and a checked thumb moved 17px + 16px and left the track entirely.
+     Setting the same property overrides it instead of adding to it. */
+  transform: none;
+  translate: 0 0;
 }
+/* 18px is the track's inner width (38px less its two 1px borders) minus the
+   18px thumb, so the thumb ends up inset by the same amount at either end
+   rather than hanging off one. */
 .mcm-page [data-slot='switch'][data-state='checked'] [data-slot='switch-thumb'] {
-  transform: translateX(17px);
+  transform: none;
+  translate: 18px 0;
 }
 
 /* 3. Radio dots were a hairline ring that all but vanished against the
@@ -3400,6 +3546,9 @@
   color: var(--ink-3);
   font-size: 12px;
   font-weight: 600;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 .mcm-adminhome-clear:hover {
   color: var(--crit);
@@ -3575,7 +3724,7 @@
 @keyframes mcm-flash-outline {
   0%,
   60% {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #2563eb) 45%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #f2994a) 45%, transparent);
   }
   100% {
     box-shadow: 0 0 0 3px transparent;
@@ -3660,6 +3809,15 @@
   font-size: 13px;
   font-weight: 550;
   color: var(--ink);
+}
+/* The mandatory marker on a settings row. Rose rather than the brand accent:
+   the console accent is orange and these forms sit on an orange-tinted ground,
+   so an orange asterisk is the one thing someone scanning for required fields
+   would slide straight past. */
+.mcm-setrow-required {
+  margin-left: 3px;
+  color: #e11d48;
+  font-weight: 500;
 }
 .mcm-setrow-desc {
   margin: 4px 0 0;

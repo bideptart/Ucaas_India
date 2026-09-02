@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Campaign from '@/pages/auto-dialer/campaign';
 import { campaignList } from '@/services/api';
 import PerfStatCard from './stat-card';
+import './campaigns-theme.css';
 
 const parseMembers = (members: any) => {
   try {
@@ -14,6 +15,23 @@ const parseMembers = (members: any) => {
 };
 
 const CampaignActivityTab = () => {
+  /**
+   * `perf-warm-backdrop` flags the document so campaigns-theme.css can paint
+   * the full-page ambient gradient and the live-queue KPI band — done on
+   * `.perf-campaigns` itself rather than through the generic `.mcm-page`
+   * rule, since the embedded `<Campaign />` below renders its own nested
+   * `.mcm-page` panel.
+   *
+   * The toolbar itself (`perf-warm-toolbar`) is now toggled once in the
+   * parent `Performance` component (index.tsx), since the toolbar renders
+   * unconditionally there for every tab — adding it here too would race
+   * with the parent's own toggle on tab switches.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-backdrop');
+  }, []);
+
   const { data: campaigns = [] } = useQuery({
     queryKey: ['performanceCampaignActivityList'],
     queryFn: () => campaignList({ page: 1, limit: 100, filters: [] }),
@@ -59,8 +77,8 @@ const CampaignActivityTab = () => {
   const dialMethodEntries = Object.entries(totals.byDialMethod).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="flex w-full flex-col gap-3 px-[22px] py-4">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+    <div className="perf-campaigns flex w-full flex-col gap-4 px-[22px] py-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <PerfStatCard
           label="Total leads"
           value={String(totals.assignedLeads)}

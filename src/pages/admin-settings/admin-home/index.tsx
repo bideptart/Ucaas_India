@@ -157,8 +157,12 @@ const AdminHome = () => {
         {tab === 'all' ? (
           visibleGroups.length ? (
             <div className="mcm-admingrid">
-              {visibleGroups.map((group) => (
-                <div className="mcm-admincard" key={group.title}>
+              {visibleGroups.map((group, groupIndex) => (
+                <div
+                  className="mcm-admincard animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 motion-reduce:animate-none"
+                  style={{ animationDelay: `${Math.min(groupIndex, 10) * 30}ms` }}
+                  key={group.title}
+                >
                   <div className="mcm-admincard-h">{group.title}</div>
                   <ul>
                     {group.entries.map((entry) => (
@@ -175,7 +179,7 @@ const AdminHome = () => {
           )
         ) : recentEntries.length ? (
           <div className="mcm-admingrid">
-            <div className="mcm-admincard">
+            <div className="mcm-admincard animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 motion-reduce:animate-none">
               <div className="mcm-admincard-h">Recently used</div>
               <ul>
                 {recentEntries.map((entry) => (

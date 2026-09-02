@@ -276,7 +276,7 @@ const NewContact: FC = () => {
         ) : (
           <>
             {/* Header bar */}
-            <div className="border-b border-gray-200 bg-white">
+            <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
               <div className="flex flex-col gap-3 px-3 py-3 sm:py-0 lg:flex-row lg:items-center lg:justify-between">
                 <div className="w-full shrink-0 overflow-x-auto lg:w-auto lg:min-w-0 lg:shrink lg:flex-1">
                   <Tabs
@@ -319,7 +319,7 @@ const NewContact: FC = () => {
                       onChange={(e) => {
                         setSearch(e.target.value);
                       }}
-                      Icon={<SearchLine className="text-gray-700" />}
+                      Icon={<SearchLine className="text-[#2E2D35]" />}
                     />
                     {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                       <>

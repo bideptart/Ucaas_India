@@ -5,7 +5,7 @@ import { KeyRound, LogOut, User, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useCompanyFeatures } from '@/hooks/rbac';
-import { useMyPresence } from '@/hooks/use-my-presence';
+import { setMyPresenceOverride, useMyPresence } from '@/hooks/use-my-presence';
 import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { presenceStatusArray, statusImageLookup } from '../constants';
 import CustomAvatar from '../../custom-avatar';
@@ -98,6 +98,9 @@ const AvatarContent = ({ setProfileState }: any) => {
 
   const handleStatusChange = async (status: string) => {
     if (effectiveSocketStatus === status) return;
+    // Shows the pick immediately instead of waiting on a socket presence
+    // frame that, without a live socket connection, never arrives.
+    setMyPresenceOverride(queryClient, status as 'online' | 'busy' | 'dnd');
     handleUserCallRules(status);
     mutateUserUpdateStatus({ socket_status: status });
     setShowPresence(false);

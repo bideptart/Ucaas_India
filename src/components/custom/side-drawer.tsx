@@ -115,7 +115,7 @@ const SideDrawer: FC<SideDrawerProps> = ({
             aria-label="Close"
             title="Close"
             className={cn(
-              'group absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center',
+              'group absolute right-8 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center',
               'rounded-full border border-[#EEE7DD] bg-[rgba(251,249,246,0.88)] text-[#9A948F] shadow-sm',
               'transition-all duration-200 ease-out',
               'hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35] hover:scale-110 hover:shadow-md',
@@ -129,7 +129,16 @@ const SideDrawer: FC<SideDrawerProps> = ({
           </button>
         )}
 
-        <div className="flex-1 min-h-0 w-full flex flex-col gap-4 overflow-auto md:overflow-hidden px-4 lg:px-5 pt-0 pb-5">
+        <div
+          className={cn(
+            'flex-1 min-h-0 w-full flex flex-col gap-4 overflow-auto md:overflow-hidden px-4 lg:px-5 pb-5',
+            /* No title row means nothing reserves space for the floating
+               close button above, so the content's own heading runs
+               underneath it - give the content the same clearance a title
+               row would have provided. */
+            title || !isCloseIcon ? 'pt-0' : 'pt-14',
+          )}
+        >
           {content}
         </div>
       </div>

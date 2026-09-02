@@ -15,7 +15,6 @@ import AudioModal from '@/pages/phone/audio-dialog';
 import { transFilterObject } from '@/components/custom/custom-filter';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { dropdownCallInitialVal } from '@/components/custom/date-dropdown/constant';
-import { Loader2 } from 'lucide-react';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useQueries } from '@tanstack/react-query';
 import { ACTIVITYLIST } from '@/components/activity-list/constants';
@@ -123,16 +122,13 @@ const Voicemail = () => {
     setSelectedFilters(data);
   };
 
-  const handleRefetchTableData = async () => {
-    if (tableRef?.current) {
-      setIsLoading(true);
-      try {
-        await tableRef.current.refetchTable();
-        handleAlert({ text: 'Refreshed', type: 'success' });
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const handleRefetchTableData = () => {
+    if (!tableRef?.current) return;
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 450);
+    tableRef.current.refetchTable().then(() => {
+      handleAlert({ text: 'Refreshed', type: 'success' });
+    });
   };
 
   const handleFilter = () => {
@@ -351,7 +347,8 @@ const Voicemail = () => {
       accessorKey: 'chargeTotal',
       cell: ({ row }: any) => {
         const data = row?.original;
-        return data?.chargeTotal ? data?.chargeTotal : data?.charge ? data?.charge : 0.0;
+        const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
+        return `$${value.toFixed(4)}`;
       },
     },
     {
@@ -446,11 +443,7 @@ const Voicemail = () => {
         onClick={() => handleRefetchTableData()}
         className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
-        {isLoading ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <Icon name="Refresh" className="w-5 h-5" />
-        )}
+        <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
       </Button>
 
       <Button

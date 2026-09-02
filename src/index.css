@@ -132,10 +132,10 @@
   --mcm-line: #dfe5f0;
   --mcm-line-2: #eaeef6;
 
-  --mcm-accent: #2563eb;
-  --mcm-accent-ink: #1d4ed8;
-  --mcm-accent-wash: #e8efff;
-  --mcm-accent-edge: #c3d6ff;
+  --mcm-accent: #f2994a;
+  --mcm-accent-ink: #c96f1f;
+  --mcm-accent-wash: #fff1e0;
+  --mcm-accent-edge: #ffd9ad;
 
   /* AI gets its own hue on purpose: machine output must never be mistaken
      for system truth. Violet reads as "generated, verify me". */
@@ -179,15 +179,30 @@
      can outrank that inline style, so this orange sticks regardless of what
      the org's API returns. */
   --primary: #f2994a !important;
-  /* Same problem as --primary, but this token is declared inside Tailwind's
-     @theme block, which strips !important before it reaches the generated
-     stylesheet — so overriding it there did nothing against the org API's
-     inline blue. A plain :root rule doesn't have that limitation. This is
-     what every hover state built on bg-ucass-primary-200 (bell, theme
-     toggle, avatar chip, quick-menu icons) actually reads. */
+  /* Same problem as --primary, but these tokens are declared inside
+     Tailwind's @theme block, which strips !important before it reaches the
+     generated stylesheet — so overriding them there did nothing against the
+     org API's inline blue (--color-ucass-primary-100/200 and
+     --color-ucass-active(-bg)/-login-bg are all set inline from
+     mainSiteInfo by organization-context.tsx, several of them without
+     !important). A plain :root rule doesn't have that limitation.
+
+     --color-ucass-primary-200 in particular MUST stay a light wash, not the
+     solid --primary orange: it's what every hover/active state built on
+     bg-ucass-primary-200 reads (bell, theme toggle, avatar chip, quick-menu
+     icons, nav items) alongside hover:text-primary — pairing a solid
+     background with solid-orange text made the icon disappear into its own
+     background, which is what "the notification bell turned into a blank
+     orange square" actually was. This block previously redefined the same
+     custom properties twice with a duplicate :root block (light-wash, then
+     solid) that had been carried over from a since-reverted merge; the
+     second definition silently won and broke every hover state that reads
+     it. Keep this as the one definition. */
+  --color-ucass-primary-100: #fff1e0 !important;
   --color-ucass-primary-200: #fde9d2 !important;
   --color-ucass-active: #c96f1f !important;
   --color-ucass-active-bg: #fde9d2 !important;
+  --color-ucass-login-bg: #fff1e0 !important;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -227,10 +242,10 @@
   --mcm-line: #26314a;
   --mcm-line-2: #1c2537;
 
-  --mcm-accent: #5b8dff;
-  --mcm-accent-ink: #87aaff;
-  --mcm-accent-wash: #16223d;
-  --mcm-accent-edge: #2c3f68;
+  --mcm-accent: #ffab5e;
+  --mcm-accent-ink: #ffc98a;
+  --mcm-accent-wash: #2b1f12;
+  --mcm-accent-edge: #4a341c;
 
   --mcm-ai: #a97fff;
   --mcm-ai-ink: #c0a3ff;
@@ -256,8 +271,16 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.6536 0.124 225.17);
+  /* Dark theme gets the same !important protection as the light theme's
+     --primary, and the matching ucass-* overrides — same runtime-override
+     risk from organization-context.tsx applies here too. */
+  --primary: #ffab5e !important;
   --primary-foreground: oklch(0.205 0 0);
+  --color-ucass-primary-100: #2b1f12 !important;
+  --color-ucass-primary-200: #ffab5e !important;
+  --color-ucass-active: #ffc98a !important;
+  --color-ucass-active-bg: #2b1f12 !important;
+  --color-ucass-login-bg: #2b1f12 !important;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -330,7 +353,7 @@
 
   ::-webkit-scrollbar-track {
     border-radius: 100%;
-    background: #f4fcff;
+    background: #fff8f0;
   }
 
   ::-webkit-scrollbar-thumb {
@@ -340,7 +363,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #baf1ff;
+    background: #f2994a;
   }
 
   .tableSelect .custom-react-select__control {
@@ -809,7 +832,7 @@
   .react-datepicker__month-select:focus,
   .react-datepicker__year-select:focus {
     outline: none !important;
-    border: 1px solid #009fc9 !important;
+    border: 1px solid #f2994a !important;
     box-shadow: none !important;
   }
 
@@ -859,7 +882,7 @@
     .react-datepicker__time-box
     ul.react-datepicker__time-list
     li.react-datepicker__time-list-item--selected {
-    background-color: #009fc9 !important;
+    background-color: #f2994a !important;
     color: #ffffff !important;
   }
 
@@ -1197,7 +1220,7 @@
 .global-search-item-badge {
   font-size: 14px;
   font-weight: 400;
-  color: #0ea5e9;
+  color: #f2994a;
   background: transparent;
   padding: 0;
   flex-shrink: 0;
@@ -1256,8 +1279,8 @@
 /* Message highlight animation */
 .message-highlight {
   animation: highlightMessage 0.5s ease-in-out;
-  background-color: #f0f9ff !important;
-  border: 2px solid #009fc9 !important;
+  background-color: #fff1e0 !important;
+  border: 2px solid #f2994a !important;
   border-radius: 0.5rem;
   padding: 0.5rem;
   margin: 0.25rem 0;
@@ -1270,14 +1293,41 @@
   }
 
   50% {
-    background-color: #e0f2fe;
-    border-color: #009fc9;
+    background-color: #ffe6c7;
+    border-color: #f2994a;
   }
 
   100% {
-    background-color: #f0f9ff;
-    border-color: #009fc9;
+    background-color: #fff1e0;
+    border-color: #f2994a;
   }
+}
+
+/* A refresh click's only feedback used to be swapping the icon for a
+   spinner - too easy to miss when the underlying fetch resolves in well
+   under 100ms. A quick shake plus a nudge along the arrow's own direction
+   reads as "this was clicked" instantly, without changing what icon is on
+   screen. */
+@keyframes refreshNudge {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-1.5px) rotate(-6deg);
+  }
+  45% {
+    transform: translateX(2px) rotate(22deg);
+  }
+  70% {
+    transform: translateX(-1px) rotate(10deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+.animate-refresh-nudge {
+  animation: refreshNudge 0.45s ease-in-out;
 }
 
 @media (max-width: 1024px) {
@@ -1583,7 +1633,7 @@
 .mcm-areanav {
   display: none;
   align-items: center;
-  gap: 2px;
+  gap: 0px;
   height: 100%;
   min-width: 0;
 }
@@ -1598,15 +1648,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   /* min-width, not width: a hard fixed width forced every tab to the same
      size, but "Directory" and "Performance" don't fit 90px next to a 16px
      icon with white-space: nowrap. Flexbox had nowhere else to take the
      overflow from but the icon (shrinkable) since the text can't wrap —
      so the icon collapsed toward 0 instead of the tab widening. */
-  min-width: 90px;
+  min-width: 60px;
   height: 30px;
-  padding: 6px 12px;
+  padding: 6px 6px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -1643,8 +1693,15 @@
   .mcm-areanav-btn span {
     display: none;
   }
-  /* icon-only at this width, so the tint needs to sit evenly around it */
+  /* icon-only at this width, so the tint needs to sit evenly around it.
+     min-width: 90px (set to stop the icon getting squeezed to 0 next to a
+     long label — see the flex-shrink comment above) has no label to
+     protect here, so it was just holding each tab at 90px around a 16px
+     icon. Across 5 tabs that is ~370px of dead width, which is what was
+     pushing bell/theme-toggle/avatar off the right edge of the header on
+     laptop-width screens. */
   .mcm-areanav-btn {
+    min-width: 0;
     padding: 9px 13px;
   }
 }
@@ -1729,7 +1786,7 @@
   cursor: pointer;
 }
 .mcm-presence-admin:hover:not(:disabled) {
-  border-color: #c3d6ff;
+  border-color: #ffd9ad;
   color: #0d1526;
 }
 .mcm-presence-admin:disabled {
@@ -1764,14 +1821,14 @@
   padding: 5px 13px;
   border: 0;
   border-radius: 999px;
-  background: #2563eb;
+  background: #f2994a;
   color: #fff;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
 }
 .mcm-newbuild button:hover {
-  background: #1d4ed8;
+  background: #c96f1f;
 }
 
 /* Customer initial, shown when they have not uploaded a logo. Never the
@@ -1783,8 +1840,8 @@
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  background: #e8efff;
-  color: #1d4ed8;
+  background: #fff1e0;
+  color: #c96f1f;
   font-size: 15px;
   font-weight: 800;
 }
@@ -1940,13 +1997,13 @@
   border-radius: 8px;
   font-size: 12.5px;
   font-weight: 600;
-  color: #1d4ed8;
+  color: #c96f1f;
   text-decoration: none;
   white-space: nowrap;
 }
 .mcm-setupguide-action:hover {
-  background: #eef3ff;
-  border-color: #c3d6ff;
+  background: #fff1e0;
+  border-color: #ffd9ad;
 }
 @media (max-width: 640px) {
   .mcm-setupguide li {
@@ -1957,4 +2014,44 @@
     justify-self: start;
     margin-top: 8px;
   }
+}
+
+/* "Mark all as read" toast — react-toastify's default green success skin
+   read as a generic system alert rather than something from this console.
+   Warm-orange icon and a proper pill for Undo (was plain underlined text)
+   match the notification drawer it's confirming an action from. */
+.mcm-toast-markread {
+  border-radius: 12px !important;
+  box-shadow:
+    0 12px 28px -6px rgba(194, 98, 46, 0.22),
+    0 2px 8px rgba(194, 98, 46, 0.12) !important;
+}
+.mcm-toast-markread .Toastify__toast-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f2794f, #ea5c34);
+}
+.mcm-toast-markread .Toastify__progress-bar {
+  background: linear-gradient(90deg, #f2794f, #ea5c34) !important;
+}
+.mcm-toast-undo {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ea6b42;
+  background: #fff1e0;
+  border: 1px solid #ffd9ad;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.mcm-toast-undo:hover {
+  background: linear-gradient(135deg, #f2794f, #ea5c34);
+  color: #fff;
+  border-color: transparent;
 }

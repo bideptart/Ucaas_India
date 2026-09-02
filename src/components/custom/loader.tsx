@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 const variants: { [key: string]: string } = {
   white: 'text-white',
   blue: 'text-primary',
@@ -14,39 +12,13 @@ const sizeVariants: { [key: string]: string } = {
 };
 
 const Loader = ({ variant = 'white', size = 'sm' }: any) => {
-  const [themeReady, setThemeReady] = useState(() => {
-    if (typeof document !== 'undefined') {
-      return !!document.documentElement.style.getPropertyValue('--primary');
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    if (themeReady || typeof document === 'undefined') return;
-
-    const root = document.documentElement;
-    const checkTheme = () => {
-      if (root.style.getPropertyValue('--primary')) {
-        setThemeReady(true);
-      }
-    };
-
-    // Watch for style attribute changes on the root element
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(root, { attributes: true, attributeFilter: ['style'] });
-
-    // Fallback to show spinner anyway after 2 seconds (in case theme fails to load)
-    const timer = setTimeout(() => {
-      setThemeReady(true);
-    }, 2000);
-
-    return () => {
-      observer.disconnect();
-      clearTimeout(timer);
-    };
-  }, [themeReady]);
-
-  if (!variants[variant] || !themeReady) {
+  /* Used to wait on --primary landing as an inline style from the org
+     branding API before showing a spinner at all — up to 2s of a plain
+     "Please wait..." text on every loading state in the app (used in 145+
+     files: every table load, modal, and route transition). --primary is
+     now a real CSS value from the moment the stylesheet loads, so nothing
+     is worth waiting for here. */
+  if (!variants[variant]) {
     return <span className="text-sm font-medium text-gray-500 animate-pulse">Please wait...</span>;
   }
 

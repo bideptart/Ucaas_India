@@ -285,7 +285,14 @@ const CommonSettingPermission: FC<any> = ({
                 <Button
                   type="button"
                   variant={'outline'}
-                  className="w-16"
+                  /* `.mcm-page button` (a reset meant for icon-only ghost
+                     buttons elsewhere) strips this button's border/background/
+                     text-color since it has higher specificity than a plain
+                     Tailwind utility class — every "Select" button in this
+                     shared component rendered as bare text because of it.
+                     `!` forces these to win regardless of where this
+                     component is used. */
+                  className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                   onClick={() => openModal('roleModal')}
                 >
                   Select
@@ -317,7 +324,7 @@ const CommonSettingPermission: FC<any> = ({
             </div>
             <Button
               type="button"
-              className="w-16"
+              className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
               variant={'outline'}
               disabled={!canEditField('regional')}
               onClick={() => {
@@ -357,7 +364,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('voicemail')) return;
@@ -407,7 +414,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('business_hours')) return;
@@ -436,7 +443,14 @@ const CommonSettingPermission: FC<any> = ({
                 </div>
                 <Button
                   type="button"
-                  className="w-16"
+                  /* `.mcm-page button` (a reset meant for icon-only ghost
+                     buttons elsewhere) strips this button's border/background/
+                     text-color since it has higher specificity than a plain
+                     Tailwind utility class — every "Select" button in this
+                     shared component rendered as bare text because of it.
+                     `!` forces these to win regardless of where this
+                     component is used. */
+                  className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                   variant={'outline'}
                   onClick={() => {
                     if (!canEditField('recording')) return;
@@ -512,15 +526,17 @@ const CommonSettingPermission: FC<any> = ({
                 </div>
 
                 <p className="text-gray-800 truncate text-sm">
-                  {display_number?.masking?.type?.value === 'N'
-                    ? 'Display number is not configured'
-                    : `Masking is ${display_number?.masking?.type?.label?.toLowerCase()} with ${display_number?.masking?.value} `}
+                  {display_number?.masking?.type?.value &&
+                  display_number?.masking?.type?.value !== 'N' &&
+                  display_number?.masking?.value
+                    ? `Masking is ${display_number.masking.type.label?.toLowerCase()} with ${display_number.masking.value}`
+                    : 'Display number is not configured'}
                 </p>
                 <CompanyLockNote show={isCompanyLocked('display_number')} />
               </div>
               <Button
                 type="button"
-                className="w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('display_number')) return;

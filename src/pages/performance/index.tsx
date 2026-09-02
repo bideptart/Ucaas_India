@@ -1,4 +1,6 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import moment from 'moment';
+import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
@@ -11,6 +13,7 @@ import {
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
+import FlowsTab from './flows-tab';
 import InteractionsTab from './interactions-tab';
 import DashboardsTab from './dashboards-tab';
 import LiveInteractionsTab from './live-interactions-tab';
@@ -44,6 +47,7 @@ const TABS = [
   { key: 'campaign-activity', label: 'Campaign Activity' },
   { key: 'agents', label: 'Agents' },
   { key: 'interactions', label: 'Interactions' },
+  { key: 'flows', label: 'Flows' },
   { key: 'dashboards', label: 'Dashboards' },
   { key: 'live-interactions', label: 'Live Interactions' },
   { key: 'callbacks', label: 'Callbacks' },
@@ -90,6 +94,31 @@ const Performance = () => {
     dateOptions: DateFilterTypes,
   }));
   const selectedRange = dropdownVal.value;
+  /* "Today" or "Last 7 Days" says which preset is picked, not which dates
+     that resolves to — this spells the actual range out next to it, the
+     same way a calendar app shows both the label and the date underneath. */
+  const resolvedRangeLabel = useMemo(() => {
+    const from = selectedRange?.from ? moment(selectedRange.from) : null;
+    const to = selectedRange?.to ? moment(selectedRange.to) : null;
+    if (!from?.isValid() || !to?.isValid()) return '';
+    return from.isSame(to, 'day')
+      ? from.format('MMM D')
+      : `${from.format('MMM D')} – ${to.format('MMM D')}`;
+  }, [selectedRange?.from, selectedRange?.to]);
+
+  /**
+   * The toolbar (filters, live status pill, Wallboard/My dashboards) is
+   * rendered once here, unconditionally, above every tab's own content — so
+   * `perf-warm-toolbar` (live-theme.css) belongs on this parent rather than
+   * duplicated in each tab component. It flags the toolbar bar itself with
+   * the flat light tint the left rail uses for its own panel; approved
+   * after review, it now applies across every Performance tab, not just
+   * Live/Callbacks/Campaigns, which is what previously had it individually.
+   */
+  useEffect(() => {
+    document.body.classList.add('perf-warm-toolbar');
+    return () => document.body.classList.remove('perf-warm-toolbar');
+  }, []);
 
   // Queues, agents and the headline figures come from the shared live hook so
   // Home and Performance can never disagree about them. Everything below is
@@ -292,6 +321,33 @@ const Performance = () => {
         .mcm-page .perf-tbar input,
         .mcm-page .perf-tbar select,
         .mcm-page .perf-tbar [role="combobox"] { border-color:var(--line); }
+
+        /* Date range, division and media used to be three separately
+           bordered controls sitting side by side, reading as three
+           unrelated filters rather than one "what am I looking at" bar.
+           One pill, divided into segments, reads as a single filter. */
+        .mcm-page .perf-filter-pill {
+          display:flex; align-items:center; height:36px;
+          border:1px solid var(--line); border-radius:999px;
+          background:var(--surface); overflow:hidden; padding:0 2px;
+        }
+        .mcm-page .perf-filter-pill .pf-seg {
+          display:flex; align-items:center; height:100%;
+          padding:0 14px; white-space:nowrap;
+          font-size:12px; font-weight:600; color:var(--ink-2);
+          border-left:1px solid var(--line);
+        }
+        .mcm-page .perf-filter-pill .pf-seg:first-child { border-left:none; padding-left:4px; }
+        .mcm-page .perf-filter-pill .pf-range { font-weight:500; color:var(--ink-3, #8b8478); }
+        /* The date dropdown is a react-select instance with its own control
+           chrome (border, background, padding) — strip that so it sits flush
+           as the pill's first segment instead of a select-box-in-a-pill. */
+        .mcm-page .perf-filter-pill .custom-react-select__control {
+          border:none !important; background:transparent !important;
+          box-shadow:none !important; min-height:34px !important;
+        }
+        .mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
+        .mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
       `}</style>
 
       <div className="page-bar">
@@ -306,9 +362,12 @@ const Performance = () => {
             settles them onto one baseline. */}
         <div className="tbar perf-tbar">
           <div className="perf-tbar-group">
-            <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
-            <span className="fchip">Division: All</span>
-            <span className="fchip">Media: All</span>
+            <div className="perf-filter-pill">
+              <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
+              {resolvedRangeLabel && <span className="pf-seg pf-range">{resolvedRangeLabel}</span>}
+              <span className="pf-seg">Division: All</span>
+              <span className="pf-seg">Media: All</span>
+            </div>
           </div>
 
           <div className="perf-tbar-group perf-tbar-end">
@@ -396,6 +455,7 @@ const Performance = () => {
           />
         )}
         {activeTab === 'interactions' && <InteractionsTab selectedRange={selectedRange} />}
+        {activeTab === 'flows' && <FlowsTab />}
         {activeTab === 'dashboards' && <DashboardsTab />}
         {activeTab === 'live-interactions' && <LiveInteractionsTab />}
         {activeTab === 'callbacks' && <CallbacksTab />}

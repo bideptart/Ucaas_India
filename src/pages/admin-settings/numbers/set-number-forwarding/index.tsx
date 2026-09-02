@@ -33,7 +33,6 @@ import Settings from './condition';
 import { invalidateNumberLists } from '@/lib/number-list-cache';
 import { useUser } from '@/hooks/use-user';
 import { FORWARD_TYPES } from '@/constants/forwarding-consts';
-import { callForwardingOptions } from '@/components/custom/forwarding-actions';
 
 const initialState = {
   regionalSettingsModal: {
@@ -475,13 +474,6 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
       transcription: condition?.transcription || false,
       ai_call_monitoring: condition?.ai_call_monitoring || false,
     });
-    const aiTypeLabel =
-      callForwardingOptions.find(
-        (item: any) => item?.value === call_handling?.business_hours?.ai_forward_to?.type,
-      )?.label || '';
-
-    console.log(aiTypeLabel);
-
     setValue('callHandling', {
       businessHours: {
         // ai_forward_to: {

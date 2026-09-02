@@ -37,6 +37,13 @@ type Site = {
   is_default?: string;
 };
 
+/* Different seed sources spell "this is the default site" differently
+   ('1'/'0' vs 'Y'/'N') — normalized here rather than trusting one literal. */
+const isDefaultSite = (site: Site) => {
+  const value = String(site?.is_default ?? '').toLowerCase();
+  return value === '1' || value === 'y' || value === 'yes' || value === 'true';
+};
+
 const Locations = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -167,7 +174,7 @@ const Locations = () => {
                   <td>
                     <div className="list-row-name">
                       {site?.name || '—'}
-                      {site?.is_default === '1' ? (
+                      {isDefaultSite(site) ? (
                         <span className="tag acc" style={{ marginLeft: 8 }}>
                           Default
                         </span>
@@ -197,7 +204,7 @@ const Locations = () => {
                       ) : null}
                       {/* The default site anchors numbers and users, so the
                           platform does not allow removing it. */}
-                      {canDelete && site?.is_default !== '1' ? (
+                      {canDelete && !isDefaultSite(site) ? (
                         <button
                           type="button"
                           className="mini"

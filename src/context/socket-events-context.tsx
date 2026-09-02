@@ -19,6 +19,18 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import notificationSound from '@/assets/audio/new-notification.mp3';
 import { chatEvents } from '@/context/socket-events';
+import { isDemoMode } from '@/lib/demo-mode';
+import {
+  demoAgentChatThreads,
+  demoAiChatRequests,
+  demoAiLiveWallboardData,
+  demoCampaignAiLiveCallData,
+  demoChatThreads,
+  demoMessageList,
+  demoLiveCalls,
+  demoLiveQueueCalls,
+  demoUsersOnlineStatus,
+} from '@/lib/demo-contact-centre';
 import { v4 as uuidV4 } from 'uuid';
 import { toast } from 'react-toastify';
 import AIChatRequestModal from '@/components/custom/ai-chat-request-modal';
@@ -503,6 +515,10 @@ interface SocketEventsType {
     chatId?: string,
     attachments?: any[],
   ) => void;
+  updateChatLists: (
+    updater: (chats: any[]) => any[],
+    options?: { targetChatId?: string; upsertInAgentList?: boolean },
+  ) => void;
   chatExist: (chatId: string) => any;
   createPrivateChatId: (ids: string[]) => string;
   handleSendMessage: (message: any, callback?: (response: any) => void) => void;
@@ -703,6 +719,7 @@ export const SocketEvents = createContext<SocketEventsType>({
   setRecentTasks: () => void 0,
   handleOpenChatInWindow: () => void 0,
   createNewChat: () => void 0,
+  updateChatLists: () => void 0,
   chatExist: () => null,
   createPrivateChatId: () => '',
   handleSendMessage: () => void 0,
@@ -784,38 +801,6 @@ export const SocketEvents = createContext<SocketEventsType>({
   updateMeetingSubtitleEnabled: () => void 0,
 });
 
-/* Demo mode never opens a real socket, so `usersOnlineStatus` would otherwise
-   stay empty forever and every screen that reads presence off it — Directory
-   People included — would show everyone Offline with no way to demonstrate
-   otherwise. Seeded with a mix of states so the Presence filter has more than
-   one option to pick from.
-
-   This duplicates `isDemoMode`'s host check rather than importing it from
-   `@/lib/demo-mode` — that import, added here, shifted this file's module
-   load order enough to surface a pre-existing circular import between
-   `company-policy.ts` and `company-rule-flags.ts` (unrelated to demo mode).
-   Inlining the check avoids adding that edge. */
-const isDemoPreviewHost = () => {
-  if (typeof window === 'undefined') return false;
-  const host = window.location.hostname;
-  const isPreview =
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '0.0.0.0' ||
-    host === '::1' ||
-    host === '[::1]' ||
-    host.endsWith('.local') ||
-    host.endsWith('.vercel.app');
-  if (!isPreview) return false;
-  return String(import.meta.env.VITE_DEMO_MODE ?? '').toLowerCase() !== 'false';
-};
-
-const DEMO_ONLINE_STATUS = [
-  { userId: '1001', online: true, status: 'available' },
-  { userId: '1002', online: true, status: 'available' },
-  { userId: '1003', online: true, status: 'busy' },
-];
-
 export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const { mainSiteInfo } = useOrganization();
@@ -836,8 +821,11 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [smsUnreadCountArray, setSmsUnreadCountArray] = useState([]);
   const [notificationArr, setNotificationArr] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState<boolean>(false);
+  /* Presence and in-progress calls arrive over the socket, which demo mode has
+     no backend for — seeding the initial state is the only way those screens
+     have a live picture to show. A real socket overwrites it on connect. */
   const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>(() =>
-    isDemoPreviewHost() ? DEMO_ONLINE_STATUS : [],
+    isDemoMode() ? demoUsersOnlineStatus() : [],
   );
   const [conferenceTracker, setConferenceTracker] = useState<Array<any>>([]);
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
@@ -867,9 +855,13 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
       console.log('MMMM SocketEventsProvider UNMOUNTED');
     };
   }, []);
-  const [allChats, setAllChats] = useState<any>([]);
-  const [allAgentChats, setAllAgentChats] = useState<any>([]);
-  const [messageList, setMessageList] = useState<any>([]);
+  const [allChats, setAllChats] = useState<any>(() => (isDemoMode() ? demoChatThreads() : []));
+  const [allAgentChats, setAllAgentChats] = useState<any>(() =>
+    isDemoMode() ? demoAgentChatThreads() : [],
+  );
+  const [messageList, setMessageList] = useState<any>(() =>
+    isDemoMode() ? demoMessageList() : [],
+  );
   const [pinnedList, setPinnedList] = useState<any>([]);
   const [threadsManager, setThreadsManager] = useState<any>([]);
   const [notesList, setNotesList] = useState<any>([]);
@@ -928,16 +920,30 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [aiChatUnreadCount, setAiChatUnreadCount] = useState<number>(0);
   const [recentMeetings, setRecentMeetings] = useState<any[]>([]);
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
-  const [liveCalls, setLiveCalls] = useState<any[]>([]);
-  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>([]);
+  const [liveCalls, setLiveCalls] = useState<any[]>(() => (isDemoMode() ? demoLiveCalls() : []));
+  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>(() =>
+    isDemoMode() ? demoLiveQueueCalls() : [],
+  );
   const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
   const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(null);
   const [campaignAgents, setCampaignAgents] = useState<any>(null);
   const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(null);
-  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(null);
-  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(null);
+  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(() =>
+    isDemoMode() ? demoAiLiveWallboardData() : null,
+  );
+  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(() =>
+    isDemoMode() ? demoCampaignAiLiveCallData() : null,
+  );
   const [contactsInfo, setContactsInfo] = useState<Record<string, any>>({});
   const [aiChatRequests, setAiChatRequests] = useState<any[]>(() => {
+    /* Demo mode seeds fresh every load rather than trusting localStorage: a
+       browser that ever visited this page before there was demo data to
+       seed cached an empty `"[]"` here, which — read first — would keep
+       shadowing the seed forever after, on every future visit, even once
+       this fix landed. The persist effect below overwrites that cache with
+       whatever demoAiChatRequests() (or a real accept/resolve) produces on
+       the very next state change, so this never fights a real session. */
+    if (isDemoMode()) return demoAiChatRequests();
     try {
       const stored = localStorage.getItem('ai_chat_requests');
       return stored ? (JSON.parse(stored) as any[]) : [];
@@ -3990,6 +3996,39 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function handleSendMessage(message: any, callback?: (response: any) => void) {
+    /* Demo mode has no server on the other end of this socket, so the real
+       branch below would just emit into the void — the composer clears
+       itself (it doesn't wait on this) but the message never reappears
+       anywhere. The caller already builds a complete message object
+       (chatId, senderId, messageId, createdAt) before calling this, since
+       that's also what an optimistic send would show before the real ack —
+       so echoing it straight into local state is enough to make sending
+       feel real: it lands in the thread and the sidebar preview updates. */
+    if (isDemoMode()) {
+      const chatId = message?.chatId;
+      if (chatId) {
+        setMessageList((prevList: any[]) => {
+          const list = Array.isArray(prevList) ? prevList : [];
+          const index = list.findIndex((item: any) => item?.chatId === chatId);
+          if (index === -1) return [...list, { chatId, messages: [message] }];
+          const next = [...list];
+          const existingMessages = Array.isArray(next[index]?.messages)
+            ? next[index].messages
+            : [];
+          next[index] = { ...next[index], messages: [...existingMessages, message] };
+          return next;
+        });
+        updateChatLists(
+          (chats: any[]) =>
+            chats.map((chat: any) =>
+              chat?.chatId === chatId ? { ...chat, lastMessage: message } : chat,
+            ),
+          { targetChatId: chatId },
+        );
+      }
+      callback?.({ success: true, response: { data: { result: message } } });
+      return;
+    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.SEND_MESSAGE, message, (response: any) => {
         console.log('Server ack:', response);
@@ -4796,6 +4835,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
         setRecentTasks,
         handleOpenChatInWindow,
         createNewChat,
+        updateChatLists,
         chatExist,
         createPrivateChatId: createPrivateChatIdFromUsers,
         handleSendMessage,
@@ -5072,7 +5112,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
           onPointerDownOutside={(event) => event.preventDefault()}
           className="sm:max-w-[500px] overflow-hidden border-0 bg-white p-0 shadow-2xl dark:bg-slate-900"
         >
-          <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 px-6 py-7 text-white">
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-orange-500 to-amber-600 px-6 py-7 text-white">
             <div className="absolute -right-10 -top-12 h-36 w-36 rounded-full bg-white/10" />
             <div className="absolute -bottom-16 -left-8 h-32 w-32 rounded-full bg-white/10" />
             <div className="relative flex items-start gap-4">
@@ -5080,7 +5120,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 <Sparkles className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-100">
+                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-100">
                   Product update
                 </p>
                 <h2 className="text-xl font-bold leading-tight">
@@ -5101,8 +5141,8 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 'We have released new improvements. Refresh to start using the latest version.'}
             </p>
 
-            <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 dark:border-blue-900/60 dark:bg-blue-950/30">
-              <p className="text-xs font-medium leading-5 text-blue-800 dark:text-blue-300">
+            <div className="mt-5 rounded-xl border border-orange-100 bg-orange-50/70 px-4 py-3 dark:border-orange-900/60 dark:bg-orange-950/30">
+              <p className="text-xs font-medium leading-5 text-orange-800 dark:text-orange-300">
                 Refresh the page to apply this update.
               </p>
             </div>
@@ -5126,13 +5166,13 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
       {showRoleUpdateReloadModal && (
         <div className="fixed bottom-4 right-4 z-[99999] flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 sm:bottom-5 sm:right-5 animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <div className="overflow-hidden rounded-2xl border border-blue-100/60 bg-white/95 backdrop-blur-md shadow-2xl ring-1 ring-black/5 dark:border-slate-800 dark:bg-slate-900/95">
+          <div className="overflow-hidden rounded-2xl border border-orange-100/60 bg-white/95 backdrop-blur-md shadow-2xl ring-1 ring-black/5 dark:border-slate-800 dark:bg-slate-900/95">
             {/* Top gradient indicator */}
-            <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-primary" />
+            <div className="h-1 bg-gradient-to-r from-orange-400 via-orange-500 to-primary" />
 
             <div className="flex items-start gap-4 p-5">
               {/* Circular Icon Container */}
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400 shadow-sm">
                 <ShieldAlert className="h-5.5 w-5.5" />
               </div>
 

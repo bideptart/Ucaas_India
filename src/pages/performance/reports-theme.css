@@ -1,0 +1,228 @@
+/* ============================================================
+   Performance › Reports — warm sunset orange glassmorphism.
+
+   Scoped to `.perf-reports`, the tab's own root element, the same pattern
+   `speech-theme.css`/`campaigns-theme.css` use — nothing outside this
+   component is reachable from here. The toolbar and table here are plain
+   inline-styled markup (not `TableManager`/`.fchip`), so this file also
+   introduces a few small class hooks (`rp-toolbar`, `rp-select`,
+   `rp-notice`) on the elements that used to carry their colour inline, so
+   the theme can actually reach and override them.
+   ============================================================ */
+
+.perf-reports {
+  --rp-accent: #f97316;
+  --rp-accent-ink: #ea580c;
+  --rp-wash: #fff1eb;
+  --rp-muted: #666666;
+  --rp-ink: #1a1a1a;
+
+  --rp-glass: rgba(255, 255, 255, 0.85);
+  --rp-glass-border: rgba(255, 255, 255, 0.95);
+  --rp-glass-blur: blur(20px) saturate(190%);
+  --rp-glass-shadow:
+    0 10px 30px -5px rgba(234, 88, 12, 0.1),
+    0 4px 12px -2px rgba(60, 40, 30, 0.06),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+}
+.dark .perf-reports {
+  --rp-wash: #2a1710;
+  --rp-muted: #93a1ba;
+  --rp-ink: #f4f6fb;
+  --rp-glass: rgba(17, 24, 39, 0.72);
+  --rp-glass-border: rgba(251, 146, 60, 0.18);
+  --rp-glass-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Ambient backdrop, wired via the shared `perf-warm-backdrop` toggle —
+   painted on `.perf-reports` itself, consistent with Campaigns/Speech. */
+body.perf-warm-backdrop .perf-reports {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(254, 215, 170, 0.65) 0%, transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(253, 186, 116, 0.5) 0%, transparent 55%),
+    #fdf6ee;
+}
+.dark body.perf-warm-backdrop .perf-reports {
+  background:
+    radial-gradient(circle at 15% 15%, rgba(154, 82, 30, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(194, 65, 12, 0.24) 0%, transparent 55%),
+    #0a0f1a;
+}
+
+/* ------------------------------------------------------------
+   1. Top KPI summary cards
+   ------------------------------------------------------------ */
+.perf-reports .stat {
+  background: var(--rp-glass);
+  backdrop-filter: var(--rp-glass-blur);
+  -webkit-backdrop-filter: var(--rp-glass-blur);
+  border: 1px solid var(--rp-glass-border);
+  border-radius: 18px;
+  box-shadow: var(--rp-glass-shadow);
+}
+.perf-reports .stat .k {
+  color: var(--rp-muted);
+  letter-spacing: 0.1em;
+}
+.perf-reports .stat .v {
+  color: var(--rp-ink);
+  font-weight: 800;
+}
+.perf-reports .stat .d {
+  color: var(--rp-muted) !important;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   2. Report selector & action toolbar
+   ------------------------------------------------------------ */
+/* Flat cream tint, the same panel tone the rail/toolbar use elsewhere in
+   Performance — not a per-control background. */
+.perf-reports .rp-toolbar {
+  background: #fffaf4;
+  border: 1px solid rgba(249, 115, 22, 0.14);
+  border-radius: 14px;
+}
+.dark .perf-reports .rp-toolbar {
+  background: rgba(23, 15, 10, 0.6);
+  border-color: rgba(251, 146, 60, 0.18);
+}
+
+.perf-reports .rp-select {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  color: var(--rp-ink);
+}
+.dark .perf-reports .rp-select {
+  background: rgba(17, 24, 39, 0.55);
+  color: var(--rp-ink);
+}
+.perf-reports .rp-select:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.perf-reports .rp-range {
+  color: var(--rp-ink) !important;
+  font-weight: 600;
+}
+.perf-reports .rp-range-hint {
+  color: var(--rp-muted) !important;
+}
+
+/* "All reports" toggle and "Export CSV" — warm glass hover, matching every
+   other row/toolbar action across the Performance theme (e.g. Campaigns'
+   `.mini.ic`). `.btn.primary` (the toggle when the catalog is open) is left
+   alone, same reasoning as the toolbar's own primary CTA: it already reads
+   solid accent orange from the global design system. */
+.perf-reports .rp-toolbar .btn.ghost.sm {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: var(--rp-accent-ink);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+.perf-reports .rp-toolbar .btn.ghost.sm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------
+   3. Info/SL notice banner
+   ------------------------------------------------------------ */
+.perf-reports .rp-notice {
+  background: linear-gradient(135deg, #fff1eb 0%, #ffe4d1 100%);
+  border: 1px solid rgba(249, 115, 22, 0.22);
+  color: var(--rp-accent-ink);
+}
+.dark .perf-reports .rp-notice {
+  background: rgba(154, 82, 30, 0.22);
+  border-color: rgba(251, 146, 60, 0.28);
+  color: #fdba74;
+}
+
+/* ------------------------------------------------------------
+   4. Panels (catalog, main report table, linked report pages) — frosted
+   glass card, the same treatment `panel-card` gets on Campaigns/Live.
+   ------------------------------------------------------------ */
+.perf-reports .panel-card {
+  background: var(--rp-glass);
+  backdrop-filter: var(--rp-glass-blur);
+  -webkit-backdrop-filter: var(--rp-glass-blur);
+  border: 1px solid var(--rp-glass-border);
+  border-radius: 20px;
+  box-shadow: var(--rp-glass-shadow);
+}
+.perf-reports .pc-head {
+  background: transparent;
+  border-color: rgba(249, 115, 22, 0.12);
+}
+.perf-reports .pc-head h3 {
+  color: var(--rp-ink);
+}
+.perf-reports .pc-right {
+  color: var(--rp-muted) !important;
+}
+.perf-reports .sect-title {
+  color: var(--rp-muted);
+}
+
+/* ------------------------------------------------------------
+   5. Main report data table — sticky, near-opaque header, warm row hover,
+   crisp typography.
+   ------------------------------------------------------------ */
+.perf-reports .rp-table-wrap {
+  border-radius: 14px;
+  overflow: hidden;
+}
+.perf-reports .rp-table-wrap table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(255, 246, 238, 0.97);
+  backdrop-filter: var(--rp-glass-blur);
+  -webkit-backdrop-filter: var(--rp-glass-blur);
+  box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.12);
+}
+.dark .perf-reports .rp-table-wrap table thead th {
+  background: rgba(23, 15, 10, 0.97);
+}
+.perf-reports .rp-table-wrap table tbody tr {
+  transition: background-color 0.16s ease;
+}
+.perf-reports .rp-table-wrap table tbody tr:hover {
+  background: rgba(255, 241, 235, 0.5);
+}
+.dark .perf-reports .rp-table-wrap table tbody tr:hover {
+  background: rgba(251, 146, 60, 0.08);
+}
+.perf-reports .rp-table-wrap table tbody tr.rp-total-row {
+  background: rgba(249, 115, 22, 0.08);
+}
+.dark .perf-reports .rp-table-wrap table tbody tr.rp-total-row {
+  background: rgba(251, 146, 60, 0.12);
+}
+.perf-reports .rp-table-wrap table tbody tr.rp-total-row td {
+  color: var(--rp-ink);
+}
+
+/* Row cell colour is set inline as `#334155` (slate-700, readable on the
+   light glass) / `var(--rp-ink)` for the first column — neither adapts to
+   dark mode on its own, so both are restated here for the dark surface. */
+.dark .perf-reports .rp-table-wrap table tbody td {
+  color: var(--rp-muted) !important;
+}
+.dark .perf-reports .rp-table-wrap table tbody td:first-child {
+  color: var(--rp-ink) !important;
+}
+.dark .perf-reports .rp-table-wrap table tbody tr.rp-total-row td {
+  color: var(--rp-ink) !important;
+}

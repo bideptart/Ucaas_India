@@ -632,6 +632,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           <div className="flex gap-4 flex-wrap">
             <Input
               label={'First Name'}
+              required
               {...register('first_name')}
               placeholder="Enter first name"
               type="text"
@@ -642,6 +643,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
 
             <Input
               label={'Last Name'}
+              required
               {...register('last_name')}
               placeholder="Enter last name"
               type="text"

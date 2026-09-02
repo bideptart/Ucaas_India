@@ -111,6 +111,10 @@ const Groups = () => {
       entry?.label ||
       `${person?.first_name || ''} ${person?.last_name || ''}`.trim() ||
       person?.name ||
+      /* A department's `manager` doesn't always carry a `user_uuid` to look
+         up — the contact-centre seed stores just a name — so this is the
+         last fallback rather than a roster-only lookup leaving it blank. */
+      entry?.name ||
       '';
     return {
       uuid: entry?.user_uuid || person?.uuid,

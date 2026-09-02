@@ -113,17 +113,32 @@ body.perf-warm-backdrop .perf-campaigns {
 /* ------------------------------------------------------------
    2. Filter toolbar — search box and status/dial-mode pills
    ------------------------------------------------------------ */
+/* The plain 70%-white/faint-border version blended straight into the warm
+   page gradient behind it — barely readable as an input at all, let alone
+   one you could tell was empty vs. focused. Opaque background, a border
+   with actual contrast, and dark/muted text so it reads as a real field. */
 .perf-campaigns .cmp-search input {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: var(--ca-glass-blur);
   -webkit-backdrop-filter: var(--ca-glass-blur);
-  border-color: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
+  box-shadow: 0 1px 2px rgba(60, 40, 30, 0.05);
+  color: var(--ca-ink) !important;
 }
 .dark .perf-campaigns .cmp-search input {
-  background: rgba(17, 24, 39, 0.5);
+  background: rgba(17, 24, 39, 0.7) !important;
+  border-color: rgba(251, 146, 60, 0.28) !important;
+  color: var(--ca-ink) !important;
+}
+.perf-campaigns .cmp-search input::placeholder {
+  color: var(--ca-muted) !important;
+}
+.perf-campaigns .cmp-search .ic {
+  color: var(--ca-accent-ink) !important;
+  opacity: 0.7;
 }
 .perf-campaigns .cmp-search input:focus {
-  border-color: #f97316;
+  border-color: #f97316 !important;
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
@@ -278,19 +293,50 @@ body.perf-warm-backdrop .perf-campaigns {
   }
 }
 
-/* Progress bars & legend (OutcomeBar / OutcomeLegend in campaign-ui.tsx)
-   already colour-code by CSS variable (--live/--warn/--crit), which stays
-   as-is per spec — those are semantic (answered/no-answer/DNC), not the
-   view's own brand accent. What did need fixing was the *track* underneath
-   them: `--surface-3` is a flat cool gray, which read as a plain, unthemed
-   bar sitting inside an otherwise all-warm-glass table. */
+/* Contact outcomes bar — the same warm-glass capsule + gradient-segment
+   treatment as Speech & Text's sentiment distribution bar
+   (`.hbar-t i:only-child` in speech-theme.css), so the two read as one
+   system rather than two different progress-bar styles. The flat
+   `--live`/`--warn`/`--crit` fills read fine on their own but flat next to
+   an otherwise all-gradient page — `!important` because `OutcomeBar` (a
+   component shared with the standalone dialer) still paints them inline
+   via CSS variables, which this file can't reach any other way, the same
+   trick used for the topic Volume bars on Speech & Text. */
 .perf-campaigns .segbar {
+  height: 10px;
   border-radius: 999px;
   overflow: hidden;
   background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 2px 0 rgba(60, 40, 30, 0.08);
 }
 .dark .perf-campaigns .segbar {
   background: rgba(251, 146, 60, 0.14);
+  border-color: rgba(251, 146, 60, 0.16);
+}
+.perf-campaigns .segbar i.ans {
+  background: linear-gradient(90deg, #34d399 0%, #059669 100%) !important;
+}
+.perf-campaigns .segbar i.na {
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%) !important;
+}
+.perf-campaigns .segbar i.dnc {
+  background: linear-gradient(90deg, #fb7185 0%, #e11d48 100%) !important;
+}
+
+/* Legend dots (OutcomeLegend, in the table's pc-foot) — gradient swatches
+   to match the bar they describe, in the same order the legend renders:
+   Answered, No answer, DNC/blocked, Pending. Pending stays flat: it is the
+   bar's empty track colour, not a painted segment, so a gradient there
+   would describe a segment that doesn't exist. */
+.perf-campaigns .legend:nth-of-type(1) .swatch {
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+}
+.perf-campaigns .legend:nth-of-type(2) .swatch {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+}
+.perf-campaigns .legend:nth-of-type(3) .swatch {
+  background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%) !important;
 }
 
 /* Row action buttons (`.mini.ic` — e.g. "Refresh analytics") default to a

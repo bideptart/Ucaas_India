@@ -153,7 +153,6 @@ const CampaignRecord = () => {
       <div className="page">
         <div className="page-head">
           <div>
-            <div className="eyebrow">Campaign</div>
             <div className="cmp-title-row">
               <button
                 type="button"
@@ -163,8 +162,9 @@ const CampaignRecord = () => {
               >
                 <Ic n="chev" size={14} />
               </button>
-              <h1>{capitalizeFirstLetter(campaign?.name) || 'Campaign'}</h1>
+              <div className="eyebrow">Campaign</div>
             </div>
+            <h1>{capitalizeFirstLetter(campaign?.name) || 'Campaign'}</h1>
             <p>
               {mode ? <span className="tag neu">{mode}</span> : null}{' '}
               {campaign?.startDate

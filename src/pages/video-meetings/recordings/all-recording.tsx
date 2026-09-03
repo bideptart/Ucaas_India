@@ -115,10 +115,12 @@ const AllRecording = () => {
                 <CustomTooltip
                   text="Manage recordings, archives, and meeting transcripts."
                   side="bottom"
-                  className="border border-gray-200 bg-white text-gray-700 shadow-md"
-                  arrowClassName="fill-white"
+                  className="max-w-[240px] rounded-xl bg-gray-900 px-3.5 py-2.5 text-[13px] leading-snug shadow-lg"
+                  arrowClassName="fill-gray-900"
                 >
-                  <Info className="h-4 w-4 cursor-help text-muted-foreground" />
+                  <span className="inline-flex h-4 w-4 shrink-0 cursor-help items-center justify-center rounded-full border border-[#E78B50] text-[#E78B50]">
+                    <Info className="h-2.5 w-2.5" />
+                  </span>
                 </CustomTooltip>
               </div>
               <p className="max-w-[64ch] text-[13px] leading-[1.4] text-muted-foreground">

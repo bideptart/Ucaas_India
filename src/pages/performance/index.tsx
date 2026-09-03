@@ -7,10 +7,6 @@ import DateDropdown from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
 import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
-import {
-  getMonitoringCallTimestamp,
-  isMonitoringCallForForwardValue,
-} from '@/pages/monitoring/live-call-helpers';
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
@@ -21,7 +17,6 @@ import LiveInteractionsTab from './live-interactions-tab';
 import CallbacksTab from './callbacks-tab';
 import SpeechTextTab from './speech-text-tab';
 import ReportsTab from './reports-tab';
-import Wallboard, { type WallboardQueueRow, type WallboardTile } from './wallboard';
 import { formatSecsToClock } from './format';
 import { useAnimatedNumber } from './use-animated-number';
 import { useTrend } from './use-trend';
@@ -82,7 +77,6 @@ const Performance = () => {
     viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
   const setActiveTab = (key: string) => setParam({ view: key });
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
-  const [isWallboardOpen, setIsWallboardOpen] = useState(false);
   const [dropdownVal, setDropdownVal] = useState(() => ({
     value: handleDate('Today'),
     date_type: 'Today',
@@ -159,68 +153,6 @@ const Performance = () => {
   const abandonTrend = useTrend(abandonRate);
 
   const isBreachingWait = longestWaitSecs > 120;
-
-  // The wallboard mirrors the KPI band and the live queue table on a dark,
-  // room-facing full-screen layout, so it reads from the same live sources.
-  const wallboardTiles: WallboardTile[] = [
-    {
-      key: 'waiting',
-      label: 'Waiting',
-      value: String(waitingCalls.length),
-      warn: waitingCalls.length > 5,
-    },
-    {
-      key: 'longest',
-      label: 'Longest wait',
-      value: '00:00',
-      timerStart: longestWaitTimestamp,
-      warn: longestWaitSecs > 120,
-    },
-    {
-      key: 'sl',
-      label: 'Service level',
-      value: avgSla === null ? '—' : `${Math.round(avgSla)}%`,
-      warn: avgSla !== null && avgSla < 80,
-      good: avgSla !== null && avgSla >= 80,
-    },
-    { key: 'answered', label: 'Answered today', value: String(totals.answered) },
-    {
-      key: 'abandon',
-      label: 'Abandon rate',
-      value: abandonRate === null ? '—' : `${Math.round(abandonRate)}%`,
-      warn: abandonRate !== null && abandonRate > 5,
-      good: abandonRate !== null && abandonRate <= 5,
-    },
-    {
-      key: 'onqueue',
-      label: 'On queue agents',
-      value: String(onlineAgentsCount),
-    },
-  ];
-
-  const wallboardQueues: WallboardQueueRow[] = queues.map((queue: any) => {
-    const queueCalls = activeQueueCalls.filter((call: any) =>
-      isMonitoringCallForForwardValue(call, queue.uuid),
-    );
-    const queueWaiting = queueCalls.filter((call: any) => call?.status === 'waiting');
-    const queueLongest = queueWaiting.reduce((longest: any, call: any) => {
-      if (!longest) return call;
-      const callTimestamp = getMonitoringCallTimestamp(call) ?? Infinity;
-      const longestTimestamp = getMonitoringCallTimestamp(longest) ?? Infinity;
-      return callTimestamp < longestTimestamp ? call : longest;
-    }, null);
-    const nameKey = String(queue.name || '').toLowerCase();
-    const liveStats = liveQueueStatsByName[nameKey];
-    const sla = liveSlaByName[nameKey];
-    return {
-      uuid: queue.uuid,
-      name: queue.name,
-      waiting: queueWaiting.length,
-      longestWaitTimestamp: queueLongest ? getMonitoringCallTimestamp(queueLongest) : null,
-      sla: typeof sla === 'number' ? sla : null,
-      handledToday: liveStats ? liveStats.totalCalls : null,
-    };
-  });
 
   return (
     // `mcm-page` scopes the shared console design system (stat tiles, panels,
@@ -325,11 +257,6 @@ const Performance = () => {
               <span className="dot green pulsing" />
               Live — updates every 2s
             </span>
-            {/* The page header that used to carry these was removed; keeping
-                the actions here so the wallboard stays reachable. */}
-            <button type="button" className="btn ghost sm" onClick={() => setIsWallboardOpen(true)}>
-              Wallboard
-            </button>
             <button
               type="button"
               className="btn primary sm"
@@ -537,14 +464,6 @@ const Performance = () => {
           </div>
         )}
       </div>
-
-      {isWallboardOpen && (
-        <Wallboard
-          tiles={wallboardTiles}
-          queues={wallboardQueues}
-          onClose={() => setIsWallboardOpen(false)}
-        />
-      )}
     </section>
   );
 };

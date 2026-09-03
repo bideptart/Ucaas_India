@@ -153,6 +153,7 @@ const CampaignRecord = () => {
       <div className="page">
         <div className="page-head">
           <div>
+            <div className="eyebrow">Campaign</div>
             <div className="cmp-title-row">
               <button
                 type="button"

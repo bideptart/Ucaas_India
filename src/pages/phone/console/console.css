@@ -3743,72 +3743,69 @@
    with a lift on hover, the tabs/segmented control/search feel a bit more
    deliberate, and tags/avatars carry a touch more weight.
    ============================================================ */
-/* Calls/Recordings/Voicemails tabs share this row with the date filter,
-   inline on the right — Calls/Recordings/Voicemails keep their original
-   size; the date filter's own text/box is what shrinks to make room. */
-.mcm-console .col.calls .calls-tabs-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  flex-wrap: nowrap;
-}
-.mcm-console .col.calls .calls-tabs-row .console-datefilter {
+/* The date filter sits inline with the Calls/Recordings/Voicemails
+   heading, at the right where the old refresh button used to be —
+   the heading's own base rule (.col-title) already lays the row out
+   with justify-content:space-between, so this only sizes the filter
+   itself down to fit that spot. */
+.mcm-console .col.calls .col-title .console-datefilter {
   flex: none;
   min-width: 0;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter > * {
-  max-width: 100px;
+.mcm-console .col.calls .col-title .console-datefilter > * {
+  max-width: 140px;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__control {
-  min-height: 30px;
-  height: 30px;
-  font-size: 10.5px !important;
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__control {
+  min-height: 38px;
+  height: 38px;
+  font-size: 13px !important;
   display: flex;
   align-items: center;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__value-container {
-  padding: 0 0 0 6px;
-  font-size: 10.5px !important;
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__value-container {
+  padding: 0 0 0 10px;
+  font-size: 13px !important;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__input-container,
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__input-container input {
-  font-size: 10.5px !important;
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__input-container,
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__input-container input {
+  font-size: 13px !important;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__single-value {
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__single-value {
   overflow: visible;
   text-overflow: clip;
-  font-size: 10.5px !important;
+  font-size: 13px !important;
+  font-weight: 600;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__indicators {
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__indicators {
   height: 100%;
   display: flex;
   align-items: center;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__dropdown-indicator {
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__dropdown-indicator {
   height: auto;
   display: flex;
   align-items: center;
-  padding: 0 3px 0 0;
+  padding: 0 8px 0 2px;
 }
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__dropdown-indicator svg {
-  width: 10px;
-  height: 10px;
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__dropdown-indicator svg {
+  width: 13px;
+  height: 13px;
   display: block;
 }
 /* The trigger is narrow, but the open menu doesn't have to be — let full
    labels ("Last 30 Days") sit on one line instead of wrapping. */
-.mcm-console .col.calls .calls-tabs-row .console-datefilter .custom-react-select__menu {
+.mcm-console .col.calls .col-title .console-datefilter .custom-react-select__menu {
   width: 150px;
   right: 0;
 }
 
 .mcm-console .col.calls .panel-tabs {
-  gap: 2px;
-  /* This row shares space with the date filter instead of stretching full
-     width, so the base rule's overflow-x:auto was rendering a thin
-     scrollbar sliver even with just two short tabs — this never needs to
-     scroll here, so drop it instead of just hiding its thumb. */
+  gap: 24px;
+  /* This row no longer shares space with the date filter (that now sits
+     next to the heading above), so the base rule's overflow-x:auto was
+     rendering a thin scrollbar sliver even with just a few short tabs —
+     this never needs to scroll here, so drop it instead of just hiding
+     its thumb. */
   overflow-x: visible;
   flex-shrink: 1;
   min-width: 0;
@@ -3816,8 +3813,6 @@
 .mcm-console .col.calls .ptab {
   border-radius: var(--r-sm);
   transition: color 0.15s ease, background 0.15s ease;
-  /* Calls/Recordings/Voicemails keep their original size — the date filter
-     next to them (above) is the one that shrinks to make room. */
   padding: 12px 6px 10px;
 }
 .mcm-console .col.calls .ptab:hover {
@@ -3931,14 +3926,6 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-.mcm-console .col.calls .thumb {
-  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
-}
-.mcm-console .col.calls .thumb:hover {
-  color: var(--accent-ink);
-  background: var(--accent-wash);
-  transform: rotate(90deg);
 }
 .mcm-console .col.calls .tag {
   border-radius: 99px;

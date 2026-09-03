@@ -25,20 +25,25 @@ const DEMO_TAGS = ['Sales Team', 'Onboarding', 'Support', 'Admin'] as const;
  *  below — nothing in the real record has an audience. */
 export const DEMO_ACCESS = ['Admin Only', 'Team View', 'Company Wide'] as const;
 
+/* Colours drawn from the app's own shared theme tokens (mcm-page.css's
+   --live/--live-wash, --accent-ink/--accent-wash, --warn), the same ones
+   Directory ▸ People's own badges use — not a separate palette invented
+   for this page, which is what made these badges look off-theme next to
+   the rest of the admin UI. */
 const ACCESS_COLOURS: Record<string, { bg: string; text: string }> = {
-  'Admin Only': { bg: '#fbe2c8', text: '#8a4a2a' },
-  'Team View': { bg: '#e0e7f7', text: '#3949ab' },
-  'Company Wide': { bg: '#ddf2e3', text: '#1f7a4d' },
+  'Admin Only': { bg: '#fff1e0', text: '#c96f1f' },
+  'Team View': { bg: '#dcf5f1', text: '#0d9488' },
+  'Company Wide': { bg: 'rgba(150, 100, 50, 0.1)', text: '#8a6f57' },
 };
 
 export const getAccessColours = (access: string) =>
-  ACCESS_COLOURS[access] || { bg: '#f0d6b4', text: '#7a3f1f' };
+  ACCESS_COLOURS[access] || { bg: '#fff1e0', text: '#c96f1f' };
 
 const STATUS_COLOURS: Record<DummyTemplateStatus, { bg: string; text: string }> = {
-  Active: { bg: '#dcf3e3', text: '#1f7a4d' },
-  Archived: { bg: '#e5e5e5', text: '#5f5f5f' },
-  Pending: { bg: '#fdecc8', text: '#9a6b12' },
-  Draft: { bg: '#e6e1f7', text: '#5b3fa0' },
+  Active: { bg: '#dcf5f1', text: '#0d9488' },
+  Archived: { bg: 'rgba(150, 100, 50, 0.1)', text: '#8a6f57' },
+  Pending: { bg: '#fff1e0', text: '#c2670a' },
+  Draft: { bg: 'rgba(150, 100, 50, 0.06)', text: '#8a6f57' },
 };
 
 export const getStatusColours = (status: DummyTemplateStatus) => STATUS_COLOURS[status];
@@ -51,13 +56,13 @@ const DEMO_AUTHORS: DummyAuthor[] = [
 ];
 
 const TAG_COLOURS: Record<string, { bg: string; text: string }> = {
-  'Sales Team': { bg: '#fbe2c8', text: '#b5502f' },
-  Onboarding: { bg: '#fdf0e0', text: '#c97a4a' },
-  Support: { bg: '#f7dcc0', text: '#8a4a2a' },
-  Admin: { bg: '#f0d6b4', text: '#7a3f1f' },
+  'Sales Team': { bg: '#fff1e0', text: '#c96f1f' },
+  Onboarding: { bg: '#dcf5f1', text: '#0d9488' },
+  Support: { bg: '#ffd9ad', text: '#c96f1f' },
+  Admin: { bg: 'rgba(150, 100, 50, 0.1)', text: '#8a6f57' },
 };
 
-export const getTagColours = (tag: string) => TAG_COLOURS[tag] || { bg: '#f0d6b4', text: '#7a3f1f' };
+export const getTagColours = (tag: string) => TAG_COLOURS[tag] || { bg: '#fff1e0', text: '#c96f1f' };
 
 /** Turns a string into a small positive int, stable across renders and reloads. */
 const hashString = (value: string): number => {
@@ -68,53 +73,27 @@ const hashString = (value: string): number => {
   return hash;
 };
 
-/* Archived state and favourite are the two pieces of this an admin can
- * actually toggle in the demo, so — same reasoning as the notification
- * drawer's read/unread store — they live at module scope rather than
- * component state, to survive this drawer closing and reopening. Not
- * persisted past a page reload; there is nowhere real to persist them to. */
-let dummyArchivedOverrides = new Set<string>();
-let dummyFavouriteOverrides = new Set<string>();
+/* Status is the one piece of this an admin can actually change in the demo,
+ * so — same reasoning as the notification drawer's read/unread store — it
+ * lives at module scope rather than component state, to survive this
+ * drawer closing and reopening. Not persisted past a page reload; there is
+ * nowhere real to persist it to. Keyed by uuid, one explicit status per
+ * override — picking a status from the row's own dropdown replaces
+ * whichever one was set before, rather than layering flags the way a
+ * binary archive/unarchive toggle used to. */
+let dummyStatusOverrides = new Map<string, DummyTemplateStatus>();
 
-/** The status a row actually shows, once a manual archive/unarchive is
- *  layered on top of its base roll. Unarchiving a row that rolled Pending or
- *  Draft returns it to that original status rather than forcing Active —
- *  archiving is the only override that exists, so undoing it means "go back
- *  to what it was", not "assume it was always active". */
+/** The status a row actually shows, once a manual change from its own
+ *  dropdown is layered on top of its base roll. */
 export const getDummyTemplateStatus = (
   uuid: string,
   baseStatus: DummyTemplateStatus,
-): DummyTemplateStatus => {
-  if (dummyArchivedOverrides.has(`archive:${uuid}`)) return 'Archived';
-  if (dummyArchivedOverrides.has(`unarchive:${uuid}`)) {
-    return baseStatus === 'Archived' ? 'Active' : baseStatus;
-  }
-  return baseStatus;
-};
+): DummyTemplateStatus => dummyStatusOverrides.get(uuid) ?? baseStatus;
 
-export const isDummyTemplateArchived = (uuid: string, baseStatus: DummyTemplateStatus): boolean =>
-  getDummyTemplateStatus(uuid, baseStatus) === 'Archived';
-
-export const toggleDummyTemplateArchived = (uuid: string, nextArchived: boolean) => {
-  const next = new Set(dummyArchivedOverrides);
-  next.delete(`archive:${uuid}`);
-  next.delete(`unarchive:${uuid}`);
-  next.add(`${nextArchived ? 'archive' : 'unarchive'}:${uuid}`);
-  dummyArchivedOverrides = next;
-};
-
-export const isDummyTemplateFavourite = (uuid: string, baseFavourite: boolean): boolean => {
-  if (dummyFavouriteOverrides.has(`unfavourite:${uuid}`)) return false;
-  if (dummyFavouriteOverrides.has(`favourite:${uuid}`)) return true;
-  return baseFavourite;
-};
-
-export const toggleDummyTemplateFavourite = (uuid: string, nextFavourite: boolean) => {
-  const next = new Set(dummyFavouriteOverrides);
-  next.delete(`favourite:${uuid}`);
-  next.delete(`unfavourite:${uuid}`);
-  next.add(`${nextFavourite ? 'favourite' : 'unfavourite'}:${uuid}`);
-  dummyFavouriteOverrides = next;
+export const setDummyTemplateStatus = (uuid: string, status: DummyTemplateStatus) => {
+  const next = new Map(dummyStatusOverrides);
+  next.set(uuid, status);
+  dummyStatusOverrides = next;
 };
 
 export interface DummyTemplateMeta {
@@ -124,7 +103,6 @@ export interface DummyTemplateMeta {
   author: DummyAuthor;
   /** How many people this template is shown as applied to, for the usage chart. */
   profileCount: number;
-  baseFavourite: boolean;
 }
 
 /** The template's own uuid/name decide everything below — same input, same output. */
@@ -150,7 +128,6 @@ export const getDummyTemplateMeta = (template: any): DummyTemplateMeta => {
     access: DEMO_ACCESS[seed % DEMO_ACCESS.length],
     author: DEMO_AUTHORS[seed % DEMO_AUTHORS.length],
     profileCount: 2 + (seed % 14),
-    baseFavourite: seed % 4 === 0,
   };
 };
 

@@ -1009,7 +1009,15 @@
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 
-  button:disabled,
+  /* `.mini`/`.btn` are this app's own themed pill-button component,
+     styled all over mcm-page.css and the Directory *-glass.css files with
+     their own :disabled treatment (typically a dimmed opacity that keeps
+     the button's own color, e.g. `.mcm-page .btn:disabled { opacity:
+     0.45 }`) — this reset's !important painted them flat grey regardless,
+     silently overriding every one of those regardless of specificity,
+     since an unlayered or later-layered !important can never beat a
+     `@layer base` !important no matter how specific its selector is. */
+  button:disabled:not(.mini):not(.btn),
   input:disabled,
   select:disabled,
   textarea:disabled,

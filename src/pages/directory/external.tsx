@@ -6,10 +6,14 @@ import { getContactList } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import SideDrawer from '@/components/custom/side-drawer';
 import '@/styles/warm-glass.css';
+import './groups-glass.css';
+import './external-glass.css';
 import SendWhatsappMessage from '@/pages/messenger/drawers/send-whatsapp-message';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { Ic } from '@/components/mcm/icons';
-import { DirectoryDrawer, DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import { Icon } from '@/assets/icons/icon';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
 import { useDirectoryFavourites } from './use-directory-favourites';
 import { useContactLabels } from './use-contact-labels';
 
@@ -140,6 +144,7 @@ const External = () => {
 
   return (
     <>
+      <div className="gp-external">
       <DirectoryPage
         title="External Contacts"
         description="People outside the organisation — who they work for, how to reach them, and every channel you can use."
@@ -300,7 +305,7 @@ const External = () => {
                           disabled={!phone}
                           onClick={() => phone && dial(phone)}
                         >
-                          <Ic n="phone" size={12} />
+                          <Ic n="phone" size={16} />
                         </button>
                         <button
                           type="button"
@@ -310,7 +315,7 @@ const External = () => {
                           disabled={!phone}
                           onClick={() => sendSms(phone)}
                         >
-                          <Ic n="chat" size={12} />
+                          <Ic n="chat" size={16} />
                         </button>
                         <button
                           type="button"
@@ -324,7 +329,7 @@ const External = () => {
                           disabled={!whatsappNumberOf(row)}
                           onClick={() => setWhatsappTo(whatsappNumberOf(row))}
                         >
-                          <Ic n="send" size={12} />
+                          <Ic n="send" size={16} />
                         </button>
                         <button
                           type="button"
@@ -337,7 +342,7 @@ const External = () => {
                             })
                           }
                         >
-                          <Ic n="clock" size={12} />
+                          <Ic n="clock" size={16} />
                         </button>
                         <button
                           type="button"
@@ -355,7 +360,7 @@ const External = () => {
                           aria-pressed={isFavourite('contact', row?._id)}
                           onClick={() => toggleFavourite('contact', row?._id)}
                         >
-                          <Ic n="star" size={12} fill={isFavourite('contact', row?._id)} />
+                          <Ic n="star" size={16} fill={isFavourite('contact', row?._id)} />
                         </button>
                       </span>
                     </td>
@@ -377,22 +382,22 @@ const External = () => {
           </div>
         ) : null}
 
-        {open ? (
-          <DirectoryDrawer
-            title={fullName(open)}
-            onClose={() => setOpen(null)}
-            footer={
-              <>
-                <button type="button" className="btn ghost" onClick={() => setOpen(null)}>
-                  Close
-                </button>
-                <button type="button" className="btn primary" onClick={() => navigate('/contact')}>
-                  <Ic n="user" />
-                  Edit contact
-                </button>
-              </>
-            }
-          >
+        <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
+          <DialogContent className="gp-create-group-dialog gp-external-dialog sm:max-w-[640px]" showCloseButton={false}>
+          <div className="gp-create-group-head">
+            <h2>{open ? fullName(open) : 'Contact'}</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setOpen(null)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+          {open ? (
+          <>
             <div className="flex items-center gap-3" style={{ marginBottom: 14 }}>
               <CustomAvatar
                 name={fullName(open)}
@@ -549,7 +554,7 @@ const External = () => {
                 disabled={!open?.contact?.phone}
                 onClick={() => open?.contact?.phone && dial(open.contact.phone)}
               >
-                <Ic n="phone" size={12} />
+                <Ic n="phone" size={14} />
                 Call
               </button>
               <button
@@ -558,7 +563,7 @@ const External = () => {
                 disabled={!open?.contact?.phone}
                 onClick={() => sendSms(open?.contact?.phone)}
               >
-                <Ic n="chat" size={12} />
+                <Ic n="chat" size={14} />
                 SMS
               </button>
               <button
@@ -567,7 +572,7 @@ const External = () => {
                 disabled={!open?.contact?.phone}
                 onClick={() => setWhatsappTo(open?.contact?.phone || '')}
               >
-                <Ic n="send" size={12} />
+                <Ic n="send" size={14} />
                 WhatsApp
               </button>
               <button
@@ -579,13 +584,31 @@ const External = () => {
                   })
                 }
               >
-                <Ic n="clock" size={12} />
+                <Ic n="clock" size={16} />
                 Activity
               </button>
             </div>
-          </DirectoryDrawer>
-        ) : null}
+
+            <div className="gp-external-dialog-footer">
+              <button type="button" className="gp-ext-dialog-close" onClick={() => setOpen(null)}>
+                Close
+              </button>
+              <button
+                type="button"
+                className="gp-ext-dialog-edit"
+                onClick={() => navigate('/contact')}
+              >
+                <Ic n="user" size={14} />
+                Edit contact
+              </button>
+            </div>
+          </>
+          ) : null}
+          </div>
+          </DialogContent>
+        </Dialog>
       </DirectoryPage>
+      </div>
 
       {whatsappTo ? (
         <SideDrawer

@@ -181,9 +181,9 @@ export const initialValue = {
   hr: '',
   mins: '',
   inviteOthers: [],
-  timezone: null,
-  // This build only serves India, so the country picker is hidden and the
-  // form always dials into India's timezone list from the start.
+  // This build only serves India, so the country/timezone pickers are
+  // hidden and the form is fixed to India's one timezone from the start.
+  timezone: { label: 'Asia/Kolkata', value: 'Asia/Kolkata' },
   country_code: { label: 'India (IN)', value: 'IN' },
   members: [],
 };

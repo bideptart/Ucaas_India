@@ -34,7 +34,6 @@ interface ScheduleMeetingProps {
 
 const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData, onSuccess }) => {
   const [duration, setDuration] = useState(15);
-  const [timezonesList, setTimezonesList] = useState([]);
   const queryClient = useQueryClient();
   const [modalState, setModalState] = useState<any>({
     inviteMembers: false,
@@ -101,14 +100,13 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
     formState: { errors },
   } = formInstance;
 
-  const [
-    WatchHour,
-    watchInviteMembers,
-    watchInviteOthers,
-    watchCountryCode,
-    watchTimezone,
-    WatchDate,
-  ] = watch(['hr', 'members', 'inviteOthers', 'country_code', 'timezone', 'meeting_date']);
+  const [WatchHour, watchInviteMembers, watchInviteOthers, watchTimezone, WatchDate] = watch([
+    'hr',
+    'members',
+    'inviteOthers',
+    'timezone',
+    'meeting_date',
+  ]);
 
   const allParticipants = [...watchInviteMembers, ...watchInviteOthers];
   const isAllParticipantsNull = allParticipants?.some((item) => item?.email);
@@ -246,13 +244,6 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
   }, [meetingDetailInfo]);
 
   useEffect(() => {
-    const getTimezones: any =
-      countryList?.find((item: any) => item?.isoCode === (watchCountryCode as any)?.value)
-        ?.timezones || [];
-    setTimezonesList(getTimezones);
-  }, [watchCountryCode]);
-
-  useEffect(() => {
     const todayInTZ = getTodayInTimeZone(watchTimezone?.value);
     if (todayInTZ && !meetingDetailInfo) {
       const timeZoneDateTime = todayInTZ.split(',');
@@ -347,18 +338,12 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
             className="flex flex-col gap-5 pb-5"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
           >
-            <CustomSelect
-              label={'Timezone'}
-              required
-              placeholder="Select Timezone"
-              options={timezonesList?.map((item: any) => ({
-                label: item?.zoneName,
-                value: item?.zoneName,
-              }))}
-              handleChange={(value) => setValue('timezone', value, { shouldValidate: true })}
-              value={watch('timezone')}
-              error={errors?.timezone?.message}
-            />
+            <div className="flex flex-col gap-1.5 w-full">
+              <Label>Timezone</Label>
+              <div className="flex min-h-10 w-full items-center rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
+                {watch('timezone')?.label || 'Asia/Kolkata'}
+              </div>
+            </div>
           </div>
 
           <div

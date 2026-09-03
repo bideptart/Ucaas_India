@@ -1363,11 +1363,60 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const handleAiChatAccept = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Demo mode has no socket connection, so `socketEventsManager` is
+         null and the emit below would silently never call back — leaving
+         "Accepting..." stuck forever. Simulate the accept locally instead:
+         move the pending request into `allAgentChats` as an active chat so
+         its already-seeded messages/profile become visible and typeable. */
+      if (isDemoMode()) {
+        const chatId = payload?.chatId;
+        const pendingRequest = aiChatRequests.find((request: any) => request?.chatId === chatId);
+        const rawVisitor = pendingRequest?.users;
+        const visitor = (Array.isArray(rawVisitor) ? rawVisitor : [rawVisitor]).find(
+          (chatUser: any) => chatUser?.uuid !== user?.uuid,
+        ) ||
+          rawVisitor || { uuid: `${chatId}-visitor`, name: 'Visitor' };
+        const me = {
+          uuid: user?.uuid,
+          first_name: user?.first_name || user?.user_info?.first_name,
+          last_name: user?.last_name || user?.user_info?.last_name,
+          name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
+        };
+        const nowIso = new Date().toISOString();
+
+        setAllAgentChats((prev: any) => {
+          const list = Array.isArray(prev) ? prev : [];
+          if (list.some((chat: any) => chat?.chatId === chatId)) return list;
+          return [
+            {
+              chatId,
+              isGroupChat: false,
+              groupType: 'AI',
+              isEnded: false,
+              users: [me, visitor],
+              lastMessage: { message: '', createdAt: nowIso, senderId: visitor?.uuid },
+              metaData: {
+                ...(pendingRequest?.metaData || {}),
+                status: 'active',
+                lastMessageTimeStamp: nowIso,
+              },
+              createdAt: pendingRequest?.createdAt || nowIso,
+              isHidden: [],
+              isDeleted: false,
+            },
+            ...list,
+          ];
+        });
+
+        callback?.({ status: 200, success: true });
+        return;
+      }
+
       socketEventsManager?.emit(chatEvents.AI_CHAT_ACCEPT, payload, (response: any) => {
         if (callback) callback(response);
       });
     },
-    [socketEventsManager],
+    [socketEventsManager, aiChatRequests, user],
   );
 
   const handleAiChatDecline = useCallback(

@@ -7,13 +7,7 @@ import countryList from '@/lib/countries.json';
 import { Input } from '@/components/ui/input';
 import CustomSelect from '@/components/custom/custom-select';
 import { Button } from '@/components/ui/button';
-import {
-  countries,
-  durationOptions,
-  initialValue,
-  startMeetHourArr,
-  startMeetMinutesArr,
-} from './constant';
+import { durationOptions, initialValue, startMeetHourArr, startMeetMinutesArr } from './constant';
 import { CustomDatePicker } from '@/components/custom/custom-datepicker';
 import moment from 'moment';
 import { Switch } from '@/components/ui/switch';
@@ -350,25 +344,9 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           </div>
 
           <div
-            className="flex flex-col gap-5 pb-5 md:flex-row"
+            className="flex flex-col gap-5 pb-5"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
           >
-            <CustomSelect
-              label={'Country Code'}
-              required
-              placeholder="Select Country"
-              options={countries?.map((item: any) => ({
-                label: `${item?.label} (${item?.value})`,
-                value: item?.value,
-              }))}
-              handleChange={(value) => {
-                setValue('country_code', value, {
-                  shouldValidate: true,
-                });
-              }}
-              value={watchCountryCode}
-              error={errors?.country_code?.message}
-            />
             <CustomSelect
               label={'Timezone'}
               required
@@ -380,7 +358,6 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               handleChange={(value) => setValue('timezone', value, { shouldValidate: true })}
               value={watch('timezone')}
               error={errors?.timezone?.message}
-              isDisabled={!watchCountryCode}
             />
           </div>
 

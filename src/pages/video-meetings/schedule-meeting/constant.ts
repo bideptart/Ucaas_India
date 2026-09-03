@@ -182,7 +182,9 @@ export const initialValue = {
   mins: '',
   inviteOthers: [],
   timezone: null,
-  country_code: null,
+  // This build only serves India, so the country picker is hidden and the
+  // form always dials into India's timezone list from the start.
+  country_code: { label: 'India (IN)', value: 'IN' },
   members: [],
 };
 export const getMeetingStatus = (isActive: boolean, isFutureTime: boolean) => {

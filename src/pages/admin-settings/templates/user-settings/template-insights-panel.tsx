@@ -21,9 +21,14 @@ import {
 const ACCENT = '#ea6b42';
 const ACCENT_SOFT = '#f2c9a8';
 
+/* A section within the insights card, not a card of its own — the whole
+   panel is one card (rounded-[20px], border, shadow, below); stacking a
+   smaller rounded/bordered box for every metric inside that would nest
+   rounded containers into each other for no reason. A bottom divider does
+   the same job of separating sections without another border box. */
 const PanelCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="rounded-xl border border-[#f0d6b4] bg-white/60 backdrop-blur-md p-3">
-    <p className="mb-2 text-xs font-semibold text-[#b5502f]">{title}</p>
+  <div className="border-b border-[#f5e6d3] pb-4 last:border-0 last:pb-0">
+    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#b5502f]">{title}</p>
     {children}
   </div>
 );
@@ -41,7 +46,10 @@ const TemplateInsightsPanel = ({
 
   if (loading) {
     return (
-      <div className="w-[280px] shrink-0 rounded-xl border border-[#f0d6b4] bg-white/40 p-4">
+      <div
+        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5"
+        style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
+      >
         <Loader />
       </div>
     );
@@ -49,7 +57,10 @@ const TemplateInsightsPanel = ({
 
   if (realTemplates.length === 0) {
     return (
-      <div className="w-[280px] shrink-0 rounded-xl border border-[#f0d6b4] bg-white/40 p-4 text-xs text-gray-500">
+      <div
+        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5 text-xs text-gray-500"
+        style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
+      >
         Insights show up once there is at least one template.
       </div>
     );
@@ -77,7 +88,10 @@ const TemplateInsightsPanel = ({
     .filter((slice) => slice.value > 0);
 
   return (
-    <div className="w-[280px] shrink-0 h-full overflow-y-auto flex flex-col gap-3 pr-1">
+    <div
+      className="templates-insights-panel w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white flex flex-col gap-4 p-5"
+      style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
+    >
       <p className="text-xs font-semibold text-gray-500">
         Demo numbers — not counted from real usage yet.
       </p>

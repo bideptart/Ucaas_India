@@ -565,6 +565,198 @@ export const demoTemplateRows = () => {
   }));
 };
 
+/** `/api/tenant/call-handling/template/list` — Admin ▸ Templates ▸ Call
+ *  Handling. `forward_call_actions` is stored as a JSON *string*, matching
+ *  exactly what a real save produces (see set-number-forwarding/index.tsx's
+ *  handleCallForwarding) — the edit drawer and the Apply-to-Numbers screen
+ *  both parse it with the same isJsonString()/JSON.parse() a real record
+ *  needs, so this can't drift from what real data actually looks like. */
+export const demoCallHandlingTemplateRows = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const slugify = (value: string) =>
+    value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  const weekdayHours = (start: string, end: string) => ({
+    monday: { open: true, start, end, is_checked: false },
+    tuesday: { open: true, start, end, is_checked: false },
+    wednesday: { open: true, start, end, is_checked: false },
+    thursday: { open: true, start, end, is_checked: false },
+    friday: { open: true, start, end, is_checked: false },
+    saturday: { open: false, start: '', end: '', is_checked: false },
+    sunday: { open: false, start: '', end: '', is_checked: false },
+  });
+
+  const regional = {
+    timezone: { label: 'Asia/Kolkata', value: 'Asia/Kolkata' },
+    time_format: 12,
+    country_code: { label: 'India', value: 'IN' },
+    country: { label: 'India', value: 'IN' },
+  };
+
+  const seed = [
+    {
+      name: 'Standard Business Hours',
+      daysAgo: 40,
+      forward_call_actions: {
+        condition: {
+          transcription: false,
+          ai_call_monitoring: false,
+          operational_hours: {
+            regional,
+            type: 'weekly',
+            value: weekdayHours('09:00', '18:00'),
+            holidays: [],
+            closed_hour_action: {
+              type: 'VOICEMAIL',
+              value: '',
+              enabled: true,
+              personal: false,
+              type_label: 'Send to Voicemail',
+              value_label: 'Company Voicemail',
+            },
+          },
+          recording: {
+            on_demand: { enabled: false },
+            automatic: { enabled: false, value: 'incoming', label: 'Incoming' },
+          },
+          display_number: {
+            incoming: { label: 'Yes', value: true },
+            masking: { type: 'N', label: 'None', value: '' },
+          },
+          caller_id: '',
+        },
+        call_handling: {
+          business_hours: { type: 'DEVICE', value: '', label: 'Ring My Device', name: 'Ring My Device' },
+        },
+        media: {
+          welcome: { enabled: true, value: 'demo-greeting-welcome', label: 'Welcome Greeting' },
+          hold: { enabled: true, value: 'demo-hold-music', label: 'Default Hold Music' },
+          voicemail: { enabled: true, value: 'demo-voicemail-greeting', label: 'Standard Voicemail' },
+        },
+      },
+    },
+    {
+      name: '24x7 Support Line',
+      daysAgo: 65,
+      forward_call_actions: {
+        condition: {
+          transcription: true,
+          ai_call_monitoring: false,
+          operational_hours: {
+            regional,
+            type: '24_hours',
+            value: weekdayHours('00:00', '23:59'),
+            holidays: [],
+            closed_hour_action: { type: '', value: '', enabled: false, personal: false, type_label: '', value_label: '' },
+          },
+          recording: {
+            on_demand: { enabled: false },
+            automatic: { enabled: true, value: 'incoming', label: 'Incoming' },
+          },
+          display_number: {
+            incoming: { label: 'Yes', value: true },
+            masking: { type: 'N', label: 'None', value: '' },
+          },
+          caller_id: '',
+        },
+        call_handling: {
+          business_hours: { type: 'QUEUE', value: 'demo-queue-support', label: 'Support', name: 'Support' },
+        },
+        media: {
+          welcome: { enabled: true, value: 'demo-greeting-support', label: 'Support Welcome' },
+          hold: { enabled: true, value: 'demo-hold-music', label: 'Default Hold Music' },
+          voicemail: { enabled: false, value: '', label: '' },
+        },
+      },
+    },
+    {
+      name: 'After Hours Voicemail',
+      daysAgo: 28,
+      forward_call_actions: {
+        condition: {
+          transcription: false,
+          ai_call_monitoring: false,
+          operational_hours: {
+            regional,
+            type: 'weekly',
+            value: weekdayHours('18:00', '21:00'),
+            holidays: [],
+            closed_hour_action: {
+              type: 'VOICEMAIL',
+              value: '',
+              enabled: true,
+              personal: false,
+              type_label: 'Send to Voicemail',
+              value_label: 'After Hours Voicemail',
+            },
+          },
+          recording: { on_demand: { enabled: false }, automatic: { enabled: false, value: 'incoming', label: 'Incoming' } },
+          display_number: {
+            incoming: { label: 'Yes', value: true },
+            masking: { type: 'N', label: 'None', value: '' },
+          },
+          caller_id: '',
+        },
+        call_handling: {
+          business_hours: { type: 'VOICEMAIL', value: '', label: 'Send to Voicemail', name: 'Send to Voicemail' },
+        },
+        media: {
+          welcome: { enabled: false, value: '', label: '' },
+          hold: { enabled: false, value: '', label: '' },
+          voicemail: { enabled: true, value: 'demo-voicemail-afterhours', label: 'After Hours Voicemail' },
+        },
+      },
+    },
+    {
+      name: 'Sales IVR Routing',
+      daysAgo: 12,
+      forward_call_actions: {
+        condition: {
+          transcription: false,
+          ai_call_monitoring: true,
+          operational_hours: {
+            regional,
+            type: 'weekly',
+            value: weekdayHours('09:30', '19:00'),
+            holidays: [],
+            closed_hour_action: {
+              type: 'GREETING',
+              value: '',
+              enabled: true,
+              personal: false,
+              type_label: 'Play an Announcement',
+              value_label: 'Sales Closed Announcement',
+            },
+          },
+          recording: { on_demand: { enabled: true }, automatic: { enabled: false, value: 'incoming', label: 'Incoming' } },
+          display_number: {
+            incoming: { label: 'Yes', value: true },
+            masking: { type: 'N', label: 'None', value: '' },
+          },
+          caller_id: '',
+        },
+        call_handling: {
+          business_hours: { type: 'IVR', value: 'demo-ivr-main', label: 'Main Menu', name: 'Main Menu' },
+        },
+        media: {
+          welcome: { enabled: true, value: 'demo-greeting-sales', label: 'Sales Welcome' },
+          hold: { enabled: true, value: 'demo-hold-music', label: 'Default Hold Music' },
+          voicemail: { enabled: true, value: 'demo-voicemail-greeting', label: 'Standard Voicemail' },
+        },
+      },
+    },
+  ];
+
+  return seed.map((row) => ({
+    uuid: `demo-callhandling-${slugify(row.name)}`,
+    name: row.name,
+    created_at: new Date(now - row.daysAgo * DAY_MS).toISOString(),
+    updated_at: new Date(now - (row.daysAgo - 3) * DAY_MS).toISOString(),
+    forward_call_actions: JSON.stringify(row.forward_call_actions),
+  }));
+};
+
 /* Matches `DEMO_USER.uuid` in demo-mode.ts. Not imported from there —
    demo-mode.ts already imports this module, and the reverse import would be
    circular — so the id is repeated here rather than shared. */

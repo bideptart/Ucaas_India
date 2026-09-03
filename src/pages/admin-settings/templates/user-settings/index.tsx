@@ -1,9 +1,8 @@
 import { Plus } from '@/assets/icons';
-// import Breadcrumb from '@/components/custom/breadcrumb';
+import { AdminPage } from '@/pages/admin-settings/page-shell';
+import '../templates-table.css';
 import SideDrawer from '@/components/custom/side-drawer';
 import TableManager from '@/components/custom/table-manager';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -13,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatDate, handleAlert } from '@/lib/utils';
-import { templateDelete, templateList, upsertTemplate } from '@/services/api';
+import { templateDelete, templateList } from '@/services/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { FC, useMemo, useRef, useState } from 'react';
@@ -40,10 +39,7 @@ import {
   getDummyTemplateStatus,
   getStatusColours,
   getTagColours,
-  isDummyTemplateArchived,
-  isDummyTemplateFavourite,
-  toggleDummyTemplateArchived,
-  toggleDummyTemplateFavourite,
+  setDummyTemplateStatus,
   type DummyTemplateStatus,
 } from './dummy-template-meta';
 import TemplateInsightsPanel from './template-insights-panel';
@@ -55,7 +51,6 @@ interface IUserSettingsState {
   tempDetails: any;
   isDeleteAlert: boolean;
   isApply: boolean;
-  isBulkDeleteAlert: boolean;
 }
 
 interface DummyFilters {
@@ -78,12 +73,6 @@ const EMPTY_FILTERS: DummyFilters = {
   createdTo: '',
   lastModifiedDays: null,
 };
-
-/* Deleting several templates back-to-back is a real write against the real
-   API (in both demo and production) — never fire them in parallel. Same
-   150ms pause company-bulk-settings.tsx uses, for the same reason: a burst of
-   simultaneous writes is how a bulk action turns into an outage. */
-const BULK_DELETE_PAUSE_MS = 150;
 
 /** The small card a click on a row's "dead space" (Tags/Access/Status/Created
  *  By/Created/Updated) opens — a quick look at that template without the
@@ -204,7 +193,7 @@ const RowInfoPopover = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
-          className="-ml-[12px] -mt-[12px] flex h-[calc(100%+24px)] w-[calc(100%+24px)] cursor-pointer items-center justify-center"
+          className="-ml-[12px] -mt-[12px] flex h-[calc(100%+24px)] w-[calc(100%+24px)] cursor-pointer items-center justify-start pl-[12px]"
           onMouseEnter={openSoon}
           onMouseLeave={closeSoon}
           onClick={() => {
@@ -228,6 +217,53 @@ const RowInfoPopover = ({
   );
 };
 
+const STATUS_OPTIONS: DummyTemplateStatus[] = ['Active', 'Archived', 'Pending', 'Draft'];
+
+/** Clicking a row's Status badge opens a small picker instead of the usual
+ *  info card — the one field on this row an admin can actually change from
+ *  the list itself, so it gets its own dropdown rather than sharing the
+ *  read-only quick-look popover every other cell opens. */
+const StatusPicker = ({
+  status,
+  onChange,
+}: {
+  status: DummyTemplateStatus;
+  onChange: (status: DummyTemplateStatus) => void;
+}) => {
+  const colours = getStatusColours(status);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <span
+          className="inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+          style={{ backgroundColor: colours.bg, color: colours.text }}
+        >
+          {status}
+        </span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="center">
+        {STATUS_OPTIONS.map((option) => {
+          const optionColours = getStatusColours(option);
+          return (
+            <DropdownMenuItem
+              key={option}
+              className="cursor-pointer"
+              onClick={() => onChange(option)}
+            >
+              <span
+                className="mr-1.5 inline-block h-2 w-2 rounded-full"
+                style={{ backgroundColor: optionColours.text }}
+              />
+              {option}
+              {option === status ? ' ✓' : ''}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const UserSettings: FC = () => {
   const navigate = useNavigate();
   const [drawerState, setDrawerState] = useState<IUserSettingsState>({
@@ -235,7 +271,6 @@ const UserSettings: FC = () => {
     tempDetails: null,
     isDeleteAlert: false,
     isApply: false,
-    isBulkDeleteAlert: false,
   });
   const [searchedText, setSearchedText] = useState('');
   const debouncedSearch = useDebounce(searchedText || '', 1000);
@@ -252,8 +287,6 @@ const UserSettings: FC = () => {
      module-level override stores — those stores aren't React state, so
      nothing else would tell this component to re-render when they change. */
   const [demoMetaVersion, setDemoMetaVersion] = useState(0);
-  const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set());
-  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const { data: allTemplates = [], isPending: loadingTemplates } = useQuery({
     queryKey: ['userTemplateList', 'full'],
@@ -304,30 +337,6 @@ const UserSettings: FC = () => {
     });
   }, [allTemplates, demo, debouncedSearch, dummyFilters, demoMetaVersion]);
 
-  const selectableUuids = useMemo(
-    () =>
-      filteredTemplates
-        .filter((template) => template?.name !== COMPANY_DEFAULT_TEMPLATE_NAME)
-        .map((template) => template?.uuid)
-        .filter(Boolean),
-    [filteredTemplates],
-  );
-  const isAllSelected =
-    selectableUuids.length > 0 && selectableUuids.every((uuid) => selectedUuids.has(uuid));
-  const isSomeSelected = !isAllSelected && selectableUuids.some((uuid) => selectedUuids.has(uuid));
-
-  const toggleSelectAll = () => {
-    setSelectedUuids(isAllSelected ? new Set() : new Set(selectableUuids));
-  };
-  const toggleRow = (uuid: string) => {
-    setSelectedUuids((prev) => {
-      const next = new Set(prev);
-      if (next.has(uuid)) next.delete(uuid);
-      else next.add(uuid);
-      return next;
-    });
-  };
-
   const { mutate: mutateDelete, isPending } = useMutation({
     mutationFn: templateDelete,
     onSuccess: (data: any) => {
@@ -344,65 +353,15 @@ const UserSettings: FC = () => {
     },
   });
 
-  const { mutate: mutateDuplicate, isPending: duplicating } = useMutation({
-    mutationFn: (template: any) =>
-      upsertTemplate({
-        name: `Copy of ${template?.name}`,
-        settings: template?.settings,
-        greetings: template?.greetings,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userTemplateList'] });
-      handleAlert({ text: 'Template duplicated.', type: 'success' });
-    },
-    onError: () => handleAlert({ text: 'Could not duplicate this template.', type: 'error' }),
-  });
-
-  /* Real writes against the real templateDelete endpoint, run one at a time —
-     this works the same whether demo mode is on or off, unlike the
-     checkboxes/bulk bar around it, which are demo-only UI. */
-  const runBulkDelete = async () => {
-    const targets = Array.from(selectedUuids);
-    if (!targets.length) return;
-    setBulkDeleting(true);
-    let failed = 0;
-    for (const uuid of targets) {
-      try {
-        await templateDelete(uuid);
-      } catch {
-        failed += 1;
-      }
-      await new Promise((resolve) => setTimeout(resolve, BULK_DELETE_PAUSE_MS));
-    }
-    queryClient.invalidateQueries({ queryKey: ['userTemplateList'] });
-    setSelectedUuids(new Set());
-    setBulkDeleting(false);
-    setDrawerState((prev) => ({ ...prev, isBulkDeleteAlert: false }));
-    if (failed) {
-      handleAlert({
-        text: `${targets.length - failed} of ${targets.length} template(s) deleted — ${failed} failed.`,
-        type: 'error',
-      });
-    } else {
-      handleAlert({ text: `${targets.length} template(s) deleted.`, type: 'success' });
-    }
-  };
-
-  const runBulkArchive = (nextArchived: boolean) => {
-    selectedUuids.forEach((uuid) => toggleDummyTemplateArchived(uuid, nextArchived));
-    setDemoMetaVersion((v) => v + 1);
-    handleAlert({
-      text: `${selectedUuids.size} template(s) ${nextArchived ? 'archived' : 'unarchived'}.`,
-      type: 'success',
-    });
-    setSelectedUuids(new Set());
-  };
 
   /* Genuinely builds and downloads a file — not a placeholder. Reuses the
      same quoting rules the People-page export already relies on
-     (src/lib/user-roster-export.ts) rather than re-deriving CSV escaping. */
-  const runBulkExport = () => {
-    const rows = filteredTemplates.filter((template) => selectedUuids.has(template?.uuid));
+     (src/lib/user-roster-export.ts) rather than re-deriving CSV escaping.
+     Exports every currently-filtered row — there is no selection mechanism
+     on this table any more, so "export" means everything the search/filter
+     bar is showing rather than a hand-picked subset. */
+  const exportFilteredTemplates = () => {
+    const rows = filteredTemplates;
     const header = ['Name', 'Tags', 'Access', 'Status', 'Created By', 'Created', 'Updated']
       .map(escapeCell)
       .join(',');
@@ -450,37 +409,21 @@ const UserSettings: FC = () => {
     <RowInfoPopover trigger={trigger} template={template} onEdit={openEditDrawer} />
   );
 
+  /* Same status a row's own Status badge already shows (dummy-template-meta's
+     getDummyTemplateStatus, including any override from the picker) — reused
+     here just to pick a row-tint class, not to duplicate the status logic. */
+  const getTemplateRowClassName = (row: any) => {
+    const template = row?.original;
+    if (!template || template.name === COMPANY_DEFAULT_TEMPLATE_NAME) return '';
+    const meta = getDummyTemplateMeta(template);
+    const status = getDummyTemplateStatus(template?.uuid, meta.baseStatus);
+    return `row-status-${status.toLowerCase()}`;
+  };
+
   const columns: ColumnDef<any>[] = [
-    ...(demo
-      ? ([
-          {
-            header: () => (
-              <Checkbox
-                checked={isAllSelected ? true : isSomeSelected ? 'indeterminate' : false}
-                onCheckedChange={toggleSelectAll}
-                aria-label="Select all templates"
-              />
-            ),
-            accessorKey: 'select',
-            meta: { textAlign: 'center' },
-            cell: ({ row }: any) => {
-              if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
-              const uuid = row?.original?.uuid;
-              return (
-                <Checkbox
-                  checked={selectedUuids.has(uuid)}
-                  onCheckedChange={() => toggleRow(uuid)}
-                  aria-label={`Select ${row?.original?.name}`}
-                />
-              );
-            },
-          },
-        ] as ColumnDef<any>[])
-      : []),
     {
       header: 'Name',
       accessorKey: 'name',
-      meta: { textAlign: 'center' },
       cell: ({ row }) => {
         /* The company record is stored as a reserved template row because there
            is no company-settings table. It is not a template — nobody applies it
@@ -503,46 +446,29 @@ const UserSettings: FC = () => {
             </span>
           );
         }
-        const meta = demo ? getDummyTemplateMeta(row?.original) : null;
-        const favourite = meta ? isDummyTemplateFavourite(row?.original?.uuid, meta.baseFavourite) : false;
         return (
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <span className="flex items-center gap-1.5">
-              {demo && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleDummyTemplateFavourite(row?.original?.uuid, !favourite);
-                    setDemoMetaVersion((v) => v + 1);
-                  }}
-                  className="shrink-0"
-                  aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
-                >
-                  <Icon
-                    name="Star"
-                    className={`w-4 h-4 ${favourite ? 'text-amber-500 fill-current' : 'text-gray-300'}`}
-                  />
-                </button>
-              )}
-              <span
-                onClick={() =>
-                  setDrawerState((prev) => ({
-                    ...prev,
-                    isAddEdit: true,
-                    tempDetails: row?.original,
-                  }))
-                }
-                className="text-primary hover:text-primary/80 underline-offset-4 cursor-pointer"
-              >
-                {row?.original?.name}
-              </span>
+          <div className="w-full min-w-0">
+            {/* block, not the inline default a <span> would otherwise be —
+                text-overflow: ellipsis only has an effect on a box that can
+                itself be width-constrained, which an inline element isn't.
+                text-left overrides the inherited centering from this
+                column's `meta.textAlign: 'center'` (table-manager-row.tsx
+                centers the cell as a whole via its own wrapper) — centered
+                *text* inside a nowrap+ellipsis box clips evenly off both
+                ends once it overflows instead of eliding cleanly on the
+                right, which is what a too-long name was doing here. */}
+            <span
+              onClick={() =>
+                setDrawerState((prev) => ({
+                  ...prev,
+                  isAddEdit: true,
+                  tempDetails: row?.original,
+                }))
+              }
+              className="block w-full truncate text-left text-[11px] text-primary hover:text-primary/80 underline-offset-4 cursor-pointer"
+            >
+              {row?.original?.name}
             </span>
-            {meta && (
-              <span className="text-[11px] leading-tight text-gray-500">
-                Used in {meta.profileCount} user profiles
-              </span>
-            )}
           </div>
         );
       },
@@ -555,44 +481,33 @@ const UserSettings: FC = () => {
           {
             header: 'Tags',
             accessorKey: 'tags',
-            meta: { textAlign: 'center' },
             cell: ({ row }: any) => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
+              /* Only the first tag renders — showing every tag wrapped this
+                 row to two lines on anything with 2+ tags while a 1-tag row
+                 stayed one line, so rows sat at mismatched heights next to
+                 each other. A "+N" badge for the rest keeps every row's
+                 Tags cell exactly one line, still visible in full inside
+                 the info popover this cell already opens. */
+              const [firstTag, ...restTags] = meta.tags;
+              const firstColours = firstTag ? getTagColours(firstTag) : null;
               return renderInfoPopover(
-                <div className="flex flex-wrap gap-1">
-                  {meta.tags.map((tag) => {
-                    const colours = getTagColours(tag);
-                    return (
-                      <span
-                        key={tag}
-                        className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                        style={{ backgroundColor: colours.bg, color: colours.text }}
-                      >
-                        {tag}
-                      </span>
-                    );
-                  })}
+                <div className="flex flex-nowrap items-center gap-1">
+                  {firstTag && (
+                    <span
+                      className="whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                      style={{ backgroundColor: firstColours!.bg, color: firstColours!.text }}
+                    >
+                      {firstTag}
+                    </span>
+                  )}
+                  {restTags.length > 0 && (
+                    <span className="whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500">
+                      +{restTags.length}
+                    </span>
+                  )}
                 </div>,
-                row?.original,
-              );
-            },
-          },
-          {
-            header: 'Access',
-            accessorKey: 'access',
-            meta: { textAlign: 'center' },
-            cell: ({ row }: any) => {
-              if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
-              const meta = getDummyTemplateMeta(row?.original);
-              const colours = getAccessColours(meta.access);
-              return renderInfoPopover(
-                <span
-                  className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                  style={{ backgroundColor: colours.bg, color: colours.text }}
-                >
-                  {meta.access}
-                </span>,
                 row?.original,
               );
             },
@@ -600,40 +515,36 @@ const UserSettings: FC = () => {
           {
             header: 'Status',
             accessorKey: 'status',
-            meta: { textAlign: 'center' },
             cell: ({ row }: any) => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
               const status = getDummyTemplateStatus(row?.original?.uuid, meta.baseStatus);
-              const colours = getStatusColours(status);
-              return renderInfoPopover(
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                  style={{ backgroundColor: colours.bg, color: colours.text }}
-                >
-                  {status}
-                </span>,
-                row?.original,
+              return (
+                <StatusPicker
+                  status={status}
+                  onChange={(next) => {
+                    setDummyTemplateStatus(row?.original?.uuid, next);
+                    setDemoMetaVersion((v) => v + 1);
+                  }}
+                />
               );
             },
           },
           {
-            header: 'Created By',
+            header: 'By',
             accessorKey: 'created_by',
-            meta: { textAlign: 'center' },
             cell: ({ row }: any) => {
               if (row?.original?.name === COMPANY_DEFAULT_TEMPLATE_NAME) return null;
               const meta = getDummyTemplateMeta(row?.original);
               return renderInfoPopover(
-                <div className="flex items-center gap-2">
+                <CustomTooltip text={meta.author.name} side="top">
                   <span
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
                     style={{ backgroundColor: meta.author.colour }}
                   >
                     {meta.author.initials}
                   </span>
-                  <span className="text-xs text-gray-700">{meta.author.name}</span>
-                </div>,
+                </CustomTooltip>,
                 row?.original,
               );
             },
@@ -641,19 +552,8 @@ const UserSettings: FC = () => {
         ] as ColumnDef<any>[])
       : []),
     {
-      header: 'Created',
-      accessorKey: 'created_at',
-      meta: { textAlign: 'center' },
-      cell: ({ row }) =>
-        demo && row?.original?.name !== COMPANY_DEFAULT_TEMPLATE_NAME
-          ? renderInfoPopover(<span>{formatDate(row?.original?.created_at)}</span>, row?.original)
-          : <span>{formatDate(row?.original?.created_at)}</span>,
-    },
-
-    {
       header: 'Updated',
       accessorKey: 'updated_at',
-      meta: { textAlign: 'center' },
       cell: ({ row }) =>
         demo && row?.original?.name !== COMPANY_DEFAULT_TEMPLATE_NAME
           ? renderInfoPopover(<span>{formatDate(row?.original?.updated_at)}</span>, row?.original)
@@ -678,11 +578,6 @@ const UserSettings: FC = () => {
           );
         }
 
-        const archivedMeta = demo ? getDummyTemplateMeta(data) : null;
-        const archived = archivedMeta
-          ? isDummyTemplateArchived(data?.uuid, archivedMeta.baseStatus)
-          : false;
-
         const actions = [
           {
             icon: 'UsersIcon',
@@ -706,25 +601,6 @@ const UserSettings: FC = () => {
             className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Edit',
           },
-          {
-            icon: 'CopyLine',
-            onClick: () => mutateDuplicate(data),
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
-            tooltipText: duplicating ? 'Duplicating…' : 'Duplicate',
-          },
-          ...(demo
-            ? [
-                {
-                  icon: archived ? 'Refresh' : 'Box',
-                  onClick: () => {
-                    toggleDummyTemplateArchived(data?.uuid, !archived);
-                    setDemoMetaVersion((v) => v + 1);
-                  },
-                  className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
-                  tooltipText: archived ? 'Unarchive' : 'Archive',
-                },
-              ]
-            : []),
           {
             icon: 'TrashBin',
             onClick: () =>
@@ -768,32 +644,41 @@ const UserSettings: FC = () => {
 
   return (
     <>
-      <section className="w-full flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0] min-h-full">
-        {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-[#f0d6b4] min-h-[65px] bg-white/60 backdrop-blur-md">
-          <div>
-            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
-              Templates
-              <div className="-rotate-90 text-gray-800">
-                <Icon name="ChevronIcon" className="w-5 h-5" />
-              </div>
-              <span className="text-[#b5502f] text-md">User Settings</span>
-            </p>
-            <p className="text-gray-500 text-xs">
-              Saved bundles of user settings you can apply when creating or editing someone.
-            </p>
-          </div>
-          <div className="flex gap-2 filters  flex-col sm:flex-row">
+      <AdminPage
+        section="Templates"
+        title="User Settings"
+        description="Saved bundles of user settings you can apply when creating or editing someone."
+        actions={
+          <>
+            {demo && (
+              <button type="button" className="btn ghost" onClick={exportFilteredTemplates}>
+                Export Data
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn primary"
+              onClick={() =>
+                setDrawerState((prev) => ({ ...prev, isAddEdit: true, tempDetails: null }))
+              }
+            >
+              <Plus className="w-3 h-3" />
+              Add User Settings Template
+            </button>
+          </>
+        }
+        filters={
+          <>
             <Input
               type="search"
               placeholder="Search"
               onChange={(e) => setSearchedText(e.target.value)}
-              className="w-64 min-h-9 rounded-lg"
+              className="w-full min-h-9 rounded-lg"
             />
             {demo && (
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <div className="cursor-pointer flex items-center gap-1.5 rounded-lg border border-[#f0d6b4] bg-white/70 px-3 min-h-9 text-sm text-[#b5502f] hover:bg-white">
+                  <div className="fchip">
                     <FilterIcon className="w-4 h-4" />
                     Filter
                     {activeDummyFilterCount > 0 ? ` (${activeDummyFilterCount})` : ''}
@@ -925,69 +810,11 @@ const UserSettings: FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-            <Button
-              variant={'outline'}
-              type="button"
-              className="min-h-9"
-              onClick={() =>
-                setDrawerState((prev) => ({ ...prev, isAddEdit: true, tempDetails: null }))
-              }
-            >
-              <Plus className="w-3 h-3" />
-              Add User Settings Template
-            </Button>
-          </div>
-        </div>
-
-        {demo && selectedUuids.size > 0 && (
-          <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b border-[#f0d6b4] bg-[#fdeee0]">
-            <span className="text-xs font-semibold text-[#b5502f]">
-              {selectedUuids.size} selected
-            </span>
-            <Button
-              variant="outline"
-              type="button"
-              className="min-h-8 text-xs"
-              onClick={() => runBulkArchive(true)}
-            >
-              Archive
-            </Button>
-            <Button
-              variant="outline"
-              type="button"
-              className="min-h-8 text-xs"
-              onClick={() => runBulkArchive(false)}
-            >
-              Unarchive
-            </Button>
-            <Button
-              variant="outline"
-              type="button"
-              className="min-h-8 text-xs"
-              onClick={runBulkExport}
-            >
-              Export CSV
-            </Button>
-            <Button
-              variant="outline"
-              type="button"
-              className="min-h-8 text-xs text-red-600 hover:text-red-600"
-              onClick={() => setDrawerState((prev) => ({ ...prev, isBulkDeleteAlert: true }))}
-            >
-              Delete
-            </Button>
-            <button
-              type="button"
-              className="text-xs text-gray-500 hover:underline"
-              onClick={() => setSelectedUuids(new Set())}
-            >
-              Clear selection
-            </button>
-          </div>
-        )}
-
-        <div className="w-full p-3 flex flex-row gap-3 min-h-0 flex-1">
-          <div className="min-w-0 flex-1">
+          </>
+        }
+      >
+        <div className="w-full flex flex-row gap-6 min-h-0 flex-1">
+          <div className="min-w-0 flex-1 templates-table">
             {demo ? (
               <TableManager
                 {...{
@@ -996,6 +823,11 @@ const UserSettings: FC = () => {
                   clientSideSearch: true,
                   loading: loadingTemplates,
                   emptyTablePlaceholder: 'No user settings templates found',
+                  splitStickyHeader: true,
+                  visibleRowCount: 5,
+                  defaultPageSize: 8,
+                  perPageOptions: [8, 25, 50, 100, 200],
+                  getRowClassName: getTemplateRowClassName,
                 }}
               />
             ) : (
@@ -1006,6 +838,11 @@ const UserSettings: FC = () => {
                   fetcherFn: templateList,
                   extraParams: { filter: [{ key: 'name', value: debouncedSearch }] },
                   emptyTablePlaceholder: 'No user settings templates found',
+                  splitStickyHeader: true,
+                  visibleRowCount: 5,
+                  defaultPageSize: 8,
+                  perPageOptions: [8, 25, 50, 100, 200],
+                  getRowClassName: getTemplateRowClassName,
                 }}
               />
             )}
@@ -1014,7 +851,7 @@ const UserSettings: FC = () => {
             <TemplateInsightsPanel templates={allTemplates as any[]} loading={loadingTemplates} />
           )}
         </div>
-      </section>
+      </AdminPage>
       {drawerState?.isAddEdit && (
         <SideDrawer
           width="min(1040px, 84vw)"
@@ -1075,19 +912,6 @@ const UserSettings: FC = () => {
             },
             headerText: 'Delete Confirmation',
             descriptionTextComp: 'Are you sure, you want to delete this template?',
-          }}
-        />
-      )}
-
-      {drawerState?.isBulkDeleteAlert && (
-        <AlertConfirm
-          {...{
-            apiLoading: bulkDeleting,
-            onConfirm: runBulkDelete,
-            open: drawerState?.isBulkDeleteAlert,
-            setOpen: () => setDrawerState((prev) => ({ ...prev, isBulkDeleteAlert: false })),
-            headerText: 'Delete Confirmation',
-            descriptionTextComp: `Are you sure you want to delete ${selectedUuids.size} template(s)?`,
           }}
         />
       )}

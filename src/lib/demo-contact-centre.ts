@@ -803,7 +803,9 @@ export const demoChatThreads = () => {
         senderId: other.uuid,
       },
       createdAt,
-      favoriteChats: [],
+      /* Priya Sharma's DM is starred so Favorites has a real row instead of
+         "Create a new chat" — everything else here stays unstarred. */
+      favoriteChats: index === 0 ? [DEMO_USER_UUID] : [],
       isHidden: [],
       isDeleted: false,
     };
@@ -853,7 +855,8 @@ export const demoChatThreads = () => {
         senderId: sender.uuid,
       },
       createdAt,
-      favoriteChats: [],
+      /* Sales Team is starred alongside Priya Sharma's DM above. */
+      favoriteChats: index === 0 ? [DEMO_USER_UUID] : [],
       isHidden: [],
       isDeleted: false,
     };
@@ -885,7 +888,14 @@ export const demoMessageList = () => {
   const directThreads: Array<{
     chatId: string;
     extension: string;
-    lines: Array<{ hoursAgo: number; fromMe: boolean; text: string }>;
+    lines: Array<{
+      hoursAgo: number;
+      fromMe: boolean;
+      text: string;
+      attachments?: Array<{ fileName: string; serverFileName: string; size: number; type: string }>;
+      messageType?: string;
+      alertContent?: Record<string, any>;
+    }>;
   }> = [
     {
       chatId: 'demo-chat-1',
@@ -893,6 +903,32 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 3, fromMe: true, text: 'Priya, how is the Sales queue looking this afternoon?' },
         { hoursAgo: 2.5, fromMe: false, text: 'Busy — two agents out, but we are keeping up.' },
+        {
+          hoursAgo: 2,
+          fromMe: false,
+          text: 'Here is today’s call list for the Sales queue.',
+          attachments: [
+            {
+              fileName: 'Sales-Queue-Call-List.xlsx',
+              serverFileName: 'demo-sales-queue-call-list.xlsx',
+              size: 31500,
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+          ],
+        },
+        {
+          hoursAgo: 1.5,
+          fromMe: false,
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'audio',
+            createdAt: new Date(now - 1.5 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 1.5 * HOUR_MS + 96 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 1, fromMe: false, text: 'Can you take the Sales queue for the next hour?' },
       ],
     },
@@ -902,6 +938,24 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 6, fromMe: true, text: 'Ananya, did the Retention list from this morning go out?' },
         { hoursAgo: 5.5, fromMe: false, text: 'Pulling it together now, give me a few minutes.' },
+        {
+          hoursAgo: 5,
+          fromMe: false,
+          text: 'Board here, updated live: https://app.mycountrymobile.com/reports/retention',
+        },
+        {
+          hoursAgo: 4.5,
+          fromMe: false,
+          text: 'Attaching the list itself too.',
+          attachments: [
+            {
+              fileName: 'Retention-Numbers-Morning.csv',
+              serverFileName: 'demo-retention-numbers-morning.csv',
+              size: 18900,
+              type: 'text/csv',
+            },
+          ],
+        },
         { hoursAgo: 4, fromMe: false, text: 'Sent over the Retention numbers from this morning.' },
       ],
     },
@@ -910,6 +964,19 @@ export const demoMessageList = () => {
       extension: '1003',
       lines: [
         { hoursAgo: 30, fromMe: true, text: 'Meera, I put in a leave request for next week — can you review it?' },
+        {
+          hoursAgo: 29,
+          fromMe: true,
+          text: 'Details attached.',
+          attachments: [
+            {
+              fileName: 'Leave-Request-Arjun-Mehta.pdf',
+              serverFileName: 'demo-leave-request-arjun-mehta.pdf',
+              size: 96200,
+              type: 'application/pdf',
+            },
+          ],
+        },
         { hoursAgo: 26, fromMe: false, text: 'Approved your leave request for next week.' },
       ],
     },
@@ -925,20 +992,69 @@ export const demoMessageList = () => {
         message: toSlateMessage(line.text),
         senderId: line.fromMe ? meUuid : other.uuid,
         createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
-        messageType: 'text',
+        messageType: line.messageType || 'text',
+        /* Team Info's Files/Media tabs (description-modal.tsx) filter on
+           `isDeleted === false` specifically — undefined fails that check
+           even though every other reader here treats it as "not deleted". */
+        isDeleted: false,
+        ...(line.attachments ? { attachments: line.attachments } : {}),
+        ...(line.alertContent ? { alertContent: line.alertContent } : {}),
       })),
     };
   });
 
+  /* `attachments`/`messageType`/`alertContent` are optional per line — most
+     lines are plain text, but a few carry a file, a link, or a call so the
+     Files/Links/Calls panels (and the sidebar Files/Pinned/Folders views,
+     which read off this same messageList) have real rows instead of always
+     showing their empty state. */
   const teamThreads: Array<{
     chatId: string;
-    lines: Array<{ hoursAgo: number; senderExt: string | null; text: string }>;
+    lines: Array<{
+      hoursAgo: number;
+      senderExt: string | null;
+      text: string;
+      attachments?: Array<{ fileName: string; serverFileName: string; size: number; type: string }>;
+      messageType?: string;
+      alertContent?: Record<string, any>;
+    }>;
   }> = [
     {
       chatId: 'demo-team-chat-1',
       lines: [
         { hoursAgo: 8, senderExt: null, text: 'Morning team — Q3 Renewals push starts today, target is 55% dialed by EOD.' },
         { hoursAgo: 5, senderExt: '1004', text: 'On it, starting with the Mumbai HQ list.' },
+        {
+          hoursAgo: 4,
+          senderExt: '1005',
+          text: 'Sharing the updated target tracker for this week.',
+          attachments: [
+            {
+              fileName: 'Q3-Renewals-Target-Tracker.xlsx',
+              serverFileName: 'demo-q3-renewals-target-tracker.xlsx',
+              size: 48200,
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+          ],
+        },
+        {
+          hoursAgo: 3.5,
+          senderExt: '1004',
+          text: 'Live numbers here: https://app.mycountrymobile.com/reports/q3-renewals',
+        },
+        {
+          hoursAgo: 3.2,
+          senderExt: '1005',
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'audio',
+            createdAt: new Date(now - 3.2 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 3.2 * HOUR_MS + 214 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 3, senderExt: '1005', text: 'Q3 Renewals is at 55% dialed, on pace for Friday.' },
       ],
     },
@@ -947,6 +1063,32 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 24, senderExt: '1007', text: "Retention's abandon rate crept up overnight, keeping an eye on it." },
         { hoursAgo: 22, senderExt: null, text: 'Added two more agents to the Retention queue for the morning.' },
+        {
+          hoursAgo: 21.5,
+          senderExt: '1007',
+          text: 'Playbook for the abandon-rate spike, for anyone new to it.',
+          attachments: [
+            {
+              fileName: 'Retention-Escalation-Playbook.pdf',
+              serverFileName: 'demo-retention-escalation-playbook.pdf',
+              size: 265400,
+              type: 'application/pdf',
+            },
+          ],
+        },
+        {
+          hoursAgo: 21,
+          senderExt: '1008',
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'video',
+            createdAt: new Date(now - 21 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 21 * HOUR_MS + 432 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 20, senderExt: '1008', text: "Retention's abandon rate dipped below 30% today." },
       ],
     },
@@ -960,11 +1102,283 @@ export const demoMessageList = () => {
       message: toSlateMessage(line.text),
       senderId: line.senderExt ? agent(line.senderExt).uuid : meUuid,
       createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
-      messageType: 'text',
+      messageType: line.messageType || 'text',
+      isDeleted: false,
+      ...(line.attachments ? { attachments: line.attachments } : {}),
+      ...(line.alertContent ? { alertContent: line.alertContent } : {}),
     })),
   }));
 
-  return [...directMessages, ...teamMessages];
+  /* Agent Chat (Web Chat Manager) threads — visitor-initiated live-chat
+     conversations. `senderId` matches the visitor uuids seeded in
+     `demoAgentChatThreads()`/`demoAiChatRequests()` so the thread and the
+     Contact Profile panel agree on who's who. */
+  const agentChatThreads: Array<{
+    chatId: string;
+    visitorUuid: string;
+    lines: Array<{ minutesAgo: number; fromMe: boolean; text: string }>;
+  }> = [
+    {
+      chatId: 'demo-agent-chat-1',
+      visitorUuid: 'demo-visitor-1',
+      lines: [
+        { minutesAgo: 9, fromMe: false, text: 'Hi, I wanted to check something about my number.' },
+        { minutesAgo: 8, fromMe: true, text: 'Hi Manish, sure — go ahead, I can help with that.' },
+        { minutesAgo: 6, fromMe: false, text: 'Do you support porting an existing number?' },
+      ],
+    },
+    {
+      chatId: 'demo-agent-chat-2',
+      visitorUuid: 'demo-visitor-2',
+      lines: [
+        { minutesAgo: 250, fromMe: false, text: 'Hello, how do I enable call recording for my team?' },
+        {
+          minutesAgo: 248,
+          fromMe: true,
+          text: 'Hi Divya — go to Settings > Call Recording and toggle it on for the extensions you need.',
+        },
+        { minutesAgo: 245, fromMe: false, text: 'Got it, that worked.' },
+        { minutesAgo: 240, fromMe: false, text: 'Thanks for the help, that answers it!' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-1',
+      visitorUuid: 'demo-visitor-request-1',
+      lines: [
+        { minutesAgo: 2, fromMe: false, text: 'Hi, I’m having trouble setting up call forwarding on my account.' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-2',
+      visitorUuid: 'demo-visitor-request-2',
+      lines: [
+        { minutesAgo: 5, fromMe: false, text: 'Hello, do you have a plan for small teams under 10 people?' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-3',
+      visitorUuid: 'demo-visitor-request-3',
+      lines: [{ minutesAgo: 90, fromMe: false, text: 'Hi, is anyone there? I had a quick question about…' }],
+    },
+  ];
+
+  const agentChatMessages = agentChatThreads.map((thread) => ({
+    chatId: thread.chatId,
+    messages: thread.lines.map((line, index) => ({
+      messageId: `${thread.chatId}-msg-${index + 1}`,
+      chatId: thread.chatId,
+      message: toSlateMessage(line.text),
+      senderId: line.fromMe ? meUuid : thread.visitorUuid,
+      createdAt: new Date(now - line.minutesAgo * 60 * 1000).toISOString(),
+      messageType: 'text',
+      isDeleted: false,
+    })),
+  }));
+
+  return [...directMessages, ...teamMessages, ...agentChatMessages];
+};
+
+/** Pinned Messages panel — one pinned row per team chat, reusing the exact
+ *  message objects `demoMessageList()` already created for them so the
+ *  bubble rendered in the pinned list matches the one in the thread. */
+export const demoPinnedMessages = () => {
+  const messages = demoMessageList();
+  const pin = (chatId: string, messageId: string) => {
+    const thread = messages.find((row: any) => row.chatId === chatId);
+    const found = thread?.messages?.find((row: any) => row.messageId === messageId);
+    return found ? [found] : [];
+  };
+
+  return [
+    { chatId: 'demo-chat-1', chats: pin('demo-chat-1', 'demo-chat-1-msg-1') },
+    { chatId: 'demo-chat-2', chats: pin('demo-chat-2', 'demo-chat-2-msg-1') },
+    { chatId: 'demo-chat-3', chats: pin('demo-chat-3', 'demo-chat-3-msg-1') },
+    { chatId: 'demo-team-chat-1', chats: pin('demo-team-chat-1', 'demo-team-chat-1-msg-1') },
+    { chatId: 'demo-team-chat-2', chats: pin('demo-team-chat-2', 'demo-team-chat-2-msg-1') },
+  ];
+};
+
+/** Notes panel — a couple of team notes so "No notes yet" isn't the only
+ *  thing either seeded team chat ever shows. */
+export const demoChatNotes = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+
+  return [
+    {
+      chatId: 'demo-chat-1',
+      notes: [
+        {
+          _id: 'demo-note-dm-1',
+          chatId: 'demo-chat-1',
+          title: 'Sales queue handover',
+          noteData: toSlateMessage(
+            'Two agents out today — Priya is covering. Check back in before EOD if the queue is still busy.',
+          ),
+          creatorId: DEMO_USER_UUID,
+          receiverId: [priya.uuid],
+          createdAt: new Date(now - 3 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-chat-2',
+      notes: [
+        {
+          _id: 'demo-note-dm-2',
+          chatId: 'demo-chat-2',
+          title: 'Retention list — source',
+          noteData: toSlateMessage(
+            'Numbers are pulled from last month’s renewal misses, filtered to Mumbai HQ accounts only.',
+          ),
+          creatorId: ananya.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 4 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-1',
+      notes: [
+        {
+          _id: 'demo-note-1',
+          chatId: 'demo-team-chat-1',
+          title: 'Q3 Renewals — talking points',
+          noteData: toSlateMessage(
+            'Lead with the loyalty discount, then the annual-plan upsell. Escalate anything price-sensitive to Karan.',
+          ),
+          creatorId: priya.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 1 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-2',
+      notes: [
+        {
+          _id: 'demo-note-2',
+          chatId: 'demo-team-chat-2',
+          title: 'Retention abandon-rate checklist',
+          noteData: toSlateMessage(
+            'Check queue staffing first, then IVR wait-time announcement, then callback offer threshold.',
+          ),
+          creatorId: vikram.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 2 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+  ];
+};
+
+/** Folders panel — one folder per seeded team chat, each holding the same
+ *  file that chat's messageList already carries as an attachment. */
+export const demoChatFolders = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const karan = DEMO_AGENTS.find((row) => row.extension === '1005') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+
+  return [
+    {
+      chatId: 'demo-chat-1',
+      folders: [
+        {
+          _id: 'demo-folder-dm-1',
+          chatId: 'demo-chat-1',
+          folderName: 'Sales Queue',
+          creatorId: priya.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 2 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Sales-Queue-Call-List.xlsx',
+              fileName: 'Sales-Queue-Call-List.xlsx',
+              filename: 'demo-sales-queue-call-list.xlsx',
+              serverFileName: 'demo-sales-queue-call-list.xlsx',
+              size: 31500,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-chat-2',
+      folders: [
+        {
+          _id: 'demo-folder-dm-2',
+          chatId: 'demo-chat-2',
+          folderName: 'Retention Lists',
+          creatorId: ananya.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 4 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Retention-Numbers-Morning.csv',
+              fileName: 'Retention-Numbers-Morning.csv',
+              filename: 'demo-retention-numbers-morning.csv',
+              serverFileName: 'demo-retention-numbers-morning.csv',
+              size: 18900,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-1',
+      folders: [
+        {
+          _id: 'demo-folder-1',
+          chatId: 'demo-team-chat-1',
+          folderName: 'Renewals Tracking',
+          creatorId: karan.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 3 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Q3-Renewals-Target-Tracker.xlsx',
+              fileName: 'Q3-Renewals-Target-Tracker.xlsx',
+              filename: 'demo-q3-renewals-target-tracker.xlsx',
+              serverFileName: 'demo-q3-renewals-target-tracker.xlsx',
+              size: 48200,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-2',
+      folders: [
+        {
+          _id: 'demo-folder-2',
+          chatId: 'demo-team-chat-2',
+          folderName: 'Support Playbooks',
+          creatorId: vikram.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 5 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Retention-Escalation-Playbook.pdf',
+              fileName: 'Retention-Escalation-Playbook.pdf',
+              filename: 'demo-retention-escalation-playbook.pdf',
+              serverFileName: 'demo-retention-escalation-playbook.pdf',
+              size: 265400,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+  ];
 };
 
 /** Activity ▸ Agent Chat's `allAgentChats` — website-widget conversations
@@ -983,12 +1397,31 @@ export const demoAgentChatThreads = () => {
       minutesAgo: 6,
       message: 'Do you support porting an existing number?',
       isEnded: false,
+      email: 'manish.tiwari@example.com',
+      phone: '917042512233',
+      city: 'Pune',
+      country: 'India',
+      page: 'https://letsdial.com/pricing',
+      device: 'Windows 11 - Chrome 128',
+      ipAddress: '103.21.58.14',
+      pastTickets: [{ id: '#1180', status: 'Resolved', date: '2026-06-14' }],
     },
     {
       visitor: 'Divya Menon',
       minutesAgo: 240,
       message: 'Thanks for the help, that answers it!',
       isEnded: true,
+      email: 'divya.menon@example.com',
+      phone: '918041223344',
+      city: 'Bengaluru',
+      country: 'India',
+      page: 'https://letsdial.com/features/call-recording',
+      device: 'macOS Sonoma - Safari 17',
+      ipAddress: '49.207.12.88',
+      pastTickets: [
+        { id: '#1142', status: 'Resolved', date: '2026-05-02' },
+        { id: '#1098', status: 'Resolved', date: '2026-03-19' },
+      ],
     },
   ];
   return seed.map((row, index) => {
@@ -1001,7 +1434,17 @@ export const demoAgentChatThreads = () => {
       isEnded: row.isEnded,
       users: [me, { uuid: visitorUuid, name: row.visitor }],
       lastMessage: { message: row.message, createdAt, senderId: visitorUuid },
-      metaData: { status: row.isEnded ? 'resolved' : 'active', lastMessageTimeStamp: createdAt },
+      metaData: {
+        status: row.isEnded ? 'resolved' : 'active',
+        lastMessageTimeStamp: createdAt,
+        email: row.email,
+        phone: row.phone,
+        city: row.city,
+        country: row.country,
+        domain: 'letsdial.com',
+        session: { device: row.device, ipAddress: row.ipAddress, page: row.page },
+        pastTickets: row.pastTickets,
+      },
       createdAt,
       isHidden: [],
       isDeleted: false,
@@ -1016,9 +1459,48 @@ export const demoAiChatRequests = () => {
   const now = Date.now();
   const MIN_MS = 60 * 1000;
   const seed = [
-    { visitor: 'Farhan Sheikh', minutesAgo: 2, status: 'pending', domain: 'letsdial.com' },
-    { visitor: 'Ritu Choudhary', minutesAgo: 5, status: 'pending', domain: 'letsdial.com' },
-    { visitor: 'Kavya Pillai', minutesAgo: 90, status: 'abandoned', domain: 'letsdial.com' },
+    {
+      visitor: 'Farhan Sheikh',
+      minutesAgo: 2,
+      status: 'pending',
+      domain: 'letsdial.com',
+      email: 'farhan.sheikh@example.com',
+      phone: '919833441122',
+      city: 'Mumbai',
+      country: 'India',
+      page: 'https://letsdial.com/features/call-forwarding',
+      device: 'Android 14 - Chrome 128',
+      ipAddress: '106.51.24.90',
+      pastTickets: [] as Array<{ id: string; status: string; date: string }>,
+    },
+    {
+      visitor: 'Ritu Choudhary',
+      minutesAgo: 5,
+      status: 'pending',
+      domain: 'letsdial.com',
+      email: 'ritu.choudhary@example.com',
+      phone: '911204556677',
+      city: 'Gurugram',
+      country: 'India',
+      page: 'https://letsdial.com/pricing',
+      device: 'Windows 11 - Edge 127',
+      ipAddress: '117.198.33.61',
+      pastTickets: [{ id: '#1201', status: 'Resolved', date: '2026-07-22' }],
+    },
+    {
+      visitor: 'Kavya Pillai',
+      minutesAgo: 90,
+      status: 'abandoned',
+      domain: 'letsdial.com',
+      email: 'kavya.pillai@example.com',
+      phone: '914422339955',
+      city: 'Chennai',
+      country: 'India',
+      page: 'https://letsdial.com/contact',
+      device: 'iOS 17 - Safari',
+      ipAddress: '223.185.44.12',
+      pastTickets: [] as Array<{ id: string; status: string; date: string }>,
+    },
   ];
   return seed.map((row, index) => ({
     chatId: `demo-ai-request-${index + 1}`,
@@ -1026,6 +1508,15 @@ export const demoAiChatRequests = () => {
     domain: row.domain,
     createdAt: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
     users: { name: row.visitor, uuid: `demo-visitor-request-${index + 1}` },
+    metaData: {
+      email: row.email,
+      phone: row.phone,
+      city: row.city,
+      country: row.country,
+      domain: row.domain,
+      session: { device: row.device, ipAddress: row.ipAddress, page: row.page },
+      pastTickets: row.pastTickets,
+    },
   }));
 };
 

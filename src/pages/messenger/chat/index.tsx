@@ -1237,32 +1237,54 @@ export const ChatHeader = ({
       : [
           {
             icon: <FileText className="w-4 h-4" />,
-            onClick: () => onOpenSidebarMode(activeSidebarMode === 'files' ? null : 'files'),
+            /* Always opens rather than toggling closed on a repeat click —
+               a toggle meant a double-click (open, then close in the same
+               gesture) landed back on the plain thread instead of Files. */
+            onClick: () => onOpenSidebarMode('files'),
             type: 'files',
             tooltip: 'Files',
           },
           {
             icon: <Pin className="w-4 h-4" />,
-            onClick: () => onOpenSidebarMode(activeSidebarMode === 'pinned' ? null : 'pinned'),
+            onClick: () => onOpenSidebarMode('pinned'),
             type: 'pinned',
             tooltip: 'Pinned Messages',
           },
           {
             icon: <NotebookPenIcon className="w-4 h-4" />,
-            onClick: () => onOpenSidebarMode(activeSidebarMode === 'notes' ? null : 'notes'),
+            onClick: () => onOpenSidebarMode('notes'),
             type: 'notes',
             tooltip: 'Open Notes',
           },
           {
             icon: <Folder className="w-4 h-4" />,
-            onClick: () => onOpenSidebarMode(activeSidebarMode === 'folders' ? null : 'folders'),
+            /* Folders jumps straight to the file's own message in the thread
+               rather than opening a browsing panel — the panel is closed
+               first so the thread is actually mounted for jumpToMessage's
+               scrollIntoView to find, hence the next-tick delay. */
+            onClick: () => {
+              onOpenSidebarMode(null);
+              const chatMessages =
+                (Array.isArray(messageList) ? messageList : []).find(
+                  (list: any) => list?.chatId === currentChat?.chatId,
+                )?.messages || [];
+              const fileMessage = chatMessages.find(
+                (item: any) =>
+                  !item?.parentMsgId &&
+                  item?.isDeleted !== true &&
+                  Array.isArray(item?.attachments) &&
+                  item.attachments.length > 0,
+              );
+              if (fileMessage?.messageId) {
+                setTimeout(() => jumpToMessage(fileMessage.messageId), 0);
+              }
+            },
             type: 'folders',
             tooltip: 'Open Folders',
           },
           {
             icon: <EyeLine className="w-4 h-4" />,
-            onClick: () =>
-              onOpenSidebarMode(activeSidebarMode === 'description' ? null : 'description'),
+            onClick: () => onOpenSidebarMode('description'),
             type: 'description',
             tooltip: currentChat?.isGroupChat ? 'Team Info' : 'User Info',
           },
@@ -1585,46 +1607,30 @@ export const ChatHeader = ({
               <ArrowLeft className="w-4.5 h-4.5" />
             </button>
           ) : null}
-          {showSearch ? (
-            <div className="w-full flex items-center gap-2">
-              <SearchComponent currentChat={currentChat} disableScrollTop={disableScrollTop} />
-              <button
-                type="button"
-                className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[#FBE2C8]/40 text-[#9A948F] shrink-0"
-                onClick={resetSearch}
-                aria-label="Close search"
-              >
-                <X width={16} height={16} />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 min-w-0">
-              <CustomAvatar
-                name={nameToShow}
-                size="38"
-                showPresence={!isGroupChat && !isOwnChat}
-                extension={!isGroupChat ? otherUserData?.extension : ''}
-                image={
-                  isGroupChat
-                    ? currentChat?.avatar
-                    : getUserProfileByUuid(otherUserData?.uuid) || ''
-                }
-              />
-              <div className="min-w-0">
-                <div className="text-sm font-semibold truncate text-[#2E2D35] block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
-                  {nameToShow}
-                </div>
-                {subtitle ? (
-                  <div className="text-xs text-[#9A948F] truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
-                    {subtitle}
-                  </div>
-                ) : null}
+          <div className="flex items-center gap-3 min-w-0">
+            <CustomAvatar
+              name={nameToShow}
+              size="38"
+              showPresence={!isGroupChat && !isOwnChat}
+              extension={!isGroupChat ? otherUserData?.extension : ''}
+              image={
+                isGroupChat ? currentChat?.avatar : getUserProfileByUuid(otherUserData?.uuid) || ''
+              }
+            />
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate text-[#2E2D35] block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
+                {nameToShow}
               </div>
+              {subtitle ? (
+                <div className="text-xs text-[#9A948F] truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
+                  {subtitle}
+                </div>
+              ) : null}
             </div>
-          )}
+          </div>
         </div>
 
-        {!showSearch && !fromMeetChat ? (
+        {!fromMeetChat ? (
           <div className="flex min-w-0 flex-1 justify-end">
             <div className="flex min-w-0 max-w-[52vw] sm:max-w-[62vw] xl:max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden md:overflow-visible sm:gap-2 scrollbar-hide">
               {isMessageSelectionMode ? (
@@ -1652,9 +1658,23 @@ export const ChatHeader = ({
                 </>
               ) : null}
 
-              {!isMessageSelectionMode && !fromMeetChat && canUseCallActions
+              {!isMessageSelectionMode && !fromMeetChat && !showSearch && canUseCallActions
                 ? renderCallAction()
                 : null}
+
+              {!isMessageSelectionMode && showSearch ? (
+                <div className="flex items-center gap-2 min-w-0 w-40 sm:w-64">
+                  <SearchComponent currentChat={currentChat} disableScrollTop={disableScrollTop} />
+                  <button
+                    type="button"
+                    className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[#FBE2C8]/40 text-[#9A948F] shrink-0"
+                    onClick={resetSearch}
+                    aria-label="Close search"
+                  >
+                    <X width={16} height={16} />
+                  </button>
+                </div>
+              ) : null}
 
               {!isMessageSelectionMode &&
               !activeSidebarMode &&
@@ -1678,7 +1698,7 @@ export const ChatHeader = ({
                 />
               )}
 
-              {!isMessageSelectionMode ? (
+              {!isMessageSelectionMode && !showSearch ? (
                 <CustomTooltip text="Search" side="top">
                   <button
                     type="button"
@@ -4257,17 +4277,7 @@ const PinnedMessagesView = ({
             <div className="flex flex-col gap-4">
               {pinnedItems?.map((message: any, index: number) => {
                 return (
-                  <div
-                    key={message?.messageId || `pinned-${index}`}
-                    className="w-full cursor-pointer relative group"
-                    onClick={(event) => {
-                      const target = event.target as HTMLElement;
-                      if (target.closest('button, a, input, textarea, select, [role="button"]')) {
-                        return;
-                      }
-                      onJumpToMessage(message?.messageId);
-                    }}
-                  >
+                  <div key={message?.messageId || `pinned-${index}`} className="w-full relative group">
                     <div>
                       <MessageItem
                         msgObj={message}
@@ -4350,11 +4360,7 @@ const FilesView = ({
           <div className="flex-1 overflow-y-auto pr-2 pb-2">
             <div className="flex flex-col gap-4">
               {fileMessages.map((message: any, index: number) => (
-                <div
-                  key={message?.messageId || `file-msg-${index}`}
-                  className="w-full cursor-pointer relative group"
-                  onClick={() => onJumpToMessage(message?.messageId)}
-                >
+                <div key={message?.messageId || `file-msg-${index}`} className="w-full relative group">
                   <div className="pointer-events-none group-hover:pointer-events-auto">
                     <MessageItem
                       msgObj={message}

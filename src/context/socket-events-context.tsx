@@ -30,7 +30,10 @@ import {
   demoCampaignCallFlowFunnel,
   demoCampaignLiveCallsData,
   demoChatThreads,
+  demoChatFolders,
+  demoChatNotes,
   demoMessageList,
+  demoPinnedMessages,
   demoLiveCalls,
   demoLiveQueueCalls,
   demoUsersOnlineStatus,
@@ -866,10 +869,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [messageList, setMessageList] = useState<any>(() =>
     isDemoMode() ? demoMessageList() : [],
   );
-  const [pinnedList, setPinnedList] = useState<any>([]);
+  const [pinnedList, setPinnedList] = useState<any>(() =>
+    isDemoMode() ? demoPinnedMessages() : [],
+  );
   const [threadsManager, setThreadsManager] = useState<any>([]);
-  const [notesList, setNotesList] = useState<any>([]);
-  const [folderList, setFolderList] = useState<any>([]);
+  const [notesList, setNotesList] = useState<any>(() => (isDemoMode() ? demoChatNotes() : []));
+  const [folderList, setFolderList] = useState<any>(() => (isDemoMode() ? demoChatFolders() : []));
   const [typingList, setTypingList] = useState<any>({});
   const [chatPageList, setChatPageList] = useState<any>({});
   const [isFetchingMessages, setIsFetchingMessages] = useState<any>({});
@@ -4153,6 +4158,14 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function getChatPinnedMessages(chatId: string, callback?: (response: any) => void) {
+    /* Demo mode seeds `pinnedList` up front (there's no server to ask), but
+       the panel's own loading spinner only clears inside this callback —
+       without this branch it never fires and "Loading pinned messages..."
+       never resolves even though the data is already there. */
+    if (isDemoMode()) {
+      callback?.(pinnedList.find((row: any) => row?.chatId === chatId) ?? null);
+      return;
+    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.GET_PINNED_CHATS, { chatId }, (response: any) => {
         console.log('Server ack:', response);

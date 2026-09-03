@@ -105,7 +105,12 @@ const SharedWithMe = () => {
                 <h4 className="text-[23px] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900">
                   Shared with me
                 </h4>
-                <CustomTooltip text="Manage recordings, archives, and meeting transcripts." side="bottom">
+                <CustomTooltip
+                  text="Manage recordings, archives, and meeting transcripts."
+                  side="bottom"
+                  className="border border-gray-200 bg-white text-gray-700 shadow-md"
+                  arrowClassName="fill-white"
+                >
                   <Info className="h-4 w-4 cursor-help text-muted-foreground" />
                 </CustomTooltip>
               </div>

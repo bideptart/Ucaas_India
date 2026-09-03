@@ -123,9 +123,6 @@ const AllRecording = () => {
                   </span>
                 </CustomTooltip>
               </div>
-              <p className="max-w-[64ch] text-[13px] leading-[1.4] text-muted-foreground">
-                Manage recordings, archives, and meeting transcripts.
-              </p>
             </div>
             <div className="ml-auto inline-flex h-10 w-fit items-center rounded-full border border-white/70 bg-white/45 backdrop-blur-md px-4 text-[13px] text-muted-foreground shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:px-5">
               <span className="mr-1.5 text-[13px] font-bold" style={{ color: '#B5642F' }}>

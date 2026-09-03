@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { Ic } from '@/components/mcm/icons';
 import UpdateForwarding from '@/pages/admin-settings/people/update-forwarding';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
@@ -38,6 +40,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import './people-glass.css';
 import './groups-glass.css';
+import './edit-person-glass.css';
 
 /**
  * Directory ▸ People — the organisation roster.
@@ -337,7 +340,7 @@ const People = () => {
               <th>Numbers</th>
               <th>ACD skills</th>
               <th>Presence</th>
-              <th>Contact</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -583,11 +586,20 @@ const People = () => {
                 </label>
                 <label className="gp-field">
                   <span className="gp-field-l">Phone</span>
-                  <input
-                    className="gp-field-v"
+                  <PhoneInput
+                    country={'in'}
+                    onlyCountries={['in']}
+                    disableDropdown
                     value={personForm.phone}
-                    onChange={(event) =>
-                      setPersonForm((prev) => ({ ...prev, phone: event.target.value }))
+                    onChange={(value) =>
+                      /* countryCodeEditable={false} freezes this library's input entirely
+                         (can't type or delete at all), so +91 is protected here instead:
+                         if editing eats into the dial code, snap back to a bare +91 rather
+                         than let it disappear. */
+                      setPersonForm((prev) => ({
+                        ...prev,
+                        phone: `+${value.startsWith('91') ? value : '91'}`,
+                      }))
                     }
                   />
                 </label>
@@ -663,7 +675,7 @@ const People = () => {
           bouncing to Admin — the console keeps you in Directory. */}
       <Dialog open={inviting} onOpenChange={(next) => !next && setInviting(false)}>
         <DialogContent
-          className="gp-create-group-dialog sm:max-w-[1100px]"
+          className="gp-create-group-dialog gp-invite-dialog sm:max-w-[600px]"
           showCloseButton={false}
         >
           <div className="gp-create-group-head">
@@ -753,7 +765,10 @@ const People = () => {
       />
 
       <Dialog open={Boolean(editing)} onOpenChange={(next) => !next && setEditing(null)}>
-        <DialogContent className="gp-create-group-dialog sm:max-w-[1000px]" showCloseButton={false}>
+        <DialogContent
+          className="gp-create-group-dialog gp-edit-person-dialog sm:max-w-[760px]"
+          showCloseButton={false}
+        >
           <div className="gp-create-group-head">
             <h2>{editing ? `Edit ${editing.name}` : 'Edit'}</h2>
             <button

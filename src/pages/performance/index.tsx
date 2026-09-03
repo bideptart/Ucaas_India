@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PhoneIncoming, AlarmClock } from 'lucide-react';
+import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
@@ -274,10 +274,21 @@ const Performance = () => {
       {SHOW_KPI_HEADER_TABS.has(activeTab) &&
         !(activeTab === 'queues-activity' && selectedQueueUuid) && (
           <div className="page-band">
-            <p className="page-note">
-              Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
-              now. Answered, Abandon rate and Avg handle time cover the selected date range.
-            </p>
+            {activeTab === 'dashboards' ? (
+              <div className="db-notice">
+                <Info className="db-notice-icon" />
+                <p className="page-note">
+                  Waiting, Longest wait, Service level, On queue agents and Occupancy are live
+                  right now. Answered, Abandon rate and Avg handle time cover the selected date
+                  range.
+                </p>
+              </div>
+            ) : (
+              <p className="page-note">
+                Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
+                now. Answered, Abandon rate and Avg handle time cover the selected date range.
+              </p>
+            )}
             <style>{`
             /* Waiting / Longest wait are what a supervisor triages on first —
                sized up and, past target, ringed so they're findable without
@@ -312,19 +323,35 @@ const Performance = () => {
 
             .mcm-page .grouped-row {
               display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
-              align-items:start; gap:10px; margin-bottom:16px;
+              /* "start" let each of the three cards size to its own content
+                 — Service's longer "target 80% in 20s" label made it taller
+                 than Volume/Coverage, so the row read as uneven. "stretch"
+                 (the grid default) makes every card fill the tallest one's
+                 height instead. */
+              align-items:stretch; gap:10px; margin-bottom:16px;
             }
             @media (min-width: 700px) {
               .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             }
-            .mcm-page .grouped-stat { padding:14px 16px; }
-            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:14px; margin-top:8px; }
+            .mcm-page .grouped-stat { padding:14px 14px; height:100%; }
+            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:12px; margin-top:8px; }
             .mcm-page .grouped-stat-metric { flex:1; min-width:0; }
             .mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
             .mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
             .mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
             .mcm-page .grouped-stat-trend.bad { color:var(--crit); }
             .mcm-page .grouped-stat-trend.good { color:var(--live); }
+            /* Metric captions ("Service level · target 80% in 20s") — one
+               line, always. A metric that runs long ellipsizes rather than
+               wrapping and pushing its own card taller than its siblings.
+               .stat .d (mcm-page.css) is display:flex — text-overflow
+               doesn't reliably ellipsize on a flex container, it just hard
+               -clips the last character instead of showing an ellipsis,
+               which is what cut the final "s" off "20s". display:block
+               restores normal single-line text truncation. */
+            .mcm-page .grouped-stat-metric .d {
+              display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            }
 
             /* Reinforces "live" beyond the word itself — a soft glow that
                breathes with the pulsing dot, not just a static badge. */

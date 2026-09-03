@@ -35,7 +35,9 @@ const SelectRole: FC<any> = ({
   }, [rolesListData, setValue]);
 
   const handleRoleChange = (role_uuid: string) => {
-    const findRoleObj = rolesListData?.find((item: any) => item?.role_uuid === role_uuid);
+    const findRoleObj = rolesListData?.find(
+      (item: any) => (item?.role_uuid || item?.uuid) === role_uuid,
+    );
     if (getObjectLength(findRoleObj)) {
       setSelectedRole(findRoleObj);
       setValue('permission', extractPlanFeatures(findRoleObj?.permission));
@@ -128,7 +130,7 @@ const SelectRole: FC<any> = ({
             </h5>
             <RadioGroup
               className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4"
-              value={selectedRole?.role_uuid}
+              value={selectedRole?.role_uuid || selectedRole?.uuid}
               onValueChange={(value) => handleRoleChange(value)}
               disabled={selectedRole?.type === 'custom' && roleData}
             >
@@ -136,7 +138,7 @@ const SelectRole: FC<any> = ({
                 ? filteredRoleListData?.map((role: any, index: number) => (
                     <div className="flex items-center gap-3" key={index}>
                       <RadioGroupItem
-                        value={role.role_uuid}
+                        value={role.role_uuid || role.uuid}
                         id={role?.uuid}
                         className="cursor-pointer"
                       />
@@ -150,7 +152,7 @@ const SelectRole: FC<any> = ({
           </div>
         </div>
       )}
-      <div className="flex w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+      <div className="flex w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-white">
         <div className="flex w-full flex-col gap-4 p-3 sm:p-4">
           {selectedRole?.permission && (
             // <RolePsermisions

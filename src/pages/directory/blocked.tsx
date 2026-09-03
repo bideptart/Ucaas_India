@@ -25,6 +25,7 @@ import {
   tagRequest,
 } from '@/lib/contact-blocking';
 import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
+import './blocked-glass.css';
 
 /**
  * Directory ▸ Blocked — the numbers you have stopped hearing from.
@@ -293,6 +294,7 @@ const Blocked = () => {
 
   return (
     <>
+      <div className="gp-blocked">
       <DirectoryPage
         className="blocked-compact"
       title="Blocked Numbers"
@@ -508,6 +510,7 @@ const Blocked = () => {
       </div>
       </div>
       </DirectoryPage>
+      </div>
 
       <Dialog open={addingContact} onOpenChange={setAddingContact}>
         <DialogContent className="max-w-[520px] max-h-[85vh] overflow-y-auto">

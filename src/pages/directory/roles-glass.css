@@ -35,10 +35,7 @@
   margin-bottom: 16px;
 }
 .gp-roles .page-head h1 {
-  background: linear-gradient(120deg, #c96f1f, #f2994a 60%, #f8b76a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1a1a1a;
 }
 .gp-roles .page-head p {
   color: #6b5c4d;
@@ -159,6 +156,23 @@
   background: rgba(255, 255, 255, 0.4);
   border-color: rgba(255, 255, 255, 0.85);
   color: inherit;
+}
+
+/* ---- New/Update role — the shared dialog shell's own cream background
+   (`.gp-create-group-dialog`, `#fffaf3`) read as an unwanted orange
+   gradient wash behind this form. Plain white instead, same fix as the
+   Invite people / Edit person dialogs. ---- */
+.gp-role-form-dialog {
+  background: #ffffff !important;
+}
+.gp-role-form-dialog .gp-create-group-head {
+  background: #ffffff;
+}
+/* Same fix as the Invite people / Edit person dialogs' own
+   `.gp-create-group-body` — the shared shell's default top padding left a
+   dead gap between the header's border and the "Enter Role Name" card. */
+.gp-role-form-dialog .gp-create-group-body {
+  padding-top: 0 !important;
 }
 
 /* ---- Assign Users to Role — themed only when opened from Directory ▸

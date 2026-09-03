@@ -1,0 +1,293 @@
+/* A visible divider line between rows on the two Templates tables (User
+ * Settings, Call Handling), matching Directory ▸ People's row separator.
+ *
+ * `.mcm-admin table tbody td` already sets a border-bottom, but at
+ * `--line-2` (#f0e4d3 — a near-white pale peach) it reads as no line at
+ * all once these rows grew taller (a second line of subtext under the
+ * name, badges instead of plain text). One extra class here outweighs
+ * that shared rule's specificity, so no !important is needed.
+ */
+.mcm-admin .templates-table table tbody td {
+  border-bottom-color: #e3cfb0;
+}
+
+/* Export Data (`.btn.ghost`, shared base rule used across the whole app —
+ * scoped here rather than changed at the source) gets an outlined-orange
+ * treatment on these two pages specifically: white by default with the
+ * orange carried entirely by the text and border, filling solid orange
+ * with white text on hover. `:has(.templates-table)` has to anchor on
+ * `.mcm-adminpage` itself, not `.mcm-adminpage-body` like the other rules
+ * in this file — the actions bar this button sits in is a sibling of the
+ * body, outside it, so a body-anchored :has() would never see it. */
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-actions .btn.ghost {
+  background: #fff;
+  color: var(--accent-ink, #c96f1f);
+  border: 1px solid var(--accent, #f2994a);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-actions .btn.ghost:hover {
+  background: var(--accent, #f2994a);
+  color: #fff;
+  border: 1px solid var(--accent, #f2994a);
+}
+
+/* The refresh button (a shadcn Button, variant="ghost") comes out of that
+ * component with `border-width: 0` baked into its own variant's classes —
+ * higher-specificity than a plain class selector can out-rank on its own,
+ * since it's the *component's own* class winning a same-specificity tie by
+ * source order, not this stylesheet's rule losing to something bigger.
+ * !important is what actually settles that reliably (already the pattern
+ * this file uses for the row-hover override, same reasoning). */
+.templates-table .table-refresh-btn {
+  background: #fff !important;
+  color: var(--accent-ink, #c96f1f) !important;
+  border: 1px solid var(--accent, #f2994a) !important;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease !important;
+}
+.templates-table .table-refresh-btn:hover {
+  background: var(--accent, #f2994a) !important;
+  color: #fff !important;
+  border: 1px solid var(--accent, #f2994a) !important;
+}
+/* The refresh icon itself inherits `currentColor` from nowhere on its own
+ * (lucide icons take an explicit `color`/class, not automatic
+ * inheritance in every consumer) — text-inherit-color keeps the icon
+ * exactly in sync with the button's own text colour through the hover
+ * transition instead of staying a fixed shade while the button around it
+ * changes. */
+.templates-table .table-refresh-btn svg {
+  color: inherit !important;
+}
+
+/* Trims the page head (title/description/actions) and the search+filter
+ * bar above the table — both are shared AdminPage shell chrome (20+ other
+ * pages use the same padding), so scoped to :has(.templates-table) rather
+ * than changed at the source. Less height spent above the table leaves
+ * more of the viewport for it below. */
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-head {
+  padding: 12px 22px 10px;
+}
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-title h1 {
+  margin-top: 2px;
+  font-size: 19px;
+}
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-title p {
+  margin-top: 2px;
+}
+.mcm-adminpage:has(.templates-table) .mcm-adminpage-bar {
+  padding: 8px 22px;
+}
+
+/* .templates-table (index.tsx) wraps TableManager's whole output — the
+ * table card AND, whenever pagination shows, the pager bar rendered right
+ * after it as a sibling. As a plain block div, .templates-table just
+ * stacks them (table card height + pager height), and since the table
+ * card is stretched to fill .templates-table's own externally-set height
+ * (matching the insights panel — see the height-chain comment further
+ * down), there was never any room *left* for the pager: it was being
+ * pushed below the visible/bounded area rather than shrinking to fit.
+ * flex-column here, with the table card as flex-1 (table-manager.tsx) and
+ * the pager left to its own natural height below it, is what actually
+ * reserves that room. */
+.templates-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.templates-table > div:last-child {
+  flex-shrink: 0;
+}
+
+/* table-manager.tsx's `splitStickyHeader`/`fixedPageRows` props (opt-in,
+ * used only by these two pages) already keep the header out of the
+ * scrolling box and pin the body to exactly 8 rows, so it never needs a
+ * scrollbar of its own. This just keeps that box's own edge thin and on
+ * theme for the rare case content ever does overflow it. */
+.templates-table .table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #e3cfb0 transparent;
+}
+.templates-table .table-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.templates-table .table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.templates-table .table-scroll::-webkit-scrollbar-thumb {
+  background-color: #e3cfb0;
+  border-radius: 999px;
+}
+.templates-table .table-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #d4b78c;
+}
+
+/* Same thin, on-theme scrollbar for the insights panel's own independent
+ * scroll — visually consistent with the table's, so the two matching
+ * scroll areas read as a deliberate pair rather than one styled and one
+ * left at the browser default. */
+.templates-insights-panel {
+  scrollbar-width: thin;
+  scrollbar-color: #e3cfb0 transparent;
+}
+.templates-insights-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.templates-insights-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.templates-insights-panel::-webkit-scrollbar-thumb {
+  background-color: #e3cfb0;
+  border-radius: 999px;
+}
+.templates-insights-panel::-webkit-scrollbar-thumb:hover {
+  background-color: #d4b78c;
+}
+
+/* The table sits beside an insights panel that has its own independent
+ * `overflow-y-auto` (TemplateInsightsPanel / CallHandlingInsightsPanel),
+ * and both are meant to scroll on their own — but `.mcm-adminpage-body`
+ * (AdminPage's shell, shared by 20+ other admin screens) is plain
+ * `display: block`. Its child chain down to the table+panel row
+ * (`.mcm-adminpage-body > .panel-card > .tbl-wrap > [row]`) is already
+ * marked `flex-1 min-h-0` expecting a flex context to bound it, but
+ * `display: block` never provides one — each box just grows to fit
+ * whichever child (usually the insights panel's chart cards) has the
+ * tallest natural content, and *that* overflows `.mcm-adminpage-body`'s
+ * own bounded height, so its `overflow: auto` scrolls the whole row —
+ * table and panel together — instead of each panel scrolling on its own.
+ * Scoped to :has(.templates-table) so only these two pages switch that
+ * chain to flex-column; every other AdminPage screen keeps the block
+ * layout it already relies on.
+ *
+ * `.panel-card`/`.tbl-wrap` use `flex: 1 0 auto` (grow, but never shrink)
+ * rather than `flex: 1` (`1 1 0%`, grow AND shrink from a zero basis).
+ * `flex-shrink: 0` is a hard, unconditional "never smaller than your own
+ * content" — unlike `min-height: auto`'s *usual* content-based floor,
+ * which stops applying and silently allows shrinking to 0 the moment an
+ * element's `overflow` isn't `visible` (CSS Flexbox spec). `.panel-card`
+ * already carries `overflow: hidden` (base rule) for its rounded corners,
+ * so relying on min-height here would have clipped the table on a short
+ * window with no scrollbar to get the hidden rows back — worse than the
+ * bug this was fixing. With shrink disabled, they instead grow to fit the
+ * row's real content, and `.mcm-adminpage-body`'s own `overflow: auto`
+ * (base rule) is what ends up scrolling — table and panel together, but
+ * visible — in that one genuinely-too-short case; the normal case has
+ * room to spare, so nothing here ever has to shrink or clip.
+ *
+ * `.panel-card`/`.tbl-wrap` also get their card look stripped here
+ * (transparent, no border, no shadow, overflow visible/visible-x): the
+ * shell puts one `.panel-card` around BOTH the table and the insights
+ * panel together (one shared border/shadow for the pair), but the table
+ * now carries its own card (rounded-[20px], border, shadow —
+ * table-manager.tsx's splitStickyHeader wrapper) and the insights panel
+ * carries its own below, so a THIRD rounded/bordered/shadowed box around
+ * both of those would be exactly the "rounded containers inside each
+ * other" this was asked to avoid — `.panel-card` is reduced to a plain,
+ * invisible layout box instead. */
+.mcm-adminpage-body:has(.templates-table) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 24px;
+}
+.mcm-adminpage-body:has(.templates-table) > .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.mcm-adminpage-body:has(.templates-table) > .panel-card > .tbl-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-x: visible;
+  overflow-y: hidden;
+}
+/* The table+panel row itself (index.tsx: `flex flex-row gap-6 min-h-0
+ * flex-1`) needs a real, DEFINITE height here too, not another
+ * flex-basis/flex-grow guess — the insights panel's `h-full` is a
+ * percentage, and CSS treats a percentage height as `auto` whenever the
+ * box it's a percentage *of* doesn't have a definite height of its own
+ * yet (the exact case `flex: 1` on an ancestor creates, since a flex
+ * item's cross size is still being solved for at that point). "auto"
+ * there means the insights panel's *own full content height* — every
+ * chart card it has, unbounded — got fed back into how tall the row
+ * itself should be, which is what was pulling the table's card taller to
+ * match it even though the table itself never needed the room. A real
+ * `height: 100%` at every step removes that ambiguity, so `h-full`
+ * finally means "whatever this row actually has," not "however tall my
+ * own content wants to be." */
+.mcm-adminpage-body:has(.templates-table) > .panel-card > .tbl-wrap > div {
+  height: 100%;
+}
+/* Comfortable, readable rows: the shared table styling (table-manager-row.tsx,
+ * used by 40+ other pages) is tuned tighter than a dedicated data table
+ * wants. Scoped here rather than changed at the source. min-height (not
+ * height) so a row that genuinely needs more than 60px — long tag text,
+ * say — can still grow instead of getting clipped to exactly 60. */
+.mcm-admin .templates-table table thead th {
+  padding: 12px 8px;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #8a6f57;
+  background: #faf5ee;
+}
+.mcm-admin .templates-table table tbody td {
+  padding: 12px 8px;
+  min-height: 58px;
+  font-size: 13.5px;
+  /* The shared cell styling (table-manager-row.tsx) is nowrap by default —
+     fine for a badge or a date, but Call Handling's Name column is a
+     plain, user-authored string with no length limit ("Copy of standard
+     business hours"), and nowrap forces the *whole* column to be as wide
+     as its single longest name instead of just wrapping to a second line
+     like User Settings' Name (name + subtitle, already two lines) does.
+     A table-layout: fixed column can't borrow width from its neighbours
+     to fit an unbroken line — this is what actually fits it. */
+  white-space: normal;
+}
+/* ---- Row colour by status ----
+ * Plain white rows read as unstyled once the table itself became a real
+ * white card — nothing distinguished one record from the next except the
+ * divider line. Each row now carries a `row-status-*` class (set via
+ * `getRowClassName` in index.tsx, from the exact same status value the
+ * Status badge in that row already shows), giving it a very light,
+ * status-tinted background instead — the same status vocabulary the
+ * badge uses, just carried across the whole row so it reads at a glance
+ * without having to find the badge first. Backgrounds sit on the <tr>,
+ * not the <td>s (table-manager-row.tsx's cells set no background of
+ * their own), and are mixed at ~5% straight from the app's own status
+ * tokens (--live for Active/Applied, --warn for Pending, --ink-3 for
+ * Archived/Not applied, --ink-2 for Draft) — light enough that text,
+ * badges and icons keep the same contrast they have on plain white. */
+.mcm-admin .templates-table table tbody tr.row-status-active,
+.mcm-admin .templates-table table tbody tr.row-status-applied {
+  background: rgba(13, 148, 136, 0.055);
+}
+.mcm-admin .templates-table table tbody tr.row-status-pending {
+  background: rgba(194, 103, 10, 0.06);
+}
+.mcm-admin .templates-table table tbody tr.row-status-draft {
+  background: rgba(61, 74, 99, 0.045);
+}
+.mcm-admin .templates-table table tbody tr.row-status-archived,
+.mcm-admin .templates-table table tbody tr.row-status-notapplied {
+  background: rgba(138, 111, 87, 0.05);
+}
+/* Hover reads clearly over *any* of the above — same specificity as a
+ * `.row-status-*` rule (:hover counts as one class, same as the status
+ * class it's layered over), so !important is what actually guarantees it
+ * wins rather than depending on which rule happens to be declared last. */
+.mcm-admin .templates-table table tbody tr:hover {
+  background: #fdf1e0 !important;
+}

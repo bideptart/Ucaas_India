@@ -31,6 +31,7 @@ import {
   DEMO_AGENTS,
   demoAgentReportRows,
   demoAssignedDidRows,
+  demoCallHandlingTemplateRows,
   demoCallStats,
   demoCalls,
   demoCalendarTaskRows,
@@ -405,6 +406,8 @@ type Store = {
   departments?: any[];
   sites?: any[];
   templates?: any[];
+  callHandlingTemplates?: any[];
+  numbers?: any[];
 };
 
 const readStore = (): Store => {
@@ -435,6 +438,11 @@ const readStore = (): Store => {
         departments: parsed.departments ?? demoDepartmentRows(),
         sites: parsed.sites ?? demoSiteRows(),
         templates: mergeSeed(parsed.templates, demoTemplateRows()),
+        callHandlingTemplates: mergeSeed(
+          parsed.callHandlingTemplates,
+          demoCallHandlingTemplateRows(),
+        ),
+        numbers: mergeSeed(parsed.numbers, demoAssignedDidRows()),
       };
     }
   } catch {
@@ -448,6 +456,8 @@ const readStore = (): Store => {
     departments: demoDepartmentRows(),
     sites: demoSiteRows(),
     templates: demoTemplateRows(),
+    callHandlingTemplates: demoCallHandlingTemplateRows(),
+    numbers: demoAssignedDidRows(),
   };
 };
 
@@ -698,6 +708,52 @@ const applyWrite = (url: string, body: Record<string, any>) => {
     return ok({ deleted: true });
   }
 
+  /* Same upsert/delete shape as the User Settings template pair above —
+     `upsertCallHandlingTemplate` puts an edit's uuid on the URL the same way. */
+  if (url.includes('/api/tenant/call-handling/template/upsert')) {
+    const callHandlingTemplates = store.callHandlingTemplates ?? [];
+    const urlUuid = url
+      .split('/api/tenant/call-handling/template/upsert/')[1]
+      ?.split(/[/?]/)[0];
+    const existing = urlUuid && callHandlingTemplates.find((template) => template.uuid === urlUuid);
+    const now = new Date().toISOString();
+    const record = existing
+      ? { ...existing, ...body, uuid: existing.uuid, updated_at: now }
+      : { ...body, uuid: newUuid(), created_at: now, updated_at: now };
+    store.callHandlingTemplates = existing
+      ? callHandlingTemplates.map((template) => (template.uuid === existing.uuid ? record : template))
+      : [...callHandlingTemplates, record];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/tenant/call-handling/template/delete')) {
+    const target = body.uuid || url.split('/').filter(Boolean).pop();
+    store.callHandlingTemplates = (store.callHandlingTemplates ?? []).filter(
+      (template) => template.uuid !== target,
+    );
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  /* A single number's forwarding save — both the ordinary "edit this number"
+     drawer and the bulk Apply-to-Numbers screen land here, one number per
+     call. Merge, never replace: a number's forward_call_actions is also
+     written by AI-receptionist assignment, so overwriting the whole field
+     would silently drop whichever routing that number already had — the
+     exact bug the real endpoint's own merge already guards against (see
+     set-number-forwarding/index.tsx's handleCallForwarding). */
+  if (url.includes('/api/did/call-forwarding')) {
+    const numbers = store.numbers ?? [];
+    const target = numbers.find((number) => number.uuid === body.uuid);
+    if (!target) return ok({ updated: false });
+    const merged = { ...asObject(target.forward_call_actions), ...asObject(body.forward_call_actions) };
+    const record = { ...target, forward_call_actions: JSON.stringify(merged) };
+    store.numbers = numbers.map((number) => (number.uuid === target.uuid ? record : number));
+    writeStore(store);
+    return ok(record);
+  }
+
   return null;
 };
 
@@ -791,6 +847,22 @@ const PHONE_CALL_SEED = [
     billsec: 0,
     disposition: 'Technical',
     hangup_cause: 'NO_ANSWER',
+  },
+  {
+    /* A voicemail greeting plays before the caller hangs up, so the switch
+       still captures a short recording even though the call itself counts
+       as missed — gives the Recordings tab's "Missed" filter a real row
+       instead of always reading empty. */
+    uuid: 'demo-call-7',
+    direction: 'Inbound',
+    caller_id_number: '+917042581369',
+    caller_id_name: 'Rohit Kapoor',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(95),
+    billsec: 6,
+    disposition: 'Billing',
+    hangup_cause: 'NO_ANSWER',
+    record_file: 'demo-recording-7.mp3',
   },
 ];
 
@@ -1025,12 +1097,19 @@ const matchDemoPayload = (url: string, data: unknown) => {
   if (url.includes('/api/tenant/user/template/list')) {
     return ok(listPayload(readStore().templates ?? demoTemplateRows(), {}, data));
   }
+  if (url.includes('/api/tenant/call-handling/template/list')) {
+    return ok(
+      listPayload(readStore().callHandlingTemplates ?? demoCallHandlingTemplateRows(), {}, data),
+    );
+  }
   if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows(), {}, data));
 
   /* Inbox and the admin Numbers list both read the same handful of company
      numbers — one function, three callers. */
-  if (url.includes('/api/fax/did/number/assigned')) return ok(demoAssignedDidRows());
-  if (url.includes('/api/numbers/list')) return ok(listPayload(demoAssignedDidRows(), {}, data));
+  if (url.includes('/api/fax/did/number/assigned')) return ok(readStore().numbers ?? demoAssignedDidRows());
+  if (url.includes('/api/numbers/list')) {
+    return ok(listPayload(readStore().numbers ?? demoAssignedDidRows(), {}, data));
+  }
 
   /* Inbox's conversation list, then the open thread's own messages. Neither
      shares a URL with the SMS *log* above — that's Reports, this is Inbox. */

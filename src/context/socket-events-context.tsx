@@ -21,10 +21,14 @@ import notificationSound from '@/assets/audio/new-notification.mp3';
 import { chatEvents } from '@/context/socket-events';
 import { isDemoMode } from '@/lib/demo-mode';
 import {
+  demoActiveCampaigns,
   demoAgentChatThreads,
   demoAiChatRequests,
   demoAiLiveWallboardData,
+  demoCampaignAgents,
   demoCampaignAiLiveCallData,
+  demoCampaignCallFlowFunnel,
+  demoCampaignLiveCallsData,
   demoChatThreads,
   demoMessageList,
   demoLiveCalls,
@@ -924,10 +928,18 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>(() =>
     isDemoMode() ? demoLiveQueueCalls() : [],
   );
-  const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
-  const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(null);
-  const [campaignAgents, setCampaignAgents] = useState<any>(null);
-  const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(null);
+  const [activeCampaigns, setActiveCampaigns] = useState<any[]>(() =>
+    isDemoMode() ? demoActiveCampaigns() : [],
+  );
+  const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(() =>
+    isDemoMode() ? demoCampaignCallFlowFunnel() : null,
+  );
+  const [campaignAgents, setCampaignAgents] = useState<any>(() =>
+    isDemoMode() ? demoCampaignAgents() : null,
+  );
+  const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(() =>
+    isDemoMode() ? demoCampaignLiveCallsData() : null,
+  );
   const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(() =>
     isDemoMode() ? demoAiLiveWallboardData() : null,
   );

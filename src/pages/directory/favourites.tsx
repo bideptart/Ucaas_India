@@ -11,6 +11,7 @@ import { Ic } from '@/components/mcm/icons';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
 import { usePeopleRows, type PersonRow } from './people-rows';
 import { useDirectoryFavourites } from './use-directory-favourites';
+import './favourites-glass.css';
 
 /**
  * Directory ▸ Favourites — the people you keep coming back to.
@@ -140,6 +141,7 @@ const Favourites = () => {
 
   return (
     <>
+      <div className="gp-favourites">
       <DirectoryPage
         className="favourites-compact"
         title="Favourites"
@@ -301,6 +303,7 @@ const Favourites = () => {
           </div>
         ) : null}
       </DirectoryPage>
+      </div>
 
       {whatsappTo ? (
         <SideDrawer

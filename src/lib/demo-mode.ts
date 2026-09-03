@@ -848,6 +848,22 @@ const PHONE_CALL_SEED = [
     disposition: 'Technical',
     hangup_cause: 'NO_ANSWER',
   },
+  {
+    /* A voicemail greeting plays before the caller hangs up, so the switch
+       still captures a short recording even though the call itself counts
+       as missed — gives the Recordings tab's "Missed" filter a real row
+       instead of always reading empty. */
+    uuid: 'demo-call-7',
+    direction: 'Inbound',
+    caller_id_number: '+917042581369',
+    caller_id_name: 'Rohit Kapoor',
+    destination_number: '1001',
+    start_stamp: phoneDemoMinutesAgo(95),
+    billsec: 6,
+    disposition: 'Billing',
+    hangup_cause: 'NO_ANSWER',
+    record_file: 'demo-recording-7.mp3',
+  },
 ];
 
 const PHONE_VOICEMAIL_SEED = [

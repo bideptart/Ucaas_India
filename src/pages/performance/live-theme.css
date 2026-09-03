@@ -113,7 +113,16 @@ body.perf-warm-backdrop .mcm-page {
     radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.45) 0%, transparent 45%),
     radial-gradient(circle at 50% 85%, rgba(253, 186, 116, 0.5) 0%, transparent 55%),
     #fdf6ee;
-  min-height: 100vh;
+  /* `.mcm-page` already sits in a flex slot sized to exactly the viewport
+     minus the fixed top nav (`height: 100%` in mcm-page.css, correctly
+     resolved by its flex ancestors) — `100vh` here ignored that offset and
+     forced this element 64px taller than its own slot. Layout still clips
+     the overflow, but nothing can ever scroll to reach it, so the page's
+     last row/card reads as cut off with no bottom space, and it gets worse
+     the taller a tab's content is. `100%` asks for exactly the slot this
+     element already has, so short content still gets a full-bleed gradient
+     and tall content is no longer pushed past what the page can show. */
+  min-height: 100%;
 }
 .dark .mcm-page .perf-live,
 .dark body.perf-warm-backdrop .mcm-page {
@@ -122,7 +131,7 @@ body.perf-warm-backdrop .mcm-page {
     radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
     radial-gradient(circle at 50% 85%, rgba(194, 65, 12, 0.24) 0%, transparent 55%),
     #0a0f1a;
-  min-height: 100vh;
+  min-height: 100%;
 }
 /* ------------------------------------------------------------
    1. Toolbar — filters, live status, actions
@@ -464,3 +473,20 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
 .mcm-page .perf-live div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) label {
   color: var(--pl-muted);
 }
+
+/* Pagination footer's own refresh button (table-manager.tsx) carries its
+   own cream/tan pill as Tailwind arbitrary-value classes
+   (`border-[rgba(225,200,165,.9)] bg-[rgba(251,249,246,.88)]`) — the design
+   system's `.mcm-page button:not([data-slot='tabs-trigger'])` reset strips
+   both anyway, the same mcm-page button-reset fight fixed elsewhere in this
+   theme. The outer pagination bar (a `<div>`, not a `<button>`) is untouched
+   by that reset and already renders correctly without help. */
+.mcm-page .perf-live button[class*='backdrop-blur'] {
+  background: rgba(251, 249, 246, 0.88) !important;
+  border: 1px solid rgba(225, 200, 165, 0.9) !important;
+}
+
+/* The pager group (« ‹ 1 › ») is intentionally left at its global default
+   (index.css `.mcm-pager*`) — plain white/gray with a solid orange current
+   page — per explicit request to match that look exactly rather than
+   re-theming it warm like the rest of this page. */

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { PhoneIncoming, AlarmClock } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
@@ -6,10 +7,6 @@ import DateDropdown from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
 import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
-import {
-  getMonitoringCallTimestamp,
-  isMonitoringCallForForwardValue,
-} from '@/pages/monitoring/live-call-helpers';
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
@@ -20,9 +17,11 @@ import LiveInteractionsTab from './live-interactions-tab';
 import CallbacksTab from './callbacks-tab';
 import SpeechTextTab from './speech-text-tab';
 import ReportsTab from './reports-tab';
-import Wallboard, { type WallboardQueueRow, type WallboardTile } from './wallboard';
 import { formatSecsToClock } from './format';
 import { useAnimatedNumber } from './use-animated-number';
+import { useTrend } from './use-trend';
+import HeroStatCard from './hero-stat-card';
+import GroupedStatCard from './grouped-stat-card';
 import '@/components/mcm/mcm-page.css';
 
 import LiveDashboard from '@/pages/dashboard/live-dashboard';
@@ -57,15 +56,6 @@ const TABS = [
 
 const SHOW_KPI_HEADER_TABS = new Set(['queues-activity', 'campaign-activity', 'dashboards']);
 
-// Maps onto the shared status tokens in mcm-page.css rather than raw colours,
-// so the band stays legible in dark mode.
-const KPI_TONE_STYLES: Record<string, string> = {
-  default: '',
-  success: 'good',
-  warning: 'warnv',
-  danger: 'bad',
-};
-
 const slaTone = (sla: number | null): 'default' | 'success' | 'warning' | 'danger' => {
   if (sla === null) return 'default';
   if (sla >= 80) return 'success';
@@ -87,7 +77,6 @@ const Performance = () => {
     viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
   const setActiveTab = (key: string) => setParam({ view: key });
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
-  const [isWallboardOpen, setIsWallboardOpen] = useState(false);
   const [dropdownVal, setDropdownVal] = useState(() => ({
     value: handleDate('Today'),
     date_type: 'Today',
@@ -155,122 +144,15 @@ const Performance = () => {
   const ahtAnimated = useAnimatedNumber(avgHandleTime);
   const occupancyAnimated = useAnimatedNumber(occupancy);
 
-  const kpis: {
-    label: string;
-    value: ReactNode;
-    sub?: ReactNode;
-    tone?: 'default' | 'success' | 'warning' | 'danger';
-  }[] = [
-    {
-      label: 'Waiting',
-      value: String(Math.round(waitingAnimated)),
-      sub: `across ${queues.length} ${queues.length === 1 ? 'queue' : 'queues'}`,
-    },
-    {
-      label: 'Longest wait',
-      value: longestWaitTimestamp ? <Timer startTime={longestWaitTimestamp} /> : '00:00',
-      sub:
-        longestWaitSecs > 120 ? (
-          <span style={{ color: 'var(--crit)' }}>breaching</span>
-        ) : (
-          'within target'
-        ),
-    },
-    {
-      label: 'Service level',
-      value: avgSla === null ? '—' : `${Math.round(slAnimated)}%`,
-      sub: 'target 80% in 20s',
-      tone: slaTone(avgSla),
-    },
-    {
-      label: 'Answered',
-      value: String(Math.round(answeredAnimated)),
-      sub: `of ${callStats.totalCalls} calls`,
-    },
-    {
-      label: 'Abandon rate',
-      value: abandonRate === null ? '—' : `${Math.round(abandonAnimated)}%`,
-      sub: abandonRate === null ? undefined : `${callStats.missedCalls} missed`,
-      tone: abandonRate !== null && abandonRate > 5 ? 'danger' : 'default',
-    },
-    {
-      label: 'Avg handle time',
-      value: avgHandleTime === null ? '—' : formatSecsToClock(ahtAnimated),
-      sub: 'per answered call',
-    },
-    {
-      label: 'On queue agents',
-      value: String(Math.round(onlineAgentsAnimated)),
-      sub: `of ${agentRows.length} active`,
-    },
-    {
-      label: 'Occupancy',
-      value: occupancy === null ? '—' : `${Math.round(occupancyAnimated)}%`,
-      sub: 'target 75–85%',
-    },
-  ];
+  // Trends read off the real polled value, not the animated display value —
+  // the animated one is mid-flight for ~1.8s after every tick, which would
+  // flip the arrow on every render instead of only when the number actually
+  // moves between polls.
+  const waitingTrend = useTrend(waitingCalls.length);
+  const ahtTrend = useTrend(avgHandleTime);
+  const abandonTrend = useTrend(abandonRate);
 
-  // The wallboard mirrors the KPI band and the live queue table on a dark,
-  // room-facing full-screen layout, so it reads from the same live sources.
-  const wallboardTiles: WallboardTile[] = [
-    {
-      key: 'waiting',
-      label: 'Waiting',
-      value: String(waitingCalls.length),
-      warn: waitingCalls.length > 5,
-    },
-    {
-      key: 'longest',
-      label: 'Longest wait',
-      value: '00:00',
-      timerStart: longestWaitTimestamp,
-      warn: longestWaitSecs > 120,
-    },
-    {
-      key: 'sl',
-      label: 'Service level',
-      value: avgSla === null ? '—' : `${Math.round(avgSla)}%`,
-      warn: avgSla !== null && avgSla < 80,
-      good: avgSla !== null && avgSla >= 80,
-    },
-    { key: 'answered', label: 'Answered today', value: String(totals.answered) },
-    {
-      key: 'abandon',
-      label: 'Abandon rate',
-      value: abandonRate === null ? '—' : `${Math.round(abandonRate)}%`,
-      warn: abandonRate !== null && abandonRate > 5,
-      good: abandonRate !== null && abandonRate <= 5,
-    },
-    {
-      key: 'onqueue',
-      label: 'On queue agents',
-      value: String(onlineAgentsCount),
-    },
-  ];
-
-  const wallboardQueues: WallboardQueueRow[] = queues.map((queue: any) => {
-    const queueCalls = activeQueueCalls.filter((call: any) =>
-      isMonitoringCallForForwardValue(call, queue.uuid),
-    );
-    const queueWaiting = queueCalls.filter((call: any) => call?.status === 'waiting');
-    const queueLongest = queueWaiting.reduce((longest: any, call: any) => {
-      if (!longest) return call;
-      const callTimestamp = getMonitoringCallTimestamp(call) ?? Infinity;
-      const longestTimestamp = getMonitoringCallTimestamp(longest) ?? Infinity;
-      return callTimestamp < longestTimestamp ? call : longest;
-    }, null);
-    const nameKey = String(queue.name || '').toLowerCase();
-    const liveStats = liveQueueStatsByName[nameKey];
-    const sla = liveSlaByName[nameKey];
-    return {
-      uuid: queue.uuid,
-      name: queue.name,
-      waiting: queueWaiting.length,
-      longestWaitTimestamp: queueLongest ? getMonitoringCallTimestamp(queueLongest) : null,
-      sla: typeof sla === 'number' ? sla : null,
-      handledToday: liveStats ? liveStats.totalCalls : null,
-    };
-  });
+  const isBreachingWait = longestWaitSecs > 120;
 
   return (
     // `mcm-page` scopes the shared console design system (stat tiles, panels,
@@ -375,11 +257,6 @@ const Performance = () => {
               <span className="dot green pulsing" />
               Live — updates every 2s
             </span>
-            {/* The page header that used to carry these was removed; keeping
-                the actions here so the wallboard stays reachable. */}
-            <button type="button" className="btn ghost sm" onClick={() => setIsWallboardOpen(true)}>
-              Wallboard
-            </button>
             <button
               type="button"
               className="btn primary sm"
@@ -401,28 +278,128 @@ const Performance = () => {
               Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
               now. Answered, Abandon rate and Avg handle time cover the selected date range.
             </p>
-            {/* The design system's auto-fit grid left the 8th tile alone on a
-              second row with the container's divider colour showing through as
-              a large grey block. Fixed column counts divide the 8 evenly. */}
             <style>{`
-            .mcm-page .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            @media (min-width: 700px) {
-              .mcm-page .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            /* Waiting / Longest wait are what a supervisor triages on first —
+               sized up and, past target, ringed so they're findable without
+               reading every tile. Everything else groups into three denser
+               cards instead of six single-metric ones. */
+            .mcm-page .hero-row {
+              display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+              align-items:start; gap:10px; margin-bottom:10px;
             }
-            @media (min-width: 1500px) {
-              .mcm-page .kpis { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+            .mcm-page .hero-stat { padding:16px 18px; position:relative; }
+            .mcm-page .hero-stat-icon {
+              position:absolute; top:16px; right:18px;
+              display:grid; place-items:center; width:44px; height:44px; border-radius:99px;
+              background:var(--accent-wash); color:var(--accent-ink);
+            }
+            .mcm-page .hero-stat-icon-breach { background:var(--crit-wash); color:var(--crit); }
+            .mcm-page .hero-stat-value-row { display:flex; align-items:baseline; gap:8px; margin-top:6px; }
+            .mcm-page .hero-stat-value { font-size:38px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
+            .mcm-page .hero-stat-trend { font-size:18px; font-weight:800; line-height:1; }
+            .mcm-page .hero-stat-trend.bad { color:var(--crit); }
+            .mcm-page .hero-stat-trend.good { color:var(--live); }
+            .mcm-page .hero-stat-breach {
+              border-color: var(--crit);
+              box-shadow: 0 0 0 1px var(--crit);
+              animation: heroBreachPulse 1.8s ease-in-out infinite;
+            }
+            .mcm-page .hero-stat-breach .hero-stat-value { color: var(--crit); }
+            @keyframes heroBreachPulse {
+              0%, 100% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 0 var(--crit-wash); }
+              50% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 8px transparent; }
+            }
+
+            .mcm-page .grouped-row {
+              display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
+              align-items:start; gap:10px; margin-bottom:16px;
+            }
+            @media (min-width: 700px) {
+              .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            }
+            .mcm-page .grouped-stat { padding:14px 16px; }
+            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:14px; margin-top:8px; }
+            .mcm-page .grouped-stat-metric { flex:1; min-width:0; }
+            .mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
+            .mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
+            .mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
+            .mcm-page .grouped-stat-trend.bad { color:var(--crit); }
+            .mcm-page .grouped-stat-trend.good { color:var(--live); }
+
+            /* Reinforces "live" beyond the word itself — a soft glow that
+               breathes with the pulsing dot, not just a static badge. */
+            .mcm-page .fchip.live {
+              animation: liveBadgeGlow 2.4s ease-in-out infinite;
+            }
+            @keyframes liveBadgeGlow {
+              0%, 100% { box-shadow: 0 0 0 0 var(--live-wash); }
+              50% { box-shadow: 0 0 10px 1px var(--live-wash); }
             }
           `}</style>
-            <div className="kpis">
-              {kpis.map((kpi) => (
-                <div key={kpi.label} className="kpi">
-                  <div className="k">{kpi.label}</div>
-                  <div className={`v num ${KPI_TONE_STYLES[kpi.tone || 'default']}`.trim()}>
-                    {kpi.value}
-                  </div>
-                  {kpi.sub && <div className="d">{kpi.sub}</div>}
-                </div>
-              ))}
+            <div className="hero-row">
+              <HeroStatCard
+                label="Waiting"
+                value={String(Math.round(waitingAnimated))}
+                sub={`across ${queues.length} ${queues.length === 1 ? 'queue' : 'queues'}`}
+                breaching={waitingCalls.length > 5}
+                trend={waitingTrend}
+                trendBadWhenUp
+                icon={PhoneIncoming}
+              />
+              <HeroStatCard
+                label="Longest wait"
+                value={longestWaitTimestamp ? <Timer startTime={longestWaitTimestamp} /> : '00:00'}
+                sub={
+                  isBreachingWait ? (
+                    <span style={{ color: 'var(--crit)' }}>breaching</span>
+                  ) : (
+                    'within target'
+                  )
+                }
+                breaching={isBreachingWait}
+                icon={AlarmClock}
+              />
+            </div>
+            <div className="grouped-row">
+              <GroupedStatCard
+                title="Service"
+                primary={{
+                  label: 'Service level · target 80% in 20s',
+                  value: avgSla === null ? '—' : `${Math.round(slAnimated)}%`,
+                  tone: slaTone(avgSla),
+                }}
+                secondary={{
+                  label: 'Avg handle time',
+                  value: avgHandleTime === null ? '—' : formatSecsToClock(ahtAnimated),
+                  trend: ahtTrend,
+                  trendBadWhenUp: true,
+                }}
+              />
+              <GroupedStatCard
+                title="Volume"
+                primary={{
+                  label: `Answered · of ${callStats.totalCalls} calls`,
+                  value: String(Math.round(answeredAnimated)),
+                }}
+                secondary={{
+                  label: abandonRate === null ? 'Abandon rate' : `Abandon · ${callStats.missedCalls} missed`,
+                  value: abandonRate === null ? '—' : `${Math.round(abandonAnimated)}%`,
+                  tone: abandonRate !== null && abandonRate > 5 ? 'danger' : 'default',
+                  trend: abandonTrend,
+                  trendBadWhenUp: true,
+                }}
+              />
+              <GroupedStatCard
+                title="Coverage"
+                primary={{
+                  label: `On queue · of ${agentRows.length} active`,
+                  value: String(Math.round(onlineAgentsAnimated)),
+                }}
+                secondary={{
+                  label: 'Occupancy · target 75–85%',
+                  value: occupancy === null ? '—' : `${Math.round(occupancyAnimated)}%`,
+                }}
+              />
             </div>
           </div>
         )}
@@ -487,14 +464,6 @@ const Performance = () => {
           </div>
         )}
       </div>
-
-      {isWallboardOpen && (
-        <Wallboard
-          tiles={wallboardTiles}
-          queues={wallboardQueues}
-          onClose={() => setIsWallboardOpen(false)}
-        />
-      )}
     </section>
   );
 };

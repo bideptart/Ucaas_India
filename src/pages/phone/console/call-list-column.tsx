@@ -202,7 +202,7 @@ const CallListColumn = ({
   const directionFilter =
     source === 'voicemail' || filterMissedLocally ? [] : activeDirection.filter;
 
-  const { data, isPending, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+  const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: [
         'console-call-list',
@@ -292,36 +292,6 @@ const CallListColumn = ({
           <h2>
             {source === 'call' ? 'Calls' : source === 'recording' ? 'Recordings' : 'Voicemails'}
           </h2>
-          <button
-            type="button"
-            className="thumb"
-            aria-label="Refresh"
-            title="Refresh"
-            onClick={() => refetch()}
-          >
-            <Ic n={isFetching ? 'clock' : 'merge'} size={14} />
-          </button>
-        </div>
-
-        {/* source tabs — same tabType values the old phone page sent — with
-            the date filter sharing their row instead of sitting on its own
-            line below the search box. */}
-        <div className="calls-tabs-row">
-          <div className="panel-tabs" style={{ padding: 0, margin: 0 }}>
-            {sources
-              .filter((s) => s.show)
-              .map((s) => (
-                <button
-                  type="button"
-                  key={s.key}
-                  className={`ptab ${source === s.key ? 'on' : ''}`}
-                  onClick={() => onSourceChange(s.key)}
-                >
-                  {s.label}
-                </button>
-              ))}
-          </div>
-
           <div className="console-datefilter">
             <DateDropdown
               dropdownVal={dropdownVal}
@@ -330,6 +300,24 @@ const CallListColumn = ({
               shortenSelectedLabel
             />
           </div>
+        </div>
+
+        {/* source tabs — same tabType values the old phone page sent. The
+            date filter now sits next to the heading above, so this row is
+            just the tab strip. */}
+        <div className="panel-tabs" style={{ padding: 0, margin: 0 }}>
+          {sources
+            .filter((s) => s.show)
+            .map((s) => (
+              <button
+                type="button"
+                key={s.key}
+                className={`ptab ${source === s.key ? 'on' : ''}`}
+                onClick={() => onSourceChange(s.key)}
+              >
+                {s.label}
+              </button>
+            ))}
         </div>
 
         {source !== 'voicemail' ? (

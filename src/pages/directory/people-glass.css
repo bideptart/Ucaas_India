@@ -53,6 +53,13 @@
   flex-direction: column;
   max-height: calc(100vh - 260px);
 }
+/* SetupGuide sat flush against the panel-card's edges with nothing but its
+   own 1px border between its bottom and the table's header row — no gap,
+   no shadow, nothing to read as "two separate things stacked" rather than
+   one card with a seam through it. */
+.gp-people-setup {
+  margin: 16px 16px 18px;
+}
 .gp-people .tbl-wrap {
   overflow-y: auto;
   min-height: 0;

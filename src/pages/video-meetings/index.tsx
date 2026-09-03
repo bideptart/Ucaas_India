@@ -63,11 +63,11 @@ const VideoMeetings = () => {
         style={{ background: 'rgba(231,139,80,0.11)' }}
       />
 
-      <div className="relative z-10 hidden h-full md:block">
+      <div className="relative hidden h-full md:block">
         <PageSidebarLayout isTab={false} title="Meetings" content={<Sidebar />} />
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] md:hidden">
           <div className="px-4 pt-4">
             <h2 className="text-lg font-semibold text-[#2E2D35]">Meetings</h2>

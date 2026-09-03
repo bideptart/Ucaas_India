@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { recordingList } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import ShareRecordingModal from './modal/share-recording-modal';
-import { FolderOpen, Info, X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
+import CustomTooltip from '@/components/custom/custom-tooltip';
 import RecordingListingTable from './components/recording-listing-table';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { getEnv } from '@/lib/utils';
@@ -98,28 +99,23 @@ const SharedWithMe = () => {
     <>
       <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 overflow-auto bg-transparent p-3 sm:p-4">
         <div className="mx-auto max-w-250 w-full flex min-h-0 flex-1 flex-col gap-3">
-          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex min-w-0 flex-col gap-1">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10"
-                  style={{ color: '#B5642F', background: 'rgba(231,139,80,0.12)' }}
-                >
-                  <FolderOpen className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
-                </div>
-                <h4
-                  className="text-[22px] font-semibold leading-[1.08] tracking-[-0.01em]"
-                  style={{ color: '#8A3F1C' }}
-                >
+          <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:justify-between">
+            <div className="flex min-w-0 flex-col gap-[3px]" style={{ flex: '1 1 320px' }}>
+              <div className="flex items-center gap-1.5">
+                <h4 className="text-[23px] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900">
                   Shared with me
                 </h4>
-                <Info className="h-[15px] w-[15px] text-muted-foreground sm:h-4 sm:w-4" />
+                <CustomTooltip
+                  text="Manage recordings, archives, and meeting transcripts."
+                  side="bottom"
+                  className="max-w-[240px] rounded-xl bg-gray-900 px-3.5 py-2.5 text-[13px] leading-snug shadow-lg"
+                  arrowClassName="fill-gray-900"
+                >
+                  <Info className="h-4 w-4 shrink-0 cursor-help text-gray-400" />
+                </CustomTooltip>
               </div>
-              <p className="text-[13px] leading-[1.4] text-muted-foreground">
-                Manage recordings, archives, and meeting transcripts.
-              </p>
             </div>
-            <div className="inline-flex h-10 w-fit items-center rounded-full border border-white/70 bg-white/45 backdrop-blur-md px-4 text-[13px] text-muted-foreground shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:px-5">
+            <div className="ml-auto inline-flex h-10 w-fit items-center rounded-full border border-white/70 bg-white/45 backdrop-blur-md px-4 text-[13px] text-muted-foreground shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:px-5">
               <span className="mr-1.5 text-[13px] font-bold" style={{ color: '#B5642F' }}>
                 {totalItems}
               </span>

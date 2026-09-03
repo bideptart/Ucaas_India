@@ -35,10 +35,7 @@
   margin-bottom: 16px;
 }
 .gp-roles .page-head h1 {
-  background: linear-gradient(120deg, #c96f1f, #f2994a 60%, #f8b76a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #1a1a1a;
 }
 .gp-roles .page-head p {
   color: #6b5c4d;

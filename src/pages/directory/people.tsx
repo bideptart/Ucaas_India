@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Ic } from '@/components/mcm/icons';
-import SideDrawer from '@/components/custom/side-drawer';
 import UpdateForwarding from '@/pages/admin-settings/people/update-forwarding';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -324,7 +323,9 @@ const People = () => {
         {/* A new admin adding their first people is exactly who needs to see
             how far through setup they are. The guide hides itself once
             everything is done, so an established account never sees it. */}
-        <SetupGuide companyInfo={user?.company_info} />
+        <div className="gp-people-setup">
+          <SetupGuide companyInfo={user?.company_info} />
+        </div>
 
         <table>
           <thead>
@@ -751,28 +752,31 @@ const People = () => {
         onClose={() => setAssigningCallerId(null)}
       />
 
-      {/* An explicit width matters: without one SideDrawer falls back to
-          `calc(100% - 21rem)`, which is ~1660px on a wide screen — far more
-          than a four-step form needs, and it buries the page behind it. */}
-      {editing ? (
-        <SideDrawer
-          isOpen={Boolean(editing)}
-          title={`Edit ${editing.name}`}
-          width="min(1080px, 82vw)"
-          enableResponsive
-          responsiveWidth="96vw"
-          responsiveBreakpoint={1024}
-          handleClose={() => setEditing(null)}
-          content={
-            <UpdateForwarding
-              drawerState
-              setDrawerState={() => setEditing(null)}
-              data={editing.raw}
-              setTabData={() => undefined}
-            />
-          }
-        />
-      ) : null}
+      <Dialog open={Boolean(editing)} onOpenChange={(next) => !next && setEditing(null)}>
+        <DialogContent className="gp-create-group-dialog sm:max-w-[1000px]" showCloseButton={false}>
+          <div className="gp-create-group-head">
+            <h2>{editing ? `Edit ${editing.name}` : 'Edit'}</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setEditing(null)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            {editing ? (
+              <UpdateForwarding
+                drawerState
+                setDrawerState={() => setEditing(null)}
+                data={editing.raw}
+                setTabData={() => undefined}
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

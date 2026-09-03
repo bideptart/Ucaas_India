@@ -545,49 +545,56 @@ function TableManager({
   }, []);
   /* Shared by both the split-header table and (when splitStickyHeader is
      false) the ordinary single-table header — kept as one definition so the
-     two render paths can't drift out of sync with each other. */
-  const headerRowContent = table.getHeaderGroups().map((headerGroup) => (
-    <TableRow key={headerGroup.id} ref={splitStickyHeader ? headerRowRef : undefined}>
-      {hasSubRows && (
-        <TableHead
-          className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black`}
-        ></TableHead>
-      )}
-      {headerGroup.headers.map((header: any, headerIndex: number) => {
-        const textAlign =
-          header.id === 'action' ? 'center' : header.column.columnDef?.meta?.textAlign;
-        /* Tailwind's compiler only picks up complete class-name
-           strings it can find in source — `text-${textAlign}`
-           never matched anything, so every "center"/"right"
-           alignment on every table in the app silently rendered
-           as left the whole time (the class was in the DOM, the
-           CSS rule just never got generated). A literal ternary
-           gives it the whole class names to find.
-           Even fixed, a plain class still loses: `.mcm-page th`
-           (mcm-page.css) sets text-align:left on every <th> in
-           the app at higher specificity than a single utility
-           class. The `!` modifier forces !important so a
-           column's own alignment choice actually wins. */
-        const alignClass =
-          textAlign === 'center'
-            ? '!text-center'
-            : textAlign === 'right'
-              ? '!text-right'
-              : 'text-left';
-
-        return (
+     two render paths can't drift out of sync with each other.
+     extraThClass carries the non-split path's own header styling (solid
+     header background + corners rounded to match its outer clipping
+     wrapper — see that branch below for why) without baking it into the
+     split-header path, which paints its header box a different colour and
+     rounds its own outer corners already. */
+  const renderHeaderRow = (extraThClass = '') =>
+    table.getHeaderGroups().map((headerGroup) => (
+      <TableRow key={headerGroup.id} ref={splitStickyHeader ? headerRowRef : undefined}>
+        {hasSubRows && (
           <TableHead
-            key={`${header.id}_${headerIndex}`}
-            className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
-          >
-            {header.isPlaceholder
-              ? null
-              : flexRender(header.column.columnDef.header, header.getContext())}
-          </TableHead>
-        );
-      })}
-    </TableRow>
-  ));
+            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+          ></TableHead>
+        )}
+        {headerGroup.headers.map((header: any, headerIndex: number) => {
+          const textAlign =
+            header.id === 'action' ? 'center' : header.column.columnDef?.meta?.textAlign;
+          /* Tailwind's compiler only picks up complete class-name
+             strings it can find in source — `text-${textAlign}`
+             never matched anything, so every "center"/"right"
+             alignment on every table in the app silently rendered
+             as left the whole time (the class was in the DOM, the
+             CSS rule just never got generated). A literal ternary
+             gives it the whole class names to find.
+             Even fixed, a plain class still loses: `.mcm-page th`
+             (mcm-page.css) sets text-align:left on every <th> in
+             the app at higher specificity than a single utility
+             class. The `!` modifier forces !important so a
+             column's own alignment choice actually wins. */
+          const alignClass =
+            textAlign === 'center'
+              ? '!text-center'
+              : textAlign === 'right'
+                ? '!text-right'
+                : 'text-left';
+
+          return (
+            <TableHead
+              key={`${header.id}_${headerIndex}`}
+              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+            >
+              {header.isPlaceholder
+                ? null
+                : flexRender(header.column.columnDef.header, header.getContext())}
+            </TableHead>
+          );
+        })}
+      </TableRow>
+    ));
+  const headerRowContent = renderHeaderRow();
 
   const bodyContent = (
     <>
@@ -611,7 +618,14 @@ function TableManager({
             className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10 isolate"
             style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
           >
-            {headerRowContent}
+            {/* bg-[#FBE2C8] + first/last:rounded-*-xl on each cell (not just
+                the shared TableHeader row above) — this header sits inside
+                the same clipped-corner wrapper the non-split scroll box
+                got below, and a sticky descendant can't inherit an
+                ancestor's corner clip in Chromium (position:sticky +
+                overflow + border-radius), so the corner cells round
+                themselves to match instead. */}
+            {renderHeaderRow('bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl')}
           </TableHeader>
         )}
 
@@ -826,14 +840,24 @@ function TableManager({
           </div>
         </div>
       ) : (
-        <div
-          ref={tableScrollRef}
-          className={`overflow-auto table-scroll rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
-          style={
-            isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
-          }
-        >
-          {bodyContent}
+        /* The rounded corner + clip live on this outer, non-scrolling
+           wrapper. Putting them on the scrollable element itself let the
+           sticky header's own background escape the corner clip in
+           Chromium (a known overflow+border-radius+position:sticky
+           interaction), leaving a sliver of the wrapper's paler background
+           showing through at the top corners. A sticky descendant can't
+           escape an ancestor that isn't also the scroll container, so this
+           clips reliably. */
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] overflow-hidden">
+          <div
+            ref={tableScrollRef}
+            className={`overflow-auto table-scroll bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+            style={
+              isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
+            }
+          >
+            {bodyContent}
+          </div>
         </div>
       )}
 

@@ -430,6 +430,23 @@
     overflow: hidden !important;
   }
 
+  /* Toolbar icon buttons (refresh/export/filter) declare their own
+     `bg-white` utility, but the app-wide `.mcm-page button:not(...)` reset
+     strips background/border/color off every plain button and wins on
+     specificity — leaving them see-through next to the white-card preset
+     dropdown. Restore the white card look here. */
+  .mcm-page .filters button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: #ffffff !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+  }
+  .mcm-page
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+  }
+
   .custom-react-select__control:hover {
     border-color: var(--primary) !important;
   }
@@ -1009,7 +1026,15 @@
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 
-  button:disabled,
+  /* `.mini`/`.btn` are this app's own themed pill-button component,
+     styled all over mcm-page.css and the Directory *-glass.css files with
+     their own :disabled treatment (typically a dimmed opacity that keeps
+     the button's own color, e.g. `.mcm-page .btn:disabled { opacity:
+     0.45 }`) — this reset's !important painted them flat grey regardless,
+     silently overriding every one of those regardless of specificity,
+     since an unlayered or later-layered !important can never beat a
+     `@layer base` !important no matter how specific its selector is. */
+  button:disabled:not(.mini):not(.btn),
   input:disabled,
   select:disabled,
   textarea:disabled,

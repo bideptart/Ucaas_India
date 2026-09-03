@@ -4046,3 +4046,135 @@
   border-color: var(--accent-edge);
   box-shadow: var(--shadow-sm);
 }
+
+/* ============================================================
+   Call screen — visual polish only.
+
+   Covers the caller card + info strip shared by every non-idle stage
+   state (dialing, incoming, active, wrap-up, and the simulated demo
+   call) — same `CallerBlock`/`popstrip` markup everywhere, just a more
+   deliberate look: a richer avatar, a bolder timer, and a proper info
+   banner instead of plain muted text for the demo-call notice.
+   ============================================================ */
+.mcm-console .col.stage .stage-inner .caller {
+  gap: 16px;
+  padding: 22px 20px 18px;
+  position: relative;
+  background: radial-gradient(120% 140% at 12% 0%, var(--accent-wash) 0%, transparent 60%);
+  border-radius: 20px 20px 0 0;
+}
+.mcm-console .col.stage .stage-inner .caller-av-ring {
+  flex: none;
+  padding: 3px;
+  border-radius: 22px;
+  background: linear-gradient(140deg, var(--accent), var(--accent-edge));
+  box-shadow: 0 8px 18px rgba(234, 124, 30, 0.3);
+}
+.mcm-console .col.stage .stage-inner .caller-av {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  font-size: 19px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.mcm-console .col.stage .stage-inner .caller-name {
+  font-size: 20px;
+}
+.mcm-console .col.stage .stage-inner .state-pill {
+  padding: 5px 12px;
+  box-shadow: var(--shadow-sm);
+}
+.mcm-console .col.stage .stage-inner .state-pill.live {
+  background: linear-gradient(135deg, var(--live-wash), rgba(13, 148, 136, 0.16));
+}
+/* The pill and timer must stack — the timer's own pill-shaped background
+   (below) turns it into another inline box next to the state pill, and
+   without an explicit column the two just sit side by side and overlap
+   under `text-align: right`. */
+.mcm-console .col.stage .stage-inner .caller-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.mcm-console .col.stage .stage-inner .timer {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 0;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 2px rgba(13, 21, 38, 0.06);
+}
+.mcm-console .col.stage .stage-inner .popstrip {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-3));
+}
+.mcm-console .col.stage .stage-inner .popcell {
+  padding: 12px 14px;
+}
+.mcm-console .col.stage .stage-inner .popcell .k {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.08em;
+}
+.mcm-console .col.stage .stage-inner .popcell .k svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.75;
+}
+.mcm-console .col.stage .stage-inner .popcell .v {
+  font-size: 13px;
+  margin-top: 4px;
+  color: var(--ink);
+}
+.mcm-console .col.stage .stage-inner .demo-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-edge);
+  color: var(--accent-ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.mcm-console .col.stage .stage-inner .demo-note svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+.mcm-console .col.stage .stage-inner .demo-note strong {
+  color: var(--accent-ink);
+}
+@keyframes mcmc-hangup-glow {
+  0%,
+  100% {
+    box-shadow: 0 6px 16px rgba(211, 47, 47, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 0 rgba(211, 47, 47, 0.35);
+  }
+  50% {
+    box-shadow: 0 6px 16px rgba(211, 47, 47, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 7px rgba(211, 47, 47, 0);
+  }
+}
+.mcm-console .col.stage .stage-inner .btn.danger {
+  background: linear-gradient(135deg, var(--crit), #b52424);
+  border-radius: 13px;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  animation: mcmc-hangup-glow 2.2s ease-in-out infinite;
+}
+.mcm-console .col.stage .stage-inner .btn.danger:hover {
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  animation-play-state: paused;
+}
+.mcm-console .col.stage .stage-inner .btn.danger:active {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mcm-console .col.stage .stage-inner .btn.danger {
+    animation: none;
+  }
+}

@@ -78,10 +78,17 @@ const CallerBlock = ({
   const contact = session?.contactInfo;
   const queue = session?.queueMetaData?.response;
 
+  const isInbound = session?.direction === 'incoming';
+  const initials = initialsOf(name);
+
   return (
     <div className="card">
       <div className="caller">
-        <div className="caller-av">{initialsOf(name)}</div>
+        <div className="caller-av-ring">
+          <div className="caller-av">
+            {initials ? initials : <Ic n="user" size={24} fill />}
+          </div>
+        </div>
         <div style={{ minWidth: 0 }}>
           <div className="caller-name">{name}</div>
           <div className="caller-num num">
@@ -103,23 +110,33 @@ const CallerBlock = ({
       </div>
       <div className="popstrip">
         <div className="popcell">
-          <div className="k">Contact</div>
+          <div className="k">
+            <Ic n="user" size={11} /> Contact
+          </div>
           <div className="v">{contact ? name : 'Not in contacts'}</div>
         </div>
         <div className="popcell">
-          <div className="k">Company</div>
+          <div className="k">
+            <Ic n="globe" size={11} /> Company
+          </div>
           <div className="v">{contact?.company || '—'}</div>
         </div>
         <div className="popcell">
-          <div className="k">Queue</div>
+          <div className="k">
+            <Ic n="route" size={11} /> Queue
+          </div>
           <div className="v">{queue?.name || '—'}</div>
         </div>
         <div className="popcell">
-          <div className="k">Direction</div>
-          <div className="v">{session?.direction === 'incoming' ? 'Inbound' : 'Outbound'}</div>
+          <div className="k">
+            <Ic n={isInbound ? 'arrow-in' : 'arrow-out'} size={11} /> Direction
+          </div>
+          <div className="v">{isInbound ? 'Inbound' : 'Outbound'}</div>
         </div>
         <div className="popcell">
-          <div className="k">Recording</div>
+          <div className="k">
+            <Ic n="rec" size={11} /> Recording
+          </div>
           <div className="v" style={{ color: session?.isRecording ? 'var(--crit)' : undefined }}>
             {session?.isRecording ? 'On' : 'Off'}
           </div>
@@ -448,12 +465,12 @@ const StageColumn = ({
             state={connected ? 'active' : 'dialing'}
             secs={demoCall.secs}
           />
-          <div
-            className="card card-pad"
-            style={{ fontSize: 11.5, color: 'var(--ink-4)', textAlign: 'center' }}
-          >
-            Demo call — no telephony backend is connected in this environment, so this is
-            simulated rather than a real connection.
+          <div className="card card-pad demo-note">
+            <Ic n="alert" size={15} />
+            <span>
+              <strong>Demo call.</strong> No telephony backend is connected in this environment, so
+              this is simulated rather than a real connection.
+            </span>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button

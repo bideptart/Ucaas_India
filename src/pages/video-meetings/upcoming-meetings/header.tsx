@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useState } from 'react';
 import JoinMeetingModal from './join-meeting-modal';
 import ScheduleMeeting from '../schedule-meeting';
-import SideDrawer from '@/components/custom/side-drawer';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
 
 const MeetingHeader = ({ formInstance, showActions = true }: any) => {
@@ -97,8 +97,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                     InstantMeeting();
                   }}
                 >
-                  <Icon name="VideocameraAdd" className="w-4 h-4" />
-                  <h6 className="font-semibold text-center text-sm">
+                  <Icon name="VideocameraAdd" className="w-4 h-4 shrink-0" />
+                  <h6 className="font-semibold text-center text-sm whitespace-nowrap">
                     {isPendingInstantMeeting ? 'Please Wait' : 'Start Meeting'}
                   </h6>
                 </div>
@@ -109,8 +109,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                   onClick={() => setModalState(true)}
                   className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                 >
-                  <Icon name="PlusIcon" className="w-4 h-4" />
-                  <h6 className="font-medium text-center text-sm">Join</h6>
+                  <Icon name="PlusIcon" className="w-4 h-4 shrink-0" />
+                  <h6 className="font-medium text-center text-sm whitespace-nowrap">Join</h6>
                 </div>
                 {videAccess?.create && (
                   <>
@@ -119,8 +119,8 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                       className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                       onClick={() => setDrawerState(true)}
                     >
-                      <Icon name="CalendarIcon" className="w-4 h-4" />
-                      <h6 className="font-medium text-center text-sm">Schedule</h6>
+                      <Icon name="CalendarIcon" className="w-4 h-4 shrink-0" />
+                      <h6 className="font-medium text-center text-sm whitespace-nowrap">Schedule</h6>
                     </div>
                   </>
                 )}
@@ -136,19 +136,21 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
           formInstance={formInstance}
         />
       )}
-      {drawerState && (
-        <SideDrawer
-          isOpen={drawerState}
-          title="Schedule New Meeting"
-          handleClose={() => setDrawerState(false)}
-          content={<ScheduleMeeting setDrawerState={setDrawerState} />}
-          isHeader={true}
-          width="650px"
-          enableResponsive
-          responsiveWidth="96vw"
-          responsiveBreakpoint={1024}
-        />
-      )}
+      <Dialog open={drawerState} onOpenChange={setDrawerState}>
+        <DialogContent className="flex w-[96vw] flex-col gap-0 rounded-2xl p-0 sm:max-w-[650px] max-h-[85vh] overflow-y-auto">
+          <div className="px-6 pt-6 pb-1">
+            <h5 className="text-xl font-extrabold" style={{ color: '#2E2D35' }}>
+              Schedule New Meeting
+            </h5>
+            <p className="mt-1 text-xs text-[#9A948F]">
+              Set up a video call with your team or clients
+            </p>
+          </div>
+          <div className="px-6 pt-3 pb-6">
+            <ScheduleMeeting setDrawerState={setDrawerState} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -61,13 +61,25 @@
 /* ------------------------------------------------------------
    2. Sub-tab switcher ("Scheduled tasks" / "Queue voicemail")
    ------------------------------------------------------------ */
+/* The shadcn Tabs component now paints its own default off-white background
+   on the list container (`rgba(251,249,246,.85)`) at higher specificity
+   than a plain class rule beats — since the list is rectangular while the
+   pills inside it are pill-shaped, that background showed through as a
+   flat white block in the gap between them. `!important` clears it back
+   to transparent, the same fix used for the triggers just below. */
 .perf-callbacks [data-slot='tabs-list'] {
-  background: transparent;
+  background: transparent !important;
   gap: 6px;
   padding: 0;
   height: auto;
 }
 
+/* `.mcm-page button[data-slot='tabs-trigger']` (mcm-page.css) sets
+   `background: none` at higher specificity (adds the `button` element to
+   the same attribute selector) than a plain `[data-slot='tabs-trigger']`
+   class rule can out-rank — `!important` on `background` is what makes it
+   stick, the same fix used elsewhere in this theme for the identical
+   mcm-page button-reset fight. */
 .perf-callbacks [data-slot='tabs-trigger'] {
   flex: none;
   height: 28px;
@@ -76,7 +88,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #475569;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.85) !important;
   border: 1px solid rgba(249, 115, 22, 0.28);
   box-shadow: none;
   transition:
@@ -86,20 +98,20 @@
 }
 .dark .perf-callbacks [data-slot='tabs-trigger'] {
   color: #cbd5e1;
-  background: rgba(17, 24, 39, 0.5);
+  background: rgba(17, 24, 39, 0.5) !important;
   border-color: rgba(251, 146, 60, 0.28);
 }
 .perf-callbacks [data-slot='tabs-trigger']:hover {
-  background: rgba(255, 241, 235, 0.9);
+  background: rgba(255, 241, 235, 0.9) !important;
   border-color: rgba(249, 115, 22, 0.4);
   color: var(--pc-accent-ink);
 }
 .dark .perf-callbacks [data-slot='tabs-trigger']:hover {
-  background: rgba(251, 146, 60, 0.14);
+  background: rgba(251, 146, 60, 0.14) !important;
 }
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
-  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%);
+  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%) !important;
   border: 1px solid rgba(249, 115, 22, 0.4);
   box-shadow: 0 2px 8px -3px rgba(249, 115, 22, 0.22);
   color: var(--pc-accent-ink);
@@ -243,3 +255,18 @@
 .perf-callbacks div[class*='rounded-xl'][class*='border-gray-200']:not(.table-scroll) label {
   color: var(--pc-muted);
 }
+
+/* Pagination footer's own refresh button (table-manager.tsx) carries its
+   own cream/tan pill as Tailwind arbitrary-value classes, which the design
+   system's `.mcm-page button:not([data-slot='tabs-trigger'])` reset strips
+   anyway — same mcm-page button-reset fight fixed elsewhere in this theme.
+   The outer bar (a `<div>`) is untouched by that reset already. */
+.perf-callbacks button[class*='backdrop-blur'] {
+  background: rgba(251, 249, 246, 0.88) !important;
+  border: 1px solid rgba(225, 200, 165, 0.9) !important;
+}
+
+/* The pager group (« ‹ 1 › ») is intentionally left at its global default
+   (index.css `.mcm-pager*`) — plain white/gray with a solid orange current
+   page — per explicit request to match that look exactly rather than
+   re-theming it warm like the rest of this page. */

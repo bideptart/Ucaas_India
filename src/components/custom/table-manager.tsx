@@ -373,13 +373,21 @@ function TableManager({
           <div className="px-3 py-2 ">{customHeader}</div>
         </div>
       )}
-      <div
-        ref={tableScrollRef}
-        className={`overflow-auto table-scroll rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
-        style={
-          isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
-        }
-      >
+      {/* The rounded corner + clip live on this outer, non-scrolling wrapper.
+          Putting them on the scrollable element itself let the sticky
+          header's own background escape the corner clip in Chromium (a
+          known overflow+border-radius+position:sticky interaction), leaving
+          a sliver of the wrapper's paler background showing through at the
+          top corners. A sticky descendant can't escape an ancestor that
+          isn't also the scroll container, so this clips reliably. */}
+      <div className="rounded-xl border border-[rgba(225,200,165,0.9)] overflow-hidden">
+        <div
+          ref={tableScrollRef}
+          className={`overflow-auto table-scroll bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+          style={
+            isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
+          }
+        >
         {isFilter && (
           <CommonFilter
             fields={filterFields}
@@ -399,7 +407,7 @@ function TableManager({
               <TableRow key={headerGroup.id}>
                 {hasSubRows && (
                   <TableHead
-                    className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black`}
+                    className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black first:rounded-tl-xl bg-[#FBE2C8]`}
                   ></TableHead>
                 )}
                 {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -427,7 +435,7 @@ function TableManager({
                   return (
                     <TableHead
                       key={`${header.id}_${headerIndex}`}
-                      className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black`}
+                      className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -525,6 +533,7 @@ function TableManager({
             <Loader variant="blue" />
           </div>
         )} */}
+        </div>
       </div>
 
       {showPagination && (

@@ -332,18 +332,27 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
         className="flex h-full w-full min-h-0 flex-col justify-between gap-2"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pr-1 sm:pr-2">
-          <Input
-            {...register('name')}
-            placeholder={'Enter Topic'}
-            type="text"
-            label={'Meeting Topic'}
-            required
-            error={errors?.name?.message}
-            maxLength={50}
-          />
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pr-1 sm:pr-2">
+          <div
+            className="pb-5"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
+            <Input
+              {...register('name')}
+              placeholder={'Enter Topic'}
+              type="text"
+              label={'Meeting Topic'}
+              required
+              error={errors?.name?.message}
+              maxLength={50}
+              className="border-0 border-b border-gray-200 rounded-none bg-transparent px-0 shadow-none focus:border-primary hover:border-gray-300"
+            />
+          </div>
 
-          <div className="flex flex-col gap-4 md:flex-row">
+          <div
+            className="flex flex-col gap-5 pb-5 md:flex-row"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
             <CustomSelect
               label={'Country Code'}
               required
@@ -374,7 +383,11 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               isDisabled={!watchCountryCode}
             />
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+
+          <div
+            className="flex flex-col gap-5 pb-5 md:flex-row md:items-end"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
             <div className="flex flex-col gap-1.5 w-full">
               <Label>Meeting Date</Label>
               <Controller
@@ -433,14 +446,18 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               isDisabled={!watchTimezone}
             />
           </div>
-          <div className="flex flex-col gap-3">
+
+          <div
+            className="flex flex-col gap-2.5 pb-5"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
             <Label>Estimated Duration</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-y-2.5 gap-x-2">
               {durationOptions?.map((item: any) => (
                 <div
                   key={item.value}
                   onClick={() => setDuration(item.value)}
-                  className={`cursor-pointer rounded-xl border border-gray-200 px-3 py-2 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'bg-primary text-white' : 'bg-white text-gray-900'}`}
+                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'border-transparent bg-primary text-white' : 'border-gray-200 bg-transparent text-gray-900'}`}
                 >
                   {item.label}
                 </div>
@@ -449,7 +466,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           </div>
 
           <div className="flex flex-col">
-            <div className="flex min-h-10 flex-col gap-2 py-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-h-9 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Label>Allow join meeting before host</Label>
               <Switch
                 className="cursor-pointer"
@@ -460,7 +477,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               />
             </div>
 
-            <div className="mb-4 flex min-h-10 flex-col gap-3 py-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-3 flex min-h-9 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Label>Need Password to join meeting</Label>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 {watch('need_password') === 'Yes' && (

@@ -312,16 +312,6 @@ const Blocked = () => {
           description="Blocking covers calls, faxes and messages from that number."
           icon={<Ic n="shield" size={16} />}
           status="coming-soon"
-          note={
-            <>
-              Coming soon. A block is recorded against the contact and that is as far as it
-              goes today: nothing in the call path reads it yet, so a blocked number can
-              still ring through. Only the fact of the block is kept — not which channels it
-              covers, not what the caller hears instead, and not whether it applies to a
-              shared line. Those choices are shown here because they are the decision people
-              actually make, and they are what we need to be able to keep.
-            </>
-          }
         >
           <SettingRow
             label="Number"
@@ -443,6 +433,18 @@ const Blocked = () => {
         </SettingCard>
       </div>
 
+      <div className="blocked-note-card">
+        <p className="blocked-note-text">
+          Coming soon. A block is recorded against the contact and that is as far as it goes
+          today: nothing in the call path reads it yet, so a blocked number can still ring
+          through. Only the fact of the block is kept — not which channels it covers, not what
+          the caller hears instead, and not whether it applies to a shared line. Those choices
+          are shown here because they are the decision people actually make, and they are what
+          we need to be able to keep.
+        </p>
+      </div>
+
+      <div className="blocked-table-card">
       <div className="blocked-table-scroll">
         <table>
           <thead>
@@ -503,6 +505,7 @@ const Blocked = () => {
           )}
           </tbody>
         </table>
+      </div>
       </div>
       </DirectoryPage>
 

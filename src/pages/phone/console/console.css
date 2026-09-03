@@ -3973,14 +3973,15 @@
   margin-bottom: 4px;
 }
 .mcm-console .col.stage .stage-inner .keypad {
-  gap: 11px 18px;
+  gap: 11px 10px;
   justify-items: center;
   padding: 3px 4px 0;
 }
 .mcm-console .col.stage .stage-inner .key {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  width: 100%;
+  max-width: 132px;
+  height: 58px;
+  border-radius: 14px;
   background: linear-gradient(175deg, #fff 0%, var(--surface-2) 100%);
   border: 1px solid var(--line);
   box-shadow: 0 2px 5px rgba(120, 72, 20, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.85);

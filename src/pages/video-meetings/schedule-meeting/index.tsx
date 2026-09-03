@@ -332,19 +332,11 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
         className="flex h-full w-full min-h-0 flex-col justify-between gap-2"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto pr-1 sm:pr-2">
-          {/* ── Details ───────────────────────────────────────────── */}
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pr-1 sm:pr-2">
           <div
-            className="flex flex-col gap-3 rounded-2xl border p-4"
-            style={{ borderColor: 'rgba(231,139,80,0.22)' }}
+            className="pb-5"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
           >
-            <div
-              className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em]"
-              style={{ color: '#B5642F' }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E78B50' }} />
-              Details
-            </div>
             <Input
               {...register('name')}
               placeholder={'Enter Topic'}
@@ -353,140 +345,127 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               required
               error={errors?.name?.message}
               maxLength={50}
+              className="border-0 border-b border-gray-200 rounded-none bg-transparent px-0 shadow-none focus:border-primary hover:border-gray-300"
             />
+          </div>
 
-            <div className="flex flex-col gap-4 md:flex-row">
-              <CustomSelect
-                label={'Country Code'}
-                required
-                placeholder="Select Country"
-                options={countries?.map((item: any) => ({
-                  label: `${item?.label} (${item?.value})`,
-                  value: item?.value,
-                }))}
-                handleChange={(value) => {
-                  setValue('country_code', value, {
-                    shouldValidate: true,
-                  });
-                }}
-                value={watchCountryCode}
-                error={errors?.country_code?.message}
+          <div
+            className="flex flex-col gap-5 pb-5 md:flex-row"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
+            <CustomSelect
+              label={'Country Code'}
+              required
+              placeholder="Select Country"
+              options={countries?.map((item: any) => ({
+                label: `${item?.label} (${item?.value})`,
+                value: item?.value,
+              }))}
+              handleChange={(value) => {
+                setValue('country_code', value, {
+                  shouldValidate: true,
+                });
+              }}
+              value={watchCountryCode}
+              error={errors?.country_code?.message}
+            />
+            <CustomSelect
+              label={'Timezone'}
+              required
+              placeholder="Select Timezone"
+              options={timezonesList?.map((item: any) => ({
+                label: item?.zoneName,
+                value: item?.zoneName,
+              }))}
+              handleChange={(value) => setValue('timezone', value, { shouldValidate: true })}
+              value={watch('timezone')}
+              error={errors?.timezone?.message}
+              isDisabled={!watchCountryCode}
+            />
+          </div>
+
+          <div
+            className="flex flex-col gap-5 pb-5 md:flex-row md:items-end"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
+            <div className="flex flex-col gap-1.5 w-full">
+              <Label>Meeting Date</Label>
+              <Controller
+                name="meeting_date"
+                control={control}
+                render={({ field }) => (
+                  <CustomDatePicker
+                    minDate={moment().toDate()}
+                    value={field.value ? new Date(field.value) : null}
+                    onChange={(date) =>
+                      field.onChange(date ? moment(date).format('YYYY-MM-DD') : '')
+                    }
+                    disabled={!watchTimezone}
+                  />
+                )}
               />
-              <CustomSelect
-                label={'Timezone'}
-                required
-                placeholder="Select Timezone"
-                options={timezonesList?.map((item: any) => ({
-                  label: item?.zoneName,
-                  value: item?.zoneName,
-                }))}
-                handleChange={(value) => setValue('timezone', value, { shouldValidate: true })}
-                value={watch('timezone')}
-                error={errors?.timezone?.message}
-                isDisabled={!watchCountryCode}
-              />
+            </div>
+            <CustomSelect
+              label={'Start Time'}
+              placeholder="Hours"
+              className="w-full md:max-w-[120px]"
+              options={startMeetHourArr?.map((item) => {
+                const shouldDisable =
+                  isTodayInTimezone(WatchDate, watchTimezone?.value) &&
+                  Number(item.val) < currentHourTZ;
+                return {
+                  label: item?.val,
+                  value: item?.val,
+                  isDisabled: shouldDisable,
+                };
+              })}
+              handleChange={(value) => setValue('hr', value)}
+              value={watch('hr')}
+              isDisabled={!watchTimezone}
+            />
+            <CustomSelect
+              placeholder="Minutes"
+              className="w-full md:max-w-[120px]"
+              options={startMeetMinutesArr?.map((item) => {
+                const isToday = isTodayInTimezone(WatchDate, watchTimezone?.value);
+                const isCurrentHour = Number(WatchHour?.value) === Number(currentHourTZ);
+
+                const shouldDisable =
+                  isToday && isCurrentHour && Number(item.val) < currentMinuteTZ;
+
+                return {
+                  label: item?.val,
+                  value: item?.val,
+                  isDisabled: shouldDisable,
+                };
+              })}
+              handleChange={(value) => {
+                setValue('mins', value);
+              }}
+              value={watch('mins')}
+              isDisabled={!watchTimezone}
+            />
+          </div>
+
+          <div
+            className="flex flex-col gap-2.5 pb-5"
+            style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+          >
+            <Label>Estimated Duration</Label>
+            <div className="flex flex-wrap gap-y-2.5 gap-x-2">
+              {durationOptions?.map((item: any) => (
+                <div
+                  key={item.value}
+                  onClick={() => setDuration(item.value)}
+                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'border-transparent bg-primary text-white' : 'border-gray-200 bg-transparent text-gray-900'}`}
+                >
+                  {item.label}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* ── Timing ────────────────────────────────────────────── */}
-          <div
-            className="flex flex-col gap-3 rounded-2xl border p-4"
-            style={{ borderColor: 'rgba(231,139,80,0.22)' }}
-          >
-            <div
-              className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em]"
-              style={{ color: '#B5642F' }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E78B50' }} />
-              Timing
-            </div>
-            <div className="flex flex-col gap-4 md:flex-row md:items-end">
-              <div className="flex flex-col gap-1.5 w-full">
-                <Label>Meeting Date</Label>
-                <Controller
-                  name="meeting_date"
-                  control={control}
-                  render={({ field }) => (
-                    <CustomDatePicker
-                      minDate={moment().toDate()}
-                      value={field.value ? new Date(field.value) : null}
-                      onChange={(date) =>
-                        field.onChange(date ? moment(date).format('YYYY-MM-DD') : '')
-                      }
-                      disabled={!watchTimezone}
-                    />
-                  )}
-                />
-              </div>
-              <CustomSelect
-                label={'Start Time'}
-                placeholder="Hours"
-                className="w-full md:max-w-[120px]"
-                options={startMeetHourArr?.map((item) => {
-                  const shouldDisable =
-                    isTodayInTimezone(WatchDate, watchTimezone?.value) &&
-                    Number(item.val) < currentHourTZ;
-                  return {
-                    label: item?.val,
-                    value: item?.val,
-                    isDisabled: shouldDisable,
-                  };
-                })}
-                handleChange={(value) => setValue('hr', value)}
-                value={watch('hr')}
-                isDisabled={!watchTimezone}
-              />
-              <CustomSelect
-                placeholder="Minutes"
-                className="w-full md:max-w-[120px]"
-                options={startMeetMinutesArr?.map((item) => {
-                  const isToday = isTodayInTimezone(WatchDate, watchTimezone?.value);
-                  const isCurrentHour = Number(WatchHour?.value) === Number(currentHourTZ);
-
-                  const shouldDisable =
-                    isToday && isCurrentHour && Number(item.val) < currentMinuteTZ;
-
-                  return {
-                    label: item?.val,
-                    value: item?.val,
-                    isDisabled: shouldDisable,
-                  };
-                })}
-                handleChange={(value) => {
-                  setValue('mins', value);
-                }}
-                value={watch('mins')}
-                isDisabled={!watchTimezone}
-              />
-            </div>
-            <div className="flex flex-col gap-2.5">
-              <Label>Estimated Duration</Label>
-              <div className="flex flex-wrap gap-y-2.5 gap-x-2">
-                {durationOptions?.map((item: any) => (
-                  <div
-                    key={item.value}
-                    onClick={() => setDuration(item.value)}
-                    className={`cursor-pointer rounded-full border border-gray-200 px-3 py-1.5 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'bg-primary text-white' : 'bg-white text-gray-900'}`}
-                  >
-                    {item.label}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Access ────────────────────────────────────────────── */}
-          <div
-            className="flex flex-col gap-1 rounded-2xl border p-4"
-            style={{ borderColor: 'rgba(231,139,80,0.22)' }}
-          >
-            <div
-              className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em]"
-              style={{ color: '#B5642F' }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E78B50' }} />
-              Access
-            </div>
+          <div className="flex flex-col">
             <div className="flex min-h-9 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Label>Allow join meeting before host</Label>
               <Switch

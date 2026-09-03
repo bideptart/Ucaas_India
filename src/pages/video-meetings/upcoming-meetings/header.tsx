@@ -138,24 +138,15 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
       )}
       <Dialog open={drawerState} onOpenChange={setDrawerState}>
         <DialogContent className="flex w-[96vw] flex-col gap-0 rounded-2xl p-0 sm:max-w-[650px] max-h-[85vh] overflow-y-auto">
-          <div
-            className="sticky top-0 z-10 border-b px-5 py-4"
-            style={{
-              borderColor: 'rgba(231,139,80,0.25)',
-              background: 'linear-gradient(135deg, #fff6ec, #fdeee0)',
-            }}
-          >
-            <span
-              className="block text-[10px] font-extrabold uppercase tracking-[0.12em]"
-              style={{ color: '#B5642F' }}
-            >
-              Video Conferencing
-            </span>
-            <h5 className="text-lg font-extrabold" style={{ color: '#8A3F1C' }}>
+          <div className="px-6 pt-6 pb-1">
+            <h5 className="text-xl font-extrabold" style={{ color: '#2E2D35' }}>
               Schedule New Meeting
             </h5>
+            <p className="mt-1 text-xs text-[#9A948F]">
+              Set up a video call with your team or clients
+            </p>
           </div>
-          <div className="px-4 pt-4 pb-5 lg:px-5">
+          <div className="px-6 pt-3 pb-6">
             <ScheduleMeeting setDrawerState={setDrawerState} />
           </div>
         </DialogContent>

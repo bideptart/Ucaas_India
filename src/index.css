@@ -447,6 +447,31 @@
     color: #ffffff !important;
   }
 
+  /* Performance's Calls toolbar (interactions-theme.css) wants these same
+     buttons on its own warm-glass palette instead of the plain white-card
+     look above — for `!important` declarations the cascade reverses layer
+     order and treats unlayered styles as lowest priority, so a
+     `.perf-interactions`-scoped override in that page's own stylesheet can
+     never beat this rule no matter how specific it is. It has to live in
+     this layer, right beside the rule it overrides, for specificity to
+     decide normally. */
+  .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(249, 115, 22, 0.3) !important;
+    color: #f97316 !important;
+  }
+  .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+  }
+
   .custom-react-select__control:hover {
     border-color: var(--primary) !important;
   }

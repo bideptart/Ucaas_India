@@ -111,9 +111,7 @@ const SharedWithMe = () => {
                   className="max-w-[240px] rounded-xl bg-gray-900 px-3.5 py-2.5 text-[13px] leading-snug shadow-lg"
                   arrowClassName="fill-gray-900"
                 >
-                  <span className="inline-flex h-4 w-4 shrink-0 cursor-help items-center justify-center rounded-full border border-[#E78B50] text-[#E78B50]">
-                    <Info className="h-2.5 w-2.5" />
-                  </span>
+                  <Info className="h-4 w-4 shrink-0 cursor-help text-gray-400" />
                 </CustomTooltip>
               </div>
             </div>

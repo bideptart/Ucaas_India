@@ -211,7 +211,17 @@ const Performance = () => {
         .mcm-page .perf-filter-pill {
           display:flex; align-items:center; height:36px;
           border:1px solid var(--line); border-radius:999px;
-          background:var(--surface); overflow:hidden; padding:0 2px;
+          background:var(--surface); padding:0 2px;
+          /* The pill's own rounded look comes from its border-radius,
+             border and background — none of its children (plain text
+             segments, no backgrounds of their own) actually need
+             clipping to stay inside that shape. overflow:hidden was
+             blocking the "Date Range" floating panel below (a position:
+             absolute descendant of the date dropdown, several levels in)
+             from ever being visible: an ancestor's overflow:hidden clips
+             absolutely-positioned descendants too, regardless of their
+             own z-index. */
+          overflow:visible;
         }
         .mcm-page .perf-filter-pill .pf-seg {
           display:flex; align-items:center; height:100%;
@@ -230,6 +240,53 @@ const Performance = () => {
         }
         .mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
         .mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
+        /* The "Date Range" floating panel (DateDropdown's own
+           customPickerPlacement="bottom" markup) is right-0 against its
+           own narrow .relative wrapper — the date select itself, not the
+           toolbar. That wrapper sits right at the pill's left edge, so
+           anchoring the panel's right edge to it pushed the panel almost
+           entirely off-screen to the left. left-0 anchors its LEFT edge
+           there instead, opening the panel rightward into the open space
+           the rest of the toolbar already has. */
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
+          right:auto; left:0;
+          /* The panel's own box was never wider than it should be — at
+             336px (w-[21rem]) it stayed inside its own bounds. What read
+             as its border "overflowing" was the "Waiting, Longest wait…"
+             notice pill sitting directly behind and beside it: full
+             toolbar width, at an overlapping height, showing through past
+             the panel's own 336px edge because a 92%-opacity blur still
+             lets a similar warm/cream shape read as one continuous line
+             next to it. A near-solid background plus a real shadow (not
+             just a blurred backdrop) makes the panel unambiguously lift
+             off the page instead of blending with whatever sits behind
+             it — and the original p-3 (12px) read tight for four full-
+             height controls, so bumped to 16px. */
+          background:#fdfbf8 !important;
+          backdrop-filter: blur(16px) !important;
+          -webkit-backdrop-filter: blur(16px) !important;
+          box-shadow: 0 16px 40px -8px rgba(160,95,30,0.28), 0 4px 12px rgba(160,95,30,0.12) !important;
+          padding:16px !important;
+          margin-top:10px !important;
+        }
+        /* Inside the panel: the From/To fields row and the Clear/Apply row
+           are plain stacked block children (the panel itself isn't a flex
+           column), so both take its full content width by default — the
+           date fields correctly spread edge to edge (each is flex:1), but
+           Clear+Apply, a flex row with no justify-content, just sat at the
+           left of that same width with the rest of it empty. Right-
+           aligning that row sits Apply directly under the "To" field
+           instead of floating alone with dead space beside it, and a
+           little more gap on both rows (was 8px / 6px) keeps every
+           control from reading as glued to its neighbour. */
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:first-child {
+          gap:10px !important;
+          margin-bottom:12px !important;
+        }
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:last-child {
+          gap:10px !important;
+          justify-content:flex-end;
+        }
       `}</style>
 
       <div className="page-bar">
@@ -245,7 +302,18 @@ const Performance = () => {
         <div className="tbar perf-tbar">
           <div className="perf-tbar-group">
             <div className="perf-filter-pill">
-              <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
+              <DateDropdown
+                dropdownVal={dropdownVal}
+                setDropdownVal={setDropdownVal}
+                // The default 'inline' placement rendered the From/To
+                // date cards, clear button and Apply button in the same
+                // row as the Division/Media segments the moment "Date
+                // Range" was picked — a lot to fit on one line before it
+                // even got to those segments. 'bottom' expands that group
+                // into its own floating card under the toolbar instead,
+                // leaving the pill itself untouched.
+                customPickerPlacement="bottom"
+              />
               {resolvedRangeLabel && <span className="pf-seg pf-range">{resolvedRangeLabel}</span>}
               <span className="pf-seg">Division: All</span>
               <span className="pf-seg">Media: All</span>

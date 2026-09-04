@@ -50,6 +50,12 @@ const DateDropdown = ({
 }: any) => {
   const showCustomPickerBelow = customPickerPlacement === 'bottom';
   const toDatePickerRef = useRef<any>(null);
+  // `date_type` stays 'Custom' after Apply (it's what keeps the preset
+  // select showing "Date Range"), so the panel's own open/closed state
+  // can't just follow it — this tracks that separately. Re-picking "Date
+  // Range" from the preset select (even when it's already selected) opens
+  // it again via updateDateState below.
+  const [isRangePanelOpen, setIsRangePanelOpen] = useState(false);
   const [dateRange, setDateRange] = useState<any>({
     from: moment().format('YYYY-MM-DD'),
     to: moment().format('YYYY-MM-DD'),
@@ -68,6 +74,9 @@ const DateDropdown = ({
       date_type: value,
       value: ['Custom', 'Custom Date/Time'].includes(value) ? prev.value : handleDate(value),
     }));
+    if (value === 'Custom') {
+      setIsRangePanelOpen(true);
+    }
     if (value === 'Custom Date/Time') {
       setDateRange((prev: any) => ({
         ...prev,
@@ -95,6 +104,12 @@ const DateDropdown = ({
           // click-to-pick reads as a real dropdown; a text cursor inside it
           // invited typing that this list was never built to search.
           isSearchable={false}
+          // Scopes the rendered menu/option classes to
+          // `.mcm-date-preset.custom-react-select__*` (date-picker-theme.css)
+          // instead of the app-wide `.custom-react-select__*` rules — this
+          // is the one select where all 7 options should always fit without
+          // its own scrollbar, which the shared 200px cap doesn't allow.
+          inputClass="mcm-date-preset"
           FormatOptionLabel={
             shortenSelectedLabel
               ? ({ option, context }: any) => (
@@ -106,7 +121,7 @@ const DateDropdown = ({
           }
         />
       </div>
-      {date_type && date_type === 'Custom' ? (
+      {date_type && date_type === 'Custom' && isRangePanelOpen ? (
         <div
           className={
             showCustomPickerBelow
@@ -186,12 +201,13 @@ const DateDropdown = ({
               variant={'primary'}
               disabled={!dateRange?.to}
               className="mcm-date-apply-btn h-9 min-h-9 max-h-9 shrink-0 rounded-lg px-2.5 py-0"
-              onClick={() =>
+              onClick={() => {
                 setDropdownVal((prev: any) => ({
                   ...prev,
                   value: handleDate(date_type, dateRange),
-                }))
-              }
+                }));
+                setIsRangePanelOpen(false);
+              }}
             >
               Apply
             </Button>

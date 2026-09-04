@@ -111,6 +111,16 @@
   border-color: #f2994a;
 }
 
+/* The preset list ("Today", "Yesterday", "Last 7 Days", ...) is themed in
+   index.css's `@layer base` instead of here — that's where the shared
+   `.custom-react-select__*` rules it needs to outrank live. For
+   `!important` declarations the cascade reverses layer order and treats
+   unlayered styles as the lowest priority, so a plain override in this
+   file can never beat an `!important` declaration inside `@layer base`,
+   no matter how specific it is. See index.css for the actual rules,
+   scoped via `inputClass="mcm-date-preset"` on the CustomSelect in
+   index.tsx. */
+
 /* The "From" / "To" cards that trigger each of the two calendars. */
 .mcm-date-field {
   display: flex;

@@ -70,7 +70,7 @@ export const demoProfile = (number: string): DemoProfile => {
     since: `${years} yr ${months} mo`,
     city,
     tz,
-    balance: `$${(40 + (seed % 260)).toFixed(2)}`,
+    balance: `₹${((40 + (seed % 260)) * 83).toFixed(2)}`,
     openTickets: seed % 3,
     lifetimeCalls: 3 + (seed % 22),
     language: pick(LANGS, seed, 1),

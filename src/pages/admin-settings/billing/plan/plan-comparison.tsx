@@ -29,7 +29,7 @@ import {
   yearlySavingPercent,
   type PlanDefinition,
 } from '@/lib/plan-catalogue';
-import { formatMoney, moneyOrUnavailable } from '@/lib/billing-money';
+import { formatMoney, moneyOrUnavailable, USD_TO_INR_RATE } from '@/lib/billing-money';
 
 interface Row {
   label: string;
@@ -185,7 +185,10 @@ const PlanComparison = () => (
                 </td>
                 <td className="border-b border-gray-100 py-2.5 tabular-nums text-gray-600">
                   {addOn.overageRate !== undefined
-                    ? `$${addOn.overageRate.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')} each`
+                    ? `₹${(addOn.overageRate * USD_TO_INR_RATE)
+                        .toFixed(3)
+                        .replace(/0+$/, '')
+                        .replace(/\.$/, '')} each`
                     : '—'}
                 </td>
               </tr>

@@ -18,6 +18,7 @@ import PaymentScreen from '@/components/payment';
 import { CARDS_TYPE } from '@/constants/common-const';
 import Loader from '@/components/custom/loader';
 import { useBlocker, useNavigate } from 'react-router-dom';
+import { formatMoney } from '@/lib/billing-money';
 
 const RENEW_PLAN_PATH = '/renew-plan';
 
@@ -312,21 +313,25 @@ const RenewPlan = () => {
                 {dataGetMyPlanDetails?.last_billing?.created_at
                   ? moment(dataGetMyPlanDetails.last_billing.created_at).format('DD MMM, YYYY')
                   : 'NA'}{' '}
-                · $
-                {userInfoData?.company_info?.is_trial === 'Y' &&
-                !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
-                  ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
-                  : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0}{' '}
+                ·{' '}
+                {formatMoney(
+                  userInfoData?.company_info?.is_trial === 'Y' &&
+                    !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
+                    ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
+                    : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0,
+                )}{' '}
                 ×{' '}
                 {userInfoData?.company_info?.is_trial === 'Y' &&
                 !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
                   ? 1
                   : dataGetMyPlanDetails?.last_billing?.total_license}{' '}
-                = $
-                {userInfoData?.company_info?.is_trial === 'Y' &&
-                !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
-                  ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
-                  : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total}{' '}
+                ={' '}
+                {formatMoney(
+                  userInfoData?.company_info?.is_trial === 'Y' &&
+                    !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
+                    ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
+                    : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total,
+                )}{' '}
                 <span className="text-gray-500 font-normal text-sm">(excl. tax)</span>
               </p>
 
@@ -386,7 +391,7 @@ const RenewPlan = () => {
                   setIsRenewPaymentInitiate(false);
                 }}
                 isApiLoad={isRenewPaymentInitiate || isPendingUpgradeTrialPlan}
-                submitButtonText={`Pay $${getTaxes?.total_amount || 0}`}
+                submitButtonText={`Pay ${formatMoney(getTaxes?.total_amount || 0)}`}
               />
             </div>
           </DialogContent>

@@ -2,7 +2,7 @@ import { formatDate } from '@/lib/utils';
 import TableManager from '@/components/custom/table-manager';
 import { allNumbersList } from '@/services/api';
 import NumberWithFlag from '@/components/custom/number-with-flag';
-import { UNAVAILABLE, knownNumber } from '@/lib/billing-money';
+import { UNAVAILABLE, knownNumber, USD_TO_INR_RATE } from '@/lib/billing-money';
 
 // const DID_TYPE_MAP = {
 //   L: 'LOCAL_DID',
@@ -31,7 +31,7 @@ const DIDList = () => {
     },
 
     {
-      header: 'DID Cost ($)',
+      header: 'DID Cost (₹)',
       accessorKey: 'monthly_cost',
       cell: ({ row }: any) => {
         const { monthly_cost } = row.original ?? {};
@@ -41,7 +41,9 @@ const DIDList = () => {
            is being charged for. A cost we were not sent says so instead. */
         const parsedCost = knownNumber(monthly_cost);
         const isValidCost = parsedCost !== null;
-        const costValue = isValidCost ? parsedCost.toFixed(2) : UNAVAILABLE;
+        const costValue = isValidCost
+          ? (parsedCost * USD_TO_INR_RATE).toFixed(2)
+          : UNAVAILABLE;
         const isFree = parsedCost === 0;
 
         return (

@@ -1,6 +1,7 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Controller, UseFormReturn } from 'react-hook-form';
+import { formatMoney } from '@/lib/billing-money';
 
 const PaymentAndConfirmation = ({ formInstance }: { formInstance: UseFormReturn<any> }) => {
   const {
@@ -20,8 +21,8 @@ const PaymentAndConfirmation = ({ formInstance }: { formInstance: UseFormReturn<
           month-to-month basis.
         </p>
         <p className="text-gray-500 text-sm">
-          You will initially be charged up to $20 once you've submitted your application. This is
-          non-refundable.
+          You will initially be charged up to {formatMoney(20)} once you've submitted your
+          application. This is non-refundable.
         </p>
       </div>
       <div className="w-full flex flex-col gap-3 mb-4 mt-2">
@@ -34,7 +35,7 @@ const PaymentAndConfirmation = ({ formInstance }: { formInstance: UseFormReturn<
             Application fee
           </div>
           <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">
-            $20.00 upfront one-off
+            {formatMoney(20)} upfront one-off
           </div>
         </div>
         {/* <div className="w-full flex  gap-2">

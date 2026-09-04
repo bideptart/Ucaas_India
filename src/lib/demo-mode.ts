@@ -199,10 +199,15 @@ export const DEMO_USER = {
     /* AuthProvider sends anyone without this to /phone-lines-auth. */
     free_did: true,
     is_trial: 'N',
-    currency: 'USD',
+    currency: 'INR',
     country: 'IN',
     timezone: 'Asia/Kolkata',
     plan_features: PLAN_FEATURES,
+    /* The header wallet pill and dialpad balance both read this — without a
+       figure here they showed a bare, symbol-less "00.00" that didn't read
+       as money at all. `formatMoney` converts this the same as every other
+       billing figure, so it lands as a plausible ₹20,376.50 balance. */
+    amount: 245.5,
   },
 };
 

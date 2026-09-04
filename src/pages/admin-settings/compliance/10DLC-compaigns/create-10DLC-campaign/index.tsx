@@ -14,6 +14,7 @@ import {
   useCaseSchema,
 } from '../constant';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { formatMoney } from '@/lib/billing-money';
 import { addCampaign } from '@/services/api';
 import { handleAlert } from '@/lib/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -235,8 +236,8 @@ const Create10DLCCampaign = ({ setDrawerState }: { drawerState: boolean; setDraw
           setOpen,
           descriptionTextComp: (
             <div className=" text-md">
-              Are you sure you want to proceed with creating the campaign? The amount $20 will be
-              deducted from your wallet?
+              Are you sure you want to proceed with creating the campaign? The amount{' '}
+              {formatMoney(20)} will be deducted from your wallet?
             </div>
           ),
         }}

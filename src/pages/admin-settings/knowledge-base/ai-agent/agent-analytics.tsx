@@ -21,6 +21,7 @@ import {
 } from 'recharts';
 import { downloadAnalyticsSectionAsPdf } from '@/lib/analytics-export';
 import { handleAlert } from '@/lib/utils';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 
 interface AgentAnalyticsProps {
   onClose: () => void;
@@ -1863,7 +1864,9 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 <p className="text-[10px] font-semibold text-slate-500 uppercase">Total spend</p>
                 <p className="text-xl font-bold text-slate-900 mt-0.5">
                   {analyticsData?.cost_usage_breakdown?.total_spend != null
-                    ? `$${Number(analyticsData.cost_usage_breakdown.total_spend).toFixed(4)}`
+                    ? `₹${(
+                        Number(analyticsData.cost_usage_breakdown.total_spend) * USD_TO_INR_RATE
+                      ).toFixed(4)}`
                     : '--'}
                 </p>
                 <p className="text-[10px] font-bold text-slate-400 flex items-center mt-1">
@@ -1899,7 +1902,9 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                         )}
                       </span>
                       <span className="font-bold text-slate-900 shrink-0">
-                        {a.total_spend != null ? `$${Number(a.total_spend).toFixed(4)}` : '--'}
+                        {a.total_spend != null
+                          ? `₹${(Number(a.total_spend) * USD_TO_INR_RATE).toFixed(4)}`
+                          : '--'}
                       </span>
                     </div>
                   );

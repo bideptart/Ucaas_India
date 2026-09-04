@@ -53,12 +53,19 @@
   flex-direction: column;
   max-height: calc(100vh - 260px);
 }
-/* SetupGuide sat flush against the panel-card's edges with nothing but its
-   own 1px border between its bottom and the table's header row — no gap,
-   no shadow, nothing to read as "two separate things stacked" rather than
-   one card with a seam through it. */
+/* SetupGuide now renders as `DirectoryPage`'s `beforeTable` slot — a sibling
+   of `.panel-card`, not nested inside it — specifically so it can carry its
+   own card chrome (background, border, shadow, radius) instead of sitting
+   flush against the panel-card's edges with only a 1px border between its
+   bottom and the table's header row. Without this it read as one card with
+   a seam through it rather than two distinct things stacked. */
 .gp-people-setup {
-  margin: 16px 16px 18px;
+  background: #fffdfb;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
+  border-radius: 20px;
+  padding: 4px;
+  margin-bottom: 16px;
 }
 .gp-people .tbl-wrap {
   overflow-y: auto;
@@ -280,7 +287,7 @@
   --mcm-accent-edge: #ffd9ad;
   --mcm-ink: #0d1526;
   --mcm-ink-2: #3d4a63;
-  background: #fffaf3;
+  background: #ffffff;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-person-fields {
@@ -364,12 +371,15 @@ input.gp-field-v:disabled {
   cursor: pointer;
 }
 .gp-person-dialog .btn.ghost {
-  background: #fff;
-  border-color: rgba(242, 153, 74, 0.3);
-  color: var(--mcm-ink-2, #3d4a63);
+  /* Same solid orange-outline-until-filled-on-hover treatment as every
+     other Cancel/Close in Directory. */
+  background: transparent;
+  border-color: #f2994a;
+  color: #f2994a;
 }
 .gp-person-dialog .btn.ghost:hover {
-  border-color: #f2994a;
+  background: #f2994a;
+  color: #ffffff;
 }
 .gp-person-dialog .btn.primary {
   background: #f2994a;

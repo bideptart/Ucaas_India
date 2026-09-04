@@ -146,7 +146,7 @@ const NewSiteSteps = ({ data = {}, handleClose }: any) => {
       className="flex h-full min-h-0 flex-col justify-between gap-4 pt-3 sm:pt-4"
     >
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
-        <div className="mx-auto flex w-full max-w-[940px] flex-col items-center rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4 sm:p-5">
+        <div className="mcm-site-summary mx-auto flex w-full max-w-[940px] flex-col items-center rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4 sm:p-5">
           <h3 className="mb-2 text-center text-base font-semibold text-[#2E2D35] sm:text-lg">
             {isEdit ? 'Edit Site' : 'Create New Site'}
           </h3>
@@ -164,7 +164,7 @@ const NewSiteSteps = ({ data = {}, handleClose }: any) => {
         {/* <div className=" w-full max-w-[940px] rounded-xl mx-auto  p-5 border border-gray-200 bg-white"> */}
         <div className="mx-auto w-full max-w-[940px]">{stepLookUp[currentStep]}</div>
       </div>
-      <div className="flex flex-col-reverse gap-2 border-t border-[#EEE7DD] pt-3 sm:flex-row sm:justify-end sm:pt-4">
+      <div className="mcm-site-foot flex flex-col-reverse gap-2 border-t border-[#EEE7DD] pt-3 sm:flex-row sm:justify-end sm:pt-4">
         <Button
           onClick={() => {
             if (currentStep === 1) {
@@ -175,12 +175,17 @@ const NewSiteSteps = ({ data = {}, handleClose }: any) => {
           }}
           variant={'transparent'}
           type="button"
-          className="w-full sm:w-auto"
+          className="mcm-site-cancel w-full sm:w-auto"
         >
           {currentStep === 1 ? 'Cancel' : 'Back'}
         </Button>
 
-        <Button variant={'primary'} disabled={isPending} type="submit" className="w-full sm:w-auto">
+        <Button
+          variant={'primary'}
+          disabled={isPending}
+          type="submit"
+          className="mcm-site-submit w-full sm:w-auto"
+        >
           {isPending ? (
             <Loader variant="blue" size="sm" />
           ) : currentStep === 2 ? (

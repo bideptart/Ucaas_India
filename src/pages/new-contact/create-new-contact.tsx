@@ -803,7 +803,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           </div>
 
           <div className="flex flex-col w-full gap-4">
-            <p className="font-semibold text-gray-900">Address Information</p>
+            <p className="gp-form-section-h font-semibold text-gray-900">Address Information</p>
             <div className="flex gap-4 flex-wrap">
               <Input
                 placeholder="Enter street"
@@ -933,7 +933,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
             )}
           </div>
           {/* <div className="flex flex-col w-full gap-4">
-            <p className="font-semibold text-gray-900">Notes Information</p>
+            <p className="gp-form-section-h font-semibold text-gray-900">Notes Information</p>
             <div className="flex gap-4 relative">
               <div className="flex flex-col gap-1.5 w-full">
                 <div className="flex items-center justify-between">
@@ -960,7 +960,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           {!hideCancelButton ? (
             <Button
               type="button"
-              variant="transparent"
+              variant="outline"
               onClick={() => {
                 handleClose?.();
                 setIsDisable((prevState) => !prevState);

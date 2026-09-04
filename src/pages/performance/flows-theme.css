@@ -154,24 +154,42 @@ body.perf-warm-backdrop.dark {
   border-radius: 20px;
   overflow: hidden;
 }
+/* The scrollbar track used to run the full height of the card, alongside
+   the sticky 40px header — pushing it down so it only travels next to the
+   actual data rows, not the header. Measured, not guessed: the header's
+   real rendered height on this table is 40px. */
+.perf-flows .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 2px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated. */
 .perf-flows .table-scroll thead {
-  background: rgba(255, 250, 244, 0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 0 var(--fl-hairline);
+  background: #fffdfb;
+  box-shadow: none;
 }
 .dark .perf-flows .table-scroll thead {
   background: rgba(23, 15, 10, 0.97);
 }
 .perf-flows .table-scroll thead th {
-  color: var(--fl-muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom-color: var(--fl-hairline);
+  padding: 9px 12px !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
   background: transparent;
+}
+.perf-flows .table-scroll thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.perf-flows .table-scroll thead th:last-child {
+  border-top-right-radius: 20px;
 }
 
 .perf-flows .table-scroll tbody tr {

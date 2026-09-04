@@ -8,6 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useWatch } from 'react-hook-form';
+import { formatMoney } from '@/lib/billing-money';
 
 export const formatString = (str: string) => {
   if (!str) return '';
@@ -106,7 +107,7 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
                         </TableCell>
                         <td className="bg-gray-100/10 border-b border-gray font-medium px-4 py-3 text-gray-900 text-left">
                           <p className="font-medium text-gray-800">
-                            ${billingDetails?.prorated_cost}
+                            {formatMoney(billingDetails?.prorated_cost)}
                           </p>
                         </td>
                       </TableRow>
@@ -128,7 +129,9 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
                       <p className="font-medium text-gray-800">{data?.numberType?.label}</p>
                     </TableCell>
                     <td className="bg-gray-100/10 border-b border-gray font-medium px-4 py-3 text-gray-900 text-left">
-                      <p className="font-medium text-gray-800">${billingDetails?.prorated_cost}</p>
+                      <p className="font-medium text-gray-800">
+                        {formatMoney(billingDetails?.prorated_cost)}
+                      </p>
                     </td>
                   </TableRow>
                 )}
@@ -143,10 +146,12 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
             </h5>
             <ul className="flex flex-col gap-2 pt-3 text-sm text-gray-800">
               <li className="flex items-center justify-between gap-2">
-                <span className="font-semibold">Monthly DID Cost:</span> $
-                {data?.virtualNumbers?.length
-                  ? data?.virtualNumbers?.length * billingDetails?.prorated_cost
-                  : data?.quantity?.value * billingDetails?.prorated_cost}
+                <span className="font-semibold">Monthly DID Cost:</span>{' '}
+                {formatMoney(
+                  data?.virtualNumbers?.length
+                    ? data?.virtualNumbers?.length * billingDetails?.prorated_cost
+                    : data?.quantity?.value * billingDetails?.prorated_cost,
+                )}
               </li>
               <li className="flex items-center justify-between gap-2">
                 <span className="font-semibold">
@@ -157,7 +162,7 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
               </li>
               <li className="flex items-center justify-between gap-2">
                 <span className="font-semibold">Prorated Charge for a DID:</span>{' '}
-                {`$${getPriceWithTax()}`}
+                {formatMoney(getPriceWithTax())}
               </li>
             </ul>
           </div>

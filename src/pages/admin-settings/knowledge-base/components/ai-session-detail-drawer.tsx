@@ -1,6 +1,7 @@
 import { getSessionChat } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Copy, Download, Loader2, X } from 'lucide-react';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 
 type SessionIntent = { label: string; summary: string };
 type SentimentKey = 'positive' | 'neutral' | 'negative';
@@ -40,7 +41,7 @@ const formatDuration = (durationMs: any) => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
-const formatCost = (value: any) => `$${safeNumber(value).toFixed(2)}`;
+const formatCost = (value: any) => `₹${(safeNumber(value) * USD_TO_INR_RATE).toFixed(2)}`;
 
 const hasSessionCost = (session: any) =>
   session?.totalCostUSD !== null && session?.totalCostUSD !== undefined;

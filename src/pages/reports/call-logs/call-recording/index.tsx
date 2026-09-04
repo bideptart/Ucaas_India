@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
 import { useNavigate } from 'react-router-dom';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import { ReportsPageLayout } from '../../reports-content-layout';
 import { convertDateFormateApis, formatSecondsToMMSS, handleAlert, MEDIA_URL } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
@@ -347,7 +348,7 @@ const CallRecording = () => {
       cell: ({ row }: any) => {
         const data = row?.original;
         const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
-        return `$${value.toFixed(2)}`;
+        return `₹${(value * USD_TO_INR_RATE).toFixed(2)}`;
       },
     },
     {

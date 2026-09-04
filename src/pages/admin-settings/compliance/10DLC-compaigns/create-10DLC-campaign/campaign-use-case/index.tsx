@@ -7,6 +7,7 @@ import { getUseCaseList } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Crown, Star } from 'lucide-react';
 import { Controller } from 'react-hook-form';
+import { formatMoney } from '@/lib/billing-money';
 
 const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
   const { data } = useBrandList();
@@ -103,7 +104,7 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
                                 </RadioGroup>
 
                                 <h3 className="shrink-0 whitespace-nowrap text-gray-500 font-medium text-sm">
-                                  $20
+                                  {formatMoney(20)}
                                 </h3>
                               </div>
                             );
@@ -158,7 +159,7 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
                                 </RadioGroup>
 
                                 <h3 className="shrink-0 whitespace-nowrap text-gray-500 font-medium text-sm">
-                                  $20
+                                  {formatMoney(20)}
                                 </h3>
                               </div>
                             );

@@ -3,6 +3,20 @@
    so no other `.mcm-page` screen is affected. */
 
 .gp-blocked {
+  /* `.page` inside relies on being a flex item of a column flex container
+     (`flex: 1; min-height: 0; overflow-y: auto`, in mcm-page.css) to be
+     bounded to the available height and scroll internally — that's what
+     every other Directory page gets for free by having `.page` as a direct
+     child of `.mcm-page` (itself `display: flex; flex-direction: column`).
+     This wrapper (added only for the gradient background) sits between the
+     two, and as a plain block it broke that chain: `.page` fell back to its
+     natural content height, silently overflowing past `.mcm-page`'s
+     `overflow: hidden` with nothing left to scroll it — the page just
+     stopped scrolling once the "Block a number" form pushed the content
+     taller than the viewport. Repeating the same flex-column treatment here
+     passes the bounded height through instead of absorbing it. */
+  display: flex;
+  flex-direction: column;
   position: relative;
   isolation: isolate;
   min-height: 100%;
@@ -72,4 +86,280 @@
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
+}
+
+/* ---- the blocked list: a grid of contact cards, not a table — the
+   "Block a number" form moved into a dialog (opened from the button in the
+   header), so this page's whole surface is now just the people you have
+   stopped hearing from, laid out the way a rolodex would rather than as
+   rows of a data table like every other Directory screen. */
+.blocked-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+.blocked-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid rgba(150, 100, 50, 0.12);
+  border-radius: 14px;
+  background: #fff;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+.blocked-card:hover {
+  border-color: rgba(242, 153, 74, 0.35);
+  box-shadow: 0 8px 20px rgba(160, 95, 30, 0.12);
+  transform: translateY(-1px);
+}
+/* A number toggled back off — the card stays in the grid (rather than
+   disappearing) so the toggle itself is visible, just faded to read as
+   "not currently doing anything" instead of an active block. */
+.blocked-card.is-unblocked {
+  background: #fbfaf8;
+  opacity: 0.7;
+}
+.blocked-card.is-unblocked:hover {
+  opacity: 1;
+}
+.blocked-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.blocked-card-unblock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 153, 74, 0.4);
+  background: #fff6e9;
+  color: #c96f1f;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.blocked-card-unblock:hover:not(:disabled) {
+  background: #f2994a;
+  color: #fff;
+  border-color: #f2994a;
+}
+.blocked-card-unblock:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* Re-blocking reads as the more deliberate action, so its button leans on
+   the same solid accent the "Block a number" buttons use elsewhere, rather
+   than the soft outline the (already-active) Unblock button gets. */
+.blocked-card.is-unblocked .blocked-card-unblock {
+  background: #f2994a;
+  color: #fff;
+  border-color: #f2994a;
+}
+.blocked-card.is-unblocked .blocked-card-unblock:hover:not(:disabled) {
+  background: #e0863a;
+}
+.blocked-card-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 13.5px;
+}
+.blocked-card-phone {
+  font-size: 12.5px;
+  color: #6b5c4d;
+  font-variant-numeric: tabular-nums;
+}
+.blocked-card-email {
+  font-size: 12px;
+  color: #8a7a67;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blocked-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 24px;
+  color: #8a7a67;
+  text-align: center;
+}
+.blocked-empty-state p {
+  margin: 0;
+  font-size: 13.5px;
+  max-width: 34ch;
+}
+
+/* ---- "Block a number" dialog. Portaled to `document.body` (outside
+   `.mcm-page`), so — same reason every other Directory dialog uses literal
+   hex rather than this design system's `.mcm-page`-scoped CSS custom
+   properties — colours here are hard-coded instead of `var(--ink)` etc.,
+   which would resolve to nothing outside `.mcm-page`. */
+.gp-block-dialog {
+  background: #ffffff !important;
+}
+/* The `.ic` icon sprite's own fill/stroke rule is scoped to `.mcm-page`
+   (mcm-page.css) — this dialog is portaled to `document.body`, outside it,
+   so without this the sprite's line-based icons (the close "x", the shield
+   on the submit button) render with SVG's default black fill on an open
+   path, which has effectively zero area and shows nothing. */
+.gp-block-dialog .ic {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.gp-block-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gp-block-intro {
+  margin: 0;
+  font-size: 12.5px;
+  color: #6b5c4d;
+}
+.gp-block-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.gp-block-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2a2733;
+}
+.gp-block-hint {
+  font-size: 11.5px;
+  color: #8a7a67;
+  line-height: 1.4;
+}
+.gp-block-input {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(225, 200, 165, 0.9);
+  background: #fff;
+  font-size: 13px;
+  color: #2a2733;
+  outline: none;
+}
+.gp-block-input:focus {
+  border-color: #f2994a;
+  box-shadow: 0 0 0 3px rgba(242, 153, 74, 0.15);
+}
+.gp-block-select .custom-react-select__control {
+  border-color: rgba(225, 200, 165, 0.9) !important;
+  border-radius: 10px !important;
+  min-height: 38px !important;
+}
+.gp-block-summary {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff6e9;
+  border: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-summary p {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b5c4d;
+}
+.gp-block-summary p:last-child {
+  margin-bottom: 0;
+}
+.gp-block-summary p.is-blocking {
+  color: #c0392b;
+  font-weight: 600;
+}
+.gp-block-summary p.is-warning {
+  color: #b06a1a;
+}
+.gp-block-summary p.is-muted {
+  color: #9a948f;
+}
+.gp-block-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(150, 100, 50, 0.06);
+  color: #8a7a67;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.gp-block-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-cancel,
+.gp-block-secondary {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #f2994a;
+  background: #fff;
+  color: #f2994a;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.gp-block-cancel:hover,
+.gp-block-secondary:hover {
+  background: #f2994a;
+  color: #fff;
+}
+.gp-block-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #f2994a;
+  background: #f2994a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gp-block-submit:hover:not(:disabled) {
+  background: #e0863a;
+}
+.gp-block-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

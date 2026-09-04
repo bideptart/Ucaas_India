@@ -199,10 +199,15 @@ export const DEMO_USER = {
     /* AuthProvider sends anyone without this to /phone-lines-auth. */
     free_did: true,
     is_trial: 'N',
-    currency: 'USD',
+    currency: 'INR',
     country: 'IN',
     timezone: 'Asia/Kolkata',
     plan_features: PLAN_FEATURES,
+    /* The header wallet pill and dialpad balance both read this — without a
+       figure here they showed a bare, symbol-less "00.00" that didn't read
+       as money at all. `formatMoney` converts this the same as every other
+       billing figure, so it lands as a plausible ₹20,376.50 balance. */
+    amount: 245.5,
   },
 };
 
@@ -1069,10 +1074,30 @@ const matchDemoPayload = (url: string, data: unknown) => {
     /* Directory ▸ Blocked reads this same endpoint twice — once for the whole
        book, once filtered to `tag: 'BLOCK'` for the table itself — so the
        filter has to actually apply or "blocked" shows everyone. */
-    const tagFilter = (asObject(data)?.filters || []).find((row: any) => row?.key === 'tag');
-    const rows = tagFilter
+    const requestBody = asObject(data);
+    const tagFilter = (requestBody?.filters || []).find((row: any) => row?.key === 'tag');
+    let rows = tagFilter
       ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
       : demoContactBookRows();
+
+    /* Directory ▸ External Contacts' own search box sends `search` on every
+       keystroke (debounced) — matched the same way the real endpoint's
+       `search` param would, against name/phone/email/company, so typing
+       actually narrows the list instead of the box doing nothing. */
+    const search = String(requestBody?.search || '').trim().toLowerCase();
+    if (search) {
+      rows = rows.filter((row: any) =>
+        [
+          `${row?.name?.first || ''} ${row?.name?.last || ''}`,
+          row?.contact?.phone,
+          row?.contact?.email,
+          row?.company,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
+    }
+
     return ok(listPayload(rows, {}, data));
   }
   if (url.includes('/api/tenant/report/inbound-calls')) {

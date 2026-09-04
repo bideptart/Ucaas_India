@@ -8,6 +8,7 @@ import { downloadCSV } from '@/pages/admin-settings/billing/invoice/constants';
 import { useUser } from '@/hooks/use-user';
 import { FilterIcon, SearchLine } from '@/assets/icons';
 import { Input } from '@/components/ui/input';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import { Button } from '@/components/ui/button';
 import { callList, callListById, forwardActionType, getSessionList } from '@/services/api';
 import { CALL_DIRECTIONS, FORWARD_ICONS } from '@/pages/dashboard/constant';
@@ -679,7 +680,7 @@ const CallHistory = ({
         cell: ({ row }: any) => {
           const data = row?.original;
           const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
-          return `₹${value.toFixed(2)}`;
+          return `₹${(value * USD_TO_INR_RATE).toFixed(2)}`;
         },
       },
       {

@@ -522,6 +522,7 @@ interface SocketEventsType {
     chatId?: string,
     attachments?: any[],
   ) => void;
+  createTeamChat: (payload: any, message?: string, callback?: (response: any) => void) => void;
   updateChatLists: (
     updater: (chats: any[]) => any[],
     options?: { targetChatId?: string; upsertInAgentList?: boolean },
@@ -726,6 +727,7 @@ export const SocketEvents = createContext<SocketEventsType>({
   setRecentTasks: () => void 0,
   handleOpenChatInWindow: () => void 0,
   createNewChat: () => void 0,
+  createTeamChat: () => void 0,
   updateChatLists: () => void 0,
   chatExist: () => null,
   createPrivateChatId: () => '',
@@ -3931,6 +3933,17 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const getCampaignLiveCalls = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Demo mode has no socket connection, so `socketEventsManager` is null
+         and the Refresh button on the Live Wallboard would silently do
+         nothing forever. Re-seed from the same generator used at initial
+         mount — `demoCallStats()` inside it reads the live clock, so a
+         refresh visibly moves the numbers instead of being a no-op. */
+      if (isDemoMode()) {
+        const res = demoCampaignLiveCallsData();
+        setCampaignLiveCallsData(res);
+        if (callback) callback(res);
+        return;
+      }
       if (!socketEventsManager) return;
       socketEventsManager.emit('campaign-live-calls', payload, (res: any) => {
         if (callback) callback(res);
@@ -3941,6 +3954,15 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const getAiLiveWallboardData = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Same reasoning as getCampaignLiveCalls above — the AI Wallboard's
+         Refresh button otherwise has no socket to round-trip through in
+         demo mode. */
+      if (isDemoMode()) {
+        const res = demoAiLiveWallboardData();
+        setAiLiveWallboardData(res);
+        if (callback) callback(res);
+        return;
+      }
       if (!socketEventsManager || isDisconnecting) return;
       socketEventsManager.emit(chatEvents.MAIN_AI_LIVE_WALLBOARD, payload, (res: any) => {
         if (callback) callback(res);
@@ -4018,7 +4040,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
           createdAt: new Date().toISOString(),
         });
       }
-    } else if (socketEventsManager) {
+    } else {
       const transformUser = (u: any) => {
         const info = u?.user_info || u;
         return {
@@ -4031,7 +4053,48 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
       const usersToSend = [transformUser(user), transformUser(otherPersonDetails)];
 
-      socketEventsManager.emit(
+      /* Demo mode has no server to create the chat on, so the socket emit
+         below would just be a no-op and "New Message" would silently do
+         nothing. Add the chat to local state directly instead — same shape
+         demoChatThreads() seeds — then send the first message through the
+         normal (already demo-aware) handleSendMessage path. */
+      if (isDemoMode()) {
+        setAllChats((prev: any[]) => {
+          const list = Array.isArray(prev) ? prev : [];
+          if (list.some((chat: any) => chat?.chatId === requiredChatId)) return list;
+          return [
+            {
+              chatId: requiredChatId,
+              isGroupChat: false,
+              groupType: 'DM',
+              users: usersToSend,
+              lastMessage: null,
+              createdAt: new Date().toISOString(),
+              favoriteChats: [],
+              isHidden: [],
+              isDeleted: false,
+            },
+            ...list,
+          ];
+        });
+
+        if (message) {
+          handleSendMessage({
+            chatId: requiredChatId,
+            message,
+            attachments: attachments || [],
+            senderId: user?.uuid,
+            receiverId: [otherPersonDetails?.uuid],
+            messageId: uuidV4(),
+            isForwarded,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        handleOpenChatInWindow(requiredChatId, false, maximize);
+        return;
+      }
+
+      socketEventsManager?.emit(
         chatEvents.CREATE_NEW_CHAT,
         {
           chatId: requiredChatId,
@@ -4059,6 +4122,54 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
         },
       );
     }
+  }
+
+  /* Team/channel creation (name + description + avatar + multiple members),
+     used by the "Create New Team" drawer. createNewChat above only covers
+     1-1 direct chats, so this is the group equivalent — same demo-mode
+     local-echo pattern: without it, demo mode's null socketEventsManager
+     made the CREATE_NEW_CHAT emit a silent no-op, and "Create Team" did
+     nothing at all. */
+  function createTeamChat(payload: any, message?: string, callback?: (response: any) => void) {
+    if (isDemoMode()) {
+      setAllChats((prev: any[]) => {
+        const list = Array.isArray(prev) ? prev : [];
+        return [
+          {
+            ...payload,
+            lastMessage: message
+              ? { message, createdAt: new Date().toISOString(), senderId: user?.uuid }
+              : null,
+            createdAt: new Date().toISOString(),
+            favoriteChats: [],
+            isHidden: [],
+            isDeleted: false,
+          },
+          ...list,
+        ];
+      });
+
+      if (message?.trim()) {
+        handleSendMessage({
+          chatId: payload?.chatId,
+          message: [{ type: 'paragraph', children: [{ text: message.trim() }] }],
+          attachments: [],
+          senderId: user?.uuid,
+          receiverId: (Array.isArray(payload?.users) ? payload.users : [])
+            .map((chatUser: any) => chatUser?.uuid)
+            .filter((uuid: string) => uuid && uuid !== user?.uuid),
+          messageId: uuidV4(),
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      callback?.({ status: 200, success: true });
+      return;
+    }
+
+    socketEventsManager?.emit(chatEvents.CREATE_NEW_CHAT, payload, (response: any) => {
+      callback?.(response);
+    });
   }
 
   function handleSendMessage(message: any, callback?: (response: any) => void) {
@@ -4909,6 +5020,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
         setRecentTasks,
         handleOpenChatInWindow,
         createNewChat,
+        createTeamChat,
         updateChatLists,
         chatExist,
         createPrivateChatId: createPrivateChatIdFromUsers,

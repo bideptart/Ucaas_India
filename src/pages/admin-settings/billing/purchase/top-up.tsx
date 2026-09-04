@@ -128,7 +128,7 @@ const TopUp = () => {
               /* The amount somebody picked, written as money. There is always
                  one — the buttons above cannot select nothing — but it is
                  formatted through the same function as every other figure so
-                 "Pay $20.00" reads like the rest of billing. */
+                 "Pay ₹1,660.00" reads like the rest of billing. */
               submitButtonText={
                 formatMoney(selectedAmount) ? `Pay ${formatMoney(selectedAmount)}` : 'Pay'
               }

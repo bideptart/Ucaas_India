@@ -1,6 +1,7 @@
 import TableManager from '@/components/custom/table-manager';
 import { useRef, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import { ReportsPageLayout } from '../../reports-content-layout';
 import { convertDateFormateApis, formatSecondsToMMSS, handleAlert } from '@/lib/utils';
 import { SearchLine } from '@/assets/icons';
@@ -298,7 +299,7 @@ const LocalCallList = () => {
       accessorKey: 'charge',
       cell: ({ row }: any) => {
         const value = Number(row?.original?.charge ?? 0);
-        return `$${value.toFixed(2)}`;
+        return `₹${(value * USD_TO_INR_RATE).toFixed(2)}`;
       },
     },
     {

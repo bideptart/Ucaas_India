@@ -175,61 +175,6 @@ const tabOptions: Array<{ label: string; value: AgentChatTab }> = [
   { label: 'Resolved', value: 'resolved' },
 ];
 
-const sidebarTabStyles: Record<
-  AgentChatTab,
-  {
-    inactiveText: string;
-    activeText: string;
-    activeBg: string;
-    activeDecoration?: string;
-    inactiveBadgeBg: string;
-    inactiveBadgeText: string;
-    activeBadgeBg?: string;
-    activeBadgeText?: string;
-  }
-> = {
-  unassigned: {
-    inactiveText: 'text-muted-foreground',
-    activeText: 'text-ucass-orange',
-    activeBg: 'bg-white',
-    activeDecoration: 'shadow-sm',
-    inactiveBadgeBg: 'bg-muted',
-    inactiveBadgeText: 'text-muted-foreground',
-    activeBadgeBg: 'bg-ucass-orange/10',
-    activeBadgeText: 'text-ucass-orange',
-  },
-  active: {
-    inactiveText: 'text-muted-foreground',
-    activeText: 'text-white',
-    activeBg: 'bg-ucass-active',
-    activeDecoration: 'shadow-sm',
-    inactiveBadgeBg: 'bg-muted',
-    inactiveBadgeText: 'text-muted-foreground',
-    activeBadgeBg: 'bg-white/20',
-    activeBadgeText: 'text-white',
-  },
-  missed: {
-    inactiveText: 'text-muted-foreground',
-    activeText: 'text-destructive',
-    activeBg: 'bg-white',
-    activeDecoration: 'shadow-sm',
-    inactiveBadgeBg: 'bg-muted',
-    inactiveBadgeText: 'text-muted-foreground',
-    activeBadgeBg: 'bg-destructive/10',
-    activeBadgeText: 'text-destructive',
-  },
-  resolved: {
-    inactiveText: 'text-muted-foreground',
-    activeText: 'text-emerald-700',
-    activeBg: 'bg-white',
-    activeDecoration: 'shadow-sm ring-1 ring-emerald-200',
-    inactiveBadgeBg: 'bg-muted',
-    inactiveBadgeText: 'text-muted-foreground',
-    activeBadgeBg: 'bg-emerald-100',
-    activeBadgeText: 'text-emerald-700',
-  },
-};
-
 const getPinnedAtTimestampForUser = (chat: any, userId?: string) => {
   if (!chat || !userId) return 0;
 
@@ -321,12 +266,14 @@ const PendingRequestItem = ({
   const relativeTime = getSidebarRelativeTime(requestedAt) || 'Just now';
 
   return (
-    <div className="px-3">
+    <div className="px-3 pb-2">
       <button
         type="button"
         onClick={() => onSelect(request)}
-        className={`min-h-[84px] w-full cursor-pointer rounded-[12px] px-3 py-[10px] text-left transition-colors duration-200 ${
-          isSelected ? 'bg-ucass-active-bg' : 'bg-transparent hover:bg-muted'
+        className={`min-h-[84px] w-full cursor-pointer rounded-[10px] border-l-[3px] bg-white px-3 py-[10px] text-left shadow-[0_1px_2px_rgba(46,45,53,0.05)] transition-colors duration-200 ${
+          isSelected
+            ? 'border-l-ucass-orange bg-[#FFF6EE]'
+            : 'border-l-transparent hover:border-l-[#F3D9BC] hover:bg-muted/40'
         }`}
       >
         <div className="flex items-start gap-3">
@@ -448,12 +395,12 @@ const ListItem = ({
   }
 
   return (
-    <div key={chat?.chatId} className="px-3" onClick={() => handleClickItem(chat)}>
+    <div key={chat?.chatId} className="px-3 pb-2" onClick={() => handleClickItem(chat)}>
       <div
-        className={`min-h-[68px] w-full cursor-pointer rounded-[12px] px-3 py-[10px] transition-colors duration-200 ${
+        className={`min-h-[68px] w-full cursor-pointer rounded-[10px] border-l-[3px] bg-white px-3 py-[10px] shadow-[0_1px_2px_rgba(46,45,53,0.05)] transition-colors duration-200 ${
           chatIdFromQuery === chat?.chatId || chatWindows?.includes(chat?.chatId)
-            ? 'bg-ucass-active-bg'
-            : 'bg-transparent hover:bg-muted'
+            ? 'border-l-ucass-orange bg-[#FFF6EE]'
+            : 'border-l-transparent hover:border-l-[#F3D9BC] hover:bg-muted/40'
         }`}
       >
         <div className="flex items-center gap-3">
@@ -807,57 +754,52 @@ const SidebarContent = ({
       </div>
 
       <div className="px-4 pt-4 pb-5 border-b border-border bg-white">
-        <div className="h-12 rounded-[14px] bg-muted p-[5px]">
-          <div className="grid h-full grid-cols-[1.5fr_1fr_1fr_1.15fr] gap-1.5">
-            {tabOptions.map((tab) => {
-              const count = tabCounts[tab.value as AgentChatTab] || 0;
-              const isActive = activeTab === tab.value;
-              const styles = sidebarTabStyles[tab.value];
-              const badgeBg = isActive
-                ? styles.activeBadgeBg || styles.inactiveBadgeBg
-                : styles.inactiveBadgeBg;
-              const badgeText = isActive
-                ? styles.activeBadgeText || styles.inactiveBadgeText
-                : styles.inactiveBadgeText;
+        <div className="flex gap-2">
+          {tabOptions.map((tab) => {
+            const count = tabCounts[tab.value as AgentChatTab] || 0;
+            const isActive = activeTab === tab.value;
 
-              return (
-                <button
-                  key={tab.value}
-                  className={`h-[38px] min-w-0 rounded-[12px] px-1 text-[10px] sm:text-[11px] font-semibold cursor-pointer ${
-                    isActive
-                      ? `${styles.activeBg} ${styles.activeText} ${styles.activeDecoration || ''}`
-                      : `${styles.inactiveText} hover:text-foreground`
+            return (
+              <button
+                key={tab.value}
+                className={`flex-1 min-w-0 cursor-pointer rounded-[12px] py-2.5 text-center transition-all duration-200 ${
+                  isActive
+                    ? 'bg-ucass-orange shadow-[0_4px_12px_-3px_rgba(249,115,22,0.5)]'
+                    : 'bg-muted hover:bg-[#F3E9DC]'
+                }`}
+                onClick={() => {
+                  if (tab.value === 'unassigned' || tab.value === 'missed') {
+                    setChatWindows([]);
+                  }
+                  if (tab.value !== 'unassigned' && tab.value !== 'missed') {
+                    setSelectedPendingRequestId('');
+                  }
+                  setActiveTab(tab.value);
+                  setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set('type', tab.value);
+                    next.delete('chatId');
+                    return next;
+                  });
+                }}
+              >
+                <div
+                  className={`text-[17px] font-bold leading-none ${
+                    isActive ? 'text-white' : 'text-foreground/80'
                   }`}
-                  onClick={() => {
-                    if (tab.value === 'unassigned' || tab.value === 'missed') {
-                      setChatWindows([]);
-                    }
-                    if (tab.value !== 'unassigned' && tab.value !== 'missed') {
-                      setSelectedPendingRequestId('');
-                    }
-                    setActiveTab(tab.value);
-                    setSearchParams((prev) => {
-                      const next = new URLSearchParams(prev);
-                      next.set('type', tab.value);
-                      next.delete('chatId');
-                      return next;
-                    });
-                  }}
                 >
-                  <span className="inline-flex items-center justify-center gap-0.5 whitespace-nowrap">
-                    <span>{tab.label}</span>
-                    {count > 0 && (
-                      <span
-                        className={`inline-flex h-[16px] min-w-[16px] shrink-0 items-center justify-center rounded-full ${badgeBg} px-1 text-[9px] font-bold ${badgeText}`}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                  {count}
+                </div>
+                <div
+                  className={`mt-1.5 truncate text-[9.5px] font-semibold uppercase tracking-wide ${
+                    isActive ? 'text-white/90' : 'text-muted-foreground/80'
+                  }`}
+                >
+                  {tab.label}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         <div className="mt-3 flex items-center gap-2">
@@ -881,6 +823,7 @@ const SidebarContent = ({
                 }}
                 inputClass=""
                 menuPlacement="bottom"
+                isSearchable={false}
               />
             </div>
           )}
@@ -1085,19 +1028,6 @@ const AgentChatMessenger = () => {
           }
           onBackToList={isCompactLayout ? handleBackToChatList : undefined}
           onOpenProfile={isCompactLayout ? () => setIsProfileDrawerOpen(true) : undefined}
-          onPendingAccepted={(acceptedChatId: string) => {
-            setSelectedPendingRequestId('');
-            setChatWindows([acceptedChatId]);
-            setActiveTab('active');
-            setSearchParams((prev) => {
-              const next = new URLSearchParams(prev);
-              next.set('type', 'active');
-              if (acceptedChatId) {
-                next.set('chatId', acceptedChatId);
-              }
-              return next;
-            });
-          }}
         />
       </section>
       <VisitorProfile activeChatId={activeChatId} chat={selectedChat} currentUserId={user?.uuid} />

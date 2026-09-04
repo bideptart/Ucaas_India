@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
-import DateDropdown from '@/components/custom/date-dropdown';
+import DateDropdown, { type DateDropdownHandle } from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
 import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
@@ -82,6 +82,7 @@ const Performance = () => {
     date_type: 'Today',
     dateOptions: DateFilterTypes,
   }));
+  const dateDropdownRef = useRef<DateDropdownHandle>(null);
   const selectedRange = dropdownVal.value;
   /* "Today" or "Last 7 Days" says which preset is picked, not which dates
      that resolves to — this spells the actual range out next to it, the
@@ -211,7 +212,17 @@ const Performance = () => {
         .mcm-page .perf-filter-pill {
           display:flex; align-items:center; height:36px;
           border:1px solid var(--line); border-radius:999px;
-          background:var(--surface); overflow:hidden; padding:0 2px;
+          background:var(--surface); padding:0 2px;
+          /* The pill's own rounded look comes from its border-radius,
+             border and background — none of its children (plain text
+             segments, no backgrounds of their own) actually need
+             clipping to stay inside that shape. overflow:hidden was
+             blocking the "Date Range" floating panel below (a position:
+             absolute descendant of the date dropdown, several levels in)
+             from ever being visible: an ancestor's overflow:hidden clips
+             absolutely-positioned descendants too, regardless of their
+             own z-index. */
+          overflow:visible;
         }
         .mcm-page .perf-filter-pill .pf-seg {
           display:flex; align-items:center; height:100%;
@@ -230,6 +241,31 @@ const Performance = () => {
         }
         .mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
         .mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
+        /* The "Date Range" floating panel (DateDropdown's own
+           customPickerPlacement="bottom" markup) is right-0 against its
+           own narrow .relative wrapper — the date select itself, not the
+           toolbar. That wrapper sits right at the pill's left edge, so
+           anchoring the panel's right edge to it pushed the panel almost
+           entirely off-screen to the left. left-0 anchors its LEFT edge
+           there instead, opening the panel rightward into the open space
+           the rest of the toolbar already has. Everything else about the
+           panel's own look (background, padding, shadow, radius) is set
+           directly on it in date-dropdown/index.tsx now — it's a single
+           compact row, not the taller two-row card this override used to
+           also have to reshape. */
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
+          right:auto; left:0;
+        }
+        /* The toolbar's own "Sep 2 – Sep 3" segment — clickable once a
+           custom range is active, reopening the panel in one click instead
+           of needing the preset re-picked from the select beside it. */
+        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable {
+          cursor:pointer; border-radius:999px; margin:0 2px;
+          transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable:hover {
+          background: rgba(249,115,22,0.1); color:var(--accent-ink);
+        }
       `}</style>
 
       <div className="page-bar">
@@ -245,8 +281,42 @@ const Performance = () => {
         <div className="tbar perf-tbar">
           <div className="perf-tbar-group">
             <div className="perf-filter-pill">
-              <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
-              {resolvedRangeLabel && <span className="pf-seg pf-range">{resolvedRangeLabel}</span>}
+              <DateDropdown
+                ref={dateDropdownRef}
+                dropdownVal={dropdownVal}
+                setDropdownVal={setDropdownVal}
+                // The default 'inline' placement rendered the From/To
+                // date cards, clear button and Apply button in the same
+                // row as the Division/Media segments the moment "Date
+                // Range" was picked — a lot to fit on one line before it
+                // even got to those segments. 'bottom' expands that group
+                // into its own floating card under the toolbar instead,
+                // leaving the pill itself untouched.
+                customPickerPlacement="bottom"
+              />
+              {resolvedRangeLabel &&
+                (dropdownVal.date_type === 'Custom' ? (
+                  // A custom range has a panel to go back and edit — the
+                  // preset select beside it still works too, but re-picking
+                  // "Date Range" from an already-"Date Range" select takes
+                  // an extra click a supervisor glancing at "Sep 2 – Sep 3"
+                  // shouldn't need.
+                  <span
+                    className="pf-seg pf-range pf-range-clickable"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => dateDropdownRef.current?.openRangePanel()}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        dateDropdownRef.current?.openRangePanel();
+                      }
+                    }}
+                  >
+                    {resolvedRangeLabel}
+                  </span>
+                ) : (
+                  <span className="pf-seg pf-range">{resolvedRangeLabel}</span>
+                ))}
               <span className="pf-seg">Division: All</span>
               <span className="pf-seg">Media: All</span>
             </div>

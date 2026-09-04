@@ -1,4 +1,5 @@
 import { getAgentList, getChatAgentList, getSessionList } from '@/services/api';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import AiSessionDetailDrawer from '@/pages/admin-settings/knowledge-base/components/ai-session-detail-drawer';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Download, Loader2, MessageSquare, Phone, Search } from 'lucide-react';
@@ -55,7 +56,7 @@ const formatDuration = (durationMs: any) => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
-const formatCost = (value: any) => `$${safeNumber(value).toFixed(2)}`;
+const formatCost = (value: any) => `₹${(safeNumber(value) * USD_TO_INR_RATE).toFixed(2)}`;
 
 const hasSessionCost = (session: any) =>
   session?.totalCostUSD !== null && session?.totalCostUSD !== undefined;

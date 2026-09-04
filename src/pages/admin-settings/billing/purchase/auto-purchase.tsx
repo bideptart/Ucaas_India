@@ -222,7 +222,7 @@ export const LowBalanceAlert = ({
             <div className="w-full">
               <Input
                 type="number"
-                label="Threshold Amount ($)"
+                label="Threshold Amount (₹)"
                 placeholder="Enter amount"
                 value={lowBalanceAmount}
                 onChange={(e) => {

@@ -754,7 +754,7 @@ const LicenseManagement: FC<any> = ({ dataGetMyPlanDetails, restrictPlan }) => {
                     {isLoading ? (
                       <Skeleton className="h-3 w-[55px] bg-[#F0DFC5]" />
                     ) : (
-                      <>${getTaxes?.plan_cost || 0}</>
+                      <>{formatMoney(getTaxes?.plan_cost || 0)}</>
                     )}
                   </div>
                 </div>

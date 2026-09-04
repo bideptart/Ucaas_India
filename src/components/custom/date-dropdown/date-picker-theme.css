@@ -111,6 +111,16 @@
   border-color: #f2994a;
 }
 
+/* The preset list ("Today", "Yesterday", "Last 7 Days", ...) is themed in
+   index.css's `@layer base` instead of here — that's where the shared
+   `.custom-react-select__*` rules it needs to outrank live. For
+   `!important` declarations the cascade reverses layer order and treats
+   unlayered styles as the lowest priority, so a plain override in this
+   file can never beat an `!important` declaration inside `@layer base`,
+   no matter how specific it is. See index.css for the actual rules,
+   scoped via `inputClass="mcm-date-preset"` on the CustomSelect in
+   index.tsx. */
+
 /* The "From" / "To" cards that trigger each of the two calendars. */
 .mcm-date-field {
   display: flex;
@@ -139,6 +149,16 @@
 }
 .mcm-date-input:hover {
   border-color: #f2994a;
+}
+/* The single-row toolbar bar (`customPickerPlacement="bottom"`) packs From,
+   To, Reset and Apply onto one ~46px-tall line — the default 36px input
+   plus this bar's own 10px (p-2.5) top/bottom padding would land near
+   56px, taller than that slim target. Scoped to `.mcm-date-range-bar` only,
+   so every other caller of this same `.mcm-date-input` (the inline
+   placement mode, still two rows) keeps its original size. */
+.mcm-date-range-bar .mcm-date-input {
+  height: 28px;
+  padding: 0 8px;
 }
 .mcm-date-input:focus,
 .mcm-date-input:focus-visible {

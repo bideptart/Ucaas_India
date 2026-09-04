@@ -243,15 +243,22 @@ body.perf-warm-backdrop.dark {
    (people-glass.css) plus the `.mcm-page th` base it inherits from
    (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
    12px padding, a 2px warm-orange hairline — read off Directory's own
-   computed styles rather than approximated. */
-.perf-interactions .table-scroll thead {
+   computed styles rather than approximated.
+   Scoped to `.perf-interactions thead` directly, NOT `.table-scroll
+   thead` — this table renders via `<CallHistory splitStickyHeader />`
+   (interactions-tab.tsx), which (table-manager.tsx) puts the header in
+   its own non-scrolling box, a *sibling* of `.table-scroll`, not a
+   descendant of it. A `.table-scroll`-anchored selector silently never
+   matched this table's header at all, leaving it on TableManager's own
+   default `bg-[#faf5ee]` cream instead of this theme. */
+.perf-interactions thead {
   background: #fffdfb;
   box-shadow: none;
 }
-.dark .perf-interactions .table-scroll thead {
+.dark .perf-interactions thead {
   background: rgba(23, 15, 10, 0.97);
 }
-.perf-interactions .table-scroll thead th {
+.perf-interactions thead th {
   color: #8a6f57;
   font-size: 9.5px;
   font-weight: 800;
@@ -259,13 +266,13 @@ body.perf-warm-backdrop.dark {
   text-transform: uppercase;
   white-space: nowrap;
   padding: 9px 12px !important;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   background: transparent;
 }
-.perf-interactions .table-scroll thead th:first-child {
+.perf-interactions thead th:first-child {
   border-top-left-radius: 20px;
 }
-.perf-interactions .table-scroll thead th:last-child {
+.perf-interactions thead th:last-child {
   border-top-right-radius: 20px;
 }
 
@@ -294,12 +301,14 @@ body.perf-warm-backdrop.dark {
    count — explicitly left-aligned on both th and td rather than left
    only by accident. A bare `<th>`'s own browser default is centered
    while a bare `<td>` defaults left, so without this each of these five
-   silently disagreed with its own header. */
-.perf-interactions .table-scroll th:nth-child(1),
-.perf-interactions .table-scroll th:nth-child(2),
-.perf-interactions .table-scroll th:nth-child(3),
-.perf-interactions .table-scroll th:nth-child(4),
-.perf-interactions .table-scroll th:nth-child(5),
+   silently disagreed with its own header. `th` selectors dropped their
+   `.table-scroll` ancestor requirement for the same reason as the header
+   colour rules above — `splitStickyHeader`'s `<th>`s live outside it. */
+.perf-interactions thead th:nth-child(1),
+.perf-interactions thead th:nth-child(2),
+.perf-interactions thead th:nth-child(3),
+.perf-interactions thead th:nth-child(4),
+.perf-interactions thead th:nth-child(5),
 .perf-interactions .table-scroll td:nth-child(1),
 .perf-interactions .table-scroll td:nth-child(2),
 .perf-interactions .table-scroll td:nth-child(3),
@@ -310,19 +319,19 @@ body.perf-warm-backdrop.dark {
 
 /* Date, Duration, Wait Time, Charge — tabular figures, right-aligned so
    they line up column to column instead of jittering left-aligned. */
-.perf-interactions .table-scroll th:nth-child(1),
-.perf-interactions .table-scroll th:nth-child(6),
-.perf-interactions .table-scroll th:nth-child(7),
-.perf-interactions .table-scroll th:nth-child(8),
+.perf-interactions thead th:nth-child(1),
+.perf-interactions thead th:nth-child(6),
+.perf-interactions thead th:nth-child(7),
+.perf-interactions thead th:nth-child(8),
 .perf-interactions .table-scroll td:nth-child(1),
 .perf-interactions .table-scroll td:nth-child(6),
 .perf-interactions .table-scroll td:nth-child(7),
 .perf-interactions .table-scroll td:nth-child(8) {
   font-variant-numeric: tabular-nums;
 }
-.perf-interactions .table-scroll th:nth-child(6),
-.perf-interactions .table-scroll th:nth-child(7),
-.perf-interactions .table-scroll th:nth-child(8),
+.perf-interactions thead th:nth-child(6),
+.perf-interactions thead th:nth-child(7),
+.perf-interactions thead th:nth-child(8),
 .perf-interactions .table-scroll td:nth-child(6),
 .perf-interactions .table-scroll td:nth-child(7),
 .perf-interactions .table-scroll td:nth-child(8) {

@@ -53,11 +53,19 @@ const SendWhatsappMessage = ({
      unscoped `.custom-react-select__control` rule) can be re-themed to
      match, the same way the Contact view toolbar's Group/Tag filters are. */
   selectClassName = '',
+  /* Additive only, same reasoning as `selectClassName` — the default
+     (`h-[calc(100vh-11.5rem)]`) fits this component's original full-height
+     side-drawer callers (Messenger's own composer, Favourites, New
+     Contact); a caller sizing it into a compact centered dialog instead
+     (External Contacts) overrides it rather than getting a mostly-empty
+     panel sized for a much taller container. */
+  bodyClassName = 'h-[calc(100vh-11.5rem)]',
 }: {
   handleClose: any;
   selectedChannelType?: any;
   initialNumber?: string;
   selectClassName?: string;
+  bodyClassName?: string;
 }) => {
   console.log('initialNumber', initialNumber);
   const emojiContainerRef = useRef(null);
@@ -165,7 +173,7 @@ const SendWhatsappMessage = ({
   return (
     <div className="flex flex-col bg-white ">
       {/* <div className="flex flex-col gap-4 xxl:h-[calc(100vh_-_7.5rem)] xl:h-[calc(100vh_-_7.6rem)] lg:h-[calc(100vh_-_7.1rem)] md:h-[calc(100vh_-_6.9rem)] sm:h-[calc(100vh_-_6.9rem)] xs:h-[calc(100vh_-_6.9rem)] overflow-auto"> */}
-      <div className="flex flex-col gap-4 h-[calc(100vh-11.5rem)] overflow-y-auto">
+      <div className={`flex flex-col gap-4 overflow-y-auto ${bodyClassName}`}>
         <div className="flex flex-col gap-4">
           <Input label="From" value={whatsappNumber} disabled />
           <div className="flex flex-col gap-2">

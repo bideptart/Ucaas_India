@@ -23,7 +23,7 @@ import {
   planBlock,
   tagRequest,
 } from '@/lib/contact-blocking';
-import { DirectoryPage, SearchChip } from './page-shell';
+import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
 import './blocked-glass.css';
 
 /**
@@ -248,65 +248,69 @@ const Blocked = () => {
           </>
         }
       >
-        {isPending || rows === null ? (
-          <div className="blocked-empty-state">
-            <Ic n="users" size={32} />
-            <p>Loading blocked numbers…</p>
-          </div>
-        ) : visible.length ? (
-          <div className="blocked-grid">
-            {visible.map((row) => {
-              const key = rowKey(row);
-              const name = contactName(row) || 'Unknown';
-              const isDemo = Boolean((row as { _demo?: boolean })._demo);
-              const isBlocked = (statusOverride[key] ?? 'BLOCK') === 'BLOCK';
-              return (
-                <div className={`blocked-card${isBlocked ? '' : ' is-unblocked'}`} key={key}>
-                  <div className="blocked-card-top">
-                    <CustomAvatar name={name} type="contact" size="40" />
-                    <button
-                      type="button"
-                      className="blocked-card-unblock"
-                      disabled={isSaving}
-                      title={isBlocked ? `Unblock ${name}` : `Block ${name}`}
-                      aria-label={isBlocked ? `Unblock ${name}` : `Block ${name}`}
-                      onClick={() => toggleBlock(row)}
-                    >
-                      <Ic n={isBlocked ? 'check' : 'shield'} size={12} />
-                      {isBlocked ? 'Unblock' : 'Block'}
-                    </button>
-                  </div>
-                  <span className="blocked-card-name">
-                    {name}
-                    <span className={`tag ${isBlocked ? 'acc' : 'neu'}`}>
-                      {isBlocked ? 'Blocked' : 'Unblocked'}
-                    </span>
-                    {isDemo ? <span className="tag neu">Demo</span> : null}
-                  </span>
-                  <span className="blocked-card-phone">{row?.contact?.phone || '—'}</span>
-                  {row?.contact?.email ? (
-                    <span className="blocked-card-email">{row.contact.email}</span>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="blocked-empty-state">
-            <Ic n="shield" size={32} />
-            <p>
-              {(rows ?? []).length
-                ? 'No blocked numbers match that search.'
-                : 'Nobody is blocked yet. Numbers you block will show up here.'}
-            </p>
-            {!(rows ?? []).length ? (
-              <button type="button" className="btn primary" onClick={() => setBlockFormOpen(true)}>
-                <Ic n="plus" />
-                Block your first number
-              </button>
-            ) : null}
-          </div>
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Number</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isPending || rows === null ? (
+              <EmptyRow span={5} message="Loading blocked numbers…" />
+            ) : visible.length ? (
+              visible.map((row) => {
+                const key = rowKey(row);
+                const name = contactName(row) || 'Unknown';
+                const isDemo = Boolean((row as { _demo?: boolean })._demo);
+                const isBlocked = (statusOverride[key] ?? 'BLOCK') === 'BLOCK';
+                return (
+                  <tr key={key}>
+                    <td>
+                      <span className="flex items-center gap-2.5">
+                        <CustomAvatar name={name} type="contact" size="30" />
+                        <span style={{ fontWeight: 700 }}>{name}</span>
+                        {isDemo ? <span className="tag neu">Demo</span> : null}
+                      </span>
+                    </td>
+                    <td className="num">{row?.contact?.phone || '—'}</td>
+                    <td>{row?.contact?.email || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td>
+                      <span className={`tag ${isBlocked ? 'acc' : 'neu'}`}>
+                        {isBlocked ? 'Blocked' : 'Unblocked'}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="mini"
+                        disabled={isSaving}
+                        title={isBlocked ? `Unblock ${name}` : `Block ${name}`}
+                        aria-label={isBlocked ? `Unblock ${name}` : `Block ${name}`}
+                        onClick={() => toggleBlock(row)}
+                      >
+                        <Ic n={isBlocked ? 'check' : 'shield'} size={12} />
+                        {isBlocked ? 'Unblock' : 'Block'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <EmptyRow
+                span={5}
+                message={
+                  (rows ?? []).length
+                    ? 'No blocked numbers match that search.'
+                    : 'Nobody is blocked yet. Numbers you block will show up here.'
+                }
+              />
+            )}
+          </tbody>
+        </table>
       </DirectoryPage>
       </div>
 

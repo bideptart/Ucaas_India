@@ -96,6 +96,7 @@ const NotesWidget = ({
   customClass = 'h-[calc(100vh_-_191px)]',
   defaultValue = '',
   drawerCallData,
+  hideHeader = false,
 }: {
   contactId?: string | null;
   sipCallId?: string;
@@ -107,6 +108,12 @@ const NotesWidget = ({
   readOnly?: boolean;
   initialNotes?: any[];
   drawerCallData?: any;
+  /* This widget's own "Notes" + count header, off by default so every
+     existing caller (dialpad side panels, drawers) keeps it — a host that
+     already renders its own heading around this widget (Directory ▸
+     External Contacts' dialog) sets this instead of showing two headers
+     stacked on top of each other. */
+  hideHeader?: boolean;
 }) => {
   console.log(
     drawerCallData?.caller_id_name,
@@ -314,14 +321,16 @@ const NotesWidget = ({
     <section
       className={`w-full flex flex-col overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] bg-ucass-active-bg px-4 py-3">
-        <div className="flex flex-col">
-          <h3 className="text-sm font-semibold text-[#2E2D35]">Notes</h3>
-        </div>
-        <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-[#2E2D35]">
-          {renderedNotes?.length || 0} {renderedNotes?.length === 1 ? 'note' : 'notes'}
-        </span>
-      </header>
+      {!hideHeader && (
+        <header className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] bg-ucass-active-bg px-4 py-3">
+          <div className="flex flex-col">
+            <h3 className="text-sm font-semibold text-[#2E2D35]">Notes</h3>
+          </div>
+          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-[#2E2D35]">
+            {renderedNotes?.length || 0} {renderedNotes?.length === 1 ? 'note' : 'notes'}
+          </span>
+        </header>
+      )}
 
       <div className="w-full min-h-0 flex-1 overflow-y-auto bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3" ref={scrollNoteRef}>
         {renderedNotes && renderedNotes?.length ? (

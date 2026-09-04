@@ -182,7 +182,7 @@ body.perf-warm-backdrop.dark {
   text-transform: uppercase;
   white-space: nowrap;
   padding: 9px 12px !important;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   background: transparent;
 }
 .perf-flows .table-scroll thead th:first-child {

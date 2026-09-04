@@ -549,7 +549,7 @@ body.perf-warm-backdrop .perf-reports {
   background: #fffdfb;
   box-shadow: none;
   padding: 9px 12px !important;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
 }
 .dark .perf-reports .rp-table-wrap table thead th {
   background: rgba(23, 15, 10, 0.97);

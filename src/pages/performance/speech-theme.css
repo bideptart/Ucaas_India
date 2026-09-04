@@ -50,10 +50,40 @@ body.perf-warm-backdrop .perf-speech {
     #0a0f1a;
 }
 
-/* Page note ("Sentiment for AI receptionist...") — `var(--ink-4)` is a
-   light cool gray meant for a plain background; low contrast against the
-   warm gradient, same issue fixed on the live-queue KPI band. */
-.perf-speech .page-note {
+/* Page note ("Sentiment for AI receptionist...") — was a raw <p>, floating
+   directly on the ambient gradient with no surface of its own. Wrapped
+   into the same slim frosted notice pill Reports uses for its own SL%/
+   sampled-data caption (`.rp-notice`): one line, ellipsis if it runs long,
+   rather than a bare paragraph that could wrap to two. */
+.perf-speech .st-notice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  color: #475569;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.perf-speech .st-notice svg {
+  flex: none;
+  color: var(--sp-accent-ink);
+}
+.perf-speech .st-notice span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.dark .perf-speech .st-notice {
+  background: rgba(23, 15, 10, 0.6);
+  border-color: rgba(251, 146, 60, 0.2);
   color: var(--sp-muted);
 }
 
@@ -94,7 +124,9 @@ body.perf-warm-backdrop .perf-speech {
   backdrop-filter: var(--sp-glass-blur);
   -webkit-backdrop-filter: var(--sp-glass-blur);
   border: 1px solid var(--sp-glass-border);
-  border-radius: 18px;
+  /* 20px, matching the Directory-benchmark radius Agents/Live/Flows all
+     use for their own KPI cards — this view's own 18px was the one gap. */
+  border-radius: 20px;
   box-shadow: var(--sp-glass-shadow);
   display: flex;
   flex-direction: column;
@@ -128,6 +160,18 @@ body.perf-warm-backdrop .perf-speech {
    of three separate sentiments. */
 .perf-speech .hbar-t i:only-child {
   background: linear-gradient(90deg, #fb923c 0%, #f97316 100%) !important;
+}
+/* Sentiment distribution's own bar — a touch slimmer than the shared 8px
+   default (mcm-page.css), scoped to just this bar rather than `.hbar-t`
+   generally so the Topics table's Volume bars keep their own height.
+   `.hbar-t`'s own `flex: 1` (mcm-page.css) sets flex-basis to 0%, which
+   inside `.stat`'s flex-column layout governs main-axis (height) sizing
+   ahead of a plain `height` — flex-grow then stretched this bar to fill
+   whatever vertical space was left in the card, six-pixel `height` and
+   all. `flex: none` is what actually lets the explicit height stick. */
+.perf-speech .sp-sentiment-bar {
+  flex: none;
+  height: 9px;
 }
 
 /* ------------------------------------------------------------
@@ -186,7 +230,7 @@ body.perf-warm-backdrop .perf-speech {
   text-transform: uppercase;
   background: transparent;
   padding: 9px 12px !important;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
 }
 .perf-speech .table-scroll thead th:first-child {
   border-top-left-radius: 20px;
@@ -196,10 +240,16 @@ body.perf-warm-backdrop .perf-speech {
 }
 .perf-speech .table-scroll tbody tr {
   background: transparent;
-  transition: background-color 0.16s ease;
+  transition:
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
 }
+/* Directory's signature left accent-bar row hover — every other
+   Performance table already carries this; Speech & Text was the one gap.
+   Applies to both tables on this page (Topics, Agent sentiment). */
 .perf-speech .table-scroll tbody tr:hover {
-  background: rgba(255, 241, 235, 0.5);
+  background: rgba(254, 215, 170, 0.22);
+  box-shadow: inset 3px 0 0 var(--sp-accent);
 }
 .perf-speech .table-scroll tbody td {
   color: #334155;
@@ -238,4 +288,31 @@ body.perf-warm-backdrop .perf-speech {
 .perf-speech .sp-agents-table .table-scroll td:nth-child(n + 2) {
   text-align: center;
   font-variant-numeric: tabular-nums;
+}
+
+/* Avg sentiment — was plain coloured text (toneColor() in
+   speech-text-tab.tsx sets only `color`); a high-contrast wash pill reads
+   as a genuine status badge instead of just tinted numbers sitting loose
+   in the cell. Tone is still decided in the TSX (the same three-way split
+   `--live`/`--warn`/`--crit` already used), this only adds the badge
+   chrome around whichever tone class it's given. */
+.perf-speech .sp-sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.perf-speech .sp-sentiment-badge.pos {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.perf-speech .sp-sentiment-badge.neu {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+.perf-speech .sp-sentiment-badge.neg {
+  background: var(--crit-wash);
+  color: var(--crit);
 }

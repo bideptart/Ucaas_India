@@ -1,5 +1,15 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import {
+  Users,
+  PhoneIncoming,
+  CheckCircle2,
+  PhoneOff,
+  ShieldAlert,
+  UserCheck,
+  Activity,
+  PhoneForwarded,
+} from 'lucide-react';
 import Campaign from '@/pages/auto-dialer/campaign';
 import { campaignList } from '@/services/api';
 import PerfStatCard from './stat-card';
@@ -83,20 +93,31 @@ const CampaignActivityTab = () => {
           label="Total leads"
           value={String(totals.assignedLeads)}
           sub={`across ${campaigns.length} campaigns`}
+          icon={Users}
         />
-        <PerfStatCard label="Answered leads" value={String(totals.answeredLeads)} />
+        <PerfStatCard
+          label="Answered leads"
+          value={String(totals.answeredLeads)}
+          icon={PhoneIncoming}
+        />
         <PerfStatCard
           label="Connect rate"
           value={connectRate === null ? '—' : `${Math.round(connectRate)}%`}
           sub="answered ÷ assigned"
+          icon={CheckCircle2}
         />
         <PerfStatCard
           label="No-answer rate"
           value={noAnswerRate === null ? '—' : `${Math.round(noAnswerRate)}%`}
           tone={noAnswerRate !== null && noAnswerRate > 50 ? 'warning' : 'default'}
+          icon={PhoneOff}
         />
-        <PerfStatCard label="DNC skips" value={String(totals.totalDnc)} />
-        <PerfStatCard label="Members assigned" value={String(totals.members)} />
+        <PerfStatCard label="DNC skips" value={String(totals.totalDnc)} icon={ShieldAlert} />
+        <PerfStatCard
+          label="Members assigned"
+          value={String(totals.members)}
+          icon={UserCheck}
+        />
         <PerfStatCard
           label="Top status"
           value={
@@ -114,6 +135,7 @@ const CampaignActivityTab = () => {
                   .join(' · ')
               : undefined
           }
+          icon={Activity}
         />
         <PerfStatCard
           label="Top dial method"
@@ -132,6 +154,7 @@ const CampaignActivityTab = () => {
                   .join(' · ')
               : undefined
           }
+          icon={PhoneForwarded}
         />
       </div>
       <Campaign embedded />

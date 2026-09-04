@@ -1141,23 +1141,15 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     <div className="live-wallboard-theme p-3">
       {/* Global --primary carries !important (src/index.css), so only another
           !important author rule can out-cascade it here; a plain inline style
-          override would silently lose. `.mcm-scroll` here rides the browser's
-          default scrollbar (the class is only styled thin under `.mcm-inbox`),
-          so on Windows/Chrome it renders as a wide, plain grey bar next to
-          these frosted-glass panels -- a thin, warm-tinted thumb matches the
-          rest of the page. */}
+          override would silently lose.
+
+          The scrollbar rules that used to live here are gone: the lists now
+          carry `.perf-thin-scroll`, defined once in src/index.css, which hides
+          the indicator while leaving the list scrollable. Styling it in two
+          places is what made it look unfixable -- the page-level rule kept
+          winning on specificity. */}
       <style>{`
         .live-wallboard-theme { --primary: #EA8A3F !important; }
-        .live-wallboard-theme .mcm-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .live-wallboard-theme .mcm-scroll::-webkit-scrollbar-thumb {
-          background: rgba(214, 163, 90, 0.5);
-          border-radius: 99px;
-        }
-        .live-wallboard-theme .mcm-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(194, 103, 10, 0.6);
-        }
-        .live-wallboard-theme .mcm-scroll::-webkit-scrollbar-track { background: transparent; }
-        .live-wallboard-theme .mcm-scroll { scrollbar-width: thin; scrollbar-color: rgba(214, 163, 90, 0.5) transparent; }
       `}</style>
       {/* TODO:on ERROR */}
       {/* <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
@@ -1593,7 +1585,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 {queueStatusData.length > 0 ? (
                   /* Scrolls in place once the list outgrows the column, so ten
                      queues do not stretch the funnel and campaigns beside it. */
-                  <div className="mcm-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-auto">
+                  <div className="perf-thin-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-auto">
                     <table className="w-full min-w-[330px]">
                       <thead>
                         <tr>
@@ -1680,7 +1672,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 </p>
 
                 {activeCampaignsData.length > 0 ? (
-                  <div className="mcm-scroll mt-5 flex max-h-[300px] flex-col divide-y divide-[rgba(225,200,165,0.4)] overflow-y-auto">
+                  <div className="perf-thin-scroll mt-5 flex max-h-[300px] flex-col divide-y divide-[rgba(225,200,165,0.4)] overflow-y-auto">
                     {activeCampaignsData.map((campaign) => {
                       const reached =
                         campaign.dialed > 0

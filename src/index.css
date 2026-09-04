@@ -1200,11 +1200,18 @@
     overflow: auto;
   }
 
-  .table-scroll table {
-    width: 100%;
-    margin: auto;
-    border-collapse: separate;
-    border-spacing: 0;
+  /* The Performance lists scroll without drawing a bar. Even at 6px the
+     track sat as a visible rule down the side of a 300px column, which is
+     more chrome than the content it was measuring. Scrolling still works by
+     wheel, trackpad, keyboard and touch -- only the indicator is gone. */
+  .perf-thin-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .perf-thin-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
 
   .dashboard-modal-horizontal-scroll {
@@ -1861,20 +1868,26 @@
 
 .mcm-areanav-btn {
   display: inline-flex;
+  /* Icon over label. Stacking buys back the horizontal room the old
+     side-by-side row spent on five labels, which is what let the labels come
+     back at every width instead of being dropped under 1280px. */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 3px;
   /* min-width, not width: a hard fixed width forced every tab to the same
-     size, but "Directory" and "Performance" don't fit 90px next to a 16px
-     icon with white-space: nowrap. Flexbox had nowhere else to take the
-     overflow from but the icon (shrinkable) since the text can't wrap —
-     so the icon collapsed toward 0 instead of the tab widening. */
-  min-width: 60px;
-  height: 30px;
-  padding: 6px 6px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+     size, but "Performance" does not fit a 60px tab with white-space:
+     nowrap, and flexbox had nowhere to take the overflow from but the icon.
+     Stacked, the label sets the width and the icon is never squeezed. */
+  min-width: 62px;
+  /* The header is 64px with 10px of padding each side, so 44px is the whole
+     budget: 18px icon + 3px gap + ~13px label + 6px padding. */
+  height: 44px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
   white-space: nowrap;
   color: #64748b;
   background: none;
@@ -1903,21 +1916,15 @@
   border-radius: 8px 8px 0 0;
 }
 
-/* Below the widest breakpoint the labels go and the icons carry it. */
+/* The labels no longer drop under 1280px. Stacked, five tabs cost about
+   310px against the ~560px the old side-by-side row needed, so the width
+   that used to force icon-only is no longer tight -- and an icon-only tab
+   was the weaker half of the pair to keep, since these five glyphs are not
+   self-evident without their words. Only the padding tightens. */
 @media (max-width: 1279px) {
-  .mcm-areanav-btn span {
-    display: none;
-  }
-  /* icon-only at this width, so the tint needs to sit evenly around it.
-     min-width: 90px (set to stop the icon getting squeezed to 0 next to a
-     long label — see the flex-shrink comment above) has no label to
-     protect here, so it was just holding each tab at 90px around a 16px
-     icon. Across 5 tabs that is ~370px of dead width, which is what was
-     pushing bell/theme-toggle/avatar off the right edge of the header on
-     laptop-width screens. */
   .mcm-areanav-btn {
-    min-width: 0;
-    padding: 9px 13px;
+    min-width: 56px;
+    padding: 3px 6px;
   }
 }
 

@@ -82,20 +82,89 @@
   flex-direction: column;
   max-height: calc(100vh - 320px);
 }
+/* Header/body split into independent scroll boxes — see the long comment on
+   the equivalent People rules in people-glass.css for why: a sticky
+   `<thead>` doesn't stop its scrolling ancestor's native scrollbar from
+   spanning the full box, header band included, so the bar always read as
+   running through the header no matter how it was styled. */
 .gp-roles .tbl-wrap {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
 }
 .gp-roles table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   background: transparent;
+}
+.gp-roles thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-roles tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height — a
+     row here (label + description) runs ~62px, so 5.5 of them plus a
+     little breathing room. `.panel-card`'s own `max-height` still caps
+     things on very short viewports; this is what actually decides the
+     row count on ordinary ones. */
+  max-height: 380px;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-roles thead tr,
+.gp-roles tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-roles th:nth-child(1),
+.gp-roles td:nth-child(1) {
+  width: auto;
+}
+.gp-roles th:nth-child(2),
+.gp-roles td:nth-child(2) {
+  width: 110px;
+}
+.gp-roles th:nth-child(3),
+.gp-roles td:nth-child(3) {
+  width: 90px;
+}
+.gp-roles th:nth-child(4),
+.gp-roles td:nth-child(4) {
+  width: 180px;
+}
+.gp-roles tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-roles tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-roles tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-roles tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
 .gp-roles th {
   background: #fffdfb;
   color: #8a6f57;
   border-bottom: 2px solid rgba(242, 153, 74, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  height: 40px;
+  font-size: 10px;
 }
 .gp-roles td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -126,9 +195,6 @@
    `.mini` (26px), matching the size the Contact column uses on People. */
 .gp-roles .gp-role-actions-head {
   text-align: center;
-}
-.gp-roles .gp-role-actions-cell {
-  min-width: 160px;
 }
 .gp-roles .gp-role-actions {
   justify-content: center;

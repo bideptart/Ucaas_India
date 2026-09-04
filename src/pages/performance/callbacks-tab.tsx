@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { CalendarCheck, AlertTriangle, Layers, Voicemail, Timer as TimerIcon } from 'lucide-react';
 import TableManager from '@/components/custom/table-manager';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AudioModal from '@/pages/phone/audio-dialog';
@@ -64,6 +65,16 @@ const CallbacksTab = () => {
     0,
   );
 
+  // A task's own `status` field only ever says what was explicitly set
+  // (e.g. "pending") — it doesn't know the due date has since passed. This
+  // derives that third state so a still-"pending" task past its due time
+  // reads as overdue (critical) rather than merely pending (warn), the
+  // same distinction Vishal's team asked to see in the table.
+  const isTaskOverdue = (task: any) =>
+    String(task?.status || '').toLowerCase() !== 'completed' &&
+    Boolean(task?.startTime) &&
+    moment(task.startTime).isBefore(now);
+
   const taskColumns = [
     {
       header: 'Task',
@@ -73,21 +84,36 @@ const CallbacksTab = () => {
     {
       header: 'Created',
       accessorKey: 'createdAt',
+      meta: { textAlign: 'center' },
       cell: ({ row }: any) =>
         row.original?.createdAt ? moment(row.original.createdAt).format('MMM DD, hh:mm A') : '—',
     },
     {
       header: 'Due',
       accessorKey: 'startTime',
-      cell: ({ row }: any) =>
-        row.original?.startTime ? moment(row.original.startTime).format('MMM DD, hh:mm A') : '—',
+      meta: { textAlign: 'center' },
+      cell: ({ row }: any) => {
+        const due = row.original?.startTime;
+        if (!due) return '—';
+        return (
+          <span className={isTaskOverdue(row.original) ? 'pc-due-overdue' : undefined}>
+            {moment(due).format('MMM DD, hh:mm A')}
+          </span>
+        );
+      },
     },
     {
       header: 'Status',
       accessorKey: 'status',
-      cell: ({ row }: any) => (
-        <span className="capitalize">{String(row.original?.status || '—').toLowerCase()}</span>
-      ),
+      meta: { textAlign: 'center' },
+      cell: ({ row }: any) => {
+        const status = String(row.original?.status || '—').toLowerCase();
+        const isCompleted = status === 'completed';
+        const overdue = isTaskOverdue(row.original);
+        const tagClass = isCompleted ? 'tag pos' : overdue ? 'tag neg' : 'tag warn';
+        const label = overdue && !isCompleted ? 'Overdue' : status;
+        return <span className={`${tagClass} capitalize`}>{label}</span>;
+      },
     },
   ];
 
@@ -100,22 +126,26 @@ const CallbacksTab = () => {
     {
       header: 'From',
       accessorKey: 'caller_id_number',
+      meta: { textAlign: 'center' },
       cell: ({ row }: any) => <NumberWithFlag number={row.original?.caller_id_number} />,
     },
     {
       header: 'DID',
       accessorKey: 'via_did',
+      meta: { textAlign: 'center' },
       cell: ({ row }: any) => <NumberWithFlag number={row.original?.via_did} />,
     },
     {
       header: 'Length',
       accessorKey: 'billsectotal',
+      meta: { textAlign: 'right' },
       cell: ({ row }: any) =>
         row.original?.billsectotal ? formatSecondsToMMSS(Number(row.original.billsectotal)) : '—',
     },
     {
       header: 'Action',
       accessorKey: 'action',
+      meta: { textAlign: 'center' },
       cell: ({ row }: any) => {
         const data = row.original;
         const hasRecording = data?.recording_file || null;
@@ -162,11 +192,12 @@ const CallbacksTab = () => {
   return (
     <div className="perf-callbacks flex w-full flex-col gap-4 px-[22px] py-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <PerfStatCard label="Scheduled tasks" value={String(tasks.length)} />
+        <PerfStatCard label="Scheduled tasks" value={String(tasks.length)} icon={CalendarCheck} />
         <PerfStatCard
           label="Overdue tasks"
           value={String(overdueCount)}
           tone={overdueCount > 0 ? 'danger' : 'default'}
+          icon={AlertTriangle}
         />
         <PerfStatCard
           label="Tasks by source"
@@ -176,11 +207,17 @@ const CallbacksTab = () => {
               ? bySource.map(([source, count]) => `${source}: ${count}`).join(' · ')
               : undefined
           }
+          icon={Layers}
         />
-        <PerfStatCard label="Voicemails today" value={String(todayVoicemails.length)} />
+        <PerfStatCard
+          label="Voicemails today"
+          value={String(todayVoicemails.length)}
+          icon={Voicemail}
+        />
         <PerfStatCard
           label="Voicemail time today"
           value={formatSecondsToMMSS(totalVoicemailDurationToday)}
+          icon={TimerIcon}
         />
       </div>
       <Tabs value={view} onValueChange={(value) => setView(value as 'tasks' | 'voicemail')}>
@@ -213,6 +250,11 @@ const CallbacksTab = () => {
           extraParams={{ type: 'voicemail' }}
           emptyTablePlaceholder="No voicemail records found"
           descriptionEmptyTable="Voicemails left on queues and extensions show up here."
+          // The default height is `window height - offset`, sized for a
+          // full page of rows — a handful of voicemails left it mostly
+          // empty space below the last row. isHeightSet={false} lets the
+          // card hug its actual row count instead.
+          isHeightSet={false}
         />
       )}
       <AudioModal

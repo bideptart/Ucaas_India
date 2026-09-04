@@ -49,6 +49,10 @@ type CallHistoryProps = {
   fetcherKey?: string;
   tableMaxHeight?: string;
   tableCustomClass?: string;
+  /* Both additive, both passed straight through to `TableManager` and both
+     default to its own defaults (false/undefined) — opt-in per caller. */
+  splitStickyHeader?: boolean;
+  visibleRowCount?: number;
   /* Hides the toolbar's own date dropdown for a host that already has its
      own global date filter above this component (Performance's Interactions
      tab) — `initialDateFilter` still drives the query, it's just no longer
@@ -141,6 +145,8 @@ const CallHistory = ({
   fetcherKey = 'callListingLog',
   tableMaxHeight,
   tableCustomClass = '',
+  splitStickyHeader = false,
+  visibleRowCount,
   showDateFilter = true,
 }: CallHistoryProps = {}) => {
   const tableRef = useRef<any>(null);
@@ -954,6 +960,8 @@ const CallHistory = ({
           descriptionEmptyTable: 'Start making or receiving calls to generate call logs.',
           tableMaxHeight,
           customClass: tableCustomClass,
+          splitStickyHeader,
+          visibleRowCount,
 
           //for extra row
           hasSubRows: true,

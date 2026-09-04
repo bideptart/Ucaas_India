@@ -9,7 +9,6 @@ import {
   syncWouldChangeAnything,
 } from '@/lib/contact-sync';
 import { useGoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import SideDrawer from '@/components/custom/side-drawer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import '@/styles/warm-glass.css';
 import './groups-glass.css';
@@ -334,6 +333,7 @@ const ExternalInner = () => {
             onOpenContactLogs={(group: any) => setSelectedGroupForContactLogs(group)}
             search={debouncedSearch}
             tableWrapperClassName="gp-contact-table"
+            splitStickyHeader
           />
         ) : (
           <AllNewContactsList
@@ -341,6 +341,7 @@ const ExternalInner = () => {
             setShowDeleteConfirmation={canDeleteContact ? setShowDeleteConfirmation : () => void 0}
             payloadExtraParams={payloadExtraParams}
             tableWrapperClassName="gp-contact-table"
+            splitStickyHeader
             permissionAccess={{
               canView: canViewContact,
               canEdit: canEditContact,
@@ -420,42 +421,66 @@ const ExternalInner = () => {
         />
       ) : null}
 
-      {notesContact ? (
-        <SideDrawer
-          width="min(500px, 94vw)"
-          isOpen={Boolean(notesContact)}
-          title={`Contact Notes (${notesContact?.name?.first || ''} ${notesContact?.name?.last || ''})`}
-          handleClose={() => setNotesContact(null)}
-          content={
+      <Dialog open={Boolean(notesContact)} onOpenChange={(next) => !next && setNotesContact(null)}>
+        <DialogContent
+          className="gp-create-group-dialog gp-notes-dialog sm:max-w-[520px]"
+          showCloseButton={false}
+        >
+          <div className="gp-create-group-head">
+            <h2>
+              Contact Notes
+              {notesContact
+                ? ` (${notesContact?.name?.first || ''} ${notesContact?.name?.last || ''})`
+                : ''}
+            </h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setNotesContact(null)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
             <NotesWidget
-              customClass="h-full"
+              customClass="h-[60vh]"
               extraPayload={{ phone: notesContact?.contact?.phone }}
               contactId={notesContact?._id || ''}
+              hideHeader
             />
-          }
-        />
-      ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {whatsappTo ? (
-        <SideDrawer
-          isOpen={Boolean(whatsappTo)}
-          handleClose={() => setWhatsappTo('')}
-          isHeader
-          width="500px"
-          enableResponsive
-          responsiveWidth="96vw"
-          responsiveBreakpoint={1024}
-          content={
-            <div className="mcm-warm-glass whatsapp-drawer-glass flex h-full min-h-0 w-full flex-col">
+      <Dialog open={Boolean(whatsappTo)} onOpenChange={(next) => !next && setWhatsappTo('')}>
+        <DialogContent
+          className="gp-create-group-dialog gp-whatsapp-dialog sm:max-w-[480px]"
+          showCloseButton={false}
+        >
+          <div className="gp-create-group-head">
+            <h2>Send WhatsApp Message</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setWhatsappTo('')}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            <div className="mcm-warm-glass whatsapp-drawer-glass flex w-full flex-col">
               <SendWhatsappMessage
                 handleClose={() => setWhatsappTo('')}
                 initialNumber={whatsappTo}
                 selectClassName="whatsapp-drawer-select"
+                bodyClassName="max-h-[45vh]"
               />
             </div>
-          }
-        />
-      ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {canDeleteContact && showDeleteConfirmation ? (
         <AlertConfirm

@@ -4337,21 +4337,6 @@
 .mcm-page .favourites-compact .tbar {
   margin-bottom: 16px;
 }
-.mcm-page .favourites-compact .favourites-table-scroll {
-  max-height: 60vh;
-  overflow-y: auto;
-  /* The header row is `position: sticky; top: 0` against this element (the
-     scrolling ancestor), so padding here — rather than on `.panel-card`,
-     which doesn't scroll and wouldn't affect the sticky offset at all — sits
-     above the header at rest and scrolls away once the header sticks. */
-  padding-top: 16px;
-}
-.mcm-page .favourites-compact thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--surface);
-}
 
 /* ==================================================================
    Side-nav items.

@@ -511,7 +511,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         key={heading}
                         style={{
                           whiteSpace: 'nowrap',
-                          padding: '8px 12px',
+                          padding: '9px 12px',
                           /* The first column is always the row's own name
                              (queue, agent, campaign, ...); after that,
                              counts/percentages center under their header,
@@ -520,11 +520,14 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                              columns (status, source, a date) stay left —
                              see `alignForColumn` above. */
                           textAlign: alignForColumn(heading, headingIndex),
-                          fontSize: 10,
-                          fontWeight: 700,
+                          // Pixel-matched to Directory ▸ People's own
+                          // `.gp-people th` (people-glass.css) + the
+                          // `.mcm-page th` base it inherits from.
+                          fontSize: 9.5,
+                          fontWeight: 800,
                           letterSpacing: '.09em',
                           textTransform: 'uppercase',
-                          color: 'var(--rp-muted)',
+                          color: '#8a6f57',
                         }}
                       >
                         {heading}

@@ -67,9 +67,110 @@
   padding: 4px;
   margin-bottom: 16px;
 }
+/* A sticky `<thead>` doesn't change what its scrolling ancestor's own
+   scrollbar covers — the track still spans the ancestor's full height,
+   including the band "behind" the sticky header, so a slimmer scrollbar or
+   extra padding (tried first) only made that band narrower, not gone; the
+   bar still visibly started at the very top, touching the header. The
+   actual fix is to stop the header from being part of the scrolling box at
+   all: `<thead>`/`<tbody>` become independent block boxes (rather than
+   table-row-groups) inside a flex column, `<tbody>` alone scrolls, and each
+   `<tr>` becomes its own `display: table` so its cells still lay out and
+   size as table columns. Column widths are pinned explicitly below so the
+   header row's columns and the body rows' columns — now laid out by
+   separate anonymous tables — land in the same place. */
 .gp-people .tbl-wrap {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
+}
+.gp-people table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.gp-people thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-people tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height — a
+     row here (avatar + up to two lines each of name/location/numbers)
+     runs ~74px, so 5.5 of them plus a little breathing room.
+     `.panel-card`'s own `max-height` still caps things on very short
+     viewports; this is what actually decides the row count on ordinary
+     ones. */
+  max-height: 450px;
+  overflow-y: auto;
+  width: 100%;
+  /* Without this the last row's bottom border sits exactly flush against
+     `.panel-card`'s clipped, rounded bottom edge — scrolled all the way
+     down, the row reads as cut off rather than fully shown. */
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-people thead tr,
+.gp-people tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-people th:nth-child(1),
+.gp-people td:nth-child(1) {
+  width: auto;
+}
+.gp-people th:nth-child(2),
+.gp-people td:nth-child(2) {
+  width: 110px;
+}
+.gp-people th:nth-child(3),
+.gp-people td:nth-child(3) {
+  width: 130px;
+}
+.gp-people th:nth-child(4),
+.gp-people td:nth-child(4) {
+  width: 150px;
+}
+.gp-people th:nth-child(5),
+.gp-people td:nth-child(5) {
+  width: 100px;
+}
+.gp-people th:nth-child(6),
+.gp-people td:nth-child(6) {
+  width: 130px;
+}
+.gp-people th:nth-child(7),
+.gp-people td:nth-child(7) {
+  width: 130px;
+}
+.gp-people th:nth-child(8),
+.gp-people td:nth-child(8) {
+  width: 260px;
+}
+/* This is the scrollbar that now actually starts where the rows do — same
+   slim styling already used for External Contacts' table. */
+.gp-people tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-people tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-people tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-people tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
 
 .gp-people .page-head {
@@ -124,14 +225,14 @@
   background: transparent;
 }
 .gp-people th {
-  /* Solid, not transparent — this is what a sticky header needs to actually
-     cover the rows scrolling underneath it rather than showing them through. */
   background: #fffdfb;
   color: #8a6f57;
   border-bottom: 2px solid rgba(242, 153, 74, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  /* Matches Performance's own table heading height (40px there vs ~33px
+     here from padding alone) — same `th` padding either way, just a
+     taller header row. */
+  height: 40px;
+  font-size: 10px;
 }
 .gp-people td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -142,9 +243,6 @@
    the row's primary actions rather than an afterthought. */
 .gp-people th:last-child {
   text-align: center;
-}
-.gp-people td:last-child {
-  min-width: 280px;
 }
 .gp-people td:last-child .flex {
   justify-content: center;

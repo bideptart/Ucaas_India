@@ -42,7 +42,9 @@
   backdrop-filter: var(--pc-glass-blur);
   -webkit-backdrop-filter: var(--pc-glass-blur);
   border: 1px solid var(--pc-glass-border);
-  border-radius: 18px;
+  /* 20px, matching the Directory-benchmark radius Agents/Live/Flows all
+     use for their own KPI cards — this view's own 18px was the one gap. */
+  border-radius: 20px;
   box-shadow: var(--pc-glass-shadow);
 }
 .perf-callbacks .stat .k {
@@ -111,9 +113,12 @@
 }
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
-  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%) !important;
-  border: 1px solid rgba(249, 115, 22, 0.4);
-  box-shadow: 0 2px 8px -3px rgba(249, 115, 22, 0.22);
+  /* Flat soft peach wash, not a gradient block — the same tone-down every
+     other "this is the active one" surface in Performance got (Reports'
+     catalog toggle and selected card). */
+  background: rgba(249, 115, 22, 0.12) !important;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  box-shadow: none;
   color: var(--pc-accent-ink);
   font-weight: 700;
 }
@@ -147,29 +152,45 @@
   margin-top: 40px;
   margin-bottom: 8px;
 }
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 2px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated. */
 .perf-callbacks .table-scroll thead {
-  background: rgba(255, 246, 238, 0.97);
-  backdrop-filter: var(--pc-glass-blur);
-  -webkit-backdrop-filter: var(--pc-glass-blur);
-  box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.08);
+  background: #fffdfb;
+  box-shadow: none;
 }
 .dark .perf-callbacks .table-scroll thead {
   background: rgba(23, 15, 10, 0.97);
 }
 .perf-callbacks .table-scroll thead th {
-  color: var(--pc-muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   background: transparent;
+  padding: 9px 12px !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+}
+.perf-callbacks .table-scroll thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.perf-callbacks .table-scroll thead th:last-child {
+  border-top-right-radius: 20px;
 }
 .perf-callbacks .table-scroll tbody tr {
   background: transparent;
-  transition: background-color 0.16s ease;
+  transition:
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
 }
+/* Directory's signature left accent-bar row hover — every other
+   Performance table already carries this; Callbacks was the one gap. */
 .perf-callbacks .table-scroll tbody tr:hover {
-  background: rgba(255, 241, 235, 0.5);
+  background: rgba(254, 215, 170, 0.22);
+  box-shadow: inset 3px 0 0 var(--pc-accent);
 }
 .perf-callbacks .table-scroll tbody td {
   color: #334155;
@@ -200,25 +221,24 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Task status ("Pending", "Completed", ...) renders as bare text via
-   `.capitalize` in callbacks-tab.tsx — the same soft rounded pill Live uses
-   for its Status/Direction columns, rather than plain text sitting loose in
-   the cell. */
-.perf-callbacks .table-scroll tbody td .capitalize {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--pc-wash);
-  color: var(--pc-accent-ink);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
+/* Task status ("Pending", "Overdue", "Completed", ...) — Directory's own
+   `.tag` badge system (mcm-page.css: `.tag.pos`/`.tag.neg`/`.tag.warn`),
+   picked per-row in callbacks-tab.tsx rather than one flat pill style for
+   every status, so overdue reads as genuinely critical (red), not the same
+   soft orange as a task that's simply still pending. */
+.perf-callbacks .table-scroll tbody td .tag {
+  font-size: 10.5px;
+  padding: 2px 8px;
 }
-.dark .perf-callbacks .table-scroll tbody td .capitalize {
-  background: rgba(251, 146, 60, 0.16);
-  color: #fdba74;
+/* The Due column's own timestamp, when that task is overdue — a plain
+   colour cue right next to the Status badge, so an overdue row reads as
+   overdue from either column a supervisor's eye lands on first. */
+.perf-callbacks .table-scroll tbody td .pc-due-overdue {
+  color: var(--crit, #d32f2f);
+  font-weight: 700;
+}
+.dark .perf-callbacks .table-scroll tbody td .pc-due-overdue {
+  color: #f87171;
 }
 
 /* Voicemail row actions (Play, Call back) — the same warm circular button
@@ -228,9 +248,16 @@
    style instead of a flat tint. */
 .perf-callbacks .table-scroll tbody td [class*='rounded-full'][class*='bg-ucass-active-bg'] {
   background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(249, 115, 22, 0.3);
   color: var(--pc-accent-ink);
   box-shadow: 0 1px 2px rgba(249, 115, 22, 0.06);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
 }
 .perf-callbacks
   .table-scroll
@@ -240,6 +267,8 @@
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-color: transparent;
   color: #fff;
+  box-shadow: 0 4px 10px -2px rgba(249, 115, 22, 0.35);
+  transform: translateY(-1px);
 }
 .perf-callbacks .table-scroll tbody td [class*='rounded-full'][class*='bg-green-100'] {
   background: rgba(220, 252, 231, 0.9);

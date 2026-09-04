@@ -53,6 +53,10 @@ const LeadsGroupList: FC<any> = ({
   search = '',
   permissionAccess = {},
   tableWrapperClassName = '',
+  /* Both additive, both passed straight through to `TableManager` and both
+     default to its own defaults (false/undefined) — opt-in per caller. */
+  splitStickyHeader = false,
+  visibleRowCount,
 }) => {
   const { features } = useCompanyFeatures();
   const leadsAccess = features?.plan_features?.campaign?.action || {};
@@ -198,6 +202,8 @@ const LeadsGroupList: FC<any> = ({
             ? 'Add a group to start organising your contacts.'
             : 'Add or import leads to begin campaign calling.',
           customClass: tableWrapperClassName,
+          splitStickyHeader,
+          visibleRowCount,
         }}
       />
     </div>

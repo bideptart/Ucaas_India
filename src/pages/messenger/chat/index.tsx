@@ -3436,7 +3436,13 @@ export const ChatFooter = ({
   );
 
   const baseComposerClasses =
-    'w-full flex flex-col border-t-2 border-r border-l border-t-primary/70 focus-visible:border-t-primary focus-within:border-t-primary border-r-[#EEE7DD] border-l-[#EEE7DD] rounded-md shadow-sm min-h-[120px] pb-8 relative';
+    /* Flex column so the editor and the icon row below it stack in normal
+       flow — the icon row used to be absolutely positioned over the
+       bottom-right corner instead, which read fine for a single short line
+       but let wrapped/multi-line text run underneath it as the box grew.
+       No more bottom padding reserved for that overlay now that the row
+       actually occupies its own space. */
+    'w-full flex flex-col border-t-2 border-r border-l border-t-primary/70 focus-visible:border-t-primary focus-within:border-t-primary border-r-[#EEE7DD] border-l-[#EEE7DD] rounded-md shadow-sm min-h-[120px] relative';
   const attachmentPreviewMeta = [
     activeAttachment?.name,
     activeAttachment?.sizeLabel,
@@ -3637,9 +3643,9 @@ export const ChatFooter = ({
               {typingText ? (
                 <div className="text-xs text-ucass-active px-1 py-1">{typingText}</div>
               ) : null}
-              <div className={baseComposerClasses}>{renderComposerEditor()}</div>
-              <div className="absolute right-0 bottom-1 z-[12]">
-                <div className="flex gap-1.5 items-center px-2  pointer-events-auto rounded-full">
+              <div className={baseComposerClasses}>
+                <div className="min-w-0 flex-1">{renderComposerEditor()}</div>
+                <div className="flex shrink-0 items-center justify-end gap-1.5 px-2 pb-1.5 pointer-events-auto rounded-full">
                   {!isGuestRestrictedFooter && chatFeatures.canUseAttachmentAndRichComposer ? (
                     <>
                       {canUseFileUploadControls && !isGuestMeetingChat ? (
@@ -3786,7 +3792,7 @@ export const ChatFooter = ({
                   <button
                     type="button"
                     className={cn(
-                      'min-w-7 max-h-7 max-w-7 min-h-7 flex justify-center items-center text-ucass-active border-l border-[#EEE7DD] pl-2 transition-colors',
+                      'min-w-7 max-h-7 max-w-7 min-h-7 flex justify-center items-center text-ucass-orange border-l border-[#EEE7DD] pl-2 transition-colors',
                       !canSend || isComposerBusy
                         ? 'cursor-not-allowed opacity-50'
                         : 'cursor-pointer hover:text-primary',

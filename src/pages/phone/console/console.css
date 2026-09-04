@@ -3810,6 +3810,10 @@
   overflow-x: visible;
   flex-shrink: 1;
   min-width: 0;
+  /* Left-aligned tabs left a block of empty space after "Voicemails"
+     since the row is as wide as the whole column. Spreading them across
+     the full row instead fills that space evenly. */
+  justify-content: space-between;
 }
 .mcm-console .col.calls .ptab {
   border-radius: var(--r-sm);

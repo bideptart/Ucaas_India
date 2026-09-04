@@ -1532,7 +1532,12 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
           <>
             <section
               className={cn(
-                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] lg:max-w-[19rem] lg:min-w-[19rem] xl:max-w-[22rem] xl:min-w-[22rem]',
+                // No fixed lg:/xl: min-width here: Sidebar renders inside
+                // PageSidebarLayout, which already sets its own width and
+                // collapses itself to 0 via the orange chevron toggle. A
+                // fixed min-width on this wrapper fought that collapse and
+                // left dead space instead of letting Content expand into it.
+                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]',
                 selectedChat ? 'hidden lg:block' : 'block w-full',
               )}
             >

@@ -4183,7 +4183,7 @@ function CreateChatbotAgent() {
               onChange={(event) => setCustomContent(event.target.value)}
               readOnly={isReadOnly}
               disabled={isReadOnly}
-              placeholder={`Type or paste anything your chatbot should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at $12 per user / month. Pro is $24 per user / month. Enterprise is custom-quoted - offer to connect the visitor with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
+              placeholder={`Type or paste anything your chatbot should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at ₹996 per user / month. Pro is ₹1,992 per user / month. Enterprise is custom-quoted - offer to connect the visitor with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
               className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] p-3 text-sm leading-6 text-[#2E2D35] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
             />
             <p className="mt-1 text-right text-[11px] font-medium text-slate-500">

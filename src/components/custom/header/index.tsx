@@ -1,4 +1,15 @@
 import { Bell } from '@/assets/icons';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
+
+// The header's wallet pill is a fixed-height, flex-nowrap slot next to the
+// profile name and admin badge — `formatMoney`'s decimals ("₹20,376.50")
+// were enough extra width to push those past the right edge on narrower
+// desktop windows. A whole-rupee figure is all this glanceable pill needs.
+const formatWalletAmount = (value: unknown): string => {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return '₹0';
+  return `₹${Math.round(n * USD_TO_INR_RATE).toLocaleString('en-IN')}`;
+};
 import ucaasLogo from '@/assets/images/ucaas-logo.png';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
@@ -56,10 +67,12 @@ const Header = () => {
   const { pathname = '' } = useLocation();
   const companyAmount = user?.company_info?.amount;
   const totalFunds =
-    companyAmount !== null && companyAmount !== undefined ? `$${companyAmount}` : '00.00';
+    companyAmount !== null && companyAmount !== undefined
+      ? formatWalletAmount(companyAmount)
+      : '₹0';
   const resolvedFundsDisplay =
     walletUpdatedAmount !== null && walletUpdatedAmount !== undefined
-      ? `$${walletUpdatedAmount}`
+      ? formatWalletAmount(walletUpdatedAmount)
       : totalFunds;
   const role =
     user?.user_info?.custom_role_data?.name ||
@@ -281,7 +294,9 @@ const Header = () => {
 
   return (
     <>
-      <div className="fixed left-0 top-0 z-30 h-16 w-full">
+      <div
+        className={`fixed left-0 top-0 z-30 w-full ${isMobileMenuOpen ? 'h-auto' : 'h-16'}`}
+      >
         {/* `border-gray-200`, not `border-white/50`: the old rule was white
             on a white bar sitting above white page content, so the header had
             no visible bottom edge and merged into whatever was beneath it.
@@ -290,17 +305,31 @@ const Header = () => {
             64px and page content is offset by `pt-16` (64px) — `min-h-16`
             plus this 1px border made the bar 65px, so it painted over the
             first row of the content below. Border-box keeps the border
-            inside the 64px. */}
+            inside the 64px.
+
+            With the mobile menu open, the nav's extra rows (actions, then
+            wallet/profile) made it taller than this fixed 64px box, and
+            since the box clips nothing (`overflow` was never set) that
+            extra content rendered outside it, over the semi-transparent
+            backdrop, letting page text bleed through underneath it. Letting
+            both this wrapper and the header grow to fit while open — and
+            switching the backdrop to solid white instead of translucent —
+            turns it into a proper opaque dropdown panel instead of a
+            64px window with overflow spilling past its own background. */}
         <header
           /* Upstream's px-4/py-2.5 padding, but keeping `h-16` over
              `min-h-16` and a visible `border-gray-200` over
              `border-white/50` — see the note above the tag. */
-          className="h-16 text-gray-900/80 border-b border-gray-200 px-4 py-2.5"
-          style={{
-            background: 'rgba(255, 255, 255, 0.78)',
-            backdropFilter: 'blur(12px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(12px) saturate(160%)',
-          }}
+          className={`${isMobileMenuOpen ? 'h-auto' : 'h-16'} text-gray-900/80 border-b border-gray-200 px-4 py-2.5`}
+          style={
+            isMobileMenuOpen
+              ? { background: '#ffffff' }
+              : {
+                  background: 'rgba(255, 255, 255, 0.78)',
+                  backdropFilter: 'blur(12px) saturate(160%)',
+                  WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+                }
+          }
         >
           <nav
             className="flex w-full flex-col gap-3 md:flex-row md:items-center md:gap-2"

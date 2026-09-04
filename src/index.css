@@ -447,6 +447,31 @@
     color: #ffffff !important;
   }
 
+  /* Performance's Calls toolbar (interactions-theme.css) wants these same
+     buttons on its own warm-glass palette instead of the plain white-card
+     look above — for `!important` declarations the cascade reverses layer
+     order and treats unlayered styles as lowest priority, so a
+     `.perf-interactions`-scoped override in that page's own stylesheet can
+     never beat this rule no matter how specific it is. It has to live in
+     this layer, right beside the rule it overrides, for specificity to
+     decide normally. */
+  .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(249, 115, 22, 0.3) !important;
+    color: #f97316 !important;
+  }
+  .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+  }
+
   .custom-react-select__control:hover {
     border-color: var(--primary) !important;
   }
@@ -744,6 +769,78 @@
 
   .custom-react-select__menu-list {
     max-height: 200px !important;
+  }
+
+  /* The Performance toolbar's date-preset select (Today, Yesterday, Last 7
+     Days, Last 30 Days, This Month, Last Month, Date Range) — scoped via
+     `inputClass="mcm-date-preset"` on that one CustomSelect
+     (date-dropdown/index.tsx) so this doesn't touch any other select's
+     menu. The shared 200px `max-height` above is sized for selects with
+     dozens of options; this fixed 7-item list needed a scrollbar it never
+     should have had. Has to stay inside this layer, right beside the
+     rules it overrides: for `!important` declarations the cascade
+     reverses layer order and treats unlayered styles (a plain override in
+     date-picker-theme.css) as the lowest priority, so nothing outside
+     `@layer base` can win this fight no matter how specific it is. */
+  /* The control itself is forced to `height: 2.5rem !important` (40px) by
+     the shared `.custom-react-select__control` rule below — 4px taller
+     than the 36px `.perf-filter-pill` it sits inside as the pill's first
+     segment, poking out past the pill's own top/bottom edge and reading
+     as a seam between the date select and Division/Media beside it.
+
+     Same rule also forces a solid white background at its own 0.8rem
+     (12.8px) corner radius — squarer than the fully-rounded (999px) pill
+     it sits inside. That mismatch was invisible while the pill clipped
+     its children with overflow:hidden, but the "Date Range" floating
+     panel (a descendant several levels down) needed overflow:visible on
+     that same pill to ever be able to render outside it — the moment
+     that changed, the control's own less-rounded white corner started
+     poking out past the pill's rounded left edge, covering its thin
+     border there. Fixed by never giving the control its own visible
+     surface in the first place: transparent background, and its own
+     corners rounded to match the pill's curve on the side that's a real
+     edge (left) and squared off on the side that meets Sep 4/Division/
+     Media (right), so there's nothing left to clip. */
+  .mcm-date-preset.custom-react-select__control {
+    height: 36px !important;
+    min-height: 36px !important;
+    background-color: transparent !important;
+    border-top-left-radius: 999px !important;
+    border-bottom-left-radius: 999px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+  .mcm-date-preset.custom-react-select__menu {
+    background-color: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 14px !important;
+    padding: 6px !important;
+    border-color: rgba(249, 115, 22, 0.18) !important;
+    box-shadow: 0 12px 32px rgba(160, 95, 30, 0.18) !important;
+  }
+  .mcm-date-preset.custom-react-select__menu-list {
+    max-height: 360px !important;
+  }
+  .mcm-date-preset.custom-react-select__option {
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+  }
+  .mcm-date-preset.custom-react-select__option:hover,
+  .mcm-date-preset.custom-react-select__option--is-focused {
+    background-color: rgba(255, 241, 235, 0.65) !important;
+    color: #1a1a1a !important;
+  }
+  .mcm-date-preset.custom-react-select__option--is-selected {
+    background-color: rgba(249, 115, 22, 0.12) !important;
+    background-image: none !important;
+    color: #ea580c !important;
+    font-weight: 600;
+  }
+  .mcm-date-preset.custom-react-select__option--is-selected:hover,
+  .mcm-date-preset.custom-react-select__option--is-selected.custom-react-select__option--is-focused {
+    background-color: rgba(249, 115, 22, 0.16) !important;
+    color: #ea580c !important;
   }
 
   .chart-container {

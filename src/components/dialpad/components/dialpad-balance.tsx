@@ -2,6 +2,7 @@ import { useDialpad } from '@/hooks/use-dialpad';
 import { useUser } from '@/hooks/use-user';
 import { CircleDollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 
 const DialpadBalance = () => {
   const navigate = useNavigate();
@@ -26,9 +27,11 @@ const DialpadBalance = () => {
             Balance
           </p>
           <p className="mt-0.5 truncate text-[11px] font-semibold text-[#1a2842] max-[380px]:text-[10px]  sm:text-xs md:text-[11px] xl:text-sm">
-            {Number.isFinite(balanceAmount) ? balanceAmount.toFixed(2) : '0.00'}{' '}
+            {Number.isFinite(balanceAmount)
+              ? (balanceAmount * USD_TO_INR_RATE).toFixed(2)
+              : '0.00'}{' '}
             <span className="text-[9px] uppercase tracking-[0.08em] text-[#8a97ab] max-[380px]:text-[8px] sm:text-[10px]">
-              USD
+              INR
             </span>
           </p>
         </div>

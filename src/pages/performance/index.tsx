@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PhoneIncoming, AlarmClock } from 'lucide-react';
+import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
@@ -211,7 +211,17 @@ const Performance = () => {
         .mcm-page .perf-filter-pill {
           display:flex; align-items:center; height:36px;
           border:1px solid var(--line); border-radius:999px;
-          background:var(--surface); overflow:hidden; padding:0 2px;
+          background:var(--surface); padding:0 2px;
+          /* The pill's own rounded look comes from its border-radius,
+             border and background — none of its children (plain text
+             segments, no backgrounds of their own) actually need
+             clipping to stay inside that shape. overflow:hidden was
+             blocking the "Date Range" floating panel below (a position:
+             absolute descendant of the date dropdown, several levels in)
+             from ever being visible: an ancestor's overflow:hidden clips
+             absolutely-positioned descendants too, regardless of their
+             own z-index. */
+          overflow:visible;
         }
         .mcm-page .perf-filter-pill .pf-seg {
           display:flex; align-items:center; height:100%;
@@ -230,6 +240,53 @@ const Performance = () => {
         }
         .mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
         .mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
+        /* The "Date Range" floating panel (DateDropdown's own
+           customPickerPlacement="bottom" markup) is right-0 against its
+           own narrow .relative wrapper — the date select itself, not the
+           toolbar. That wrapper sits right at the pill's left edge, so
+           anchoring the panel's right edge to it pushed the panel almost
+           entirely off-screen to the left. left-0 anchors its LEFT edge
+           there instead, opening the panel rightward into the open space
+           the rest of the toolbar already has. */
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
+          right:auto; left:0;
+          /* The panel's own box was never wider than it should be — at
+             336px (w-[21rem]) it stayed inside its own bounds. What read
+             as its border "overflowing" was the "Waiting, Longest wait…"
+             notice pill sitting directly behind and beside it: full
+             toolbar width, at an overlapping height, showing through past
+             the panel's own 336px edge because a 92%-opacity blur still
+             lets a similar warm/cream shape read as one continuous line
+             next to it. A near-solid background plus a real shadow (not
+             just a blurred backdrop) makes the panel unambiguously lift
+             off the page instead of blending with whatever sits behind
+             it — and the original p-3 (12px) read tight for four full-
+             height controls, so bumped to 16px. */
+          background:#fdfbf8 !important;
+          backdrop-filter: blur(16px) !important;
+          -webkit-backdrop-filter: blur(16px) !important;
+          box-shadow: 0 16px 40px -8px rgba(160,95,30,0.28), 0 4px 12px rgba(160,95,30,0.12) !important;
+          padding:16px !important;
+          margin-top:10px !important;
+        }
+        /* Inside the panel: the From/To fields row and the Clear/Apply row
+           are plain stacked block children (the panel itself isn't a flex
+           column), so both take its full content width by default — the
+           date fields correctly spread edge to edge (each is flex:1), but
+           Clear+Apply, a flex row with no justify-content, just sat at the
+           left of that same width with the rest of it empty. Right-
+           aligning that row sits Apply directly under the "To" field
+           instead of floating alone with dead space beside it, and a
+           little more gap on both rows (was 8px / 6px) keeps every
+           control from reading as glued to its neighbour. */
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:first-child {
+          gap:10px !important;
+          margin-bottom:12px !important;
+        }
+        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:last-child {
+          gap:10px !important;
+          justify-content:flex-end;
+        }
       `}</style>
 
       <div className="page-bar">
@@ -245,7 +302,18 @@ const Performance = () => {
         <div className="tbar perf-tbar">
           <div className="perf-tbar-group">
             <div className="perf-filter-pill">
-              <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
+              <DateDropdown
+                dropdownVal={dropdownVal}
+                setDropdownVal={setDropdownVal}
+                // The default 'inline' placement rendered the From/To
+                // date cards, clear button and Apply button in the same
+                // row as the Division/Media segments the moment "Date
+                // Range" was picked — a lot to fit on one line before it
+                // even got to those segments. 'bottom' expands that group
+                // into its own floating card under the toolbar instead,
+                // leaving the pill itself untouched.
+                customPickerPlacement="bottom"
+              />
               {resolvedRangeLabel && <span className="pf-seg pf-range">{resolvedRangeLabel}</span>}
               <span className="pf-seg">Division: All</span>
               <span className="pf-seg">Media: All</span>
@@ -274,10 +342,13 @@ const Performance = () => {
       {SHOW_KPI_HEADER_TABS.has(activeTab) &&
         !(activeTab === 'queues-activity' && selectedQueueUuid) && (
           <div className="page-band">
-            <p className="page-note">
-              Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
-              now. Answered, Abandon rate and Avg handle time cover the selected date range.
-            </p>
+            <div className="hero-notice">
+              <Info className="hero-notice-icon" />
+              <p className="page-note">
+                Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
+                now. Answered, Abandon rate and Avg handle time cover the selected date range.
+              </p>
+            </div>
             <style>{`
             /* Waiting / Longest wait are what a supervisor triages on first —
                sized up and, past target, ringed so they're findable without
@@ -312,19 +383,35 @@ const Performance = () => {
 
             .mcm-page .grouped-row {
               display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
-              align-items:start; gap:10px; margin-bottom:16px;
+              /* "start" let each of the three cards size to its own content
+                 — Service's longer "target 80% in 20s" label made it taller
+                 than Volume/Coverage, so the row read as uneven. "stretch"
+                 (the grid default) makes every card fill the tallest one's
+                 height instead. */
+              align-items:stretch; gap:10px; margin-bottom:16px;
             }
             @media (min-width: 700px) {
               .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             }
-            .mcm-page .grouped-stat { padding:14px 16px; }
-            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:14px; margin-top:8px; }
+            .mcm-page .grouped-stat { padding:14px 14px; height:100%; }
+            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:12px; margin-top:8px; }
             .mcm-page .grouped-stat-metric { flex:1; min-width:0; }
             .mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
             .mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
             .mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
             .mcm-page .grouped-stat-trend.bad { color:var(--crit); }
             .mcm-page .grouped-stat-trend.good { color:var(--live); }
+            /* Metric captions ("Service level · target 80% in 20s") — one
+               line, always. A metric that runs long ellipsizes rather than
+               wrapping and pushing its own card taller than its siblings.
+               .stat .d (mcm-page.css) is display:flex — text-overflow
+               doesn't reliably ellipsize on a flex container, it just hard
+               -clips the last character instead of showing an ellipsis,
+               which is what cut the final "s" off "20s". display:block
+               restores normal single-line text truncation. */
+            .mcm-page .grouped-stat-metric .d {
+              display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            }
 
             /* Reinforces "live" beyond the word itself — a soft glow that
                breathes with the pulsing dot, not just a static badge. */

@@ -129,12 +129,12 @@ const DUMMY_NOTIFICATIONS: any[] = [
     }),
   ),
   ...buildDummyGroup('payment', NOTIFICATION_TYPE_CONST.PAYMENT_EVENT, [
-    'Payment of $50.00 received — wallet topped up',
-    'Payment of $120.00 received — wallet topped up',
-    'Payment failed for auto-recharge of $25.00',
-    'Payment of $200.00 received — wallet topped up',
+    'Payment of ₹4,150.00 received — wallet topped up',
+    'Payment of ₹9,960.00 received — wallet topped up',
+    'Payment failed for auto-recharge of ₹2,075.00',
+    'Payment of ₹16,600.00 received — wallet topped up',
     'Invoice #INV-2291 paid successfully',
-    'Payment of $75.00 received — wallet topped up',
+    'Payment of ₹6,225.00 received — wallet topped up',
   ]),
   ...buildDummyGroup('group', 'department_create', [
     'New group "Support Tier 2" was created',

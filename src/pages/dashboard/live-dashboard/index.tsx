@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
+import { isDemoMode } from '@/lib/demo-mode';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { handleAlert } from '@/lib/utils';
@@ -412,7 +413,10 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
   };
 
   const handleRefreshCampaignStats = useCallback(() => {
-    if (user?.sip_credentials?.domain && isSocketConnected) {
+    // Demo mode has no real socket, so `isSocketConnected` never flips true —
+    // that left this button clickable but permanently a no-op. It routes
+    // through getCampaignLiveCalls either way, which now re-seeds demo data.
+    if (isDemoMode() || (user?.sip_credentials?.domain && isSocketConnected)) {
       setIsRefreshing(true);
       getCampaignLiveCalls({ domain: user?.sip_credentials?.domain }, (res: any) => {
         console.log('campaign-live-calls response:', res);

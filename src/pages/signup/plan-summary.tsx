@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { Info } from 'lucide-react';
 import { getPlanDidCountries } from '@/lib/did-countries';
+import { formatMoney } from '@/lib/billing-money';
 
 const PlanSummary = ({
   licenseCount,
@@ -79,13 +80,11 @@ const PlanSummary = ({
             </h4>
             <div className="flex  gap-2">
               <span className="text-primary font-semibold leading-7 pb-0 text-2xl">
-                <span className="text-xl align-text-top">$</span>
-                {planCost || 0}
+                {formatMoney(planCost || 0)}
               </span>
               {discount_enabled && (
                 <span className="flex gap-0.5 text-red-500 justify-end text-base">
-                  <span className="text-lg align-text-top">$</span>
-                  <h3 className="line-through">{original_price}</h3>
+                  <h3 className="line-through">{formatMoney(original_price)}</h3>
                 </span>
               )}
             </div>
@@ -102,7 +101,7 @@ const PlanSummary = ({
                 {licenseCount || 1} User(s) (Line Included)
               </p>
               <p className="text-primary font-bold text-sm">
-                {licenseCount || 1} X ${planCost}
+                {licenseCount || 1} X {formatMoney(planCost)}
               </p>
             </div>
 
@@ -154,7 +153,7 @@ const PlanSummary = ({
                     {isPending ? (
                       <Skeleton className="h-3 w-[50px] bg-gray-200" />
                     ) : (
-                      `$${taxes?.sub_total || 0}`
+                      formatMoney(taxes?.sub_total || 0)
                     )}
                   </p>
                 </div>
@@ -165,7 +164,7 @@ const PlanSummary = ({
                       <Skeleton className="h-3 w-[80px] bg-gray-200" />
                     ) : (
                       <div className="flex items-center gap-0.5">
-                        ${taxes?.tax_amount || 0}
+                        {formatMoney(taxes?.tax_amount || 0)}
                         <span className="font-normal">({Number(taxes?.tax_percentage ?? 0)}%)</span>
                       </div>
                     )}
@@ -179,13 +178,13 @@ const PlanSummary = ({
                     ) : null}
                     <h3 className=" font-semibold text-base text-primary">
                       {isTrailPlan ? (
-                        '$0'
+                        formatMoney(0)
                       ) : (
                         <>
                           {isPending ? (
                             <Skeleton className="h-3 w-[50px] bg-gray-200" />
                           ) : (
-                            `$${taxes?.total_amount || 0}`
+                            formatMoney(taxes?.total_amount || 0)
                           )}
                         </>
                       )}

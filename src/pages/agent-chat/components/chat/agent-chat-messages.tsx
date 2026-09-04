@@ -142,7 +142,7 @@ const AgentChatMessages = ({ currentChat }: { currentChat: any }) => {
     <div
       ref={messageContainerRef}
       onScroll={handleMessageContainerScroll}
-      className="chatInnerSec relative w-full h-full overflow-y-auto overflow-x-hidden flex-1 bg-white"
+      className="chatInnerSec relative w-full h-full overflow-y-auto overflow-x-hidden flex-1 bg-[#FDFBF7]"
     >
       {isFetchingMessages?.[currentChat?.chatId] ? (
         <div className="sticky top-2 z-10 mx-2 my-2 flex min-h-9 items-center justify-center rounded-lg bg-ucass-active-bg py-1.5 text-xs font-medium text-ucass-active sm:min-h-10 sm:py-2 sm:text-sm">

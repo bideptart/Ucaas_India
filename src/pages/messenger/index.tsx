@@ -1,4 +1,4 @@
-import { SearchLine, UserLine, UsersGroupLine, FilterIcon, LetterOpenedLine } from '@/assets/icons';
+import { UserLine, UsersGroupLine, FilterIcon, LetterOpenedLine } from '@/assets/icons';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import SideDrawer from '@/components/custom/side-drawer';
 import CreateDirectChat from './drawers/create-direct-chat';
@@ -1218,7 +1218,7 @@ const SidebarContent = ({
 
       {!isAgentChat ? (
         <div className="border-b border-[#EEE7DD] px-2">
-          <div className="flex min-h-10 items-center gap-2 overflow-x-auto">
+          <div className="flex min-h-10 items-center justify-between overflow-x-auto">
             {tabOptions.map((tab) => (
               <button
                 key={tab.value}
@@ -1246,9 +1246,26 @@ const SidebarContent = ({
 
       <div className="px-3 py-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-gray-100">
         <Input
-          Icon={<SearchLine className="text-[#9A948F]" />}
+          Icon={
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 15 15"
+              fill="none"
+              className="text-[#4B4640]"
+              aria-hidden="true"
+            >
+              <path
+                d="M10 6.5C10 8.433 8.433 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5ZM9.30884 10.0159C8.53901 10.6318 7.56251 11 6.5 11C4.01472 11 2 8.98528 2 6.5C2 4.01472 4.01472 2 6.5 2C8.98528 2 11 4.01472 11 6.5C11 7.56251 10.6318 8.53901 10.0159 9.30884L12.8536 12.1464C13.0488 12.3417 13.0488 12.6583 12.8536 12.8536C12.6583 13.0488 12.3417 13.0488 12.1464 12.8536L9.30884 10.0159Z"
+                fill="currentColor"
+                fillRule="evenodd"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
           IconPosition="left-0 pl-3 inset-y-0"
-          className="pl-9"
+          className="pl-11 focus:ring-0"
+          style={{ outline: 'none', boxShadow: 'none' }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search..."
@@ -1256,7 +1273,8 @@ const SidebarContent = ({
         {!isAgentChat ? (
           <div className="w-full sm:min-w-28 sm:w-28">
             <select
-              className="border border-[rgba(225,200,165,0.9)] rounded-xl px-3 min-h-10 text-sm w-full text-[#2E2D35] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+              className="border border-[rgba(225,200,165,0.9)] rounded-xl px-3 min-h-10 text-sm w-full text-[#2E2D35] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus:border-primary"
+              style={{ outline: 'none', boxShadow: 'none' }}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as MessageStatus)}
             >

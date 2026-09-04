@@ -228,7 +228,7 @@ const AgentChatMessageItem = ({ msgObj, currentChat }: { msgObj: any; currentCha
         </div>
 
         <div
-          className={`w-fit px-3 py-2.5 sm:px-4 sm:py-3 break-words ${
+          className={`w-fit px-3 py-2.5 shadow-[0_1px_2px_rgba(46,45,53,0.06)] sm:px-4 sm:py-3 break-words ${
             isMine
               ? 'rounded-t-[16px] rounded-bl-[16px] rounded-br-[0px] border border-ucass-active bg-ucass-active text-white'
               : isBotMessage

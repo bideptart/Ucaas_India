@@ -493,6 +493,7 @@ const FolderList = ({
                 const { folderName } = v || {};
                 return (
                   <div
+                    key={v?._id || folderName}
                     className="group border border-gray-200 p-3.5 flex gap-3 rounded-xl cursor-pointer hover:border-ucass-active-bg hover:shadow-[0_4px_16px_rgba(15,23,42,0.08)] justify-between items-start bg-white transition-all"
                     onClick={() => {
                       setSelectedFolder(v);

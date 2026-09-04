@@ -476,10 +476,11 @@ const Plan = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-gray-900 text-base xxl:text-lg">
-                        $
-                        {dataGetMyPlanDetails?.current_plan_details?.discount_enabled
-                          ? dataGetMyPlanDetails?.current_plan_details?.discount_price
-                          : dataGetMyPlanDetails?.current_plan_details?.original_price}
+                        {formatMoney(
+                          dataGetMyPlanDetails?.current_plan_details?.discount_enabled
+                            ? dataGetMyPlanDetails?.current_plan_details?.discount_price
+                            : dataGetMyPlanDetails?.current_plan_details?.original_price,
+                        )}
                         /
                         {dataGetMyPlanDetails?.current_plan_details?.plan_duration === 12
                           ? 'year'
@@ -512,18 +513,22 @@ const Plan = () => {
                           {moment(dataGetMyPlanDetails?.last_billing?.created_at).format(
                             'DD MMM, YYYY',
                           )}{' '}
-                          : $
-                          {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
-                            ? 0
-                            : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0}{' '}
+                          :{' '}
+                          {formatMoney(
+                            dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
+                              ? 0
+                              : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0,
+                          )}{' '}
                           X{' '}
                           {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
                             ? 1
                             : dataGetMyPlanDetails?.last_billing?.total_license}{' '}
-                          = $
-                          {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
-                            ? 0
-                            : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total}{' '}
+                          ={' '}
+                          {formatMoney(
+                            dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
+                              ? 0
+                              : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total,
+                          )}{' '}
                           <sup className="text-gray-700 font-normal">(excl. Tax)</sup>
                         </span>
                       </div>
@@ -767,10 +772,11 @@ const Plan = () => {
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <h4 className="font-bold text-gray-900 text-lg">
-                          $
-                          {requestedCostObj?.discount_enabled
-                            ? requestedCostObj?.discount_price
-                            : requestedCostObj?.original_price}
+                          {formatMoney(
+                            requestedCostObj?.discount_enabled
+                              ? requestedCostObj?.discount_price
+                              : requestedCostObj?.original_price,
+                          )}
                           /{RequestedPlanDurationMap[Number(requestedPlanInfo?.duration)]}/user
                         </h4>
                       </div>

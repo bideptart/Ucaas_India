@@ -169,7 +169,7 @@ const SpeechTextTab = () => {
   ];
 
   return (
-    <div className="perf-speech flex w-full flex-col gap-4 px-[22px] pt-5 pb-32">
+    <div className="perf-speech flex w-full flex-col gap-4 px-[22px] pt-5 pb-6">
       <p className="page-note">
         Sentiment for AI receptionist / chatbot handled calls, sourced from the same live data as
         the AI Wallboard. Human-agent call sentiment isn't aggregated yet — see individual calls'
@@ -282,7 +282,7 @@ const SpeechTextTab = () => {
         </div>
       </div>
 
-      <div>
+      <div className="sp-topics-table">
         <h3 className="sect-title" style={{ marginBottom: 8 }}>
           Topics
         </h3>
@@ -294,7 +294,7 @@ const SpeechTextTab = () => {
         />
       </div>
 
-      <div>
+      <div className="sp-agents-table">
         <h3 className="sect-title" style={{ marginBottom: 8 }}>
           Agent sentiment ranking
         </h3>

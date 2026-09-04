@@ -30,7 +30,10 @@ import {
   demoCampaignCallFlowFunnel,
   demoCampaignLiveCallsData,
   demoChatThreads,
+  demoChatFolders,
+  demoChatNotes,
   demoMessageList,
+  demoPinnedMessages,
   demoLiveCalls,
   demoLiveQueueCalls,
   demoUsersOnlineStatus,
@@ -866,10 +869,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [messageList, setMessageList] = useState<any>(() =>
     isDemoMode() ? demoMessageList() : [],
   );
-  const [pinnedList, setPinnedList] = useState<any>([]);
+  const [pinnedList, setPinnedList] = useState<any>(() =>
+    isDemoMode() ? demoPinnedMessages() : [],
+  );
   const [threadsManager, setThreadsManager] = useState<any>([]);
-  const [notesList, setNotesList] = useState<any>([]);
-  const [folderList, setFolderList] = useState<any>([]);
+  const [notesList, setNotesList] = useState<any>(() => (isDemoMode() ? demoChatNotes() : []));
+  const [folderList, setFolderList] = useState<any>(() => (isDemoMode() ? demoChatFolders() : []));
   const [typingList, setTypingList] = useState<any>({});
   const [chatPageList, setChatPageList] = useState<any>({});
   const [isFetchingMessages, setIsFetchingMessages] = useState<any>({});
@@ -1358,11 +1363,60 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const handleAiChatAccept = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Demo mode has no socket connection, so `socketEventsManager` is
+         null and the emit below would silently never call back — leaving
+         "Accepting..." stuck forever. Simulate the accept locally instead:
+         move the pending request into `allAgentChats` as an active chat so
+         its already-seeded messages/profile become visible and typeable. */
+      if (isDemoMode()) {
+        const chatId = payload?.chatId;
+        const pendingRequest = aiChatRequests.find((request: any) => request?.chatId === chatId);
+        const rawVisitor = pendingRequest?.users;
+        const visitor = (Array.isArray(rawVisitor) ? rawVisitor : [rawVisitor]).find(
+          (chatUser: any) => chatUser?.uuid !== user?.uuid,
+        ) ||
+          rawVisitor || { uuid: `${chatId}-visitor`, name: 'Visitor' };
+        const me = {
+          uuid: user?.uuid,
+          first_name: user?.first_name || user?.user_info?.first_name,
+          last_name: user?.last_name || user?.user_info?.last_name,
+          name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
+        };
+        const nowIso = new Date().toISOString();
+
+        setAllAgentChats((prev: any) => {
+          const list = Array.isArray(prev) ? prev : [];
+          if (list.some((chat: any) => chat?.chatId === chatId)) return list;
+          return [
+            {
+              chatId,
+              isGroupChat: false,
+              groupType: 'AI',
+              isEnded: false,
+              users: [me, visitor],
+              lastMessage: { message: '', createdAt: nowIso, senderId: visitor?.uuid },
+              metaData: {
+                ...(pendingRequest?.metaData || {}),
+                status: 'active',
+                lastMessageTimeStamp: nowIso,
+              },
+              createdAt: pendingRequest?.createdAt || nowIso,
+              isHidden: [],
+              isDeleted: false,
+            },
+            ...list,
+          ];
+        });
+
+        callback?.({ status: 200, success: true });
+        return;
+      }
+
       socketEventsManager?.emit(chatEvents.AI_CHAT_ACCEPT, payload, (response: any) => {
         if (callback) callback(response);
       });
     },
-    [socketEventsManager],
+    [socketEventsManager, aiChatRequests, user],
   );
 
   const handleAiChatDecline = useCallback(
@@ -3877,6 +3931,17 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const getCampaignLiveCalls = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Demo mode has no socket connection, so `socketEventsManager` is null
+         and the Refresh button on the Live Wallboard would silently do
+         nothing forever. Re-seed from the same generator used at initial
+         mount — `demoCallStats()` inside it reads the live clock, so a
+         refresh visibly moves the numbers instead of being a no-op. */
+      if (isDemoMode()) {
+        const res = demoCampaignLiveCallsData();
+        setCampaignLiveCallsData(res);
+        if (callback) callback(res);
+        return;
+      }
       if (!socketEventsManager) return;
       socketEventsManager.emit('campaign-live-calls', payload, (res: any) => {
         if (callback) callback(res);
@@ -3887,6 +3952,15 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const getAiLiveWallboardData = useCallback(
     (payload: any, callback?: (response: any) => void) => {
+      /* Same reasoning as getCampaignLiveCalls above — the AI Wallboard's
+         Refresh button otherwise has no socket to round-trip through in
+         demo mode. */
+      if (isDemoMode()) {
+        const res = demoAiLiveWallboardData();
+        setAiLiveWallboardData(res);
+        if (callback) callback(res);
+        return;
+      }
       if (!socketEventsManager || isDisconnecting) return;
       socketEventsManager.emit(chatEvents.MAIN_AI_LIVE_WALLBOARD, payload, (res: any) => {
         if (callback) callback(res);
@@ -4153,6 +4227,14 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function getChatPinnedMessages(chatId: string, callback?: (response: any) => void) {
+    /* Demo mode seeds `pinnedList` up front (there's no server to ask), but
+       the panel's own loading spinner only clears inside this callback —
+       without this branch it never fires and "Loading pinned messages..."
+       never resolves even though the data is already there. */
+    if (isDemoMode()) {
+      callback?.(pinnedList.find((row: any) => row?.chatId === chatId) ?? null);
+      return;
+    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.GET_PINNED_CHATS, { chatId }, (response: any) => {
         console.log('Server ack:', response);

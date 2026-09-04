@@ -99,7 +99,12 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
 
   // Agent and campaign figures only load for the reports that actually need
   // them, so switching between queue reports doesn't fire extra requests.
-  const needsAgents = selectedId === 'agent-summary';
+  const needsAgents = [
+    'agent-summary',
+    'agent-status-summary',
+    'evaluation-summary',
+    'adherence-summary',
+  ].includes(selectedId);
   const needsCampaigns = selectedId === 'campaign-performance';
   const needsAi = selectedId === 'sentiment-topics';
   const needsSms = selectedId === 'media-type';
@@ -216,7 +221,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
-        padding: '16px 22px 96px',
+        padding: '16px 22px 24px',
       }}
     >
       {/* ---- headline totals for the range ---- */}
@@ -432,13 +437,20 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
               >
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--line)' }}>
-                    {report?.head.map((heading) => (
+                    {report?.head.map((heading, headingIndex) => (
                       <th
                         key={heading}
                         style={{
                           whiteSpace: 'nowrap',
                           padding: '8px 12px',
-                          textAlign: 'left',
+                          /* The first column is always the row's own name
+                             (queue, agent, campaign, ...) and reads left to
+                             right like a label; every column after it is a
+                             count, percentage, duration or currency figure —
+                             centered under its header instead of pinned to
+                             one edge, the same balance fix applied across
+                             every other Performance table. */
+                          textAlign: headingIndex === 0 ? 'left' : 'center',
                           fontSize: 10,
                           fontWeight: 700,
                           letterSpacing: '.09em',
@@ -462,6 +474,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                             style={{
                               whiteSpace: 'nowrap',
                               padding: '8px 12px',
+                              textAlign: cellIndex === 0 ? 'left' : 'center',
                               fontWeight: cellIndex === 0 ? 700 : 500,
                               color: cellIndex === 0 ? 'var(--rp-ink)' : '#334155',
                             }}
@@ -494,6 +507,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           style={{
                             whiteSpace: 'nowrap',
                             padding: '8px 12px',
+                            textAlign: cellIndex === 0 ? 'left' : 'center',
                           }}
                         >
                           {cell}

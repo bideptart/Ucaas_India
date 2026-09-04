@@ -12,6 +12,7 @@ import { durationMap, PlanDurationMap, PRICE_FEATURES } from '../admin-settings/
 import { Check, InfoIcon } from '@/assets/icons';
 import { getEnv } from '@/lib/utils';
 import { useOrganization } from '@/hooks/use-organisation';
+import { formatMoney } from '@/lib/billing-money';
 
 export type PricingDropdownKey = 'virtual_phone' | 'international_calling' | 'sms' | 'learn';
 
@@ -278,12 +279,16 @@ const Pricing = () => {
                               <div className="flex items-center gap-3">
                                 <h2
                                   className={`text-4xl ${index === activeIndex ? 'text-white' : 'text-primary'} font-semibold flex items-center`}
-                                >{`$${costDetails?.discount_enabled ? costDetails?.discount_price : costDetails?.original_price}`}</h2>
+                                >{formatMoney(
+                                    costDetails?.discount_enabled
+                                      ? costDetails?.discount_price
+                                      : costDetails?.original_price,
+                                  )}</h2>
                                 {costDetails?.discount_enabled && (
                                   <h4
                                     className={`line-through text-xl ${index === activeIndex ? 'text-white' : 'text-primary'}`}
                                   >
-                                    ${costDetails?.original_price}
+                                    {formatMoney(costDetails?.original_price)}
                                   </h4>
                                 )}
                               </div>
@@ -627,7 +632,7 @@ const Pricing = () => {
                           </span>
                         </div>
                         <small className="text-gray-800 font-normal">
-                          Annually: $20 | Monthly: $30
+                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
                         </small>
                       </div>
                     </div>
@@ -785,7 +790,7 @@ const Pricing = () => {
                           </h2>
                         </div>
                         <small className="text-gray-800 font-normal">
-                          Annually: $20 | Monthly: $30
+                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
                         </small>
                       </div>
                     </div>
@@ -967,7 +972,7 @@ const Pricing = () => {
                           </h2>
                         </div>
                         <small className="text-gray-800 font-normal">
-                          Annually: $20 | Monthly: $30
+                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
                         </small>
                       </div>
                     </div>

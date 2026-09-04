@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, ChevronDown, Download, Info, LayoutGrid, Lock } from 'lucide-react';
 import { useContext, useEffect } from 'react';
@@ -72,6 +72,45 @@ const toCsvValue = (value: unknown) => {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
+// Columns are dynamic per report (each builder defines its own `head`), so
+// alignment can't be a fixed per-index rule beyond column 0 — it's keyed by
+// the heading text every builder in `reports/builders.ts` actually uses.
+// Durations/timers/currency read right like any other magnitude column;
+// counts and percentages stay centered under their header; a handful of
+// later columns are still identity/text (a queue name, a status, a date)
+// rather than a number, so they're called out to stay left with column 0.
+const RIGHT_ALIGN_HEADINGS = new Set([
+  'ASA',
+  'AHT',
+  'Total talk',
+  'Avg wait',
+  'Longest wait',
+  'Time on calls',
+  'Total charge',
+  'Avg charge',
+  'Cost',
+  'Avg handle time',
+  'On call',
+  'Available (est.)',
+  'Avg time in call',
+]);
+const LEFT_ALIGN_HEADINGS = new Set([
+  'Queue',
+  'Routed to',
+  'Dial method',
+  'Status',
+  'Source',
+  'Created',
+  'Contact',
+  'Last call',
+  'Outcome',
+]);
+const alignForColumn = (heading: string, index: number): 'left' | 'center' | 'right' => {
+  if (index === 0 || LEFT_ALIGN_HEADINGS.has(heading)) return 'left';
+  if (RIGHT_ALIGN_HEADINGS.has(heading)) return 'right';
+  return 'center';
+};
+
 const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: string } }) => {
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedId, setSelectedId] = useState('queue-summary');
@@ -79,6 +118,31 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
   // The dropdown is the primary picker; the full catalog opens on demand,
   // matching the console.
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  // The catalog's 24 cards push the report table well down the page, so
+  // closing the catalog should bring the table back into view — but only
+  // when the catalog was actually open to begin with (picking a report from
+  // the dropdown while the catalog is already closed shouldn't jump the
+  // page at all, nothing about the layout changed). The scroll itself has
+  // to wait a frame: calling it in the same tick as `setIsCatalogOpen(false)`
+  // measures the table's position while the catalog's 24 cards are still in
+  // the DOM (React hasn't re-rendered yet), so it targets where the table
+  // *used to* sit rather than where the now-shorter page puts it.
+  const tableSectionRef = useRef<HTMLDivElement | null>(null);
+  const selectReport = (id: string) => {
+    setSelectedId(id);
+    setIsCatalogOpen((wasOpen) => {
+      if (wasOpen) {
+        // Two frames, not one: the first only guarantees this callback runs
+        // before the next paint, not that React's own commit has landed yet.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            tableSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+      }
+      return false;
+    });
+  };
 
   const selected = findReport(selectedId);
   const callStats = useCallStats(selectedRange);
@@ -285,7 +349,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         data-selected={isSelected ? '' : undefined}
                         onSelect={() => {
                           if (!isAvailable) return;
-                          setSelectedId(definition.id);
+                          selectReport(definition.id);
                         }}
                         className="rp-report-menu-item"
                       >
@@ -362,8 +426,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         title={definition.unavailableReason}
                         onClick={() => {
                           if (!isAvailable) return;
-                          setSelectedId(definition.id);
-                          setIsCatalogOpen(false);
+                          selectReport(definition.id);
                         }}
                         className={`rp-catalog-card${isSelected ? ' is-selected' : ''}${
                           !isAvailable ? ' is-locked' : ''
@@ -387,7 +450,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
       )}
 
       {/* ---- selected report ---- */}
-      <div className="panel-card">
+      <div className="panel-card" ref={tableSectionRef}>
         <div className="pc-head">
           <h3>{selected?.title}</h3>
           <span className="pc-right" style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
@@ -396,30 +459,36 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
           </span>
         </div>
         <div className="pc-body tight">
-          {report?.note && (
-            <div
-              className="rp-notice"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 7,
-                margin: '10px 0',
-                padding: '9px 12px',
-                borderRadius: 'var(--r)',
-                fontSize: 11.5,
-                lineHeight: 1.5,
-              }}
-            >
-              <Info style={{ width: 14, height: 14, flex: 'none', marginTop: 1 }} />
-              <span>{report.note}</span>
-            </div>
-          )}
-          {callStats.isQueueBreakdownSampled && report && (
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--ink-4)' }}>
-              Counted from the most recent {callStats.sampledRowCount} of {callStats.totalCount}{' '}
-              calls in this range.
-            </p>
-          )}
+          {(() => {
+            // One pill, one line: the SL% caption and the "sampled data"
+            // caveat used to be two different treatments stacked on top of
+            // each other (a styled pill plus a bare unstyled <p>) — joined
+            // into a single string here so there's only ever the one slim
+            // `.rp-notice` pill, with overflow ellipsis if it runs long.
+            const noticeParts = [
+              report?.note,
+              callStats.isQueueBreakdownSampled && report
+                ? `Counted from the most recent ${callStats.sampledRowCount} of ${callStats.totalCount} calls in this range.`
+                : null,
+            ].filter(Boolean);
+            if (!noticeParts.length) return null;
+            return (
+              <div
+                className="rp-notice"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  margin: '0 0 10px',
+                  padding: '0 12px',
+                  borderRadius: 999,
+                }}
+              >
+                <Info style={{ width: 14, height: 14, flex: 'none' }} />
+                <span>{noticeParts.join(' · ')}</span>
+              </div>
+            );
+          })()}
 
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
@@ -442,20 +511,23 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         key={heading}
                         style={{
                           whiteSpace: 'nowrap',
-                          padding: '8px 12px',
+                          padding: '9px 12px',
                           /* The first column is always the row's own name
-                             (queue, agent, campaign, ...) and reads left to
-                             right like a label; every column after it is a
-                             count, percentage, duration or currency figure —
-                             centered under its header instead of pinned to
-                             one edge, the same balance fix applied across
-                             every other Performance table. */
-                          textAlign: headingIndex === 0 ? 'left' : 'center',
-                          fontSize: 10,
-                          fontWeight: 700,
+                             (queue, agent, campaign, ...); after that,
+                             counts/percentages center under their header,
+                             durations/timers/currency right-align like any
+                             other magnitude column, and a few later text
+                             columns (status, source, a date) stay left —
+                             see `alignForColumn` above. */
+                          textAlign: alignForColumn(heading, headingIndex),
+                          // Pixel-matched to Directory ▸ People's own
+                          // `.gp-people th` (people-glass.css) + the
+                          // `.mcm-page th` base it inherits from.
+                          fontSize: 9.5,
+                          fontWeight: 800,
                           letterSpacing: '.09em',
                           textTransform: 'uppercase',
-                          color: 'var(--rp-muted)',
+                          color: '#8a6f57',
                         }}
                       >
                         {heading}
@@ -474,7 +546,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                             style={{
                               whiteSpace: 'nowrap',
                               padding: '8px 12px',
-                              textAlign: cellIndex === 0 ? 'left' : 'center',
+                              textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
                               fontWeight: cellIndex === 0 ? 700 : 500,
                               color: cellIndex === 0 ? 'var(--rp-ink)' : '#334155',
                             }}
@@ -507,7 +579,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           style={{
                             whiteSpace: 'nowrap',
                             padding: '8px 12px',
-                            textAlign: cellIndex === 0 ? 'left' : 'center',
+                            textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
                           }}
                         >
                           {cell}
@@ -538,7 +610,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                   <button
                     type="button"
                     key={linked.title}
-                    className="btn ghost sm"
+                    className="btn ghost sm rp-linked-chip"
                     onClick={() => setOpenReport(linked)}
                   >
                     {linked.title}

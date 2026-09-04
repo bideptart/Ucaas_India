@@ -512,9 +512,10 @@
 }
 .mcm-console .col-title h2 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: normal;
+  color: #2e2d35;
 }
 .mcm-console .seg {
   display: flex;
@@ -3920,12 +3921,6 @@
 .mcm-console .col.calls .col-head {
   position: relative;
   background: linear-gradient(180deg, var(--surface-2), transparent);
-}
-.mcm-console .col.calls .col-title h2 {
-  background: linear-gradient(120deg, var(--ink), var(--accent-ink));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 .mcm-console .col.calls .tag {
   border-radius: 99px;

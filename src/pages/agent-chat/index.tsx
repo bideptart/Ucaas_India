@@ -823,6 +823,7 @@ const SidebarContent = ({
                 }}
                 inputClass=""
                 menuPlacement="bottom"
+                isSearchable={false}
               />
             </div>
           )}

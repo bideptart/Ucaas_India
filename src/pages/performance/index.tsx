@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
-import DateDropdown from '@/components/custom/date-dropdown';
+import DateDropdown, { type DateDropdownHandle } from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
 import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
@@ -82,6 +82,7 @@ const Performance = () => {
     date_type: 'Today',
     dateOptions: DateFilterTypes,
   }));
+  const dateDropdownRef = useRef<DateDropdownHandle>(null);
   const selectedRange = dropdownVal.value;
   /* "Today" or "Last 7 Days" says which preset is picked, not which dates
      that resolves to — this spells the actual range out next to it, the
@@ -247,45 +248,23 @@ const Performance = () => {
            anchoring the panel's right edge to it pushed the panel almost
            entirely off-screen to the left. left-0 anchors its LEFT edge
            there instead, opening the panel rightward into the open space
-           the rest of the toolbar already has. */
+           the rest of the toolbar already has. Everything else about the
+           panel's own look (background, padding, shadow, radius) is set
+           directly on it in date-dropdown/index.tsx now — it's a single
+           compact row, not the taller two-row card this override used to
+           also have to reshape. */
         .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
           right:auto; left:0;
-          /* The panel's own box was never wider than it should be — at
-             336px (w-[21rem]) it stayed inside its own bounds. What read
-             as its border "overflowing" was the "Waiting, Longest wait…"
-             notice pill sitting directly behind and beside it: full
-             toolbar width, at an overlapping height, showing through past
-             the panel's own 336px edge because a 92%-opacity blur still
-             lets a similar warm/cream shape read as one continuous line
-             next to it. A near-solid background plus a real shadow (not
-             just a blurred backdrop) makes the panel unambiguously lift
-             off the page instead of blending with whatever sits behind
-             it — and the original p-3 (12px) read tight for four full-
-             height controls, so bumped to 16px. */
-          background:#fdfbf8 !important;
-          backdrop-filter: blur(16px) !important;
-          -webkit-backdrop-filter: blur(16px) !important;
-          box-shadow: 0 16px 40px -8px rgba(160,95,30,0.28), 0 4px 12px rgba(160,95,30,0.12) !important;
-          padding:16px !important;
-          margin-top:10px !important;
         }
-        /* Inside the panel: the From/To fields row and the Clear/Apply row
-           are plain stacked block children (the panel itself isn't a flex
-           column), so both take its full content width by default — the
-           date fields correctly spread edge to edge (each is flex:1), but
-           Clear+Apply, a flex row with no justify-content, just sat at the
-           left of that same width with the rest of it empty. Right-
-           aligning that row sits Apply directly under the "To" field
-           instead of floating alone with dead space beside it, and a
-           little more gap on both rows (was 8px / 6px) keeps every
-           control from reading as glued to its neighbour. */
-        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:first-child {
-          gap:10px !important;
-          margin-bottom:12px !important;
+        /* The toolbar's own "Sep 2 – Sep 3" segment — clickable once a
+           custom range is active, reopening the panel in one click instead
+           of needing the preset re-picked from the select beside it. */
+        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable {
+          cursor:pointer; border-radius:999px; margin:0 2px;
+          transition: background-color 0.15s ease, color 0.15s ease;
         }
-        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] > div:last-child {
-          gap:10px !important;
-          justify-content:flex-end;
+        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable:hover {
+          background: rgba(249,115,22,0.1); color:var(--accent-ink);
         }
       `}</style>
 
@@ -303,6 +282,7 @@ const Performance = () => {
           <div className="perf-tbar-group">
             <div className="perf-filter-pill">
               <DateDropdown
+                ref={dateDropdownRef}
                 dropdownVal={dropdownVal}
                 setDropdownVal={setDropdownVal}
                 // The default 'inline' placement rendered the From/To
@@ -314,7 +294,29 @@ const Performance = () => {
                 // leaving the pill itself untouched.
                 customPickerPlacement="bottom"
               />
-              {resolvedRangeLabel && <span className="pf-seg pf-range">{resolvedRangeLabel}</span>}
+              {resolvedRangeLabel &&
+                (dropdownVal.date_type === 'Custom' ? (
+                  // A custom range has a panel to go back and edit — the
+                  // preset select beside it still works too, but re-picking
+                  // "Date Range" from an already-"Date Range" select takes
+                  // an extra click a supervisor glancing at "Sep 2 – Sep 3"
+                  // shouldn't need.
+                  <span
+                    className="pf-seg pf-range pf-range-clickable"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => dateDropdownRef.current?.openRangePanel()}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        dateDropdownRef.current?.openRangePanel();
+                      }
+                    }}
+                  >
+                    {resolvedRangeLabel}
+                  </span>
+                ) : (
+                  <span className="pf-seg pf-range">{resolvedRangeLabel}</span>
+                ))}
               <span className="pf-seg">Division: All</span>
               <span className="pf-seg">Media: All</span>
             </div>

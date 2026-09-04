@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import TextEditor, { defaultEditorValue } from '@/pages/messenger/chat/editor';
+import { isDemoMode } from '@/lib/demo-mode';
+import { demoCaptainMessages } from '@/lib/demo-contact-centre';
 
 const CAPTAIN_API_BASE = '/captain-api/api/captain';
 
@@ -41,11 +43,12 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
   const { data: messages = [] } = useQuery({
     queryKey: ['captainConversationMessages', selectedChat?.id],
     queryFn: async () => {
+      if (isDemoMode()) return { data: demoCaptainMessages(selectedChat.id) };
       const res = await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/messages`);
       return res.json();
     },
     enabled: Boolean(selectedChat?.id),
-    refetchInterval: 4000,
+    refetchInterval: isDemoMode() ? false : 4000,
     select: (json: any) => (json?.data as CaptainMessage[]) ?? [],
   });
 
@@ -55,6 +58,19 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   const { mutate: mutateSend, isPending: isSending } = useMutation({
     mutationFn: async (content: string) => {
+      if (isDemoMode()) {
+        const newMessage: CaptainMessage = {
+          id: `${selectedChat.id}-msg-${Date.now()}`,
+          role: 'agent',
+          content,
+          created_at: new Date().toISOString(),
+        };
+        queryClient.setQueryData(
+          ['captainConversationMessages', selectedChat.id],
+          (old: any) => ({ data: [...(old?.data || []), newMessage] }),
+        );
+        return { success: true };
+      }
       const res = await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +81,13 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
     onSuccess: () => {
       editorRef.current?.resetEditor?.();
       setDraftValue(defaultEditorValue);
-      queryClient.invalidateQueries({ queryKey: ['captainConversationMessages', selectedChat.id] });
-      queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+      /* Demo mode already appended the message straight into the cache
+         above — invalidating here would re-run queryFn and hand back the
+         static seed, silently dropping what was just "sent". */
+      if (!isDemoMode()) {
+        queryClient.invalidateQueries({ queryKey: ['captainConversationMessages', selectedChat.id] });
+        queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+      }
     },
   });
 
@@ -79,13 +100,16 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   const { mutate: mutateToggleAi } = useMutation({
     mutationFn: async (resume: boolean) => {
+      if (isDemoMode()) return;
       if (resume) {
         await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/hand-back-to-ai`, { method: 'POST' });
       }
       // Pausing (handing to a human) happens implicitly the moment an agent sends
       // a reply — mirrored below so the switch reflects intent immediately.
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['captainConversations'] }),
+    onSuccess: () => {
+      if (!isDemoMode()) queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+    },
   });
 
   if (!selectedChat) return null;

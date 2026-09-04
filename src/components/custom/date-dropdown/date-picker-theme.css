@@ -150,6 +150,16 @@
 .mcm-date-input:hover {
   border-color: #f2994a;
 }
+/* The single-row toolbar bar (`customPickerPlacement="bottom"`) packs From,
+   To, Reset and Apply onto one ~46px-tall line — the default 36px input
+   plus this bar's own 10px (p-2.5) top/bottom padding would land near
+   56px, taller than that slim target. Scoped to `.mcm-date-range-bar` only,
+   so every other caller of this same `.mcm-date-input` (the inline
+   placement mode, still two rows) keeps its original size. */
+.mcm-date-range-bar .mcm-date-input {
+  height: 28px;
+  padding: 0 8px;
+}
 .mcm-date-input:focus,
 .mcm-date-input:focus-visible {
   outline: none;

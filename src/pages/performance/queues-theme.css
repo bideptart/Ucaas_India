@@ -298,26 +298,34 @@ body.perf-warm-backdrop .mcm-page .grouped-row .grouped-stat-divider {
   margin-bottom: 8px;
 }
 
-/* Sticky header — near-opaque frosted fill so scrolling rows never bleed
-   through the header text, plus a hairline shadow to seat it above them. */
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 2px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated. */
 .mcm-page .perf-queues .table-scroll thead {
-  background: rgba(255, 250, 244, 0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 0 var(--qa-hairline);
+  background: #fffdfb;
+  box-shadow: none;
 }
 .dark .mcm-page .perf-queues .table-scroll thead {
   background: rgba(23, 15, 10, 0.97);
 }
 .mcm-page .perf-queues .table-scroll thead th {
-  color: var(--qa-muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom-color: var(--qa-hairline);
+  padding: 9px 12px !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
   background: transparent;
+}
+.mcm-page .perf-queues .table-scroll thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.mcm-page .perf-queues .table-scroll thead th:last-child {
+  border-top-right-radius: 20px;
 }
 
 /* Rows — transparent at rest, warm tint plus the 3px left accent bar on

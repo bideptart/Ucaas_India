@@ -788,7 +788,10 @@ export const demoChatThreads = () => {
       isGroupChat: false,
       groupType: 'DM',
       users: [
-        me,
+        /* Ananya Iyer's DM (index 1) carries 2 unread messages so the
+           "Unread" status filter has a real row instead of the
+           "Create a new chat" empty state — everyone else stays read. */
+        { ...me, unreadMsg: index === 1 ? 2 : 0 },
         {
           uuid: other.uuid,
           first_name: other.first_name,
@@ -1517,6 +1520,110 @@ export const demoAiChatRequests = () => {
       session: { device: row.device, ipAddress: row.ipAddress, page: row.page },
       pastTickets: row.pastTickets,
     },
+  }));
+};
+
+/** Messenger's "Website" channel (Captain widget) — a separate live-chat
+ *  subsystem from Agent Chat's own AI requests, with its own conversation
+ *  list + message thread. Distinct visitor names on purpose, so it doesn't
+ *  read as a duplicate of the Agent Chat seed. */
+export const demoCaptainConversations = () => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  const seed = [
+    {
+      id: 'demo-captain-1',
+      name: 'Priya Nambiar',
+      email: 'priya.nambiar@example.com',
+      page: 'https://letsdial.com/pricing',
+      minutesAgo: 8,
+      owner: 'ai' as const,
+      status: 'open' as const,
+      lastMessage: 'Does the Starter plan include call recording?',
+    },
+    {
+      id: 'demo-captain-2',
+      name: 'Vikram Oberoi',
+      email: 'vikram.oberoi@example.com',
+      page: 'https://letsdial.com/features/ivr',
+      minutesAgo: 40,
+      owner: 'human' as const,
+      status: 'open' as const,
+      lastMessage: 'Thanks, I will set that up now.',
+    },
+    {
+      id: 'demo-captain-3',
+      name: 'Sneha Kulkarni',
+      email: 'sneha.kulkarni@example.com',
+      page: 'https://letsdial.com/integrations/salesforce',
+      minutesAgo: 180,
+      owner: 'ai' as const,
+      status: 'resolved' as const,
+      lastMessage: 'Perfect, that answers my question!',
+    },
+  ];
+
+  return seed.map((row) => ({
+    id: row.id,
+    visitor_name: row.name,
+    visitor_email: row.email,
+    page_url: row.page,
+    status: row.status,
+    owner: row.owner,
+    last_message: row.lastMessage,
+    last_message_at: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
+    assistant_id: 'demo-assistant-1',
+    assistant_name: 'Captain AI',
+  }));
+};
+
+const DEMO_CAPTAIN_THREADS: Record<
+  string,
+  Array<{ role: 'visitor' | 'assistant' | 'agent'; text: string; minutesAgo: number }>
+> = {
+  'demo-captain-1': [
+    { role: 'visitor', text: 'Hi, does the Starter plan include call recording?', minutesAgo: 9 },
+    {
+      role: 'assistant',
+      text: 'Great question! Call recording is available from the Growth plan onward. Starter includes call logs and basic IVR.',
+      minutesAgo: 8.5,
+    },
+    { role: 'visitor', text: 'Does the Starter plan include call recording?', minutesAgo: 8 },
+  ],
+  'demo-captain-2': [
+    { role: 'visitor', text: 'How do I set up a multi-level IVR?', minutesAgo: 45 },
+    {
+      role: 'assistant',
+      text: 'You can build that under Admin Settings > Call Handling > IVR. Want me to connect you with an agent for a walkthrough?',
+      minutesAgo: 44,
+    },
+    { role: 'visitor', text: 'Yes please.', minutesAgo: 42 },
+    {
+      role: 'agent',
+      text: 'Hi Vikram, happy to help — go to Admin Settings > Call Handling > IVR and click "New IVR Flow".',
+      minutesAgo: 41,
+    },
+    { role: 'visitor', text: 'Thanks, I will set that up now.', minutesAgo: 40 },
+  ],
+  'demo-captain-3': [
+    { role: 'visitor', text: 'Does letsdial integrate with Salesforce?', minutesAgo: 185 },
+    {
+      role: 'assistant',
+      text: 'Yes — letsdial has a native Salesforce integration that logs calls and syncs contacts automatically.',
+      minutesAgo: 182,
+    },
+    { role: 'visitor', text: 'Perfect, that answers my question!', minutesAgo: 180 },
+  ],
+};
+
+export const demoCaptainMessages = (conversationId: string) => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  return (DEMO_CAPTAIN_THREADS[conversationId] || []).map((line, index) => ({
+    id: `${conversationId}-msg-${index + 1}`,
+    role: line.role,
+    content: line.text,
+    created_at: new Date(now - line.minutesAgo * MIN_MS).toISOString(),
   }));
 };
 

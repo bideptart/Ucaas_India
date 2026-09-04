@@ -7,15 +7,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { useUser } from '@/hooks/use-user';
-import { generateUniqueId } from '@/lib/utils';
-import moment from 'moment';
 import { Label } from '@/components/ui/label';
 import { ExtensionListView } from '@/pages/admin-settings/people/update-forwarding/call-rules/add-coworker';
 import ErrorTooltip from '@/components/custom/error-tooltip';
 import Loader from '@/components/custom/loader';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useSocketEvents } from '@/hooks/use-socket-events';
-import { chatEvents } from '@/context/socket-events';
 import { toast } from 'react-toastify';
 import { v4 as uuidV4 } from 'uuid';
 import useDebounce from '@/hooks/use-debounce';
@@ -92,12 +89,8 @@ const CreateTeamChat = ({
   const [userSearch, setUserSearch] = useState('');
   const isCreatingTeamRef = useRef(false);
   const { user } = useUser();
-  const {
-    socketEventsManager,
-    handleUpdateChannel,
-    handleAddChannelImage,
-    handleRemoveChannelImage,
-  } = useSocketEvents();
+  const { createTeamChat, handleUpdateChannel, handleAddChannelImage, handleRemoveChannelImage } =
+    useSocketEvents();
 
   const {
     control,
@@ -277,16 +270,9 @@ const CreateTeamChat = ({
         ];
 
         await new Promise<void>((resolve) => {
-          if (!socketEventsManager) {
-            resolve();
-            return;
-          }
-          const timer = setTimeout(() => {
-            resolve();
-          }, 10000);
+          const timer = setTimeout(() => resolve(), 10000);
 
-          socketEventsManager.emit(
-            chatEvents.CREATE_NEW_CHAT,
+          createTeamChat(
             {
               chatId,
               company_uuid: user?.company_info?.uuid,
@@ -298,23 +284,9 @@ const CreateTeamChat = ({
               avatar: values?.channelImg || '',
               users: allUsers,
             },
-            (response: any) => {
+            values?.message,
+            () => {
               clearTimeout(timer);
-              if (values?.message?.trim() && response?.status === 200) {
-                const defaultEditorValue = [
-                  { type: 'paragraph', children: [{ text: values.message.trim() }] },
-                ] as any;
-                // ✅ send message only after chat is created
-                socketEventsManager?.emit(chatEvents.SEND_MESSAGE, {
-                  chatId,
-                  message: defaultEditorValue,
-                  attachments: [],
-                  senderId: user?.uuid,
-                  messageId: generateUniqueId(),
-                  receiverId: (values?.members || []).map((m: any) => m?.uuid),
-                  createdAt: moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
-                });
-              }
               if (onChatSelect) {
                 onChatSelect({ chatId, isGroupChat: true, users: allUsers });
               }
@@ -378,9 +350,12 @@ const CreateTeamChat = ({
         </div>
       </div>
 
-      <div className="w-full flex flex-col gap-2 justify-between h-full">
-        <form className="flex flex-col gap-3 w-full h-full" onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full flex flex-col gap-1 overflow-auto max-h-[calc(100vh-140px)] min-h-[calc(100vh-140px)] ">
+      <div className="w-full flex flex-col gap-2 justify-between h-full min-h-0">
+        <form
+          className="flex flex-col gap-3 w-full h-full min-h-0"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="w-full flex flex-1 min-h-0 flex-col gap-1 overflow-auto">
             {/* ── Avatar ─────────────────────────────────────── */}
             <Controller
               name="channelImg"
@@ -708,7 +683,7 @@ const CreateTeamChat = ({
           </div>
 
           {/* ── Footer Buttons ──────────────────────────────────── */}
-          <div className="mt-3 px-2">
+          <div className="mt-3 shrink-0 px-2">
             <Button
               type="submit"
               variant={'primary'}

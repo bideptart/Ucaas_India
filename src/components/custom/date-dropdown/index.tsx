@@ -58,7 +58,13 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
       setDropdownVal = () => {},
       customPickerPlacement = 'inline',
       shortenSelectedLabel = false,
-    },
+      // Callers that embed this as the first segment of a pill (Performance's
+      // filter pill) need the scoped `.mcm-date-preset` rules in index.css —
+      // transparent background, rounded only on the left. Everywhere else
+      // that's a standalone box, that reads as broken (see-through, half
+      // square), so this is a prop rather than a hardcoded default.
+      inputClass = 'mcm-date-preset',
+    }: any,
     forwardedRef,
   ) => {
     const showCustomPickerBelow = customPickerPlacement === 'bottom';
@@ -217,7 +223,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
             // instead of the app-wide `.custom-react-select__*` rules — this
             // is the one select where all 7 options should always fit without
             // its own scrollbar, which the shared 200px cap doesn't allow.
-            inputClass="mcm-date-preset"
+            inputClass={inputClass}
             FormatOptionLabel={
               shortenSelectedLabel
                 ? ({ option, context }: any) => (

@@ -14,13 +14,10 @@
                                  that file's hero-row/grouped-row rules key
                                  off the body class rather than a page
                                  class. Nothing to redeclare here.
-     .page-band .db-notice      the shared "Waiting, Longest wait..." note
-                                 above the hero band, wrapped in a pill only
-                                 when Dashboards is the active tab
-                                 (index.tsx renders the plain original
-                                 markup for every other tab in
-                                 SHOW_KPI_HEADER_TABS) — reached the same
-                                 way, through body.perf-warm-backdrop.
+   The shared "Waiting, Longest wait..." notice pill above the hero band
+   (index.tsx's `.hero-notice`) is themed in live-theme.css instead of
+   here — it needs to be loaded on every tab that shows the band, not just
+   once Dashboards has actually mounted.
    ============================================================ */
 
 .perf-dashboards,
@@ -61,38 +58,7 @@ body.perf-warm-backdrop.dark {
 }
 
 /* ------------------------------------------------------------
-   1. Shared "Waiting, Longest wait..." note — pill, Dashboards only.
-   Frosted-glass neutral rather than the orange wash every other notice
-   pill in Performance uses: this one sits directly above the hero band's
-   own warm gradient backdrop, so an orange-on-orange pill read as low
-   contrast — plain slate text on translucent white reads clean instead. */
-body.perf-warm-backdrop .mcm-page .page-band .db-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid var(--db-glass-border);
-  margin-bottom: 10px;
-}
-body.perf-warm-backdrop .mcm-page .page-band .db-notice-icon {
-  width: 15px;
-  height: 15px;
-  flex: none;
-  margin-top: 2px;
-  color: #475569;
-}
-body.perf-warm-backdrop .mcm-page .page-band .db-notice .page-note {
-  margin: 0;
-  color: #475569 !important;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-/* ------------------------------------------------------------
-   2. Section caption — "A quick-glance overview across queues,
+   1. Section caption — "A quick-glance overview across queues,
    campaigns and agents." A quiet slate label, not a second notice pill —
    the page already has one of those at the top of the hero band, and a
    duplicate directly below it read as redundant chrome. */
@@ -104,7 +70,7 @@ body.perf-warm-backdrop .mcm-page .page-band .db-notice .page-note {
 }
 
 /* ------------------------------------------------------------
-   3. Executive bento deck — 6 distinct frosted glass cards, forced into
+   2. Executive bento deck — 6 distinct frosted glass cards, forced into
    one compact row from `lg` up (dashboards-tab.tsx: `lg:grid-cols-6`).
    Slightly tighter padding/type than the base `.stat` (14px/25px) so six
    across a laptop-width row never wrap a label or crowd the icon badge.

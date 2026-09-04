@@ -413,6 +413,7 @@ type Store = {
   templates?: any[];
   callHandlingTemplates?: any[];
   numbers?: any[];
+  contacts?: any[];
 };
 
 const readStore = (): Store => {
@@ -448,6 +449,16 @@ const readStore = (): Store => {
           demoCallHandlingTemplateRows(),
         ),
         numbers: mergeSeed(parsed.numbers, demoAssignedDidRows()),
+        /* Contacts key off `_id`, not `uuid` like the rows `mergeSeed` above
+           was written for, so a dedicated merge keeps a stored contact from
+           being duplicated against the seed on every read. */
+        contacts: (() => {
+          const present = new Set((parsed.contacts ?? []).map((row: any) => row._id));
+          return [
+            ...(parsed.contacts ?? []),
+            ...demoContactBookRows().filter((row) => !present.has(row._id)),
+          ];
+        })(),
       };
     }
   } catch {
@@ -463,6 +474,7 @@ const readStore = (): Store => {
     templates: demoTemplateRows(),
     callHandlingTemplates: demoCallHandlingTemplateRows(),
     numbers: demoAssignedDidRows(),
+    contacts: demoContactBookRows(),
   };
 };
 
@@ -684,6 +696,61 @@ const applyWrite = (url: string, body: Record<string, any>) => {
   if (url.includes('/api/site/delete')) {
     const target = body.uuid || body.id || url.split('/').filter(Boolean).pop();
     store.sites = (store.sites ?? []).filter((site) => site.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  /* Directory ▸ External Contacts' Add/Edit Contact form posts here for both
+     — `contact_uuid` on the body marks an edit, matching how
+     create-new-contact.tsx sets it from the row being edited (`_id`).
+     Without a case here `/api/contact/list` below could never show what was
+     submitted: it used to call `demoContactBookRows()` straight, which
+     regenerates the same static seed on every read, so adding a contact
+     showed a success toast and then the new row just never appeared. */
+  if (url.includes('/api/contact/upsert')) {
+    const contacts = store.contacts ?? demoContactBookRows();
+    const existing = body.contact_uuid && contacts.find((row) => row._id === body.contact_uuid);
+    const now = new Date().toISOString();
+    const id = existing?._id ?? newUuid();
+    const record = existing
+      ? {
+          ...existing,
+          ...body,
+          _id: id,
+          uuid: existing.uuid ?? id,
+          name: { ...existing.name, ...body.name },
+          contact: { ...existing.contact, ...body.contact },
+          updatedAt: now,
+        }
+      : {
+          ...body,
+          _id: id,
+          uuid: id,
+          name: { first: body?.name?.first || '', last: body?.name?.last || '' },
+          contact: { email: body?.contact?.email || '', phone: body?.contact?.phone || '' },
+          company: body?.profile?.company || '',
+          groupMeta: [],
+          is_vip: false,
+          is_dnc: false,
+          is_blocked: false,
+          tag: 'STANDARD',
+          createdAt: now,
+          updatedAt: now,
+        };
+    store.contacts = existing
+      ? contacts.map((row) => (row._id === id ? record : row))
+      : [record, ...contacts];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/contact/delete')) {
+    const ids: string[] = Array.isArray(body.contact_uuid)
+      ? body.contact_uuid
+      : [body.contact_uuid].filter(Boolean);
+    store.contacts = (store.contacts ?? demoContactBookRows()).filter(
+      (row) => !ids.includes(row._id),
+    );
     writeStore(store);
     return ok({ deleted: true });
   }
@@ -1076,9 +1143,10 @@ const matchDemoPayload = (url: string, data: unknown) => {
        filter has to actually apply or "blocked" shows everyone. */
     const requestBody = asObject(data);
     const tagFilter = (requestBody?.filters || []).find((row: any) => row?.key === 'tag');
+    const contactRows = readStore().contacts ?? demoContactBookRows();
     let rows = tagFilter
-      ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
-      : demoContactBookRows();
+      ? contactRows.filter((row) => row.tag === tagFilter.value)
+      : contactRows;
 
     /* Directory ▸ External Contacts' own search box sends `search` on every
        keystroke (debounced) — matched the same way the real endpoint's

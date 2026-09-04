@@ -274,21 +274,13 @@ const Performance = () => {
       {SHOW_KPI_HEADER_TABS.has(activeTab) &&
         !(activeTab === 'queues-activity' && selectedQueueUuid) && (
           <div className="page-band">
-            {activeTab === 'dashboards' ? (
-              <div className="db-notice">
-                <Info className="db-notice-icon" />
-                <p className="page-note">
-                  Waiting, Longest wait, Service level, On queue agents and Occupancy are live
-                  right now. Answered, Abandon rate and Avg handle time cover the selected date
-                  range.
-                </p>
-              </div>
-            ) : (
+            <div className="hero-notice">
+              <Info className="hero-notice-icon" />
               <p className="page-note">
                 Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
                 now. Answered, Abandon rate and Avg handle time cover the selected date range.
               </p>
-            )}
+            </div>
             <style>{`
             /* Waiting / Longest wait are what a supervisor triages on first —
                sized up and, past target, ringed so they're findable without

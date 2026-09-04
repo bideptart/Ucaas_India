@@ -1069,10 +1069,30 @@ const matchDemoPayload = (url: string, data: unknown) => {
     /* Directory ▸ Blocked reads this same endpoint twice — once for the whole
        book, once filtered to `tag: 'BLOCK'` for the table itself — so the
        filter has to actually apply or "blocked" shows everyone. */
-    const tagFilter = (asObject(data)?.filters || []).find((row: any) => row?.key === 'tag');
-    const rows = tagFilter
+    const requestBody = asObject(data);
+    const tagFilter = (requestBody?.filters || []).find((row: any) => row?.key === 'tag');
+    let rows = tagFilter
       ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
       : demoContactBookRows();
+
+    /* Directory ▸ External Contacts' own search box sends `search` on every
+       keystroke (debounced) — matched the same way the real endpoint's
+       `search` param would, against name/phone/email/company, so typing
+       actually narrows the list instead of the box doing nothing. */
+    const search = String(requestBody?.search || '').trim().toLowerCase();
+    if (search) {
+      rows = rows.filter((row: any) =>
+        [
+          `${row?.name?.first || ''} ${row?.name?.last || ''}`,
+          row?.contact?.phone,
+          row?.contact?.email,
+          row?.company,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
+    }
+
     return ok(listPayload(rows, {}, data));
   }
   if (url.includes('/api/tenant/report/inbound-calls')) {

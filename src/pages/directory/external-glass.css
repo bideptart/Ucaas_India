@@ -111,7 +111,17 @@
    groups-glass.css for the cream/orange body, adding only what this
    contact's own content needs.
 
-   `.mcm-field`, `.mini` and `.ic` normally read `--line`/`--surface`/
+   The shell's own cream background (`#fffaf3`) read as an unwanted orange
+   wash behind this dialog — plain white instead, same fix as every other
+   Directory dialog (Invite people, Edit person, New role, New location). */
+.gp-external-dialog {
+  background: #ffffff !important;
+}
+.gp-external-dialog .gp-create-group-head {
+  background: #ffffff;
+}
+
+/* `.mcm-field`, `.mini` and `.ic` normally read `--line`/`--surface`/
    `--ink-2`/`--ai` etc, tokens defined only within `.mcm-page` — this
    dialog sits outside that ancestor, so every one of those variables is
    undefined here rather than falling back to anything, and a `border: 1px
@@ -234,11 +244,21 @@
   background: #c96f1f;
   border-color: #c96f1f;
 }
+/* Icon and label side by side, not stacked — the base `.mcm-page .mini`
+   rule already lays them out this way, but this dialog sits outside
+   `.mcm-page` (portaled to `document.body`), so that rule never reaches it
+   and the button fell back to default block flow: icon on its own line
+   above the text, and much taller than intended. */
 .gp-external-dialog .mini {
-  height: auto;
-  padding: 10px 18px;
-  border-radius: 9px;
-  gap: 8px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  gap: 6px;
+  font-size: 12px;
   white-space: nowrap;
   flex: none;
 }
@@ -251,6 +271,9 @@
   border-top: 1px solid rgba(242, 153, 74, 0.2);
 }
 .gp-ext-dialog-close {
+  /* Same solid orange-outline-until-filled-on-hover treatment as Cancel on
+     every other Directory dialog (Invite people, Edit person, New role,
+     New location) — not the fainter grey-text-until-hover look this had. */
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -260,13 +283,13 @@
   font-size: 13px;
   font-weight: 700;
   background: transparent;
-  border: 1px solid rgba(242, 153, 74, 0.3);
-  color: #6b5c4d;
+  border: 1px solid #f2994a;
+  color: #f2994a;
   cursor: pointer;
 }
 .gp-ext-dialog-close:hover {
-  border-color: #f2994a;
-  color: #c96f1f;
+  background: #f2994a;
+  color: #ffffff;
 }
 .gp-ext-dialog-edit {
   display: inline-flex;
@@ -284,4 +307,136 @@
 }
 .gp-ext-dialog-edit:hover {
   background: #c96f1f;
+}
+
+/* ---- Contacts table — restyled to match Directory ▸ People's own table
+   (`people-glass.css`: solid off-white sticky header, warm hover rows)
+   instead of the platform's default peach header / cream body. Scoped via
+   `tableWrapperClassName="gp-contact-table"`, the class `TableManager`
+   applies to the scroll wrapper around its own `<table>`, so no other
+   `AllNewContactsList`/`LeadsGroupList` consumer is affected. */
+.gp-contact-table thead {
+  background-color: #fffdfb !important;
+}
+.gp-contact-table th {
+  color: #8a6f57 !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25) !important;
+}
+.gp-contact-table td {
+  border-bottom-color: rgba(150, 100, 50, 0.1) !important;
+}
+.gp-contact-table tbody tr:hover {
+  background: rgba(255, 205, 155, 0.14) !important;
+}
+
+/* ---- toolbar (Contact view/Contact Group tabs, Sync/Search/Group/Tag) —
+   the platform's own bar already reads warm/cream; only the active tab and
+   the two dropdowns' idle border picked up Directory's orange instead of
+   the platform's generic blue/grey. */
+.gp-contact-toolbar [data-slot='tabs-trigger'][data-state='active'] {
+  background: #f2994a !important;
+  color: #ffffff !important;
+}
+/* Inactive tabs carry no hover styling at all in the shared `TabsTrigger`
+   base (`components/ui/tabs.tsx`) — nothing to override, just nothing
+   there to begin with. */
+.gp-contact-toolbar [data-slot='tabs-trigger']:not([data-state='active']):hover {
+  background: #fff1e0 !important;
+  color: #c96f1f !important;
+}
+
+/* A global `.mcm-page [class*="rounded-"]:not([class*="rounded-full"]).bg-white`
+   rule (a "glass surface" treatment meant for other rounded white buttons)
+   matches this one too — `rounded-lg` + `bg-white` — and its selector is
+   specific enough to beat both the plain `bg-white` utility and any
+   `hover:` utility on this button, pinning it to a translucent glass
+   surface that never visibly changes on hover. Needs a marker class + its
+   own `!important` to win back both states. */
+.gp-sync-btn {
+  background: #ffffff !important;
+}
+.gp-sync-btn:hover {
+  background: #fff1e0 !important;
+  color: #f2994a !important;
+}
+
+/* ---- Add/Update Contact — centered popup (moved off the right-side
+   SideDrawer per request), reusing the shared `.gp-create-group-dialog`
+   shell the same way the New role / New location dialogs do. Header keeps
+   the cream/orange combination the side-drawer version already had. */
+.gp-contact-form-dialog {
+  background: #ffffff !important;
+}
+.gp-contact-form-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+/* `CreateContactNew`'s own section headings ("Address Information",
+   "Notes Information") — plain grey-900 text with nothing separating one
+   group of fields from the next. */
+.gp-form-section-h {
+  color: #c96f1f;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-contact-toolbar .contact-toolbar-select.custom-react-select__control {
+  border-color: rgba(242, 153, 74, 0.3) !important;
+}
+.gp-contact-toolbar .contact-toolbar-select.custom-react-select__control:hover,
+.gp-contact-toolbar .contact-toolbar-select.custom-react-select__control--is-focused {
+  border-color: #f2994a !important;
+}
+/* Its own rounded card with a visible gap before the table's panel-card
+   below, instead of sitting flush against it — the platform's bar has no
+   bottom radius of its own, so its square corner ran straight into the
+   panel-card's rounded top corner with nothing between them. */
+.gp-contact-toolbar {
+  border-radius: 16px;
+  border-bottom-width: 1px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(160, 95, 30, 0.06);
+}
+
+/* ---- table scroll area — the native scrollbar sits directly inside the
+   same rounded, clipped container as the sticky header, so its thumb ran
+   right up to the header with no breathing room. A slim custom scrollbar
+   with a gap from the edge reads as intentional instead of an accident of
+   the clip. */
+.gp-contact-table {
+  padding-right: 4px;
+}
+.gp-contact-table::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-contact-table::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-contact-table::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-contact-table::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
+}
+
+/* ---- pagination bar — `.mcm-pager`/`.mcm-pager-btn`/`.mcm-pager-page`
+   are shared, unscoped classes used by every `TableManager` in the app, so
+   these overrides are scoped under `.gp-external` (an ancestor here, since
+   this page — unlike a portaled dialog — sits inside `.mcm-page` normally)
+   rather than changing the shared rules themselves. */
+.gp-external .mcm-pager {
+  border-color: rgba(242, 153, 74, 0.25);
+  box-shadow: 0 2px 8px rgba(160, 95, 30, 0.08);
+}
+.gp-external .mcm-pager-btn:not(:disabled):hover,
+.gp-external .mcm-pager-page:not(.is-current):hover {
+  background: #fff1e0 !important;
+  color: #c96f1f !important;
+}
+.gp-external .mcm-pager-page.is-current {
+  background: #f2994a !important;
+  box-shadow: 0 2px 6px rgba(242, 153, 74, 0.4) !important;
 }

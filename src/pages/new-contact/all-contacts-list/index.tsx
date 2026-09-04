@@ -191,14 +191,14 @@ const GroupAssignCell: FC<{
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-gray-200 bg-white text-[#2E2D35] cursor-pointer hover:bg-gray-50 hover:text-[#2E2D35] transition-all shadow-3xs">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border !border-primary bg-white text-[#2E2D35] cursor-pointer hover:bg-[#fff1e0] hover:text-[#2E2D35] transition-all shadow-3xs">
             Change Group
             <ChevronDown className="w-3.5 h-3.5 opacity-80" />
           </span>
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="w-56 p-2 flex flex-col gap-2 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-md rounded-md z-50"
+          className="w-56 p-2 flex flex-col gap-2 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-primary shadow-md rounded-md z-50"
         >
           <div className="text-xs font-semibold text-[#9A948F] px-2 py-1 border-b border-gray-100">
             Assign Groups
@@ -226,6 +226,7 @@ const GroupAssignCell: FC<{
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
+                      className="border-primary"
                     />
                     <span
                       className="truncate flex-1 text-[#2E2D35] select-none"
@@ -241,7 +242,7 @@ const GroupAssignCell: FC<{
           <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
             <Button
               size="sm"
-              variant="transparent"
+              variant="outline"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -253,7 +254,7 @@ const GroupAssignCell: FC<{
             </Button>
             <Button
               size="sm"
-              variant="outline"
+              variant="primary"
               disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();

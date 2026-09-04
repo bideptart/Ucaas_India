@@ -1,13 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { getContactList, updateContactTag } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
+import CustomSelect from '@/components/custom/custom-select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CreateContactNew from '@/pages/new-contact/create-new-contact';
 import { Ic } from '@/components/mcm/icons';
-import { SettingCard, SettingRow } from '@/components/mcm/setting-card';
 import {
   DEFAULT_BLOCK_CHOICE,
   SCOPE_LABELS,
@@ -24,7 +23,7 @@ import {
   planBlock,
   tagRequest,
 } from '@/lib/contact-blocking';
-import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
+import { DirectoryPage, SearchChip } from './page-shell';
 import './blocked-glass.css';
 
 /**
@@ -36,146 +35,24 @@ import './blocked-glass.css';
  * no longer hearing from was blocked on purpose or is simply not calling.
  *
  * This is that list, plus the one thing the row menu cannot do — block a number
- * you are looking at rather than a contact you have already opened.
+ * you are looking at rather than a contact you have already opened. The form
+ * for that lives in a dialog rather than permanently on the page: this screen's
+ * job day to day is showing who is blocked, not filling in a settings form, so
+ * the list is what's on screen and blocking someone is a deliberate action via
+ * the button above it.
  *
- * The important honesty, and the reason the card at the top says so plainly:
+ * The important honesty, and the reason the dialog's footer says so plainly:
  * marking a contact as blocked records the decision and nothing more. Nothing
  * in the call path reads it yet, so a blocked number can still ring through.
  * The screen is still worth having — the decision has to be recorded somewhere
  * before anything can act on it, and until then people deserve to know.
  */
 
-/**
- * A `.mcm-field`-styled dropdown for this page's "Block a number" form.
- *
- * Not a native `<select>`, for the same reason `FilterChip` (page-shell.tsx)
- * isn't one: a native popup's hover/keyboard highlight is drawn by the OS
- * and ignores page CSS in every browser that matters here, so it kept
- * showing the platform's blue instead of this app's orange accent. This
- * reuses the same custom-listbox pattern and dropdown styling as the
- * Tag/Label filters, just with a full-width, bordered trigger to match the
- * other `.mcm-field` controls on this form. Local to this file — the
- * select rows this page needs pair a value with a separate display label
- * (`SCOPE_LABELS` etc.), which `FilterChip` doesn't support and no other
- * page needs, so this stays here rather than widening a shared component.
- *
- * The menu renders through a portal, `position: fixed` and placed by the
- * trigger's own screen coordinates, so `.panel-card`'s `overflow: hidden`
- * (there for its rounded corners) can no longer clip it against the card's
- * edge the way an in-place absolutely-positioned menu was being clipped on
- * the lower rows. It portals to the nearest `.mcm-page` ancestor rather
- * than `document.body`: this design system's colours are CSS custom
- * properties scoped to `.mcm-page`, so a portal outside it would render
- * with no theme at all. `FilterChip`'s dropdown doesn't need any of this —
- * it sits in the filter bar, above the table card, so it was never clipped.
- */
-const FieldSelect = ({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: {
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-  ariaLabel: string;
-}) => {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLUListElement>(null);
-  const [menuRect, setMenuRect] = useState<{ top: number; left: number; width: number } | null>(
-    null,
-  );
-  const [portalTarget, setPortalTarget] = useState<Element | null>(null);
-  const current = options.find((option) => option.value === value);
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    setPortalTarget(rootRef.current?.closest('.mcm-page') || document.body);
-    const place = () => {
-      const rect = rootRef.current?.getBoundingClientRect();
-      if (rect) setMenuRect({ top: rect.bottom + 6, left: rect.left, width: rect.width });
-    };
-    place();
-    window.addEventListener('scroll', place, true);
-    window.addEventListener('resize', place);
-    return () => {
-      window.removeEventListener('scroll', place, true);
-      window.removeEventListener('resize', place);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const closeIfOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (rootRef.current?.contains(target)) return;
-      if (menuRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', closeIfOutside);
-    document.addEventListener('keydown', closeOnEscape);
-    return () => {
-      document.removeEventListener('mousedown', closeIfOutside);
-      document.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [open]);
-
-  return (
-    <div className="mcm-field-select" ref={rootRef}>
-      <button
-        type="button"
-        className="fchip-select-trigger"
-        onClick={() => setOpen((state) => !state)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={ariaLabel}
-      >
-        <span>{current?.label ?? value}</span>
-        <Ic n="chev" size={12} className="fchip-select-caret" />
-      </button>
-      {open && menuRect && portalTarget
-        ? createPortal(
-            <ul
-              ref={menuRef}
-              className="fchip-select-menu fchip-select-menu-portal"
-              role="listbox"
-              aria-label={ariaLabel}
-              style={{ top: menuRect.top, left: menuRect.left, minWidth: menuRect.width }}
-            >
-              {options.map((option) => (
-                <li key={option.value} role="presentation">
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={option.value === value}
-                    className={`fchip-select-option${option.value === value ? ' is-selected' : ''}`}
-                    onClick={() => {
-                      onChange(option.value);
-                      setOpen(false);
-                    }}
-                  >
-                    {option.value === value ? <Ic n="check" size={12} /> : null}
-                    {option.label}
-                  </button>
-                </li>
-              ))}
-            </ul>,
-            portalTarget,
-          )
-        : null}
-    </div>
-  );
-};
-
 /* Sample rows appended after any real blocked numbers, so the list always
    has enough entries to show its design properly instead of looking sparse.
-   Real data always comes first and is never hidden or replaced by these —
-   see `blockedWithDemo` below. Their `_id`s aren't real contact ids, so
-   their "Unblock" action is disabled rather than wired to the API. */
+   Real data always comes first and is never hidden or replaced by these.
+   Their `_id`s aren't real contact ids, so toggling one only ever updates
+   `statusOverride` below rather than calling the tag API. */
 const DEMO_BLOCKED_NUMBERS: (BlockableContact & { _demo: true })[] = [
   {
     _id: 'demo-1',
@@ -221,17 +98,23 @@ const DEMO_BLOCKED_NUMBERS: (BlockableContact & { _demo: true })[] = [
   },
 ];
 
+const LINE_OPTIONS: { label: string; value: BlockLine }[] = [
+  { label: 'My line', value: 'personal' },
+  { label: 'A shared line', value: 'shared' },
+];
+
 const Blocked = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [number, setNumber] = useState('');
+  const [blockFormOpen, setBlockFormOpen] = useState(false);
   const [addingContact, setAddingContact] = useState(false);
   const [scope, setScope] = useState<BlockScope>(DEFAULT_BLOCK_CHOICE.scope);
   const [treatment, setTreatment] = useState<BlockTreatment>(DEFAULT_BLOCK_CHOICE.treatment);
   const [line, setLine] = useState<BlockLine>(DEFAULT_BLOCK_CHOICE.line);
 
   /* Two reads of the same list. The blocked one is filtered on the server, which
-     is what the table shows; the whole book is what a typed number is matched
+     seeds the grid below; the whole book is what a typed number is matched
      against, because the number you want to block is usually already saved. */
   const { data: blocked = [], isPending } = useQuery({
     queryKey: ['getContactList', 'directoryBlocked'],
@@ -246,10 +129,32 @@ const Blocked = () => {
     select: (res: any) => (res?.data?.data?.result?.rows || []) as BlockableContact[],
   });
 
+  /* The grid's own copy of who's blocked, keyed by contact id (falling back
+     to phone for the demo rows, which have no real id). Unblocking someone
+     is meant to flip their card in place — tag switches to "Unblocked", the
+     button switches to "Block" — rather than the row vanishing the moment
+     the server confirms it. Since the `blocked` query above is filtered to
+     tag=BLOCK, a plain refetch after unblocking would drop the row entirely;
+     this state is what keeps it on screen so the toggle is visible. Seeded
+     once from the query (real rows) plus the demo rows, then only ever
+     updated locally by `toggleBlock` — a second admin blocking/unblocking
+     elsewhere won't live-update this screen, which is fine for what is
+     already a "coming soon" feature. */
+  const [rows, setRows] = useState<(BlockableContact & { _demo?: boolean })[] | null>(null);
+  const [statusOverride, setStatusOverride] = useState<Record<string, 'BLOCK' | 'STANDARD'>>({});
+
+  useEffect(() => {
+    if (rows === null && !isPending) {
+      setRows([...blocked, ...DEMO_BLOCKED_NUMBERS]);
+    }
+  }, [isPending, blocked, rows]);
+
+  const rowKey = (row: BlockableContact) => row?._id || row?.contact?.phone || '';
+
   const { mutate: setTag, isPending: isSaving } = useMutation({
     mutationFn: updateContactTag,
     onSuccess: () => {
-      /* Every contact list in the app shares this prefix, so unblocking here
+      /* Every contact list in the app shares this prefix, so toggling here
          also corrects the tag shown on the contacts table and the directory. */
       queryClient.invalidateQueries({ queryKey: ['getContactList'] });
       queryClient.invalidateQueries({ queryKey: ['newContactListQuery'] });
@@ -262,255 +167,271 @@ const Blocked = () => {
   const plan = useMemo(() => planBlock(choice, everyone), [number, scope, treatment, line, everyone]);
   const typed = number.trim().length > 0;
 
-  const blockedWithDemo = useMemo(
-    () => [...blocked, ...DEMO_BLOCKED_NUMBERS],
-    [blocked],
-  );
-
   const visible = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    if (!needle) return blockedWithDemo;
-    return blockedWithDemo.filter((row) =>
+    const base = rows ?? [];
+    if (!needle) return base;
+    return base.filter((row) =>
       [contactName(row), row?.contact?.phone, row?.contact?.email]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle)),
     );
-  }, [blockedWithDemo, search]);
+  }, [rows, search]);
+
+  const blockedCount = useMemo(
+    () => (rows ?? []).filter((row) => (statusOverride[rowKey(row)] ?? 'BLOCK') === 'BLOCK').length,
+    [rows, statusOverride],
+  );
 
   const block = () => {
     if (!canBlock(plan)) return;
     setTag(tagRequest(plan.targets, 'BLOCK'), {
       onSuccess: () => {
         toast.success(`${plan.targets.length === 1 ? 'That number is' : 'Those numbers are'} blocked.`);
+        setStatusOverride((prev) => {
+          const next = { ...prev };
+          for (const target of plan.targets) next[rowKey(target)] = 'BLOCK';
+          return next;
+        });
+        /* A freshly-blocked contact may not be in `rows` yet (it wasn't
+           tagged BLOCK when the grid was seeded) — add it so the card
+           appears immediately instead of only after a page reload. */
+        setRows((prev) => {
+          const existing = new Set((prev ?? []).map(rowKey));
+          const additions = plan.targets.filter((target) => !existing.has(rowKey(target)));
+          return [...(prev ?? []), ...additions];
+        });
         setNumber('');
+        setBlockFormOpen(false);
       },
     });
   };
 
-  const unblock = (contact: BlockableContact) =>
-    setTag(tagRequest([contact], 'STANDARD'), {
-      onSuccess: () => toast.success(`${contactName(contact) || 'That number'} is unblocked.`),
-    });
+  const toggleBlock = (row: BlockableContact & { _demo?: boolean }) => {
+    const key = rowKey(row);
+    const currentlyBlocked = (statusOverride[key] ?? 'BLOCK') === 'BLOCK';
+    const nextTag: 'BLOCK' | 'STANDARD' = currentlyBlocked ? 'STANDARD' : 'BLOCK';
+    const applyLocally = () => {
+      setStatusOverride((prev) => ({ ...prev, [key]: nextTag }));
+      toast.success(
+        `${contactName(row) || 'That number'} is ${currentlyBlocked ? 'unblocked' : 'blocked'}.`,
+      );
+    };
+    /* Demo rows have no real contact id, so there's nothing for the API to
+       tag — toggle the card's own state directly instead of calling it. */
+    if (row._demo) {
+      applyLocally();
+      return;
+    }
+    setTag(tagRequest([row], nextTag), { onSuccess: applyLocally });
+  };
 
   return (
     <>
       <div className="gp-blocked">
       <DirectoryPage
         className="blocked-compact"
-      title="Blocked Numbers"
-      description="Everyone you have stopped hearing from, and one place to block someone new."
-      filters={
-        <>
-          <SearchChip value={search} onChange={setSearch} placeholder="Search blocked numbers" />
-          <span className="fchip live" style={{ marginLeft: 'auto' }}>
-            <span className="num">{blocked.length}</span> blocked
-          </span>
-        </>
-      }
-    >
-      <div className="blocked-form">
-        <SettingCard
-          title="Block a number"
-          description="Blocking covers calls, faxes and messages from that number."
-          icon={<Ic n="shield" size={16} />}
-          status="coming-soon"
+        title="Blocked Numbers"
+        description="Everyone you have stopped hearing from, and one place to block someone new."
+        actions={
+          <button type="button" className="btn primary" onClick={() => setBlockFormOpen(true)}>
+            <Ic n="shield" />
+            Block a number
+          </button>
+        }
+        filters={
+          <>
+            <SearchChip value={search} onChange={setSearch} placeholder="Search blocked numbers" />
+            <span className="fchip live" style={{ marginLeft: 'auto' }}>
+              <span className="num">{blockedCount}</span> blocked
+            </span>
+          </>
+        }
+      >
+        {isPending || rows === null ? (
+          <div className="blocked-empty-state">
+            <Ic n="users" size={32} />
+            <p>Loading blocked numbers…</p>
+          </div>
+        ) : visible.length ? (
+          <div className="blocked-grid">
+            {visible.map((row) => {
+              const key = rowKey(row);
+              const name = contactName(row) || 'Unknown';
+              const isDemo = Boolean((row as { _demo?: boolean })._demo);
+              const isBlocked = (statusOverride[key] ?? 'BLOCK') === 'BLOCK';
+              return (
+                <div className={`blocked-card${isBlocked ? '' : ' is-unblocked'}`} key={key}>
+                  <div className="blocked-card-top">
+                    <CustomAvatar name={name} type="contact" size="40" />
+                    <button
+                      type="button"
+                      className="blocked-card-unblock"
+                      disabled={isSaving}
+                      title={isBlocked ? `Unblock ${name}` : `Block ${name}`}
+                      aria-label={isBlocked ? `Unblock ${name}` : `Block ${name}`}
+                      onClick={() => toggleBlock(row)}
+                    >
+                      <Ic n={isBlocked ? 'check' : 'shield'} size={12} />
+                      {isBlocked ? 'Unblock' : 'Block'}
+                    </button>
+                  </div>
+                  <span className="blocked-card-name">
+                    {name}
+                    <span className={`tag ${isBlocked ? 'acc' : 'neu'}`}>
+                      {isBlocked ? 'Blocked' : 'Unblocked'}
+                    </span>
+                    {isDemo ? <span className="tag neu">Demo</span> : null}
+                  </span>
+                  <span className="blocked-card-phone">{row?.contact?.phone || '—'}</span>
+                  {row?.contact?.email ? (
+                    <span className="blocked-card-email">{row.contact.email}</span>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="blocked-empty-state">
+            <Ic n="shield" size={32} />
+            <p>
+              {(rows ?? []).length
+                ? 'No blocked numbers match that search.'
+                : 'Nobody is blocked yet. Numbers you block will show up here.'}
+            </p>
+            {!(rows ?? []).length ? (
+              <button type="button" className="btn primary" onClick={() => setBlockFormOpen(true)}>
+                <Ic n="plus" />
+                Block your first number
+              </button>
+            ) : null}
+          </div>
+        )}
+      </DirectoryPage>
+      </div>
+
+      <Dialog open={blockFormOpen} onOpenChange={setBlockFormOpen}>
+        <DialogContent
+          className="gp-create-group-dialog gp-block-dialog sm:max-w-[520px]"
+          showCloseButton={false}
         >
-          <SettingRow
-            label="Number"
-            description="The number you want to stop hearing from. It has to be saved as a contact first."
-            control={
+          <div className="gp-create-group-head">
+            <h2>Block a number</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setBlockFormOpen(false)}
+            >
+              <Ic n="x" size={14} />
+            </button>
+          </div>
+          <div className="gp-create-group-body gp-block-body">
+            <p className="gp-block-intro">
+              Blocking covers calls, faxes and messages from that number.
+            </p>
+
+            <label className="gp-block-field">
+              <span className="gp-block-label">Number</span>
               <input
-                className="mcm-field"
+                className="gp-block-input"
                 value={number}
                 onChange={(event) => setNumber(event.target.value)}
                 placeholder="+44 20 7946 0000"
                 inputMode="tel"
                 aria-label="Number to block"
               />
-            }
-          />
+              <span className="gp-block-hint">Has to be saved as a contact first.</span>
+            </label>
 
-          <SettingRow
-            label="What to stop"
-            description="Blocking calls blocks faxes too — they arrive over the same line."
-            control={
-              <FieldSelect
-                value={scope}
-                onChange={(next) => setScope(next as BlockScope)}
-                ariaLabel="What to stop"
+            <label className="gp-block-field">
+              <span className="gp-block-label">What to stop</span>
+              <CustomSelect
+                value={{ label: SCOPE_LABELS[scope], value: scope }}
                 options={(Object.keys(SCOPE_LABELS) as BlockScope[]).map((key) => ({
-                  value: key,
                   label: SCOPE_LABELS[key],
-                }))}
-              />
-            }
-            status={scope === DEFAULT_BLOCK_CHOICE.scope ? undefined : 'coming-soon'}
-          />
-
-          <SettingRow
-            label="What the caller gets"
-            description={TREATMENT_DESCRIPTIONS[treatment]}
-            control={
-              <FieldSelect
-                value={treatment}
-                onChange={(next) => setTreatment(next as BlockTreatment)}
-                ariaLabel="What the caller gets"
-                options={(Object.keys(TREATMENT_LABELS) as BlockTreatment[]).map((key) => ({
                   value: key,
-                  label: TREATMENT_LABELS[key],
                 }))}
+                handleChange={(option: any) => setScope(option.value)}
+                inputClass="gp-block-select"
               />
-            }
-            status={treatment === DEFAULT_BLOCK_CHOICE.treatment ? undefined : 'coming-soon'}
-          />
+              <span className="gp-block-hint">Blocking calls blocks faxes too — same line.</span>
+            </label>
 
-          <SettingRow
-            label="Whose line"
-            description="A block on your own line stops that caller reaching you. A shared line has to be blocked for everyone who answers it."
-            control={
-              <FieldSelect
-                value={line}
-                onChange={(next) => setLine(next as BlockLine)}
-                ariaLabel="Whose line"
-                options={[
-                  { value: 'personal', label: 'My line' },
-                  { value: 'shared', label: 'A shared line' },
-                ]}
+            <label className="gp-block-field">
+              <span className="gp-block-label">What the caller gets</span>
+              <CustomSelect
+                value={{ label: TREATMENT_LABELS[treatment], value: treatment }}
+                options={(Object.keys(TREATMENT_LABELS) as BlockTreatment[]).map((key) => ({
+                  label: TREATMENT_LABELS[key],
+                  value: key,
+                }))}
+                handleChange={(option: any) => setTreatment(option.value)}
+                inputClass="gp-block-select"
               />
-            }
-            status={line === DEFAULT_BLOCK_CHOICE.line ? undefined : 'coming-soon'}
-          />
+              <span className="gp-block-hint">{TREATMENT_DESCRIPTIONS[treatment]}</span>
+            </label>
 
-          {typed ? (
-            <div className="mcm-setrow mcm-setrow-stack">
-              <div className="mcm-setrow-full">
-                <p style={{ fontSize: 12, color: 'var(--ink-3)', margin: '0 0 8px' }}>
-                  {describeChoice(choice)}
-                </p>
+            <label className="gp-block-field">
+              <span className="gp-block-label">Whose line</span>
+              <CustomSelect
+                value={LINE_OPTIONS.find((option) => option.value === line)}
+                options={LINE_OPTIONS}
+                handleChange={(option: any) => setLine(option.value)}
+                inputClass="gp-block-select"
+              />
+              <span className="gp-block-hint">
+                A shared line has to be blocked for everyone who answers it.
+              </span>
+            </label>
 
+            {typed ? (
+              <div className="gp-block-summary">
+                <p>{describeChoice(choice)}</p>
                 {plan.problems.map((problem) => (
-                  <p
-                    key={problem.message}
-                    style={{
-                      fontSize: 12,
-                      margin: '0 0 6px',
-                      color: problem.blocking ? 'var(--crit)' : 'var(--ink-3)',
-                    }}
-                  >
+                  <p key={problem.message} className={problem.blocking ? 'is-blocking' : 'is-warning'}>
                     {problem.message}
                   </p>
                 ))}
-
                 {plan.notStored.length ? (
-                  <p style={{ fontSize: 12, color: 'var(--ink-4)', margin: '0 0 8px' }}>
+                  <p className="is-muted">
                     Recorded on this screen but not saved with the contact:{' '}
                     {plan.notStored.join(', ')}.
                   </p>
                 ) : null}
-
-                <span className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="btn primary"
-                    disabled={!canBlock(plan) || isSaving}
-                    onClick={block}
-                  >
-                    <Ic n="shield" />
-                    Block this number
-                  </button>
-                  {plan.needsContact ? (
-                    <button
-                      type="button"
-                      className="btn ghost"
-                      onClick={() => setAddingContact(true)}
-                    >
-                      <Ic n="plus" />
-                      Save as a contact
-                    </button>
-                  ) : null}
-                </span>
               </div>
-            </div>
-          ) : null}
-        </SettingCard>
-      </div>
+            ) : null}
 
-      <div className="blocked-note-card">
-        <p className="blocked-note-text">
-          Coming soon. A block is recorded against the contact and that is as far as it goes
-          today: nothing in the call path reads it yet, so a blocked number can still ring
-          through. Only the fact of the block is kept — not which channels it covers, not what
-          the caller hears instead, and not whether it applies to a shared line. Those choices
-          are shown here because they are the decision people actually make, and they are what
-          we need to be able to keep.
-        </p>
-      </div>
-
-      <div className="blocked-table-card">
-      <div className="blocked-table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Contact</th>
-              <th>Number</th>
-              <th>Email</th>
-              <th>Blocked</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-          {isPending ? (
-            <EmptyRow span={5} message="Loading blocked numbers…" />
-          ) : visible.length ? (
-            visible.map((row) => {
-              const name = contactName(row) || 'Unknown';
-              const isDemo = Boolean((row as { _demo?: boolean })._demo);
-              return (
-                <tr key={row?._id || row?.contact?.phone}>
-                  <td>
-                    <span className="flex items-center gap-2.5">
-                      <CustomAvatar name={name} type="contact" size="30" />
-                      <span style={{ fontWeight: 700 }}>{name}</span>
-                      {isDemo ? <span className="tag neu">Demo</span> : null}
-                    </span>
-                  </td>
-                  <td className="num">{row?.contact?.phone || '—'}</td>
-                  <td>{row?.contact?.email || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
-                  <td>
-                    <span className="tag acc">Blocked</span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="mini"
-                      disabled={isSaving || isDemo}
-                      title={isDemo ? 'Sample data — not a real contact' : `Unblock ${name}`}
-                      aria-label={isDemo ? `${name} is sample data` : `Unblock ${name}`}
-                      onClick={() => unblock(row)}
-                    >
-                      <Ic n="check" size={12} />
-                      Unblock
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
-            <EmptyRow
-              span={5}
-              message={
-                blocked.length
-                  ? 'No blocked numbers match that search.'
-                  : 'Nobody is blocked. Numbers you block will be listed here.'
-              }
-            />
-          )}
-          </tbody>
-        </table>
-      </div>
-      </div>
-      </DirectoryPage>
-      </div>
+            <p className="gp-block-note">
+              Coming soon — recorded against the contact only, nothing in the call path reads it
+              yet, so a blocked number can still ring through.
+            </p>
+          </div>
+          <div className="gp-block-foot">
+            <button type="button" className="gp-block-cancel" onClick={() => setBlockFormOpen(false)}>
+              Cancel
+            </button>
+            {typed && plan.needsContact ? (
+              <button
+                type="button"
+                className="gp-block-secondary"
+                onClick={() => setAddingContact(true)}
+              >
+                Save as a contact
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="gp-block-submit"
+              disabled={!typed || !canBlock(plan) || isSaving}
+              onClick={block}
+            >
+              <Ic n="shield" />
+              Block this number
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={addingContact} onOpenChange={setAddingContact}>
         <DialogContent className="max-w-[520px] max-h-[85vh] overflow-y-auto">

@@ -173,15 +173,29 @@
   min-height: 0;
   overflow: hidden;
 }
-/* Tab triggers are excluded from `color`/`border` below. This reset is
-   unlayered, so it beats every Tailwind utility regardless of specificity (see
-   the flex-direction note above) - including the
+/* Tab triggers and every shared Radix-based control that renders as a plain
+   `<button>` under the hood (`Button` → `data-slot="button"`, `Checkbox` →
+   `data-slot="checkbox"`, `RadioGroupItem` → `data-slot="radio-group-item"`)
+   are excluded from `color`/`border`/`background` below. This reset is
+   unlayered, so it beats every Tailwind utility regardless of specificity
+   (see the flex-direction note above) - including the
    `data-[state=active]:text-primary` and `data-[state=active]:border-b-primary`
-   that tab strips mark the open tab with. `border: 0` erased the underline and
-   `color: inherit` erased the accent, so every tab rendered identically and a
-   drawer gave no clue which tab you were on. The font, background and cursor
-   parts of the reset still apply; only the two the tabs own are left to them. */
-.mcm-page button:not([data-slot='tabs-trigger']) {
+   that tab strips mark the open tab with, and every `border`/`bg-*`/`text-*`
+   variant class those components apply. Without these exclusions, any of
+   them rendered as a plain (non-portaled) descendant of `.mcm-page` - e.g.
+   inside a `SideDrawer` or an inline (non-portaled) `Popover`, neither of
+   which renders through a portal - loses its border, background and text
+   color entirely, appearing unstyled/invisible regardless of its own
+   variant/checked/state classes. The exclusions are wrapped in `:where()` so
+   they add zero specificity: chained `:not()` clauses (without `:where()`)
+   pushed this rule's specificity above `.mcm-page .btn.primary`/`.btn.ghost`
+   (the hand-styled `.btn` buttons elsewhere in this file), which briefly
+   broke their border/color/background the same way. */
+.mcm-page button:where(
+    :not([data-slot='tabs-trigger']):not([data-slot='button']):not([data-slot='checkbox']):not(
+        [data-slot='radio-group-item']
+      )
+  ) {
   font: inherit;
   color: inherit;
   border: 0;
@@ -4286,112 +4300,30 @@
 }
 
 /* ============================================================
-   Directory ▸ Blocked — tighter spacing for the "Block a number" form and
-   the blocked list.
+   Directory ▸ Blocked.
 
    Opt-in via `.blocked-compact` on the page wrapper (DirectoryPage's
-   `className` prop), so only this page is affected — every other screen
-   built on `.page`/`.mcm-setcard`/`.mcm-setrow` (which SettingCard is
-   shared with, across several admin-settings screens) keeps its normal
-   spacing.
+   `className` prop), so only this page is affected. The "Block a number"
+   form used to live inline here as a `SettingCard`/`mcm-setrow` form above
+   a table — it now lives in a dialog (see `.gp-block-dialog` in
+   blocked-glass.css), so this page's own CSS is just spacing for its
+   header/search bar above the blocked-contacts grid.
 
-   This page previously pinned `.page` itself to `overflow: hidden` so only
-   the table underneath could scroll — that's brittle: at some real window
-   sizes the content still ended up taller than the fixed box, and with
-   nothing left to scroll it, the list became genuinely unreachable. `.page`
-   now keeps the same `overflow-y: auto` every other Directory page already
+   `.page` keeps the same `overflow-y: auto` every other Directory page
    relies on (the base rule above), so the page scrolls as a whole exactly
-   like People/Groups/etc. do whenever content doesn't fit — guaranteed
-   reachable regardless of viewport. The table still caps its own height
-   and scrolls internally first, so a long blocked-list doesn't balloon the
-   page — the page scroll is the fallback, not the only way to reach it. */
+   like People/Groups/etc. do whenever the grid doesn't fit — guaranteed
+   reachable regardless of viewport. */
 .mcm-page .page.blocked-compact {
-  padding: 14px 18px;
+  /* Top/sides match the plain `.page` default (People etc.) — only the
+     bottom stays tight, matching the same fix on `.favourites-compact`. */
+  padding: 22px 26px 14px;
 }
 .mcm-page .blocked-compact .page-head {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 .mcm-page .blocked-compact .tbar {
-  margin-bottom: 6px;
+  margin-bottom: 16px;
 }
-.mcm-page .blocked-compact .blocked-table-scroll {
-  max-height: 260px;
-  overflow-y: auto;
-}
-.mcm-page .blocked-compact thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--surface);
-}
-
-/* Tighter "Block a number" card — the same component other settings
-   screens use at their normal size, scaled down here so the whole form
-   fits without needing the page-level scroll this override removes. */
-.mcm-page .blocked-compact .mcm-setcard {
-  margin-bottom: 10px;
-}
-.mcm-page .blocked-compact .mcm-setcard-h {
-  padding: 8px 12px 7px;
-}
-.mcm-page .blocked-compact .mcm-setcard-body {
-  padding: 0 12px;
-}
-.mcm-page .blocked-compact .mcm-setrow {
-  padding: 6px 0;
-}
-
-/* Three distinct panels rather than one long box: the form (through "Whose
-   line"), the "Coming soon" explanation, and the blocked list each read as
-   their own card — the SettingCard's built-in `note` footer would otherwise
-   fuse the explanation onto the bottom of the form card with no border
-   between them, and the table followed on with no card chrome at all. Same
-   visual language as `.mcm-setcard` (surface, border, radius) so the three
-   read as siblings, not as three different components. */
-.mcm-page .blocked-compact .blocked-note-card {
-  background: var(--warn-wash);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-.mcm-page .blocked-compact .blocked-note-text {
-  margin: 0;
-  padding: 10px 12px;
-  color: var(--warn);
-  font-size: 11.5px;
-  line-height: 1.5;
-}
-.mcm-page .blocked-compact .blocked-table-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-.mcm-page .blocked-compact .blocked-table-card .blocked-table-scroll {
-  border-radius: inherit;
-}
-
-/* Tighter table + empty state below the form, same reasoning: this is the
-   normal shared table/empty styling other Directory pages use, just scaled
-   down here alone so everything keeps fitting without a page scroll. */
-.mcm-page .blocked-compact th {
-  padding: 7px 12px;
-}
-.mcm-page .blocked-compact td {
-  padding: 8px 12px;
-}
-.mcm-page .blocked-compact .empty {
-  padding: 20px 24px;
-}
-
-/* A further visual pass on Blocked — the search chip and the "Block a
-   number" card's icon were still the design system's default flat/neutral
-   look, standing out against how warm the rest of this page (and the
-   Contact view/External Contacts pages) already reads. Scoped to
-   `.blocked-compact` only, same as everything else above. */
 .mcm-page .blocked-compact .tbar .fchip {
   border-color: rgba(194, 65, 12, 0.16);
   box-shadow: var(--shadow-sm);
@@ -4402,23 +4334,6 @@
 .mcm-page .blocked-compact .tbar .fchip:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
-}
-.mcm-page .blocked-compact .mcm-setcard {
-  box-shadow: var(--shadow-sm);
-}
-.mcm-page .blocked-compact .mcm-setcard-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: var(--accent-wash);
-  color: var(--accent-ink);
-}
-.mcm-page .blocked-compact tbody tr:hover {
-  background: var(--accent-wash);
-}
-.mcm-page .blocked-compact .mini:hover {
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
 }
 
 /* ============================================================
@@ -4433,17 +4348,25 @@
    "the page doesn't scroll, the data does" for any realistic favourites
    list length. */
 .mcm-page .page.favourites-compact {
-  padding: 14px 18px;
+  /* Top/sides match the plain `.page` default (People etc.) — only the
+     bottom stays tight, since this page's whole point is not needing its
+     own scroll to reach a list that already scrolls internally. */
+  padding: 22px 26px 14px;
 }
 .mcm-page .favourites-compact .page-head {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 .mcm-page .favourites-compact .tbar {
-  margin-bottom: 6px;
+  margin-bottom: 16px;
 }
 .mcm-page .favourites-compact .favourites-table-scroll {
   max-height: 60vh;
   overflow-y: auto;
+  /* The header row is `position: sticky; top: 0` against this element (the
+     scrolling ancestor), so padding here — rather than on `.panel-card`,
+     which doesn't scroll and wouldn't affect the sticky offset at all — sits
+     above the header at rest and scrolls away once the header sticks. */
+  padding-top: 16px;
 }
 .mcm-page .favourites-compact thead th {
   position: sticky;
@@ -4608,8 +4531,12 @@
    where it sits over page content that genuinely does need diffusing.
 
    `rounded-full` is excluded: those are chips, avatars and toggle knobs,
-   which should stay solid. */
-.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white {
+   which should stay solid. The shared `Button` component (`data-slot="button"`)
+   is excluded too: its `outline`/`default` variants use exactly
+   `rounded-lg bg-white`, so without this exclusion every such Button
+   rendered inside `.mcm-page` gets silently pinned to this translucent
+   glass surface/border regardless of its `variant` prop or `hover:` utilities. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']):not([data-slot='button']).bg-white {
   background: var(--glass-surface);
   border-color: var(--glass-border);
 }

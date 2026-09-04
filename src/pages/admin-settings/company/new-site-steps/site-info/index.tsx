@@ -154,7 +154,7 @@ const SiteInfo = ({ formInstance }: any) => {
 
   return (
     // <div className="flex flex-col gap-2 h-[calc(100vh_-_19rem)] overflow-auto">
-    <div className="flex w-full flex-col gap-5">
+    <div className="mcm-site-form flex w-full flex-col gap-5">
       <div className="flex flex-col gap-5 border-b border-gray-200 py-4 sm:py-5">
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold text-gray-900 text-md">General Location Info</h5>

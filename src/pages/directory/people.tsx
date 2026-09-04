@@ -322,14 +322,15 @@ const People = () => {
             </span>
           </>
         }
+        beforeTable={
+          /* A new admin adding their first people is exactly who needs to see
+             how far through setup they are. The guide hides itself once
+             everything is done, so an established account never sees it. */
+          <div className="gp-people-setup">
+            <SetupGuide companyInfo={user?.company_info} />
+          </div>
+        }
       >
-        {/* A new admin adding their first people is exactly who needs to see
-            how far through setup they are. The guide hides itself once
-            everything is done, so an established account never sees it. */}
-        <div className="gp-people-setup">
-          <SetupGuide companyInfo={user?.company_info} />
-        </div>
-
         <table>
           <thead>
             <tr>
@@ -551,7 +552,22 @@ const People = () => {
 
         {open ? (
           <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
-            <DialogContent className="gp-person-dialog sm:max-w-[620px]">
+            <DialogContent
+              className="gp-person-dialog sm:max-w-[620px]"
+              /* Radix focuses the first focusable element when the dialog
+                 opens — a plain `<input>`'s default browser behaviour on
+                 programmatic focus (rather than a user click) is to select
+                 all of its text, so "First Name" opened with the person's
+                 whole name highlighted, one keystroke away from being wiped
+                 out. Focus lands on the dialog itself instead, keeping
+                 keyboard/screen-reader focus trapped inside it (rather than
+                 lost to the page behind, which a bare `preventDefault`
+                 would leave it) without pre-selecting any field. */
+              onOpenAutoFocus={(event) => {
+                event.preventDefault();
+                (event.target as HTMLElement)?.focus?.();
+              }}
+            >
               <div className="gp-person-fields">
                 <label className="gp-field">
                   <span className="gp-field-l">First Name</span>

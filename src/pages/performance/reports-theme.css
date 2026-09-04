@@ -528,20 +528,37 @@ body.perf-warm-backdrop .perf-reports {
    crisp typography.
    ------------------------------------------------------------ */
 .perf-reports .rp-table-wrap {
-  border-radius: 14px;
+  /* 20px, matching the Directory-benchmark radius every other Performance
+     table now uses — this table's own inner card was 14px, one gap this
+     pass was asked to close. */
+  border-radius: 20px;
   overflow: hidden;
 }
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 2px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated. Font styling (size/weight/
+   tracking/case/colour) is set inline in reports-tab.tsx instead of here,
+   since columns are dynamic per report and that inline style is already
+   the one source of truth for it. */
 .perf-reports .rp-table-wrap table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: rgba(255, 246, 238, 0.97);
-  backdrop-filter: var(--rp-glass-blur);
-  -webkit-backdrop-filter: var(--rp-glass-blur);
-  box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.12);
+  background: #fffdfb;
+  box-shadow: none;
+  padding: 9px 12px !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
 }
 .dark .perf-reports .rp-table-wrap table thead th {
   background: rgba(23, 15, 10, 0.97);
+}
+.perf-reports .rp-table-wrap table thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.perf-reports .rp-table-wrap table thead th:last-child {
+  border-top-right-radius: 20px;
 }
 .perf-reports .rp-table-wrap table tbody tr {
   transition:

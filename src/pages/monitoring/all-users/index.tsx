@@ -18,7 +18,7 @@ import { useDialpad } from '@/hooks/use-dialpad';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useUser } from '@/hooks/use-user';
 import { IUSERS } from '@/interfaces/extension-interface';
-import { capitalizeFirstLetter, handleAlert } from '@/lib/utils';
+import { capitalizeFirstLetter, formatPhoneNumber, handleAlert } from '@/lib/utils';
 import {
   MONITOR_ACTION_LABELS,
   getMonitorTargetCallId,
@@ -310,15 +310,23 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
     {
       header: 'DID',
       accessorKey: 'did',
+      meta: { textAlign: 'center' },
       cell: ({ row }) => {
         const extension = row?.original?.extension;
         const callInfo = getCallInfoByExtension(extension);
-        return <>{getMonitoringCallDid(callInfo)}</>;
+        const did = getMonitoringCallDid(callInfo);
+        // A dense run of digits (`+911800123456`) is a lot harder to scan
+        // than the spaced form a real dial pad or contact card would show
+        // (`+91 1800 12 3456`) — reuse the same international formatter the
+        // CRM number list already renders DIDs through, rather than a
+        // one-off regex just for this column.
+        return <>{did === '---' ? did : formatPhoneNumber(did) || did}</>;
       },
     },
     {
       header: 'Duration',
       accessorKey: 'phone',
+      meta: { textAlign: 'right' },
       cell: ({ row }) => {
         const extension = row?.original?.extension;
         const callInfo = getCallInfoByExtension(extension);
@@ -334,6 +342,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
     {
       header: '	Status',
       accessorKey: 'site_uuid',
+      meta: { textAlign: 'center' },
       cell: ({ row }) => {
         const extension = row?.original?.extension;
         const callInfo = getCallInfoByExtension(extension);
@@ -353,6 +362,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
     {
       header: 'Direction',
       accessorKey: 'socket_status',
+      meta: { textAlign: 'center' },
       cell: ({ row }) => {
         const extension = row?.original?.extension;
         const callInfo = getCallInfoByExtension(extension);
@@ -405,11 +415,11 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
         // monitoringCallJoined;
         if (isButtonDisabled) return '---';
         return (
-          <span className="flex gap-2 items-center">
+          <span className="flex gap-1.5 items-center">
             {monitoringAccessActions?.listen && (
               <CustomTooltip text="Listen" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*87', data?.extension)}
                 >
                   <Ear className="w-4 h-4" />
@@ -419,7 +429,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.whisper && (
               <CustomTooltip text="Whisper" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*86', data?.extension)}
                 >
                   <MicIcon className="w-4 h-4" />
@@ -429,7 +439,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.barge && (
               <CustomTooltip text="Barge" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*88', data?.extension)}
                 >
                   <UsersIcon className="w-4 h-4" />
@@ -439,7 +449,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.intercept && (
               <CustomTooltip text="Intercept" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*89', data?.extension)}
                 >
                   <CallIntersection className="w-5 h-5" />
@@ -449,7 +459,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.hangup && (
               <CustomTooltip text="Hangup" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => terminateCallSession(callInfo)}
                 >
                   <ImPhoneHangUp className="w-5 h-5" />

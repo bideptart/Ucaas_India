@@ -320,7 +320,10 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   backdrop-filter: var(--pl-glass-blur);
   -webkit-backdrop-filter: var(--pl-glass-blur);
   border: 1px solid var(--pl-glass-border);
-  border-radius: var(--pl-r);
+  /* 20px, matching the Directory-benchmark radius every other Performance
+     tab's KPI cards use (Agents, Flows, Dashboards) — `--pl-r` (18px) was
+     this view's own value, one gap this pass was asked to close. */
+  border-radius: 20px;
   padding: 16px 18px;
   box-shadow: var(--pl-glass-shadow);
   transition:
@@ -358,13 +361,22 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
 /* ------------------------------------------------------------
    3. Live data table — frosted glass
    ------------------------------------------------------------ */
+/* `--pl-glass-border`/`--pl-glass-shadow` (the KPI cards, the pagination
+   footer, and this table all shared them) gave the table a near-invisible
+   white border and a tight, sharp shadow — against the page's own pale
+   ambient gradient that read as a flat, stark white slab rather than a
+   card with any depth of its own. Overridden here, scoped to the table
+   only (not the shared tokens, so the KPI cards/pager keep their own
+   look): a warm-tinted border gives the card a visible edge, and a
+   larger, softer, warm-toned glow lifts it off the backdrop instead of
+   blending into it. */
 .mcm-page .perf-live .table-scroll {
   border-radius: var(--pl-r-lg);
-  border: 1px solid var(--pl-glass-border);
-  background: var(--pl-glass);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  box-shadow: var(--pl-glass-shadow);
+  border: 1px solid rgba(249, 115, 22, 0.14);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
 }
 /* TableManager's own outer wrapper div (`rounded-xl border ...
    overflow-hidden`), not `.table-scroll` itself, is what actually clips a
@@ -392,24 +404,40 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
    Opaque + its own blur keeps the frosted look without that bleed-through,
    and each `th` matches rather than staying transparent, since a sticky
    header is only as opaque as its least-opaque layer. */
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 2px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated. */
 .mcm-page .perf-live .table-scroll thead {
-  background: rgba(255, 246, 238, 0.97);
-  backdrop-filter: var(--pl-glass-blur);
-  -webkit-backdrop-filter: var(--pl-glass-blur);
-  box-shadow: 0 1px 0 0 var(--pl-hairline);
+  background: #fffdfb;
+  /* Fully opaque background, so this is a no-op visually on its own — kept
+     so scrolling rows never bleed through even if that opacity is ever
+     dialled back again, the same reasoning every other Performance table's
+     sticky header already carries this for. */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: none;
 }
 .dark .mcm-page .perf-live .table-scroll thead {
   background: rgba(23, 15, 10, 0.97);
 }
 .mcm-page .perf-live .table-scroll thead th {
-  color: var(--pl-muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom-color: var(--pl-hairline);
+  padding: 9px 12px !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
   background: transparent;
+}
+.mcm-page .perf-live .table-scroll thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.mcm-page .perf-live .table-scroll thead th:last-child {
+  border-top-right-radius: 20px;
 }
 
 /* Rows — soft translucent, warm hover. The tints this table paints on a row
@@ -423,16 +451,32 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   background: transparent;
   transition: background-color 0.16s ease;
 }
+/* Directory's signature left accent-bar row hover — every other Performance
+   table already carries this; Live was the one gap. Still excluded on a row
+   already carrying a live-call tint, same reasoning as the plain hover
+   above: that tint is load-bearing information about the row, not
+   decoration to layer a second hover treatment over. */
 .mcm-page
   .perf-live
   .table-scroll
   tbody
   tr:not([class*='bg-green']):not([class*='bg-yellow']):hover {
-  background: var(--pl-row-hover);
+  background: rgba(254, 215, 170, 0.22);
+  box-shadow: inset 3px 0 0 var(--pl-accent);
 }
 .mcm-page .perf-live .table-scroll tbody td {
   padding-top: 11px;
   padding-bottom: 11px;
+  /* Tailwind's `px-2 xl:px-4` (table-manager-row.tsx) gives every cell 16px
+     of horizontal padding at desktop widths — across 8 columns, the last
+     being 5 actions buttons wide, that was enough alone to push the row's
+     total content past the card's width, forcing the whole table into a
+     horizontal scrollbar with the Hangup button (5th action, right edge)
+     half-clipped by the card boundary. A tighter, single value at every
+     width reclaims that space without needing to touch the shared
+     component every other table in the app also renders through. */
+  padding-left: 10px !important;
+  padding-right: 10px !important;
   border-bottom-color: var(--pl-hairline);
   color: #334155;
   background: transparent;
@@ -466,6 +510,16 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
     0 0 0 2px var(--pl-wash),
     0 2px 6px rgba(15, 23, 42, 0.1);
 }
+/* The presence dot (CustomAvatar's `showPresence`) sat directly on the
+   avatar's own hashed background colour with no separation of its own —
+   easy to miss exactly the state (on call, in particular) a supervisor is
+   scanning this table for. A white ring, the same idiom every other status
+   dot in the app already uses, is enough to make it read clearly against
+   any avatar colour without changing what each colour means. */
+.mcm-page .perf-live .table-scroll tbody td:first-child [class*='rounded-full'][class^='bg-'],
+.mcm-page .perf-live .table-scroll tbody td:first-child [class*='rounded-full'][class*=' bg-'] {
+  box-shadow: 0 0 0 2px #fff;
+}
 
 /* Status (5th) and Direction (6th) columns render bare text; here they read
    as soft pills. Column order is fixed by the table's own column list. */
@@ -496,9 +550,13 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
 }
 
 /* Monitoring actions (Listen / Whisper / Barge / Intercept / Hangup) — the
-   same glass language as everything else on the view. */
-.mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg'] {
-  border-radius: 10px;
+   same glass language as everything else on the view. Circular (`rounded-
+   full` in all-users/index.tsx, not `rounded-lg`) and a tighter `gap-1.5`
+   row so all 5 fit inside the Actions column without pushing the table
+   into a horizontal scrollbar — the 5th (Hangup) used to sit right at the
+   card's edge, half-clipped by it. */
+.mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-full'] {
+  border-radius: 999px;
   border-color: var(--pl-edge);
   color: var(--pl-accent);
   background: rgba(255, 255, 255, 0.6);
@@ -508,7 +566,7 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
-.mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg']:hover {
+.mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-full']:hover {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-color: transparent;
   color: #fff;

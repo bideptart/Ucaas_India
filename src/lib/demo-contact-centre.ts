@@ -2553,3 +2553,100 @@ export const demoVoicemailRows = () => {
     recording_file: `demo-voicemail-${index + 1}.mp3`,
   }));
 };
+
+/* activity-strips.tsx buckets each entry with `moment.parseZone(timestamp)`,
+   which reads the hour exactly as written in the string's own offset — it
+   does not convert to the viewer's local time first. `Date#toISOString()`
+   always normalizes to "Z" (UTC), so a Date built from local setHours(1, ..)
+   would serialize as whatever UTC hour that local 1am happens to be (e.g.
+   19:xx the day before, on a UTC+5:30 machine) and land in the wrong row
+   entirely. Writing the offset the Date actually holds keeps the hour we
+   set intact, so it lands in the row whose label shows that same hour. */
+const toLocalIso = (d: Date) => {
+  const pad = (n: number, len = 2) => String(Math.abs(n)).padStart(len, '0');
+  const offsetMin = -d.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? '+' : '-';
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}` +
+    `${sign}${pad(Math.floor(Math.abs(offsetMin) / 60))}:${pad(Math.abs(offsetMin) % 60)}`
+  );
+};
+
+/** `user-activity-list` socket event — Performance ▸ Activity's per-hour timeline.
+ *  The same pattern repeats over today and the two days before it, so a
+ *  "This Week" range lands on populated hours instead of a screen of
+ *  "No action" rows.
+ *
+ *  Nearly every hour carries a call — a handful are deliberately skipped
+ *  (a lunch break, a couple of quiet night hours) so the day still reads as
+ *  a real shift rather than a suspiciously perfect grid, while staying
+ *  dense enough that the timeline never looks like it's mostly empty. */
+export const demoUserActivities = () => {
+  const DEVICE_INFO = [
+    {
+      device_type: 'Desktop App',
+      ip_address: '103.27.14.82',
+      browser_version: 'Chrome 128',
+      os_version: 'Windows 11',
+    },
+  ];
+
+  const SKIP_HOURS = new Set([2, 4, 12, 15, 20]);
+
+  const activity: Array<{ id: string; timestamp: string; activity: string; data?: any }> = [];
+  let seq = 0;
+
+  [0, 1, 2].forEach((daysAgo) => {
+    const dayStart = new Date();
+    dayStart.setDate(dayStart.getDate() - daysAgo);
+    dayStart.setHours(0, 0, 0, 0);
+
+    for (let h = 0; h < 24; h++) {
+      if (h === 0) {
+        const at = new Date(dayStart);
+        at.setHours(0, 6, 0, 0);
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(at),
+          activity: 'online',
+          data: DEVICE_INFO,
+        });
+        continue;
+      }
+      if (h === 23) {
+        const at = new Date(dayStart);
+        at.setHours(23, 40, 0, 0);
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(at),
+          activity: 'offline',
+          data: DEVICE_INFO,
+        });
+        continue;
+      }
+      if (SKIP_HOURS.has(h)) continue;
+
+      const at = new Date(dayStart);
+      const minute = 8 + ((h * 17) % 42);
+      at.setHours(h, minute, 0, 0);
+      const durationMin = 4 + (h % 6);
+      const endAt = new Date(at.getTime() + durationMin * 60000);
+      const direction = h % 2 === 0 ? 'initiator' : 'recipient';
+
+      activity.push({
+        id: `demo-act-${seq++}`,
+        timestamp: toLocalIso(at),
+        activity: 'call_start',
+        data: { Direction: direction },
+      });
+      activity.push({
+        id: `demo-act-${seq++}`,
+        timestamp: toLocalIso(endAt),
+        activity: 'call_end',
+      });
+    }
+  });
+
+  return { data: [{ activity }] };
+};

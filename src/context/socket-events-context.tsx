@@ -36,6 +36,7 @@ import {
   demoPinnedMessages,
   demoLiveCalls,
   demoLiveQueueCalls,
+  demoUserActivities,
   demoUsersOnlineStatus,
 } from '@/lib/demo-contact-centre';
 import { v4 as uuidV4 } from 'uuid';
@@ -3880,6 +3881,15 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const userActivity = useCallback(
     (data: any) => {
+      /* Demo mode has no socket to answer `user-activity-list`, so this
+         returned before ever touching the loader and the timeline stayed
+         permanently empty ("No action" every hour). */
+      if (isDemoMode()) {
+        setActivityLoader(true);
+        setUserActivitiesList(demoUserActivities());
+        setActivityLoader(false);
+        return;
+      }
       if (!socketEventsManager || !user || isDisconnecting) return;
       setActivityLoader(true);
 

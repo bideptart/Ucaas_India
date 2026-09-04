@@ -1027,19 +1027,6 @@ const AgentChatMessenger = () => {
           }
           onBackToList={isCompactLayout ? handleBackToChatList : undefined}
           onOpenProfile={isCompactLayout ? () => setIsProfileDrawerOpen(true) : undefined}
-          onPendingAccepted={(acceptedChatId: string) => {
-            setSelectedPendingRequestId('');
-            setChatWindows([acceptedChatId]);
-            setActiveTab('active');
-            setSearchParams((prev) => {
-              const next = new URLSearchParams(prev);
-              next.set('type', 'active');
-              if (acceptedChatId) {
-                next.set('chatId', acceptedChatId);
-              }
-              return next;
-            });
-          }}
         />
       </section>
       <VisitorProfile activeChatId={activeChatId} chat={selectedChat} currentUserId={user?.uuid} />

@@ -12,7 +12,6 @@ export type AgentChatProps = {
   onBackToList?: () => void;
   onOpenProfile?: () => void;
   pendingRequest?: any;
-  onPendingAccepted?: (chatId: string) => void;
 };
 
 const AgentChat = ({
@@ -20,7 +19,6 @@ const AgentChat = ({
   onBackToList,
   onOpenProfile,
   pendingRequest = null,
-  onPendingAccepted,
 }: AgentChatProps) => {
   const { user } = useUser();
   const { allAgentChats = [], typingList = {} } = useSocketEvents();

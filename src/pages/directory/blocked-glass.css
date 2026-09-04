@@ -86,124 +86,106 @@
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
-}
-
-/* ---- the blocked list: a grid of contact cards, not a table — the
-   "Block a number" form moved into a dialog (opened from the button in the
-   header), so this page's whole surface is now just the people you have
-   stopped hearing from, laid out the way a rolodex would rather than as
-   rows of a data table like every other Directory screen. */
-.blocked-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  padding: 20px;
-}
-.blocked-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px;
-  border: 1px solid rgba(150, 100, 50, 0.12);
-  border-radius: 14px;
-  background: #fff;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s,
-    transform 0.15s;
+  max-height: calc(100vh - 260px);
 }
-.blocked-card:hover {
-  border-color: rgba(242, 153, 74, 0.35);
-  box-shadow: 0 8px 20px rgba(160, 95, 30, 0.12);
-  transform: translateY(-1px);
-}
-/* A number toggled back off — the card stays in the grid (rather than
-   disappearing) so the toggle itself is visible, just faded to read as
-   "not currently doing anything" instead of an active block. */
-.blocked-card.is-unblocked {
-  background: #fbfaf8;
-  opacity: 0.7;
-}
-.blocked-card.is-unblocked:hover {
-  opacity: 1;
-}
-.blocked-card-top {
+
+/* ---- the blocked list: a table, matching Directory ▸ People's own table
+   styling exactly (same header/row/hover treatment) rather than this page
+   reading as a different product. Header/body are split into independent
+   scroll boxes, same technique and reason as People's own table
+   (people-glass.css): a sticky `<thead>` doesn't stop its scrolling
+   ancestor's native scrollbar from spanning the full box, header band
+   included. */
+.gp-blocked .tbl-wrap {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
-.blocked-card-unblock {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
+.gp-blocked table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: transparent;
+}
+.gp-blocked thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-blocked tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height. */
+  max-height: 420px;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-blocked thead tr,
+.gp-blocked tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-blocked th:nth-child(1),
+.gp-blocked td:nth-child(1) {
+  width: auto;
+}
+.gp-blocked th:nth-child(2),
+.gp-blocked td:nth-child(2) {
+  width: 150px;
+}
+.gp-blocked th:nth-child(3),
+.gp-blocked td:nth-child(3) {
+  width: auto;
+}
+.gp-blocked th:nth-child(4),
+.gp-blocked td:nth-child(4) {
+  width: 110px;
+}
+.gp-blocked th:nth-child(5),
+.gp-blocked td:nth-child(5) {
+  width: 130px;
+}
+.gp-blocked tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-blocked tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-blocked tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
   border-radius: 999px;
-  border: 1px solid rgba(242, 153, 74, 0.4);
-  background: #fff6e9;
-  color: #c96f1f;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
-.blocked-card-unblock:hover:not(:disabled) {
-  background: #f2994a;
-  color: #fff;
-  border-color: #f2994a;
+.gp-blocked tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
-.blocked-card-unblock:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.gp-blocked th {
+  background: #fffdfb;
+  color: #8a6f57;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  height: 40px;
+  font-size: 10px;
 }
-/* Re-blocking reads as the more deliberate action, so its button leans on
-   the same solid accent the "Block a number" buttons use elsewhere, rather
-   than the soft outline the (already-active) Unblock button gets. */
-.blocked-card.is-unblocked .blocked-card-unblock {
-  background: #f2994a;
-  color: #fff;
-  border-color: #f2994a;
+.gp-blocked td {
+  border-bottom-color: rgba(150, 100, 50, 0.1);
 }
-.blocked-card.is-unblocked .blocked-card-unblock:hover:not(:disabled) {
-  background: #e0863a;
+.gp-blocked tbody tr:hover {
+  background: rgba(255, 205, 155, 0.14);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
-.blocked-card-name {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-weight: 700;
-  color: #1a1a1a;
-  font-size: 13.5px;
-}
-.blocked-card-phone {
-  font-size: 12.5px;
-  color: #6b5c4d;
-  font-variant-numeric: tabular-nums;
-}
-.blocked-card-email {
-  font-size: 12px;
-  color: #8a7a67;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.blocked-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 56px 24px;
-  color: #8a7a67;
-  text-align: center;
-}
-.blocked-empty-state p {
-  margin: 0;
-  font-size: 13.5px;
-  max-width: 34ch;
+.gp-blocked td:last-child .mini {
+  gap: 4px;
 }
 
 /* ---- "Block a number" dialog. Portaled to `document.body` (outside

@@ -158,7 +158,7 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
   return (
     <Dialog open={open} onOpenChange={(val) => (val ? setOpen(true) : handleClose())}>
       <DialogContent
-        className="gp-role-dialog w-[760px] max-w-[calc(100%-2rem)] p-0 gap-0"
+        className="gp-role-dialog w-[760px] max-w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto p-0 gap-0"
         showCloseButton={false}
       >
         <div className="gp-role-head flex items-start justify-between p-5">

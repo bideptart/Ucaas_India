@@ -305,6 +305,12 @@ const AllNewContactsList: FC<any> = ({
      other caller of this component (Leads ▸ Contact Logs) is unaffected
      unless it explicitly opts in. */
   tableWrapperClassName = '',
+  /* Both additive, both passed straight through to `TableManager` and both
+     default to its own defaults (false/undefined) — opt-in per caller, so
+     /contact and Leads ▸ Contact Logs keep their current behaviour unless
+     they ask for this too. */
+  splitStickyHeader = false,
+  visibleRowCount,
 }) => {
   const navigate = useNavigate();
   const tableRef = useRef<any>(null);
@@ -675,7 +681,17 @@ const AllNewContactsList: FC<any> = ({
                 <ChevronDown className="w-3.5 h-3.5 opacity-80" />
               </span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuContent
+              align="start"
+              /* `DropdownMenuContent` portals to `document.body`, outside
+                 `.mcm-page` where this app's own orange `--accent` lives —
+                 every `DropdownMenuItem` below already hovers via
+                 `focus:bg-accent`/`focus:text-accent-foreground`, so
+                 redefining those two variables here is enough to make the
+                 hover orange, without touching each item or fighting
+                 specificity with `!important`. */
+              className="w-44 [--accent:#fff1e0] [--accent-foreground:#c96f1f]"
+            >
               <DropdownMenuItem
                 onClick={() =>
                   setTagUpdateState({
@@ -741,7 +757,10 @@ const AllNewContactsList: FC<any> = ({
                 <MoreHorizontal className="w-5 h-5" />
               </span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48 [--accent:#fff1e0] [--accent-foreground:#c96f1f]"
+            >
               {canViewContact && (
                 <>
                   <DropdownMenuItem
@@ -879,6 +898,8 @@ const AllNewContactsList: FC<any> = ({
             : 'No contacts found',
           descriptionEmptyTable: payloadExtraParams?.search ? '' : 'Add contacts to get started.',
           customClass: tableWrapperClassName,
+          splitStickyHeader,
+          visibleRowCount,
         }}
       />
       <AlertConfirm

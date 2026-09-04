@@ -73,7 +73,15 @@
   flex-direction: column;
   max-height: calc(100vh - 260px);
 }
+/* `TableManager`'s own outer box relies on Tailwind's `flex-1 min-h-0` to
+   size itself against its parent — those do nothing without a flex
+   ancestor, and `.tbl-wrap` wasn't one, so the box grew to its natural
+   height (every row on the page, not just the visible window) and
+   `.tbl-wrap`'s own scroll ended up covering that whole thing, including
+   the pager rendered below it — reachable, but far below the fold. */
 .gp-external .tbl-wrap {
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   min-height: 0;
 }
@@ -119,6 +127,30 @@
 }
 .gp-external-dialog .gp-create-group-head {
   background: #ffffff;
+}
+
+/* ---- Contact Notes — centered popup (moved off the right-side
+   SideDrawer), same shell and cream/orange header colours as the Add
+   Contact dialog above. */
+.gp-notes-dialog {
+  background: #ffffff !important;
+}
+.gp-notes-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+
+/* ---- Send WhatsApp Message — centered popup (moved off the right-side
+   SideDrawer), same shell and cream/orange header colours as the dialogs
+   above. `SendWhatsappMessage` has no header of its own (every other
+   caller relies entirely on its wrapper for one), so this dialog's own
+   head is the only title shown, not a replacement for a duplicate. */
+.gp-whatsapp-dialog {
+  background: #ffffff !important;
+}
+.gp-whatsapp-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
 }
 
 /* `.mcm-field`, `.mini` and `.ic` normally read `--line`/`--surface`/
@@ -318,9 +350,25 @@
 .gp-contact-table thead {
   background-color: #fffdfb !important;
 }
+/* With `splitStickyHeader`, the scrollable body is its own box directly
+   under the (separate, non-scrolling) header box — and that body box
+   carries its own `border-radius: 18px` on every corner, same as any other
+   TableManager instance. Sitting flush under the header with no gap, its
+   rounded top corners show up as a visible curve right below the column
+   headings. The outer `.gp-contact-table` box already owns the card's
+   overall rounding; the body only needs to keep its bottom corners, to
+   match that outer box's own bottom radius. */
+.gp-contact-table .table-scroll {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
 .gp-contact-table th {
   color: #8a6f57 !important;
   border-bottom: 2px solid rgba(242, 153, 74, 0.25) !important;
+  /* Matches the 10px heading size the other Directory tables use
+     (people-glass.css etc.) — this table's own default (shared with
+     Performance's tables via TableManager) is 9.5px. */
+  font-size: 10px !important;
 }
 .gp-contact-table td {
   border-bottom-color: rgba(150, 100, 50, 0.1) !important;

@@ -376,6 +376,14 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   border-radius: var(--pl-r-lg);
   overflow: hidden;
 }
+/* The scrollbar track used to run the full height of the card, alongside
+   the sticky 40px header — pushing it down so it only travels next to the
+   actual data rows, not the header. Measured, not guessed: the header's
+   real rendered height on this table is 40px. */
+.mcm-page .perf-live .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
 
 /* Header — translucent light tint, uppercase muted slate. */
 /* The header is `sticky` (table-manager.tsx), so it sits over rows as the

@@ -289,6 +289,14 @@ body.perf-warm-backdrop .mcm-page .grouped-row .grouped-stat-divider {
   border-radius: 20px;
   overflow: hidden;
 }
+/* The scrollbar track used to run the full height of the card, alongside
+   the sticky 40px header — pushing it down so it only travels next to the
+   actual data rows, not the header. Measured, not guessed: the header's
+   real rendered height on this table is 40px. */
+.mcm-page .perf-queues .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
 
 /* Sticky header — near-opaque frosted fill so scrolling rows never bleed
    through the header text, plus a hairline shadow to seat it above them. */

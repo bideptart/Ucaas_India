@@ -156,6 +156,15 @@ body.perf-warm-backdrop .perf-speech {
   border-radius: 20px;
   overflow: hidden;
 }
+/* The scrollbar track used to run the full height of the card, alongside
+   the sticky 40px header — pushing it down so it only travels next to the
+   actual data rows, not the header. Measured, not guessed: the header's
+   real rendered height on this table is 40px. Applies to both tables on
+   this page (Topics, Agent sentiment). */
+.perf-speech .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
 .perf-speech .table-scroll thead {
   background: rgba(255, 246, 238, 0.97);
   backdrop-filter: var(--sp-glass-blur);

@@ -154,6 +154,14 @@ body.perf-warm-backdrop.dark {
   border-radius: 20px;
   overflow: hidden;
 }
+/* The scrollbar track used to run the full height of the card, alongside
+   the sticky 40px header — pushing it down so it only travels next to the
+   actual data rows, not the header. Measured, not guessed: the header's
+   real rendered height on this table is 40px. */
+.perf-flows .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
 .perf-flows .table-scroll thead {
   background: rgba(255, 250, 244, 0.97);
   backdrop-filter: blur(16px);

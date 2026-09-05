@@ -94,6 +94,7 @@ function TableManager({
   clientSideSearch = false,
   renderSubComponent,
   splitStickyHeader = false,
+  stickyHeader = true,
   fixedPageRows,
   visibleRowCount,
   defaultPageSize,
@@ -157,6 +158,16 @@ function TableManager({
      otherwise-independent header table and body table still land on the
      same column boundaries. */
   splitStickyHeader?: boolean;
+  /* `position: sticky` on the header, combined with its own border-radius
+     corner cells, doesn't reliably clip in Chromium once an ancestor also
+     has a `transform` — a centered Dialog's `translate(-50%, -50%)` is
+     exactly that, so a table dropped into a modal shows square header
+     corners poking past the wrapper's rounded ones despite the same
+     corner-rounding classes that work everywhere else outside a transformed
+     ancestor. Opt out here for that case; every existing caller keeps the
+     sticky header (default true) since the bug only shows up combined with
+     a transformed ancestor, not on its own. */
+  stickyHeader?: boolean;
   /* Opt-in, and only meaningful together with splitStickyHeader. Locks the
      page size to this many rows (hides the "per page" picker, which would
      otherwise contradict "exactly N"), and pads a short last page out with
@@ -615,7 +626,7 @@ function TableManager({
         {splitColGroup}
         {!splitStickyHeader && (
           <TableHeader
-            className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10 isolate"
+            className={`bg-[#FBE2C8] text-black ${stickyHeader ? 'sticky top-0 left-0 z-10 isolate' : ''}`}
             style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
           >
             {/* bg-[#FBE2C8] + first/last:rounded-*-xl on each cell (not just
@@ -849,9 +860,17 @@ function TableManager({
            escape an ancestor that isn't also the scroll container, so this
            clips reliably. */
         <div className="rounded-xl border border-[rgba(225,200,165,0.9)] overflow-hidden">
+          {/* `rounded-xl` repeated here, matching the outer wrapper — a
+              second, distinct Chromium quirk from the sticky-header one
+              above: this div's own `overflow-auto` promotes it to a
+              scrolling layer, and that layer's paint doesn't reliably
+              respect an ANCESTOR's border-radius clip at the bottom edge
+              even when the ancestor's overflow-hidden works everywhere
+              else. Giving the scroller its own matching radius clips its
+              content directly instead of relying on the parent to do it. */}
           <div
             ref={tableScrollRef}
-            className={`overflow-auto table-scroll bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+            className={`overflow-auto table-scroll rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
             style={
               isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
             }

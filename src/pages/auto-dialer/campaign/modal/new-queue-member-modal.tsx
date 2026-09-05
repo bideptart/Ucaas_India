@@ -297,6 +297,13 @@ const QueueMemberModal = ({
               showPagination: false,
               isHeightSet: true,
               customClass: 'max-h-[500px]',
+              /* This table sits inside a centered Dialog (`translate(-50%,
+                 -50%)`), which is exactly the ancestor-transform case that
+                 breaks the sticky header's corner-rounding in Chromium — see
+                 `stickyHeader`'s own comment in table-manager.tsx. The list
+                 is short enough that a sticky header buys nothing here
+                 anyway. */
+              stickyHeader: false,
             }}
           />
         </div>

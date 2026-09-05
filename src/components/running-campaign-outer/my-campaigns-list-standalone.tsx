@@ -207,23 +207,27 @@ const MyCampaignListStandalone = () => {
     return Number(((value / total) * 100).toFixed(2));
   };
 
+  /* Reuses Performance's own `.tag pos/warn/neg/neu` tokens (Queues' SLA
+     pills read the same way: green for good, orange for in-progress, red
+     for stopped) instead of inventing colours here — same palette as the
+     rest of Performance, not a one-off. */
   const getStatusBadgeConfig = (status: string) => {
     const statusMap: Record<string, { label: string; className: string }> = {
       PROCESSING: {
         label: 'Processing',
-        className: 'bg-orange-50 border border-orange-200 text-orange-500',
+        className: 'tag warn',
       },
       COMPLETED: {
         label: 'Completed',
-        className: 'bg-emerald-50 border border-emerald-200 text-emerald-600',
+        className: 'tag pos',
       },
       PAUSE: {
         label: 'Pause',
-        className: 'bg-rose-50 border border-rose-200 text-rose-600',
+        className: 'tag neg',
       },
       NEW: {
         label: 'New',
-        className: 'bg-sky-50 border border-sky-200 text-sky-600',
+        className: 'tag neu',
       },
     };
 
@@ -232,7 +236,7 @@ const MyCampaignListStandalone = () => {
         label: String(status || 'Unknown')
           .toLowerCase()
           .replace(/\b\w/g, (char) => char.toUpperCase()),
-        className: 'bg-slate-50 border border-slate-200 text-slate-600',
+        className: 'tag neu',
       }
     );
   };
@@ -702,9 +706,7 @@ const MyCampaignListStandalone = () => {
                                   <p className="text-base font-semibold text-slate-900 truncate">
                                     {campaign?.name || 'Untitled Campaign'}
                                   </p>
-                                  <div
-                                    className={`px-3 py-1 w-fit whitespace-nowrap  text-center rounded-md text-xs font-medium ${statusBadge.className}`}
-                                  >
+                                  <div className={`w-fit whitespace-nowrap ${statusBadge.className}`}>
                                     {statusBadge.label}
                                   </div>
                                   {isJoined && (
@@ -755,7 +757,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-slate-400 transition-all duration-300"
+                                                  className="h-full bg-orange-100 transition-all duration-300"
                                                   style={{ width: `${pendingPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -768,7 +770,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-green-400 transition-all duration-300"
+                                                  className="h-full bg-teal-300 transition-all duration-300"
                                                   style={{ width: `${connectedPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -781,7 +783,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-orange-300 transition-all duration-300"
+                                                  className="h-full bg-red-300 transition-all duration-300"
                                                   style={{ width: `${notAnsweredPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -823,9 +825,14 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-slate-100 rounded-xs h-4 relative overflow-hidden">
+                                                {/* Popover content renders through a portal outside
+                                                    `.mcm-page`, so the `--live`/`--crit`/`--surface-*`
+                                                    custom properties the mini-bar above uses aren't in
+                                                    scope here — static Tailwind colors matching those
+                                                    same tokens instead. */}
+                                                <div className="w-full bg-orange-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-slate-400 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-orange-100 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${pendingPercentage}%` }}
                                                   />
                                                 </div>
@@ -852,9 +859,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-green-100 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-teal-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-green-400 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-teal-300 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${connectedPercentage}%` }}
                                                   />
                                                 </div>
@@ -881,9 +888,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-orange-100 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-red-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-orange-300 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-red-300 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${notAnsweredPercentage}%` }}
                                                   />
                                                 </div>

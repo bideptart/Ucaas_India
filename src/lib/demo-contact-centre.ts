@@ -2112,6 +2112,51 @@ export const demoCampaignRows = () => {
   });
 };
 
+/** `/api/call-queue/queue-involvement` — Performance ▸ Dialer's "Assigned
+ *  Queues" tab. Each queue gets a manager (a Manager/Supervisor/Sub Admin
+ *  role agent, not just whoever's first in the member list) and an
+ *  availability flag so the Join/Leave button has something to show. */
+export const demoCallQueueInvolvements = () => {
+  const managerByQueue: Record<string, string> = {
+    'demo-queue-sales': '1003',
+    'demo-queue-support': '1011',
+    'demo-queue-billing': '1002',
+    'demo-queue-onboarding': '1003',
+    'demo-queue-retention': '1011',
+  };
+
+  return DEMO_QUEUES.map((queue, index) => {
+    const memberRows = queue.memberExtensions
+      .map((extension) => DEMO_AGENTS.find((row) => row.extension === extension))
+      .filter(Boolean) as DemoAgent[];
+    const managerRow =
+      DEMO_AGENTS.find((row) => row.extension === managerByQueue[queue.uuid]) || memberRows[0];
+
+    return {
+      uuid: queue.uuid,
+      name: queue.name,
+      extension: String(9001 + index),
+      manager: JSON.stringify({
+        name: managerRow ? `${managerRow.first_name} ${managerRow.last_name}` : 'Unassigned',
+        role: managerRow?.role_name || 'Manager',
+        email: managerRow
+          ? `${managerRow.first_name}.${managerRow.last_name}@example.com`.toLowerCase()
+          : '',
+      }),
+      agent: [{ status: index % 2 === 0 ? 'Available' : 'On Break' }],
+      members: JSON.stringify(
+        memberRows.map((member) => ({
+          user_uuid: member.uuid,
+          extension: member.extension,
+          name: `${member.first_name} ${member.last_name}`,
+          email: `${member.first_name}.${member.last_name}@example.com`.toLowerCase(),
+          role: member.role_name,
+        })),
+      ),
+    };
+  });
+};
+
 /* ---------------------------------------------------------------------------
    The live half — presence and in-progress calls.
 

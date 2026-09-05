@@ -455,10 +455,20 @@
      never beat this rule no matter how specific it is. It has to live in
      this layer, right beside the rule it overrides, for specificity to
      decide normally. */
+  /* `:not(.filter-active)` on the resting rule (not just a separate,
+     more-specific `.filter-active` rule competing against it) is
+     deliberate: this stylesheet's rules sit behind a `@import` of the
+     Google Fonts URL, which makes the whole sheet's `cssRules` opaque to
+     script (a cross-origin-adjacent restriction) — harmless for
+     rendering, but it also seemed to make an otherwise-more-specific
+     added rule fail to win here in practice. Excluding the active case
+     directly in the resting selector removes the fight entirely: with
+     `.filter-active` present, this rule simply no longer matches, so
+     there's nothing left to out-specificity. */
   .mcm-page
     .perf-interactions
     .filters
-    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):not(.filter-active) {
     background: rgba(255, 255, 255, 0.75) !important;
     border: 1px solid rgba(249, 115, 22, 0.3) !important;
     color: #f97316 !important;
@@ -466,7 +476,20 @@
   .mcm-page
     .perf-interactions
     .filters
-    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):not(.filter-active):hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+  }
+  /* The Filter (funnel) toggle's own "on" state — call-history/index.tsx
+     adds `.filter-active` while the advanced filter panel is open. Same
+     gradient fill as :hover above, but persistent regardless of pointer
+     position, so the button itself is the indicator that the panel is
+     currently open, not just a hover affordance. */
+  .mcm-page
+    .perf-interactions
+    .filters
+    button.filter-active:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
     border-color: transparent !important;
     color: #ffffff !important;

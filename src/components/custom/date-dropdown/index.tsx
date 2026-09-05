@@ -1,11 +1,126 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import moment from 'moment';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Icon } from '@/assets/icons/icon';
 import { handleDate } from './constant';
 import CustomSelect from '../custom-select';
 import { Button } from '@/components/ui/button';
 import './date-picker-theme.css';
+
+/** Month/year picker in the calendar header — a hand-built dropdown
+ *  instead of `CustomSelect` (react-select). react-select's own
+ *  value-container/indicator padding couldn't be trimmed enough to match
+ *  a native `<select>`'s footprint, so using it here kept widening this
+ *  calendar past its own day-grid — tried twice, reverted both times.
+ *  This trigger is sized identically to the native select it replaces
+ *  (same box, border, chevron); only the open list — the one part CSS
+ *  could never restyle on a native `<select>` — is actually new here. */
+const MiniMonthYearSelect = ({
+  value,
+  options,
+  onChange,
+  variant,
+}: {
+  value: number;
+  options: { label: string; value: number }[];
+  onChange: (value: number) => void;
+  /* "September" needs real width; "2026" doesn't — sizing both the same
+     either clips the month name or gives the year control that much
+     unused space, widening the header (and with it the calendar) past
+     what it needs. */
+  variant: 'month' | 'year';
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [isOpen]);
+
+  const selected = options.find((option) => option.value === value);
+
+  return (
+    <div ref={rootRef} className="mcm-mini-select">
+      <button
+        type="button"
+        className={`mcm-mini-select-trigger mcm-mini-select-trigger-${variant}${isOpen ? ' is-open' : ''}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        {selected?.label}
+      </button>
+      {isOpen && (
+        <div className="mcm-mini-select-menu">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={`mcm-mini-select-option${option.value === value ? ' is-selected' : ''}`}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MONTH_OPTIONS = moment.months().map((label, value) => ({ label, value }));
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 12 }, (_, index) => CURRENT_YEAR - index).map(
+  (year) => ({ label: String(year), value: year }),
+);
+
+const renderDatePickerHeader = ({
+  date,
+  changeYear,
+  changeMonth,
+  decreaseMonth,
+  increaseMonth,
+  prevMonthButtonDisabled,
+  nextMonthButtonDisabled,
+}: any) => (
+  <div className="mcm-datepicker-header">
+    <button
+      type="button"
+      className="mcm-datepicker-nav"
+      onClick={decreaseMonth}
+      disabled={prevMonthButtonDisabled}
+    >
+      <ChevronLeft className="h-4 w-4" />
+    </button>
+    <MiniMonthYearSelect
+      value={date.getMonth()}
+      options={MONTH_OPTIONS}
+      onChange={changeMonth}
+      variant="month"
+    />
+    <MiniMonthYearSelect
+      value={date.getFullYear()}
+      options={YEAR_OPTIONS}
+      onChange={changeYear}
+      variant="year"
+    />
+    <button
+      type="button"
+      className="mcm-datepicker-nav"
+      onClick={increaseMonth}
+      disabled={nextMonthButtonDisabled}
+    >
+      <ChevronRight className="h-4 w-4" />
+    </button>
+  </div>
+);
 
 /** The label lives inside the same bordered box as the value — one card
  *  reading "FROM / Sep 2, 2026" — rather than a label floating above a
@@ -166,9 +281,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
           window.setTimeout(() => toDatePickerRef.current?.setOpen(true), 0);
         }}
         maxDate={moment().toDate()}
-        showMonthDropdown
-        showYearDropdown
-        dropdownMode="select"
+        renderCustomHeader={renderDatePickerHeader}
         dateFormat="MMM d, yyyy"
         calendarClassName="mcm-datepicker"
         className="mcm-date-input"
@@ -185,9 +298,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
         onChange={(date) => setDateRange((prev: any) => ({ ...prev, to: date }))}
         minDate={dateRange.from ? new Date(dateRange.from) : undefined}
         maxDate={moment().toDate()}
-        showMonthDropdown
-        showYearDropdown
-        dropdownMode="select"
+        renderCustomHeader={renderDatePickerHeader}
         dateFormat="MMM d, yyyy"
         calendarClassName="mcm-datepicker"
         className="mcm-date-input"

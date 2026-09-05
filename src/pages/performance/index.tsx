@@ -67,7 +67,7 @@ const Performance = () => {
   // The open view lives in the URL, the same `?view=` convention the calendar
   // uses. That makes a Performance view shareable and survive a refresh, and it
   // is what lets the area rail highlight the view you are actually on.
-  const { setParam, getParam } = useSearchParamManager();
+  const { getParam } = useSearchParamManager();
   const allTabKeys = useMemo(
     () => [...TABS.map((tab) => tab.key), ...WALLBOARD_TABS.map((tab) => tab.key)],
     [],
@@ -75,7 +75,6 @@ const Performance = () => {
   const viewParam = getParam('view');
   const activeTab =
     viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
-  const setActiveTab = (key: string) => setParam({ view: key });
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
   const [dropdownVal, setDropdownVal] = useState(() => ({
     value: handleDate('Today'),
@@ -327,16 +326,6 @@ const Performance = () => {
               <span className="dot green pulsing" />
               Live — updates every 2s
             </span>
-            <button
-              type="button"
-              className="btn primary sm"
-              onClick={() => {
-                setActiveTab('dashboards');
-                setSelectedQueueUuid(null);
-              }}
-            >
-              My dashboards
-            </button>
           </div>
         </div>
       </div>

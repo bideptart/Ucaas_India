@@ -32,6 +32,16 @@ const PerfStatCard = ({
      unopinionated about what that treatment looks like. Default 'none'
      adds nothing, so every existing usage renders exactly as before. */
   highlight = 'none',
+  /* Per-card icon wash/ink override — every existing caller keeps the
+     shared accent-wash/accent-ink pair by leaving these unset; a caller
+     that wants each tile's icon in its own colour (a dashboard-style KPI
+     row, one hue per metric) passes both together. */
+  iconBg,
+  iconColor,
+  /* Colours just the label text, independent of `tone` (which colours the
+     value) — for a single standout tile (e.g. "Top performer") without
+     touching every other card's label. */
+  labelColor,
 }: {
   label: string;
   value: ReactNode;
@@ -40,6 +50,9 @@ const PerfStatCard = ({
   tone?: StatCardTone;
   layout?: 'stacked' | 'inline';
   highlight?: 'none' | 'gold' | 'warning' | 'ai';
+  iconBg?: string;
+  iconColor?: string;
+  labelColor?: string;
 }) => {
   const highlightClass = highlight !== 'none' ? ` stat-hl-${highlight}` : '';
   if (layout === 'inline') {
@@ -70,7 +83,9 @@ const PerfStatCard = ({
       <div
         style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}
       >
-        <span className="k">{label}</span>
+        <span className="k" style={{ color: labelColor }}>
+          {label}
+        </span>
         {Icon && (
           <span
             className="stat-icon"
@@ -81,8 +96,8 @@ const PerfStatCard = ({
               height: 22,
               flex: 'none',
               borderRadius: 99,
-              background: 'var(--accent-wash)',
-              color: 'var(--accent-ink)',
+              background: iconBg ?? 'var(--accent-wash)',
+              color: iconColor ?? 'var(--accent-ink)',
             }}
           >
             <Icon style={{ width: 13, height: 13 }} />

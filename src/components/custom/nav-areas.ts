@@ -223,3 +223,32 @@ const externalViewPrefixes = (): { prefix: string; area: AreaId }[] =>
       return prefix ? [{ prefix, area }] : [];
     }),
   );
+
+/**
+ * Whether the signed-in company's plan admits a view.
+ *
+ * This lived only in `useAreaNav`, which decides what the rail renders — so a
+ * plan without AI got no "AI Wall" rail item, and that was the whole of the
+ * enforcement. The page behind the rail rendered whatever `?view=` asked for,
+ * so a pasted or bookmarked URL reached a wallboard the plan does not include.
+ *
+ * Both the rail and the page now ask this one function, which is the only way
+ * they cannot drift apart again. It reads the COMPANY plan rather than the
+ * role-scoped one, which is what the rail has always used — a view is part of
+ * what the company bought, not part of what this person may do.
+ *
+ * This is a commercial entitlement gate, not a security boundary: it decides
+ * what the console offers, and the server remains responsible for refusing
+ * data the plan does not cover.
+ */
+export const isViewAllowedByPlan = (
+  view: Pick<AreaView, 'feature'>,
+  companyPlanFeatures: any,
+): boolean => {
+  if (!view.feature) return true;
+  if (view.feature === 'video') return Boolean(companyPlanFeatures?.video?.IS_SHOW);
+  if (view.feature === 'ai') return Boolean(companyPlanFeatures?.ai?.IS_SHOW);
+  if (view.feature === 'queue')
+    return Boolean(companyPlanFeatures?.phone_system_action?.access?.QUEUE);
+  return true;
+};

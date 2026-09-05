@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import PhoneInput from 'react-phone-input-2';
 import { BellOff, MessageSquareText, PhoneMissed, Voicemail } from 'lucide-react';
 import { isUnchanged } from '@/lib/form-baseline';
+import AccountPageHead from '../account-page-head';
 import '@/components/mcm/mcm-page.css';
 
 /* What the save bar compares, which is not the raw form values.
@@ -131,15 +132,10 @@ const SettingsNotification = () => {
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <div className="mcm-adminpage-head">
-        <div className="mcm-adminpage-title">
-          <div className="mcm-adminpage-eyebrow">My Account</div>
-          <h1>Notifications</h1>
-          <p>
-            What you get told about, and whether it reaches you by email, in the browser, by text or
-            on the mobile app.
-          </p>
-        </div>
+      <AccountPageHead
+        title="Notifications"
+        about="What you get told about, and whether it reaches you by email, in the browser, by text or on the mobile app."
+      >
         {silentCount > 0 && (
           <div className="mcm-acct-note">
             <BellOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -149,7 +145,7 @@ const SettingsNotification = () => {
             </span>
           </div>
         )}
-      </div>
+      </AccountPageHead>
 
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">

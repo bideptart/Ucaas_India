@@ -14,6 +14,7 @@ import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-di
 import { mergeCallForwarding } from '@/lib/call-forwarding-record';
 import { Hash, PhoneIncoming, PhoneOutgoing } from 'lucide-react';
 import { isUnchanged } from '@/lib/form-baseline';
+import AccountPageHead from '../account-page-head';
 import '@/components/mcm/mcm-page.css';
 
 /* What the save bar compares, which is not the raw form values.
@@ -554,16 +555,10 @@ const IncomingCalls = () => {
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <div className="mcm-adminpage-head">
-        <div className="mcm-adminpage-title">
-          <div className="mcm-adminpage-eyebrow">My Account</div>
-          <h1>My Phone</h1>
-          <p>
-            Which of your devices ring, where calls go while you are away, and what happens when
-            nobody answers.
-          </p>
-        </div>
-      </div>
+      <AccountPageHead
+        title="My Phone"
+        about="Which of your devices ring, where calls go while you are away, and what happens when nobody answers."
+      />
 
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">

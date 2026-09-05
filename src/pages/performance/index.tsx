@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
+import { PhoneIncoming, AlarmClock, Info, TriangleAlert, RotateCw } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
@@ -7,6 +7,8 @@ import DateDropdown, { type DateDropdownHandle } from '@/components/custom/date-
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
 import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
+import { useCompanyFeatures } from '@/hooks/rbac';
+import { isViewAllowedByPlan } from '@/components/custom/nav-areas';
 import QueuesActivityTab from './queues-activity-tab';
 import CampaignActivityTab from './campaign-activity-tab';
 import AgentsTab from './agents-tab';
@@ -18,9 +20,10 @@ import CallbacksTab from './callbacks-tab';
 import SpeechTextTab from './speech-text-tab';
 import ReportsTab from './reports-tab';
 import { formatSecsToClock } from './format';
-import { useAnimatedNumber } from './use-animated-number';
 import { useTrend } from './use-trend';
 import HeroStatCard from './hero-stat-card';
+import AnimatedValue from './animated-value';
+import DataFreshness from './data-freshness';
 import GroupedStatCard from './grouped-stat-card';
 import '@/components/mcm/mcm-page.css';
 
@@ -31,14 +34,23 @@ import CallQueueContent from '@/pages/dashboard/call-dashboard/Call-queue-conten
 
 /**
  * Wallboards used to hang off Home as a second tab strip, which put a "Home"
- * tab inside Home. They are performance surfaces, so they live here — each one
- * still gated on the plan feature that gated it before.
+ * tab inside Home. They are performance surfaces, so they live here.
+ *
+ * The `feature` below is the plan entitlement each one needs. It used to be
+ * declared here and read by nothing — the comment claimed each wallboard was
+ * "still gated on the plan feature that gated it before", but the only
+ * enforcement was in the rail, which hides the link. `?view=ai-wallboard`
+ * typed, pasted or bookmarked rendered the AI wallboard on any plan.
+ *
+ * `isViewAllowedByPlan` is the same function the rail asks, so the link and
+ * the view can no longer disagree. The labels live in `nav-areas.ts` with the
+ * rest of the rail, so they are not repeated here.
  */
 const WALLBOARD_TABS = [
-  { key: 'live-wallboard', label: 'Live Wallboard', feature: null },
-  { key: 'ai-wallboard', label: 'AI Wallboard', feature: 'ai' },
-  { key: 'call-queue', label: 'Call Queue', feature: 'queue' },
-  { key: 'video-dashboard', label: 'Video Dashboard', feature: 'video' },
+  { key: 'live-wallboard', feature: undefined },
+  { key: 'ai-wallboard', feature: 'ai' },
+  { key: 'call-queue', feature: 'queue' },
+  { key: 'video-dashboard', feature: 'video' },
 ] as const;
 
 const TABS = [
@@ -56,6 +68,22 @@ const TABS = [
 
 const SHOW_KPI_HEADER_TABS = new Set(['queues-activity', 'campaign-activity', 'dashboards']);
 
+/**
+ * The views that actually read `useLiveContactCentre`.
+ *
+ * The hook polls queue configuration, the user roster and two REST reports. It
+ * used to run on all fourteen views because it is called at page level — so
+ * Reports, Speech & Text, Flows, Callbacks and every wallboard were polling
+ * queue and roster data none of them display. These four are the views that
+ * either show the KPI band or render queue/agent collections.
+ */
+const LIVE_DATA_TABS = new Set([
+  'queues-activity',
+  'campaign-activity',
+  'dashboards',
+  'agents',
+]);
+
 const slaTone = (sla: number | null): 'default' | 'success' | 'warning' | 'danger' => {
   if (sla === null) return 'default';
   if (sla >= 80) return 'success';
@@ -67,14 +95,37 @@ const Performance = () => {
   // The open view lives in the URL, the same `?view=` convention the calendar
   // uses. That makes a Performance view shareable and survive a refresh, and it
   // is what lets the area rail highlight the view you are actually on.
-  const { getParam } = useSearchParamManager();
+  /* `setParam` came back after upstream dropped it with the "My dashboards"
+     button: it is what corrects an unresolvable `?view=` below. */
+  const { setParam, getParam } = useSearchParamManager();
+  const { companyPlanFeatures } = useCompanyFeatures();
+
+  /* Wallboards the plan does not include are removed from the set of valid
+     views, so an unentitled `?view=` resolves to the default the same way a
+     misspelled one does. This is the page half of the gate the rail already
+     applies to its links. */
+  const allowedWallboardKeys = useMemo(
+    () =>
+      WALLBOARD_TABS.filter((tab) =>
+        isViewAllowedByPlan({ feature: tab.feature }, companyPlanFeatures),
+      ).map((tab) => tab.key as string),
+    [companyPlanFeatures],
+  );
   const allTabKeys = useMemo(
-    () => [...TABS.map((tab) => tab.key), ...WALLBOARD_TABS.map((tab) => tab.key)],
-    [],
+    () => [...TABS.map((tab) => tab.key), ...allowedWallboardKeys],
+    [allowedWallboardKeys],
   );
   const viewParam = getParam('view');
   const activeTab =
     viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
+  /* A `?view=` that does not resolve — misspelled, or a wallboard this plan
+     does not include — used to leave the bad value in the URL while the page
+     showed something else. The address bar then disagreed with the screen and
+     the rail could not highlight anything. `setParam` navigates with
+     `replace: true`, so correcting it costs no history entry. */
+  useEffect(() => {
+    if (viewParam && viewParam !== activeTab) setParam({ view: activeTab });
+  }, [viewParam, activeTab]);
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
   const [dropdownVal, setDropdownVal] = useState(() => ({
     value: handleDate('Today'),
@@ -134,15 +185,15 @@ const Performance = () => {
     isCdrSampled,
     isQueuesLoading,
     isAgentsLoading,
-  } = useLiveContactCentre(selectedRange);
+    failedSources,
+    hasSourceError,
+    lastUpdatedAt,
+    retryFailedSources,
+  } = useLiveContactCentre(selectedRange, { enabled: LIVE_DATA_TABS.has(activeTab) });
 
-  const waitingAnimated = useAnimatedNumber(waitingCalls.length);
-  const answeredAnimated = useAnimatedNumber(totals.answered);
-  const onlineAgentsAnimated = useAnimatedNumber(onlineAgentsCount);
-  const slAnimated = useAnimatedNumber(avgSla);
-  const abandonAnimated = useAnimatedNumber(abandonRate);
-  const ahtAnimated = useAnimatedNumber(avgHandleTime);
-  const occupancyAnimated = useAnimatedNumber(occupancy);
+  /* The seven `useAnimatedNumber` calls that used to sit here have moved into
+     `AnimatedValue`, which each card renders. They ran at page level, so every
+     animation frame re-rendered the whole page to repaint one tile. */
 
   // Trends read off the real polled value, not the animated display value —
   // the animated one is mid-flight for ~1.8s after every tick, which would
@@ -188,84 +239,6 @@ const Performance = () => {
           the design system's chips and its buttons — each with a different
           control height and border colour, which is what made the row look
           unsettled. This puts them on one baseline. */}
-      <style>{`
-        .mcm-page .perf-tbar {
-          display:flex; align-items:center; gap:10px 16px;
-          flex-wrap:wrap; margin-bottom:0;
-        }
-        .mcm-page .perf-tbar-group {
-          display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0;
-        }
-        .mcm-page .perf-tbar-end { margin-left:auto; }
-        .mcm-page .perf-tbar .fchip,
-        .mcm-page .perf-tbar .btn.sm { height:36px; border-radius:9px; }
-        /* the date dropdown ships its own grey border — align it to the tokens */
-        .mcm-page .perf-tbar input,
-        .mcm-page .perf-tbar select,
-        .mcm-page .perf-tbar [role="combobox"] { border-color:var(--line); }
-
-        /* Date range, division and media used to be three separately
-           bordered controls sitting side by side, reading as three
-           unrelated filters rather than one "what am I looking at" bar.
-           One pill, divided into segments, reads as a single filter. */
-        .mcm-page .perf-filter-pill {
-          display:flex; align-items:center; height:36px;
-          border:1px solid var(--line); border-radius:999px;
-          background:var(--surface); padding:0 2px;
-          /* The pill's own rounded look comes from its border-radius,
-             border and background — none of its children (plain text
-             segments, no backgrounds of their own) actually need
-             clipping to stay inside that shape. overflow:hidden was
-             blocking the "Date Range" floating panel below (a position:
-             absolute descendant of the date dropdown, several levels in)
-             from ever being visible: an ancestor's overflow:hidden clips
-             absolutely-positioned descendants too, regardless of their
-             own z-index. */
-          overflow:visible;
-        }
-        .mcm-page .perf-filter-pill .pf-seg {
-          display:flex; align-items:center; height:100%;
-          padding:0 14px; white-space:nowrap;
-          font-size:12px; font-weight:600; color:var(--ink-2);
-          border-left:1px solid var(--line);
-        }
-        .mcm-page .perf-filter-pill .pf-seg:first-child { border-left:none; padding-left:4px; }
-        .mcm-page .perf-filter-pill .pf-range { font-weight:500; color:var(--ink-3, #8b8478); }
-        /* The date dropdown is a react-select instance with its own control
-           chrome (border, background, padding) — strip that so it sits flush
-           as the pill's first segment instead of a select-box-in-a-pill. */
-        .mcm-page .perf-filter-pill .custom-react-select__control {
-          border:none !important; background:transparent !important;
-          box-shadow:none !important; min-height:34px !important;
-        }
-        .mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
-        .mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
-        /* The "Date Range" floating panel (DateDropdown's own
-           customPickerPlacement="bottom" markup) is right-0 against its
-           own narrow .relative wrapper — the date select itself, not the
-           toolbar. That wrapper sits right at the pill's left edge, so
-           anchoring the panel's right edge to it pushed the panel almost
-           entirely off-screen to the left. left-0 anchors its LEFT edge
-           there instead, opening the panel rightward into the open space
-           the rest of the toolbar already has. Everything else about the
-           panel's own look (background, padding, shadow, radius) is set
-           directly on it in date-dropdown/index.tsx now — it's a single
-           compact row, not the taller two-row card this override used to
-           also have to reshape. */
-        .mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
-          right:auto; left:0;
-        }
-        /* The toolbar's own "Sep 2 – Sep 3" segment — clickable once a
-           custom range is active, reopening the panel in one click instead
-           of needing the preset re-picked from the select beside it. */
-        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable {
-          cursor:pointer; border-radius:999px; margin:0 2px;
-          transition: background-color 0.15s ease, color 0.15s ease;
-        }
-        .mcm-page .perf-filter-pill .pf-range.pf-range-clickable:hover {
-          background: rgba(249,115,22,0.1); color:var(--accent-ink);
-        }
-      `}</style>
 
       <div className="page-bar">
         {/* The views moved into the area rail, the way the console navigates
@@ -316,16 +289,20 @@ const Performance = () => {
                 ) : (
                   <span className="pf-seg pf-range">{resolvedRangeLabel}</span>
                 ))}
-              <span className="pf-seg">Division: All</span>
-              <span className="pf-seg">Media: All</span>
+              {/* "Division: All" and "Media: All" sat here as two plain spans
+                  styled exactly like the working date control beside them.
+                  They had no handler and no state — they were filter-shaped
+                  text. Removed rather than left to be clicked; they belong
+                  back here as real controls when the filtering exists. */}
             </div>
           </div>
 
           <div className="perf-tbar-group perf-tbar-end">
-            <span className="fchip live">
-              <span className="dot green pulsing" />
-              Live — updates every 2s
-            </span>
+            {/* The hardcoded "updates every 2s" badge is replaced by a real
+                freshness reading. The "My dashboards" button that sat beside it
+                is gone — upstream removed it as non-functional, and the rail
+                already carries a Boards item pointing at the same view. */}
+            <DataFreshness updatedAt={lastUpdatedAt} />
           </div>
         </div>
       </div>
@@ -333,6 +310,28 @@ const Performance = () => {
       {SHOW_KPI_HEADER_TABS.has(activeTab) &&
         !(activeTab === 'queues-activity' && selectedQueueUuid) && (
           <div className="page-band">
+            {/* A feed that failed used to be invisible: every query defaults to
+                an empty list, so an unreachable API produced Waiting 0,
+                Answered 0 — the same screen a genuinely quiet contact centre
+                produces. Naming what could not be read, and offering to try
+                again, is the difference between "nobody is waiting" and "we
+                cannot tell you". */}
+            {hasSourceError && (
+              <div className="hero-error" role="alert">
+                <TriangleAlert className="hero-error-icon" />
+                <div className="hero-error-body">
+                  <p className="hero-error-t">Some figures below could not be read</p>
+                  <p className="hero-error-d">
+                    {failedSources.length} of 5 sources failed ({failedSources.join(', ')}). The
+                    cards they feed are showing the last value received, which may be out of date.
+                  </p>
+                </div>
+                <button type="button" className="btn sm hero-error-retry" onClick={retryFailedSources}>
+                  <RotateCw className="hero-error-retry-icon" />
+                  Try again
+                </button>
+              </div>
+            )}
             <div className="hero-notice">
               <Info className="hero-notice-icon" />
               <p className="page-note">
@@ -340,84 +339,10 @@ const Performance = () => {
                 now. Answered, Abandon rate and Avg handle time cover the selected date range.
               </p>
             </div>
-            <style>{`
-            /* Waiting / Longest wait are what a supervisor triages on first —
-               sized up and, past target, ringed so they're findable without
-               reading every tile. Everything else groups into three denser
-               cards instead of six single-metric ones. */
-            .mcm-page .hero-row {
-              display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-              align-items:start; gap:10px; margin-bottom:10px;
-            }
-            .mcm-page .hero-stat { padding:16px 18px; position:relative; }
-            .mcm-page .hero-stat-icon {
-              position:absolute; top:16px; right:18px;
-              display:grid; place-items:center; width:44px; height:44px; border-radius:99px;
-              background:var(--accent-wash); color:var(--accent-ink);
-            }
-            .mcm-page .hero-stat-icon-breach { background:var(--crit-wash); color:var(--crit); }
-            .mcm-page .hero-stat-value-row { display:flex; align-items:baseline; gap:8px; margin-top:6px; }
-            .mcm-page .hero-stat-value { font-size:38px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
-            .mcm-page .hero-stat-trend { font-size:18px; font-weight:800; line-height:1; }
-            .mcm-page .hero-stat-trend.bad { color:var(--crit); }
-            .mcm-page .hero-stat-trend.good { color:var(--live); }
-            .mcm-page .hero-stat-breach {
-              border-color: var(--crit);
-              box-shadow: 0 0 0 1px var(--crit);
-              animation: heroBreachPulse 1.8s ease-in-out infinite;
-            }
-            .mcm-page .hero-stat-breach .hero-stat-value { color: var(--crit); }
-            @keyframes heroBreachPulse {
-              0%, 100% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 0 var(--crit-wash); }
-              50% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 8px transparent; }
-            }
-
-            .mcm-page .grouped-row {
-              display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
-              /* "start" let each of the three cards size to its own content
-                 — Service's longer "target 80% in 20s" label made it taller
-                 than Volume/Coverage, so the row read as uneven. "stretch"
-                 (the grid default) makes every card fill the tallest one's
-                 height instead. */
-              align-items:stretch; gap:10px; margin-bottom:16px;
-            }
-            @media (min-width: 700px) {
-              .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            }
-            .mcm-page .grouped-stat { padding:14px 14px; height:100%; }
-            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:12px; margin-top:8px; }
-            .mcm-page .grouped-stat-metric { flex:1; min-width:0; }
-            .mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
-            .mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
-            .mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
-            .mcm-page .grouped-stat-trend.bad { color:var(--crit); }
-            .mcm-page .grouped-stat-trend.good { color:var(--live); }
-            /* Metric captions ("Service level · target 80% in 20s") — one
-               line, always. A metric that runs long ellipsizes rather than
-               wrapping and pushing its own card taller than its siblings.
-               .stat .d (mcm-page.css) is display:flex — text-overflow
-               doesn't reliably ellipsize on a flex container, it just hard
-               -clips the last character instead of showing an ellipsis,
-               which is what cut the final "s" off "20s". display:block
-               restores normal single-line text truncation. */
-            .mcm-page .grouped-stat-metric .d {
-              display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-            }
-
-            /* Reinforces "live" beyond the word itself — a soft glow that
-               breathes with the pulsing dot, not just a static badge. */
-            .mcm-page .fchip.live {
-              animation: liveBadgeGlow 2.4s ease-in-out infinite;
-            }
-            @keyframes liveBadgeGlow {
-              0%, 100% { box-shadow: 0 0 0 0 var(--live-wash); }
-              50% { box-shadow: 0 0 10px 1px var(--live-wash); }
-            }
-          `}</style>
             <div className="hero-row">
               <HeroStatCard
                 label="Waiting"
-                value={String(Math.round(waitingAnimated))}
+                value={<AnimatedValue value={waitingCalls.length} format={(n) => String(Math.round(n))} />}
                 sub={`across ${queues.length} ${queues.length === 1 ? 'queue' : 'queues'}`}
                 breaching={waitingCalls.length > 5}
                 trend={waitingTrend}
@@ -443,12 +368,12 @@ const Performance = () => {
                 title="Service"
                 primary={{
                   label: 'Service level · target 80% in 20s',
-                  value: avgSla === null ? '—' : `${Math.round(slAnimated)}%`,
+                  value: <AnimatedValue value={avgSla} format={(n) => `${Math.round(n)}%`} />,
                   tone: slaTone(avgSla),
                 }}
                 secondary={{
                   label: 'Avg handle time',
-                  value: avgHandleTime === null ? '—' : formatSecsToClock(ahtAnimated),
+                  value: <AnimatedValue value={avgHandleTime} format={formatSecsToClock} />,
                   trend: ahtTrend,
                   trendBadWhenUp: true,
                 }}
@@ -457,11 +382,11 @@ const Performance = () => {
                 title="Volume"
                 primary={{
                   label: `Answered · of ${callStats.totalCalls} calls`,
-                  value: String(Math.round(answeredAnimated)),
+                  value: <AnimatedValue value={totals.answered} format={(n) => String(Math.round(n))} />,
                 }}
                 secondary={{
                   label: abandonRate === null ? 'Abandon rate' : `Abandon · ${callStats.missedCalls} missed`,
-                  value: abandonRate === null ? '—' : `${Math.round(abandonAnimated)}%`,
+                  value: <AnimatedValue value={abandonRate} format={(n) => `${Math.round(n)}%`} />,
                   tone: abandonRate !== null && abandonRate > 5 ? 'danger' : 'default',
                   trend: abandonTrend,
                   trendBadWhenUp: true,
@@ -471,11 +396,11 @@ const Performance = () => {
                 title="Coverage"
                 primary={{
                   label: `On queue · of ${agentRows.length} active`,
-                  value: String(Math.round(onlineAgentsAnimated)),
+                  value: <AnimatedValue value={onlineAgentsCount} format={(n) => String(Math.round(n))} />,
                 }}
                 secondary={{
                   label: 'Occupancy · target 75–85%',
-                  value: occupancy === null ? '—' : `${Math.round(occupancyAnimated)}%`,
+                  value: <AnimatedValue value={occupancy} format={(n) => `${Math.round(n)}%`} />,
                 }}
               />
             </div>

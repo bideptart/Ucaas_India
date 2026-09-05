@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { PERF_QUERY_KEYS } from '@/hooks/use-live-contact-centre';
 import { Calendar, ChevronDown, Download, Info, LayoutGrid, Lock } from 'lucide-react';
 import { useContext, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -175,7 +176,10 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
   const needsLists = selectedId === 'contact-list-status';
 
   const { data: agentStatsRows = [], isPending: isAgentPending } = useQuery({
-    queryKey: ['performanceReportAgentSummary', selectedRange],
+    /* The same request the page hook makes, so it shares that cache entry
+       instead of fetching the identical 200-row report a second time under a
+       key of its own. */
+    queryKey: [PERF_QUERY_KEYS.agentReport, selectedRange],
     queryFn: () =>
       callReportAgentList({
         page: 1,

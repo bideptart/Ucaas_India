@@ -24,6 +24,7 @@ import EditGreeting from '../edit-greeting';
 import { SearchLine } from '@/assets/icons';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import AccountPageHead from '@/pages/settings/account-page-head';
 import '@/components/mcm/mcm-page.css';
 
 const GreetingContent: FC = () => {
@@ -218,19 +219,15 @@ const GreetingContent: FC = () => {
     },
   ];
 
-  /* This page is mounted twice: in the standalone media library, which has its
-     own sidebar, and under My Account > Media Files. The eyebrow says which
-     one you are standing in rather than claiming "My Account" in both. */
-  const inAccount = pathname.includes('/account/');
+  /* This page is mounted twice — in the standalone media library and under
+     My Account > Media Files — and an eyebrow here used to name which. The
+     slim head drops it: both mounts sit inside a rail that already shows and
+     highlights the area you are standing in, which is the same reason the
+     other six account pages no longer announce "My Account" either. */
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <div className="mcm-adminpage-head">
-        <div className="mcm-adminpage-title">
-          <div className="mcm-adminpage-eyebrow">{inAccount ? 'My Account' : 'Media library'}</div>
-          <h1>Media Files</h1>
-          <p>{typeBlurb[type] || typeBlurb.all}</p>
-        </div>
+      <AccountPageHead title="Media Files" about={typeBlurb[type] || typeBlurb.all}>
         <div className="mcm-adminpage-actions filters">
           <Input
             placeholder="Search files"
@@ -255,7 +252,7 @@ const GreetingContent: FC = () => {
             </Button>
           )}
         </div>
-      </div>
+      </AccountPageHead>
 
       <div className="mcm-acct-body">
         {/* The four libraries as a tab strip in the body rather than a row of

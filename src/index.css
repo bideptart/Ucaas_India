@@ -2111,48 +2111,62 @@
   color: var(--warn);
 }
 
-/* ── "How your calls reach you" on Basic Info ─────────────────────────────
-   A checklist that reports the person's real configuration, so an unfinished
-   step is visible here rather than discovered by a caller hearing silence. */
+/* -- "How your calls reach you": the setup checklist on Profile ---------
+   A card, not a bare list under a rule. It sits in the Profile aside beside
+   the coverage panel, and a section divided off with only a top border read
+   as leftover page rather than as a panel of its own.
+
+   Rewritten in the design tokens as well: it was built from 51 hard-coded
+   greys out of a cool palette (#101828, #667085, #e6e9f0) sitting inside a
+   warm, orange-accented app, which is why it looked borrowed from another
+   product. It is tighter than it was, too. It ran to 837px -- taller than
+   the viewport it shares with the form -- almost all of it padding, line
+   height and a third grid column. */
 .mcm-setupguide {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid #e6e9f0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 .mcm-setupguide header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .mcm-setupguide h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  color: #101828;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 .mcm-setupguide header p {
   margin: 3px 0 0;
-  font-size: 12.5px;
-  color: #667085;
-  max-width: 62ch;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  max-width: 46ch;
+  text-wrap: pretty;
 }
 .mcm-setupguide-pill {
   flex: none;
-  padding: 4px 11px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  background: #e7f6ee;
-  color: #087443;
+  white-space: nowrap;
+  background: var(--live-wash);
+  color: var(--live);
 }
 .mcm-setupguide-pill.warn {
-  background: #fdf0e0;
-  color: #96650d;
+  background: var(--warn-wash);
+  color: var(--warn);
 }
 
 .mcm-setupguide ol {
@@ -2161,82 +2175,95 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
+/* Icon, text, action. The action used to sit in a third grid column, which
+   on a 360px aside left the sentence beside it wrapping to five or six lines
+   against a button with nothing under it -- the single biggest reason this
+   panel ran so long. It now sits under the text it belongs to, so a row is
+   as tall as its content needs and no taller. */
 .mcm-setupguide li {
   display: grid;
-  grid-template-columns: 26px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 4px 10px;
   align-items: start;
-  padding: 14px 0;
-  border-bottom: 1px solid #f0f2f6;
+  padding: 11px 0;
+  border-top: 1px solid var(--line-2);
 }
-.mcm-setupguide li:last-child {
-  border-bottom: 0;
+.mcm-setupguide li:first-child {
+  border-top: 0;
+  padding-top: 2px;
 }
 .mcm-setupguide-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   margin-top: 1px;
 }
 .mcm-setupguide li.ok .mcm-setupguide-mark {
-  background: #e7f6ee;
-  color: #087443;
+  background: var(--live-wash);
+  color: var(--live);
 }
 .mcm-setupguide li.todo .mcm-setupguide-mark {
-  background: #fdf0e0;
-  color: #96650d;
+  background: var(--warn-wash);
+  color: var(--warn);
 }
 .mcm-setupguide-body h3 {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
-  color: #101828;
+  color: var(--ink);
 }
 .mcm-setupguide-status {
-  margin: 2px 0 0;
-  font-size: 13px;
+  margin: 1px 0 0;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #344054;
+  line-height: 1.4;
+  color: var(--live);
+  text-wrap: pretty;
 }
 .mcm-setupguide li.todo .mcm-setupguide-status {
-  color: #96650d;
+  color: var(--warn);
 }
 .mcm-setupguide-explain {
-  margin: 4px 0 0;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: #667085;
-  max-width: 68ch;
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  text-wrap: pretty;
 }
+/* Second column, under the text it acts on. */
 .mcm-setupguide-action {
-  flex: none;
-  align-self: center;
-  padding: 6px 12px;
-  border: 1px solid #d5dae5;
-  border-radius: 8px;
-  font-size: 12.5px;
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 8px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 11.5px;
   font-weight: 600;
-  color: #c96f1f;
+  color: var(--ink-2);
   text-decoration: none;
-  white-space: nowrap;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
 }
 .mcm-setupguide-action:hover {
-  background: #fff1e0;
-  border-color: #ffd9ad;
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
 }
-@media (max-width: 640px) {
-  .mcm-setupguide li {
-    grid-template-columns: 26px 1fr;
-  }
+.mcm-setupguide-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
   .mcm-setupguide-action {
-    grid-column: 2;
-    justify-self: start;
-    margin-top: 8px;
+    transition: none;
   }
 }
 

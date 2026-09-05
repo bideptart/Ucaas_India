@@ -608,3 +608,285 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
    (index.css `.mcm-pager*`) — plain white/gray with a solid orange current
    page — per explicit request to match that look exactly rather than
    re-theming it warm like the rest of this page. */
+
+/* ==================================================================
+   Page shell: toolbar and KPI band
+   ------------------------------------------------------------------
+   These rules used to be two `<style>{`...`}</style>` blocks rendered
+   inside `index.tsx` — about 150 lines of CSS living in the component
+   tree, invisible to anyone searching this folder's stylesheets, and
+   re-inserted into the document every time the KPI band mounted.
+   Moved here verbatim; the mobile corrections that follow at the end
+   of this file are the only behavioural change.
+   ================================================================== */
+.mcm-page .perf-tbar {
+  display:flex; align-items:center; gap:10px 16px;
+  flex-wrap:wrap; margin-bottom:0;
+}
+.mcm-page .perf-tbar-group {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0;
+}
+.mcm-page .perf-tbar-end { margin-left:auto; }
+.mcm-page .perf-tbar .fchip,
+.mcm-page .perf-tbar .btn.sm { height:36px; border-radius:9px; }
+/* the date dropdown ships its own grey border — align it to the tokens */
+.mcm-page .perf-tbar input,
+.mcm-page .perf-tbar select,
+.mcm-page .perf-tbar [role="combobox"] { border-color:var(--line); }
+
+/* Date range, division and media used to be three separately
+   bordered controls sitting side by side, reading as three
+   unrelated filters rather than one "what am I looking at" bar.
+   One pill, divided into segments, reads as a single filter. */
+.mcm-page .perf-filter-pill {
+  display:flex; align-items:center; height:36px;
+  border:1px solid var(--line); border-radius:999px;
+  background:var(--surface); padding:0 2px;
+  /* The pill's own rounded look comes from its border-radius,
+ border and background — none of its children (plain text
+ segments, no backgrounds of their own) actually need
+ clipping to stay inside that shape. overflow:hidden was
+ blocking the "Date Range" floating panel below (a position:
+ absolute descendant of the date dropdown, several levels in)
+ from ever being visible: an ancestor's overflow:hidden clips
+ absolutely-positioned descendants too, regardless of their
+ own z-index. */
+  overflow:visible;
+}
+.mcm-page .perf-filter-pill .pf-seg {
+  display:flex; align-items:center; height:100%;
+  padding:0 14px; white-space:nowrap;
+  font-size:12px; font-weight:600; color:var(--ink-2);
+  border-left:1px solid var(--line);
+}
+.mcm-page .perf-filter-pill .pf-seg:first-child { border-left:none; padding-left:4px; }
+.mcm-page .perf-filter-pill .pf-range { font-weight:500; color:var(--ink-3, #8b8478); }
+/* The date dropdown is a react-select instance with its own control
+   chrome (border, background, padding) — strip that so it sits flush
+   as the pill's first segment instead of a select-box-in-a-pill. */
+.mcm-page .perf-filter-pill .custom-react-select__control {
+  border:none !important; background:transparent !important;
+  box-shadow:none !important; min-height:34px !important;
+}
+.mcm-page .perf-filter-pill .custom-react-select__value-container { padding-left:14px; }
+.mcm-page .perf-filter-pill .custom-react-select__indicator-separator { display:none; }
+/* The "Date Range" floating panel (DateDropdown's own
+   customPickerPlacement="bottom" markup) is right-0 against its
+   own narrow .relative wrapper — the date select itself, not the
+   toolbar. That wrapper sits right at the pill's left edge, so
+   anchoring the panel's right edge to it pushed the panel almost
+   entirely off-screen to the left. left-0 anchors its LEFT edge
+   there instead, opening the panel rightward into the open space
+   the rest of the toolbar already has. Everything else about the
+   panel's own look (background, padding, shadow, radius) is set
+   directly on it in date-dropdown/index.tsx now — it's a single
+   compact row, not the taller two-row card this override used to
+   also have to reshape. */
+.mcm-page .perf-filter-pill [class*="right-0"][class*="top-full"] {
+  right:auto; left:0;
+}
+/* The toolbar's own "Sep 2 – Sep 3" segment — clickable once a
+   custom range is active, reopening the panel in one click instead
+   of needing the preset re-picked from the select beside it. */
+.mcm-page .perf-filter-pill .pf-range.pf-range-clickable {
+  cursor:pointer; border-radius:999px; margin:0 2px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.mcm-page .perf-filter-pill .pf-range.pf-range-clickable:hover {
+  background: rgba(249,115,22,0.1); color:var(--accent-ink);
+}
+      
+
+/* Waiting / Longest wait are what a supervisor triages on first —
+   sized up and, past target, ringed so they're findable without
+   reading every tile. Everything else groups into three denser
+   cards instead of six single-metric ones. */
+.mcm-page .hero-row {
+  display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items:start; gap:10px; margin-bottom:10px;
+}
+.mcm-page .hero-stat { padding:16px 18px; position:relative; }
+.mcm-page .hero-stat-icon {
+  position:absolute; top:16px; right:18px;
+  display:grid; place-items:center; width:44px; height:44px; border-radius:99px;
+  background:var(--accent-wash); color:var(--accent-ink);
+}
+.mcm-page .hero-stat-icon-breach { background:var(--crit-wash); color:var(--crit); }
+.mcm-page .hero-stat-value-row { display:flex; align-items:baseline; gap:8px; margin-top:6px; }
+.mcm-page .hero-stat-value { font-size:38px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
+.mcm-page .hero-stat-trend { font-size:18px; font-weight:800; line-height:1; }
+.mcm-page .hero-stat-trend.bad { color:var(--crit); }
+.mcm-page .hero-stat-trend.good { color:var(--live); }
+.mcm-page .hero-stat-breach {
+  border-color: var(--crit);
+  box-shadow: 0 0 0 1px var(--crit);
+  animation: heroBreachPulse 1.8s ease-in-out infinite;
+}
+.mcm-page .hero-stat-breach .hero-stat-value { color: var(--crit); }
+@keyframes heroBreachPulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 0 var(--crit-wash); }
+  50% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 8px transparent; }
+}
+
+.mcm-page .grouped-row {
+  display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
+  /* "start" let each of the three cards size to its own content
+     — Service's longer "target 80% in 20s" label made it taller
+     than Volume/Coverage, so the row read as uneven. "stretch"
+     (the grid default) makes every card fill the tallest one's
+     height instead. */
+  align-items:stretch; gap:10px; margin-bottom:16px;
+}
+@media (min-width: 700px) {
+  .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.mcm-page .grouped-stat { padding:14px 14px; height:100%; }
+.mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:12px; margin-top:8px; }
+.mcm-page .grouped-stat-metric { flex:1; min-width:0; }
+.mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
+.mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
+.mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
+.mcm-page .grouped-stat-trend.bad { color:var(--crit); }
+.mcm-page .grouped-stat-trend.good { color:var(--live); }
+/* Metric captions ("Service level · target 80% in 20s") — one
+   line, always. A metric that runs long ellipsizes rather than
+   wrapping and pushing its own card taller than its siblings.
+   .stat .d (mcm-page.css) is display:flex — text-overflow
+   doesn't reliably ellipsize on a flex container, it just hard
+   -clips the last character instead of showing an ellipsis,
+   which is what cut the final "s" off "20s". display:block
+   restores normal single-line text truncation. */
+.mcm-page .grouped-stat-metric .d {
+  display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* Reinforces "live" beyond the word itself — a soft glow that
+   breathes with the pulsing dot, not just a static badge. */
+.mcm-page .fchip.live {
+  animation: liveBadgeGlow 2.4s ease-in-out infinite;
+}
+@keyframes liveBadgeGlow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--live-wash); }
+  50% { box-shadow: 0 0 10px 1px var(--live-wash); }
+}
+  
+
+/* ------------------------------------------------------------------
+   Narrow screens
+   ------------------------------------------------------------------
+   Two rules above are right on a wide screen and wrong on a phone,
+   because both exist to keep cards that SHARE A ROW the same height.
+   Below the breakpoint where the cards stack one per row, that
+   benefit is gone and only the cost remains.
+   ------------------------------------------------------------------ */
+@media (max-width: 699px) {
+  /* `.grouped-stat-metric .d` clips its caption to one line so a longer
+     label cannot make its card taller than its siblings. Stacked, there
+     are no siblings on the row — and the clipping was eating the part
+     that carries the meaning: "Service level · target 80% i…",
+     "Occupancy · target 75–85…". A target nobody can read is not a
+     target. */
+  .mcm-page .grouped-stat-metric .d {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* The band's legend is the only thing on the page that says which figures
+   are live and which cover the selected date range. It was truncated to
+   "Waiting, Longest wait, Service level, On queu…" — cut off exactly where
+   it starts to distinguish the two.
+
+   It is laid out as a single-line pill: the notice is a flex row with
+   `border-radius: 999px` and `overflow: hidden`, and the note inside it is
+   `white-space: nowrap`. That reads well on a wide screen and is unreadable
+   on a phone, so below the width where the sentence stops fitting the pill
+   becomes an ordinary rounded block and the text wraps.
+
+   Written at the same specificity as the pill rule above
+   (`body.perf-warm-backdrop .mcm-page .page-band …`) because a shorter
+   selector loses to it — which is exactly what happened on the first
+   attempt at this fix. */
+@media (max-width: 780px) {
+  body.perf-warm-backdrop .mcm-page .page-band .hero-notice {
+    align-items: flex-start;
+    border-radius: var(--r, 12px);
+  }
+  body.perf-warm-backdrop .mcm-page .page-band .hero-notice .page-note {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Unreadable-source banner
+   ------------------------------------------------------------------
+   Shown when one of the five feeds behind the KPI band fails. It sits
+   above the legend rather than replacing a card, because a failure is
+   usually partial — some cards are still true.
+   ------------------------------------------------------------------ */
+.mcm-page .hero-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--crit);
+  border-left-width: 3px;
+  border-radius: var(--r, 10px);
+  background: var(--crit-wash);
+}
+.mcm-page .hero-error-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+  color: var(--crit);
+}
+.mcm-page .hero-error-body {
+  flex: 1;
+  min-width: 0;
+}
+.mcm-page .hero-error-t {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--crit);
+}
+.mcm-page .hero-error-d {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.mcm-page .hero-error-retry {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.mcm-page .hero-error-retry-icon {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 620px) {
+  .mcm-page .hero-error {
+    flex-wrap: wrap;
+  }
+  .mcm-page .hero-error-retry {
+    margin-left: 28px;
+  }
+}
+
+/* The freshness badge's stale state. The live variant already exists
+   above; this is what it becomes when no feed has answered recently. */
+.mcm-page .fchip.stale {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.mcm-page .fchip .dot.amber {
+  background: var(--warn);
+}

@@ -6,6 +6,7 @@ import { POLICY_FIELDS, useCompanyPolicy, type PolicyField } from '@/lib/company
 import { getHolidaysFormVal, getHolidaysPayload, handleAlert } from '@/lib/utils';
 import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-directory';
 import { isUnchanged } from '@/lib/form-baseline';
+import AccountPageHead from '../account-page-head';
 import { CUSTOM_HOURS_SCHEDULE_OPTIONS } from '@/pages/admin-settings/numbers/set-number-forwarding/constants';
 import {
   FORWARDING_TAB_CONSTANT,
@@ -252,15 +253,10 @@ export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <div className="mcm-adminpage-head">
-        <div className="mcm-adminpage-title">
-          <div className="mcm-adminpage-eyebrow">My Account</div>
-          <h1>{heading}</h1>
-          <p>
-            Your own regional settings, business hours and call handling. Company-wide rules live
-            under Phone System → Preferences.
-          </p>
-        </div>
+      <AccountPageHead
+        title={heading}
+        about="Your own regional settings, business hours and call handling. Company-wide rules live under Phone System → Preferences."
+      >
         {!companyPolicy.isLoading && lockedCount > 0 && (
           <div className="mcm-acct-note">
             <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -270,7 +266,7 @@ export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
             </span>
           </div>
         )}
-      </div>
+      </AccountPageHead>
 
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">

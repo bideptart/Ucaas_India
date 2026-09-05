@@ -90,7 +90,7 @@
    JSX — these rules target the dialog's own class instead of an ancestor
    scope it will never actually be inside. */
 .gp-create-group-dialog {
-  background: #fffaf3;
+  background: #ffffff;
   border-color: rgba(242, 153, 74, 0.3);
   padding: 0;
   max-height: 85vh;

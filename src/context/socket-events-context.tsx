@@ -841,7 +841,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
   const [liveTranscriptionList, setLiveTranscriptionList] = useState<Array<any>>([]);
   const [callSummary, setCallSummary] = useState<any>(null);
-  const [userActivitiesList, setUserActivitiesList] = useState<Array<any>>([]);
+  const [userActivitiesList, setUserActivitiesList] = useState<any>([]);
   const [activityLoader, setActivityLoader] = useState<boolean>(false);
   const [ongoingCampaignActivity, setOngoingCampaignActivity] = useState<any>(null);
   const [omniChannelData, setOmniChannelData] = useState();

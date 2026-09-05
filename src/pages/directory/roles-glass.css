@@ -247,7 +247,7 @@
    untouched. Portaled to `document.body`, so scoped off its own class
    rather than an ancestor it never sits inside. ---- */
 .gp-assign-users-dialog {
-  background: #fffaf3;
+  background: #ffffff;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-assign-users-dialog .border-gray-200 {

@@ -167,7 +167,7 @@ const AgentsTab = ({
 
   return (
     <div className="perf-agents flex flex-col gap-3 px-[22px] py-4">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-8">
         <PerfStatCard
           label="Online"
           value={String(onlineCount)}

@@ -22,7 +22,7 @@ const buttonVariants = cva(
           'bg-white border border-primary text-primary shadow-xs hover:bg-primary/90 hover:text-white cursor-pointer min-h-10',
         secondary:
           'bg-gray-100 border border-gray-200 text-gray-900 shadow-xs hover:bg-gray-100/90 cursor-pointer min-h-10',
-        ghost: 'hover:bg-accent hover:text-accent dark:hover:bg-accent/50',
+        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
         transparent: 'text-gray-700 hover:text-primary cursor-pointer',
       },

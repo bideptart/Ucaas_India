@@ -906,7 +906,7 @@ function TableManager({
                 </Label>
               </div>
               <Button
-                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 hover:text-primary rounded-full border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 hover:text-white rounded-full border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleManualRefetch()}

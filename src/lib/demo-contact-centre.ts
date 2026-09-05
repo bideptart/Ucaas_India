@@ -2574,14 +2574,14 @@ const toLocalIso = (d: Date) => {
 };
 
 /** `user-activity-list` socket event — Performance ▸ Activity's per-hour timeline.
- *  The same pattern repeats over today and the two days before it, so a
- *  "This Week" range lands on populated hours instead of a screen of
- *  "No action" rows.
- *
- *  Nearly every hour carries a call — a handful are deliberately skipped
- *  (a lunch break, a couple of quiet night hours) so the day still reads as
- *  a real shift rather than a suspiciously perfect grid, while staying
- *  dense enough that the timeline never looks like it's mostly empty. */
+ *  Built around clear login/logout pairs rather than calls scattered across
+ *  the whole day — every call sits between the `online` that logged the
+ *  agent in and the `offline` that logged them out, the way a real shift
+ *  reads (no 2am calls with nobody logged in to take them). Four shifts
+ *  spread across the day, repeated over today and the two days before it,
+ *  so a "This Week" range stays populated and today's "so far" view has
+ *  already passed at least one full login-to-logout block no matter what
+ *  hour it happens to be when this is opened. */
 export const demoUserActivities = () => {
   const DEVICE_INFO = [
     {
@@ -2592,7 +2592,48 @@ export const demoUserActivities = () => {
     },
   ];
 
-  const SKIP_HOURS = new Set([2, 4, 12, 15, 20]);
+  const SHIFTS: Array<{
+    login: { h: number; m: number };
+    logout: { h: number; m: number };
+    calls: Array<{ h: number; m: number; direction: 'initiator' | 'recipient'; durationMin: number }>;
+  }> = [
+    {
+      login: { h: 0, m: 10 },
+      logout: { h: 1, m: 45 },
+      calls: [{ h: 0, m: 25, direction: 'recipient', durationMin: 6 }],
+    },
+    {
+      login: { h: 5, m: 2 },
+      logout: { h: 7, m: 10 },
+      calls: [
+        { h: 5, m: 20, direction: 'recipient', durationMin: 7 },
+        { h: 6, m: 15, direction: 'initiator', durationMin: 6 },
+      ],
+    },
+    {
+      login: { h: 10, m: 0 },
+      logout: { h: 13, m: 5 },
+      calls: [
+        { h: 10, m: 20, direction: 'recipient', durationMin: 6 },
+        { h: 11, m: 10, direction: 'initiator', durationMin: 8 },
+        { h: 12, m: 15, direction: 'recipient', durationMin: 5 },
+      ],
+    },
+    {
+      login: { h: 16, m: 0 },
+      logout: { h: 19, m: 30 },
+      calls: [
+        { h: 16, m: 20, direction: 'initiator', durationMin: 7 },
+        { h: 17, m: 15, direction: 'recipient', durationMin: 6 },
+        { h: 18, m: 30, direction: 'initiator', durationMin: 9 },
+      ],
+    },
+    {
+      login: { h: 21, m: 0 },
+      logout: { h: 22, m: 30 },
+      calls: [{ h: 21, m: 20, direction: 'recipient', durationMin: 5 }],
+    },
+  ];
 
   const activity: Array<{ id: string; timestamp: string; activity: string; data?: any }> = [];
   let seq = 0;
@@ -2602,50 +2643,43 @@ export const demoUserActivities = () => {
     dayStart.setDate(dayStart.getDate() - daysAgo);
     dayStart.setHours(0, 0, 0, 0);
 
-    for (let h = 0; h < 24; h++) {
-      if (h === 0) {
-        const at = new Date(dayStart);
-        at.setHours(0, 6, 0, 0);
-        activity.push({
-          id: `demo-act-${seq++}`,
-          timestamp: toLocalIso(at),
-          activity: 'online',
-          data: DEVICE_INFO,
-        });
-        continue;
-      }
-      if (h === 23) {
-        const at = new Date(dayStart);
-        at.setHours(23, 40, 0, 0);
-        activity.push({
-          id: `demo-act-${seq++}`,
-          timestamp: toLocalIso(at),
-          activity: 'offline',
-          data: DEVICE_INFO,
-        });
-        continue;
-      }
-      if (SKIP_HOURS.has(h)) continue;
+    const at = (h: number, m: number) => {
+      const d = new Date(dayStart);
+      d.setHours(h, m, 0, 0);
+      return d;
+    };
 
-      const at = new Date(dayStart);
-      const minute = 8 + ((h * 17) % 42);
-      at.setHours(h, minute, 0, 0);
-      const durationMin = 4 + (h % 6);
-      const endAt = new Date(at.getTime() + durationMin * 60000);
-      const direction = h % 2 === 0 ? 'initiator' : 'recipient';
+    SHIFTS.forEach((shift) => {
+      activity.push({
+        id: `demo-act-${seq++}`,
+        timestamp: toLocalIso(at(shift.login.h, shift.login.m)),
+        activity: 'online',
+        data: DEVICE_INFO,
+      });
+
+      shift.calls.forEach((call) => {
+        const startAt = at(call.h, call.m);
+        const endAt = new Date(startAt.getTime() + call.durationMin * 60000);
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(startAt),
+          activity: 'call_start',
+          data: { Direction: call.direction },
+        });
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(endAt),
+          activity: 'call_end',
+        });
+      });
 
       activity.push({
         id: `demo-act-${seq++}`,
-        timestamp: toLocalIso(at),
-        activity: 'call_start',
-        data: { Direction: direction },
+        timestamp: toLocalIso(at(shift.logout.h, shift.logout.m)),
+        activity: 'offline',
+        data: DEVICE_INFO,
       });
-      activity.push({
-        id: `demo-act-${seq++}`,
-        timestamp: toLocalIso(endAt),
-        activity: 'call_end',
-      });
-    }
+    });
   });
 
   return { data: [{ activity }] };

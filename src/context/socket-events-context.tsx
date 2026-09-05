@@ -841,6 +841,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
   const [liveTranscriptionList, setLiveTranscriptionList] = useState<Array<any>>([]);
   const [callSummary, setCallSummary] = useState<any>(null);
+  /* Not `Array<any>`. Both writers put an object here — the socket hands back
+     the server's `{ data: [...] }` response, and demo mode returns the same
+     shape from `demoUserActivities()` — and the only reader, the activity
+     feed, unwraps it as `userActivitiesList?.data`. Typed as an array, the
+     demo-mode write did not compile. Nothing about the runtime shape changes;
+     the annotation now matches what is actually stored. */
   const [userActivitiesList, setUserActivitiesList] = useState<any>([]);
   const [activityLoader, setActivityLoader] = useState<boolean>(false);
   const [ongoingCampaignActivity, setOngoingCampaignActivity] = useState<any>(null);

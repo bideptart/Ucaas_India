@@ -13,7 +13,7 @@
 
 /* Loaded once here rather than from each page. Every rule in it is scoped to
    an .mcm- class, so it changes nothing on pages that do not use them, and it
-   means a shared class like .mcm-stickyfoot works wherever it is applied
+   means a shared class like .mcm-savebar works wherever it is applied
    instead of only on the 31 files that happened to import the stylesheet. */
 @import './components/mcm/mcm-page.css';
 
@@ -2084,29 +2084,31 @@
 }
 
 /* Shown on My Phone when a call rule is displayed but was never stored — the
-   screen would otherwise claim voicemail is set while the switch hangs up. */
+   screen would otherwise claim voicemail is set while the switch hangs up.
+
+   Written in the design tokens rather than the hex literals it started with,
+   which matters for more than tidiness: it used to carry its own
+   `prefers-color-scheme: dark` override while nothing else on the page had
+   one. On a machine set to dark the app stayed light and this single notice
+   went near-black in the middle of it. The tokens follow the app's own theme
+   class, so it can no longer disagree with the page around it. */
 .mcm-notsaved {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  margin-bottom: 14px;
   padding: 12px 14px;
-  border: 1px solid #f0c088;
-  border-left: 3px solid #c2670a;
-  border-radius: 10px;
-  background: #fdf5e9;
-  color: #7a4406;
+  border: 1px solid color-mix(in srgb, var(--warn) 34%, var(--surface));
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r, 10px);
+  background: var(--warn-wash);
+  color: var(--ink-2);
   font-size: 13px;
   line-height: 1.5;
 }
 .mcm-notsaved strong {
   font-weight: 700;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .mcm-notsaved {
-    border-color: #6b4a1c;
-    background: #2a2013;
-    color: #e8c98d;
-  }
+  color: var(--warn);
 }
 
 /* ── "How your calls reach you" on Basic Info ─────────────────────────────

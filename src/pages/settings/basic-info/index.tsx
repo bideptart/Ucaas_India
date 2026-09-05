@@ -14,7 +14,7 @@ import '@/components/mcm/mcm-page.css';
 import { getUserDetails, mediaUploadUrl, userProfileUpdate } from '@/services/api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import CustomAvatar from '@/components/custom/custom-avatar';
@@ -104,6 +104,37 @@ const BasicInfoSettings = () => {
     setRemoveConfirmOpen(false);
   };
 
+  /* One place that turns a fetched record into form values, used both when
+     the record first arrives and when Discard throws away edits — so the two
+     can never drift apart. `reset` rather than `setValue` because it also
+     re-baselines the form: without that, `isDirty` stays true and the
+     unsaved-changes bar never goes away. */
+  const applyUserToForm = (user: any) => {
+    if (!user) return;
+    methods.reset({
+      basic: {
+        email: user.email || '',
+        site: {
+          label: user.site_detail?.name || 'Select',
+          value: user.site_uuid || '',
+        },
+        extension: user.extension ?? '',
+        phone: user.phone ?? '',
+        caller_id: user.caller_id ?? '',
+        job_title: user.job_title ?? '',
+        first_name: user.first_name ?? '',
+        last_name: user.last_name ?? '',
+      },
+      /* Root-level, not under `basic` — this is the key the upload flow and
+         the save payload both read. */
+      profile: user.profile ?? '',
+    });
+    setIsImageRemoved(false);
+    setImagePreview(null);
+  };
+
+  const handleDiscardChanges = () => applyUserToForm(userInfoData?.user_info);
+
   const { mutateAsync: uploadMediaMutate, isPending: uploadMediaLoad } = useMutation({
     mutationFn: mediaUploadUrl,
   });
@@ -182,150 +213,166 @@ const BasicInfoSettings = () => {
   };
 
   useEffect(() => {
-    if (userInfoData?.user_info) {
-      const user = userInfoData?.user_info;
-      setValue('basic', {
-        email: user.email || '',
-        site: {
-          label: user.site_detail?.name || 'Select',
-          value: user.site_uuid || '',
-        },
-        extension: user.extension,
-        phone: user.phone,
-        caller_id: user.caller_id,
-        job_title: user.job_title,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        profile: user.profile,
-      });
-
-      setIsImageRemoved(false);
-    }
+    applyUserToForm(userInfoData?.user_info);
   }, [userInfoData]);
+
+  const info = userInfoData?.user_info;
+  const hasPhoto = Boolean(imagePreview || watch('profile'));
+
+  /* Read the live form, not the fetched record. The header is a preview of
+     what saving would publish to the directory, so typing a new name or job
+     title has to move it — reading `userInfoData` instead left it showing
+     the old values until a save round-tripped, which reads as the page
+     ignoring your input. Falls back to the record for the fields this form
+     does not own (extension, email, location). */
+  const watchedFirst = watch('basic.first_name');
+  const watchedLast = watch('basic.last_name');
+  const watchedJobTitle = watch('basic.job_title');
+  const watchedSite = watch('basic.site');
+
+  const fullName =
+    `${watchedFirst ?? info?.first_name ?? ''} ${watchedLast ?? info?.last_name ?? ''}`.trim();
+  const jobTitle = (watchedJobTitle ?? info?.job_title ?? '').trim();
+  const siteName = (watchedSite?.label && watchedSite.label !== 'Select'
+    ? watchedSite.label
+    : info?.site_detail?.name || ''
+  ).trim();
+
+  /* The save bar only appears once there is something to save. A bar that
+     is always there is a permanent strip of chrome over the content, and it
+     cannot tell you whether you have pending edits — which is the one thing
+     it is well placed to say. Photo changes live outside the form state, so
+     they are counted separately. */
+  const hasUnsavedChanges =
+    methods.formState.isDirty || Boolean(imagePreview) || isImageRemoved;
 
   return (
     <>
-      <section className="flex h-full w-full flex-col overflow-hidden bg-gray-200/15">
-        {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <div>
-            <p className="text-gray-900 font-semibold text-lg">Basic Info</p>
-            <p className="text-gray-500 text-xs">
-              Your name, job title and location as colleagues see them in the directory — and below,
-              how calls actually reach you.
+      {/* `.mcm-page` is what the form sections below are styled against
+          (`.mcm-fsec`, `.mcm-fgrid`, `.mcm-field`), so it wraps the page
+          rather than a div in the middle of it. It used to be applied with
+          a ten-property inline style undoing its own layout and font rules;
+          `.mcm-profile` sets what this page actually wants instead. */}
+      <section className="mcm-page mcm-admin mcm-acct">
+        <div className="mcm-adminpage-head">
+          <div className="mcm-adminpage-title">
+            <div className="mcm-adminpage-eyebrow">My Account</div>
+            <h1>Profile</h1>
+            <p>
+              Your name, job title and location as colleagues see them in the directory, alongside
+              the numbers that reach you.
             </p>
           </div>
         </div>
+
         {PendingUserData ? (
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="sm" />
           </div>
         ) : (
-          <div className="w-full flex-1 overflow-y-auto p-4">
-            <div className="mx-auto mb-4 w-full md:max-w-[80%]">
-              {/* Only the name/extension/location fields live under
-                  `user_info`; the call rules, settings and greetings are its
-                  siblings at the response root, so they are passed from there. */}
-              <HowCallsReachYou
-                userInfo={userInfoData?.user_info}
-                callForwarding={userInfoData?.call_forwarding}
-                settings={userInfoData?.settings}
-                greetings={userInfoData?.greetings}
-              />
-            </div>
-            <div className="mx-auto flex w-full flex-col gap-4 rounded-xl bg-white p-6 shadow-xs md:max-w-[80%]">
-              <div className="flex items-center gap-5 mb-6">
-                <label htmlFor="file-upload" className="relative shrink-0 cursor-pointer group">
-                  <div className="relative w-24 h-24 rounded-full ring-4 ring-white shadow-md overflow-hidden">
-                    {imagePreview || watch('profile') ? (
+          <div className="mcm-acct-body">
+            <div className="mcm-profile-grid">
+              <main className="mcm-profile-main">
+                {/* Who this record is, before any form field: photo, name,
+                    job title, and the two facts that identify a person on a
+                    phone system. */}
+                <div className="mcm-profile-id">
+                  <label htmlFor="file-upload" className="mcm-profile-photo">
+                    {hasPhoto ? (
                       <img
                         src={imagePreview || watch('profile')}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
+                        alt={fullName ? `${fullName}, profile photo` : 'Your profile photo'}
+                        width={88}
+                        height={88}
                         loading="lazy"
                       />
                     ) : (
                       <CustomAvatar
-                        size="96"
-                        name={`${userInfoData?.user_info?.first_name} ${userInfoData?.user_info?.last_name || ''}`}
+                        size="88"
+                        name={fullName}
                         showPresence={false}
-                        extension={userInfoData?.user_info?.extension}
-                        image={
-                          isImageRemoved
-                            ? null
-                            : imagePreview || watch('profile') || userInfoData?.user_info?.profile
-                        }
+                        extension={info?.extension}
+                        image={isImageRemoved ? null : imagePreview || watch('profile') || info?.profile}
                         isActivityInfo={false}
                       />
                     )}
-                    {/* Hover scrim over the whole photo makes "click to change"
-                        obvious without a permanently-visible badge competing
-                        with the picture itself. */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors">
-                      <Icon
-                        name="EditIcon"
-                        className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
+                    <span className="mcm-profile-photo-scrim">
+                      <Icon name="EditIcon" className="w-5 h-5" aria-hidden="true" />
+                    </span>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleChangeFile}
+                    />
+                  </label>
+
+                  <div className="mcm-profile-id-main">
+                    <h2 className="mcm-profile-id-name">{fullName || 'Your profile'}</h2>
+                    <p className={`mcm-profile-id-role ${jobTitle ? '' : 'is-empty'}`}>
+                      {jobTitle || 'No job title set'}
+                    </p>
+
+                    <div className="mcm-profile-id-facts">
+                      <div className="mcm-profile-fact">
+                        <span className="mcm-profile-fact-k">Extension</span>
+                        <span className="mcm-profile-fact-v">{info?.extension || '—'}</span>
+                      </div>
+                      <div className="mcm-profile-fact">
+                        <span className="mcm-profile-fact-k">Location</span>
+                        <span className={`mcm-profile-fact-v ${siteName ? '' : 'is-empty'}`}>
+                          {siteName || 'Not set'}
+                        </span>
+                      </div>
+                      <div className="mcm-profile-fact">
+                        <span className="mcm-profile-fact-k">Email</span>
+                        <span className="mcm-profile-fact-v">{info?.email || '—'}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <input
-                    id="file-upload"
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleChangeFile}
-                  />
-                </label>
-
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-semibold text-gray-900">Profile photo</p>
-                  <p className="text-xs text-gray-500">JPG or PNG. Recommended 400×400px.</p>
-                  <div className="flex items-center gap-4 mt-1.5">
-                    <label
-                      htmlFor="file-upload"
-                      className="text-xs font-semibold text-primary cursor-pointer hover:underline"
-                    >
-                      Upload new photo
-                    </label>
-                    {(imagePreview || watch('profile')) && (
-                      <button
-                        type="button"
-                        onClick={() => setRemoveConfirmOpen(true)}
-                        className="text-xs font-semibold text-red-600 cursor-pointer hover:underline"
-                      >
-                        Remove
-                      </button>
-                    )}
+                    <div className="mcm-profile-photo-actions">
+                      <label htmlFor="file-upload" className="is-upload">
+                        {hasPhoto ? 'Change photo' : 'Upload a photo'}
+                      </label>
+                      {hasPhoto && (
+                        <button
+                          type="button"
+                          onClick={() => setRemoveConfirmOpen(true)}
+                          className="is-remove"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <p className="mcm-profile-photo-hint">JPG or PNG, around 400×400px.</p>
                   </div>
                 </div>
-              </div>
-              <div
-                className="mcm-page"
-                style={
-                  {
-                    display: 'block',
-                    height: 'auto',
-                    minHeight: 0,
-                    overflow: 'visible',
-                    background: 'transparent',
-                    fontFamily: 'inherit',
-                    fontSize: 'inherit',
-                    lineHeight: 'inherit',
-                    '--sans': 'inherit',
-                    '--mono': 'inherit',
-                  } as CSSProperties
-                }
-              >
+
                 <FormProvider {...methods}>
-                  <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-5">
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <BasicInformation
                       isChooseTemplate={false}
                       isSiteDisabled={false}
                       customClass=""
                     />
-                    {basicInfoAccess?.edit && (
-                      <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-4">
+                    {basicInfoAccess?.edit && hasUnsavedChanges && (
+                      <div className="mcm-savebar" role="status">
+                        <span className="mcm-savebar-dot" aria-hidden="true" />
+                        <span className="mcm-savebar-text">
+                          Unsaved changes
+                          <span className="mcm-savebar-sub">
+                            These appear in the directory and on caller ID.
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          className="mcm-savebar-discard"
+                          onClick={handleDiscardChanges}
+                          disabled={PendingProfileUpdate}
+                        >
+                          Discard
+                        </button>
                         <Button
                           variant={'primary'}
                           type="submit"
@@ -335,7 +382,7 @@ const BasicInfoSettings = () => {
                              background/text-color classes since it has higher
                              specificity than a plain Tailwind utility class —
                              `!` forces these to win regardless. */
-                          className="!bg-primary !text-white !border-primary hover:!bg-primary/90 min-w-[130px] justify-center"
+                          className="!bg-primary !text-white !border-primary hover:!bg-primary/90 min-w-[128px] justify-center"
                         >
                           {PendingProfileUpdate ? (
                             <span className="flex items-center gap-2">
@@ -350,12 +397,21 @@ const BasicInfoSettings = () => {
                     )}
                   </form>
                 </FormProvider>
+              </main>
 
-                {/* The profile above says who you are; this says what happens
-                    when someone calls you, which is the part people arrive on
-                    this page looking for and could not previously see. */}
+              {/* What the system already knows, kept beside the form rather
+                  than above and below it. Only the name/extension/location
+                  live under `user_info`; the call rules, settings and
+                  greetings are its siblings at the response root. */}
+              <aside className="mcm-profile-aside">
+                <HowCallsReachYou
+                  userInfo={userInfoData?.user_info}
+                  callForwarding={userInfoData?.call_forwarding}
+                  settings={userInfoData?.settings}
+                  greetings={userInfoData?.greetings}
+                />
                 <CallSetupGuide userInfo={userInfoData} />
-              </div>
+              </aside>
             </div>
           </div>
         )}

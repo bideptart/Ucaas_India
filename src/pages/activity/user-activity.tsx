@@ -27,7 +27,7 @@ const UserActivity = () => {
   const { id } = useParams();
   const { userActivity, activityLoader } = useSocketEvents();
   const { user } = useUser();
-  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'America/Denver';
+  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'Asia/Kolkata';
   function getDate(date = new Date()) {
     return new Date(new Date(date)?.toLocaleString('en-US', { timeZone: timezone }));
   }

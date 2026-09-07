@@ -106,8 +106,19 @@ const messageStatus = function (key: string = '') {
 
   if (!key) return null;
 
+  /* Case-insensitive: the API sends lowercase status strings ("delivered",
+     "sent"), but this table's own keys are capitalized to match the labels
+     shown on screen. A straight `status[key]` lookup only ever matched the
+     Pending case (typed here as lowercase already), so every real
+     "delivered"/"success" message fell through to the default branch below
+     — rendering a delivered message with a triangle-alert warning icon and
+     the `neg` (error) class, the same way a genuine failure would. */
+  const normalizedKey = Object.keys(status).find(
+    (statusKey) => statusKey.toLowerCase() === key.toLowerCase(),
+  );
+
   return (
-    status[key as keyof typeof status] || (
+    (normalizedKey && status[normalizedKey as keyof typeof status]) || (
       <div className="mcm-bub-meta neg">
         <TriangleAlert width={12} height={12} />
         {key}
@@ -1864,10 +1875,10 @@ const Inbox = () => {
   };
 
   return (
-    <div className="mcm-inbox w-full h-full min-h-0 flex overflow-hidden bg-white">
+    <div className="mcm-inbox w-full h-full min-h-0 flex overflow-hidden bg-white dark:bg-[var(--mcm-surface)]">
       <section
         className={cn(
-          'h-full min-h-0 bg-white',
+          'h-full min-h-0 bg-white dark:bg-[var(--mcm-surface)]',
           isCompactLayout
             ? hasActiveConversation
               ? 'hidden'
@@ -1947,7 +1958,7 @@ const Inbox = () => {
       </section>
       <section
         className={cn(
-          'h-full min-h-0 w-full min-w-0 flex-1 bg-white',
+          'h-full min-h-0 w-full min-w-0 flex-1 bg-white dark:bg-[var(--mcm-surface)]',
           isCompactLayout ? (hasActiveConversation ? 'block' : 'hidden') : 'block',
         )}
       >

@@ -80,6 +80,26 @@
   --mcm-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
 }
 
+/* .mcm-col-stage/.mcm-thread (the conversation area) sit at --mcm-ground —
+   the same darkest tier as the app void behind the whole page — while the
+   sidebar column right next to it sits one tier up at --mcm-surface. In
+   light mode that reads fine (the ground tint is a pale #eef1f8, nowhere
+   near black), but in dark mode --mcm-ground is #080d12: the conversation
+   pane ends up visually darker than its own sidebar and reads as flat
+   black, not "the app's dark surface". Matching it to --mcm-surface (the
+   same elevation as the sidebar, since they're peer columns, not one
+   nested in the other) fixes that without inventing a new shade — bubble-in
+   below is bumped a tier lighter in the same rule so incoming bubbles stay
+   visually elevated off the now-lighter conversation background instead
+   of blending into it. */
+.dark .mcm-inbox .mcm-col-stage,
+.dark .mcm-inbox .mcm-thread {
+  background: var(--mcm-surface);
+}
+.dark .mcm-inbox .mcm-bub-in {
+  background: var(--mcm-surface-2);
+}
+
 /* Numbers line up column-to-column; the console uses mono for every figure. */
 .mcm-inbox .mcm-num {
   font-family: var(--mcm-mono);

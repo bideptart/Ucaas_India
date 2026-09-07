@@ -649,18 +649,20 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
                  `.perf-live`) — standalone Monitoring ▸ All Users keeps its
                  own existing (non-split, paginated) behaviour, unrelated to
                  the Directory-parity work done on the Performance side.
-                 Without `showPagination: false` the card had no bounded
-                 height to scroll within (table-manager.tsx only computes
-                 one when pagination is active), so it just grew to fit
-                 every row — no internal scrollbar, a sticky header with
-                 nothing to stick within as the *page* scrolled instead of
-                 the card, and a pagination bar at the bottom of an
-                 otherwise-unpaginated list. `visibleRowCount` (same
-                 approach as Agents, agents-tab.tsx) gives it the bounded
-                 height that was missing, matching every other Performance
-                 table. */
+                 `visibleRowCount` (same approach as Agents, agents-tab.tsx)
+                 is what actually bounds the card's height — in
+                 `splitStickyHeader` mode that height comes from
+                 `visibleRowCount * fixedRowHeight` regardless of
+                 `showPagination` (table-manager.tsx), so the pagination
+                 footer can render without the card losing its fixed
+                 6-row height or its internal scrollbar. `showPagination`
+                 was originally left `false` here on the assumption the
+                 two were linked; they aren't — the footer (page-size
+                 picker, record count, page numbers) is worth keeping for
+                 a live monitoring list that can hold more rows than fit
+                 on screen at once. */
               ...(embedded
-                ? { splitStickyHeader: true, showPagination: false, visibleRowCount: 6 }
+                ? { splitStickyHeader: true, showPagination: true, visibleRowCount: 6 }
                 : {}),
             }}
           />

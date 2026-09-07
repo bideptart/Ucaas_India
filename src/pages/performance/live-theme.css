@@ -197,13 +197,18 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .fchip.live .dot.green.pulsing {
    targets exactly this one state without data-freshness.tsx needing to
    know anything about this view's theme. */
 body.perf-warm-toolbar .mcm-page .perf-tbar .fchip:not(.live):not(.stale) {
-  background: rgba(255, 255, 255, 0.85);
+  /* Was near-white (`rgba(255,255,255,0.85)`) with a barely-there 20%-
+     opacity border — against this toolbar's already-pale `#fffaf4` tint
+     that read as almost no chip at all, just faint text floating with no
+     visible container. A warmer, more opaque peach fill + a stronger
+     border give it an actual edge to read against the toolbar. */
+  background: rgba(255, 237, 213, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  color: #64748b;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #9a3412;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 body.perf-warm-toolbar .mcm-page .perf-tbar .fchip:not(.live):not(.stale) .dot.amber {
   animation: perf-waiting-pulse 2s ease-out infinite;
@@ -248,13 +253,36 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm:hover {
   box-shadow: 0 3px 10px -3px rgba(249, 115, 22, 0.3);
 }
 
-/* Primary CTA ("My dashboards") — left to inherit `.btn.primary` at rest
-   AND on hover, exactly like Directory ▸ People's own "+ Invite person"
-   (people.tsx), the reference for this button: flat solid `--accent` at
-   rest, flat `--accent-ink` on hover (mcm-page.css), no gradient or glow.
-   No override needed here at all — this rule is kept only as the record
-   of that decision, so a future gradient/glow doesn't get re-added by
-   mistake assuming this toolbar wants its own treatment. */
+/* Primary CTA ("My dashboards") — the plain `.btn.primary` it started from
+   (mcm-page.css) is 40px tall with `--accent`/`--accent-ink`, a dull rust-
+   brown pairing tuned for the plain toolbar it normally sits on. Against
+   this view's warm glass toolbar, next to the slim ~34px "Waiting for
+   data" pill beside it, that read as both too tall/chunky and too muddy a
+   colour. Slimmed to match the pill's own height and given the same
+   sunset-orange gradient the rest of this view's warm accents use. */
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #fb923c, #ea580c) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.22);
+  transition:
+    filter 0.16s ease,
+    box-shadow 0.16s ease;
+}
+/* A brightness lift, not the flat darker rust-brown swap `.btn.primary`'s
+   own default hover (`--accent-ink`) would otherwise give it — a gradient
+   fill doesn't have a single flat colour to swap to a darker version of,
+   so the same "still clearly the same button, just lit up" feedback the
+   rest of this view's hover states use fits better here too. */
+body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
+  background: linear-gradient(135deg, #fb923c, #ea580c) !important;
+  filter: brightness(1.05);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+}
 
 /* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
    directly below the toolbar, rendered by the same Performance page shell,
@@ -1044,16 +1072,16 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Reinforces "live" beyond the word itself — a soft glow that
-   breathes with the pulsing dot, not just a static badge. */
-.mcm-page .fchip.live {
-  animation: liveBadgeGlow 2.4s ease-in-out infinite;
-}
-@keyframes liveBadgeGlow {
-  0%, 100% { box-shadow: 0 0 0 0 var(--live-wash); }
-  50% { box-shadow: 0 0 10px 1px var(--live-wash); }
-}
-  
+/* A pulsing `box-shadow` glow used to sit on this rule — meant to
+   reinforce "live" beyond the word itself, but with no page-scoping at
+   all (`.mcm-page .fchip.live`, not `.perf-live .fchip.live`), it applied
+   to every `.fchip.live` badge across the app (Directory's People,
+   Blocked, External, Favourites, Locations, Roles — anywhere the shared
+   `.fchip.live` chip renders), not just this one. The soft ring it added
+   around the badge's own existing border read as a double border/halo
+   rather than reinforcement. Removed rather than re-scoped: the badge's
+   own flat `--live-wash` background + `--live` text (mcm-page.css) already
+   says "live" on its own. */
 
 /* ------------------------------------------------------------------
    Narrow screens

@@ -50,10 +50,10 @@ const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => 
 
   return (
     <div className="relative flex items-start gap-3.5 group">
-      <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 shadow-[0_1px_4px_rgba(15,23,42,0.06)] shrink-0">
-        <Icon className="w-4.5 h-4.5 text-gray-500" />
+      <div className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-orange-50 border border-orange-100 shadow-[0_1px_4px_rgba(194,98,15,0.08)] shrink-0 transition-transform duration-150 group-hover:scale-105">
+        <Icon className="w-4.5 h-4.5 text-primary" />
       </div>
-      <div className="flex-1 min-w-0 flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3 transition-colors duration-150 group-hover:border-gray-200 group-hover:bg-gray-50/60">
+      <div className="flex-1 min-w-0 flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3.5 transition-all duration-150 group-hover:border-orange-100 group-hover:shadow-[0_4px_14px_rgba(194,98,15,0.06)]">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-gray-800">{agentName}</span>
@@ -61,7 +61,7 @@ const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => 
               <span className="text-[11px] text-gray-500">{item.label}</span>
             )}
             {typeof item.durationMin === 'number' && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-primary">
                 {item.durationMin} min
               </span>
             )}
@@ -249,11 +249,11 @@ const ActivityTimeStrips = ({
         className="border border-gray-200 rounded-2xl bg-white mb-4 shadow-[0_2px_10px_rgba(15,23,42,0.04)] overflow-hidden"
       >
         <AccordionTrigger className="flex items-center p-0 hover:no-underline">
-          <div className="flex items-center justify-between w-full bg-gray-50 border-b border-gray-100 px-4 py-3.5">
-            <span className="inline-flex items-center bg-white text-gray-800 text-xs font-bold px-3 py-1 rounded-full border border-gray-200">
+          <div className="flex items-center justify-between w-full bg-orange-50/60 border-b border-orange-100 px-4 py-3.5">
+            <span className="inline-flex items-center bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
               {activityDetails?.label}
             </span>
-            <span className="text-[11px] font-semibold text-gray-500 bg-white px-2.5 py-1 rounded-full border border-gray-200">
+            <span className="text-[11px] font-semibold text-primary bg-white px-2.5 py-1 rounded-full border border-orange-100">
               {feedItems.length} {feedItems.length === 1 ? 'event' : 'events'}
             </span>
           </div>
@@ -266,7 +266,7 @@ const ActivityTimeStrips = ({
             </div>
           ) : (
             <div className="relative">
-              <div className="absolute left-5 top-2 bottom-2 w-px bg-gray-200" />
+              <div className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-orange-200 via-gray-200 to-transparent" />
               <div className="space-y-3">
                 {feedItems.map((item) => (
                   <FeedRow key={item.id} item={item} agentName={agentName} />

@@ -429,7 +429,7 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
           },
           template: {
             /* A dot, the title, and the time beneath it. */
-            time: (schedule) => {
+            time: (schedule: any) => {
               const title = schedule?.title || '';
               const startDate = (schedule?.start as TZDate)?.toDate();
               const startTime = startDate ? moment(startDate).format('hh:mm A') : '';
@@ -470,7 +470,7 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                   <span class="${numberClass}">${dayNumber}</span>
                 </div>`;
             },
-            popupDetailDate: (isAllDay, start, end) => {
+            popupDetailDate: (isAllDay: any, start: any, end: any) => {
               const startDate = (start as TZDate).toDate();
               const endDate = (end as TZDate).toDate();
               const isSameDate = moment(startDate).isSame(endDate);
@@ -479,7 +479,7 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
                 ? `${moment(startDate).format('YYYY/MM/DD')}${isSameDate ? '' : ' - ' + moment(endDate).format('YYYY/MM/DD')}`
                 : `${moment(startDate).format('YYYY/MM/DD HH:mm')} - ${moment(endDate).format(endFormat)}`;
             },
-            popupDetailBody: (schedule) => {
+            popupDetailBody: (schedule: any) => {
               const link = schedule.body ?? '#';
               return `Join: <a href="${link}" target="_blank" rel="noopener noreferrer" style="color: blue; font-size:11px;">${link}</a>`;
             },
@@ -633,7 +633,14 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
     }, [filteredSchedules]);
 
     useEffect(() => {
-      const container = tuiRef.current;
+      /* `tuiRef` is typed `HTMLDivElement | any` (see its declaration) so
+         other call sites in this file can hand it library instances that
+         aren't real DOM nodes — but that same `any` erases the DOM typing
+         right here too, which is what made `querySelectorAll<HTMLElement>`
+         an "untyped function call" and left `bar` below implicitly `any`.
+         Narrowing to the real element type locally fixes both without
+         touching the ref's own (intentionally loose) declared type. */
+      const container = tuiRef.current as HTMLDivElement | null;
       if (!container) return;
 
       /* Same three colours as the dot (`.mcm-evt-dot` / `.is-task` /
@@ -776,7 +783,6 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
     const setRenderRangeText = () => {
       const instance = calendarInstRef.current;
       if (!instance) return;
-      const options = calendarInstRef.current.getOptions();
       const viewName = calendarInstRef.current.getViewName();
       let from = '';
       let to = '';

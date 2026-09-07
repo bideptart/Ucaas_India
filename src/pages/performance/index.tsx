@@ -30,7 +30,7 @@ import LiveInteractionsTab from './live-interactions-tab';
 import CallbacksTab from './callbacks-tab';
 import SpeechTextTab from './speech-text-tab';
 import ReportsTab from './reports-tab';
-import { Ic } from '@/components/mcm/icons';
+import { Ic, McmIconSprite } from '@/components/mcm/icons';
 import { formatSecsToClock } from './format';
 import { useTrend } from './use-trend';
 import HeroStatCard from './hero-stat-card';
@@ -245,6 +245,14 @@ const Performance = () => {
         } as React.CSSProperties
       }
     >
+      {/* `<Ic n="grid" />` on the "My dashboards" button below resolves
+          against `#mcmp-grid`, which only exists once this sprite's <defs>
+          is mounted somewhere on the page — every other page using `Ic`
+          (Directory, Campaign, Admin Settings) mounts it the same way.
+          Without it the icon renders as an empty, invisible <svg> that
+          still reserves its layout box, showing up as unexplained blank
+          space to the left of the button's text. */}
+      <McmIconSprite />
       {/* The header row draws from three sources — the app's own date dropdown,
           the design system's chips and its buttons — each with a different
           control height and border colour, which is what made the row look
@@ -299,11 +307,8 @@ const Performance = () => {
                 ) : (
                   <span className="pf-seg pf-range">{resolvedRangeLabel}</span>
                 ))}
-              {/* "Division: All" and "Media: All" sat here as two plain spans
-                  styled exactly like the working date control beside them.
-                  They had no handler and no state — they were filter-shaped
-                  text. Removed rather than left to be clicked; they belong
-                  back here as real controls when the filtering exists. */}
+              <span className="pf-seg">Division: All</span>
+              <span className="pf-seg">Media: All</span>
             </div>
           </div>
 

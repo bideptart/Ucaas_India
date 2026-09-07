@@ -834,9 +834,11 @@
     border-bottom-right-radius: 0 !important;
   }
   .mcm-date-preset.custom-react-select__menu {
-    background-color: rgba(255, 255, 255, 0.96) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
+    /* Pure opaque white, not a 96%-alpha + blur combo — the blur softened
+       whatever sat behind the menu instead of hiding it outright, and on
+       Performance's own busy backdrop (bold KPI figures right underneath)
+       that still read as visible ghosted text through the menu. */
+    background-color: #fff !important;
     border-radius: 14px !important;
     padding: 6px !important;
     border-color: rgba(242, 153, 74, 0.6) !important;

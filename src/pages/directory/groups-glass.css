@@ -264,9 +264,16 @@
 /* A solid orange fill across the whole row read as "orange background",
    not "selected item" — kept to a translucent wash plus the accent-lit
    left edge/text below, the same "orange signals, never fills" rule the
-   rest of the dark theme follows. */
+   rest of the dark theme follows.
+
+   0.14 alpha, composited over this row's actual surface (`--mcm-surface`
+   #111c26, not the page's darker ground), landed on a muted brown rather
+   than reading as "dark surface with an orange highlight" — the row's own
+   base is already lighter than the ground it's judged against. Dropped to
+   0.08 so the wash stays a genuine tint of the row's surface instead of a
+   distinct brown fill. */
 .dark .gp-groups .list-row.on {
-  background: rgba(249, 115, 22, 0.14);
+  background: rgba(249, 115, 22, 0.08);
   box-shadow: inset 3px 0 0 var(--mcm-accent, #f97316);
 }
 .dark .gp-groups .list-row.on {
@@ -284,9 +291,36 @@
 .dark .gp-groups .gp-ug-right-body {
   background: rgba(11, 20, 28, 0.6) !important;
 }
+/* Department Manager / Members' own person rows (`.bg-gray-100`, from the
+   shared `PersonRow`) resolve through `var(--accent-wash)` in the
+   unscoped light-mode rule below, which is `--mcm-surface-3` in dark —
+   one tier brighter than the panel surface these rows sit inside
+   (`--mcm-surface`, set above), so each row read as distinctly lighter
+   than its own card rather than "one step up from it". Stepping to
+   `--mcm-surface-2` keeps the row genuinely a step above its panel while
+   landing between it and `--mcm-surface-3`, not past it. */
+.dark .gp-groups .bg-gray-100 {
+  background: var(--mcm-surface-2, #16222c) !important;
+}
 .dark .gp-groups .bg-white.border.border-gray-200 {
   border-color: #1b2934 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+/* mcm-page.css's own `[class*='rounded-'].bg-white` rule (its shared
+   "glass card" treatment) outranks the plain `.bg-white` -> `--surface`
+   rule right above it — both are unlayered with the same 3-selector
+   specificity tier, but the more specific attribute-selector one wins
+   regardless of source order. That rule paints these three panels
+   (Description/Department Manager/Members) with `--glass-surface`, a
+   design meant to read as translucent glass over the *light* theme's warm
+   gradient backdrop. Dark mode has no gradient behind it, just the flat
+   page ground, so the same 0.6-alpha wash left the panels almost the same
+   shade as the page itself. Same surface tier `.gp-ug-detail-head` above
+   these panels already uses, so the whole right column reads as one
+   consistent elevation instead of two different translucency systems. */
+.dark .gp-groups [class*='rounded-']:not([class*='rounded-full']).bg-white {
+  background: var(--mcm-surface, #111c26) !important;
+  border-color: #1b2934 !important;
 }
 .dark .gp-create-group-dialog {
   background: #111c26;

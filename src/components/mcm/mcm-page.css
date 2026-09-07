@@ -2746,6 +2746,7 @@
   background: var(--surface-2);
 }
 
+
 /* ---- cards ----
    The hand-written rgba shadows read muddy beside the console's flat
    panels; the border carries the separation instead. */
@@ -4522,6 +4523,47 @@
   background: rgba(255, 255, 255, 0.45);
 }
 
+/* All Extensions — this table's own `.table-scroll` sits on an opaque
+   cream card, where the shared rule's `rgba(255,255,255,0.45)` all but
+   disappears (white-on-white). Same selector shape scoped through
+   `.mcm-allext`, so it matches the shared rule's specificity and wins on
+   being declared after it — a warm tint that actually reads here, the
+   same family of colour the Live Call Console next door already hovers
+   its own rows with. */
+.mcm-allext .table-scroll table tbody tr:hover {
+  background: rgba(251, 226, 200, 0.45);
+}
+/* Call Queue / Campaign — same fix as All Extensions above, same reason:
+   `.table-scroll` here also sits on an opaque cream card, where the shared
+   `rgba(255,255,255,0.45)` hover is invisible. */
+.mcm-callqueue .table-scroll table tbody tr:hover {
+  background: rgba(251, 226, 200, 0.45);
+}
+
+/* All Extensions — the vertical scrollbar track ran the full height of
+   the card, alongside the sticky 40px header, so it visually cut across
+   the header's rounded top-right corner instead of starting under it.
+   Same fix Performance ▸ Agents already uses for the same
+   `.table-scroll` + sticky-header combination (see agents-theme.css) —
+   pushed down to start below the header, thinned to sit clearly inside
+   the card's edge instead of crowding it. */
+.mcm-allext .table-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+  background: transparent;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(214, 163, 90, 0.35);
+  border-radius: 999px;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(214, 163, 90, 0.55);
+}
+
 /* ---- empty states sit directly on the glass ---- */
 .mcm-page .table-scroll .bg-white {
   background: transparent;
@@ -4765,11 +4807,6 @@
   border-radius: var(--r);
   background: #ffffff;
   box-shadow: var(--shadow-sm);
-  /* The tone shows as a bar down the leading edge rather than a coloured
-     icon tile, so four cards side by side stay quiet. */
-  box-shadow:
-    inset 4px 0 0 var(--stat-tone, var(--line)),
-    var(--shadow-sm);
 }
 
 .mcm-stat.is-live {
@@ -4785,13 +4822,34 @@
   --stat-tone: var(--line);
 }
 
+/* A waiting-call count is the one figure on this strip that means "go look
+   now" — a soft pulse on its edge is enough to say so without turning the
+   whole card into a warning banner. */
+.mcm-stat.is-alert {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--warn) 16%, transparent),
+    var(--shadow-sm);
+}
+
 .mcm-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   margin: 0;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-4);
+}
+
+/* Small and the same muted tone as the label, not a coloured tile — see the
+   note above the card rule on why this strip stays quiet. */
+.mcm-stat-label svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--stat-tone, var(--ink-4));
 }
 
 .mcm-stat-value {
@@ -4912,6 +4970,25 @@
   cursor: pointer;
 }
 
+/* The route filter: a native `<select>` popup can't be themed — its option
+   list renders with the OS's own font and highlight colour (blue on
+   Windows), not this app's. This trigger button opens the same rounded,
+   orange-hover menu every other dropdown in the console uses instead. */
+.mcm-console-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 132px;
+  transition: border-color 0.15s ease;
+}
+.mcm-console-select-trigger:hover {
+  border-color: rgba(214, 163, 90, 0.55);
+}
+.mcm-console-select-trigger[data-state='open'] {
+  border-color: var(--accent, #ea8a3f);
+}
+
 .mcm-console-search {
   display: flex;
   align-items: center;
@@ -4992,6 +5069,20 @@
   text-align: right;
 }
 
+/* Every column but Caller (1, which keeps the avatar block left) and
+   Actions (7, already right-aligned via `.is-right` above) — centred under
+   its own heading instead of pinned to the column's left edge. */
+.mcm-console-table thead th:nth-child(n + 2):not(.is-right),
+.mcm-console-table tbody td:nth-child(n + 2):not(.is-right) {
+  text-align: center;
+}
+/* `.mcm-console-route` is a flex row, which `text-align` on the cell
+   around it cannot center — flex items are positioned by the flex
+   properties, not the text-alignment of their container. */
+.mcm-console-table tbody td:nth-child(n + 2) .mcm-console-route {
+  justify-content: center;
+}
+
 .mcm-console-table tbody td {
   height: 72px;
   padding: 10px 10px;
@@ -5002,9 +5093,29 @@
   border-bottom: 0;
 }
 
-/* The call's state, down the leading edge of its row. */
-.mcm-console-table tbody td:first-child {
-  box-shadow: inset 4px 0 0 var(--row-edge, var(--line));
+/* Waiting calls need an agent right now; calls already connected don't. The
+   two spanning rows below split the list into those groups instead of
+   leaving them interleaved in whatever order the feed happens to send. */
+.mcm-console-table tbody tr.mcm-console-groupline td {
+  height: auto;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mcm-console-group.is-warn {
+  color: var(--warn);
+}
+.mcm-console-group.is-live {
+  color: var(--live);
 }
 
 .mcm-console-table tbody tr {
@@ -5163,6 +5274,17 @@
   padding: 48px 20px;
   text-align: center;
 }
+.mcm-console-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--surface-2, #f4ede4);
+  color: var(--ink-4);
+}
 .mcm-console-empty-title {
   margin: 0;
   font-size: 14px;
@@ -5181,6 +5303,73 @@
 .dark .mcm-console-search {
   background: var(--surface-solid);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Monitor — sunset-orange frosted glass, matching Performance ▸
+   Agents (agents-theme.css `.stat` / `.table-scroll`) so the KPI strip and
+   the call console read as the same material as the rest of Performance
+   instead of a flatter, opaque white. Scoped through `.mcm-monitoring`
+   (Monitoring's own page root) rather than touching `.mcm-stat` /
+   `.mcm-console-panel` directly — other screens share those two classes. */
+.mcm-monitoring .mcm-stat {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow:
+    0 10px 34px rgba(160, 95, 30, 0.14),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.mcm-monitoring .mcm-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
+}
+
+.mcm-monitoring .mcm-console-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 10px 34px rgba(160, 95, 30, 0.14),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+}
+.mcm-monitoring .mcm-console-table thead th {
+  background: rgba(255, 253, 251, 0.75) !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+}
+.mcm-monitoring .mcm-console-select,
+.mcm-monitoring .mcm-console-search {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+.dark .mcm-monitoring .mcm-stat,
+.dark .mcm-monitoring .mcm-console-panel {
+  background: rgba(17, 24, 39, 0.72);
+  border-color: rgba(251, 146, 60, 0.18);
+  box-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+.dark .mcm-monitoring .mcm-console-table thead th {
+  background: rgba(23, 15, 10, 0.8) !important;
+}
+.dark .mcm-monitoring .mcm-console-select,
+.dark .mcm-monitoring .mcm-console-search {
+  background: rgba(251, 146, 60, 0.08);
+  border-color: rgba(251, 146, 60, 0.18);
+}
+.mcm-monitoring .mcm-console-empty-icon {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+.dark .mcm-monitoring .mcm-console-empty-icon {
+  background: rgba(251, 146, 60, 0.14);
+  color: #fb923c;
 }
 
 /* ==================================================================

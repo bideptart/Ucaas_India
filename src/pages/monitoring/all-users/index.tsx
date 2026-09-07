@@ -146,24 +146,13 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
     [getCallInfoByExtension, isUserOnCallByPresence],
   );
 
-  const getRowClassName = (row: any) => {
-    // const status = allOngoingCalls?.[`${row?.original?.extension}_web`]?.['State'];
-    const extension = row?.original?.extension;
-
-    const callInfo = getCallInfoByExtension(extension);
-    const status = callInfo?.status || '';
-    switch (status) {
-      case 'ringing':
-      case 'waiting':
-        return 'bg-yellow-100';
-      case 'answered':
-      case 'bridged':
-      case 'on_hold':
-        return 'bg-green-100';
-      default:
-        return isUserOnCallByPresence(extension) ? 'bg-green-100' : '';
-    }
-  };
+  /* No more full-row colour wash — the Status cell's own `pl-tag` badge
+     now carries that signal on its own. The actual hover colour is a
+     scoped CSS rule (`.mcm-allext table tbody tr:hover` in mcm-page.css)
+     rather than a Tailwind class here — this table inherits
+     `.mcm-admin table tbody tr:hover`, which a same-specificity Tailwind
+     utility can't outrank. */
+  const getRowClassName = () => 'transition-colors';
 
   const clearPendingMonitorLock = useCallback((callId: string) => {
     const normalizedCallId = normalizeMonitorDialValue(callId);
@@ -552,7 +541,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
 
   return (
     <>
-      <section className="w-full overflow-x-auto overflow-y-hidden">
+      <section className="mcm-allext w-full overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
         {!embedded && (
           <MonitoringTopbarSlot>

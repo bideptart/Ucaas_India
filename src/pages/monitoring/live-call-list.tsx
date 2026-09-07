@@ -1,8 +1,14 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode, type ComponentType } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import CustomTooltip from '@/components/custom/custom-tooltip';
-import { Search } from 'lucide-react';
+import { Search, PhoneCall, Clock3, Gauge, Signal, ChevronDown } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 /**
  * The Live Call Console.
@@ -155,19 +161,137 @@ const LiveCallList = ({
     };
   }, [calls, startedAt]);
 
+  /* Waiting calls are the ones that need a supervisor's attention right
+     now, so they surface as their own group above the calls already being
+     handled instead of being interleaved with them in feed order. */
+  const waitingRows = useMemo(
+    () => visible.filter((call) => ['waiting', 'critical'].includes(getState(call))),
+    [visible, getState],
+  );
+  const activeRows = useMemo(
+    () => visible.filter((call) => !['waiting', 'critical'].includes(getState(call))),
+    [visible, getState],
+  );
+
+  const renderRow = (call: any) => {
+    const state = getState(call);
+    const began = startedAt(call);
+    const caller = call?.contact_name || 'Unknown caller';
+    const number = call?.caller_number || call?.caller_id_number || '';
+    const queue = prettyQueue(call?.forward_value || call?.queue_uuid);
+    const extension = call?.agent_extension;
+    const agent = extension ? getAgentName(extension) : '';
+    const isInbound = String(call?.direction || 'inbound').toLowerCase() === 'inbound';
+
+    return (
+      <tr
+        key={call?._id}
+        className={`is-${state}`}
+        style={{ ['--row-edge' as any]: STATE_EDGE[state] }}
+      >
+        <td>
+          <div className="mcm-console-caller">
+            <CustomAvatar name={caller} size="36" />
+            <div className="min-w-0">
+              <p className="mcm-console-caller-name">{caller}</p>
+              <p className="mcm-console-caller-number">{number}</p>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          <span className={`mcm-console-chip is-${state}`}>{STATE_LABEL[state]}</span>
+          <span className="mcm-console-note">{STATE_NOTE[state]}</span>
+        </td>
+
+        <td>
+          <span className="mcm-console-timer">
+            {began ? formatElapsed(Date.now() - began) : '--:--'}
+          </span>
+          <span className="mcm-console-note">MM:SS</span>
+        </td>
+
+        {/* One line, not three stacked chips. Of the old hops only
+            the queue varied between rows: the direction read
+            "Inbound" on every call, and the final hop repeated the
+            agent name from the very next column. The arrows implied
+            a left-to-right path while the chips were wrapping
+            downwards, so they pointed at nothing. Direction is kept
+            as a glyph because it can legitimately differ; the full
+            path stays available on hover. */}
+        <td>
+          <div
+            className="mcm-console-route"
+            title={`${isInbound ? 'Inbound' : 'Outbound'} → ${queue || 'Direct'} → ${
+              agent || 'Unassigned'
+            }`}
+          >
+            <span
+              className={`mcm-console-dir ${isInbound ? 'is-in' : 'is-out'}`}
+              aria-label={isInbound ? 'Inbound' : 'Outbound'}
+            >
+              {isInbound ? '↘' : '↗'}
+            </span>
+            <span className="mcm-console-hop">{queue || 'Direct'}</span>
+          </div>
+        </td>
+
+        <td>
+          {agent ? (
+            <>
+              <p className="mcm-console-agent">{agent}</p>
+              <p className="mcm-console-note">
+                Ext. {extension}
+                {isAgentOnline(extension) ? ' · Online' : ''}
+              </p>
+            </>
+          ) : (
+            <p className="mcm-console-note">Waiting for agent</p>
+          )}
+        </td>
+
+        <td>
+          {/* Deliberately empty of a value. See the file header:
+              there is no quality figure in the feed, and a
+              monitoring screen must not invent one. */}
+          <CustomTooltip text="Call quality is not reported by the calling platform yet">
+            <span className="mcm-console-quality">—</span>
+          </CustomTooltip>
+        </td>
+
+        <td className="is-right">{cell('Actions', call)}</td>
+      </tr>
+    );
+  };
+
   return (
     <div className="mcm-console">
       <div className="mcm-console-stats">
-        <StatCard tone="live" label="Active calls" value={String(stats.active)} note="In progress" />
-        <StatCard tone="warn" label="Waiting calls" value={String(stats.waiting)} note="In queue" />
+        <StatCard
+          tone="live"
+          icon={PhoneCall}
+          label="Active calls"
+          value={String(stats.active)}
+          note="In progress"
+        />
+        <StatCard
+          tone="warn"
+          icon={Clock3}
+          label="Waiting calls"
+          value={String(stats.waiting)}
+          note="In queue"
+          alert={stats.waiting > 0}
+        />
         <StatCard
           tone="hold"
+          icon={Gauge}
           label="Average duration"
           value={stats.meanDuration}
           note="Connected calls"
         />
         <StatCard
           tone="muted"
+          icon={Signal}
           label="Call quality"
           value="—"
           note="Not available"
@@ -187,19 +311,26 @@ const LiveCallList = ({
           </div>
 
           <div className="mcm-console-tools">
-            <select
-              className="mcm-console-select"
-              value={route}
-              onChange={(event) => setRoute(event.target.value)}
-              aria-label="Filter by route"
-            >
-              <option value="all">All routes</option>
-              {routes.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="mcm-console-select mcm-console-select-trigger"
+                  aria-label="Filter by route"
+                >
+                  <span>{route === 'all' ? 'All routes' : route}</span>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[160px]">
+                <DropdownMenuItem onSelect={() => setRoute('all')}>All routes</DropdownMenuItem>
+                {routes.map((name) => (
+                  <DropdownMenuItem key={name} onSelect={() => setRoute(name)}>
+                    {name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <div className="mcm-console-search">
               <Search className="h-4 w-4 shrink-0 text-mcm-ink-4" />
@@ -253,101 +384,37 @@ const LiveCallList = ({
           </thead>
 
           <tbody>
-            {visible.map((call: any) => {
-              const state = getState(call);
-              const began = startedAt(call);
-              const caller = call?.contact_name || 'Unknown caller';
-              const number = call?.caller_number || call?.caller_id_number || '';
-              const queue = prettyQueue(call?.forward_value || call?.queue_uuid);
-              const extension = call?.agent_extension;
-              const agent = extension ? getAgentName(extension) : '';
-              const isInbound = String(call?.direction || 'inbound').toLowerCase() === 'inbound';
+            {waitingRows.length > 0 && activeRows.length > 0 && (
+              <tr className="mcm-console-groupline">
+                <td colSpan={7}>
+                  <span className="mcm-console-group is-warn">
+                    <Clock3 className="h-3.5 w-3.5" />
+                    Waiting — needs an agent ({waitingRows.length})
+                  </span>
+                </td>
+              </tr>
+            )}
+            {waitingRows.map((call) => renderRow(call))}
 
-              return (
-                <tr
-                  key={call?._id}
-                  className={`is-${state}`}
-                  style={{ ['--row-edge' as any]: STATE_EDGE[state] }}
-                >
-                  <td>
-                    <div className="mcm-console-caller">
-                      <CustomAvatar name={caller} size="36" />
-                      <div className="min-w-0">
-                        <p className="mcm-console-caller-name">{caller}</p>
-                        <p className="mcm-console-caller-number">{number}</p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    <span className={`mcm-console-chip is-${state}`}>{STATE_LABEL[state]}</span>
-                    <span className="mcm-console-note">{STATE_NOTE[state]}</span>
-                  </td>
-
-                  <td>
-                    <span className="mcm-console-timer">
-                      {began ? formatElapsed(Date.now() - began) : '--:--'}
-                    </span>
-                    <span className="mcm-console-note">MM:SS</span>
-                  </td>
-
-                  {/* One line, not three stacked chips. Of the old hops only
-                      the queue varied between rows: the direction read
-                      "Inbound" on every call, and the final hop repeated the
-                      agent name from the very next column. The arrows implied
-                      a left-to-right path while the chips were wrapping
-                      downwards, so they pointed at nothing. Direction is kept
-                      as a glyph because it can legitimately differ; the full
-                      path stays available on hover. */}
-                  <td>
-                    <div
-                      className="mcm-console-route"
-                      title={`${isInbound ? 'Inbound' : 'Outbound'} → ${queue || 'Direct'} → ${
-                        agent || 'Unassigned'
-                      }`}
-                    >
-                      <span
-                        className={`mcm-console-dir ${isInbound ? 'is-in' : 'is-out'}`}
-                        aria-label={isInbound ? 'Inbound' : 'Outbound'}
-                      >
-                        {isInbound ? '↘' : '↗'}
-                      </span>
-                      <span className="mcm-console-hop">{queue || 'Direct'}</span>
-                    </div>
-                  </td>
-
-                  <td>
-                    {agent ? (
-                      <>
-                        <p className="mcm-console-agent">{agent}</p>
-                        <p className="mcm-console-note">
-                          Ext. {extension}
-                          {isAgentOnline(extension) ? ' · Online' : ''}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="mcm-console-note">Waiting for agent</p>
-                    )}
-                  </td>
-
-                  <td>
-                    {/* Deliberately empty of a value. See the file header:
-                        there is no quality figure in the feed, and a
-                        monitoring screen must not invent one. */}
-                    <CustomTooltip text="Call quality is not reported by the calling platform yet">
-                      <span className="mcm-console-quality">—</span>
-                    </CustomTooltip>
-                  </td>
-
-                  <td className="is-right">{cell('Actions', call)}</td>
-                </tr>
-              );
-            })}
+            {waitingRows.length > 0 && activeRows.length > 0 && (
+              <tr className="mcm-console-groupline">
+                <td colSpan={7}>
+                  <span className="mcm-console-group is-live">
+                    <PhoneCall className="h-3.5 w-3.5" />
+                    Connected ({activeRows.length})
+                  </span>
+                </td>
+              </tr>
+            )}
+            {activeRows.map((call) => renderRow(call))}
           </tbody>
         </table>
 
         {visible.length === 0 && (
           <div className="mcm-console-empty">
+            <span className="mcm-console-empty-icon">
+              <PhoneCall className="h-5 w-5" />
+            </span>
             <p className="mcm-console-empty-title">
               {calls.length === 0 ? 'No active calls at the moment' : 'No calls match this filter'}
             </p>
@@ -365,23 +432,31 @@ const LiveCallList = ({
 
 const StatCard = ({
   tone,
+  icon: IconComp,
   label,
   value,
   note,
   unavailable = false,
+  alert = false,
   explain,
 }: {
   tone: 'live' | 'warn' | 'hold' | 'muted';
+  icon?: ComponentType<{ className?: string }>;
   label: string;
   value: string;
   note: string;
   unavailable?: boolean;
+  /** Calls out a stat that needs eyes on it right now (e.g. calls waiting). */
+  alert?: boolean;
   explain?: string;
 }) => {
   const card = (
-    <div className={`mcm-stat is-${tone}${unavailable ? ' is-unavailable' : ''}`}>
+    <div className={`mcm-stat is-${tone}${unavailable ? ' is-unavailable' : ''}${alert ? ' is-alert' : ''}`}>
       <div className="mcm-stat-body">
-        <p className="mcm-stat-label">{label}</p>
+        <p className="mcm-stat-label">
+          {IconComp && <IconComp className="h-3 w-3" />}
+          {label}
+        </p>
         <p className="mcm-stat-value">{value}</p>
         <p className="mcm-stat-note">{note}</p>
       </div>

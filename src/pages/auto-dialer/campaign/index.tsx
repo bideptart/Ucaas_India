@@ -613,14 +613,6 @@ const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
         </div>
 
         <div className="panel-card">
-          <div className="pc-head">
-            <h3>All campaigns</h3>
-            <span className="src live pc-right">
-              <Ic n="spark" size={10} />
-              live
-            </span>
-          </div>
-
           <TableManager
             {...{
               columns,
@@ -640,6 +632,19 @@ const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
                 sort: { key: 'createdAt', desc: true },
               },
               customClass: 'w-full',
+              /* The default (non-split) header is `position: sticky`
+                 *inside* the same scrolling box as the rows — table-
+                 manager.tsx's own comment documents that this lets both
+                 the sticky header's background AND, it turns out, the
+                 native scrollbar escape the wrapper's rounded-corner clip
+                 in Chromium (a sticky descendant can escape an ancestor
+                 that isn't also its scroll container). splitStickyHeader
+                 moves the header into its own non-scrolling sibling box
+                 instead — nothing sticky left inside the clipped
+                 scrolling element, so neither the header nor the
+                 scrollbar can escape it. Same mode Performance's own
+                 tables (Agents, Queues, Interactions) already use. */
+              splitStickyHeader: true,
               // TableManager sizes itself to fill the rest of the viewport,
               // which floors out at a 260px minimum — for this row's ~60px
               // height that clips the 4th row by ~18px. Embedded (this

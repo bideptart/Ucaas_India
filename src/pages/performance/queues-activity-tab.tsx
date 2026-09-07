@@ -504,6 +504,7 @@ const QueuesActivityTab = ({
         showPagination={false}
         emptyTablePlaceholder="No queues configured"
         descriptionEmptyTable="Call queues you create will show live activity here."
+        splitStickyHeader
       />
     </div>
   );

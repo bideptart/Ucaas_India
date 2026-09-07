@@ -112,7 +112,7 @@ const CallScripts = () => {
 
   return (
     <>
-      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+      <section className="dtable-page w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
         <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
           <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">Call Script</p>
           <div className="flex gap-2 filters">
@@ -135,6 +135,7 @@ const CallScripts = () => {
               fetcherFn: getCallScript,
               emptyTablePlaceholder: 'No call scripts found',
               descriptionEmptyTable: 'Create a call script to guide agents during campaigns',
+              splitStickyHeader: true,
             }}
           />
         </div>

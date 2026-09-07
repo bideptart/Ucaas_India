@@ -228,7 +228,7 @@ const DNC = () => {
               </section>
             </TabsContent>
           </Tabs> */}
-          <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+          <section className="dtable-page w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
             <div className="w-full flex flex-col gap-2 ">
               <TableManager
                 {...{
@@ -237,6 +237,7 @@ const DNC = () => {
                   fetcherFn: getDncCampaign,
                   emptyTablePlaceholder: 'No DNC records found',
                   descriptionEmptyTable: 'Numbers added to Do Not Call will appear here.',
+                  splitStickyHeader: true,
                 }}
               />
             </div>

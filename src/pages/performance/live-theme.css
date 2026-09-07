@@ -211,18 +211,13 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm:hover {
   box-shadow: 0 3px 10px -3px rgba(249, 115, 22, 0.3);
 }
 
-/* Primary CTA ("My dashboards") stays `.btn.primary`'s flat solid accent at
-   rest on purpose — it already reads correctly, and re-declaring the fill
-   here would just be a second copy of the same colour. Hover gets a richer
-   sunset gradient + glow, scoped to this one toolbar button via `.perf-tbar`
-   rather than on `.btn.primary` itself, which is a global class used by
-   buttons across the whole app — not just this one. */
-body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
-  background: linear-gradient(135deg, #fb923c 0%, #ea580c 60%, #c2410c 100%);
-  box-shadow:
-    0 6px 18px -4px rgba(234, 88, 12, 0.45),
-    0 2px 6px -1px rgba(234, 88, 12, 0.3);
-}
+/* Primary CTA ("My dashboards") — left to inherit `.btn.primary` at rest
+   AND on hover, exactly like Directory ▸ People's own "+ Invite person"
+   (people.tsx), the reference for this button: flat solid `--accent` at
+   rest, flat `--accent-ink` on hover (mcm-page.css), no gradient or glow.
+   No override needed here at all — this rule is kept only as the record
+   of that decision, so a future gradient/glow doesn't get re-added by
+   mistake assuming this toolbar wants its own treatment. */
 
 /* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
    directly below the toolbar, rendered by the same Performance page shell,
@@ -370,8 +365,15 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
    look): a warm-tinted border gives the card a visible edge, and a
    larger, softer, warm-toned glow lifts it off the backdrop instead of
    blending into it. */
+/* Bottom corners only — `splitStickyHeader` puts the header above this in
+   its own separate box (already owning the top corners via the
+   `thead th:first-child`/`:last-child` rules below), so `.table-scroll`
+   isn't the wrapper's own top edge anymore. Rounding all four corners
+   here carves a curved notch into the body box's own top-right corner
+   right where the vertical scrollbar starts (same bug found and fixed on
+   Performance ▸ Agents/Calls/Flows/Callbacks/Speech). */
 .mcm-page .perf-live .table-scroll {
-  border-radius: var(--pl-r-lg);
+  border-radius: 0 0 var(--pl-r-lg) var(--pl-r-lg);
   border: 1px solid rgba(249, 115, 22, 0.14);
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
@@ -388,41 +390,31 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   border-radius: var(--pl-r-lg);
   overflow: hidden;
 }
-/* The scrollbar track used to run the full height of the card, alongside
-   the sticky 40px header — pushing it down so it only travels next to the
-   actual data rows, not the header. Measured, not guessed: the header's
-   real rendered height on this table is 40px. */
 .mcm-page .perf-live .table-scroll::-webkit-scrollbar-track {
-  margin-top: 40px;
   margin-bottom: 8px;
 }
 
 /* Header — translucent light tint, uppercase muted slate. */
-/* The header is `sticky` (table-manager.tsx), so it sits over rows as the
-   body scrolls underneath it — a translucent fill here let row text show
-   straight through the header labels instead of being covered by them.
-   Opaque + its own blur keeps the frosted look without that bleed-through,
-   and each `th` matches rather than staying transparent, since a sticky
-   header is only as opaque as its least-opaque layer. */
 /* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
    (people-glass.css) plus the `.mcm-page th` base it inherits from
    (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
-   12px padding, a 2px warm-orange hairline — read off Directory's own
-   computed styles rather than approximated. */
-.mcm-page .perf-live .table-scroll thead {
+   12px padding, a 3px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated.
+   Scoped to `.perf-live thead` directly, NOT `.table-scroll thead` — this
+   table renders with `splitStickyHeader` (conditionally, only when
+   `embedded` — see all-users/index.tsx), which puts the header in its own
+   non-scrolling box, a *sibling* of `.table-scroll`, not a descendant of
+   it. */
+.mcm-page .perf-live thead {
   background: #fffdfb;
-  /* Fully opaque background, so this is a no-op visually on its own — kept
-     so scrolling rows never bleed through even if that opacity is ever
-     dialled back again, the same reasoning every other Performance table's
-     sticky header already carries this for. */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: none;
 }
-.dark .mcm-page .perf-live .table-scroll thead {
+.dark .mcm-page .perf-live thead {
   background: rgba(23, 15, 10, 0.97);
 }
-.mcm-page .perf-live .table-scroll thead th {
+.mcm-page .perf-live thead th {
   color: #8a6f57;
   font-size: 9.5px;
   font-weight: 800;
@@ -433,10 +425,10 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   background: transparent;
 }
-.mcm-page .perf-live .table-scroll thead th:first-child {
+.mcm-page .perf-live thead th:first-child {
   border-top-left-radius: 20px;
 }
-.mcm-page .perf-live .table-scroll thead th:last-child {
+.mcm-page .perf-live thead th:last-child {
   border-top-right-radius: 20px;
 }
 
@@ -571,6 +563,17 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   border-color: transparent;
   color: #fff;
   box-shadow: 0 6px 14px rgba(249, 115, 22, 0.26);
+}
+/* The shared 10px right padding every other cell gets (above) put the last
+   action button flush against the card's own edge — worse now that this
+   table scrolls internally (visibleRowCount), since the vertical scrollbar
+   sits in that same 10px, leaving no visible gap at all. Extra clearance
+   on just this column's right side, not all of them. */
+.mcm-page .perf-live .table-scroll tbody td:last-child {
+  padding-right: 34px !important;
+}
+.mcm-page .perf-live thead th:last-child {
+  padding-right: 34px !important;
 }
 
 /* Pagination bar, matched to the table it belongs to. `.table-scroll` also

@@ -66,7 +66,11 @@
 
 .gp-external .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
@@ -91,7 +95,7 @@
 .gp-external th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -99,8 +103,10 @@
 .gp-external td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-external tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -364,17 +370,39 @@
 }
 .gp-contact-table th {
   color: #8a6f57 !important;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25) !important;
-  /* Matches the 10px heading size the other Directory tables use
-     (people-glass.css etc.) — this table's own default (shared with
-     Performance's tables via TableManager) is 9.5px. */
-  font-size: 10px !important;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4) !important;
+  /* Matches the other Directory tables (people-glass.css etc.) and
+     Performance's own tables (interactions-theme.css) — both 9.5px. */
+  font-size: 9.5px !important;
 }
 .gp-contact-table td {
   border-bottom-color: rgba(150, 100, 50, 0.1) !important;
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-contact-table tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14) !important;
+  background: rgba(255, 241, 235, 0.55) !important;
+}
+/* Action column's "..." menu trigger (`AllNewContactsList`'s own markup,
+   not a `.mini` button) — glass circle at rest, filled sunset gradient on
+   hover, matching Performance ▸ Calls' own action buttons
+   (interactions-theme.css uses this identical `[rounded-full][w-8]`
+   selector pattern for the same reason: no stable class to hook). It
+   already rendered as a circle at the right size; only the flat
+   always-peach fill needed to change. */
+.gp-contact-table [class*='rounded-full'][class*='w-8'] {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.gp-contact-table [class*='rounded-full'][class*='w-8']:hover {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%) !important;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
 
 /* ---- toolbar (Contact view/Contact Group tabs, Sync/Search/Group/Tag) —

@@ -240,6 +240,11 @@ const CallbacksTab = () => {
           extraParams={{ filters: [{ key: 'category', value: 'TASK' }] }}
           emptyTablePlaceholder="No scheduled tasks"
           descriptionEmptyTable="Callback and follow-up tasks you schedule show up here."
+          splitStickyHeader
+          /* Without a bounded height, `.table-scroll` just grows to fit
+             every row — no internal scroll for the sticky header to stick
+             within, no scrollbar. Same fix as Performance ▸ Live/Agents. */
+          visibleRowCount={6}
         />
       )}
       {view === 'voicemail' && (
@@ -250,11 +255,15 @@ const CallbacksTab = () => {
           extraParams={{ type: 'voicemail' }}
           emptyTablePlaceholder="No voicemail records found"
           descriptionEmptyTable="Voicemails left on queues and extensions show up here."
-          // The default height is `window height - offset`, sized for a
-          // full page of rows — a handful of voicemails left it mostly
-          // empty space below the last row. isHeightSet={false} lets the
-          // card hug its actual row count instead.
+          // isHeightSet only governs the legacy non-split height calc
+          // (table-manager.tsx) — a no-op now that this table renders via
+          // splitStickyHeader, which sizes itself from visibleRowCount
+          // instead. Kept off rather than removed: turning it back on
+          // would do nothing here, but documents that this table
+          // deliberately doesn't want the old window-based auto-height.
           isHeightSet={false}
+          splitStickyHeader
+          visibleRowCount={6}
         />
       )}
       <AudioModal

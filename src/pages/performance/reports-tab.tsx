@@ -505,7 +505,14 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                 }}
               >
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--line)' }}>
+                  {/* No border here — each `th` already carries its own 3px
+                      accent border-bottom (reports-theme.css). Under this
+                      table's `border-collapse: collapse`, this tr's own 1px
+                      border competed with that 3px one at the same edge and
+                      anti-aliased it into a faint line instead of a crisp
+                      one (same root cause found and fixed on Performance ▸
+                      Queues/Agents/Calls/Flows/Callbacks/Speech/Live). */}
+                  <tr>
                     {report?.head.map((heading, headingIndex) => (
                       <th
                         key={heading}

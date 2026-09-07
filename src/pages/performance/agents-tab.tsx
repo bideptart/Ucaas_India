@@ -167,15 +167,15 @@ const AgentsTab = ({
 
   return (
     <div className="perf-agents flex flex-col gap-3 px-[22px] py-4">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-8">
+      <div className="grid grid-cols-2 gap-2 py-3 md:grid-cols-8">
         <PerfStatCard
-          label="Agents Online"
+          label={'Agents\nOnline'}
           value={String(onlineCount)}
           sub={`of ${rows.length} agents`}
           icon={Users}
         />
         <PerfStatCard
-          label="Top Performer"
+          label={'Top\nPerformer'}
           value={hasTopPerformer ? topPerformer!.name : '—'}
           sub={hasTopPerformer ? `${topPerformer!.handledToday} handled today` : undefined}
           icon={Trophy}
@@ -194,25 +194,25 @@ const AgentsTab = ({
           icon={AlertTriangle}
         />
         <PerfStatCard
-          label="Average Handle Time"
+          label={'Handle\nTime'}
           value={avgAht === null ? '—' : formatSecsToClock(avgAht)}
           sub="Team average"
           icon={Gauge}
         />
         <PerfStatCard
-          label="Inbound / Outbound"
+          label={'Inbound\nOutbound'}
           value={`${totalIncoming} / ${totalOutgoing}`}
           sub="incoming / outgoing"
           icon={ArrowLeftRight}
         />
         <PerfStatCard
-          label="No Queue Assigned"
+          label={'No\nQueue'}
           value={String(noQueueCount)}
           sub="agents"
           icon={AlertCircle}
         />
         <PerfStatCard
-          label="Total Talk Time"
+          label={'Talk\nTime'}
           value={formatSecsToClock(totalTalkMinutes * 60)}
           sub="combined, all agents"
           icon={Clock}

@@ -382,6 +382,7 @@ const SpeechTextTab = () => {
           staticData={topics}
           showPagination={false}
           emptyTablePlaceholder="No topics detected yet"
+          splitStickyHeader
         />
       </div>
 
@@ -394,6 +395,7 @@ const SpeechTextTab = () => {
           staticData={agentRows}
           showPagination={false}
           emptyTablePlaceholder="No agent sentiment data yet"
+          splitStickyHeader
         />
       </div>
     </div>

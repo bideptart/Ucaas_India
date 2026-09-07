@@ -126,8 +126,15 @@
 /* ------------------------------------------------------------
    3. Main data container — table + pagination, and the empty state
    ------------------------------------------------------------ */
+/* Bottom corners only — `splitStickyHeader` puts the header above this in
+   its own separate box (already owning the top corners via the
+   `thead th:first-child`/`:last-child` rules below), so `.table-scroll`
+   isn't the wrapper's own top edge anymore. Rounding all four corners
+   here carves a curved notch into the body box's own top-right corner
+   right where the vertical scrollbar starts (same bug found and fixed on
+   Performance ▸ Agents/Calls/Flows). */
 .perf-callbacks .table-scroll {
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px;
   border: 1px solid var(--pc-glass-border);
   background: var(--pc-glass);
   backdrop-filter: var(--pc-glass-blur);
@@ -144,27 +151,26 @@
   border-radius: 20px;
   overflow: hidden;
 }
-/* The scrollbar track used to run the full height of the card, alongside
-   the sticky 40px header — pushing it down so it only travels next to the
-   actual data rows, not the header. Measured, not guessed: the header's
-   real rendered height on this table is 40px. */
 .perf-callbacks .table-scroll::-webkit-scrollbar-track {
-  margin-top: 40px;
   margin-bottom: 8px;
 }
 /* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
    (people-glass.css) plus the `.mcm-page th` base it inherits from
    (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
-   12px padding, a 2px warm-orange hairline — read off Directory's own
-   computed styles rather than approximated. */
-.perf-callbacks .table-scroll thead {
+   12px padding, a 3px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated.
+   Scoped to `.perf-callbacks thead` directly, NOT `.table-scroll thead` —
+   this table renders with `splitStickyHeader` (callbacks-tab.tsx), which
+   puts the header in its own non-scrolling box, a *sibling* of
+   `.table-scroll`, not a descendant of it. */
+.perf-callbacks thead {
   background: #fffdfb;
   box-shadow: none;
 }
-.dark .perf-callbacks .table-scroll thead {
+.dark .perf-callbacks thead {
   background: rgba(23, 15, 10, 0.97);
 }
-.perf-callbacks .table-scroll thead th {
+.perf-callbacks thead th {
   color: #8a6f57;
   font-size: 9.5px;
   font-weight: 800;
@@ -174,10 +180,10 @@
   padding: 9px 12px !important;
   border-bottom: 3px solid rgba(242, 153, 74, 0.4);
 }
-.perf-callbacks .table-scroll thead th:first-child {
+.perf-callbacks thead th:first-child {
   border-top-left-radius: 20px;
 }
-.perf-callbacks .table-scroll thead th:last-child {
+.perf-callbacks thead th:last-child {
   border-top-right-radius: 20px;
 }
 .perf-callbacks .table-scroll tbody tr {

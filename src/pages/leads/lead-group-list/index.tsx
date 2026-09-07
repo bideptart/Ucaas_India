@@ -180,7 +180,14 @@ const LeadsGroupList: FC<any> = ({
   };
 
   return (
-    <div className="flex w-full min-h-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+    /* `dtable-page` (directory-table.css) only for the Leads context —
+       this same component also renders External Contacts' own "Contact
+       Group" tab (isLead=false), which already carries its own Directory-
+       matched styling (external-glass.css, `.gp-contact-table`) and
+       shouldn't pick up a second, redundant scope. */
+    <div
+      className={`flex w-full min-h-0 flex-1 flex-col gap-2 p-3 sm:p-4${isLead ? ' dtable-page' : ''}`}
+    >
       <TableManager
         {...{
           columns,

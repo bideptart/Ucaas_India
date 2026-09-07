@@ -694,7 +694,13 @@ const ActivityList = ({
     campaignLogs: getCampaignActivtyLogs,
   };
   return (
-    <div className="w-full p-3 flex flex-col gap-2">
+    /* `dtable-page` (auto-dialer/directory-table.css) only for the
+       Campaign ▸ Statistics context — this component is shared with
+       Contact/Lead activity views elsewhere in the app, which shouldn't
+       pick up this section's Directory-matched table styling. */
+    <div
+      className={`w-full p-3 flex flex-col gap-2${activityType === 'campaignLogs' ? ' dtable-page' : ''}`}
+    >
       <TableManager
         columns={columns}
         onSuccess={onTableSuccess}
@@ -706,6 +712,7 @@ const ActivityList = ({
         }}
         emptyTablePlaceholder={emptyPlaceholder || 'No record found'}
         descriptionEmptyTable={description || ''}
+        splitStickyHeader={activityType === 'campaignLogs'}
       />
       <AudioModal
         modalState={modalState}

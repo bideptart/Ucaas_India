@@ -69,7 +69,11 @@
 
 .gp-favourites .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
@@ -177,9 +181,9 @@
 .gp-favourites th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   height: 40px;
-  font-size: 10px;
+  font-size: 9.5px;
 }
 .gp-favourites td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -193,7 +197,46 @@
 .gp-favourites td:last-child {
   padding-right: 48px;
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-favourites tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
+}
+/* Action-column icon buttons (call/SMS/WhatsApp/activity) had no override
+   at all here — plain base `.mcm-page .mini` (26px rounded-square, plain
+   tint-on-hover). Glass circle at rest, filled sunset gradient on hover,
+   matching Performance ▸ Calls' own action buttons (interactions-theme.css)
+   and every other Directory table's action column now.
+   `:not(.mcm-fav-on)` excludes the "remove from favourites" star, which
+   every row here has permanently on — it keeps its own persistent gold
+   state (mcm-page.css) rather than being pulled into this glass treatment. */
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 9999px;
+  flex: none;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.gp-favourites td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
+}
+/* The now-larger (36px) icon buttons need a bigger glyph than the source
+   markup's own size={12} prop to still look proportioned — 18px is a ~50%
+   fill ratio, reads as a deliberate icon button rather than a small glyph
+   adrift in empty space. */
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) .ic {
+  width: 18px;
+  height: 18px;
 }

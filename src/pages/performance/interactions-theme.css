@@ -213,8 +213,15 @@ body.perf-warm-backdrop.dark {
    4. Calls table — 20px frosted glass card, sticky frosted header,
    Directory's signature left accent-bar row hover.
    ------------------------------------------------------------ */
+/* Bottom corners only — `splitStickyHeader` puts the header above this in
+   its own separate box (already owning the top corners via the
+   `thead th:first-child`/`:last-child` rules below), so `.table-scroll`
+   itself isn't the wrapper's top edge. Rounding all four corners here
+   carved a curved notch into the body box's own top-right corner right
+   where the vertical scrollbar starts — same bug just found and fixed on
+   Performance ▸ Agents (agents-theme.css), same fix. */
 .perf-interactions .table-scroll {
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px;
   border: 1px solid var(--ic-glass-border);
   background: var(--ic-glass);
   backdrop-filter: var(--ic-glass-blur);
@@ -231,12 +238,16 @@ body.perf-warm-backdrop.dark {
   border-radius: 20px;
   overflow: hidden;
 }
-/* The scrollbar track used to run the full height of the card, alongside
-   the sticky 40px header — pushing it down so it only travels next to the
-   actual data rows, not the header. Measured, not guessed: the header's
-   real rendered height on this table is 40px. */
+/* No margin-top — this table renders with `splitStickyHeader`
+   (interactions-tab.tsx), which puts the header in its own non-scrolling
+   box, a *sibling* of `.table-scroll`, not a descendant of it. The
+   comment this rule used to carry ("push the track down so it doesn't
+   run alongside the sticky 40px header") described a now-nonexistent
+   layout: the header hasn't lived inside `.table-scroll` for a while, so
+   that top margin was only opening a gap between the header's bottom
+   edge and the scroll thumb (same bug just found and fixed on
+   Performance ▸ Agents — same leftover, same fix). */
 .perf-interactions .table-scroll::-webkit-scrollbar-track {
-  margin-top: 40px;
   margin-bottom: 8px;
 }
 /* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`

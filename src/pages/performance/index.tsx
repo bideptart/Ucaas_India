@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PhoneIncoming, AlarmClock, Info } from 'lucide-react';
+import {
+  PhoneIncoming,
+  AlarmClock,
+  Gauge,
+  Clock,
+  PhoneCall,
+  PhoneMissed,
+  Users,
+  Activity,
+} from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
 import { useSearchParamManager } from '@/hooks/use-search-params';
@@ -17,11 +26,12 @@ import LiveInteractionsTab from './live-interactions-tab';
 import CallbacksTab from './callbacks-tab';
 import SpeechTextTab from './speech-text-tab';
 import ReportsTab from './reports-tab';
+import { Ic } from '@/components/mcm/icons';
 import { formatSecsToClock } from './format';
 import { useAnimatedNumber } from './use-animated-number';
 import { useTrend } from './use-trend';
 import HeroStatCard from './hero-stat-card';
-import GroupedStatCard from './grouped-stat-card';
+import PerfStatCard from './stat-card';
 import '@/components/mcm/mcm-page.css';
 
 import LiveDashboard from '@/pages/dashboard/live-dashboard';
@@ -67,7 +77,7 @@ const Performance = () => {
   // The open view lives in the URL, the same `?view=` convention the calendar
   // uses. That makes a Performance view shareable and survive a refresh, and it
   // is what lets the area rail highlight the view you are actually on.
-  const { getParam } = useSearchParamManager();
+  const { getParam, setParam } = useSearchParamManager();
   const allTabKeys = useMemo(
     () => [...TABS.map((tab) => tab.key), ...WALLBOARD_TABS.map((tab) => tab.key)],
     [],
@@ -326,6 +336,14 @@ const Performance = () => {
               <span className="dot green pulsing" />
               Live — updates every 2s
             </span>
+            <button
+              type="button"
+              className="btn primary"
+              onClick={() => setParam('view', 'dashboards')}
+            >
+              <Ic n="grid" />
+              My dashboards
+            </button>
           </div>
         </div>
       </div>
@@ -333,30 +351,38 @@ const Performance = () => {
       {SHOW_KPI_HEADER_TABS.has(activeTab) &&
         !(activeTab === 'queues-activity' && selectedQueueUuid) && (
           <div className="page-band">
-            <div className="hero-notice">
-              <Info className="hero-notice-icon" />
-              <p className="page-note">
-                Waiting, Longest wait, Service level, On queue agents and Occupancy are live right
-                now. Answered, Abandon rate and Avg handle time cover the selected date range.
-              </p>
-            </div>
             <style>{`
             /* Waiting / Longest wait are what a supervisor triages on first —
                sized up and, past target, ringed so they're findable without
-               reading every tile. Everything else groups into three denser
-               cards instead of six single-metric ones. */
+               reading every tile. The rest are individual single-metric
+               tiles (same style as Performance ▸ Agents' KPI strip), all
+               eight sharing one row. */
             .mcm-page .hero-row {
               display:grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-              align-items:start; gap:10px; margin-bottom:10px;
+              align-items:stretch; gap:10px; padding-top:12px;
             }
-            .mcm-page .hero-stat { padding:16px 18px; position:relative; }
+            @media (min-width: 900px) {
+              .mcm-page .hero-row { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+            }
+            .mcm-page .hero-stat { padding:16px 18px; }
             .mcm-page .hero-stat-icon {
-              position:absolute; top:16px; right:18px;
-              display:grid; place-items:center; width:44px; height:44px; border-radius:99px;
+              display:grid; place-items:center; width:22px; height:22px; flex:none; border-radius:99px;
               background:var(--accent-wash); color:var(--accent-ink);
             }
             .mcm-page .hero-stat-icon-breach { background:var(--crit-wash); color:var(--crit); }
-            .mcm-page .hero-stat-value-row { display:flex; align-items:baseline; gap:8px; margin-top:6px; }
+            .mcm-page .hero-stat-value-row {
+              display:flex; align-items:baseline; gap:8px; margin-top:6px;
+            }
+            /* .hero-row .stat .v below (heading-to-value spacing) also
+               matches this span, since it's a .v nested inside .stat — but
+               flex containers don't collapse margins with their items, so
+               that margin-top would add unwanted extra space inside the
+               row on top of the row's own margin-top. The row already
+               supplies the 6px gap from the heading; the span itself needs
+               none. */
+            .mcm-page .hero-row .stat .hero-stat-value-row .v {
+              margin-top: 0;
+            }
             .mcm-page .hero-stat-value { font-size:38px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
             .mcm-page .hero-stat-trend { font-size:18px; font-weight:800; line-height:1; }
             .mcm-page .hero-stat-trend.bad { color:var(--crit); }
@@ -371,38 +397,29 @@ const Performance = () => {
               0%, 100% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 0 var(--crit-wash); }
               50% { box-shadow: 0 0 0 1px var(--crit), 0 0 0 8px transparent; }
             }
+            /* Every KPI tile's heading always wraps to two lines (each
+               label below carries its own \n) and its bottom line always
+               stays to one, so the value/sub start at the same row across
+               every card regardless of label length. Heading/bottom-line
+               colour (grey normally, crit red together when a hero card
+               breaches) lives in queues-theme.css, which needs the
+               body.perf-warm-backdrop chain to outrank this same rule. */
+            .mcm-page .hero-row .stat .k {
+              white-space: pre-line; line-height: 1.3;
+            }
+            /* Matches HeroStatCard's own hero-stat-value-row margin-top,
+               so heading-to-number spacing is 6px on every card instead of
+               the plain PerfStatCard tiles using .stat .v's base 5px. */
+            .mcm-page .hero-row .stat .v {
+              margin-top: 6px;
+            }
+            .mcm-page .hero-row .stat .d {
+              display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            }
 
-            .mcm-page .grouped-row {
-              display:grid; grid-template-columns: repeat(1, minmax(0, 1fr));
-              /* "start" let each of the three cards size to its own content
-                 — Service's longer "target 80% in 20s" label made it taller
-                 than Volume/Coverage, so the row read as uneven. "stretch"
-                 (the grid default) makes every card fill the tallest one's
-                 height instead. */
-              align-items:stretch; gap:10px; margin-bottom:16px;
-            }
-            @media (min-width: 700px) {
-              .mcm-page .grouped-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            }
-            .mcm-page .grouped-stat { padding:14px 14px; height:100%; }
-            .mcm-page .grouped-stat-row { display:flex; align-items:stretch; gap:12px; margin-top:8px; }
-            .mcm-page .grouped-stat-metric { flex:1; min-width:0; }
-            .mcm-page .grouped-stat-divider { width:1px; background:var(--line); flex:none; }
-            .mcm-page .grouped-stat-value { display:flex; align-items:baseline; gap:5px; font-size:21px; }
-            .mcm-page .grouped-stat-trend { font-size:13px; font-weight:800; }
-            .mcm-page .grouped-stat-trend.bad { color:var(--crit); }
-            .mcm-page .grouped-stat-trend.good { color:var(--live); }
-            /* Metric captions ("Service level · target 80% in 20s") — one
-               line, always. A metric that runs long ellipsizes rather than
-               wrapping and pushing its own card taller than its siblings.
-               .stat .d (mcm-page.css) is display:flex — text-overflow
-               doesn't reliably ellipsize on a flex container, it just hard
-               -clips the last character instead of showing an ellipsis,
-               which is what cut the final "s" off "20s". display:block
-               restores normal single-line text truncation. */
-            .mcm-page .grouped-stat-metric .d {
-              display:block; font-size:10px; letter-spacing:-0.005em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-            }
+            .mcm-page .stat-trend { font-size:13px; font-weight:800; margin-left:5px; }
+            .mcm-page .stat-trend.bad { color:var(--crit); }
+            .mcm-page .stat-trend.good { color:var(--live); }
 
             /* Reinforces "live" beyond the word itself — a soft glow that
                breathes with the pulsing dot, not just a static badge. */
@@ -416,7 +433,7 @@ const Performance = () => {
           `}</style>
             <div className="hero-row">
               <HeroStatCard
-                label="Waiting"
+                label={'Waiting\nCalls'}
                 value={String(Math.round(waitingAnimated))}
                 sub={`across ${queues.length} ${queues.length === 1 ? 'queue' : 'queues'}`}
                 breaching={waitingCalls.length > 5}
@@ -425,58 +442,67 @@ const Performance = () => {
                 icon={PhoneIncoming}
               />
               <HeroStatCard
-                label="Longest wait"
+                label={'Longest\nWait'}
                 value={longestWaitTimestamp ? <Timer startTime={longestWaitTimestamp} /> : '00:00'}
-                sub={
-                  isBreachingWait ? (
-                    <span style={{ color: 'var(--crit)' }}>breaching</span>
-                  ) : (
-                    'within target'
-                  )
-                }
+                sub={isBreachingWait ? 'breaching' : 'within target'}
                 breaching={isBreachingWait}
                 icon={AlarmClock}
               />
-            </div>
-            <div className="grouped-row">
-              <GroupedStatCard
-                title="Service"
-                primary={{
-                  label: 'Service level · target 80% in 20s',
-                  value: avgSla === null ? '—' : `${Math.round(slAnimated)}%`,
-                  tone: slaTone(avgSla),
-                }}
-                secondary={{
-                  label: 'Avg handle time',
-                  value: avgHandleTime === null ? '—' : formatSecsToClock(ahtAnimated),
-                  trend: ahtTrend,
-                  trendBadWhenUp: true,
-                }}
+              <PerfStatCard
+                label={'Service\nLevel'}
+                value={avgSla === null ? '—' : `${Math.round(slAnimated)}%`}
+                sub="target 80% in 20s"
+                icon={Gauge}
+                tone={slaTone(avgSla)}
               />
-              <GroupedStatCard
-                title="Volume"
-                primary={{
-                  label: `Answered · of ${callStats.totalCalls} calls`,
-                  value: String(Math.round(answeredAnimated)),
-                }}
-                secondary={{
-                  label: abandonRate === null ? 'Abandon rate' : `Abandon · ${callStats.missedCalls} missed`,
-                  value: abandonRate === null ? '—' : `${Math.round(abandonAnimated)}%`,
-                  tone: abandonRate !== null && abandonRate > 5 ? 'danger' : 'default',
-                  trend: abandonTrend,
-                  trendBadWhenUp: true,
-                }}
+              <PerfStatCard
+                label={'Handle\nTime'}
+                value={
+                  <>
+                    {avgHandleTime === null ? '—' : formatSecsToClock(ahtAnimated)}
+                    {ahtTrend !== 'flat' && (
+                      <span className={`stat-trend${ahtTrend === 'up' ? ' bad' : ' good'}`}>
+                        {ahtTrend === 'up' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </>
+                }
+                sub="Team average"
+                icon={Clock}
               />
-              <GroupedStatCard
-                title="Coverage"
-                primary={{
-                  label: `On queue · of ${agentRows.length} active`,
-                  value: String(Math.round(onlineAgentsAnimated)),
-                }}
-                secondary={{
-                  label: 'Occupancy · target 75–85%',
-                  value: occupancy === null ? '—' : `${Math.round(occupancyAnimated)}%`,
-                }}
+              <PerfStatCard
+                label={'Answered\nCalls'}
+                value={String(Math.round(answeredAnimated))}
+                sub={`of ${callStats.totalCalls} calls`}
+                icon={PhoneCall}
+              />
+              <PerfStatCard
+                label={'Abandon\nRate'}
+                value={
+                  <>
+                    {abandonRate === null ? '—' : `${Math.round(abandonAnimated)}%`}
+                    {abandonTrend !== 'flat' && (
+                      <span className={`stat-trend${abandonTrend === 'up' ? ' bad' : ' good'}`}>
+                        {abandonTrend === 'up' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </>
+                }
+                sub={`${callStats.missedCalls} missed`}
+                icon={PhoneMissed}
+                tone={abandonRate !== null && abandonRate > 5 ? 'danger' : 'default'}
+              />
+              <PerfStatCard
+                label={'On\nQueue'}
+                value={String(Math.round(onlineAgentsAnimated))}
+                sub={`of ${agentRows.length} active`}
+                icon={Users}
+              />
+              <PerfStatCard
+                label={'Occupancy\nRate'}
+                value={occupancy === null ? '—' : `${Math.round(occupancyAnimated)}%`}
+                sub="target 75–85%"
+                icon={Activity}
               />
             </div>
           </div>

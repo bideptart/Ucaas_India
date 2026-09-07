@@ -311,7 +311,7 @@ const AllLeadsList: FC<any> = ({
   ];
 
   return (
-    <div className="w-full p-3 flex flex-col gap-2">
+    <div className="dtable-page w-full p-3 flex flex-col gap-2">
       <TableManager
         {...{
           tableRef,
@@ -328,6 +328,7 @@ const AllLeadsList: FC<any> = ({
           descriptionEmptyTable: payloadExtraParams?.search
             ? ''
             : 'Add or import leads to begin campaign calling.',
+          splitStickyHeader: true,
         }}
       />
       {modalState?.open && (

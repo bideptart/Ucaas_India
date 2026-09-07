@@ -69,7 +69,11 @@
 
 .gp-locations .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
@@ -159,9 +163,9 @@
 .gp-locations th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   height: 40px;
-  font-size: 10px;
+  font-size: 9.5px;
 }
 .gp-locations td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -169,8 +173,10 @@
 .gp-locations tbody tr {
   cursor: pointer;
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-locations tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -194,19 +200,28 @@
 .gp-locations .gp-loc-actions {
   justify-content: center;
 }
+/* Glass circle at rest, filled sunset gradient on hover — matching
+   Performance ▸ Calls' own action buttons (interactions-theme.css) rather
+   than a rounded square with a plain tint-on-hover. */
 .gp-locations .gp-loc-actions .mini {
   width: 38px;
   height: 38px;
   padding: 0;
-  border-radius: 11px;
+  border-radius: 9999px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
-.gp-locations .gp-loc-actions .mini:hover {
-  background: var(--accent-wash);
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
+.gp-locations .gp-loc-actions .mini:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
 
 /* ---- "New location" popup ----

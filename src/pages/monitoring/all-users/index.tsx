@@ -572,6 +572,23 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
               getRowClassName,
               emptyTablePlaceholder: 'No extension activity',
               descriptionEmptyTable: 'Calls for extensions will appear here once available.',
+              /* Only for the Performance ▸ Live embed (live-theme.css,
+                 `.perf-live`) — standalone Monitoring ▸ All Users keeps its
+                 own existing (non-split, paginated) behaviour, unrelated to
+                 the Directory-parity work done on the Performance side.
+                 Without `showPagination: false` the card had no bounded
+                 height to scroll within (table-manager.tsx only computes
+                 one when pagination is active), so it just grew to fit
+                 every row — no internal scrollbar, a sticky header with
+                 nothing to stick within as the *page* scrolled instead of
+                 the card, and a pagination bar at the bottom of an
+                 otherwise-unpaginated list. `visibleRowCount` (same
+                 approach as Agents, agents-tab.tsx) gives it the bounded
+                 height that was missing, matching every other Performance
+                 table. */
+              ...(embedded
+                ? { splitStickyHeader: true, showPagination: false, visibleRowCount: 6 }
+                : {}),
             }}
           />
         </div>

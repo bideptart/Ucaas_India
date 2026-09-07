@@ -304,6 +304,7 @@ const Leads: FC = () => {
                           isLead: true,
                           onOpenContactLogs: (group: any) => setSelectedGroupForContactLogs(group),
                           search: normalizedSearch,
+                          splitStickyHeader: true,
                         }}
                       />
                     );

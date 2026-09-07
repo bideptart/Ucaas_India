@@ -85,7 +85,7 @@ body.perf-warm-backdrop .perf-reports {
 .perf-reports .rp-toolbar {
   background: #fffaf4;
   border: 1px solid rgba(249, 115, 22, 0.14);
-  border-radius: 999px;
+  border-radius: var(--r);
   box-shadow: 0 1px 2px rgba(234, 88, 12, 0.05);
 }
 .dark .perf-reports .rp-toolbar {
@@ -131,10 +131,10 @@ body.perf-warm-backdrop .perf-reports {
   padding: 0 10px !important;
   font-size: 12.5px !important;
   font-weight: 600 !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(249, 115, 22, 0.18) !important;
-  color: var(--rp-ink) !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid var(--accent) !important;
+  color: var(--accent-ink) !important;
   cursor: pointer;
   transition:
     border-color 0.16s ease,
@@ -142,15 +142,10 @@ body.perf-warm-backdrop .perf-reports {
 }
 .dark .perf-reports .rp-select-trigger {
   background: rgba(17, 24, 39, 0.55) !important;
-  color: var(--rp-ink) !important;
-}
-.perf-reports .rp-select-trigger:hover {
-  border-color: rgba(249, 115, 22, 0.35) !important;
 }
 .perf-reports .rp-select-trigger[data-state='open'] {
   outline: none;
-  border-color: #f97316 !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  box-shadow: 0 0 0 3px rgba(242, 153, 74, 0.15);
 }
 .perf-reports .rp-select-value {
   overflow: hidden;
@@ -165,7 +160,7 @@ body.perf-warm-backdrop .perf-reports {
 }
 .perf-reports .rp-select-trigger[data-state='open'] .rp-select-chevron {
   transform: rotate(180deg);
-  color: var(--rp-accent-ink);
+  color: var(--accent-ink);
 }
 
 /* The dropdown's own content renders through a portal to `document.body`,
@@ -174,15 +169,17 @@ body.perf-warm-backdrop .perf-reports {
 .rp-report-menu {
   min-width: 260px;
   max-width: 320px;
-  padding: 6px;
-  border-radius: 14px;
-  border: 1px solid rgba(249, 115, 22, 0.16);
-  background: rgba(255, 250, 244, 0.98);
-  backdrop-filter: blur(20px) saturate(190%);
-  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  padding: 4px;
+  border-radius: 12px;
+  /* Hardcoded, not var(--accent) — this menu renders through a portal to
+     document.body (see note above), outside .mcm-page's subtree, so the
+     app's own --accent custom property isn't in scope here; it would
+     silently resolve to shadcn's unrelated same-named token instead. */
+  border: 1px solid #f2994a;
+  background: #fff;
   box-shadow:
-    0 14px 35px -8px rgba(234, 88, 12, 0.22),
-    0 4px 12px -2px rgba(60, 40, 30, 0.1);
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 /* This is the scrolling element itself (Radix's own `overflow-y-auto`,
    from `dropdown-menu.tsx`), not a wrapper around it — so the global
@@ -209,8 +206,8 @@ body.perf-warm-backdrop .perf-reports {
   background: rgba(249, 115, 22, 0.45);
 }
 .dark .rp-report-menu {
-  background: rgba(23, 15, 10, 0.98);
-  border-color: rgba(251, 146, 60, 0.22);
+  background: #171717;
+  border-color: #ffab5e;
 }
 .rp-report-menu-group + .rp-report-menu-group {
   margin-top: 4px;
@@ -232,8 +229,8 @@ body.perf-warm-backdrop .perf-reports {
   color: #93a1ba;
 }
 .rp-report-menu-item {
-  border-radius: 8px;
-  padding: 7px 9px !important;
+  border-radius: 6px;
+  padding: 6px 8px !important;
   font-size: 12.5px;
   font-weight: 500;
   color: #1a1a1a;
@@ -241,10 +238,12 @@ body.perf-warm-backdrop .perf-reports {
 .dark .rp-report-menu-item {
   color: #f4f6fb;
 }
+/* Same peach-hover Directory ▸ People uses for its own filter/action menus
+   (page-shell.css / people-glass.css: `background:#fff1e0; color:#c96f1f`). */
 .rp-report-menu-item:focus,
 .rp-report-menu-item:hover:not([data-disabled]) {
-  background: rgba(255, 241, 235, 0.9) !important;
-  color: #ea580c !important;
+  background: #fff1e0 !important;
+  color: #c96f1f !important;
 }
 .dark .rp-report-menu-item:focus,
 .dark .rp-report-menu-item:hover:not([data-disabled]) {
@@ -252,8 +251,8 @@ body.perf-warm-backdrop .perf-reports {
   color: #fdba74 !important;
 }
 .rp-report-menu-item[data-selected] {
-  background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%);
-  color: #c2410c;
+  background: #fff1e0;
+  color: #c96f1f;
   font-weight: 700;
 }
 .dark .rp-report-menu-item[data-selected] {
@@ -275,24 +274,29 @@ body.perf-warm-backdrop .perf-reports {
   color: #93a1ba;
 }
 
-/* Date range — a quiet chip rather than plain text floating in the bar. */
+/* Date range — a quiet chip rather than plain text floating in the bar.
+   Same frame (background/border/height) as its "All reports"/"Queue
+   Summary"/"Export CSV" neighbours, so it reads as one more control in the
+   toolbar instead of plain text that happens to sit between them. */
 .perf-reports .rp-range {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(249, 115, 22, 0.06);
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--accent);
   color: var(--rp-ink) !important;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 .dark .perf-reports .rp-range {
-  background: rgba(251, 146, 60, 0.1);
+  background: rgba(17, 24, 39, 0.55);
 }
 .perf-reports .rp-range svg {
-  color: var(--rp-accent-ink);
+  color: var(--accent-ink);
   flex: none;
 }
 .perf-reports .rp-range-arrow {
@@ -305,42 +309,21 @@ body.perf-warm-backdrop .perf-reports {
   font-weight: 500;
 }
 
-/* "All reports" toggle and "Export CSV" — warm glass hover, matching every
-   other row/toolbar action across the Performance theme (e.g. Campaigns'
-   `.mini.ic`). */
-.perf-reports .rp-toolbar .btn.ghost.sm {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(249, 115, 22, 0.3);
-  border-radius: 999px;
-  color: var(--rp-accent-ink);
-  transition:
-    background-color 0.16s ease,
-    color 0.16s ease,
-    border-color 0.16s ease,
-    box-shadow 0.16s ease;
+/* "Export CSV" — same orange-outline-until-filled-on-hover ghost button
+   Directory ▸ People uses for its own "Groups"/"Export" (people-glass.css),
+   not a bespoke gradient-hover pill. "All reports" (`.btn.primary` while
+   the catalog is open) is left on the shared `.mcm-page .btn.primary` this
+   matches too — solid `--accent` fill, white text — rather than toned down
+   to a wash, so "active" reads the same way here as everywhere else. */
+.perf-reports .rp-toolbar .btn.ghost {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--accent);
+  color: var(--accent-ink);
 }
-.perf-reports .rp-toolbar .btn.ghost.sm:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  border-color: transparent;
+.perf-reports .rp-toolbar .btn.ghost:hover:not(:disabled) {
+  background: var(--accent);
+  border: 1px solid var(--accent);
   color: #fff;
-  box-shadow: 0 4px 14px -2px rgba(249, 115, 22, 0.35);
-}
-
-/* "All reports" toggle when the catalog is open — `.btn.primary` reads
-   solid accent orange with white text globally (`mcm-page.css`), which
-   read too harsh sitting in this glass toolbar next to the quiet ghost
-   buttons. Toned down to the same soft peach wash the selected catalog
-   card below uses, so "this is active" reads as a wash, not a block of
-   solid color. */
-.perf-reports .rp-toolbar .btn.primary {
-  background: rgba(249, 115, 22, 0.12) !important;
-  color: #ea580c !important;
-  border: 1px solid rgba(249, 115, 22, 0.35) !important;
-  box-shadow: none !important;
-  font-weight: 600;
-}
-.perf-reports .rp-toolbar .btn.primary:hover {
-  background: rgba(249, 115, 22, 0.18) !important;
 }
 
 /* "Open a full report page" quick links — same family as the toolbar's

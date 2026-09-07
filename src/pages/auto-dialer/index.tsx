@@ -2,6 +2,7 @@ import PageSidebarLayout from '@/layout/page-sidebar-layout';
 import { SuspenseOutlet } from '@/components/custom/route-suspense';
 import CampaignSidebar from './sidebar';
 import '@/components/mcm/mcm-page.css';
+import './directory-table.css';
 
 const AutoDialer = () => {
   return (

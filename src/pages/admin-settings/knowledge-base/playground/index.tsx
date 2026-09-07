@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { handleAlert } from '@/lib/utils';
 import { getChatAgentList, getAIReceptionistList } from '@/services/api';
-import { MessageSquare, Phone, Search, Activity, Zap, Sparkles } from 'lucide-react';
+import { MessageSquare, Phone, Search, Activity, Zap, Sparkles, Check } from 'lucide-react';
 import Loader from '@/components/custom/loader';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -17,7 +17,28 @@ const CALL_WIDGET_MAX_WIDTH = 360;
 const CALL_WIDGET_MAX_HEIGHT = 580;
 const CHAT_WIDGET_VIEWPORT_GAP = 8;
 
+/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
+   the floating white header card actually reads as "floating" — without a
+   saturated backdrop behind it, a white card on the AdminHub shell's own
+   near-white background has almost no contrast to float against. */
+const AI_TOOLS_PAGE_GRADIENT = [
+  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
+  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
+  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
+  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
+  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
+].join(', ');
+
 const sanitizeWidgetKey = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, '');
+
+/* `agent_uuid || id` alone left every row without one of those two fields
+   resolving to the same `undefined`, and once any agent was selected every
+   other row's `undefined === undefined` compare read as "also selected" —
+   the whole list lit up together instead of just the one row. Matches the
+   same broader fallback chain `getAgentId` uses on the Chat Agents list
+   page, since these rows come from the same APIs. */
+const getAgentRowId = (agent: any): string =>
+  String(agent?.agent_uuid || agent?.agentId || agent?.id || agent?.uuid || agent?._id || '');
 
 const unloadEmbedScript = () => {
   document
@@ -260,7 +281,7 @@ function Playground() {
 
   useEffect(() => {
     if (!selectedAgent) return;
-    const rowId = selectedAgent?.agent_uuid || selectedAgent?.id;
+    const rowId = getAgentRowId(selectedAgent);
     if (activeEmbedId === rowId || embedLoadingRef.current) return;
     const timer = window.setTimeout(() => {
       handleLoadAgentWidget(selectedAgent);
@@ -286,7 +307,7 @@ function Playground() {
 
   const isWidgetActive = useMemo(() => {
     if (!selectedAgent) return false;
-    const rowId = selectedAgent?.agent_uuid || selectedAgent?.id;
+    const rowId = getAgentRowId(selectedAgent);
     return activeEmbedId === rowId;
   }, [selectedAgent, activeEmbedId]);
 
@@ -318,7 +339,10 @@ function Playground() {
   }, []);
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f]">
+    <section
+      className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f]"
+      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
+    >
       {/* Dynamic Style Override to position AI360 widget in Middle Panel */}
       {selectedAgent && activeWidgetId && (
         <style>{`
@@ -360,31 +384,57 @@ function Playground() {
       )}
 
       {/* Page Header (Matching other AI pages) */}
-      <div className="flex min-h-[64px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 shrink-0">
-        <div className="flex items-center gap-2 text-base font-semibold text-slate-500">
+      <div className="shrink-0 p-4 pb-0">
+        <div
+          className="rounded-2xl px-6 py-4"
+          /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
+             app-wide, unlayered "glass pass" that deliberately turns any
+             `rounded-*` + `bg-white` card translucent — inline style is what
+             actually renders solid white. */
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.9)',
+            boxShadow: '0 10px 34px rgba(160,95,30,0.16), inset 0 1px 0 rgba(255,255,255,0.8)',
+          }}
+        >
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-            className="transition-colors hover:text-primary"
+            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
           >
             AI Agents
           </button>
-          <span>/</span>
-          <span className="text-[#2E2D35]">Playground</span>
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">
+            Playground
+          </h1>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4 pb-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-4 pb-2 pt-2">
         {/* Dynamic Stats Banner */}
-        <div className="relative overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.15),transparent_60%)] pointer-events-none" />
+        {/* Split between the container's `pt-2` and this `mt-2`, instead of
+            one `pt-4`: a container's own top padding sits outside the part
+            that reliably scrolls away in every browser, so a `pt-4` alone
+            left a sliver of the page's background gradient permanently
+            visible above the banner even once fully scrolled past — but
+            dropping the container's padding to zero left the workspace
+            cards below with no breathing room, so their rounded top corners
+            read as clipped once the banner was gone. `pt-2` keeps a small
+            fixed gap that survives scrolling; `mt-2` on the banner gives the
+            rest and scrolls away cleanly with it. */}
+        <div className="relative mt-2 overflow-hidden bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] text-[#2E2D35] rounded-2xl p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
           <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Sparkles className="w-6 h-6 text-white animate-pulse" />
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">Agent Playground</h1>
-              <p className="text-slate-400 text-sm mt-1 max-w-lg">
+              <h1 className="text-lg font-semibold tracking-tight text-[#2E2D35]">
+                Agent Playground
+              </h1>
+              <p className="text-slate-500 text-sm mt-1 max-w-lg">
                 Test any AI Receptionist (voice) or Chat Agent in a safe sandbox. Sessions don't
                 count toward analytics.
               </p>
@@ -393,28 +443,28 @@ function Playground() {
 
           <div className="flex items-center gap-6 md:gap-8 relative z-10 shrink-0">
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
                 Total Agents
               </p>
-              <p className="text-3xl font-extrabold text-white mt-1">
+              <p className="text-3xl font-extrabold text-[#2E2D35] mt-1">
                 {isPageLoading ? '...' : totalAgentsCount}
               </p>
             </div>
-            <div className="w-px h-10 bg-slate-800" />
+            <div className="w-px h-10 bg-[#EEE7DD]" />
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
                 Receptionists
               </p>
-              <p className="text-3xl font-extrabold text-indigo-400 mt-1">
+              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--primary)' }}>
                 {isPageLoading ? '...' : receptionistAgents?.length}
               </p>
             </div>
-            <div className="w-px h-10 bg-slate-800" />
+            <div className="w-px h-10 bg-[#EEE7DD]" />
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
                 AI Chatbots
               </p>
-              <p className="text-3xl font-extrabold text-purple-400 mt-1">
+              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--primary)' }}>
                 {isPageLoading ? '...' : chatAgents?.length || 0}
               </p>
             </div>
@@ -422,7 +472,16 @@ function Playground() {
         </div>
 
         {/* Workspace Columns */}
-        <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
+        {/* `min-h-full` (not a bigger fixed px value) is the point: it makes
+            this row exactly as tall as the scroll container's own visible
+            height, so the only extra scrollable distance is the stats
+            banner above it — once that's scrolled past, this row already
+            fills the rest of the viewport and there's nothing further to
+            scroll to. `overflow-hidden` then holds it to that height so its
+            children (the agent list, the sandbox card) are the ones that
+            scroll internally instead of pushing this row — and the page —
+            taller. */}
+        <div className="flex-1 flex gap-4 min-h-full overflow-hidden">
           {/* Left Column: Pick Agent List */}
           <div className="w-82 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col overflow-hidden shrink-0">
             <div className="p-3 border-b border-[#EEE7DD] bg-[#FBE2C8]/50 space-y-2.5">
@@ -430,22 +489,30 @@ function Playground() {
               <div className="flex bg-[#FBE2C8]/40 p-1 rounded-lg border border-[#EEE7DD]/40">
                 <button
                   onClick={() => setActiveTab('voice')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer"
+                  /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                     (mcm-page.css) is an unlayered reset shared by every
+                     admin-settings page — it forces a plain button's own
+                     background/color to none/inherit ahead of any Tailwind
+                     utility, so the active-tab classes below never actually
+                     applied. Only an inline style beats that. */
+                  style={
                     activeTab === 'voice'
-                      ? 'bg-ucass-primary-200 text-primary shadow-sm'
-                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
-                  }`}
+                      ? { backgroundColor: '#ffffff', color: 'var(--primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                      : { color: '#9A948F' }
+                  }
                 >
                   <Phone className="w-3.5 h-3.5" />
                   AI Receptionist
                 </button>
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer"
+                  style={
                     activeTab === 'chat'
-                      ? 'bg-ucass-primary-200 text-primary shadow-sm'
-                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
-                  }`}
+                      ? { backgroundColor: '#ffffff', color: 'var(--primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                      : { color: '#9A948F' }
+                  }
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   AI Chatbot
@@ -478,31 +545,51 @@ function Playground() {
                 </div>
               ) : (
                 filteredAgents.map((agent: any) => {
-                  const agentId = agent?.agent_uuid || agent?.id;
-                  const isSelected =
-                    selectedAgent &&
-                    (selectedAgent?.agent_uuid === agentId || selectedAgent?.id === agentId);
+                  const agentId = getAgentRowId(agent);
+                  const isSelected = Boolean(
+                    selectedAgent && agentId && getAgentRowId(selectedAgent) === agentId,
+                  );
                   // const isLive = String(agent?.status || agent?.agentStatus || '').toLowerCase() === 'live';
 
                   return (
                     <button
                       key={agentId}
                       onClick={() => handleSelectAgent(agent)}
-                      className={`w-full text-left flex items-center justify-between p-2 rounded-lg border transition-all ${
+                      /* The name/subtitle text below relies on inline `style`
+                         for its color rather than inheriting the button's —
+                         `.mcm-page button:not([data-slot='tabs-trigger'])`
+                         (mcm-page.css) sets `color: inherit` on every plain
+                         button ahead of any Tailwind utility, which was
+                         quietly beating this button's own inherited color
+                         and left every row's name reading in the same shade
+                         regardless of whether it was actually selected. */
+                      className={`group w-full text-left flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-all ${isSelected ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/30'}`}
+                      style={
                         isSelected
-                          ? 'bg-ucass-primary-200/50 border-primary text-primary shadow-sm'
-                          : 'bg-white border-transparent hover:bg-slate-50 text-[#2E2D35]'
-                      }`}
+                          ? {
+                              backgroundColor: 'color-mix(in srgb, var(--primary) 10%, white)',
+                              borderColor: 'var(--primary)',
+                            }
+                          : { backgroundColor: '#ffffff', borderColor: 'transparent' }
+                      }
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <CustomAvatar
-                          name={agent?.agentName}
-                          showPresence={false}
-                          size="32"
-                          isActivityInfo={false}
-                        />
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <div
+                          className={`shrink-0 rounded-full ${isSelected ? 'ring-2 ring-offset-2' : ''}`}
+                          style={isSelected ? ({ '--tw-ring-color': 'var(--primary)' } as any) : undefined}
+                        >
+                          <CustomAvatar
+                            name={agent?.agentName}
+                            showPresence={false}
+                            size="32"
+                            isActivityInfo={false}
+                          />
+                        </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold truncate leading-4">
+                          <p
+                            className="text-xs font-semibold truncate leading-4"
+                            style={{ color: isSelected ? 'var(--primary)' : '#2E2D35' }}
+                          >
                             {agent?.agentName}
                           </p>
                           <p className="text-[10px] text-[#9A948F] truncate leading-3">
@@ -510,6 +597,14 @@ function Playground() {
                           </p>
                         </div>
                       </div>
+                      {isSelected ? (
+                        <span
+                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white"
+                          style={{ backgroundColor: 'var(--primary)' }}
+                        >
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                      ) : null}
                     </button>
                   );
                 })
@@ -521,7 +616,7 @@ function Playground() {
           <div className="flex-1 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] overflow-hidden flex flex-col min-h-0 relative">
             {!selectedAgent ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto">
-                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3 text-primary">
+                <div className="w-12 h-12 rounded-full bg-[#FBE2C8]/60 flex items-center justify-center mb-3 text-primary">
                   <Activity className="w-6 h-6" />
                 </div>
                 <h3 className="text-sm font-bold text-[#2E2D35]">Sandbox Preview</h3>

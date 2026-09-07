@@ -144,6 +144,16 @@ export type AreaView = {
    * had left Directory entirely.
    */
   altPaths?: string[];
+  /**
+   * Other `?view=` values on this same `href` that still count as "on" this
+   * rail item, for entries whose target page has its own internal views the
+   * rail doesn't otherwise know about. Calendar's Task Listing is one of
+   * these: it lives at `/calendar?view=task-list`, a query value this entry
+   * doesn't own (`href` points at `?view=calendar`), so without listing it
+   * here the rail read every view the page has other than its own default as
+   * "nothing selected" the moment you opened it.
+   */
+  altViews?: string[];
 };
 
 /**
@@ -189,8 +199,18 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   { key: 'call-queue', label: 'Queue', icon: 'PhoneIcon', feature: 'queue' },
   { key: 'video-dashboard', label: 'Video', icon: 'VideoIcon', feature: 'video' },
   // The top-bar shortcuts, moved down here so the bar itself stays lean.
-  { key: 'ext-tasks', label: 'Tasks', icon: 'ReportsLineIcon', href: '/calendar?view=task-list', sep: true },
-  { key: 'ext-calendar', label: 'Calendar', icon: 'CalendarLine', href: '/calendar?view=calendar' },
+  // Tasks used to be its own rail entry here, but it was never a separate
+  // page — it's the same `/calendar` route with `?view=task-list`, reached
+  // today via the "Tasks List View" button inside Calendar itself. Keeping
+  // both just duplicated one destination under two labels.
+  {
+    key: 'ext-calendar',
+    label: 'Calendar',
+    icon: 'CalendarLine',
+    href: '/calendar?view=calendar',
+    altViews: ['task-list'],
+    sep: true,
+  },
   { key: 'ext-campaigns', label: 'Dialer', icon: 'DialerIcon', href: '/my-campaigns' },
   // Activity and Monitoring depend on the signed-in user (their uuid, their
   // role/plan access) so their real href is resolved in useAreaNav — this

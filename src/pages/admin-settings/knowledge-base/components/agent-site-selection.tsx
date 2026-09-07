@@ -1,4 +1,5 @@
 import { normalizeRegionalSettings } from '@/lib/regional-settings';
+import CustomSelect from '@/components/custom/custom-select';
 
 type AgentSiteSelectionProps = {
   sites: any[];
@@ -58,6 +59,15 @@ export default function AgentSiteSelection({
   disabled = false,
   isLoading = false,
 }: AgentSiteSelectionProps) {
+  const siteOptions = sites.map((site) => {
+    const isDefault =
+      site?.is_default === '1' || site?.is_default === 1 || site?.is_default === true;
+    return {
+      label: `${site?.name || 'Unnamed site'}${isDefault ? ' (Main Site)' : ''}`,
+      value: getAgentSiteId(site),
+    };
+  });
+
   return (
     <div
       className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
@@ -71,30 +81,20 @@ export default function AgentSiteSelection({
 
       <label className="mt-4 block">
         <span className="mb-1.5 block text-xs font-semibold text-slate-700">Site location *</span>
-        <select
-          value={selectedSiteId}
-          onChange={(event) => onChange(event.target.value)}
-          disabled={disabled || isLoading || sites.length === 0}
-          aria-invalid={Boolean(error)}
-          className={`h-10 w-full rounded-md border bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 disabled:text-slate-500 ${
-            error ? 'border-red-400' : 'border-[rgba(225,200,165,0.9)]'
-          }`}
-        >
-          <option value="" disabled>
-            {isLoading ? 'Loading sites...' : sites.length ? 'Select a site' : 'No sites available'}
-          </option>
-          {sites.map((site) => {
-            const siteId = getAgentSiteId(site);
-            const isDefault =
-              site?.is_default === '1' || site?.is_default === 1 || site?.is_default === true;
-            return (
-              <option key={siteId} value={siteId}>
-                {site?.name || 'Unnamed site'}
-                {isDefault ? ' (Main Site)' : ''}
-              </option>
-            );
-          })}
-        </select>
+        <CustomSelect
+          isDisabled={disabled || isLoading || sites.length === 0}
+          isLoading={isLoading}
+          value={
+            selectedSiteId
+              ? siteOptions.find((option) => option.value === selectedSiteId) || null
+              : null
+          }
+          handleChange={(option: any) => onChange(option?.value || '')}
+          options={siteOptions}
+          placeholder={
+            isLoading ? 'Loading sites...' : sites.length ? 'Select a site' : 'No sites available'
+          }
+        />
       </label>
 
       {error ? <p className="mt-2 text-xs font-medium text-red-500">{error}</p> : null}

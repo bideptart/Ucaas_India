@@ -91,19 +91,19 @@ const WidgetCard = ({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) => (
-  <div className="flex h-full w-full items-center justify-center overflow-auto p-4">
-    <div className="flex max-h-full w-full max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_50px_-12px_rgba(15,23,42,0.35)]">
-      <div className="flex flex-col items-center gap-2 bg-[#111114] px-6 py-7 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#111114]">
+  <div className="flex h-full w-full items-center justify-center overflow-auto p-2.5">
+    <div className="flex max-h-full w-full max-w-[560px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_50px_-12px_rgba(15,23,42,0.35)]">
+      <div className="flex flex-col items-center gap-1 bg-[#111114] px-6 py-3 text-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#111114]">
           {icon}
         </div>
-        <h3 className="mt-1 text-[22px] font-extrabold leading-tight text-white">{title}</h3>
-        <p className="text-[13px] text-white/70">{subtitle}</p>
+        <h3 className="mt-0.5 text-[18px] font-extrabold leading-tight text-white">{title}</h3>
+        <p className="text-[12px] text-white/70">{subtitle}</p>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
 
-      {footer ? <div className="px-5 pb-5 pt-1">{footer}</div> : null}
+      {footer ? <div className="px-5 pb-2.5 pt-1">{footer}</div> : null}
     </div>
   </div>
 );
@@ -123,7 +123,7 @@ const WidgetButton = ({
   <button
     type="button"
     onClick={onClick}
-    className={`flex h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-bold text-white transition-opacity hover:opacity-90 ${
+    className={`flex h-10 w-full items-center justify-center gap-2 rounded-full text-[14px] font-bold text-white transition-opacity hover:opacity-90 ${
       tone === 'danger' ? 'bg-rose-600' : 'bg-[#111114]'
     }`}
   >
@@ -136,7 +136,7 @@ const WidgetButton = ({
    point of this screen is to show the widget, and a bar above it would be the
    first thing read every time. */
 const SandboxNote = ({ children }: { children: React.ReactNode }) => (
-  <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-400">{children}</p>
+  <p className="mt-2 text-center text-[11px] leading-relaxed text-slate-400">{children}</p>
 );
 
 const ChatPreview = ({ agentName }: { agentName: string }) => {
@@ -185,7 +185,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
   };
 
   const header = {
-    icon: <Bot className="h-7 w-7" />,
+    icon: <Bot className="h-5 w-5" />,
     title: (
       <>
         Hi, welcome <span aria-hidden="true">👋</span>
@@ -213,11 +213,11 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
           </>
         }
       >
-        <div className="flex min-h-[220px] flex-1 flex-col px-5 pt-5">
+        <div className="flex min-h-[96px] flex-1 flex-col px-5 pt-2.5">
           <p className="text-[13px] font-bold text-primary">Your conversations</p>
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 py-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FBE2C8]/50">
-              <MessageSquare className="h-6 w-6 text-primary" />
+          <div className="flex flex-1 flex-col items-center justify-center gap-1 py-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FBE2C8]/50">
+              <MessageSquare className="h-[18px] w-[18px] text-primary" />
             </div>
             <p className="text-sm font-bold text-primary">No recent conversations</p>
             <p className="text-xs text-slate-400">Start a new one below</p>
@@ -257,7 +257,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
         </div>
       }
     >
-      <div className="min-h-[220px] flex-1 space-y-3 overflow-y-auto px-5 py-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4">
         {lines.map((line) => (
           <div
             key={line.id}
@@ -317,7 +317,7 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
   );
 
   const header = {
-    icon: <Phone className="h-7 w-7" />,
+    icon: <Phone className="h-5 w-5" />,
     title: (
       <>
         Prefer to Talk? <span aria-hidden="true">👋</span>
@@ -348,11 +348,11 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
           </>
         }
       >
-        <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center gap-5 px-8 py-8 text-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-100">
-            <Mic className="h-9 w-9 text-slate-400" />
+        <div className="flex min-h-[96px] flex-1 flex-col items-center justify-center gap-2 px-8 py-3 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+            <Mic className="h-[18px] w-[18px] text-slate-400" />
           </div>
-          <p className="text-[15px] leading-relaxed text-slate-500">
+          <p className="max-w-[420px] text-[13px] leading-relaxed text-slate-500">
             {state === 'ended' ? (
               <>
                 Call with <span className="font-bold text-slate-800">{agentName}</span> ended after{' '}
@@ -383,18 +383,27 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
         </WidgetButton>
       }
     >
-      <div className="flex min-h-[220px] flex-1 flex-col px-5 py-5">
-        <div className="flex flex-col items-center gap-1">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FBE2C8]/60 text-xl font-extrabold uppercase text-primary">
+      {/* No forced `min-h` here, unlike the idle screens: this view has real
+          content of its own (the avatar/timer block plus a transcript that
+          only grows), so a minimum height just pushed the whole card taller
+          than the space available and made the *outer* card scroll instead
+          of the transcript scrolling on its own. `min-h-0` is what lets a
+          flex child actually shrink to the space it's given rather than to
+          its content's size, which is what the transcript's own
+          `overflow-y-auto` below needs to engage instead of the outer
+          `WidgetCard` wrapper's. */}
+      <div className="flex min-h-0 flex-1 flex-col px-5 py-3">
+        <div className="flex shrink-0 flex-col items-center gap-0.5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FBE2C8]/60 text-base font-extrabold uppercase text-primary">
             {agentName.charAt(0) || 'A'}
           </div>
-          <p className="mt-1 text-sm font-bold text-slate-800">{agentName}</p>
+          <p className="mt-0.5 text-sm font-bold text-slate-800">{agentName}</p>
           <p className="text-[12px] font-semibold text-slate-400">
             {state === 'ringing' ? 'Connecting...' : formatDuration(seconds)}
           </p>
         </div>
 
-        <div className="mt-4 flex-1 space-y-2 overflow-y-auto">
+        <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto">
           {shownLines.map((line) => (
             <div key={line.at} className="text-[12px] leading-relaxed">
               <span

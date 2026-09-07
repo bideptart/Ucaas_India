@@ -98,6 +98,7 @@ export const useAreaNav = () => {
         // in-page `?view=` tabs need the viewKey comparison.
         viewKey: resolvedHref ? undefined : view.key,
         altPaths: view.altPaths,
+        altViews: view.altViews,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

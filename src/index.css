@@ -504,6 +504,20 @@
   }
 
   .custom-react-select__value-container {
+    /* react-select lays this out as a CSS grid so the single value/
+       placeholder and the (invisible) typeahead input can overlap in the
+       same cell. With this app's other overrides on the control, that
+       grid resolves to two fixed-width column tracks instead of one, and
+       a value spanning both tracks renders with its leading edge subtly
+       mis-rasterized — reads as the first character being sheared off
+       ("00" showing like a stray mark plus "0"). Flex with wrapping gives
+       the same single/placeholder + input overlap behavior (the input is
+       empty and 2px wide, so it doesn't visibly compete for space) without
+       going through that grid math, and it still lets a multi-select's
+       chips wrap onto more than one line. */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
     text-align: left !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -702,6 +716,17 @@
     gap: 3px !important;
     display: flex;
     flex-direction: column;
+  }
+
+  /* react-select keeps a live text input under the displayed value/
+     placeholder for typeahead search. Its own text is already
+     transparent, but the browser still blinks a caret at its position —
+     sitting right at the start of "16", "Select", etc., which reads as a
+     stray blurred sliver to the left of the text. These selects don't
+     rely on a visible caret (there's nothing to see it type), so hiding
+     it removes the artifact without touching search/typing itself. */
+  .custom-react-select__input {
+    caret-color: transparent !important;
   }
 
   .custom-react-select__indicator-separator {
@@ -943,6 +968,21 @@
   }
   .whatsapp-drawer-glass .form-control:focus {
     border-color: var(--primary) !important;
+  }
+
+  /* Schedule modal's Start Time hour/minute dropdowns (Calendar's
+     ScheduleEventModal). Plus Jakarta Sans draws "1" with a serif flag and
+     foot, which reads as a lowercase "l" at a glance regardless of weight
+     or size — heavier weight alone (an earlier attempt) just made the
+     misleading shape bolder. Dropping to the plain system sans-serif stack
+     for this element only gives "1" a straight, unadorned stroke; tabular
+     figures keep every digit the same width as you page through values. */
+  .mcm-time-select.custom-react-select__single-value {
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
+    font-weight: 600 !important;
+    font-variant-numeric: tabular-nums !important;
+    font-size: 15px !important;
+    color: var(--color-gray-900) !important;
   }
 
   .epr-search-container input {
@@ -2412,32 +2452,63 @@
    this may be written against its own selectors.
    ================================================================== */
 
-/* Content-sized columns with Title absorbing the slack. Measured before
-   this pass: Title truncated at 134px while "Created By" held 94px of
-   empty cells beside it. Sizing by content means a title clips only when
-   the viewport genuinely cannot fit it, never because a neighbour is
-   hoarding width. Columns are sized here rather than with percentages
-   because none of these cells can compress below their content. */
+/* Fixed percentage columns instead of content-sized ones. The previous
+   approach (`width: 1%` + Title absorbing slack via `max-width: 0`) let
+   Title compress, but every other column was still sized by its own
+   content minimum -- once those minimums plus Title's 170px floor added
+   up to more than the container, the table exceeded it and fell back to
+   a horizontal scrollbar. `table-fixed` with percentages that always sum
+   to 100% removes that failure mode entirely: the table can never be
+   wider than its container, at any viewport width or content length.
+   Title still gets the ellipsis treatment (`.mcm-task-title`) rather than
+   wrapping, so a long name is still legible as a truncated single line
+   instead of forcing a taller row. */
+.mcm-tasktable table {
+  table-layout: fixed;
+  width: 100%;
+}
 .mcm-tasktable thead th,
 .mcm-tasktable tbody td {
-  width: 1%;
-  white-space: nowrap;
+  overflow: hidden;
+}
+.mcm-tasktable thead th:nth-child(1),
+.mcm-tasktable tbody td:nth-child(1) {
+  width: 15%;
 }
 .mcm-tasktable thead th:nth-child(2),
 .mcm-tasktable tbody td:nth-child(2) {
-  width: 100%;
-  /* `max-width: 0` against `width: 100%` is what lets this cell fall below
-     its content width. Without it the cell reports its full title as a
-     minimum, the table cannot compress, and it overflows its container
-     instead -- 27px past the edge at a 1100px viewport. Title is the only
-     column that should give up space: every other one holds a date, a
-     chip or a control that cannot compress at all. */
-  max-width: 0;
-  /* ...but only down to a point. Left unbounded it reached 63px in a
-     800px container, which is narrower than the word "Onboarding" and
-     shows nothing useful. Past this floor the wrapper scrolls, which is
-     the honest outcome for a table that has genuinely run out of room. */
-  min-width: 170px;
+  width: 26%;
+}
+.mcm-tasktable thead th:nth-child(3),
+.mcm-tasktable tbody td:nth-child(3) {
+  width: 17%;
+}
+.mcm-tasktable thead th:nth-child(4),
+.mcm-tasktable tbody td:nth-child(4) {
+  width: 10%;
+}
+.mcm-tasktable thead th:nth-child(5),
+.mcm-tasktable tbody td:nth-child(5) {
+  width: 14%;
+}
+.mcm-tasktable thead th:nth-child(6),
+.mcm-tasktable tbody td:nth-child(6) {
+  width: 12%;
+}
+.mcm-tasktable thead th:nth-child(7),
+.mcm-tasktable tbody td:nth-child(7) {
+  width: 6%;
+}
+
+/* The two date columns (Created On, Scheduled At) share the same
+   two-line `.mcm-task-when` markup as Title's row, but never had their
+   own overflow guard -- a long timezone suffix on the time line
+   (`mcm-task-time`) had nothing stopping it from pushing past its now
+   fixed-percentage column. */
+.mcm-tasktable .mcm-task-date,
+.mcm-tasktable .mcm-task-time {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 8px on all four sides was the same inset between two dense columns as
@@ -2548,18 +2619,19 @@
   margin-top: 10px;
 }
 
-/* TableManager sizes the scroll box from `window.innerHeight` less a flat
-   66px, but the panel it sits in ends 12px above the window bottom, so
-   the pager was already hanging 3px into the clip before the gap above
-   pushed it to 13. `max-height` wins over the inline `height` it sets, so
-   this caps the box without touching a component ~80 tables share.
-
-   Budget below the scroll box: 57 pager + 10 gap + 12 panel inset + 12
-   gutter, against a 133px offset from the top of the viewport, which is
-   fixed by this page's chrome and so does not vary with window height. */
+/* TableManager's own `overflow-auto` scrolls both axes. The `table-fixed`
+   percentage columns above already keep the table itself from ever
+   exceeding this box's width, but pinning `overflow-x` to `hidden`
+   explicitly (rather than relying on there simply being nothing to
+   scroll) means a horizontal scrollbar can never flash into existence
+   for a frame during a resize or a row re-render, and removes the
+   browser's reserved horizontal scrollbar gutter, which was shaving a
+   few px off the table's usable height. Vertical scroll is untouched. */
 .mcm-tasktable {
-  max-height: calc(100vh - 224px);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
 
 /* The trigger only revealed itself on hover, so the control looked like
    loose punctuation until the pointer found it. */

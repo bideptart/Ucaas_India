@@ -239,25 +239,29 @@ const Sidebar = () => {
           <div className="rail-scroll flex h-full min-h-0 flex-col justify-between gap-1 overflow-y-auto px-2 w-full pt-4 pb-3">
             <div className="flex flex-col gap-1.5 items-center">
               {visibleNavList?.map((navItem: any, index: number) => {
-                const { id, link, icon, name, enabled, viewKey, sep, altPaths } = navItem;
+                const { id, link, icon, name, enabled, viewKey, sep, altPaths, altViews } = navItem;
                 /* A view item shares its path with every sibling, so the
                    `?view=` value decides which is lit — path alone would light
-                   them all.
-
-                   The same is true of the rail items that open a route of their
-                   own: Tasks and Calendar are both `/calendar`, separated only
-                   by the query. Comparing the whole link against the pathname
-                   also never matched, because the link carries that query and
-                   the pathname does not, so neither ever lit. */
+                   them all. Comparing the whole link against the pathname also
+                   never matched, because the link carries that query and the
+                   pathname does not, so it never lit either. */
                 const [linkPath, linkQuery = ''] = String(link).split('?');
                 const linkView = new URLSearchParams(linkQuery).get('view');
                 const onAltPath = Boolean(
                   altPaths?.some((path: string) => pathname === path || pathname?.startsWith(`${path}/`)),
                 );
                 const onLinkPath = Boolean(pathname?.startsWith(linkPath)) || onAltPath;
+                const currentQueryView = new URLSearchParams(search).get('view');
+                /* Calendar's Task Listing is a view inside Calendar's own page,
+                   not a rail item of its own — `?view=task-list` isn't the
+                   value this link's `href` carries, so without `altViews` the
+                   rail read it as "on some other, unlisted page" and nothing
+                   lit up the moment Task Listing opened. */
+                const onAltView = Boolean(currentQueryView && altViews?.includes(currentQueryView));
                 const activeLink = viewKey
                   ? onLinkPath && currentView === viewKey
-                  : onLinkPath && (!linkView || new URLSearchParams(search).get('view') === linkView);
+                  : onLinkPath &&
+                    (!linkView || currentQueryView === linkView || onAltView);
                 const isEnabled = enabled !== false;
 
                 return (

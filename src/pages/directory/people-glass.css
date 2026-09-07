@@ -493,6 +493,19 @@ input.gp-field-v:disabled {
 .dark .gp-people .tbar .fchip > span:first-child {
   color: var(--mcm-ink-3, #aab6c1);
 }
+/* The "Search people" field sits on `text-[#1a1a1a] placeholder:text-[#8a6f57]/70
+   dark:text-mcm-ink` (SearchChip in page-shell.tsx) — but the app-wide compat
+   safety net in index.css (`.dark [class*="#8a6f57"] { color: ... !important }`)
+   matches on the raw class ATTRIBUTE STRING, not the parsed utility, so it
+   fires on the `placeholder:text-[#8a6f57]/70` substring too and repaints
+   the field's real typed-text colour — not just the placeholder that literal
+   was actually meant for — to a dim slate tone, `!important`, beating
+   `dark:text-mcm-ink` outright (confirmed via getComputedStyle: the utility
+   class never won). Only `!important` at equal-or-higher specificity can
+   out-rank another `!important` rule, so this needs it too. */
+.dark .gp-people .tbar .fchip input {
+  color: var(--mcm-ink, #f3f6f9) !important;
+}
 .dark .gp-people th {
   background: #16222c;
   color: var(--mcm-ink-3, #aab6c1);

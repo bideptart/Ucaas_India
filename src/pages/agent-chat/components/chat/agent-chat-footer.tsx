@@ -8,7 +8,7 @@ import { AI_SETTINGS_TYPES } from '@/pages/messenger/constants';
 import { getAISettingConfig } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -211,6 +211,7 @@ const AgentChatFooter = ({
             {isEmojiPickerOpen ? (
               <div className="absolute bottom-9 right-0 z-50 overflow-hidden rounded-lg shadow-xl sm:bottom-10">
                 <EmojiPicker
+                  theme={Theme.DARK}
                   lazyLoadEmojis
                   searchDisabled={false}
                   onEmojiClick={(data: any) => onTextChange(`${text}${data?.emoji || ''}`)}

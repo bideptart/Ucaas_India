@@ -61,7 +61,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Checkbox } from '@/components/ui/checkbox';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import useDebounce from '@/hooks/use-debounce';
 import { useMessengerUsers } from '../hooks/use-messenger-users';
@@ -3402,6 +3402,7 @@ export const ChatFooter = ({
           )}
         >
           <EmojiPicker
+            theme={Theme.DARK}
             className={fromMeetChat ? 'meeting-chat-emoji-picker' : undefined}
             width="100%"
             height={fromMeetChat ? 'clamp(280px, 42vh, 330px)' : undefined}

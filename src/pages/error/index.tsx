@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button';
 
 const ErrorPage = ({ text = '' }: { text: string }) => {
   /* This route sits outside the main layout (it catches unmatched paths and
-     render errors), so the header's theme toggle never mounts to apply the
-     `.dark` class here — without this, the page always rendered light
-     regardless of the stored preference. */
+     render errors). The app is dark-theme only and `index.html`'s boot
+     script already applies `.dark` on every load, but this belt-and-braces
+     effect keeps the page dark even if this component ever renders into a
+     document that skipped that script. */
   useEffect(() => {
-    try {
-      document.documentElement.classList.toggle('dark', localStorage.getItem('mcm-theme') === 'dark');
-    } catch {
-      /* ignore */
-    }
+    document.documentElement.classList.add('dark');
   }, []);
 
   return (

@@ -10,7 +10,7 @@ import useDebounce from '@/hooks/use-debounce';
 import { mediaUploadUrl, sendSms, userSMSInfo } from '@/services/api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -436,6 +436,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
+                          theme={Theme.DARK}
                           lazyLoadEmojis
                           className="z-[99999] max-h-86 max-w-76"
                           open={emojiOpen}

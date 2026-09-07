@@ -32,7 +32,7 @@ import Loader from '@/components/custom/loader';
 import { useUser } from '@/hooks/use-user';
 import { count } from 'sms-length';
 import { useSmsRateCredits } from '@/hooks/use-sms-rate-credits';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -1586,6 +1586,7 @@ const InboxContent = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
+                          theme={Theme.DARK}
                           className="border-gray-200"
                           lazyLoadEmojis
                           open={emojiOpen}

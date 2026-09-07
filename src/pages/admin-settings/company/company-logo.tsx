@@ -84,7 +84,7 @@ const CompanyLogo = ({ companyInfo }: { companyInfo?: any }) => {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-base font-semibold text-[#2E2D35]">Company logo</p>
-            <span className="rounded-full bg-[#EAF6F0] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#2F7A5B] uppercase">
+            <span className="rounded-full bg-[#EAF6F0] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#2F7A5B] uppercase dark:bg-mcm-live-wash dark:text-mcm-live">
               {logo ? 'Set' : 'Not set'}
             </span>
           </div>

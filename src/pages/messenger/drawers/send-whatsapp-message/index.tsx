@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import CustomSelect from '@/components/custom/custom-select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -221,6 +221,7 @@ const SendWhatsappMessage = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
+                          theme={Theme.DARK}
                           lazyLoadEmojis
                           className="z-[99999]"
                           open={emojiOpen}

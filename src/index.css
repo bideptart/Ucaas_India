@@ -918,31 +918,21 @@
     border-color: var(--primary) !important;
   }
 
+  /* emoji-picker-react now renders with `theme={Theme.DARK}` everywhere it's
+     used (the app is dark-only), so its own dark-theme CSS variables already
+     handle background/border/text colour correctly. These rules used to
+     force a light-mode look — white search field, dark-gray-900 text —
+     unconditionally with `!important`, fighting the library's own theming
+     no matter what theme prop was passed. Layout-only now; colour is left
+     to the library. */
   .epr-search-container input {
-    border: 1px solid var(--color-gray-300) !important;
-    background-color: var(--color-white) !important;
     border-radius: 0.5rem !important;
-    color: var(--color-gray-900) !important;
     font-size: 14px !important;
     padding-left: 2.5rem !important;
   }
 
-  .epr-search-container input::placeholder {
-    color: var(--color-gray-700) !important;
-  }
-
-  .epr-search-container input:focus {
-    border-color: var(--primary) !important;
-  }
-
   .epr-btn {
-    border-color: var(--color-gray-300) !important;
     box-shadow: none !important;
-  }
-
-  .epr-emoji-category-label,
-  .epr_-99h9r1 {
-    color: var(--color-gray-900) !important;
   }
 
   input[type='date']::-webkit-calendar-picker-indicator {
@@ -2232,12 +2222,16 @@
 .mcm-notsaved strong {
   font-weight: 700;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .mcm-notsaved {
-    border-color: #6b4a1c;
-    background: #2a2013;
-    color: #e8c98d;
-  }
+/* Was gated on `@media (prefers-color-scheme: dark)` — it followed the
+   OS's colour scheme instead of the app's own `.dark` class (now always
+   present), so this banner rendered in its light-amber colours whenever
+   the OS itself was set to light, regardless of the app's dark-only
+   theme. Same dark-appropriate colours, now keyed to `.dark` like every
+   other rule in this file. */
+.dark .mcm-notsaved {
+  border-color: #6b4a1c;
+  background: #2a2013;
+  color: #e8c98d;
 }
 
 /* ── "How your calls reach you" on Basic Info ─────────────────────────────
@@ -2867,10 +2861,44 @@
   background: rgba(24, 30, 41, 0.86) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
-.dark .mcm-glassform input:not(:disabled),
+/* Selector shape must mirror the light rule above exactly (down to the
+   `:not([type='checkbox']):not([type='radio'])` exclusions) — those two
+   extra `:not()`s make the light rule MORE specific than a shorter dark
+   override, so `.dark ...input:not(:disabled)` alone was losing to
+   `.mcm-glassform input:not(...):not(...):not(:disabled)` even though both
+   carry `!important`: every Task/Event modal field (Task Topic, Task Date,
+   etc.) rendered as a near-white bar in dark mode regardless of theme. */
+.dark .mcm-glassform input:not([type='checkbox']):not([type='radio']):not(:disabled),
 .dark .mcm-glassform textarea:not(:disabled),
 .dark .mcm-glassform select:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* The rest of this glass-form system (react-select control/menu, the
+   banded timezone/reminder cards, hairline hover borders) never had a dark
+   counterpart at all — not even one losing a specificity fight, simply
+   absent — so every one of these stayed the light-mode literal in dark
+   mode. Same glass language as the plain inputs above. */
+.dark .mcm-glassform .custom-react-select__control:not(.custom-react-select__control--is-disabled) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+.dark .mcm-glassform .custom-react-select__menu {
+  background-color: rgba(24, 30, 41, 0.98) !important;
+}
+.dark .mcm-glassform .custom-react-select__indicator-separator {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+.dark .mcm-glassform .bg-slate-50,
+.dark .mcm-glassform .bg-slate-100,
+.dark .mcm-glassform .bg-gray-50,
+.dark .mcm-glassform .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.dark .mcm-glassform .border-slate-100,
+.dark .mcm-glassform .border-slate-200 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 /* "Mark all as read" toast — react-toastify's default green success skin

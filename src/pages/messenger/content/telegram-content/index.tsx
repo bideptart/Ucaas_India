@@ -1,5 +1,5 @@
 import { EmojiICon, Send } from '@/assets/icons';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -448,6 +448,7 @@ const TelegramContent = ({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <EmojiPicker
+                        theme={Theme.DARK}
                         className="border-[#EEE7DD] dark:border-mcm-line"
                         open={emojiOpen}
                         lazyLoadEmojis

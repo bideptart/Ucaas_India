@@ -931,7 +931,7 @@ const MyCampaignListStandalone = () => {
                   <div className="relative w-full">
                     <Input
                       placeholder="Search assigned queue"
-                      className="pl-10 w-full bg-slate-50 border-slate-200 focus-visible:bg-white dark:focus-visible:bg-mcm-surface"
+                      className="pl-10 w-full bg-slate-50 border-slate-200 dark:bg-mcm-surface dark:border-mcm-line focus-visible:bg-white dark:focus-visible:bg-mcm-surface"
                       IconPosition="left-0 pl-2 inset-y-0"
                       value={queueSearch}
                       onChange={(e) => {

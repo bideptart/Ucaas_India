@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -507,6 +507,7 @@ const ItemHoveredContent = ({
               }}
             >
               <EmojiPicker
+                theme={Theme.DARK}
                 lazyLoadEmojis
                 open={emojiOpen}
                 searchDisabled

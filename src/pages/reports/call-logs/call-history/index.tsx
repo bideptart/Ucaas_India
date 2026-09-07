@@ -15,10 +15,11 @@ import { CALL_DIRECTIONS, FORWARD_ICONS } from '@/pages/dashboard/constant';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import NumberWithFlag from '@/components/custom/number-with-flag';
 import AudioModal from '@/pages/phone/audio-dialog';
-import { transFilterObject } from '@/components/custom/custom-filter';
+import CommonFilter, { transFilterObject } from '@/components/custom/custom-filter';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { dropdownCallInitialVal, handleDate } from '@/components/custom/date-dropdown/constant';
-import { Merge } from 'lucide-react';
+import { Merge, X } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { ACTIVITYLIST } from '@/components/activity-list/constants';
@@ -60,6 +61,25 @@ type CallHistoryProps = {
      other caller (the standalone Reports page, the Home Live Wallboard)
      keeps its own date picker exactly as before. */
   showDateFilter?: boolean;
+  /* Every other caller (standalone Reports, the Home Live Wallboard) wants
+     the multi-leg call expand/collapse toggle, so it defaults on. The
+     Performance tab's compact analytics view never has a use for it and
+     turns it off — otherwise TableManager renders that toggle as its own
+     leading table column, which sits empty on every ordinary (single-leg)
+     row and reads as a dead strip of whitespace before Date. */
+  hasSubRows?: boolean;
+  /* Every other caller (standalone Reports, the Home Live Wallboard) keeps
+     the Queue/IVR Detail views as a right-side SideDrawer. Performance opts
+     into a centered modal instead for both — a squished narrow drawer next
+     to a mostly-empty page doesn't read the same way next to a full-width
+     analytics table full of KPI cards, and leadership specifically asked
+     for a centered popup here. Covers both because a "To" queue link (Call
+     Info drawer) and an IVR/flow link (Callback Offer, Support Routing —
+     `forward_type === 'IVR'`) are the same kind of "see more about this
+     destination" action from the user's point of view; only one of them
+     getting the new modal was the actual bug reported here. Defaults to
+     false so nothing else changes. */
+  detailsAsModal?: boolean;
 };
 
 const EMPTY_CALL_HISTORY_FILTERS: { key: string; value: string }[] = [];
@@ -148,6 +168,8 @@ const CallHistory = ({
   splitStickyHeader = false,
   visibleRowCount,
   showDateFilter = true,
+  hasSubRows = true,
+  detailsAsModal = false,
 }: CallHistoryProps = {}) => {
   const tableRef = useRef<any>(null);
   const { user } = useUser();
@@ -882,7 +904,8 @@ const CallHistory = ({
         type="button"
         variant="outline"
         onClick={handleFilter}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+        aria-pressed={isFilter}
+        className={`cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white ${isFilter ? 'filter-active' : ''}`}
       >
         <FilterIcon className="w-5 h-5" />
       </Button>
@@ -896,6 +919,47 @@ const CallHistory = ({
      `ReportsPageLayout`, which applies its own `justify-end` to `.filters`
      at the `lg` breakpoint, and restructuring this into two groups there
      would fight that rule instead of composing with it. */
+  /* Shared by both the Queue and IVR/flow detail views — leadership asked
+     for a "To" queue link (Billing, Onboarding…) and an IVR/flow link
+     (Callback Offer, Support Routing — `forward_type === 'IVR'`) to open
+     in the exact same centered modal, and duplicating this whole Dialog/
+     DialogContent/close-button block per drawer type is exactly how the
+     two could silently drift apart again the next time either one gets a
+     tweak. Only reached when `detailsAsModal` is true, i.e. only from
+     Performance, so the inline warm-sunset styling here doesn't need the
+     `.qdv-root`-plus-body-class scoping trick the drawer's own CSS uses —
+     this whole function is simply never called for standalone Reports or
+     the Home Wallboard. */
+  const renderDetailsModal = (isOpen: boolean, onClose: () => void, content: React.ReactNode) => (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        className="qdv-modal max-w-5xl w-full max-h-[88vh] overflow-y-auto rounded-[20px] bg-[#fffdfb] backdrop-blur-[20px] border border-[rgba(249,115,22,0.18)] shadow-[0_20px_50px_rgba(160,95,30,0.22)] p-0 gap-0"
+        overlayClassName="bg-black/30 backdrop-blur-sm"
+      >
+        <DialogTitle className="sr-only">Details</DialogTitle>
+        <DialogClose
+          aria-label="Close"
+          className="absolute top-[18px] right-6 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[rgba(249,115,22,0.2)] bg-[#fff7ed] text-[#8a6f57] transition-all hover:bg-[#ffedd5] hover:text-[#1a1a1a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <X className="h-4 w-4" />
+        </DialogClose>
+        {/* pt-12 clears the close button (top-[18px], h-8 — a 32px button
+            with 18px of headroom) without a separate header row eating
+            its own extra space above — the old drawer's blanket `pt-14`
+            (reserved for every drawer's floating close button regardless
+            of content) was exactly the "large, awkward empty space above
+            Queue Info" being fixed here. */}
+        <div className="pt-12 px-6 pb-6">{content}</div>
+      </DialogContent>
+    </Dialog>
+  );
+
   const Filters = embedded ? (
     <div className="flex w-full flex-wrap items-center justify-between gap-2 filters">
       {searchInput}
@@ -948,6 +1012,30 @@ const CallHistory = ({
           ))}
         </div>
       )}
+      {/* TableManager's own internal filter panel only ever renders when
+          `!splitStickyHeader` (see table-manager.tsx) — under
+          splitStickyHeader that panel would sit as a sibling of the
+          header/body tables inside a box whose whole layout depends on
+          measuring "the first real row", and a filter form dropped in
+          there is exactly the kind of non-representative content that
+          logic explicitly guards against. Rendering it here instead,
+          between the counter cards and TableManager, keeps that
+          measurement untouched while still giving splitStickyHeader
+          callers (Performance) the same filter toggle standalone
+          Reports already has — reusing the exact same state/handlers
+          this component already threads down into TableManager for the
+          non-split case. */}
+      {isFilter && splitStickyHeader && (
+        <div className="adv-filter-panel">
+          <CommonFilter
+            fields={filterFields}
+            onFilterChange={handleFilterChange}
+            handleReset={handleReset}
+            handleFilterSelect={handleFilterSelect}
+            ref={filterRef}
+          />
+        </div>
+      )}
       <TableManager
         {...{
           tableRef,
@@ -964,7 +1052,7 @@ const CallHistory = ({
           visibleRowCount,
 
           //for extra row
-          hasSubRows: true,
+          hasSubRows,
           showMoreData: showMoreCallRows,
           makeSubRowPayload: makeCallSubRowPayload,
           subRowsMutateFn: callListById,
@@ -983,14 +1071,21 @@ const CallHistory = ({
         srcUrl={recordingUrl}
         serRecordingUrl={serRecordingUrl}
       />
-      {drawerState?.IVR && (
-        <SideDrawer
-          isTab
-          isOpen={drawerState?.IVR}
-          handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
-          content={<IVRDetailsView rowData={rowData} />}
-        />
-      )}
+      {drawerState?.IVR &&
+        (detailsAsModal ? (
+          renderDetailsModal(
+            drawerState.IVR,
+            () => setDrawerState((prev) => ({ ...prev, IVR: false })),
+            <IVRDetailsView rowData={rowData} variant="modal" />,
+          )
+        ) : (
+          <SideDrawer
+            isTab
+            isOpen={drawerState?.IVR}
+            handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+            content={<IVRDetailsView rowData={rowData} />}
+          />
+        ))}
       {drawerState?.department && (
         <SideDrawer
           isTab
@@ -1005,14 +1100,21 @@ const CallHistory = ({
           }
         />
       )}
-      {drawerState?.QUEUE && (
-        <SideDrawer
-          isTab
-          isOpen={drawerState?.QUEUE}
-          handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
-          content={<QueueDetailsView rowData={rowData} />}
-        />
-      )}
+      {drawerState?.QUEUE &&
+        (detailsAsModal ? (
+          renderDetailsModal(
+            drawerState.QUEUE,
+            () => setDrawerState((prev) => ({ ...prev, QUEUE: false })),
+            <QueueDetailsView rowData={rowData} variant="modal" />,
+          )
+        ) : (
+          <SideDrawer
+            isTab
+            isOpen={drawerState?.QUEUE}
+            handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+            content={<QueueDetailsView rowData={rowData} />}
+          />
+        ))}
       {drawerState?.transcription && (
         <SideDrawer
           isHeader

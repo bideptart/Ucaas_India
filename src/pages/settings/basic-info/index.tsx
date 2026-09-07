@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import CustomAvatar from '@/components/custom/custom-avatar';
+import AccountPageHead from '../account-page-head';
 import HowCallsReachYou from './how-calls-reach-you';
 import CallSetupGuide from './call-setup-guide';
 import { buildProfileUpdatePayload } from './profile-update-payload';
@@ -254,16 +255,10 @@ const BasicInfoSettings = () => {
           a ten-property inline style undoing its own layout and font rules;
           `.mcm-profile` sets what this page actually wants instead. */}
       <section className="mcm-page mcm-admin mcm-acct">
-        <div className="mcm-adminpage-head">
-          <div className="mcm-adminpage-title">
-            <div className="mcm-adminpage-eyebrow">My Account</div>
-            <h1>Profile</h1>
-            <p>
-              Your name, job title and location as colleagues see them in the directory, alongside
-              the numbers that reach you.
-            </p>
-          </div>
-        </div>
+        <AccountPageHead
+          title="Profile"
+          about="Your name, job title and location as colleagues see them in the directory, alongside the numbers that reach you."
+        />
 
         {PendingUserData ? (
           <div className="flex items-center justify-center p-5">

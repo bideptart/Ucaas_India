@@ -35,6 +35,7 @@ import {
   demoCallStats,
   demoCalls,
   demoCalendarTaskRows,
+  demoCallQueueInvolvements,
   demoCampaignRows,
   demoContactBookRows,
   demoContactGroupRows,
@@ -1118,6 +1119,23 @@ const matchDemoPayload = (url: string, data: unknown) => {
     const campaignId = asObject(data)?.campaignId;
     const campaign = demoCampaignRows().find((row) => row._id === campaignId);
     return ok(campaign?.campaignAnalytics || {});
+  }
+  /* Performance ▸ Dialer's "Running Campaign" tab — a different endpoint
+     from /api/campaign/list above (the member-based list vs. the full
+     Campaigns page), but the same rows read the same way here. */
+  if (url.includes('/api/campaign/member-based')) {
+    return ok(listPayload(demoCampaignRows(), {}, data));
+  }
+  /* Performance ▸ Dialer's "Assigned Queues" tab. The caller reads this as
+     a bare array (`result`), not `result.rows` — no listPayload wrapper. */
+  if (url.includes('/api/call-queue/queue-involvement')) {
+    const search = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    const rows = demoCallQueueInvolvements().filter(
+      (row) => !search || String(row.name || '').toLowerCase().includes(search),
+    );
+    return ok(rows);
   }
   if (url.includes('/api/calendar/event-task/list')) {
     return ok(listPayload(demoCalendarTaskRows(), {}, data));

@@ -18,6 +18,7 @@ import { useState, useMemo } from 'react';
 import useDebounce from '@/hooks/use-debounce';
 import ChangePassword from '@/pages/change-password';
 import '@/components/mcm/mcm-page.css';
+import AccountPageHead from '../account-page-head';
 
 /* The list printed the raw `navigator.userAgent` string against every row —
    ninety characters of version numbers and compatibility tokens that answer
@@ -155,12 +156,10 @@ const Security = () => {
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <div className="mcm-adminpage-head">
-        <div className="mcm-adminpage-title">
-          <div className="mcm-adminpage-eyebrow">My Account</div>
-          <h1>Security &amp; Privacy</h1>
-          <p>Your password, and every device currently signed in as you.</p>
-        </div>
+      <AccountPageHead
+        title="Security & Privacy"
+        about="Your password, and every device currently signed in as you."
+      >
         {!isLoading && !isSearching && deviceCount > 0 && (
           <div className="mcm-acct-note">
             <MonitorSmartphone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -170,7 +169,7 @@ const Security = () => {
             </span>
           </div>
         )}
-      </div>
+      </AccountPageHead>
 
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">

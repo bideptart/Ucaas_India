@@ -51,6 +51,8 @@ const InteractionsTab = ({ selectedRange }: { selectedRange: { from: string; to:
         showDateFilter={false}
         splitStickyHeader
         visibleRowCount={6}
+        hasSubRows={false}
+        detailsAsModal
       />
     </div>
   );

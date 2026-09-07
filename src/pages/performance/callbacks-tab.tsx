@@ -27,6 +27,9 @@ const CallbacksTab = () => {
   const callLogActionAccess = features?.plan_features?.reports?.action || {};
   const [modalState, setModalState] = useState<any>(false);
   const [recordingUrl, setRecordingUrl] = useState('');
+  const [voicemailMeta, setVoicemailMeta] = useState<
+    { fromNumber?: string; didNumber?: string; leftAt?: string; lengthLabel?: string } | undefined
+  >(undefined);
   const [view, setView] = useState<'tasks' | 'voicemail'>('tasks');
 
   const { data: tasks = [] } = useQuery({
@@ -166,6 +169,16 @@ const CallbacksTab = () => {
                   onClick={() => {
                     if (!hasRecording) return;
                     setRecordingUrl(recordingSrcUrl);
+                    setVoicemailMeta({
+                      fromNumber: data?.caller_id_number,
+                      didNumber: data?.via_did,
+                      leftAt: data?.start_stamp
+                        ? convertDateFormateApis(data.start_stamp, 'MMM DD, hh:mm A')
+                        : undefined,
+                      lengthLabel: data?.billsectotal
+                        ? formatSecondsToMMSS(Number(data.billsectotal))
+                        : undefined,
+                    });
                     setModalState(true);
                   }}
                 >
@@ -271,6 +284,7 @@ const CallbacksTab = () => {
         setModalState={setModalState}
         srcUrl={recordingUrl}
         serRecordingUrl={setRecordingUrl}
+        meta={voicemailMeta}
       />
     </div>
   );

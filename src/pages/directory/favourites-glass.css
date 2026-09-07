@@ -158,3 +158,32 @@
 .dark .gp-favourites tbody tr:hover {
   background: rgba(17, 29, 39, 0.6);
 }
+/* mcm-page.css's own `.favourites-compact thead th` rule (needed for the
+   sticky header) sets `background: var(--surface)` directly — the same
+   tier as this page's own panel-card, not `--surface-2` the rule right
+   above already correctly uses. That rule has one more compound part
+   (`thead th` vs plain `th`) than the rule above, so it wins regardless
+   of file order, leaving the sticky header blended into the empty body
+   instead of standing apart from it. Extra `.gp-favourites` scoping here
+   out-specifies it without needing `!important` or touching the shared
+   sticky-position rule itself. */
+.dark .gp-favourites .favourites-compact thead th {
+  background: var(--mcm-surface-2, #16222c);
+}
+/* The "N favourites" result-count chip's light rule above (`.gp-favourites
+   .fchip.live`) hardcodes a light mint fill with `!important` — the same
+   gap already found and fixed on Locations/External Contacts/Roles. */
+.dark .gp-favourites .fchip.live {
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+/* The shared `.mcm-page .empty` component (used by every "nothing here
+   yet" state across the app) sets `color: var(--ink-4)` — documented
+   elsewhere in this codebase as measuring 3.93:1 against the dark surface,
+   under the 4.5:1 AA floor for body text. Scoped to this page rather than
+   fixing the shared rule (which would touch every other page's empty
+   state too) since only Favourites was in scope for this pass. */
+.dark .gp-favourites .empty {
+  color: var(--mcm-ink-3, #8b98a6);
+}

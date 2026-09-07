@@ -71,7 +71,13 @@ body.perf-warm-backdrop.dark {
   --qa-hairline: rgba(249, 115, 22, 0.16);
   --qa-row-hover: rgba(249, 115, 22, 0.1);
 
-  --qa-glass: rgba(11, 20, 28, 0.72);
+  /* Was rgba(11, 20, 28, 0.72) — that tone sits almost on top of
+     --mcm-ground (#080d12), so every glass card here (hero/grouped KPI
+     band, the six-metric strip, drill-in summary cards) read as barely
+     separated from the page itself. Re-based on the app's own --surface-2
+     tone (#16222c) at a higher alpha so the same glass treatment actually
+     shows up as an elevated card against the dark ground. */
+  --qa-glass: rgba(22, 34, 44, 0.88);
   --qa-glass-border: rgba(249, 115, 22, 0.2);
   --qa-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
@@ -203,14 +209,18 @@ body.perf-warm-backdrop .mcm-page .grouped-row .grouped-stat-divider {
   margin: 0 2px;
   transition: background-color 0.16s ease;
 }
+/* Was 0.04 — with the strip container itself now visibly lighter than the
+   page (see --qa-glass above), the individual pill needs a touch more lift
+   of its own to still read as its own card rather than flattening back
+   into the strip's surface. */
 .dark .mcm-page .perf-queues .kpi-strip-cell {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.07);
 }
 .mcm-page .perf-queues .kpi-strip-cell:hover {
   background: rgba(255, 255, 255, 0.85);
 }
 .dark .mcm-page .perf-queues .kpi-strip-cell:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
 }
 .mcm-page .perf-queues .kpi-strip-cell-breach {
   background: var(--qa-crit-glow-soft);

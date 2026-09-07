@@ -4642,6 +4642,16 @@
 .mcm-admin .table-scroll table tbody tr:hover {
   background: rgba(255, 255, 255, 0.45);
 }
+/* Its own `thead th` sibling above already carries a dark companion; this
+   rule never got one, so every `.mcm-admin` table (Campaign's Leads,
+   Dispositions, etc. all render through this same TableManager/table-scroll
+   markup) hovered a row into a near-white wash regardless of theme —
+   exactly the "light gray row" the dark theme otherwise avoids everywhere
+   else. Matches the header's own dark tone family rather than a fresh
+   color. */
+.dark .mcm-admin .table-scroll table tbody tr:hover {
+  background: rgba(22, 34, 44, 0.6);
+}
 
 /* ---- empty states sit directly on the glass ---- */
 .mcm-page .table-scroll .bg-white {

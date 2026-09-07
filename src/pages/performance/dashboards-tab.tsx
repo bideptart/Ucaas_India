@@ -1,4 +1,5 @@
 import { useContext, useEffect } from 'react';
+import './dashboards-theme.css';
 import { useQuery } from '@tanstack/react-query';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { SocketEvents } from '@/context/socket-events-context';
@@ -34,6 +35,16 @@ const DashboardsTab = () => {
     });
   }, [canRefreshAi]);
 
+  // This tab never opted into the shared warm-glass backdrop Queues/Live/
+  // Campaigns already toggle, so the KPI hero band rendered one level up by
+  // index.tsx (Waiting/Longest wait/Service/Volume/Coverage) fell back to
+  // plain, undecorated `.stat` styling here specifically — every other tab
+  // in SHOW_KPI_HEADER_TABS already looked like an elevated glass card.
+  useEffect(() => {
+    document.body.classList.add('perf-warm-backdrop');
+    return () => document.body.classList.remove('perf-warm-backdrop');
+  }, []);
+
   const aiContainment = campaignAiLiveCallData?.data?.result?.ai_containment_percent;
 
   const { data: queues = [] } = useQuery({
@@ -65,7 +76,7 @@ const DashboardsTab = () => {
   const ahtAnimated = useAnimatedNumber(avgHandleTime);
 
   return (
-    <div className="w-full px-[22px] py-4">
+    <div className="w-full px-[22px] py-4 perf-dashboards">
       <style>{`
         .mcm-page .kpi-strip {
           display:flex; align-items:stretch;

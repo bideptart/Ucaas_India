@@ -58,12 +58,21 @@ body.perf-warm-backdrop.dark {
   --ic-hairline: rgba(249, 115, 22, 0.16);
   --ic-row-hover: rgba(249, 115, 22, 0.1);
 
-  --ic-glass: rgba(11, 20, 28, 0.72);
-  --ic-glass-border: rgba(249, 115, 22, 0.2);
+  /* Was rgba(11, 20, 28, 0.72) — nearly the same tone as --mcm-ground, so
+     every KPI card and the summary strip read as barely elevated above the
+     page. Same fix already applied to Queues/Agents (--qa-glass/--aa-glass):
+     re-based on the app's own --surface-2 (#16222c) at a higher alpha. */
+  --ic-glass: rgba(22, 34, 44, 0.88);
+  /* Was 0.2 — a heavy orange ring around every resting card. Softened to a
+     hint of the accent rather than a default outline, matching the same
+     border fix on Queues/Agents. */
+  --ic-glass-border: rgba(249, 115, 22, 0.12);
   --ic-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --ic-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
+  /* Was rgba(249, 115, 22, 0.24) at a 38px spread — same over-strong hover
+     glow already toned down on Queues/Agents. */
+  --ic-glass-shadow-hover: 0 14px 30px -6px rgba(249, 115, 22, 0.16);
 }
 
 /* ------------------------------------------------------------

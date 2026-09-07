@@ -80,7 +80,12 @@ body.perf-warm-toolbar.dark {
   --pl-accent-ink: #ff8a2a;
   --pl-wash: #111c26;
   --pl-wash-2: #101a23;
-  --pl-edge: rgba(249, 115, 22, 0.4);
+  /* Was 0.4 — the resting border on every monitoring action icon
+     (Listen/Whisper/Barge/Intercept/Hangup), noticeably heavier than this
+     same token's own light-mode value (0.16) and than every other glass
+     border in this module. Hover already goes to a solid orange fill
+     (below), so the accent doesn't need to lead at rest too. */
+  --pl-edge: rgba(249, 115, 22, 0.18);
   --pl-hairline: rgba(249, 115, 22, 0.16);
   --pl-ink: #f5f7fa;
   --pl-ink-2: #f5f7fa;
@@ -88,12 +93,18 @@ body.perf-warm-toolbar.dark {
   --pl-row-hover: rgba(249, 115, 22, 0.1);
   --pl-surface: #111c26;
 
-  --pl-glass: rgba(11, 20, 28, 0.72);
-  --pl-glass-border: rgba(249, 115, 22, 0.2);
+  /* Was rgba(11, 20, 28, 0.72) — same low-contrast-against-ground issue
+     already fixed on Queues/Agents/Calls/Flows: re-based on the app's own
+     --surface-2 (#16222c) at a higher alpha. */
+  --pl-glass: rgba(22, 34, 44, 0.88);
+  /* Was 0.2 — softened to match the same border fix everywhere else. */
+  --pl-glass-border: rgba(249, 115, 22, 0.12);
   --pl-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --pl-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
+  /* Was rgba(249, 115, 22, 0.24) at a 38px spread — same over-strong hover
+     glow already toned down elsewhere. */
+  --pl-glass-shadow-hover: 0 14px 30px -6px rgba(249, 115, 22, 0.16);
 
   --pl-live: #4ade80;
   --pl-live-ring: rgba(74, 222, 128, 0.24);
@@ -480,7 +491,10 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
     box-shadow 0.16s ease;
 }
 .dark .mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg'] {
-  background: rgba(11, 20, 28, 0.6);
+  /* Was rgba(11, 20, 28, 0.6) — same surface-2-based tone as --pl-glass now,
+     so the resting button reads as a neutral dark surface consistent with
+     the rest of the card family, not a separate darker patch. */
+  background: rgba(22, 34, 44, 0.7);
 }
 .mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg']:hover {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);

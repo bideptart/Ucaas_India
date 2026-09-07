@@ -1,0 +1,63 @@
+/* ============================================================
+   Performance › Boards (Dashboards) — dark-mode glass parity.
+
+   This tab has no dedicated theme file of its own; the KPI hero band
+   (Waiting/Longest wait/Service/Volume/Coverage) is rendered one level up
+   by index.tsx and picks up its glass treatment purely from
+   `body.perf-warm-backdrop`, toggled in dashboards-tab.tsx the same way
+   queues-activity-tab.tsx / agents-tab.tsx already do.
+
+   The six-metric "quick-glance" strip below it (Active Queues / Active
+   Campaigns / Agents Online / Answered Today / Avg Handle Time / AI
+   Containment) is the same `KpiStrip` component Queues uses, but
+   dashboards-tab.tsx only ever had the plain, unstyled base rule for it
+   (flat `var(--surface)` fill, `var(--line)` border — no glass, no
+   elevation) with nothing to override it, since this tab carries no
+   `.perf-queues`-equivalent scope class of its own. Scoped through
+   `.perf-dashboards` (added to this tab's root element) so nothing outside
+   Boards is touched, and reusing `--qa-glass`/`--qa-glass-border` — already
+   defined on `body.perf-warm-backdrop` by queues-theme.css and available
+   here purely through custom-property inheritance now that this tab opts
+   into that class too — rather than declaring a second, parallel set of
+   glass tokens for one strip.
+   ============================================================ */
+.mcm-page .perf-dashboards .kpi-strip {
+  background: var(--qa-glass);
+  backdrop-filter: var(--qa-glass-blur);
+  -webkit-backdrop-filter: var(--qa-glass-blur);
+  border: 1px solid var(--qa-glass-border);
+  border-radius: 20px;
+  box-shadow: var(--qa-glass-shadow);
+  padding: 6px;
+  gap: 4px;
+}
+.mcm-page .perf-dashboards .kpi-strip-cell {
+  border-left: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.55);
+  margin: 0 2px;
+  transition: background-color 0.16s ease;
+}
+.dark .mcm-page .perf-dashboards .kpi-strip-cell {
+  background: rgba(255, 255, 255, 0.07);
+}
+.mcm-page .perf-dashboards .kpi-strip-cell:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+.dark .mcm-page .perf-dashboards .kpi-strip-cell:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.mcm-page .perf-dashboards .kpi-strip-label {
+  color: var(--qa-muted);
+}
+.mcm-page .perf-dashboards .kpi-strip-value {
+  color: var(--qa-ink);
+}
+.mcm-page .perf-dashboards .kpi-strip-sub {
+  color: var(--qa-muted);
+}
+@media (max-width: 1180px) {
+  .mcm-page .perf-dashboards .kpi-strip-cell {
+    border-bottom: none;
+  }
+}

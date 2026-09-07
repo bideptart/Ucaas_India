@@ -47,12 +47,19 @@ body.perf-warm-backdrop.dark {
   --fl-hairline: rgba(249, 115, 22, 0.16);
   --fl-row-hover: rgba(249, 115, 22, 0.1);
 
-  --fl-glass: rgba(11, 20, 28, 0.72);
-  --fl-glass-border: rgba(249, 115, 22, 0.2);
+  /* Was rgba(11, 20, 28, 0.72) — same low-contrast-against-ground issue
+     already fixed on Queues/Agents/Calls (--qa-glass/--aa-glass/--ic-glass):
+     re-based on the app's own --surface-2 (#16222c) at a higher alpha. */
+  --fl-glass: rgba(22, 34, 44, 0.88);
+  /* Was 0.2 — softened to a hint of the accent rather than a heavy default
+     outline, matching the same border fix everywhere else. */
+  --fl-glass-border: rgba(249, 115, 22, 0.12);
   --fl-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --fl-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
+  /* Was rgba(249, 115, 22, 0.24) at a 38px spread — same over-strong hover
+     glow already toned down elsewhere. */
+  --fl-glass-shadow-hover: 0 14px 30px -6px rgba(249, 115, 22, 0.16);
 }
 
 /* ------------------------------------------------------------

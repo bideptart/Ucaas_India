@@ -29,7 +29,7 @@ const StatCard = ({
 const ActivityArea = ({ range, duration, timings, activityType }: any) => {
   const { userActivitiesList } = useSocketEvents();
   const { user } = useUser();
-  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'America/Denver';
+  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'Asia/Kolkata';
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   const dates = useMemo(() => {

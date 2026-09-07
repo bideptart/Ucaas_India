@@ -46,6 +46,7 @@ const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => 
      on the left where it's always been, unchanged. */
   const isSession = item.kind === 'online' || item.kind === 'offline';
   const sessionColorClass = item.kind === 'online' ? 'bg-green-600' : 'bg-red-600';
+  const sessionTextColorClass = item.kind === 'online' ? 'text-green-600' : 'text-red-600';
 
   return (
     <div className="relative flex items-start gap-3.5 group">
@@ -69,7 +70,16 @@ const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => 
             <div className="text-[11px] text-gray-500 mt-0.5 truncate">
               {item.device.device_type}
               {item.device.browser_version ? ` · ${item.device.browser_version}` : ''}
-              {item.device.ip_address ? ` · ${item.device.ip_address}` : ''}
+              {item.device.ip_address ? (
+                <>
+                  {' · '}
+                  <span className={isSession ? `font-semibold ${sessionTextColorClass}` : undefined}>
+                    {item.device.ip_address}
+                  </span>
+                </>
+              ) : (
+                ''
+              )}
             </div>
           )}
         </div>

@@ -42,6 +42,10 @@ const FEED_ICON: Record<FeedKind, React.ComponentType<{ className?: string }>> =
 
 const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => {
   const Icon = FEED_ICON[item.kind];
+  /* Login/logout only — a call's "Inbound call"/"Outbound call" label stays
+     on the left where it's always been, unchanged. */
+  const isSession = item.kind === 'online' || item.kind === 'offline';
+  const sessionColorClass = item.kind === 'online' ? 'bg-green-600' : 'bg-red-600';
 
   return (
     <div className="relative flex items-start gap-3.5 group">
@@ -52,21 +56,34 @@ const FeedRow = ({ item, agentName }: { item: FeedItem; agentName: string }) => 
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-gray-800">{agentName}</span>
+            {!isSession && (
+              <span className="text-[11px] text-gray-500">{item.label}</span>
+            )}
             {typeof item.durationMin === 'number' && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
                 {item.durationMin} min
               </span>
             )}
           </div>
-          <div className="text-[11px] text-gray-500 mt-0.5 truncate">
-            {item.label}
-            {item.device?.device_type ? ` · ${item.device.device_type}` : ''}
-            {item.device?.browser_version ? ` · ${item.device.browser_version}` : ''}
-            {item.device?.ip_address ? ` · ${item.device.ip_address}` : ''}
-          </div>
+          {item.device?.device_type && (
+            <div className="text-[11px] text-gray-500 mt-0.5 truncate">
+              {item.device.device_type}
+              {item.device.browser_version ? ` · ${item.device.browser_version}` : ''}
+              {item.device.ip_address ? ` · ${item.device.ip_address}` : ''}
+            </div>
+          )}
         </div>
-        <div className="text-xs font-semibold text-gray-400 whitespace-nowrap shrink-0">
-          {item.startedAt.format('hh:mm A')}
+        <div className="flex items-center gap-2 shrink-0">
+          {isSession && (
+            <span
+              className={`text-xs font-semibold whitespace-nowrap text-white px-2 py-0.5 rounded-full ${sessionColorClass}`}
+            >
+              {item.label}
+            </span>
+          )}
+          <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">
+            {item.startedAt.format('hh:mm A')}
+          </span>
         </div>
       </div>
     </div>

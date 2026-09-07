@@ -3734,6 +3734,116 @@
   font-weight: 600;
 }
 
+/* ============================================================
+   PAST CALL RECORD — attractive pass. Same markup/classes as the
+   "PAST CALL RECORD" block above; this is the final, winning layer
+   (later in the cascade), so it can restyle without touching JSX.
+   ============================================================ */
+/* `.col.stage .stage-inner .btn.ghost` (dialpad's own round icon buttons,
+   further up in this file) forces every `.btn.ghost` in the stage into a
+   fixed 44×44 circle with zero padding. The "‹ Dialer" back link is a
+   `.btn.ghost.sm` in that same `.stage-inner` — an icon *and* the word
+   "Dialer" squeezed into that circle, which is why the text rendered
+   spilling out past its edge instead of inside a button. `.sm` already
+   carries the right pill sizing (30px tall, padded, 8px radius) on its
+   own; this just needs to out-rank the circular rule with one more class
+   in the selector so `.sm`'s sizing wins instead of being overridden. */
+.mcm-console .col.stage .stage-inner .btn.ghost.sm {
+  width: auto;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 9999px;
+  background: var(--surface);
+  box-shadow: none;
+  gap: 6px;
+}
+.mcm-console .col.stage .stage-inner .btn.ghost.sm:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .record-head {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console .record-av {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  font-size: 15px;
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--line-2);
+}
+.mcm-console .record-name {
+  font-size: 18px;
+}
+/* Matches `.col.stage .stage-inner .btn.primary` (the dialpad's own big
+   round call button, further up in this file) class-for-class — the
+   record-head Call button sits in that same `.stage-inner` container, so
+   without this it silently inherited that other button's dark gradient
+   and glow instead of its own lighter styling below. */
+.mcm-console .col.stage .stage-inner .record-head .btn.primary {
+  height: 44px;
+  border-radius: 22px;
+  font-size: 14px;
+  background: var(--accent-edge);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.mcm-console .col.stage .stage-inner .record-head .btn.primary:hover {
+  background: color-mix(in srgb, var(--accent-edge) 70%, var(--accent));
+}
+
+/* legs read as individual soft cards with breathing room between them,
+   instead of one flat list divided by hairlines. */
+.mcm-console .record-legs {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mcm-console .leg {
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--surface);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.mcm-console .leg + .leg {
+  border-top: 1px solid var(--line-2);
+}
+.mcm-console .leg:hover {
+  background: var(--surface);
+  border-color: var(--accent-edge);
+  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
+  transform: translateY(-1px);
+}
+.mcm-console .leg.open {
+  border-color: var(--accent-edge);
+  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
+}
+.mcm-console .cr-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.mcm-console .leg-by strong {
+  font-weight: 800;
+}
+.mcm-console .legbtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 99px;
+}
+.mcm-console .legbtn.on {
+  box-shadow: 0 3px 8px -2px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.mcm-console .leg-audio {
+  padding: 0 16px 14px 65px;
+}
+
 
 /* ============================================================
    Calls list — visual polish only.

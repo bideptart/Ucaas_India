@@ -140,6 +140,29 @@
   color: var(--accent-ink);
 }
 
+/* Mobile: the table has 6 columns (Location/Address/City-State/Timezone/
+   People/Actions) and no longer fits `.tbl-wrap`'s width below ~640px, so
+   the row scrolls horizontally — but that left Actions (edit/delete) at
+   the far end, unreachable without scrolling the whole row past first.
+   Pinning just that column to the right edge keeps it in reach regardless
+   of scroll position, the same way its header is already pinned
+   vertically (`position: sticky; top: 0` above). Needs its own opaque
+   background — the cell would otherwise be transparent and show the
+   scrolling columns underneath it through the "gap" the sticky position
+   leaves in the row's own background. */
+@media (max-width: 640px) {
+  .gp-locations .gp-loc-actions-head,
+  .gp-locations .gp-loc-actions-cell {
+    position: sticky;
+    right: 0;
+    background: #fffdfb;
+    box-shadow: -8px 0 8px -8px rgba(160, 95, 30, 0.2);
+  }
+  .gp-locations .gp-loc-actions-head {
+    z-index: 2;
+  }
+}
+
 /* ---- "New location" popup ----
    `DialogContent` renders through a portal to `document.body`, so it reuses
    the same `.gp-create-group-*` shell Groups/Roles already styled, rather
@@ -271,6 +294,16 @@
   background: #16222c;
   color: var(--mcm-ink-3, #aab6c1);
   border-bottom: 2px solid #1b2934;
+}
+@media (max-width: 640px) {
+  .dark .gp-locations .gp-loc-actions-head {
+    background: #16222c;
+    box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.4);
+  }
+  .dark .gp-locations .gp-loc-actions-cell {
+    background: #111c26;
+    box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.4);
+  }
 }
 .dark .gp-locations td {
   border-bottom-color: #1b2934;

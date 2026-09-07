@@ -48,3 +48,24 @@
 .dark [data-theme-divider] {
   border-bottom-color: #1b2934 !important;
 }
+
+/* The Join/Schedule segmented control (hero header) was the one piece of
+   this card with no dark treatment at all — literal `border-white/80
+   bg-white/60`, no `dark:` variant, so it stayed a solid white pill next
+   to everything else on this card that already goes dark. Matches the
+   border/surface pair already established elsewhere in this module
+   (recording-listing-table.tsx, all-recording.tsx, etc: rgba(100,116,139)
+   border, rgba(30,41,59) surface) rather than inventing a new tone. */
+.dark .vm-sunset-segctl {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(100, 116, 139, 0.3) !important;
+}
+.dark .vm-sunset-segctl-item {
+  color: var(--mcm-ink-2, #aab6c1) !important;
+}
+.dark .vm-sunset-segctl-item:hover {
+  background: rgba(100, 116, 139, 0.15) !important;
+}
+.dark .vm-sunset-segctl-divider {
+  background: rgba(100, 116, 139, 0.25) !important;
+}

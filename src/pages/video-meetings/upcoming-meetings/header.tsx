@@ -104,19 +104,19 @@ const MeetingHeader = ({ formInstance, showActions = true }: any) => {
                 </div>
               )}
 
-              <div className="flex items-center gap-1 rounded-xl border border-white/80 bg-white/60 backdrop-blur-md p-1 shadow-[0_2px_10px_rgba(120,60,20,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] w-full sm:w-auto">
+              <div className="vm-sunset-segctl flex items-center gap-1 rounded-xl border border-white/80 bg-white/60 backdrop-blur-md p-1 shadow-[0_2px_10px_rgba(120,60,20,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] w-full sm:w-auto">
                 <div
                   onClick={() => setModalState(true)}
-                  className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
+                  className="vm-sunset-segctl-item flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                 >
                   <Icon name="PlusIcon" className="w-4 h-4 shrink-0" />
                   <h6 className="font-medium text-center text-sm whitespace-nowrap">Join</h6>
                 </div>
                 {videAccess?.create && (
                   <>
-                    <span className="h-5 w-px bg-gray-900/10" aria-hidden />
+                    <span className="vm-sunset-segctl-divider h-5 w-px bg-gray-900/10" aria-hidden />
                     <div
-                      className="flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
+                      className="vm-sunset-segctl-item flex flex-1 sm:flex-none items-center justify-center gap-2 min-h-9 px-4 cursor-pointer rounded-lg text-gray-800 transition-colors hover:bg-white/90"
                       onClick={() => setDrawerState(true)}
                     >
                       <Icon name="CalendarIcon" className="w-4 h-4 shrink-0" />

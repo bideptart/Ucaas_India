@@ -52,12 +52,25 @@ body.perf-warm-backdrop.dark {
   --aa-hairline: rgba(249, 115, 22, 0.16);
   --aa-row-hover: rgba(249, 115, 22, 0.1);
 
-  --aa-glass: rgba(11, 20, 28, 0.72);
-  --aa-glass-border: rgba(249, 115, 22, 0.2);
+  /* Was rgba(11, 20, 28, 0.72) — nearly the same tone as --mcm-ground, so
+     the 8 KPI cards and the agent table read as barely elevated above the
+     page. Re-based on the app's own --surface-2 (#16222c) at a higher
+     alpha, matching the identical fix already applied to Queues
+     (queues-theme.css --qa-glass). */
+  --aa-glass: rgba(22, 34, 44, 0.88);
+  /* Was 0.2 — a full-opacity-feeling orange ring around every one of the 8
+     resting cards read as a heavy outline rather than a brand accent.
+     Softened so the card now leans on its own (now-visible) surface for
+     definition, with only a hint of the accent tint left at rest. */
+  --aa-glass-border: rgba(249, 115, 22, 0.12);
   --aa-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --aa-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
+  /* Was rgba(249, 115, 22, 0.24) at a 38px spread — with all 8 cards using
+     the same hover treatment, the cumulative effect across the grid read
+     as a strong orange glow rather than a subtle lift. Same accent hue,
+     lower alpha and tighter spread. */
+  --aa-glass-shadow-hover: 0 14px 30px -6px rgba(249, 115, 22, 0.16);
 }
 
 /* ------------------------------------------------------------

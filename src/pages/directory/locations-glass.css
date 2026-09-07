@@ -282,6 +282,19 @@
   background: rgba(17, 29, 39, 0.6);
   border-color: #293746;
 }
+/* The "x of y" result-count chip's light rule above (`.gp-locations
+   .fchip.live`) hardcodes a light mint fill with `!important` — every
+   other Directory list (Roles, Groups, People) already carries this same
+   override for its own `.fchip.live`; this page was the one missing it,
+   so the chip stayed a bright light-mode mint patch in Dark Mode. Matches
+   the Roles page's exact treatment: a solid muted-teal fill instead of
+   the faint `--live-wash` tint, so it reads with real weight against the
+   dark toolbar instead of nearly disappearing into it. */
+.dark .gp-locations .fchip.live {
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
 .dark .gp-loc-dialog {
   background: #111c26;
   border-color: #1b2934;

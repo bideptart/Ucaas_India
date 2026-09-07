@@ -290,7 +290,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
                     then what actually uses that shrunk space to ellipsize
                     instead of overflowing. */}
                 <div className="flex flex-col items-start min-w-0">
-                  <p className="capitalize truncate w-full">{fullName}</p>
+                  <p className="capitalize w-full">{fullName}</p>
                   <small className="text-primary text-[10px]">
                     {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
                   </small>

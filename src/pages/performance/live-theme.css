@@ -446,23 +446,64 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   margin-bottom: 8px;
 }
 
-/* Column widths — now owned by `splitStickyHeader`'s own measured
-   `<colgroup>` (table-manager.tsx), not by CSS: it measures every column's
-   real content width (via `scrollWidth`, off both the header label and the
-   widest rendered row) and pins it with an inline `<col style="width">`,
-   which wins over any `th`/`td` CSS width in a `table-layout: fixed` table
-   regardless of specificity. That's a structural fix for the two bugs a
-   manual percentage split used to chase by hand — Name/Contact collision
-   (a long name could push its extension badge into Contact's text) and
-   Call Path truncation ("Onboarding Queue" needed more room than a guessed
-   percentage gave it) — since each column now gets exactly what its own
-   content measured to need, including this table's own cell padding.
-   What's left below is what the measured colgroup does NOT decide:
-   per-column padding, alignment and overflow behaviour on top of whatever
-   width it lands on. */
+/* Column widths — `splitStickyHeader`'s own measured `<colgroup>`
+   (table-manager.tsx) sizes every column off its real content (`scrollWidth`,
+   off both the header label and the widest rendered row) as a PERCENTAGE
+   OF THE SUM of every column's own measured width — not a percentage of
+   the table's actual available width. Whenever that sum runs wider than
+   the table really is (near-certain here: Name + Contact + DID + Call
+   Path + a 5-button Actions column easily add up to more px than this
+   card is wide), every column gets proportionally shrunk by the same
+   ratio to force the total back to 100%, regardless of whether its own
+   individual content still fits afterwards — which is exactly what
+   truncated "Karan Malhotra" down to "Karan Malho…" and "Onboarding
+   Queue" back to "Onboarding Qu…": both measured wide enough on their
+   own, but the shared column, Actions, is wide/fixed enough (5 buttons)
+   that the proportional shrink still cut into them.
+   `min-width` on the `td`/`th` themselves cannot fix this — under
+   `table-layout: fixed`, the `<col>` element's own width is the sole
+   authority a browser will size a column to, and even an `!important`
+   `min-width` on a cell inside that column is simply not honoured (a real
+   difference from ordinary block-level min-width, verified: the cell
+   still rendered at its colgroup-assigned width, not the larger
+   min-width). The only lever that actually works is overriding the `<col>`
+   elements directly, which is what these do — explicit pixel widths,
+   summing (270+130+140+58+80+72+175+210 = 1135px) to sit under this
+   card's own measured content width (~1141px) with a small margin rather
+   than exactly matching it, so no fractional-pixel rounding tips it into
+   a real (if barely visible) horizontal scrollbar. Both the header
+   table's colgroup
+   and the body table's colgroup (two separate `<table>`s under
+   `splitStickyHeader`, each built off the same measured-widths array) are
+   covered by one selector, since neither is more specifically scoped than
+   the other and both need to end up column-aligned with each other. */
+.mcm-page .perf-live table colgroup col:nth-child(1) {
+  width: 270px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(2) {
+  width: 130px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(3) {
+  width: 140px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(4) {
+  width: 58px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(5) {
+  width: 80px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(6) {
+  width: 72px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(7) {
+  width: 175px !important;
+}
+.mcm-page .perf-live table colgroup col:nth-child(8) {
+  width: 210px !important;
+}
 .mcm-page .perf-live .table-scroll td:nth-child(1) {
   overflow: hidden;
-  /* Belt-and-suspenders alongside the JS-side `min-w-0` + `truncate` fix in
+  /* Belt-and-suspenders alongside the JS-side `min-w-0` fix in
      all-users/index.tsx: even if a future edit to that cell ever
      reintroduces unclamped content, the cell itself now hard-clips rather
      than letting text bleed into Contact's column visually. */
@@ -473,8 +514,8 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
 }
 /* Call Path (7th) — its own content (current call context) is a single
    short phrase, not a value meant to wrap onto a second line, so it still
-   ellipsizes rather than wrapping if a queue name ever runs unusually
-   long. */
+   ellipsizes rather than wrapping if a queue name ever runs longer than
+   the 175px floor above. */
 .mcm-page .perf-live .table-scroll td:nth-child(7) {
   overflow: hidden;
 }

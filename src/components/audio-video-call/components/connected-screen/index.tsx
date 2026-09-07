@@ -224,8 +224,8 @@ const ConnectedScreen = ({
   if (!isJitsiLoaded || !isJitsiConnection || !jitsiConnection || !readyForMeet) {
     return (
       // <div className="w-screen min-h-screen bg-white ">
-      <div className="max-w-[80%] min-w-[80%] max-h-[92vh] min-h-[92vh] rounded-lg bg-white ">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white ">
+      <div className="max-w-[80%] min-w-[80%] max-h-[92vh] min-h-[92vh] rounded-lg bg-white dark:bg-mcm-surface ">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white dark:bg-mcm-surface ">
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="lg" />
           </div>

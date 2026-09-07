@@ -285,3 +285,129 @@
 .gp-ext-dialog-edit:hover {
   background: #c96f1f;
 }
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block,
+   extended to this file's own portaled contact-detail dialog. ---- */
+.dark .gp-external {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-external .page-head,
+.dark .gp-external .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-external .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-external .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-external .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-external .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-external .tbar .fchip {
+  border-color: #293746;
+}
+.dark .gp-external .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-external .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.dark .gp-external th {
+  background: #16222c;
+  color: var(--mcm-ink-3, #aab6c1);
+  border-bottom: 2px solid #1b2934;
+}
+.dark .gp-external td {
+  border-bottom-color: #1b2934;
+}
+.dark .gp-external tbody tr:hover {
+  background: rgba(17, 29, 39, 0.6);
+}
+.dark .gp-external-dialog .mcm-field {
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  background: var(--mcm-surface-3, #1a2733);
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-external-dialog .mcm-field:hover,
+.dark .gp-external-dialog .mcm-field:focus-visible {
+  border-color: var(--mcm-accent, #f97316);
+}
+.dark .gp-external-dialog .mini {
+  background: var(--mcm-surface-3, #1a2733);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external-dialog .mini:hover {
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+.dark .gp-external-dialog .mini:disabled {
+  background: var(--mcm-surface-3, #1a2733) !important;
+  border-color: #1b2934 !important;
+  color: var(--mcm-ink-3, #aab6c1) !important;
+}
+.dark .gp-external-dialog .mini.solid:disabled {
+  background: var(--mcm-accent, #f97316) !important;
+  border-color: var(--mcm-accent, #f97316) !important;
+  color: #f8fafc !important;
+}
+.dark .gp-external-dialog .kv {
+  border-bottom: 1px solid #1b2934;
+}
+.dark .gp-external-dialog .kv .k {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external-dialog .kv .v {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-external-dialog .tag.neu {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external-dialog .mini.solid {
+  background: var(--mcm-accent, #f97316);
+  border-color: var(--mcm-accent, #f97316);
+  color: #f8fafc;
+}
+.dark .gp-external-dialog .mini.solid:hover {
+  background: var(--mcm-accent-ink, #ff8a2a);
+  border-color: var(--mcm-accent-ink, #ff8a2a);
+  color: #111c26;
+}
+.dark .gp-external-dialog-footer {
+  border-top: 1px solid #1b2934;
+}
+.dark .gp-ext-dialog-close {
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-ext-dialog-close:hover {
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+.dark .gp-ext-dialog-edit {
+  background: var(--mcm-accent, #f97316);
+  border: 1px solid var(--mcm-accent, #f97316);
+  color: #f8fafc;
+}
+.dark .gp-ext-dialog-edit:hover {
+  background: var(--mcm-accent-ink, #ff8a2a);
+  color: #111c26;
+}

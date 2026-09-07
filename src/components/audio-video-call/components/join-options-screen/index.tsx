@@ -255,7 +255,7 @@ const JoinOptionsScreen = ({
   };
 
   return (
-    <div className="w-screen h-screen flex bg-white">
+    <div className="w-screen h-screen flex bg-white dark:bg-mcm-ground">
       <div className="flex min-h-screen w-full h-full">
         <div className="w-full flex flex-col items-center justify-center gap-8 px-8">
           <div className="flex items-center justify-center w-full max-w-7xl gap-8">
@@ -286,7 +286,7 @@ const JoinOptionsScreen = ({
             </div>
             <div className="flex-1 max-w-md">
               <div className="flex flex-col gap-4">
-                <h3 className="text-gray-900 font-semibold text-xl">Call Settings</h3>
+                <h3 className="text-gray-900 dark:text-mcm-ink font-semibold text-xl">Call Settings</h3>
 
                 <CustomSelect
                   label="Audio Devices"
@@ -346,7 +346,7 @@ const JoinOptionsScreen = ({
 
                 <div className="flex flex-col gap-1">
                   <Label>Audio Status</Label>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-mcm-ink-3">
                     {isLocalAudioMuted ? 'Microphone is muted' : 'Microphone is active'}
                   </div>
                 </div>

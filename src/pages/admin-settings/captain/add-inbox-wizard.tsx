@@ -35,7 +35,7 @@ const STEPS: { key: Step; title: string; desc: string }[] = [
 ];
 
 const fieldClass =
-  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10';
+  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink';
 
 const AddInboxWizard = ({
   open,
@@ -173,22 +173,22 @@ const AddInboxWizard = ({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="grid h-[82vh] w-full max-w-4xl grid-cols-[240px_1fr] gap-0 overflow-hidden rounded-2xl p-0">
-        <div className="flex flex-col gap-1 border-r border-gray-100 bg-gray-50/60 p-5">
-          <button type="button" onClick={onClose} className="mb-3 w-fit text-xs text-gray-400 hover:text-gray-700">‹ Back</button>
-          <DialogTitle className="mb-4 text-sm font-bold text-gray-950">Inboxes</DialogTitle>
+        <div className="flex flex-col gap-1 border-r border-gray-100 bg-gray-50/60 p-5 dark:border-mcm-line dark:bg-mcm-surface-3/60">
+          <button type="button" onClick={onClose} className="mb-3 w-fit text-xs text-gray-400 hover:text-gray-700 dark:text-mcm-ink-3 dark:hover:text-mcm-ink">‹ Back</button>
+          <DialogTitle className="mb-4 text-sm font-bold text-gray-950 dark:text-mcm-ink">Inboxes</DialogTitle>
           <div className="flex flex-col gap-5">
             {STEPS.map((s, i) => (
               <div key={s.key} className="flex gap-3">
                 <div
                   className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                    i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-primary/20 text-primary' : 'bg-gray-200 text-gray-500'
+                    i === stepIndex ? 'bg-primary text-white' : i < stepIndex ? 'bg-primary/20 text-primary' : 'bg-gray-200 text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
                   }`}
                 >
                   {i < stepIndex ? <Check className="size-3.5" /> : i + 1}
                 </div>
                 <div>
-                  <div className={`text-sm font-medium ${i === stepIndex ? 'text-gray-950' : 'text-gray-500'}`}>{s.title}</div>
-                  <div className="text-xs text-gray-400">{s.desc}</div>
+                  <div className={`text-sm font-medium ${i === stepIndex ? 'text-gray-950 dark:text-mcm-ink' : 'text-gray-500 dark:text-mcm-ink-3'}`}>{s.title}</div>
+                  <div className="text-xs text-gray-400 dark:text-mcm-ink-3">{s.desc}</div>
                 </div>
               </div>
             ))}
@@ -198,8 +198,8 @@ const AddInboxWizard = ({
         <div className="flex flex-col overflow-y-auto">
           {step === 'channel' && (
             <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6">
-              <div className="text-base font-bold text-gray-950">Choose Channel</div>
-              <p className="text-xs text-gray-500">Choose the provider you want to integrate.</p>
+              <div className="text-base font-bold text-gray-950 dark:text-mcm-ink">Choose Channel</div>
+              <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Choose the provider you want to integrate.</p>
               <div className="grid grid-cols-3 gap-3">
                 {CHANNEL_OPTIONS.map((c) => {
                   const Icon = c.icon;
@@ -214,14 +214,14 @@ const AddInboxWizard = ({
                         setStep('create');
                       }}
                       className={`flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-colors ${
-                        c.live ? 'cursor-pointer border-gray-200 hover:border-primary hover:bg-primary/[0.02]' : 'cursor-not-allowed border-gray-100 opacity-50'
+                        c.live ? 'cursor-pointer border-gray-200 hover:border-primary hover:bg-primary/[0.02] dark:border-mcm-line' : 'cursor-not-allowed border-gray-100 opacity-50 dark:border-mcm-line'
                       } ${active && c.live ? 'border-primary bg-primary/5' : ''}`}
                     >
-                      <div className="flex size-9 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
                         <Icon className="size-4" />
                       </div>
-                      <div className="text-sm font-semibold text-gray-900">{c.label}</div>
-                      <div className="text-xs text-gray-400">{c.live ? c.desc : 'Coming soon'}</div>
+                      <div className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">{c.label}</div>
+                      <div className="text-xs text-gray-400 dark:text-mcm-ink-3">{c.live ? c.desc : 'Coming soon'}</div>
                     </button>
                   );
                 })}
@@ -231,8 +231,8 @@ const AddInboxWizard = ({
 
           {step === 'create' && (
             <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6">
-              <div className="text-base font-bold text-gray-950">Website channel</div>
-              <p className="text-xs text-gray-500">Create a channel for your website and start supporting your customers via your website widget.</p>
+              <div className="text-base font-bold text-gray-950 dark:text-mcm-ink">Website channel</div>
+              <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Create a channel for your website and start supporting your customers via your website widget.</p>
               {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">{error}</div>}
               <div className="flex flex-col gap-1.5">
                 <Label>Website Name</Label>
@@ -244,7 +244,7 @@ const AddInboxWizard = ({
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Widget Color</Label>
-                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-10 w-24 cursor-pointer rounded-xl border border-gray-300" />
+                <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="h-10 w-24 cursor-pointer rounded-xl border border-gray-300 dark:border-mcm-line" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Welcome Heading</Label>
@@ -256,9 +256,9 @@ const AddInboxWizard = ({
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value.slice(0, 255))}
                   rows={3}
-                  className="w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  className="w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
                 />
-                <span className="self-end text-xs text-gray-400">{tagline.length} / 255</span>
+                <span className="self-end text-xs text-gray-400 dark:text-mcm-ink-3">{tagline.length} / 255</span>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Enable channel greeting</Label>
@@ -266,7 +266,7 @@ const AddInboxWizard = ({
                   <option value="disabled">Disabled</option>
                   <option value="enabled">Enabled</option>
                 </select>
-                <p className="text-xs text-gray-400">Auto-send greeting messages when customers start a conversation.</p>
+                <p className="text-xs text-gray-400 dark:text-mcm-ink-3">Auto-send greeting messages when customers start a conversation.</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>AI Assistant (optional)</Label>
@@ -282,22 +282,22 @@ const AddInboxWizard = ({
 
           {step === 'agents' && (
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-6">
-              <div className="text-base font-bold text-gray-950">Add Agents</div>
-              <p className="text-xs text-gray-500">Pick which team members can see and reply to this inbox's conversations. Leave empty to allow everyone.</p>
+              <div className="text-base font-bold text-gray-950 dark:text-mcm-ink">Add Agents</div>
+              <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Pick which team members can see and reply to this inbox's conversations. Leave empty to allow everyone.</p>
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400 dark:text-mcm-ink-3" />
                 <Input type="text" value={agentSearch} onChange={(e) => setAgentSearch(e.target.value)} placeholder="Search team members..." className="pl-9" />
               </div>
-              <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-gray-200">
+              <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-gray-200 dark:border-mcm-line">
                 {filteredTeamMembers.length === 0 ? (
-                  <div className="px-4 py-6 text-center text-xs text-gray-400">No team members found.</div>
+                  <div className="px-4 py-6 text-center text-xs text-gray-400 dark:text-mcm-ink-3">No team members found.</div>
                 ) : (
                   filteredTeamMembers.map((m) => (
-                    <label key={m.uuid} className="flex cursor-pointer items-center gap-2.5 border-b border-gray-50 px-4 py-2.5 last:border-0 hover:bg-gray-50">
+                    <label key={m.uuid} className="flex cursor-pointer items-center gap-2.5 border-b border-gray-50 px-4 py-2.5 last:border-0 hover:bg-gray-50 dark:border-mcm-line dark:hover:bg-mcm-surface-3">
                       <Checkbox checked={selectedAgents.has(m.uuid)} onCheckedChange={() => toggleAgent(m.uuid)} />
                       <div className="min-w-0">
-                        <div className="truncate text-sm text-gray-800">{m.name}</div>
-                        <div className="truncate text-xs text-gray-400">{m.email}</div>
+                        <div className="truncate text-sm text-gray-800 dark:text-mcm-ink-2">{m.name}</div>
+                        <div className="truncate text-xs text-gray-400 dark:text-mcm-ink-3">{m.email}</div>
                       </div>
                     </label>
                   ))
@@ -308,11 +308,11 @@ const AddInboxWizard = ({
 
           {step === 'done' && (
             <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6">
-              <div className="text-base font-bold text-gray-950">Voilà! You're all set</div>
-              <p className="text-sm text-gray-500">Paste this before the closing &lt;/body&gt; tag of any page you want this chatbot on.</p>
-              <div className="flex items-start gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
-                <code className="flex-1 overflow-x-auto whitespace-pre text-xs text-gray-700">{embedSnippet}</code>
-                <button type="button" onClick={copySnippet} className="shrink-0 text-gray-500 hover:text-primary" title="Copy">
+              <div className="text-base font-bold text-gray-950 dark:text-mcm-ink">Voilà! You're all set</div>
+              <p className="text-sm text-gray-500 dark:text-mcm-ink-3">Paste this before the closing &lt;/body&gt; tag of any page you want this chatbot on.</p>
+              <div className="flex items-start gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-mcm-line dark:bg-mcm-surface-3">
+                <code className="flex-1 overflow-x-auto whitespace-pre text-xs text-gray-700 dark:text-mcm-ink-2">{embedSnippet}</code>
+                <button type="button" onClick={copySnippet} className="shrink-0 text-gray-500 hover:text-primary dark:text-mcm-ink-3" title="Copy">
                   {copied ? <Check className="size-4 text-green-600" /> : <Copy className="size-4" />}
                 </button>
               </div>
@@ -322,7 +322,7 @@ const AddInboxWizard = ({
             </div>
           )}
 
-          <div className="flex justify-end gap-2 border-t border-gray-100 p-4">
+          <div className="flex justify-end gap-2 border-t border-gray-100 p-4 dark:border-mcm-line">
             {step === 'create' && (
               <>
                 <Button type="button" variant="outline" onClick={() => setStep('channel')}>Back</Button>

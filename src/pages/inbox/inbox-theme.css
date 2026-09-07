@@ -52,28 +52,28 @@
 }
 
 .dark .mcm-inbox {
-  --mcm-ground: #0a0f1a;
-  --mcm-surface: #111827;
-  --mcm-surface-2: #161f31;
-  --mcm-surface-3: #1e293e;
-  --mcm-ink: #eef2f9;
-  --mcm-ink-2: #c3cddf;
-  --mcm-ink-3: #93a1ba;
-  --mcm-ink-4: #6b7a96;
-  --mcm-line: #26314a;
-  --mcm-line-2: #1c2537;
+  --mcm-ground: #080d12;
+  --mcm-surface: #111c26;
+  --mcm-surface-2: #16222c;
+  --mcm-surface-3: #1a2733;
+  --mcm-ink: #f3f6f9;
+  --mcm-ink-2: #aab6c1;
+  --mcm-ink-3: #8b98a6;
+  --mcm-ink-4: #7c8894;
+  --mcm-line: #1b2934;
+  --mcm-line-2: #263642;
 
-  --mcm-accent: #ffa552;
-  --mcm-accent-ink: #ffc285;
-  --mcm-accent-wash: #3a2712;
-  --mcm-accent-edge: #6b4420;
+  --mcm-accent: #f97316;
+  --mcm-accent-ink: #ff8a2a;
+  --mcm-accent-wash: #1a2733;
+  --mcm-accent-edge: rgba(249, 115, 22, 0.4);
 
   --mcm-live: #2dd4bf;
-  --mcm-live-wash: #0f2f2c;
-  --mcm-warn: #f0a24b;
-  --mcm-warn-wash: #33240f;
+  --mcm-live-wash: #0d1f1c;
+  --mcm-warn: #f97316;
+  --mcm-warn-wash: #1a2733;
   --mcm-crit: #f87171;
-  --mcm-crit-wash: #361618;
+  --mcm-crit-wash: #24151a;
 
   --mcm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --mcm-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);

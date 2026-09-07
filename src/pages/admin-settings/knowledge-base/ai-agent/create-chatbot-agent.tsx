@@ -3465,8 +3465,8 @@ function CreateChatbotAgent() {
             </div>
           )}
 
-          <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-            <h3 className="text-sm font-semibold text-[#2E2D35]">Identity</h3>
+          <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+            <h3 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Identity</h3>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <Field label="Bot name *" error={stepErrors.botName} fieldKey="botName">
                 <input
@@ -3481,8 +3481,8 @@ function CreateChatbotAgent() {
                   placeholder="e.g. Aria"
                   className={cx(
                     'h-9 w-full rounded-md border px-3 text-sm outline-none focus:border-primary',
-                    stepErrors.botName ? 'border-red-400' : 'border-[#EEE7DD]',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                    stepErrors.botName ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
                   )}
                 />
                 <div className="mt-1 flex min-h-4 items-center justify-between gap-2 text-[11px]">
@@ -3522,8 +3522,8 @@ function CreateChatbotAgent() {
                   placeholder="e.g. Example Business"
                   className={cx(
                     'h-9 w-full rounded-md border px-3 text-sm outline-none focus:border-primary',
-                    stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD]',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                    stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
                   )}
                 />
               </Field>
@@ -3533,8 +3533,8 @@ function CreateChatbotAgent() {
                   onChange={(event) => setSelectedLanguage(event.target.value)}
                   disabled={isReadOnly}
                   className={cx(
-                    'h-9 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                    'h-9 w-full rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
                   )}
                 >
                   {languageChoices.map((language) => (
@@ -3567,8 +3567,8 @@ function CreateChatbotAgent() {
                   }}
                   disabled={isReadOnly || isLoadingUseCaseTemplates}
                   className={cx(
-                    'h-9 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                    'h-9 w-full rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
                   )}
                 >
                   <option value="">
@@ -3597,11 +3597,11 @@ function CreateChatbotAgent() {
           />
 
           <div
-            className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+            className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]"
             data-validation-key="welcomeMessage"
           >
-            <h3 className="text-sm font-semibold text-[#2E2D35]">Greeting line *</h3>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <h3 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Greeting line *</h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
               The first thing every visitor sees when they open the widget.
             </p>
             <textarea
@@ -3615,15 +3615,15 @@ function CreateChatbotAgent() {
               disabled={isReadOnly}
               className={cx(
                 'mt-4 min-h-[84px] w-full resize-y rounded-md border p-3 text-sm outline-none focus:border-primary',
-                stepErrors.welcomeMessage ? 'border-red-400' : 'border-[#EEE7DD]',
-                isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                stepErrors.welcomeMessage ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
               )}
             />
             {stepErrors.welcomeMessage && (
               <p className="mt-1 text-xs font-medium text-red-500">{stepErrors.welcomeMessage}</p>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-              <span className="flex items-center gap-1 text-slate-500 font-medium mr-1">
+              <span className="flex items-center gap-1 text-slate-500 dark:text-mcm-ink-3 font-medium mr-1">
                 <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                 Try:
               </span>
@@ -3636,7 +3636,7 @@ function CreateChatbotAgent() {
                   selectedGreetingType === 'friendly' &&
                     welcomeMessage === getGreetingText('friendly', companyBrand)
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                   isReadOnly && 'cursor-not-allowed opacity-70',
                 )}
               >
@@ -3651,7 +3651,7 @@ function CreateChatbotAgent() {
                   selectedGreetingType === 'professional' &&
                     welcomeMessage === getGreetingText('professional', companyBrand)
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                   isReadOnly && 'cursor-not-allowed opacity-70',
                 )}
               >
@@ -3666,7 +3666,7 @@ function CreateChatbotAgent() {
                   selectedGreetingType === 'triage' &&
                     welcomeMessage === getGreetingText('triage', companyBrand)
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                   isReadOnly && 'cursor-not-allowed opacity-70',
                 )}
               >
@@ -3681,7 +3681,7 @@ function CreateChatbotAgent() {
                   selectedGreetingType === 'promo' &&
                     welcomeMessage === getGreetingText('promo', companyBrand)
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                   isReadOnly && 'cursor-not-allowed opacity-70',
                 )}
               >
@@ -3701,7 +3701,7 @@ function CreateChatbotAgent() {
                     'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                     welcomeMessage === text
                       ? 'border-primary bg-primary/5 text-primary'
-                      : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                      : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                     isReadOnly && 'cursor-not-allowed opacity-70',
                   )}
                 >
@@ -3721,11 +3721,11 @@ function CreateChatbotAgent() {
           </div>
 
           <div
-            className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+            className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]"
             data-validation-key="systemPrompt"
           >
-            <h3 className="text-sm font-semibold text-[#2E2D35]">System prompt</h3>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <h3 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">System prompt</h3>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
               Master instruction. Tell the bot who it is and what rules to follow.
             </p>
             <textarea
@@ -3738,8 +3738,8 @@ function CreateChatbotAgent() {
               disabled={isReadOnly}
               className={cx(
                 'mt-4 min-h-[130px] w-full resize-y rounded-md border p-3 text-sm outline-none focus:border-primary',
-                stepErrors.systemPrompt ? 'border-red-400' : 'border-[#EEE7DD]',
-                isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                stepErrors.systemPrompt ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
               )}
             />
             {stepErrors.systemPrompt && (
@@ -3828,7 +3828,7 @@ function CreateChatbotAgent() {
                     setStepErrors((prev) => ({ ...prev, knowledgeBase: '' }));
                     setKnowledgeWebsiteMode('scan');
                   }}
-                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-primary shadow-sm transition hover:bg-white/95"
+                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-white dark:bg-mcm-surface px-5 text-sm font-bold text-primary shadow-sm transition hover:bg-white/95"
                 >
                   Start
                   <ArrowRight className="h-4 w-4" />
@@ -3837,15 +3837,15 @@ function CreateChatbotAgent() {
             </div>
 
             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-              <span className="h-px flex-1 bg-[#F0DFC5]" />
+              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
               <span>Or pick an existing one</span>
-              <span className="h-px flex-1 bg-[#F0DFC5]" />
+              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
             </div>
 
-            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
               <div className="px-5 py-4">
-                <h3 className="text-lg font-bold text-[#2E2D35]">Pick a knowledge base</h3>
-                <p className="mt-1 text-sm text-slate-500">
+                <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">Pick a knowledge base</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-mcm-ink-3">
                   Search your existing knowledge bases or create a new one from a website.
                 </p>
                 <div className="relative mt-4">
@@ -3857,13 +3857,13 @@ function CreateChatbotAgent() {
                     }
                     disabled={isReadOnly}
                     placeholder="Search knowledge bases..."
-                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
+                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3"
                   />
                 </div>
               </div>
-              <div className="divide-y divide-[#EEE7DD] border-t border-[#EEE7DD]">
+              <div className="divide-y divide-[#EEE7DD] dark:divide-mcm-line border-t border-[#EEE7DD] dark:border-mcm-line">
                 {isFetchingReusableKnowledgeAgents ? (
-                  <div className="flex items-center gap-2 px-5 py-5 text-sm font-medium text-slate-500">
+                  <div className="flex items-center gap-2 px-5 py-5 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading agents...
                   </div>
@@ -3878,23 +3878,23 @@ function CreateChatbotAgent() {
                         onClick={() => handleSelectReusableKnowledgeAgent(agent)}
                         className={cx(
                           'flex w-full items-center gap-4 px-5 py-4 text-left transition-colors',
-                          checked ? 'bg-primary/[0.04]' : 'bg-white',
+                          checked ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
                           isReadOnly ? 'cursor-default' : 'hover:bg-slate-50',
                         )}
                       >
                         <span
                           className={cx(
                             'grid h-5 w-5 shrink-0 place-items-center rounded-full border',
-                            checked ? 'border-primary' : 'border-slate-300',
+                            checked ? 'border-primary' : 'border-slate-300 dark:border-mcm-line',
                           )}
                         >
                           {checked && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-bold text-[#2E2D35]">
+                          <span className="block truncate text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
                             {agent.name}
                           </span>
-                          <span className="mt-1 block truncate text-sm text-slate-500">
+                          <span className="mt-1 block truncate text-sm text-slate-500 dark:text-mcm-ink-3">
                             {agent.meta}
                           </span>
                         </span>
@@ -3912,7 +3912,7 @@ function CreateChatbotAgent() {
                     );
                   })
                 ) : (
-                  <div className="px-5 py-5 text-sm text-slate-500">No created agents found.</div>
+                  <div className="px-5 py-5 text-sm text-slate-500 dark:text-mcm-ink-3">No created agents found.</div>
                 )}
               </div>
             </div>
@@ -3935,12 +3935,12 @@ function CreateChatbotAgent() {
 
       return (
         <div className="flex flex-col gap-4">
-          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
             <div className="mx-auto mb-3 grid h-[52px] w-[52px] place-items-center rounded-xl bg-primary/10 text-primary">
               <Globe2 className="h-[26px] w-[26px]" />
             </div>
-            <h3 className="text-lg font-bold text-[#2E2D35]">What's your website?</h3>
-            <p className="mx-auto mt-1 max-w-[420px] text-[13px] leading-5 text-slate-500">
+            <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">What's your website?</h3>
+            <p className="mx-auto mt-1 max-w-[420px] text-[13px] leading-5 text-slate-500 dark:text-mcm-ink-3">
               We'll scan it and group your Product, Service, and Contact pages — you pick what to
               use.
             </p>
@@ -3962,8 +3962,8 @@ function CreateChatbotAgent() {
                 disabled={isReadOnly}
                 placeholder="https://yourcompany.com"
                 className={cx(
-                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
-                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD]',
+                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3',
+                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
                 )}
               />
             </div>
@@ -3980,7 +3980,7 @@ function CreateChatbotAgent() {
               <button
                 type="button"
                 onClick={handleUseManualKnowledgeMode}
-                className="mt-3 text-xs font-semibold text-slate-500 underline underline-offset-2 hover:text-primary"
+                className="mt-3 text-xs font-semibold text-slate-500 dark:text-mcm-ink-3 underline underline-offset-2 hover:text-primary"
               >
                 I'll add pages manually
               </button>
@@ -4051,9 +4051,9 @@ function CreateChatbotAgent() {
             {pickPageCategories.map((category, index) => (
               <div
                 key={category.id}
-                className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+                className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px]"
               >
-                <div className="flex items-center gap-2.5 border-b border-[#EEE7DD] bg-slate-50 px-3.5 py-3">
+                <div className="flex items-center gap-2.5 border-b border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-3.5 py-3">
                   <div
                     className={cx(
                       'grid h-[30px] w-[30px] shrink-0 place-items-center rounded-[7px]',
@@ -4067,19 +4067,19 @@ function CreateChatbotAgent() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-[#2E2D35]">{category.title}</h4>
-                    <p className="mt-0.5 text-xs text-slate-500">{category.subtitle}</p>
+                    <h4 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{category.title}</h4>
+                    <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">{category.subtitle}</p>
                   </div>
                 </div>
-                <div className="max-h-[320px] overflow-y-auto bg-white">
+                <div className="max-h-[320px] overflow-y-auto bg-white dark:bg-mcm-surface">
                   {category.links.map((link) => {
                     const selected = selectedLinks.includes(link);
                     return (
                       <label
                         key={link}
                         className={cx(
-                          'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] px-3.5 py-2 transition-colors last:border-b-0',
-                          selected ? 'bg-primary/[0.04]' : 'bg-white',
+                          'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] dark:border-mcm-line px-3.5 py-2 transition-colors last:border-b-0',
+                          selected ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
                           isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-slate-50',
                         )}
                       >
@@ -4088,14 +4088,14 @@ function CreateChatbotAgent() {
                           checked={selected}
                           disabled={isReadOnly}
                           onChange={(event) => togglePickPageLink(link, event.target.checked)}
-                          className="h-[15px] w-[15px] rounded border-[#EEE7DD] text-primary focus:ring-primary disabled:cursor-not-allowed"
+                          className="h-[15px] w-[15px] rounded border-[#EEE7DD] dark:border-mcm-line text-primary focus:ring-primary disabled:cursor-not-allowed"
                         />
-                        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35]">
+                        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                           {getPickPageRowLabel(link, category.stripLeadingSegments)}
                         </span>
                         <span
                           title={normalizeUrl(link)}
-                          className="max-w-[420px] shrink truncate text-[11px] text-slate-500"
+                          className="max-w-[420px] shrink truncate text-[11px] text-slate-500 dark:text-mcm-ink-3"
                         >
                           {getPickPageRowPath(link)}
                         </span>
@@ -4110,9 +4110,9 @@ function CreateChatbotAgent() {
 
         <div className="flex flex-col gap-4">
           {discoveredLinks.length > 0 && (
-            <div className="rounded-[10px] border border-dashed border-slate-300 bg-white p-3.5">
-              <p className="text-sm font-bold text-[#2E2D35]">Add another URL</p>
-              <p className="mt-1 text-xs text-slate-500">Paste any page not auto-detected.</p>
+            <div className="rounded-[10px] border border-dashed border-slate-300 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3.5">
+              <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add another URL</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">Paste any page not auto-detected.</p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input
                   value={extraUrl}
@@ -4130,8 +4130,8 @@ function CreateChatbotAgent() {
                   disabled={isReadOnly}
                   placeholder="https://yourcompany.com/page"
                   className={cx(
-                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
-                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD]',
+                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3',
+                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
                   )}
                 />
                 {!isReadOnly && (
@@ -4151,7 +4151,7 @@ function CreateChatbotAgent() {
                       key={url}
                       className="flex items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 text-xs"
                     >
-                      <span className="min-w-0 truncate text-slate-600">{url}</span>
+                      <span className="min-w-0 truncate text-slate-600 dark:text-mcm-ink-2">{url}</span>
                       {!isReadOnly && (
                         <button
                           type="button"
@@ -4168,10 +4168,10 @@ function CreateChatbotAgent() {
             </div>
           )}
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
             <div className="mb-3.5">
-              <h3 className="text-sm font-bold text-[#2E2D35]">Add content</h3>
-              <p className="mt-0.5 text-xs leading-5 text-slate-500">
+              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add content</h3>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-mcm-ink-3">
                 Type or paste the facts, policies, and answers your chatbot should know — pricing,
                 hours, addresses, refund rules, FAQs, anything. Write it in plain language; the AI
                 turns it into searchable knowledge. A blank line between topics helps keep things
@@ -4184,13 +4184,13 @@ function CreateChatbotAgent() {
               readOnly={isReadOnly}
               disabled={isReadOnly}
               placeholder={`Type or paste anything your chatbot should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at $12 per user / month. Pro is $24 per user / month. Enterprise is custom-quoted - offer to connect the visitor with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
-              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] p-3 text-sm leading-6 text-[#2E2D35] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
+              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm leading-6 text-[#2E2D35] dark:text-mcm-ink outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3"
             />
-            <p className="mt-1 text-right text-[11px] font-medium text-slate-500">
+            <p className="mt-1 text-right text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">
               {customContentWordCount} {customContentWordCount === 1 ? 'word' : 'words'}
             </p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-start gap-1.5 text-[11px] leading-4 text-slate-500">
+              <p className="flex items-start gap-1.5 text-[11px] leading-4 text-slate-500 dark:text-mcm-ink-3">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                 Tip: one topic per paragraph. Include exact numbers, dates, and policies so the
                 chatbot answers precisely instead of guessing.
@@ -4207,11 +4207,11 @@ function CreateChatbotAgent() {
                 {pendingTextItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start justify-between gap-2 rounded-md border border-slate-100 bg-slate-50 px-3 py-2 text-xs"
+                    className="flex items-start justify-between gap-2 rounded-md border border-slate-100 dark:border-mcm-line bg-slate-50 px-3 py-2 text-xs"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-[#2E2D35]">{item.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-slate-500">{item.text}</p>
+                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{item.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-slate-500 dark:text-mcm-ink-3">{item.text}</p>
                     </div>
                     {!isReadOnly && (
                       <button
@@ -4266,14 +4266,14 @@ function CreateChatbotAgent() {
                 {pendingFiles.map(({ id, file }) => (
                   <div
                     key={id}
-                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 py-2 text-sm"
+                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 py-2 text-sm"
                   >
                     <div className="grid h-7 w-7 shrink-0 place-items-center rounded bg-red-50 text-[10px] font-bold text-red-700">
                       PDF
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-[#2E2D35]">{file.name}</p>
-                      <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
+                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{file.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-mcm-ink-3">{formatFileSize(file.size)}</p>
                     </div>
                     {!isReadOnly && (
                       <button
@@ -4328,20 +4328,20 @@ function CreateChatbotAgent() {
             event.stopPropagation();
             setOpenReviewKnowledgeMenu(isOpen ? '' : menuKey);
           }}
-          className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35]"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 dark:text-mcm-ink-3 transition-colors hover:bg-slate-100 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
           aria-label="Knowledge card actions"
         >
           ⋮
         </button>
         {isOpen && (
-          <div className="absolute right-0 top-7 z-30 min-w-[170px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
+          <div className="absolute right-0 top-7 z-30 min-w-[170px] rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
             <button
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
                 handleOpenReviewKnowledgeSource(type, item);
               }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
             >
               📄 View Source Document
             </button>
@@ -4351,7 +4351,7 @@ function CreateChatbotAgent() {
                 event.stopPropagation();
                 handleOpenReviewKnowledgeEdit(type, item);
               }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
             >
               ✎ Edit
             </button>
@@ -4361,7 +4361,7 @@ function CreateChatbotAgent() {
                 event.stopPropagation();
                 handleDuplicateReviewKnowledgeItem(type, item);
               }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
+              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
             >
               ⎘ Duplicate
             </button>
@@ -4394,9 +4394,9 @@ function CreateChatbotAgent() {
       <>
         {reviewKnowledgeSourceModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+            <div className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeSourceModal.type === 'faq'
                     ? '💬 Source for this FAQ'
                     : '📄 Source Document'}
@@ -4404,7 +4404,7 @@ function CreateChatbotAgent() {
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeSourceModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -4412,30 +4412,30 @@ function CreateChatbotAgent() {
               <div className="p-5">
                 <div className="mb-3 grid gap-1.5 rounded-lg bg-slate-50 px-3.5 py-3 text-xs">
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600">Title</span>
-                    <span className="font-semibold text-[#2E2D35]">
+                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Title</span>
+                    <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                       {reviewKnowledgeSourceModal.title}
                     </span>
                   </div>
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600">Source</span>
-                    <span className="min-w-0 break-all text-[#2E2D35]">{sourcePath}</span>
+                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Source</span>
+                    <span className="min-w-0 break-all text-[#2E2D35] dark:text-mcm-ink">{sourcePath}</span>
                   </div>
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600">Imported</span>
-                    <span className="text-[#2E2D35]">
+                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Imported</span>
+                    <span className="text-[#2E2D35] dark:text-mcm-ink">
                       {reviewKnowledgeSourceModal.status || 'Just now'}
                     </span>
                   </div>
                 </div>
-                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700">
+                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700 dark:text-mcm-ink-2">
                   {reviewKnowledgeSourceModal.body ? (
                     <p className="whitespace-pre-line">{reviewKnowledgeSourceModal.body}</p>
                   ) : (
-                    <p className="text-slate-500">No content preview available.</p>
+                    <p className="text-slate-500 dark:text-mcm-ink-3">No content preview available.</p>
                   )}
-                  <div className="mt-3 rounded-md border-l-[3px] border-primary bg-primary/5 px-3 py-2 text-xs leading-5 text-slate-700">
-                    <b className="text-[#2E2D35]">Full summarized content shown above.</b> This is
+                  <div className="mt-3 rounded-md border-l-[3px] border-primary bg-primary/5 px-3 py-2 text-xs leading-5 text-slate-700 dark:text-mcm-ink-2">
+                    <b className="text-[#2E2D35] dark:text-mcm-ink">Full summarized content shown above.</b> This is
                     the content the chatbot uses to answer related questions. To revise wording, use
                     Edit on the card.
                   </div>
@@ -4459,21 +4459,21 @@ function CreateChatbotAgent() {
 
         {reviewKnowledgeEditModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+            <div className="w-full max-w-[540px] rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Edit FAQ' : 'Edit document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeEditModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="p-5">
-                <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Question' : 'Document title'}
                 </label>
                 <input
@@ -4483,9 +4483,9 @@ function CreateChatbotAgent() {
                       prev ? { ...prev, title: event.target.value } : prev,
                     )
                   }
-                  className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+                  className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
                 />
-                <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
+                <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Answer' : 'Document content'}
                 </label>
                 <textarea
@@ -4495,10 +4495,10 @@ function CreateChatbotAgent() {
                       prev ? { ...prev, body: event.target.value } : prev,
                     )
                   }
-                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                 />
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeEditModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -4512,21 +4512,21 @@ function CreateChatbotAgent() {
 
         {reviewKnowledgeAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+            <div className="w-full max-w-[540px] rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeAddModal.type === 'faq' ? 'Add FAQ' : 'Add document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeAddModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="p-5">
-                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] pb-2.5">
+                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] dark:border-mcm-line pb-2.5">
                   {[
                     { value: 'text' as const, label: 'Paste text' },
                     // { value: 'upload' as const, label: 'Upload file' },
@@ -4543,7 +4543,7 @@ function CreateChatbotAgent() {
                         'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors',
                         reviewKnowledgeAddModal.mode === mode.value
                           ? 'border-primary bg-primary text-white'
-                          : 'border-[#EEE7DD] bg-slate-50 text-slate-700 hover:border-primary hover:text-primary',
+                          : 'border-[#EEE7DD] dark:border-mcm-line bg-slate-50 text-slate-700 dark:text-mcm-ink-2 hover:border-primary hover:text-primary',
                       )}
                     >
                       {mode.label}
@@ -4553,7 +4553,7 @@ function CreateChatbotAgent() {
 
                 {reviewKnowledgeAddModal.mode === 'text' ? (
                   <>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
                       {reviewKnowledgeAddModal.type === 'faq' ? 'Question' : 'Document title'}
                     </label>
                     <input
@@ -4568,9 +4568,9 @@ function CreateChatbotAgent() {
                           ? 'e.g. How much does it cost?'
                           : 'e.g. Refund policy'
                       }
-                      className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+                      className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
                     />
-                    <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
+                    <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
                       {reviewKnowledgeAddModal.type === 'faq' ? 'Answer' : 'Document content'}
                     </label>
                     <textarea
@@ -4585,7 +4585,7 @@ function CreateChatbotAgent() {
                           ? 'Type the answer the chatbot should give. Short, conversational answers work best.'
                           : 'Type or paste the content the chatbot should learn from. Short, factual paragraphs work best.'
                       }
-                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                     />
                   </>
                 ) : (
@@ -4602,11 +4602,11 @@ function CreateChatbotAgent() {
                     <button
                       type="button"
                       onClick={() => reviewKnowledgeFileInputRef.current?.click()}
-                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] px-7 py-7 text-center text-sm text-slate-600 transition-colors hover:border-primary hover:bg-primary/5"
+                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] dark:border-mcm-line px-7 py-7 text-center text-sm text-slate-600 dark:text-mcm-ink-2 transition-colors hover:border-primary hover:bg-primary/5"
                     >
-                      <UploadCloud className="mx-auto mb-2 h-8 w-8 text-slate-500" />
-                      <b className="text-[#2E2D35]">Choose a file</b>
-                      <span className="mt-1 block text-xs text-slate-500">
+                      <UploadCloud className="mx-auto mb-2 h-8 w-8 text-slate-500 dark:text-mcm-ink-3" />
+                      <b className="text-[#2E2D35] dark:text-mcm-ink">Choose a file</b>
+                      <span className="mt-1 block text-xs text-slate-500 dark:text-mcm-ink-3">
                         Upload a document to add it to this knowledge base.
                       </span>
                     </button>
@@ -4616,10 +4616,10 @@ function CreateChatbotAgent() {
                           DOC
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-semibold text-[#2E2D35]">
+                          <p className="truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                             {reviewKnowledgeAddModal.file.name}
                           </p>
-                          <p className="text-[11px] text-slate-500">
+                          <p className="text-[11px] text-slate-500 dark:text-mcm-ink-3">
                             {formatFileSize(reviewKnowledgeAddModal.file.size)}
                           </p>
                         </div>
@@ -4630,7 +4630,7 @@ function CreateChatbotAgent() {
                               prev ? { ...prev, file: null } : prev,
                             )
                           }
-                          className="text-slate-500 hover:text-red-600"
+                          className="text-slate-500 dark:text-mcm-ink-3 hover:text-red-600"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -4639,7 +4639,7 @@ function CreateChatbotAgent() {
                   </>
                 )}
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeAddModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -4688,8 +4688,8 @@ function CreateChatbotAgent() {
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3.5 text-left">
         <div>
-          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">Review knowledge</h1>
-          <p className="mt-1 text-sm leading-5 text-slate-500">
+          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">Review knowledge</h1>
+          <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">
             Review what was generated. Edit, delete, or add Documents and FAQs before continuing.
           </p>
         </div>
@@ -4698,10 +4698,10 @@ function CreateChatbotAgent() {
           <div className="mx-auto mb-2.5 grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white">
             <Check className="h-[26px] w-[26px] stroke-[3]" />
           </div>
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">
             Here's what your chatbot will know
           </h2>
-          <p className="mt-0.5 text-[13px] leading-5 text-slate-600">
+          <p className="mt-0.5 text-[13px] leading-5 text-slate-600 dark:text-mcm-ink-2">
             Review what was auto-extracted. You can add more docs, custom text, or FAQs from the
             tabs below.
           </p>
@@ -4714,11 +4714,11 @@ function CreateChatbotAgent() {
             { label: 'FAQs', value: validFaqCount },
             { label: 'Training', value: '~3 min', valueClassName: 'text-sm' },
           ].map((item) => (
-            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
-              <p className="text-[11px] font-medium leading-4 text-slate-500">{item.label}</p>
+            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-3">
+              <p className="text-[11px] font-medium leading-4 text-slate-500 dark:text-mcm-ink-3">{item.label}</p>
               <p
                 className={cx(
-                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35]',
+                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink',
                   item.valueClassName,
                 )}
               >
@@ -4729,8 +4729,8 @@ function CreateChatbotAgent() {
         </div>
 
         <div className="mt-1">
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">Knowledge Base Summary</h2>
-          <p className="mt-1 text-[13px] leading-5 text-slate-600">
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">Knowledge Base Summary</h2>
+          <p className="mt-1 text-[13px] leading-5 text-slate-600 dark:text-mcm-ink-2">
             Here's what the AI chatbot will use. Edit anything, delete what shouldn't be there, add
             anything missing.
           </p>
@@ -4763,13 +4763,13 @@ function CreateChatbotAgent() {
                 className={cx(
                   'inline-flex items-center gap-1.5 rounded-md border border-transparent px-3.5 py-1.5 text-xs font-semibold transition-colors',
                   isSelected
-                    ? 'bg-white text-[#2E2D35] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                    : 'bg-transparent text-slate-600 hover:bg-white hover:text-[#2E2D35]',
+                    ? 'bg-white dark:bg-mcm-surface text-[#2E2D35] dark:text-mcm-ink shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                    : 'bg-transparent text-slate-600 dark:text-mcm-ink-2 hover:bg-white dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink',
                 )}
               >
                 {tab.icon}
                 {tab.label}
-                <span className="ml-1 rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-slate-600">
+                <span className="ml-1 rounded-full bg-slate-200/80 dark:bg-mcm-surface-3 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-slate-600 dark:text-mcm-ink-2">
                   {tab.count}
                 </span>
               </button>
@@ -4786,7 +4786,7 @@ function CreateChatbotAgent() {
                 setReviewKnowledgeSearch(sanitizeAiSearchText(event.target.value))
               }
               placeholder={searchPlaceholder}
-              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
+              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
             />
           </div>
           {!readOnly && (
@@ -4805,7 +4805,7 @@ function CreateChatbotAgent() {
         {isDocumentsTab ? (
           <div className="flex flex-col gap-2.5">
             {isSummarizingKnowledgeBase ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating summary...
               </div>
@@ -4822,20 +4822,20 @@ function CreateChatbotAgent() {
                     return (
                       <div
                         key={document.id}
-                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                       >
                         <div className="flex items-start justify-between gap-2.5">
-                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
+                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
                             {document.title}
                           </h3>
                           {renderReviewKnowledgeMenu('document', document)}
                         </div>
                         {copy && (
-                          <p className="mt-3 whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700">
+                          <p className="mt-3 whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700 dark:text-mcm-ink-2">
                             {copy}
                           </p>
                         )}
-                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 dark:text-mcm-ink-3 sm:flex-row sm:items-center sm:justify-between">
                           <span className="min-w-0 truncate">
                             From {document.source || 'selected source'}
                           </span>
@@ -4845,7 +4845,7 @@ function CreateChatbotAgent() {
                     );
                   })
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500 dark:text-mcm-ink-3">
                     No documents found.
                   </div>
                 )}
@@ -4855,7 +4855,7 @@ function CreateChatbotAgent() {
         ) : (
           <div className="flex flex-col gap-2.5">
             {isGeneratingKnowledgeFaqs ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating FAQs...
               </div>
@@ -4870,18 +4870,18 @@ function CreateChatbotAgent() {
                   filteredFaqs.map((faq) => (
                     <div
                       key={faq.id}
-                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                     >
                       <div className="mb-3 flex items-start justify-between gap-3">
-                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
+                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
                           {faq.question || 'Untitled FAQ'}
                         </h3>
                         {renderReviewKnowledgeMenu('faq', faq)}
                       </div>
-                      <p className="whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700">
+                      <p className="whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700 dark:text-mcm-ink-2">
                         {faq.answer || 'No answer added yet.'}
                       </p>
-                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 dark:text-mcm-ink-3 sm:flex-row sm:items-center sm:justify-between">
                         <span className="min-w-0 truncate">
                           {faq.source ? `From ${faq.source}` : 'Manual'}
                         </span>
@@ -4890,7 +4890,7 @@ function CreateChatbotAgent() {
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500 dark:text-mcm-ink-3">
                     No FAQs found. Add a custom FAQ to create knowledge manually.
                   </div>
                 )}
@@ -4942,14 +4942,14 @@ function CreateChatbotAgent() {
         />
 
         {/* Section 1: Business hours */}
-        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
           <div className="flex items-baseline gap-1.5">
-            <h3 className="text-sm font-bold text-[#2E2D35]">Business hours</h3>
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours</h3>
             <span className="text-xs text-slate-400 font-normal">(optional)</span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
             Set when your{' '}
-            <span className="font-semibold text-slate-700">human agents are online</span> to take
+            <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">human agents are online</span> to take
             over a chat. During these hours the bot can hand off to a live agent.
           </p>
 
@@ -4969,7 +4969,7 @@ function CreateChatbotAgent() {
             <button
               type="button"
               onClick={() => setIsBusinessHoursModalOpen(true)}
-              className="inline-flex h-10 items-center gap-2 rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 text-sm font-semibold text-slate-700 dark:text-mcm-ink-2 hover:bg-slate-50 cursor-pointer"
             >
               <span className="text-sm">⏰</span>
               Set business hours
@@ -4978,18 +4978,18 @@ function CreateChatbotAgent() {
         </div>
 
         {/* Section 2: Business hours behavior */}
-        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-          <h3 className="text-sm font-bold text-[#2E2D35]">Business hours behavior</h3>
-          <p className="mt-1 text-xs text-slate-500">
+        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours behavior</h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
             What should happen when visitors reach you{' '}
-            <span className="font-semibold text-slate-700">during</span> business hours? The bot
+            <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">during</span> business hours? The bot
             tries to answer; pick the live-agent fallback below.
           </p>
 
           <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-[#2E2D35]">Enable human handoff</p>
-              <p className="mt-1 text-xs text-slate-500 leading-normal">
+              <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable human handoff</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3 leading-normal">
                 When ON, the bot can transfer business-hours chats to a live queue.
               </p>
             </div>
@@ -5017,7 +5017,7 @@ function CreateChatbotAgent() {
                   type="text"
                   readOnly
                   value="Forward to Chat Queue"
-                  className="mt-2 h-10 w-full rounded-md border border-[#EEE7DD] bg-[#FBE2C8]/45 px-3 text-sm text-slate-500 cursor-not-allowed outline-none"
+                  className="mt-2 h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 px-3 text-sm text-slate-500 dark:text-mcm-ink-3 cursor-not-allowed outline-none"
                 />
                 <p className="mt-1.5 text-[11px] text-slate-400 leading-normal">
                   Chatbot agents only hand off to a chat queue. Use an AI Receptionist for
@@ -5050,17 +5050,17 @@ function CreateChatbotAgent() {
         </div>
 
         {/* Section 3: Manager Configuration */}
-        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-          <h3 className="text-sm font-bold text-[#2E2D35]">Manager Configuration</h3>
-          <p className="mt-1 text-xs text-slate-500">
+        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Manager Configuration</h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
             Select the manager who owns callback & escalation requests. The chosen manager receives
             the schedule details and may handle it personally or reassign it.
           </p>
 
           <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-[#2E2D35]">Enable scheduled callbacks</p>
-              <p className="mt-1 text-xs text-slate-500 leading-normal">
+              <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable scheduled callbacks</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3 leading-normal">
                 When ON, the bot can offer to schedule a callback and pass the request to a manager.
                 When OFF, the selected manager still owns escalations, but the bot will not offer a
                 callback.
@@ -5075,7 +5075,7 @@ function CreateChatbotAgent() {
           </div>
 
           <div className="mt-4 scroll-mt-24" data-validation-key="manager">
-            <span className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <span className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-mcm-ink-3">
               <span className="text-sm">👤</span>
               Manager who owns callbacks & escalations
             </span>
@@ -5117,7 +5117,7 @@ function CreateChatbotAgent() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-start gap-2 text-xs text-slate-500">
+          <div className="mt-4 flex items-start gap-2 text-xs text-slate-500 dark:text-mcm-ink-3">
             <span className="text-sm shrink-0">📝</span>
             <p className="leading-normal">
               The selected manager receives visitor name, email, preferred callback time, and the
@@ -5151,21 +5151,21 @@ function CreateChatbotAgent() {
         />
 
         {/* Card 1: Data Collection */}
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col gap-4">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] flex flex-col gap-4">
           <div>
-            <h3 className="text-sm font-bold text-[#2E2D35]">Data Collection</h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Data Collection</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
               Choose what visitor details the bot politely asks for during the chat. Captured fields
               are saved on the conversation record.
             </p>
           </div>
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
             {/* Enable Data Collection Toggle */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h4 className="text-sm font-semibold text-[#2E2D35]">Enable Data Collection</h4>
-                <p className="mt-1 text-xs text-slate-500 leading-normal">
+                <h4 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable Data Collection</h4>
+                <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3 leading-normal">
                   Turn off to collect only the visitor name.
                 </p>
               </div>
@@ -5179,11 +5179,11 @@ function CreateChatbotAgent() {
             {/* Info Callout Tip */}
             {isDataCollectionEnabled && (
               <div className="mt-4 rounded-lg border border-primary/20 bg-primary/10 p-4">
-                <p className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                <p className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-mcm-ink-2">
                   <span>💡</span>
                   Mandatory vs Optional — when to use each?
                 </p>
-                <div className="mt-2 text-xs leading-5 text-slate-600 flex flex-col gap-1.5">
+                <div className="mt-2 text-xs leading-5 text-slate-600 dark:text-mcm-ink-2 flex flex-col gap-1.5">
                   <p>
                     <strong>Mandatory</strong> = the bot keeps politely re-asking until the visitor
                     answers. Use for must-haves like{' '}
@@ -5201,7 +5201,7 @@ function CreateChatbotAgent() {
             )}
 
             {/* Fields List Checklist */}
-            <div className="mt-4 overflow-hidden rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+            <div className="mt-4 overflow-hidden rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px]">
               {[
                 {
                   key: 'name' as DetailField,
@@ -5235,10 +5235,10 @@ function CreateChatbotAgent() {
                   <div
                     key={key}
                     className={cx(
-                      'flex items-center gap-4 border-b border-[#EEE7DD] px-5 py-3 last:border-b-0 transition-colors',
+                      'flex items-center gap-4 border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-3 last:border-b-0 transition-colors',
                       key === 'phone' && 'bg-amber-50/60',
-                      key !== 'phone' && isChecked && 'bg-white',
-                      key !== 'phone' && !isChecked && 'opacity-60 bg-white',
+                      key !== 'phone' && isChecked && 'bg-white dark:bg-mcm-surface',
+                      key !== 'phone' && !isChecked && 'opacity-60 bg-white dark:bg-mcm-surface',
                     )}
                   >
                     <Checkbox
@@ -5253,7 +5253,7 @@ function CreateChatbotAgent() {
                     <span
                       className={cx(
                         'flex-1 text-sm font-semibold',
-                        isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
+                        isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
                       )}
                     >
                       {label}
@@ -5289,7 +5289,7 @@ function CreateChatbotAgent() {
                           <span
                             className={cx(
                               'text-xs font-semibold',
-                              isChecked ? 'text-[#2E2D35]' : 'text-slate-450',
+                              isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-450',
                             )}
                           >
                             Mandatory
@@ -5315,7 +5315,7 @@ function CreateChatbotAgent() {
                           <span
                             className={cx(
                               'text-xs font-semibold',
-                              isChecked ? 'text-[#2E2D35]' : 'text-slate-450',
+                              isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-450',
                             )}
                           >
                             Optional
@@ -5333,8 +5333,8 @@ function CreateChatbotAgent() {
                 <div className="flex items-start gap-2.5">
                   <span className="text-base mt-0.5">🎯</span>
                   <div>
-                    <p className="text-sm font-bold text-[#2E2D35]">Push captured data to CRM</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                    <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Push captured data to CRM</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-mcm-ink-3">
                       When enabled, the bot auto-creates a contact in your CRM using the fields
                       collected above, with the full chat transcript attached.
                     </p>
@@ -5361,7 +5361,7 @@ function CreateChatbotAgent() {
                     disabled={
                       isReadOnly || isFetchingConnectedCrms || connectedCrmOptions.length === 0
                     }
-                    className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm font-medium text-[#2E2D35] outline-none focus:border-primary disabled:bg-[#FBE2C8]/45 disabled:cursor-not-allowed"
+                    className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm font-medium text-[#2E2D35] dark:text-mcm-ink outline-none focus:border-primary disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3 disabled:cursor-not-allowed"
                   >
                     <option value="" disabled>
                       {isFetchingConnectedCrms
@@ -5389,10 +5389,10 @@ function CreateChatbotAgent() {
         </div>
 
         {/* Card 2: Advanced behavior */}
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col gap-4">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] flex flex-col gap-4">
           <div>
-            <h3 className="text-sm font-bold text-[#2E2D35]">Advanced behavior</h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Advanced behavior</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
               Configure session limits and idle handling.
             </p>
           </div>
@@ -5404,8 +5404,8 @@ function CreateChatbotAgent() {
               trailing={
                 <div
                   className={cx(
-                    'flex h-9 w-[180px] items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-600',
+                    'flex h-9 w-[180px] items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] focus-within:border-primary',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2',
                   )}
                 >
                   <input
@@ -5424,7 +5424,7 @@ function CreateChatbotAgent() {
                     disabled={isReadOnly}
                     className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none disabled:cursor-not-allowed"
                   />
-                  <span className="pr-3 text-xs text-slate-500" aria-hidden="true">
+                  <span className="pr-3 text-xs text-slate-500 dark:text-mcm-ink-3" aria-hidden="true">
                     sec
                   </span>
                 </div>
@@ -5437,8 +5437,8 @@ function CreateChatbotAgent() {
               trailing={
                 <div
                   className={cx(
-                    'flex h-9 w-[180px] items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-655',
+                    'flex h-9 w-[180px] items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] focus-within:border-primary',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-655',
                   )}
                 >
                   <input
@@ -5457,7 +5457,7 @@ function CreateChatbotAgent() {
                     disabled={isReadOnly}
                     className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none disabled:cursor-not-allowed"
                   />
-                  <span className="pr-3 text-xs text-slate-500" aria-hidden="true">
+                  <span className="pr-3 text-xs text-slate-500 dark:text-mcm-ink-3" aria-hidden="true">
                     sec
                   </span>
                 </div>
@@ -5483,8 +5483,8 @@ function CreateChatbotAgent() {
                   onBlur={() => setIdleReminderRetry((value) => (value === '' ? 1 : value))}
                   disabled={isReadOnly}
                   className={cx(
-                    'h-9 w-[180px] rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
-                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 text-slate-655',
+                    'h-9 w-[180px] rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary',
+                    isReadOnly && 'cursor-not-allowed bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-slate-655',
                   )}
                 />
               }
@@ -5580,9 +5580,9 @@ function CreateChatbotAgent() {
 
   return (
     <FormProvider {...formInstance}>
-      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
-        <div className="flex min-h-[72px] items-center border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 py-3 sm:px-6">
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium text-slate-500">
+      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
+        <div className="flex min-h-[72px] items-center border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 py-3 sm:px-6">
+          <div className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
             <button
               type="button"
               onClick={() => requestWizardLeave('/admin-settings/knowledge/ai-agent')}
@@ -5599,7 +5599,7 @@ function CreateChatbotAgent() {
               AI Chatbot Agents
             </button>
             <span className="text-slate-400">/</span>
-            <span className="font-semibold text-[#2E2D35]">
+            <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
               {isEdit ? 'Update Agent' : 'New Agent'}
             </span>
           </div>
@@ -5673,7 +5673,7 @@ function WizardStepper({
   ];
 
   return (
-    <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-[22px]">
+    <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-6 py-[22px]">
       <div className="relative mx-auto max-w-[1200px]">
         {/* Progress Line */}
         <div className="absolute left-[13%] right-[13%] top-[18px] z-0 h-0.5 -translate-y-1/2 bg-[#EAECF0]" />
@@ -5702,7 +5702,7 @@ function WizardStepper({
                     isActive && 'border-primary bg-primary text-white',
                     !isComplete &&
                       !isActive &&
-                      'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)]',
+                      'border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line',
                   )}
                 >
                   {isComplete ? <Check className="h-4 w-4 stroke-[3.5]" /> : index + 1}
@@ -5710,7 +5710,7 @@ function WizardStepper({
                 <span
                   className={cx(
                     'px-1 text-center text-[13px] font-semibold transition-colors',
-                    isActive ? 'text-primary' : 'text-slate-650 group-hover:text-slate-900',
+                    isActive ? 'text-primary' : 'text-slate-650 group-hover:text-slate-900 dark:hover:text-mcm-ink',
                   )}
                 >
                   {label}
@@ -5767,11 +5767,11 @@ function EditChatbotAgentWorkspace({
   ];
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
-      <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 pt-4 sm:px-4">
+    <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
+      <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 pt-4 sm:px-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 dark:text-mcm-ink-3">
               <button
                 type="button"
                 onClick={onBack}
@@ -5788,7 +5788,7 @@ function EditChatbotAgentWorkspace({
                 AI Chatbot Agents
               </button>
               <span>/</span>
-              <span className="text-slate-800">{agentName}</span>
+              <span className="text-slate-800 dark:text-mcm-ink">{agentName}</span>
             </div>
             <div className="flex min-w-0 items-center gap-2">
               <CustomAvatar
@@ -5801,12 +5801,12 @@ function EditChatbotAgentWorkspace({
               />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-lg font-bold text-[#2E2D35]">{agentName}</h1>
+                  <h1 className="truncate text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">{agentName}</h1>
                   <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700">
                     Live
                   </span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-mcm-ink-3">
                   {domain && <span>{domain}</span>}
                 </div>
               </div>
@@ -5834,8 +5834,8 @@ function EditChatbotAgentWorkspace({
                 'flex h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition-colors',
                 activeTab === tab.key
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-slate-600 hover:text-primary',
-                navigationDisabled && 'cursor-not-allowed opacity-60 hover:text-slate-600',
+                  : 'border-transparent text-slate-600 dark:text-mcm-ink-2 hover:text-primary',
+                navigationDisabled && 'cursor-not-allowed opacity-60 hover:text-slate-600 dark:hover:text-mcm-ink-2',
               )}
             >
               {tab.icon}
@@ -5883,7 +5883,7 @@ function EditAgentOverview({
     {
       label: 'Custom answers',
       value: companyDetailsCount,
-      icon: <Settings2 className="h-4 w-4 text-slate-500" />,
+      icon: <Settings2 className="h-4 w-4 text-slate-500 dark:text-mcm-ink-3" />,
     },
     {
       label: 'Website sources',
@@ -5914,11 +5914,11 @@ function EditAgentOverview({
             onAction={onManageFaqs}
           >
             {faqs.length ? (
-              <div className="flex flex-col divide-y divide-[#EEE7DD]">
+              <div className="flex flex-col divide-y divide-[#EEE7DD] dark:divide-mcm-line">
                 {faqs.slice(0, 5).map((faq) => (
                   <div key={faq.id} className="py-3">
-                    <p className="text-sm font-semibold text-[#2E2D35]">{faq.question}</p>
-                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600">
+                    <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{faq.question}</p>
+                    <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600 dark:text-mcm-ink-2">
                       {faq.answer}
                     </p>
                     <p className="mt-2 text-xs text-slate-400">From {faq.source}</p>
@@ -5932,15 +5932,15 @@ function EditAgentOverview({
 
           <OverviewPanel title="Documents">
             {documents.length ? (
-              <div className="flex flex-col divide-y divide-[#EEE7DD]">
+              <div className="flex flex-col divide-y divide-[#EEE7DD] dark:divide-mcm-line">
                 {documents.slice(0, 5).map((document) => (
                   <div key={document.id} className="flex items-start gap-3 py-3">
                     <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-[#2E2D35]">
+                      <p className="truncate text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">
                         {document.title}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600">
+                      <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-600 dark:text-mcm-ink-2">
                         {document.copy}
                       </p>
                       <p className="mt-2 text-xs text-slate-400">From {document.source}</p>
@@ -5958,16 +5958,16 @@ function EditAgentOverview({
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-            <h3 className="text-base font-bold text-[#2E2D35]">Knowledge base overview</h3>
-            <div className="mt-4 flex flex-col divide-y divide-[#EEE7DD] text-sm">
+          <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+            <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">Knowledge base overview</h3>
+            <div className="mt-4 flex flex-col divide-y divide-[#EEE7DD] dark:divide-mcm-line text-sm">
               {knowledgeRows.map((row) => (
                 <div key={row.label} className="flex items-center justify-between gap-3 py-3">
-                  <span className="flex min-w-0 items-center gap-2 text-slate-700">
+                  <span className="flex min-w-0 items-center gap-2 text-slate-700 dark:text-mcm-ink-2">
                     {row.icon}
                     <span className="truncate">{row.label}</span>
                   </span>
-                  <strong className="text-[#2E2D35]">{row.value}</strong>
+                  <strong className="text-[#2E2D35] dark:text-mcm-ink">{row.value}</strong>
                 </div>
               ))}
             </div>
@@ -5975,7 +5975,7 @@ function EditAgentOverview({
               <button
                 type="button"
                 onClick={onManageKnowledge}
-                className="mt-4 h-9 w-full rounded-md border border-[#EEE7DD] text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary"
+                className="mt-4 h-9 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line text-sm font-bold text-slate-700 dark:text-mcm-ink-2 transition-colors hover:border-primary hover:text-primary"
               >
                 Manage knowledge
               </button>
@@ -6015,14 +6015,14 @@ function OverviewPanel({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-base font-bold text-[#2E2D35]">{title}</h3>
+        <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
         {actionLabel && onAction && (
           <button
             type="button"
             onClick={onAction}
-            className="h-9 rounded-md border border-[#EEE7DD] px-4 text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary"
+            className="h-9 rounded-md border border-[#EEE7DD] dark:border-mcm-line px-4 text-sm font-bold text-slate-700 dark:text-mcm-ink-2 transition-colors hover:border-primary hover:text-primary"
           >
             {actionLabel}
           </button>
@@ -6035,7 +6035,7 @@ function OverviewPanel({
 
 function NoDataAvailable() {
   return (
-    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500">
+    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
       No data Available
     </div>
   );
@@ -6044,8 +6044,8 @@ function NoDataAvailable() {
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
-      <h2 className="text-[22px] font-bold leading-7 tracking-normal text-[#2E2D35]">{title}</h2>
-      <p className="mt-1 text-sm leading-5 text-slate-500">{subtitle}</p>
+      <h2 className="text-[22px] font-bold leading-7 tracking-normal text-[#2E2D35] dark:text-mcm-ink">{title}</h2>
+      <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">{subtitle}</p>
     </div>
   );
 }
@@ -6067,8 +6067,8 @@ function Field({
 }) {
   return (
     <label className={cx('block scroll-mt-24', className)} data-validation-key={fieldKey}>
-      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">{label}</span>
-      {helper && <span className="mb-2 block text-xs text-slate-500">{helper}</span>}
+      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{label}</span>
+      {helper && <span className="mb-2 block text-xs text-slate-500 dark:text-mcm-ink-3">{helper}</span>}
       {children}
       {error && <span className="mt-1 block text-xs text-red-500">{error}</span>}
     </label>
@@ -6087,9 +6087,9 @@ function Metric({
   valueClassName?: string;
 }) {
   return (
-    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={cx('text-2xl font-bold leading-7 text-[#2E2D35]', valueClassName)}>{value}</p>
+    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-4 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-mcm-ink-3">{label}</p>
+      <p className={cx('text-2xl font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink', valueClassName)}>{value}</p>
       {note && <p className="mt-1 text-xs text-slate-400">{note}</p>}
     </div>
   );
@@ -6134,8 +6134,8 @@ function SecondaryButton({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 text-sm font-bold text-slate-700 transition-colors hover:border-gray-400',
-        disabled && 'cursor-not-allowed opacity-60 hover:border-[#EEE7DD]',
+        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 text-sm font-bold text-slate-700 dark:text-mcm-ink-2 transition-colors hover:border-gray-400 dark:hover:border-mcm-line',
+        disabled && 'cursor-not-allowed opacity-60 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
       )}
     >
       {children}
@@ -6153,10 +6153,10 @@ function SettingsRow({
   trailing: ReactNode;
 }) {
   return (
-    <div className="flex min-h-[52px] items-center gap-3 rounded-lg bg-[#FBE2C8]/45 px-3 py-2">
+    <div className="flex min-h-[52px] items-center gap-3 rounded-lg bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 px-3 py-2">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold leading-4 text-[#2E2D35]">{title}</p>
-        <p className="mt-0.5 text-xs text-slate-500">{copy}</p>
+        <p className="text-sm font-bold leading-4 text-[#2E2D35] dark:text-mcm-ink">{title}</p>
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">{copy}</p>
       </div>
       {trailing}
     </div>

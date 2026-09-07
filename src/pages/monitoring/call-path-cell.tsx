@@ -85,18 +85,28 @@ const getCampaignCallPathLabel = (call: any) => {
 export const CallPathCell = ({ call, onOpen, secondary }: CallPathCellProps) => {
   const secondaryContent = secondary ?? getCampaignCallPathLabel(call);
 
+  const currentContextLabel = call?.current_context || '';
+
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-1.5">
+    // min-w-[120px] gives this column room to hold "Retention Queue"-length
+    // values without the browser's natural auto-layout squeezing it down to
+    // whatever's left over; max-w-[200px] plus truncate below is the actual
+    // clipping mechanism ONLY once a genuinely long value would otherwise
+    // run into the Actions column beside it — the tooltip on each truncated
+    // span means nothing is lost, just not shown at full length inline.
+    <div className="flex min-w-[120px] max-w-[200px] flex-col gap-1.5">
+      <div className="flex min-w-0 items-center gap-1.5">
         {/* Empty, not a dash. A cell with no context has nothing to say;
             '---' reads as a value that failed to load. The info button
             beside it still opens the full path. */}
-        <div className="capitalize">{call?.current_context || ''}</div>
+        <CustomTooltip text={currentContextLabel} side="top">
+          <div className="min-w-0 truncate capitalize">{currentContextLabel}</div>
+        </CustomTooltip>
         {call ? (
           <CustomTooltip text="View call path" side="top">
             <button
               type="button"
-              className="flex h-5 w-5 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primary"
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gray-500 dark:text-mcm-ink-3 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 hover:text-primary"
               aria-label="View call path"
               onClick={(event) => {
                 event.stopPropagation();
@@ -108,7 +118,11 @@ export const CallPathCell = ({ call, onOpen, secondary }: CallPathCellProps) => 
           </CustomTooltip>
         ) : null}
       </div>
-      {secondaryContent ? <div>{secondaryContent}</div> : null}
+      {secondaryContent ? (
+        <CustomTooltip text={secondaryContent} side="top">
+          <div className="min-w-0 truncate">{secondaryContent}</div>
+        </CustomTooltip>
+      ) : null}
     </div>
   );
 };
@@ -131,25 +145,25 @@ export const CallPathDialog = ({ call, onClose }: CallPathDialogProps) => {
       <DialogContent className="w-full max-w-[480px] p-5">
         <DialogHeader>
           <DialogTitle className="text-md">Call Path</DialogTitle>
-          <DialogDescription className="text-gray-500">
+          <DialogDescription className="text-gray-500 dark:text-mcm-ink-3">
             Current context:{' '}
-            <span className="font-medium capitalize text-gray-900">
+            <span className="font-medium capitalize text-gray-900 dark:text-mcm-ink">
               {call?.current_context || '---'}
             </span>
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3">
             Context Path
           </p>
           {contextPathValues.length ? (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-              <p className="break-words text-sm font-medium capitalize text-gray-900">
+            <div className="rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-3">
+              <p className="break-words text-sm font-medium capitalize text-gray-900 dark:text-mcm-ink">
                 {contextPathValues.join(' -> ')}
               </p>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-gray-200 p-3 text-sm text-gray-500">
+            <div className="rounded-lg border border-dashed border-gray-200 dark:border-mcm-line p-3 text-sm text-gray-500 dark:text-mcm-ink-3">
               No context path available
             </div>
           )}

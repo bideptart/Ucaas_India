@@ -342,7 +342,24 @@ const CompanyRecord = ({ companyInfo, defaultSite }: CompanyRecordProps) => {
               type="button"
               onClick={handleCopyId}
               title="Copy company ID"
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-[#EEE7DD] px-2 py-1 text-xs font-medium text-[#9A948F] transition-colors hover:bg-[#FBE2C8]/45"
+              /* dark:!text-mcm-ink-3 / dark:!border-mcm-line: this button
+                 had no dark: variant on any of its colours at all, so it
+                 kept its light-mode literals (a cream border, muted
+                 brown-gray text) unchanged in dark mode — a light border
+                 reads as almost invisible on a dark background, and the
+                 Copy icon (no colour of its own, inherits the button's via
+                 currentColor) inherited that same low-contrast tone, which
+                 is why it looked faint too. The `!` is required, not
+                 optional here: index.css carries global unlayered
+                 `!important` catch-alls for exactly these two light-mode
+                 literals (`border-[#EEE7DD]` → #334155, `text-[#9A948F]` →
+                 #94a3b8 — a safety net for the many places that use them
+                 with no dark handling at all), and an unlayered important
+                 always beats a plain layered Tailwind utility regardless
+                 of specificity. Without `!` this still resolved to the
+                 catch-all's stale slate colours instead of the intended
+                 tokens. */
+              className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md !border border-[#EEE7DD] dark:!border-mcm-line px-2 text-xs font-medium text-[#9A948F] dark:!text-mcm-ink-3 transition-colors bg-transparent dark:!bg-mcm-surface-2 hover:bg-[#FBE2C8]/45 dark:hover:!bg-mcm-surface-3 dark:hover:!border-mcm-line-2"
             >
               {copied ? (
                 <Check className="h-3.5 w-3.5 text-green-600" />
@@ -360,7 +377,34 @@ const CompanyRecord = ({ companyInfo, defaultSite }: CompanyRecordProps) => {
               worst case is a clear message instead of being thrown to the login
               screen. */}
           {!isEditing && (
-            <Button type="button" variant="outline" onClick={() => setIsEditing(true)}>
+            /* `variant="outline"` renders `bg-card border border-primary
+               text-primary` — an orange border + orange text, always on.
+               This page is wrapped in `.mcm-page mcm-admin`, where a global
+               reset (`.mcm-page button:not([data-slot="tabs-trigger"])`)
+               strips `background: none; border: 0;` on plain buttons and
+               outranks those single-class utilities on specificity — so in
+               practice the card/border never showed at all and only the
+               orange text survived, which is what read as "plain text,
+               not a button" in the first place, before either override
+               below existed.
+
+               Matches "Company ID" beside it: same --mcm-line border,
+               same --mcm-surface-2 elevated surface, same `h-8` (Company
+               ID has no size prop to key off, so its height is set to
+               match this `size="sm"` explicitly rather than the other way
+               round), permanently visible rather than only-on-hover — the
+               two are meant to read as one consistent pair of dark-theme
+               controls. Hover steps both the border and surface up one
+               tone (--mcm-line-2 / --mcm-surface-3) and tints the text
+               orange; that stays a text-only accent, never a filled
+               orange background. */
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="dark:!border dark:!border-mcm-line dark:!bg-mcm-surface-2 dark:!text-mcm-ink dark:!shadow-none dark:hover:!border-mcm-line-2 dark:hover:!bg-mcm-surface-3 dark:hover:!text-mcm-accent-ink dark:focus-visible:!border-mcm-accent-ink"
+            >
               Edit details
             </Button>
           )}

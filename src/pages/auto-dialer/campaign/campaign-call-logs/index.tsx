@@ -14,12 +14,12 @@ function CampaignCallLogs() {
   };
 
   return (
-    <div className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden h-full">
-      <div className="w-full px-3 bg-white flex items-center justify-between border-b min-h-[65px]">
+    <div className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden h-full">
+      <div className="w-full px-3 bg-white dark:bg-mcm-surface flex items-center justify-between border-b dark:border-mcm-line min-h-[65px]">
         <div className="cursor-pointer" onClick={() => navigate(-1)}>
           <div className="flex gap-2 items-center">
             <ArrowLeft className="w-6 h-5" />
-            <h3 className="font-semibold text-gray-900">Leads - ({data?.name || ''})</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-mcm-ink">Leads - ({data?.name || ''})</h3>
           </div>
         </div>
       </div>

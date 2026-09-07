@@ -929,3 +929,109 @@ input::-moz-focus-inner {
   border-color: color-mix(in srgb, var(--primary) 38%, #ffffff);
   color: color-mix(in srgb, var(--primary) 78%, #2b1a08);
 }
+
+/* ==================================================================
+   Dark mode.
+
+   Most of the text/border colours above already read var(--mcm-ink),
+   var(--mcm-line) etc — the app-wide tokens, already dark-aware — so they
+   need nothing here. What's left is every place this file (or the
+   library's own stylesheet, via inline `background-color: inherit` on
+   every grid cell — see the note above .mcm-calshell) hardcodes a literal
+   #ffffff: the grid's own card, the sticky weekday-name row, the toolbar
+   buttons and the view-switch/weekend-toggle controls, none of which had
+   ever been touched for Dark Mode before. Grid cells are NOT re-listed
+   here: they inherit background-color from .mcm-calshell (a library
+   behaviour CSS can't override even with !important, per that same note),
+   so fixing the shell's own background is what actually recolours them.
+   The color-mix(...#ffffff) hover/active tints are repeated here mixing
+   into a dark base instead, so a hover doesn't flash back to a light tint
+   on an otherwise dark control. */
+.dark .tui-full-calendar-month .tui-view-7 {
+  background: var(--mcm-surface, #1e293b);
+}
+
+.dark .mcm-calbar .btn,
+.dark .mcm-calbar .btn-default,
+.dark .mcm-calbar .btn-sm {
+  background: var(--mcm-surface, #1e293b);
+}
+.dark .mcm-calbar .btn:hover,
+.dark .mcm-calbar .btn-default:hover {
+  background: color-mix(in srgb, var(--primary) 16%, #1e293b);
+  border-color: color-mix(in srgb, var(--primary) 40%, #1e293b);
+  color: color-mix(in srgb, var(--primary) 75%, #f8fafc);
+}
+.dark .mcm-calbar .dropdown.open .dropdown-toggle.btn-default,
+.dark .mcm-calbar .dropdown-toggle:focus,
+.dark .mcm-calbar .dropdown-toggle:focus:active {
+  background: color-mix(in srgb, var(--primary) 16%, #1e293b);
+  border-color: color-mix(in srgb, var(--primary) 45%, #1e293b);
+  color: color-mix(in srgb, var(--primary) 75%, #f8fafc);
+}
+.dark .mcm-calbar .move-today {
+  background: color-mix(in srgb, var(--primary) 14%, #1e293b);
+  border-color: color-mix(in srgb, var(--primary) 32%, #1e293b);
+  color: color-mix(in srgb, var(--primary) 78%, #f8fafc);
+}
+.dark .mcm-calbar .move-today:hover {
+  background: color-mix(in srgb, var(--primary) 22%, #1e293b);
+  border-color: color-mix(in srgb, var(--primary) 50%, #1e293b);
+}
+
+.dark .mcm-calbar .lnb-calendars-item:has(input:checked) label {
+  background: var(--mcm-surface, #1e293b);
+}
+
+.dark .mcm-calshell {
+  background: var(--mcm-surface, #1e293b);
+}
+
+.dark .mcm-calbar .mcm-viewswitch {
+  background: var(--mcm-surface-3, #334155);
+}
+.dark .mcm-calbar .mcm-viewswitch-btn.is-on {
+  background: var(--mcm-surface, #1e293b);
+  color: color-mix(in srgb, var(--primary) 78%, #f8fafc);
+}
+
+.dark .mcm-calbar .mcm-weekendtoggle {
+  background: var(--mcm-surface, #1e293b);
+}
+.dark .mcm-calbar .mcm-weekendtoggle.is-on {
+  background: color-mix(in srgb, var(--primary) 14%, #1e293b);
+  border-color: color-mix(in srgb, var(--primary) 38%, #1e293b);
+  color: color-mix(in srgb, var(--primary) 78%, #f8fafc);
+}
+
+/* The dropdown menu (view picker, when opened as a list rather than the
+   segmented control) is a plain library dropdown, still on the original
+   Bootstrap-derived white/#333 pairing (top of this file) with no --mcm-*
+   reference to ride. */
+.dark .dropdown-menu {
+  background-color: var(--mcm-surface, #1e293b);
+  border-color: var(--mcm-line, #475569);
+}
+.dark .dropdown-menu > li > div {
+  color: var(--mcm-ink-2, #aab6c1);
+}
+.dark .dropdown-menu > li > div:focus,
+.dark .dropdown-menu > li > div:hover {
+  background-color: var(--mcm-surface-3, #334155);
+  color: var(--mcm-ink, #f8fafc);
+}
+
+/* The actual reason the grid still painted white after everything above:
+   the library sets `background-color: white` as an INLINE style, at
+   runtime, on `.tui-full-calendar-layout` — the element that wraps the
+   whole month/week/day view, sitting BETWEEN .mcm-calshell and every grid
+   cell. An inline style always wins over a class-based rule regardless of
+   specificity, so .mcm-calshell's own dark background (correct on
+   .mcm-calshell itself, confirmed via computed style) never had a chance
+   to show through or to reach the cells' own `background-color: inherit`
+   — that inherit chain resolves against THIS element's white, not
+   .mcm-calshell's dark, since it's the nearer ancestor. `!important` is
+   the only lever that beats a plain inline style. */
+.dark .tui-full-calendar-layout {
+  background-color: var(--mcm-surface, #1e293b) !important;
+}

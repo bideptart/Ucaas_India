@@ -156,14 +156,14 @@ const InvitedMeetings = () => {
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           <div className="flex justify-between items-center">
             <h4
-              className="font-semibold text-lg flex items-center gap-1"
+              className="font-semibold text-lg flex items-center gap-1 vm-sunset-title"
               style={{ color: '#8A3F1C' }}
             >
               Invited Meetings <InfoIcon className="w-3 h-3 text-[#9A948F]" />
             </h4>
             <Button
               variant="outline"
-              className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F]"
+              className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F] dark:border-mcm-line dark:bg-mcm-surface/80 dark:hover:bg-mcm-surface-3"
               type="button"
             >
               <span className="text-ucass-active">{upcomingMeetingList?.length || 0}</span>
@@ -302,7 +302,7 @@ const InvitedMeetings = () => {
                       ) : null}
                       <DropdownMenu>
                         <DropdownMenuTrigger
-                          className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-xl w-9 h-9 min-h-9 bg-[#f7f9fc] text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F]"
+                          className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-xl w-9 h-9 min-h-9 bg-[#f7f9fc] text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F] dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink dark:hover:bg-mcm-surface"
                           onClick={(event) => event.stopPropagation()}
                         >
                           <Icon name="MenuDots" className="w-5 h-5 " />
@@ -310,10 +310,10 @@ const InvitedMeetings = () => {
                         <DropdownMenuContent
                           align="end"
                           sideOffset={8}
-                          className="min-w-[142px] overflow-hidden rounded-[12px] border border-[#e5e7eb] bg-white p-0 shadow-[0_6px_14px_rgba(15,23,42,0.12)]"
+                          className="min-w-[142px] overflow-hidden rounded-[12px] border border-[#e5e7eb] bg-white p-0 shadow-[0_6px_14px_rgba(15,23,42,0.12)] dark:border-mcm-line dark:bg-mcm-surface"
                         >
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6] dark:text-mcm-ink dark:hover:bg-mcm-surface-3 dark:focus:bg-mcm-surface-3"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingInfo: true });
@@ -323,7 +323,7 @@ const InvitedMeetings = () => {
                             Info
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6] dark:text-mcm-ink dark:hover:bg-mcm-surface-3 dark:focus:bg-mcm-surface-3"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingInvites: true });
@@ -333,7 +333,7 @@ const InvitedMeetings = () => {
                             Invited Members
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6] dark:text-mcm-ink dark:hover:bg-mcm-surface-3 dark:focus:bg-mcm-surface-3"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingAttendee: true });

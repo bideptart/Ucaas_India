@@ -834,8 +834,8 @@ const CalendarPage = () => {
                     const name = member.name || member.email || 'Unknown';
                     return (
                       <CustomTooltip key={i} text={name} side="top">
-                        <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 cursor-pointer shadow-sm">
-                          <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-slate-600 text-[10px] font-bold uppercase">
+                        <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 dark:bg-mcm-surface-3 cursor-pointer shadow-sm">
+                          <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2 text-[10px] font-bold uppercase">
                             {getInitials(name)}
                           </div>
                         </div>
@@ -843,8 +843,8 @@ const CalendarPage = () => {
                     );
                   })}
                   {assignTo.length > 4 && (
-                    <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 shadow-sm">
-                      <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 bg-slate-200 text-slate-700 text-[10px] font-bold">
+                    <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 dark:bg-mcm-surface-3 shadow-sm">
+                      <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 dark:border-mcm-line bg-slate-200 dark:bg-mcm-surface-3 text-slate-700 dark:text-mcm-ink-2 text-[10px] font-bold">
                         +{assignTo.length - 4}
                       </div>
                     </div>
@@ -899,7 +899,7 @@ const CalendarPage = () => {
       //   header: 'Make Call',
       //   cell: ({ row }: any) => {
       //     const schedule = row.original;
-      //     if (schedule.mode !== 'CALL') return <span className="text-xs text-slate-400">--</span>;
+      //     if (schedule.mode !== 'CALL') return <span className="text-xs text-slate-400 dark:text-mcm-ink-3">--</span>;
       //     return (
       //       <button
       //         onClick={() => {
@@ -932,7 +932,7 @@ const CalendarPage = () => {
             <div className="text-right" onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100 text-slate-500">
+                  <button className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-mcm-surface-3 text-slate-500 dark:text-mcm-ink-3">
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
@@ -1001,7 +1001,7 @@ const CalendarPage = () => {
                     </DropdownMenuItem>
                   )}
 
-                  <div className="h-px bg-slate-100 my-1" />
+                  <div className="h-px bg-slate-100 dark:bg-mcm-surface-3 my-1" />
                   {schedule?.createdById === userId ? (
                     <>
                       {schedule?.status !== 'COMPLETED' ? (
@@ -1048,7 +1048,7 @@ const CalendarPage = () => {
   );
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto overflow-x-hidden p-3 lg:overflow-hidden">
-      <div className="rounded-lg bg-white border border-slate-200 overflow-visible lg:overflow-hidden">
+      <div className="rounded-lg bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line overflow-visible lg:overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] min-h-[calc(100vh-88px)] overflow-visible lg:overflow-hidden">
           <aside className="mcm-calpanel p-4">
             <div className="relative mb-3">
@@ -1100,7 +1100,7 @@ const CalendarPage = () => {
               </div>
 
               {miniPickerOpen && (
-                <div className="absolute z-30 mt-2 w-full rounded-xl border border-mcm-line bg-white shadow-lg">
+                <div className="absolute z-30 mt-2 w-full rounded-xl border border-mcm-line bg-white dark:bg-mcm-surface shadow-lg">
                   {miniPickerMode === 'year' ? (
                     <div className="p-2">
                       <p className="px-1 pb-2 text-sm font-semibold text-mcm-ink-3  tracking-wide">
@@ -1271,7 +1271,7 @@ const CalendarPage = () => {
                     key={schedule.id}
                     type="button"
                     onClick={() => handleTodayTaskClick(schedule)}
-                    className="w-full cursor-pointer rounded-xl border border-mcm-line bg-white p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
+                    className="w-full cursor-pointer rounded-xl border border-mcm-line bg-white dark:bg-mcm-surface p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-2.5">
                       <span
@@ -1354,11 +1354,11 @@ const CalendarPage = () => {
                             return prev;
                           });
                         }}
-                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition cursor-pointer"
+                        className="p-1.5 rounded-lg border border-slate-200 dark:border-mcm-line hover:bg-slate-50 dark:hover:bg-mcm-surface-3 transition cursor-pointer"
                       >
-                        <ArrowLeft className="h-4 w-4 text-slate-600" />
+                        <ArrowLeft className="h-4 w-4 text-slate-600 dark:text-mcm-ink-2" />
                       </button>
-                      <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-mcm-ink tracking-tight">
                         Task Listing
                       </h2>
                     </div>
@@ -1380,12 +1380,12 @@ const CalendarPage = () => {
                       type="button"
                       variant="outline"
                       onClick={() => setShowFilter(!showFilter)}
-                      className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                      className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                     >
                       <FilterIcon className="w-5 h-5" />
                     </Button>
 
-                    <div className="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white p-1">
+                    <div className="inline-flex h-11 items-center rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-1">
                       <button
                         type="button"
                         aria-label="List view"
@@ -1394,7 +1394,7 @@ const CalendarPage = () => {
                         className={`cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
                           taskViewMode === 'list'
                             ? 'bg-[var(--primary)] text-white'
-                            : 'text-slate-700 hover:bg-slate-100'
+                            : 'text-slate-700 dark:text-mcm-ink-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3'
                         }`}
                       >
                         <List className="h-4 w-4 shrink-0" />
@@ -1407,7 +1407,7 @@ const CalendarPage = () => {
                         className={`cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
                           taskViewMode === 'grid'
                             ? 'bg-[var(--primary)] text-white'
-                            : 'text-slate-700 hover:bg-slate-100'
+                            : 'text-slate-700 dark:text-mcm-ink-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3'
                         }`}
                       >
                         <LayoutGrid className="h-4 w-4 shrink-0" />
@@ -1418,25 +1418,25 @@ const CalendarPage = () => {
               </div>
 
               {/* {isTaskListLoading && (
-                <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
-                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
+                <div className="rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-4 space-y-2">
+                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
+                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
+                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
                 </div>
               )} */}
               {/* {!isTaskListLoading && taskListSchedules?.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+                <div className="rounded-xl border border-dashed border-slate-300 dark:border-mcm-line bg-white dark:bg-mcm-surface p-10 text-center text-slate-500 dark:text-mcm-ink-3">
                   No tasks found
                 </div>
               )} */}
               {showFilter ? (
                 <div className="flex flex-wrap items-center justify-end gap-3 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500">Created On:</span>
-                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Created On:</span>
+                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50/30 dark:bg-mcm-surface-3/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white dark:hover:bg-mcm-surface">
                       <div className="inline-flex items-center gap-2.5">
                         <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
                           htmlFor="task-created-from-date"
                         >
                           From
@@ -1456,15 +1456,15 @@ const CalendarPage = () => {
                             onChange={(e) =>
                               handleCreatedDateFilterChange('from_created', e.target.value)
                             }
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
                         </div>
                       </div>
-                      <div className="hidden sm:block h-5 w-px bg-slate-200" />
+                      <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-mcm-surface-3" />
                       <div className="inline-flex items-center gap-2.5">
                         <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
                           htmlFor="task-created-to-date"
                         >
                           To
@@ -1484,7 +1484,7 @@ const CalendarPage = () => {
                             onChange={(e) =>
                               handleCreatedDateFilterChange('to_created', e.target.value)
                             }
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
                         </div>
@@ -1492,11 +1492,11 @@ const CalendarPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500">Schedule Date:</span>
-                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Schedule Date:</span>
+                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50/30 dark:bg-mcm-surface-3/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white dark:hover:bg-mcm-surface">
                       <div className="inline-flex items-center gap-2.5">
                         <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
                           htmlFor="task-from-date"
                         >
                           From
@@ -1514,15 +1514,15 @@ const CalendarPage = () => {
                             value={taskListFrom}
                             max={taskListTo}
                             onChange={(e) => handleTaskListDateFilterChange('from', e.target.value)}
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
                         </div>
                       </div>
-                      <div className="hidden sm:block h-5 w-px bg-slate-200" />
+                      <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-mcm-surface-3" />
                       <div className="inline-flex items-center gap-2.5">
                         <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
+                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
                           htmlFor="task-to-date"
                         >
                           To
@@ -1540,7 +1540,7 @@ const CalendarPage = () => {
                             value={taskListTo}
                             min={taskListFrom}
                             onChange={(e) => handleTaskListDateFilterChange('to', e.target.value)}
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           />
                           <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
                         </div>
@@ -1555,7 +1555,7 @@ const CalendarPage = () => {
                         setTaskListDateRange({ from: '', to: '' });
                         setCreatedDateRange({ from_created: '', to_created: '' });
                       }}
-                      className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95 cursor-pointer animate-fade-in"
+                      className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-slate-900 dark:hover:text-mcm-ink transition-all active:scale-95 cursor-pointer animate-fade-in"
                     >
                       <X className="w-3.5 h-3.5" />
                       Reset
@@ -1596,7 +1596,7 @@ const CalendarPage = () => {
                       if (isNotCompleted) {
                         return 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/50 transition-colors';
                       }
-                      return 'hover:bg-slate-50/80 transition-colors';
+                      return 'hover:bg-slate-50 dark:hover:bg-mcm-surface-3/80 transition-colors';
                     },
                   }}
                 />
@@ -1614,10 +1614,10 @@ const CalendarPage = () => {
                           e.preventDefault();
                           setDetailsModal(transformEventTaskToSchedule(schedule));
                         }}
-                        className={`cursor-pointer rounded-xl border border-slate-200  p-4 text-left hover:border-cyan-300 hover:shadow-sm transition ${schedule?.category === 'TASK' && schedule?.status?.toUpperCase() !== 'COMPLETED' ? 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/5' : ''}`}
+                        className={`cursor-pointer rounded-xl border border-slate-200 dark:border-mcm-line  p-4 text-left hover:border-cyan-300 hover:shadow-sm transition ${schedule?.category === 'TASK' && schedule?.status?.toUpperCase() !== 'COMPLETED' ? 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/5' : ''}`}
                       >
                         <div className="mb-3 flex items-start justify-between gap-2">
-                          <h3 className="text-sm font-semibold text-slate-900 line-clamp-2">
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink line-clamp-2">
                             {schedule.name || ''}
                           </h3>
 
@@ -1680,7 +1680,7 @@ const CalendarPage = () => {
                                 {schedule.status === 'COMPLETED' ? (
                                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                                 ) : (
-                                  <Circle className="w-4 h-4 text-slate-400 hover:text-emerald-600 transition-colors shrink-0" />
+                                  <Circle className="w-4 h-4 text-slate-400 dark:text-mcm-ink-3 hover:text-emerald-600 transition-colors shrink-0" />
                                 )}
                               </div>
                             </CustomTooltip>
@@ -1719,9 +1719,9 @@ const CalendarPage = () => {
                             )}
                           </div>
                         </div>
-                        <div className="space-y-2 text-xs text-slate-600">
+                        <div className="space-y-2 text-xs text-slate-600 dark:text-mcm-ink-2">
                           <div>
-                            <span className="font-medium text-slate-800">Scheduled: </span>
+                            <span className="font-medium text-slate-800 dark:text-mcm-ink">Scheduled: </span>
                             {getLocalScheduleMoment(schedule, 'start')?.format(
                               'DD MMM YYYY hh:mm A',
                             ) || '-'}
@@ -1731,7 +1731,7 @@ const CalendarPage = () => {
                           </div>
 
                           <div>
-                            <span className="font-medium text-slate-800">Created: </span>
+                            <span className="font-medium text-slate-800 dark:text-mcm-ink">Created: </span>
                             {moment(schedule?.createdAt).format('DD MMM YYYY')}
                           </div>
                         </div>
@@ -1745,7 +1745,7 @@ const CalendarPage = () => {
                           >
                             {itemCategory}
                           </span>
-                          {/* <span className="text-[11px] font-medium text-slate-500">
+                          {/* <span className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">
                             Open details
                           </span> */}
                         </div>
@@ -1764,26 +1764,26 @@ const CalendarPage = () => {
             onClick={() => setDetailsModal(null)}
           >
             <div
-              className="w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden p-4 space-y-3"
-              // className="w-full max-w-md rounded-xl bg-white border border-slate-200 shadow-xl p-4 space-y-3"
+              className="w-full max-w-2xl rounded-2xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-2xl overflow-hidden p-4 space-y-3"
+              // className="w-full max-w-md rounded-xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-xl p-4 space-y-3"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-2">
-                <h4 className="text-base font-semibold text-slate-900">
+                <h4 className="text-base font-semibold text-slate-900 dark:text-mcm-ink">
                   {detailsModal?.title || detailsModal?.name}
                 </h4>
                 <button
                   type="button"
                   onClick={() => setDetailsModal(null)}
-                  className="cursor-pointer rounded-md p-1 hover:bg-slate-100"
+                  className="cursor-pointer rounded-md p-1 hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
                   aria-label="Close details popup"
                 >
-                  <X className="w-4 h-4 text-slate-600 shrink-0" />
+                  <X className="w-4 h-4 text-slate-600 dark:text-mcm-ink-2 shrink-0" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <CalendarClock className="w-4 h-4 text-slate-500 shrink-0" />
+              <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-mcm-ink-2">
+                <CalendarClock className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
                 <span>
                   {detailsStartDate
                     ? moment(detailsStartDate).format('YYYY/MM/DD HH:mm')
@@ -1803,10 +1803,10 @@ const CalendarPage = () => {
 
               {/* {validAttendees?.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-0.5 text-slate-500 shrink-0" />
+                  <Users className="w-4 h-4 mt-0.5 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
                   <div className="flex flex-wrap gap-1 text-xs">
                     {validAttendees.map((email: string, idx: number) => (
-                      <span key={`${email}-${idx}`} className="bg-slate-100 px-2 py-1 rounded">
+                      <span key={`${email}-${idx}`} className="bg-slate-100 dark:bg-mcm-surface-3 px-2 py-1 rounded">
                         {email}
                       </span>
                     ))}
@@ -1816,16 +1816,16 @@ const CalendarPage = () => {
 
               {detailsModal?.raw?.assignTo?.length ? (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-1 text-slate-500 shrink-0" />
+                  <Users className="w-4 h-4 mt-1 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
 
                   <div className="flex flex-wrap gap-2">
                     {detailsModal.raw.assignTo.map((item: any, idx: number) => (
                       <div
                         key={`${item?.userId}-${idx}`}
-                        className="bg-slate-100 px-3 py-2 rounded-lg text-xs flex flex-col"
+                        className="bg-slate-100 dark:bg-mcm-surface-3 px-3 py-2 rounded-lg text-xs flex flex-col"
                       >
-                        <span className="font-medium text-slate-800">{item?.name || 'N/A'}</span>
-                        <span className="text-slate-500 text-[11px]">{item?.email || ''}</span>
+                        <span className="font-medium text-slate-800 dark:text-mcm-ink">{item?.name || 'N/A'}</span>
+                        <span className="text-slate-500 dark:text-mcm-ink-3 text-[11px]">{item?.email || ''}</span>
                       </div>
                     ))}
                   </div>
@@ -1834,16 +1834,16 @@ const CalendarPage = () => {
 
               {detailsModal?.assignTo?.length ? (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-1 text-slate-500 shrink-0" />
+                  <Users className="w-4 h-4 mt-1 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
 
                   <div className="flex flex-wrap gap-2">
                     {detailsModal.assignTo.map((item: any, idx: number) => (
                       <div
                         key={`${item?.userId}-${idx}`}
-                        className="bg-slate-100 px-3 py-2 rounded-lg text-xs flex flex-col"
+                        className="bg-slate-100 dark:bg-mcm-surface-3 px-3 py-2 rounded-lg text-xs flex flex-col"
                       >
-                        <span className="font-medium text-slate-800">{item?.name || 'N/A'}</span>
-                        <span className="text-slate-500 text-[11px]">{item?.email || ''}</span>
+                        <span className="font-medium text-slate-800 dark:text-mcm-ink">{item?.name || 'N/A'}</span>
+                        <span className="text-slate-500 dark:text-mcm-ink-3 text-[11px]">{item?.email || ''}</span>
                       </div>
                     ))}
                   </div>
@@ -1851,7 +1851,7 @@ const CalendarPage = () => {
               ) : null}
 
               <div className="flex items-center gap-2">
-                <Tag className="w-4 h-4 text-slate-500 shrink-0" />
+                <Tag className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
                 <span
                   className={`text-[11px] px-2 py-1 rounded font-semibold ${isEvent ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}`}
                 >
@@ -1865,7 +1865,7 @@ const CalendarPage = () => {
                     to={`/video-meet?meetCode=${detailsModal?.raw?.referenceId}`}
                     target="_blank"
                   >
-                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
+                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 dark:border-mcm-line px-3 py-1.5 text-xs font-medium hover:bg-slate-50 dark:hover:bg-mcm-surface-3">
                       <Video className="w-3.5 h-3.5 shrink-0" />
                       Join Meet
                     </button>
@@ -1873,7 +1873,7 @@ const CalendarPage = () => {
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100"
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
                   >
                     <Clipboard className="w-3.5 h-3.5 shrink-0" />
                     {copiedLink ? 'Copied' : 'Copy'}
@@ -1884,7 +1884,7 @@ const CalendarPage = () => {
               {detailsModal?.category === 'EVENT' && detailsModal?.referenceId && (
                 <div className="flex items-center justify-between gap-2">
                   <Link to={`/video-meet?meetCode=${detailsModal?.referenceId}`} target="_blank">
-                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
+                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 dark:border-mcm-line px-3 py-1.5 text-xs font-medium hover:bg-slate-50 dark:hover:bg-mcm-surface-3">
                       <Video className="w-3.5 h-3.5 shrink-0" />
                       Join Meet
                     </button>
@@ -1892,7 +1892,7 @@ const CalendarPage = () => {
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100"
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
                   >
                     <Clipboard className="w-3.5 h-3.5 shrink-0" />
                     {copiedLink ? 'Copied' : 'Copy'}
@@ -1901,8 +1901,8 @@ const CalendarPage = () => {
               )}
 
               {detailsModal?.raw?.reminderMode?.length > 0 && (
-                <div className="flex items-center gap-2 text-xs text-slate-700">
-                  <Bell className="w-4 h-4 text-slate-500 shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-mcm-ink-2">
+                  <Bell className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
                   <span>
                     {Array.isArray(detailsModal?.raw?.reminderMode)
                       ? detailsModal?.raw?.reminderMode.join(', ')
@@ -1913,12 +1913,12 @@ const CalendarPage = () => {
 
               {detailsModal?.raw?.description || detailsModal?.description ? (
                 <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    <FileText className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-mcm-ink-3 uppercase tracking-wider">
+                    <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-mcm-ink-3" />
                     <span>Description</span>
                   </div>
-                  <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 min-h-[80px] max-h-[180px] overflow-y-auto custom-scrollbar flex items-start w-full">
-                    <p className="text-slate-600 text-sm leading-relaxed w-full text-left break-words whitespace-pre-wrap">
+                  <div className="rounded-xl bg-slate-50 dark:bg-mcm-surface-3 border border-slate-100 dark:border-mcm-line p-4 min-h-[80px] max-h-[180px] overflow-y-auto custom-scrollbar flex items-start w-full">
+                    <p className="text-slate-600 dark:text-mcm-ink-2 text-sm leading-relaxed w-full text-left break-words whitespace-pre-wrap">
                       {detailsModal?.raw?.description || detailsModal?.description}
                     </p>
                   </div>
@@ -1927,7 +1927,7 @@ const CalendarPage = () => {
 
               {(detailsModal?.raw?.createdById === userId ||
                 detailsModal?.createdById === userId) && (
-                <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-200 dark:border-mcm-line flex items-center justify-between">
                   <button
                     type="button"
                     disabled={isExpired || isOngoing}
@@ -1936,7 +1936,7 @@ const CalendarPage = () => {
                       setModal(true);
                       setEvent({ schedule: detailsModal });
                     }}
-                    className="cursor-pointer inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="cursor-pointer inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-mcm-ink-2 hover:text-slate-900 dark:hover:text-mcm-ink disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Pencil className="w-4 h-4 shrink-0" />
                     Reschedule
@@ -1964,46 +1964,46 @@ const CalendarPage = () => {
             onClick={() => setDetailsDescriptionModal(null)}
           >
             <div
-              className="w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden"
+              className="w-full max-w-2xl rounded-2xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-6 py-4">
-                <h4 className="text-xl font-bold text-slate-800">
+                <h4 className="text-xl font-bold text-slate-800 dark:text-mcm-ink">
                   {detailsDescriptionModal?.name || ''}
                 </h4>
                 <button
                   type="button"
                   onClick={() => setDetailsDescriptionModal(null)}
-                  className="cursor-pointer rounded-full p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+                  className="cursor-pointer rounded-full p-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3 text-slate-400 dark:text-mcm-ink-3 hover:text-slate-600 dark:hover:text-mcm-ink-2 transition"
                 >
                   <X className="w-5 h-5 shrink-0" />
                 </button>
               </div>
 
-              <div className="h-px bg-slate-100 mx-6" />
+              <div className="h-px bg-slate-100 dark:bg-mcm-surface-3 mx-6" />
 
               <div className="p-6">
-                <div className="flex items-center gap-2 text-slate-500 font-bold text-xs tracking-wider mb-4 uppercase">
+                <div className="flex items-center gap-2 text-slate-500 dark:text-mcm-ink-3 font-bold text-xs tracking-wider mb-4 uppercase">
                   <FileText className="w-4 h-4" />
                   Description
                 </div>
 
                 <div
-                  className={`rounded-2xl bg-slate-50 border border-slate-100 p-8 min-h-[160px] flex ${detailsDescriptionModal?.description ? 'items-start' : 'items-center justify-center'}`}
+                  className={`rounded-2xl bg-slate-50 dark:bg-mcm-surface-3 border border-slate-100 dark:border-mcm-line p-8 min-h-[160px] flex ${detailsDescriptionModal?.description ? 'items-start' : 'items-center justify-center'}`}
                 >
                   {detailsDescriptionModal?.description ? (
-                    <p className="text-slate-600 text-sm leading-relaxed w-full text-left">
+                    <p className="text-slate-600 dark:text-mcm-ink-2 text-sm leading-relaxed w-full text-left">
                       {detailsDescriptionModal?.description}
                     </p>
                   ) : (
-                    <p className="text-slate-400 text-sm italic">No description available</p>
+                    <p className="text-slate-400 dark:text-mcm-ink-3 text-sm italic">No description available</p>
                   )}
                 </div>
 
                 <div className="flex justify-end pt-6">
                   <button
                     onClick={() => setDetailsDescriptionModal(null)}
-                    className="px-8 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition"
+                    className="px-8 py-2 rounded-lg border border-slate-200 dark:border-mcm-line text-slate-600 dark:text-mcm-ink-2 font-bold hover:bg-slate-50 dark:hover:bg-mcm-surface-3 transition"
                   >
                     Close
                   </button>
@@ -2014,7 +2014,7 @@ const CalendarPage = () => {
         )} */}
 
         <Dialog modal open={modal} onOpenChange={toggle}>
-          {/* `mcm-glassform` in place of `bg-white`: the dialog sits over the
+          {/* `mcm-glassform` in place of `bg-white dark:bg-mcm-surface`: the dialog sits over the
               page's warm gradient, so a frosted panel lets that carry through
               rather than dropping a flat sheet on top of it. */}
           <DialogContent className="mcm-glassform max-h-[90vh] max-w-3xl w-full flex flex-col overflow-hidden p-6">

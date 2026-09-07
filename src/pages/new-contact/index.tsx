@@ -282,7 +282,7 @@ const NewContact: FC = () => {
         ) : (
           <>
             {/* Header bar */}
-            <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+            <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px]">
               <div className="flex flex-col gap-3 px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="w-full shrink-0 overflow-x-auto lg:w-auto lg:min-w-0 lg:shrink lg:flex-1">
                   <Tabs
@@ -292,7 +292,7 @@ const NewContact: FC = () => {
                   >
                     <div className="h-full min-w-max">
                       <TabsList
-                        className="gap-1 rounded-lg border border-[rgba(225,200,165,0.7)] bg-[rgba(255,255,255,0.55)] p-1"
+                        className="gap-1 rounded-lg border border-[rgba(225,200,165,0.7)] dark:border-mcm-line bg-[rgba(255,255,255,0.55)] dark:bg-mcm-surface-3 p-1"
                         style={{ margin: 0 }}
                       >
                         <TabsTrigger value={CONTACT_TABS_CONST.CONTACT_LIST}>
@@ -314,7 +314,7 @@ const NewContact: FC = () => {
                   <Button
                     onClick={() => login()}
                     variant="outline"
-                    className="h-9 min-h-9 w-full rounded-lg border-primary bg-white font-medium text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow sm:w-auto md:max-lg:shrink-0"
+                    className="h-9 min-h-9 w-full rounded-lg border-primary bg-white dark:bg-mcm-surface font-medium text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow sm:w-auto md:max-lg:shrink-0"
                   >
                     Sync With Google
                   </Button>
@@ -322,13 +322,13 @@ const NewContact: FC = () => {
                   <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center md:max-lg:min-w-0 md:max-lg:flex-1 md:max-lg:flex-nowrap lg:w-auto lg:min-w-0 lg:flex-nowrap">
                     <Input
                       placeholder="Search"
-                      className="h-9 min-h-9 w-full rounded-lg border-[rgba(225,200,165,0.9)] bg-white/70 pl-10 shadow-sm focus:shadow sm:min-w-[6rem] md:min-w-[8rem] md:max-lg:min-w-0 md:max-lg:flex-1 lg:min-w-[12rem] xl:min-w-[18rem]"
+                      className="h-9 min-h-9 w-full rounded-lg border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-white/70 dark:bg-mcm-surface pl-10 shadow-sm focus:shadow sm:min-w-[6rem] md:min-w-[8rem] md:max-lg:min-w-0 md:max-lg:flex-1 lg:min-w-[12rem] xl:min-w-[18rem]"
                       IconPosition="left-0 pl-3 inset-y-0"
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
                       }}
-                      Icon={<SearchLine className="text-[#8a7a67] w-4 h-4" />}
+                      Icon={<SearchLine className="text-[#8a7a67] dark:text-mcm-ink-3 w-4 h-4" />}
                     />
                     {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                       <>
@@ -385,7 +385,7 @@ const NewContact: FC = () => {
                       {canAddContact ? (
                         <>
                           <Button
-                            className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                            className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                             type="button"
                             onClick={() =>
                               setDrawerState((prev) => ({ ...prev, updateContacts: true }))
@@ -397,7 +397,7 @@ const NewContact: FC = () => {
                           {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                             <>
                               <Button
-                                className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                                className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                                 type="button"
                                 onClick={() =>
                                   setDrawerState((prev) => ({ ...prev, exportContacts: true }))
@@ -409,7 +409,7 @@ const NewContact: FC = () => {
                             </>
                           )}
                           <Button
-                            className="cursor-pointer flex min-h-9 items-center justify-center gap-2 rounded-lg border border-primary bg-white px-3 text-primary hover:bg-primary hover:text-white sm:h-9 sm:w-9 sm:px-0"
+                            className="cursor-pointer flex min-h-9 items-center justify-center gap-2 rounded-lg border border-primary bg-white dark:bg-mcm-surface px-3 text-primary hover:bg-primary hover:text-white sm:h-9 sm:w-9 sm:px-0"
                             type="button"
                             onClick={() =>
                               tabName === CONTACT_TABS_CONST.CONTACT_GROUP_LIST

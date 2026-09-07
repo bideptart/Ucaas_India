@@ -242,10 +242,10 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
 
   return (
     <div className="flex h-full min-h-0 w-full flex-1 flex-col gap-4">
-      <div className="flex items-start gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A948F]" />
-        <p className="text-xs text-[#2E2D35]">
-          <span className="font-semibold text-[#2E2D35]">What this writes.</span> Each number you pick
+      <div className="flex items-start gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3 dark:border-mcm-line dark:bg-mcm-surface">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A948F] dark:text-mcm-ink-3" />
+        <p className="text-xs text-[#2E2D35] dark:text-mcm-ink-2">
+          <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">What this writes.</span> Each number you pick
           is saved with a copy of "{template?.name}"'s settings, in the scope you choose below.
           Applying is a one-time copy — editing the template afterwards will not change numbers it was
           already applied to. Anything outside the chosen scope is left exactly as that number already
@@ -253,8 +253,8 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
         </p>
       </div>
 
-      <div className="flex flex-col gap-2 rounded-xl border border-[#EEE7DD] p-3">
-        <p className="text-xs font-semibold text-[#2E2D35]">Apply</p>
+      <div className="flex flex-col gap-2 rounded-xl border border-[#EEE7DD] p-3 dark:border-mcm-line">
+        <p className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">Apply</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           {CALL_HANDLING_APPLY_SCOPES.map((option) => (
             <label
@@ -262,10 +262,10 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
               className={`flex flex-1 cursor-pointer flex-col gap-1 rounded-lg border p-2.5 text-xs transition-colors ${
                 scope === option.value
                   ? 'border-primary bg-primary/5'
-                  : 'border-[#EEE7DD] hover:bg-gray-50'
+                  : 'border-[#EEE7DD] hover:bg-gray-50 dark:border-mcm-line dark:hover:bg-mcm-surface-3'
               }`}
             >
-              <span className="flex items-center gap-1.5 font-semibold text-[#2E2D35]">
+              <span className="flex items-center gap-1.5 font-semibold text-[#2E2D35] dark:text-mcm-ink">
                 <input
                   type="radio"
                   name="call-handling-apply-scope"
@@ -276,7 +276,7 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
                 />
                 {option.label}
               </span>
-              <span className="text-[#9A948F]">{option.description}</span>
+              <span className="text-[#9A948F] dark:text-mcm-ink-3">{option.description}</span>
             </label>
           ))}
         </div>
@@ -293,7 +293,7 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-[#EEE7DD] p-3">
+      <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-[#EEE7DD] p-3 dark:border-mcm-line">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full sm:max-w-[280px]">
             <Input
@@ -304,7 +304,7 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#2E2D35]">
+            <span className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">
               {chosenNumbers.length} of {numbers.length} chosen
             </span>
             <Button
@@ -322,9 +322,9 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
         {loadingNumbers ? (
           <Loader />
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[#EEE7DD]">
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[#EEE7DD] dark:border-mcm-line">
             {visible.length === 0 ? (
-              <p className="p-4 text-center text-xs text-[#9A948F]">No numbers match that search.</p>
+              <p className="p-4 text-center text-xs text-[#9A948F] dark:text-mcm-ink-3">No numbers match that search.</p>
             ) : (
               visible.map((number) => {
                 const result = ran ? results[number.uuid] : undefined;
@@ -333,7 +333,7 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
                 return (
                   <label
                     key={number.uuid}
-                    className="flex cursor-pointer items-start gap-3 border-b border-gray-100 p-3 last:border-b-0 hover:bg-[#FBE2C8]/45"
+                    className="flex cursor-pointer items-start gap-3 border-b border-gray-100 p-3 last:border-b-0 hover:bg-[#FBE2C8]/45 dark:border-mcm-line dark:hover:bg-mcm-surface-3"
                   >
                     <Checkbox
                       className="mt-0.5"
@@ -347,12 +347,12 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
                       }
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-xs font-semibold text-[#2E2D35]">{number.label}</span>
+                      <span className="block text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">{number.label}</span>
                       {number.detail ? (
-                        <span className="block text-xs text-[#9A948F]">{number.detail}</span>
+                        <span className="block text-xs text-[#9A948F] dark:text-mcm-ink-3">{number.detail}</span>
                       ) : null}
                       {source && !result ? (
-                        <span className="mt-1 block text-[11px] text-[#9A948F]">
+                        <span className="mt-1 block text-[11px] text-[#9A948F] dark:text-mcm-ink-3">
                           Currently from "{source.name}"
                         </span>
                       ) : null}
@@ -361,7 +361,7 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
                           className={`mt-1 flex items-start gap-1 text-xs ${OUTCOME_COLOUR[result.outcome]}`}
                         >
                           <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                          <span className="text-[#2E2D35]">{result.text}</span>
+                          <span className="text-[#2E2D35] dark:text-mcm-ink">{result.text}</span>
                         </span>
                       ) : null}
                     </span>
@@ -373,8 +373,8 @@ const ApplyCallHandlingTemplate = ({ template, onClose }: { template: any; onClo
         )}
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4">
-        <p className="text-xs text-[#9A948F]">
+      <div className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 dark:border-mcm-line dark:bg-mcm-surface">
+        <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
           Numbers are saved one at a time, so a long list takes a moment. Please leave this open until
           it finishes.
         </p>

@@ -839,7 +839,7 @@ const CallHistory = ({
         }}
         IconPosition="left-0 pl-2 inset-y-0"
         // maxLength={50}
-        Icon={<SearchLine className=" text-gray-700" />}
+        Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
       />
     </div>
   );
@@ -859,7 +859,7 @@ const CallHistory = ({
         type="button"
         variant="outline"
         onClick={() => handleRefetchTableData()}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
       </Button>
@@ -867,7 +867,7 @@ const CallHistory = ({
         type="button"
         variant={'ghost'}
         onClick={handleDownloadCSV}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <Icon name="DownloadIcon" className="w-5 h-5" />
       </Button>
@@ -875,7 +875,7 @@ const CallHistory = ({
         type="button"
         variant="outline"
         onClick={handleFilter}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <FilterIcon className="w-5 h-5" />
       </Button>
@@ -916,7 +916,7 @@ const CallHistory = ({
               className={`cursor-pointer flex min-h-10 min-w-[10.75rem] flex-col items-center justify-center gap-1 rounded-lg border p-3 py-2 text-center transition-all duration-200 sm:min-w-0  ${
                 activeTab === tab.label
                   ? 'border-ucass-primary-200 bg-ucass-primary-200/40 '
-                  : 'border-gray-200 hover:bg-gray-50 bg-white'
+                  : 'border-gray-200 dark:border-mcm-line hover:bg-gray-50 dark:hover:bg-mcm-surface-3 bg-white dark:bg-mcm-surface'
               }`}
             >
               <div
@@ -931,8 +931,8 @@ const CallHistory = ({
                 {tab.count}
               </div>
               <span
-                className={`mt-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500 ${
-                  activeTab === tab.label ? 'text-primary' : 'text-gray-600'
+                className={`mt-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 ${
+                  activeTab === tab.label ? 'text-primary' : 'text-gray-600 dark:text-mcm-ink-2'
                 }`}
               >
                 {tab.label}

@@ -1,5 +1,6 @@
 import { Bell } from '@/assets/icons';
 import ucaasLogo from '@/assets/images/ucaas-logo.png';
+import ucaasLogoDark from '@/assets/images/ucaas-logo-dark.png';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
@@ -294,10 +295,15 @@ const Header = () => {
         <header
           /* Upstream's px-4/py-2.5 padding, but keeping `h-16` over
              `min-h-16` and a visible `border-gray-200` over
-             `border-white/50` — see the note above the tag. */
-          className="h-16 text-gray-900/80 border-b border-gray-200 px-4 py-2.5"
+             `border-white/50` — see the note above the tag.
+
+             Background moved from inline style to a Tailwind class (with a
+             `dark:` variant) because inline `style` always wins over the
+             global dark-theme catch-all in index.css, which can only match
+             `class` attribute substrings — the bar was staying permanently
+             white/glass in Dark Mode. */
+          className="h-16 text-gray-900/80 dark:text-foreground/80 border-b border-gray-200 dark:border-[rgba(71,85,105,0.5)] px-4 py-2.5 bg-[rgba(255,255,255,0.78)] dark:bg-[rgba(30,41,59,0.85)]"
           style={{
-            background: 'rgba(255, 255, 255, 0.78)',
             backdropFilter: 'blur(12px) saturate(160%)',
             WebkitBackdropFilter: 'blur(12px) saturate(160%)',
           }}
@@ -320,12 +326,20 @@ const Header = () => {
                     show their initial rather than falling back to the vendor's
                     logo — this bar belongs to whoever is running the console. */}
                 <span className="mcm-brand-mark">
-                  <img src={ucaasLogo} alt="" />
+                  {/* Light theme keeps the original black-on-white mark — the
+                      header bar itself is light there, so it already sits on
+                      a light surface with no separate chip needed. Dark
+                      theme swaps in a recolored variant (white wordmark,
+                      orange subtext, same cloud/headset artwork) so the logo
+                      reads directly against the dark bar instead of needing
+                      a light patch behind it. */}
+                  <img src={ucaasLogo} alt="" className="dark:hidden" />
+                  <img src={ucaasLogoDark} alt="" className="hidden dark:block" />
                 </span>
               </a>
               <AreaNav />
             </div>
-            <div className="flex w-full items-center gap-2 text-gray-900/80 md:order-2 md:w-auto relative">
+            <div className="flex w-full items-center gap-2 text-gray-900/80 dark:text-mcm-ink md:order-2 md:w-auto relative">
               {hasActiveCampaign && (
                 <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5">
                   <span className="relative flex h-2.5 w-2.5">
@@ -335,7 +349,7 @@ const Header = () => {
                   <span className="max-w-[180px] truncate text-xs font-semibold text-emerald-700">
                     {activeCampaignName}
                   </span>
-                  <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                  <span className="rounded-md bg-white dark:bg-mcm-surface-3 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
                     Running
                   </span>
                 </div>
@@ -353,7 +367,7 @@ const Header = () => {
               </div>
               <button
                 type="button"
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 transition-colors hover:bg-ucass-primary-200 hover:text-primary md:hidden"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-mcm-surface-3 text-gray-700 dark:text-mcm-ink-2 transition-colors hover:bg-ucass-primary-200 hover:text-primary md:hidden"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                 aria-label={isMobileMenuOpen ? 'Close header menu' : 'Open header menu'}
                 aria-expanded={isMobileMenuOpen}
@@ -368,7 +382,7 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-actions"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-2 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-2 items-center border-t border-gray-200 dark:border-mcm-line pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
             >
               {/* Tasks, Calendar, My Campaigns, Activity and Monitoring moved
                   into the Performance area rail — the bar keeps only
@@ -382,7 +396,7 @@ const Header = () => {
               <div className="inline-flex items-center justify-center font-medium">
                 <CustomTooltip text={'Notification'} side="bottom">
                   <span
-                    className="cursor-pointer relative bg-white/70 border border-white/70 shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary"
+                    className="cursor-pointer relative bg-white/70 dark:bg-mcm-surface-3 border border-white/70 dark:border-[rgba(71,85,105,0.5)] shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg text-gray-700 dark:text-mcm-ink-2 hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary"
                     onClick={() => {
                       setNotificationState(true);
                       setIsMobileMenuOpen(false);
@@ -406,14 +420,14 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-wallet-profile"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 pt-3 md:order-5 md:ml-auto md:flex md:w-auto md:flex-nowrap md:justify-end md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 dark:border-mcm-line pt-3 md:order-5 md:ml-auto md:flex md:w-auto md:flex-nowrap md:justify-end md:border-t-0 md:pt-0`}
             >
               {/* Wallet / Add Funds */}
               {features?.plan_features?.billing?.action?.view ? (
                 <div className="flex items-center">
                   <CustomTooltip text={'Add Funds'} side="bottom">
                     <div
-                      className="flex items-center gap-2 px-3 h-9 bg-gray-100 hover:bg-ucass-primary-200  rounded-lg cursor-pointer"
+                      className="flex items-center gap-2 px-3 h-9 bg-gray-100 dark:bg-mcm-surface-3 hover:bg-ucass-primary-200  rounded-lg cursor-pointer"
                       {...getHeaderRouteHandlers(addFundsRoute)}
                     >
                       <Wallet className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
@@ -434,7 +448,7 @@ const Header = () => {
                   <PopoverTrigger
                     className={cn(
                       'cursor-pointer flex items-center gap-2 h-10 pl-1 pr-2 rounded-xl border transition-colors',
-                      'bg-white/70 border-white/70 shadow-sm hover:bg-ucass-primary-200 hover:border-ucass-primary-100',
+                      'bg-white/70 dark:bg-mcm-surface-3 border-white/70 dark:border-[rgba(71,85,105,0.5)] shadow-sm hover:bg-ucass-primary-200 hover:border-ucass-primary-100',
                       profileState === 'profile' && 'bg-ucass-primary-200 border-ucass-primary-100',
                     )}
                   >
@@ -448,7 +462,7 @@ const Header = () => {
                       presenceOverride={myPresenceStatus}
                     />
                     <div className="hidden lg:flex flex-col items-start text-left min-w-0 max-w-[110px]">
-                      <h4 className="w-full truncate text-[12px] font-bold text-gray-900 leading-tight">
+                      <h4 className="w-full truncate text-[12px] font-bold text-gray-900 dark:text-mcm-ink leading-tight">
                         {`Hi, ${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       </h4>
                       <div className="w-full truncate text-[10px] text-primary font-semibold uppercase tracking-widest">
@@ -457,7 +471,7 @@ const Header = () => {
                     </div>
                     <ChevronDown
                       className={cn(
-                        'w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200',
+                        'w-3.5 h-3.5 text-gray-400 dark:text-mcm-ink-3 shrink-0 transition-transform duration-200',
                         profileState === 'profile' && 'rotate-180',
                       )}
                     />
@@ -522,7 +536,7 @@ const Header = () => {
             handleRemoveUser();
           }}
           descriptionTextComp={
-            <div className="text-md py-2 text-gray-700">
+            <div className="text-md py-2 text-gray-700 dark:text-mcm-ink-2">
               Your session has been terminated or has expired. Please click Okay to log in again.
             </div>
           }

@@ -69,30 +69,31 @@ body.perf-warm-toolbar {
 
 /* The console still owns dark mode; the glass is re-stated against the dark
    ground rather than left as a bright block in it. */
+/* Neutral gray, not orange — global Dark Mode rebrand. */
 .dark .perf-live,
 .dark body.perf-warm-backdrop,
 .dark body.perf-warm-toolbar,
 body.perf-warm-backdrop.dark,
 body.perf-warm-toolbar.dark {
-  --pl-accent: #fb923c;
-  --pl-accent-deep: #f97316;
-  --pl-accent-ink: #fdba74;
-  --pl-wash: #2a1710;
-  --pl-wash-2: #241410;
-  --pl-edge: rgba(251, 146, 60, 0.28);
-  --pl-hairline: rgba(251, 146, 60, 0.14);
-  --pl-ink: #f4f6fb;
-  --pl-ink-2: #eef2f9;
-  --pl-muted: #93a1ba;
-  --pl-row-hover: rgba(251, 146, 60, 0.1);
-  --pl-surface: #111827;
+  --pl-accent: #f97316;
+  --pl-accent-deep: #ea580c;
+  --pl-accent-ink: #ff8a2a;
+  --pl-wash: #111c26;
+  --pl-wash-2: #101a23;
+  --pl-edge: rgba(249, 115, 22, 0.4);
+  --pl-hairline: rgba(249, 115, 22, 0.16);
+  --pl-ink: #f5f7fa;
+  --pl-ink-2: #f5f7fa;
+  --pl-muted: #aab6c1;
+  --pl-row-hover: rgba(249, 115, 22, 0.1);
+  --pl-surface: #111c26;
 
-  --pl-glass: rgba(17, 24, 39, 0.72);
-  --pl-glass-border: rgba(251, 146, 60, 0.18);
+  --pl-glass: rgba(11, 20, 28, 0.72);
+  --pl-glass-border: rgba(249, 115, 22, 0.2);
   --pl-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --pl-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
+  --pl-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
 
   --pl-live: #4ade80;
   --pl-live-ring: rgba(74, 222, 128, 0.24);
@@ -124,13 +125,21 @@ body.perf-warm-backdrop .mcm-page {
      and tall content is no longer pushed past what the page can show. */
   min-height: 100%;
 }
+/* Dark mode drops the warm-orange glow circles rather than carrying them
+   forward at lower opacity: `body.perf-warm-backdrop` is the ambient
+   backdrop for most of Performance (Queues, Agents, Calls, Flows,
+   Campaigns, Reports, Speech, Live — see the grep of every *-theme.css
+   file that reads it), so the glow was visible behind every glass card on
+   every one of those tabs, reading as "this whole module is orange" next
+   to the rest of the console's neutral --mcm-* dark surfaces — the exact
+   inconsistency already fixed for Chat/Agent Chat's .mcm-warm-glass. Flat
+   --mcm-ground here matches that fix; --aa-accent/--qa-accent/etc (each
+   theme file's own card-level tokens) still carry the orange accent on
+   icons, hover glows and the utilization bar, so it isn't lost — just no
+   longer the backdrop every panel sits in. */
 .dark .mcm-page .perf-live,
 .dark body.perf-warm-backdrop .mcm-page {
-  background:
-    radial-gradient(circle at 15% 15%, rgba(154, 82, 30, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(194, 65, 12, 0.24) 0%, transparent 55%),
-    #0a0f1a;
+  background: var(--mcm-ground, #070d13);
   min-height: 100%;
 }
 /* ------------------------------------------------------------
@@ -143,7 +152,12 @@ body.perf-warm-backdrop .mcm-page {
    plain against its tinted panel rather than each carrying their own
    background. */
 body.perf-warm-toolbar .mcm-page .page-bar {
-  background: #fffaf4;
+  /* var(--pl-surface), not the literal #fffaf4 this used to read (matching
+     the rail's own old inline `#fffaf4` — see the file header note): the
+     token already carries a `.dark body.perf-warm-toolbar` value (#111827),
+     so this needs no separate dark rule of its own. The rail itself no
+     longer uses a bare literal either — see dark: variants in sidebar.tsx. */
+  background: var(--pl-surface);
   border-bottom-color: var(--pl-hairline);
 }
 
@@ -206,9 +220,17 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm {
     border-color 0.16s ease,
     box-shadow 0.16s ease;
 }
+.dark body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm {
+  background: rgba(11, 20, 28, 0.6);
+  border-color: rgba(249, 115, 22, 0.35);
+}
 body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm:hover {
   border-color: rgba(249, 115, 22, 0.55);
   box-shadow: 0 3px 10px -3px rgba(249, 115, 22, 0.3);
+}
+.dark body.perf-warm-toolbar .mcm-page .perf-tbar .btn.ghost.sm:hover {
+  border-color: rgba(249, 115, 22, 0.55);
+  box-shadow: 0 3px 10px -3px rgba(0, 0, 0, 0.3);
 }
 
 /* Primary CTA ("My dashboards") stays `.btn.primary`'s flat solid accent at
@@ -222,6 +244,12 @@ body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
   box-shadow:
     0 6px 18px -4px rgba(234, 88, 12, 0.45),
     0 2px 6px -1px rgba(234, 88, 12, 0.3);
+}
+.dark body.perf-warm-toolbar .mcm-page .perf-tbar .btn.primary:hover {
+  background: linear-gradient(135deg, #ff8a2a 0%, #f97316 60%, #ea580c 100%);
+  box-shadow:
+    0 6px 18px -4px rgba(0, 0, 0, 0.45),
+    0 2px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
 /* The live queue KPI band (Waiting, Longest wait, Service level, ...) sits
@@ -291,6 +319,9 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   box-shadow: var(--pl-glass-shadow-hover);
   transform: translateY(-2px);
 }
+.dark .mcm-page .perf-live .stat:hover {
+  border-color: rgba(100, 116, 139, 0.3);
+}
 .mcm-page .perf-live .stat .k {
   color: var(--pl-muted);
   letter-spacing: 0.1em;
@@ -339,7 +370,7 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
   box-shadow: 0 1px 0 0 var(--pl-hairline);
 }
 .dark .mcm-page .perf-live .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .mcm-page .perf-live .table-scroll thead th {
   color: var(--pl-muted);
@@ -448,11 +479,20 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
+.dark .mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg'] {
+  background: rgba(11, 20, 28, 0.6);
+}
 .mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg']:hover {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-color: transparent;
   color: #fff;
   box-shadow: 0 6px 14px rgba(249, 115, 22, 0.26);
+}
+.dark .mcm-page .perf-live .table-scroll tbody td:last-child span[class*='rounded-lg']:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #1a0f06;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.26);
 }
 
 /* Pagination bar, matched to the table it belongs to. `.table-scroll` also
@@ -484,6 +524,17 @@ body.perf-warm-backdrop .mcm-page .page-band .kpi .d {
 .mcm-page .perf-live button[class*='backdrop-blur'] {
   background: rgba(251, 249, 246, 0.88) !important;
   border: 1px solid rgba(225, 200, 165, 0.9) !important;
+}
+/* This rule never had a dark counterpart, so the refresh button kept its
+   light cream pill in Dark Mode regardless of theme — same glass tokens
+   this file already uses for every other dark surface here. */
+.dark .mcm-page .perf-live button[class*='backdrop-blur'] {
+  background: var(--pl-glass) !important;
+  border: 1px solid var(--pl-glass-border) !important;
+  color: var(--pl-muted) !important;
+}
+.dark .mcm-page .perf-live button[class*='backdrop-blur']:hover {
+  background: var(--pl-wash) !important;
 }
 
 /* The pager group (« ‹ 1 › ») is intentionally left at its global default

@@ -85,7 +85,7 @@ const WhatsappChats = ({
     <div className="h-full min-h-0 flex flex-col overflow-hidden">
       <div className="p-2">
         <Input
-          className="w-full hover:border-gray-300 focus:border-gray-300"
+          className="w-full hover:border-gray-300 dark:hover:border-mcm-line focus:border-gray-300 dark:focus:border-mcm-line"
           placeholder="Search..."
           value={searchKey}
           onChange={(e) => {
@@ -96,7 +96,7 @@ const WhatsappChats = ({
         />
       </div>
       <div className="flex flex-col w-full flex-1 min-h-0 overflow-auto">
-        <ul role="list" className="divide-y divide-gray-200 overflow-auto h-full">
+        <ul role="list" className="divide-y divide-gray-200 dark:divide-mcm-line overflow-auto h-full">
           {isLoading ? (
             <div className="flex justify-center items-center mt-2">
               <Loader variant="blue" />
@@ -105,7 +105,7 @@ const WhatsappChats = ({
             filteredChats?.map((item: any) => (
               // ${isActive ? 'bg-gray-100' : ''}
               <li
-                className={`flex  hover:bg-gray cursor-pointer ${selectedChat?.chatId === item.chatId ? 'bg-gray-100' : ''} `}
+                className={`flex  hover:bg-gray cursor-pointer ${selectedChat?.chatId === item.chatId ? 'bg-gray-100 dark:bg-mcm-surface-3' : ''} `}
                 onClick={() => {
                   setSelectedChat(item);
                   navigate(`${location.pathname}?chatType=whatsapp&chatId=${item?.chatId}`);
@@ -121,12 +121,12 @@ const WhatsappChats = ({
                   >
                     <div className="flex justify-between gap-2">
                       <div className="flex items-center gap-1  w-[calc(100%_-_7rem)]">
-                        <p className=" text-gray-900 truncate font-medium">
+                        <p className=" text-gray-900 dark:text-mcm-ink truncate font-medium">
                           {item?.toName || item?.to || 'Unknown Contact'}
                         </p>
                       </div>
 
-                      <p className="text-gray-800 text-end  whitespace-nowrap text-xs">
+                      <p className="text-gray-800 dark:text-mcm-ink-3 text-end  whitespace-nowrap text-xs">
                         {item?.metaData?.timestamp
                           ? moment(item?.metaData?.timestamp).fromNow()
                           : ''}
@@ -134,7 +134,7 @@ const WhatsappChats = ({
                     </div>
 
                     <div className="flex justify-between gap-2">
-                      <p className="text-gray-800 text-end  whitespace-nowrap text-xs truncate">
+                      <p className="text-gray-800 dark:text-mcm-ink-3 text-end  whitespace-nowrap text-xs truncate">
                         {(() => {
                           try {
                             const msg = item?.metaData?.lastMessage;
@@ -162,8 +162,8 @@ const WhatsappChats = ({
             <div className="flex items-center justify-center w-full h-full">
               <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                 <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-                <p className="text-md font-medium text-gray-900 text-sm">No conversations yet</p>
-                <p className="text-md  text-gray-700 text-sm">
+                <p className="text-md font-medium text-gray-900 dark:text-mcm-ink text-sm">No conversations yet</p>
+                <p className="text-md  text-gray-700 dark:text-mcm-ink-3 text-sm">
                   Please add a user first to begin chatting.
                 </p>
               </div>

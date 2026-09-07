@@ -62,27 +62,27 @@ export function AssistantSwitcher({
   return (
     <div className="flex items-center gap-3">
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-base font-semibold text-gray-950 outline-none hover:bg-gray-100">
+        <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-base font-semibold text-gray-950 outline-none hover:bg-gray-100 dark:text-mcm-ink dark:hover:bg-mcm-surface-3">
           {selected?.name || 'Select assistant'}
-          <ChevronDown className="size-4 text-gray-400" />
+          <ChevronDown className="size-4 text-gray-400 dark:text-mcm-ink-3" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-72 border-gray-200 p-0">
-          <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5">
+        <DropdownMenuContent align="start" className="w-72 border-gray-200 p-0 dark:border-mcm-line">
+          <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5 dark:border-mcm-line">
             <div>
-              <div className="text-sm font-semibold text-gray-950">Assistants</div>
-              <div className="text-xs text-gray-500">Switch between assistants</div>
+              <div className="text-sm font-semibold text-gray-950 dark:text-mcm-ink">Assistants</div>
+              <div className="text-xs text-gray-500 dark:text-mcm-ink-3">Switch between assistants</div>
             </div>
             <div className="flex gap-1.5">
               <Link
                 to="/admin-settings/captain/assistants"
-                className="flex size-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                className="flex size-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-mcm-line dark:text-mcm-ink-3 dark:hover:bg-mcm-surface-3"
                 title="Manage assistants"
               >
                 <Pencil className="size-3.5" />
               </Link>
               <Link
                 to="/admin-settings/captain/assistants"
-                className="flex size-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50"
+                className="flex size-7 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-mcm-line dark:text-mcm-ink-3 dark:hover:bg-mcm-surface-3"
                 title="Add assistant"
               >
                 <Plus className="size-3.5" />
@@ -95,14 +95,14 @@ export function AssistantSwitcher({
                 key={a.id}
                 type="button"
                 onClick={() => onSelect(a.id)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-gray-50"
+                className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-mcm-surface-3"
               >
                 <span
                   className={`flex size-6 shrink-0 items-center justify-center rounded-full text-white ${colorFor(a.id)}`}
                 >
                   <Bot className="size-3.5" />
                 </span>
-                <span className="flex-1 truncate text-gray-800">{a.name}</span>
+                <span className="flex-1 truncate text-gray-800 dark:text-mcm-ink-2">{a.name}</span>
                 {a.id === selectedId && <Check className="size-4 text-primary" />}
               </button>
             ))}
@@ -111,8 +111,8 @@ export function AssistantSwitcher({
       </DropdownMenu>
       {pageTitle && (
         <>
-          <span className="text-gray-300">|</span>
-          <span className="text-base font-bold text-gray-950">{pageTitle}</span>
+          <span className="text-gray-300 dark:text-mcm-ink-4">|</span>
+          <span className="text-base font-bold text-gray-950 dark:text-mcm-ink">{pageTitle}</span>
         </>
       )}
     </div>

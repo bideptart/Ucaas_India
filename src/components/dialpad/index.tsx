@@ -653,7 +653,7 @@ const Dialpad = ({
         >
           <div
             className={cn(
-              'dialpad-overlay-drag-handle flex cursor-grab touch-none select-none items-center justify-between bg-white px-1.5 py-1 active:cursor-grabbing',
+              'dialpad-overlay-drag-handle flex cursor-grab touch-none select-none items-center justify-between bg-white dark:bg-mcm-surface px-1.5 py-1 active:cursor-grabbing',
             )}
           >
             {hasAnySession && !isMiniOnlyForActiveSession ? (

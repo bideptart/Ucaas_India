@@ -209,19 +209,19 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
       }}
     >
       <DialogContent className="w-[680px] p-0 gap-0" showCloseButton={false}>
-        <div className="p-5 border-b border-gray-200 flex items-start justify-between gap-4">
+        <div className="p-5 border-b border-gray-200 dark:border-mcm-line flex items-start justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <DialogTitle className="text-xl font-semibold text-gray-900">
+            <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-mcm-ink">
               Assign Caller ID
             </DialogTitle>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
               Selecting number for <span className="text-primary font-semibold">{agentName}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={closeModal}
-            className="text-gray-500 hover:text-gray-900 cursor-pointer"
+            className="text-gray-500 dark:text-mcm-ink-3 hover:text-gray-900 dark:hover:text-mcm-ink cursor-pointer"
           >
             <Icon name="XIcon" className="w-4 h-4" />
           </button>
@@ -236,7 +236,7 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
             inputMode="numeric"
             pattern="[0-9]*"
             onChange={(event) => setSearch(event.target.value.replace(/\D/g, ''))}
-            Icon={<SearchLine className="text-gray-500" />}
+            Icon={<SearchLine className="text-gray-500 dark:text-mcm-ink-3" />}
           />
 
           <div className="flex flex-col gap-3 max-h-[calc(100vh_-_23rem)] overflow-y-auto pr-1 min-h-[240px]">
@@ -260,22 +260,22 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
                 return (
                   <div
                     key={item?.uuid || item?.did_number}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
+                    className="w-full border border-gray-200 dark:border-mcm-line rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
                   >
                     <div className="flex flex-col gap-1">
                       <NumberWithFlag number={item?.did_number} />
                       {isAssignedToCurrentAgent ? (
-                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500">
+                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
                           Assigned to this Receptionist
-                          <span className="text-gray-700">- {agentName}</span>
+                          <span className="text-gray-700 dark:text-mcm-ink-2">- {agentName}</span>
                         </p>
                       ) : isAssignedToUser ? (
-                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500">
+                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
                           Assigned to User
                           {assignedName ? (
-                            <span className="text-gray-700">- {assignedName}</span>
+                            <span className="text-gray-700 dark:text-mcm-ink-2">- {assignedName}</span>
                           ) : null}
                         </p>
                       ) : isForwarded ? (
@@ -358,14 +358,14 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
                 );
               })
             ) : (
-              <div className="w-full h-full min-h-[200px] flex items-center justify-center text-sm text-gray-500">
+              <div className="w-full h-full min-h-[200px] flex items-center justify-center text-sm text-gray-500 dark:text-mcm-ink-3">
                 No numbers found.
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between border-t border-gray-200 dark:border-mcm-line px-4 py-3">
           <Button
             type="button"
             variant="outline"
@@ -383,7 +383,7 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
           <Button
             type="button"
             variant="transparent"
-            className="text-gray-700"
+            className="text-gray-700 dark:text-mcm-ink-2"
             onClick={closeModal}
           >
             Done
@@ -406,13 +406,13 @@ const AssignReceptionistCallerIdModal: FC<AssignReceptionistCallerIdModalProps> 
               <Icon name="AlertIcon" className="w-8 h-8" />
             </div>
 
-            <DialogTitle className="text-[34px] font-semibold leading-none text-gray-900">
+            <DialogTitle className="text-[34px] font-semibold leading-none text-gray-900 dark:text-mcm-ink">
               Re-assign Caller ID?
             </DialogTitle>
 
-            <p className="text-gray-500 text-sm leading-6">
+            <p className="text-gray-500 dark:text-mcm-ink-3 text-sm leading-6">
               The number{' '}
-              <span className="text-gray-800 font-semibold">{reassignData.didNumber}</span> is
+              <span className="text-gray-800 dark:text-mcm-ink-2 font-semibold">{reassignData.didNumber}</span> is
               currently assigned to User{' '}
               <span className="text-primary font-semibold">- {reassignData.assignedTo}</span>.{' '}
               Re-assigning it will assign it to{' '}

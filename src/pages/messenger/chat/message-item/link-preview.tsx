@@ -67,9 +67,9 @@ const LinkPreview = ({ url }: { url: string }) => {
 
   if (isLoading) {
     return (
-      <div className="border rounded-lg p-3 bg-gray-50 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+      <div className="border dark:border-mcm-line rounded-lg p-3 bg-gray-50 dark:bg-mcm-surface animate-pulse">
+        <div className="h-4 bg-gray-200 dark:bg-mcm-surface-3 rounded w-3/4 mb-2"></div>
+        <div className="h-3 bg-gray-200 dark:bg-mcm-surface-3 rounded w-1/2"></div>
       </div>
     );
   }
@@ -80,10 +80,10 @@ const LinkPreview = ({ url }: { url: string }) => {
     <button
       type="button"
       onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
-      className="w-full text-left border rounded-lg overflow-hidden bg-white hover:bg-gray-50 transition-colors cursor-pointer group"
+      className="w-full text-left border dark:border-mcm-line rounded-lg overflow-hidden bg-white dark:bg-mcm-surface hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition-colors cursor-pointer group"
     >
       {preview.image && !imageError ? (
-        <div className="relative w-full h-44 bg-gray-100">
+        <div className="relative w-full h-44 bg-gray-100 dark:bg-mcm-surface-3">
           <img
             src={preview.image}
             alt={preview.title}
@@ -100,9 +100,11 @@ const LinkPreview = ({ url }: { url: string }) => {
           {preview.title}
         </h4>
         {preview.description ? (
-          <p className="text-xs text-gray-600 line-clamp-2 mb-2">{preview.description}</p>
+          <p className="text-xs text-gray-600 dark:text-mcm-ink-2 line-clamp-2 mb-2">
+            {preview.description}
+          </p>
         ) : null}
-        <p className="text-xs text-gray-400 truncate">{url}</p>
+        <p className="text-xs text-gray-400 dark:text-mcm-ink-3 truncate">{url}</p>
       </div>
     </button>
   );

@@ -80,7 +80,7 @@ const RetryCallLogs = ({ sipcallIds }: { sipcallIds: string[] }) => {
 
   return (
     <div className="flex w-full max-w-full flex-col gap-2 max-h-[350px] overflow-y-auto overflow-x-hidden p-0.5">
-      <h4 className="font-bold text-sm text-gray-900 border-b border-stone-300/50 pb-2 px-1 flex items-center gap-2">
+      <h4 className="font-bold text-sm text-gray-900 dark:text-mcm-ink border-b border-stone-300/50 pb-2 px-1 flex items-center gap-2">
         <Activity className="w-4 h-4 text-sky-600" />
         Call History
       </h4>
@@ -101,7 +101,7 @@ const RetryCallLogs = ({ sipcallIds }: { sipcallIds: string[] }) => {
             return (
               <div
                 key={idx}
-                className="flex w-full min-w-0 flex-col overflow-hidden rounded-lg border border-stone-300/50 bg-white shadow-sm transition-all hover:border-sky-200"
+                className="flex w-full min-w-0 flex-col overflow-hidden rounded-lg border border-stone-300/50 bg-white dark:bg-mcm-surface shadow-sm transition-all hover:border-sky-200"
               >
                 <div className="flex items-center justify-between gap-2 border-b border-stone-300/50 bg-stone-100 px-2 py-1.5">
                   <div className="flex min-w-0 flex-1 items-center gap-1.5 text-slate-500">
@@ -355,7 +355,7 @@ const ActivityList = ({
                   {shouldShowPlayer && (
                     <CustomTooltip text="Play" side="top">
                       <span
-                        className="cursor-pointer flex items-center justify-center rounded-xl w-5.5 h-5.5 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                        className="cursor-pointer flex items-center justify-center rounded-xl w-5.5 h-5.5 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                         onClick={() => handleOpenAudio(recordingSrcUrl)}
                       >
                         <Icon name="Play" className="w-3.5 h-3.5" />
@@ -586,8 +586,8 @@ const ActivityList = ({
                         <Button
                           size="sm"
                           onClick={() => handleOpenDepartmentDrawer(row?.original)}
-                          className="rounded-full w-8 h-8 border-none 
-               bg-orange-100 text-orange-500 hover:bg-orange-500 hover:text-white"
+                          className="rounded-full w-8 h-8 border-none
+               bg-orange-100 text-orange-500 hover:bg-orange-500 hover:text-white dark:bg-mcm-accent-wash dark:text-mcm-accent-ink dark:hover:bg-mcm-accent dark:hover:text-mcm-ink"
                         >
                           <Icon name="LogsIcon" className="w-4 h-4 " />
                         </Button>

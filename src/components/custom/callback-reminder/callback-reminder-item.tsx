@@ -17,7 +17,7 @@ export const CallbackReminderItem = ({
 }) => {
   return (
     <div
-      className="absolute inset-x-0 bottom-0 h-[210px] flex flex-col overflow-hidden rounded-lg border border-ucass-active-bg red-200 bg-white shadow-2xl transition-all duration-200 ease-out dark:border-stone-300/50"
+      className="absolute inset-x-0 bottom-0 h-[210px] flex flex-col overflow-hidden rounded-lg border border-ucass-active-bg red-200 bg-white dark:bg-mcm-surface shadow-2xl transition-all duration-200 ease-out dark:border-stone-300/50"
       style={{
         opacity: isExiting ? 0 : 1 - stackIndex * 0.12,
         pointerEvents: stackIndex === 0 ? 'auto' : 'none',
@@ -40,7 +40,7 @@ export const CallbackReminderItem = ({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-7 w-7 min-w-7 cursor-pointer items-center justify-center rounded-sm text-slate-500 hover:bg-white transition-colors"
+          className="flex h-7 w-7 min-w-7 cursor-pointer items-center justify-center rounded-sm text-slate-500 dark:text-mcm-ink-3 hover:bg-white dark:hover:bg-mcm-surface-3 transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
@@ -48,20 +48,20 @@ export const CallbackReminderItem = ({
       <div className="p-3.5 flex-1 flex flex-col justify-between min-h-0">
         <div className="flex items-start justify-between gap-4 min-h-0">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-gray-900">
+            <p className="truncate text-sm font-semibold text-gray-900 dark:text-mcm-ink">
               {task?.details?.contactPhone
                 ? task?.details?.contactName || 'Unknown Contact'
                 : task?.name || task?.title || 'Task Due'}
             </p>
             {task?.details?.contactPhone ? (
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
                 <span className="flex items-center gap-1.5">
                   <Phone className="w-3 h-3" />
                   {task.details.contactPhone}
                 </span>
               </p>
             ) : null}
-            <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-slate-500">
+            <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-slate-500 dark:text-mcm-ink-3">
               {task?.description ||
                 (task?.details?.contactPhone ? 'Scheduled Callback' : 'Scheduled Task')}
             </p>

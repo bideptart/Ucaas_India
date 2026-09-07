@@ -75,7 +75,7 @@ const CredentialItem = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="hover:text-black cursor-pointer"
+            className="hover:text-black dark:hover:text-mcm-ink cursor-pointer"
             onClick={handleCopy}
           >
             <Icon name={copied ? 'VerifiedCheck' : 'CopyLine'} className="w-4 h-4" />
@@ -85,7 +85,7 @@ const CredentialItem = ({
             type="button"
             variant="ghost"
             size="sm"
-            className="hover:text-black cursor-pointer"
+            className="hover:text-black dark:hover:text-mcm-ink cursor-pointer"
             onClick={() => setIsVisible(!isVisible)}
           >
             <Icon name={isVisible ? 'EyeLineOff' : 'EyeLine'} className="w-4 h-4" />

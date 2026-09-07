@@ -38,24 +38,26 @@ body.perf-warm-backdrop {
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
   --aa-glass-shadow-hover: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
 }
+/* Neutral gray, not orange — global Dark Mode rebrand (light mode above
+   keeps the brand orange, untouched). */
 .dark .perf-agents,
 .dark body.perf-warm-backdrop,
 body.perf-warm-backdrop.dark {
-  --aa-accent: #fb923c;
-  --aa-accent-deep: #f97316;
-  --aa-accent-ink: #fdba74;
-  --aa-wash: #2a1710;
-  --aa-ink: #f4f6fb;
-  --aa-muted: #93a1ba;
-  --aa-hairline: rgba(251, 146, 60, 0.14);
-  --aa-row-hover: rgba(251, 146, 60, 0.1);
+  --aa-accent: #f97316;
+  --aa-accent-deep: #ea580c;
+  --aa-accent-ink: #ff8a2a;
+  --aa-wash: #111c26;
+  --aa-ink: #f5f7fa;
+  --aa-muted: #aab6c1;
+  --aa-hairline: rgba(249, 115, 22, 0.16);
+  --aa-row-hover: rgba(249, 115, 22, 0.1);
 
-  --aa-glass: rgba(17, 24, 39, 0.72);
-  --aa-glass-border: rgba(251, 146, 60, 0.18);
+  --aa-glass: rgba(11, 20, 28, 0.72);
+  --aa-glass-border: rgba(249, 115, 22, 0.2);
   --aa-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --aa-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
+  --aa-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
 }
 
 /* ------------------------------------------------------------
@@ -77,6 +79,9 @@ body.perf-warm-backdrop.dark {
   border-color: rgba(249, 115, 22, 0.3);
   box-shadow: var(--aa-glass-shadow-hover);
   transform: translateY(-2px);
+}
+.dark .mcm-page .perf-agents .stat:hover {
+  border-color: rgba(100, 116, 139, 0.3);
 }
 .mcm-page .perf-agents .stat .k {
   color: var(--aa-muted);
@@ -107,7 +112,7 @@ body.perf-warm-backdrop.dark {
   box-shadow: 0 1px 0 0 var(--aa-hairline);
 }
 .dark .mcm-page .perf-agents .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .mcm-page .perf-agents .table-scroll thead th {
   color: var(--aa-muted);
@@ -149,6 +154,15 @@ body.perf-warm-backdrop.dark {
   box-shadow:
     0 0 0 2px var(--aa-wash),
     0 2px 6px rgba(15, 23, 42, 0.1);
+}
+/* Dark mode: the bright white ring above had no counterpart here, so it
+   leaked into dark mode unchanged — a stark white outline on every agent
+   avatar. Swapped for the app's own subtle border token instead. */
+.dark .mcm-page .perf-agents .table-scroll tbody td [class*='rounded-full'][class*='border-white'] {
+  border-color: var(--mcm-line, #1b2934);
+  box-shadow:
+    0 0 0 2px var(--aa-wash),
+    0 2px 6px rgba(0, 0, 0, 0.25);
 }
 .mcm-page .perf-agents .table-scroll tbody td:first-child span:first-of-type {
   color: var(--aa-ink);
@@ -194,12 +208,15 @@ body.perf-warm-backdrop.dark {
   box-shadow: inset 0 1px 2px rgba(160, 95, 30, 0.12);
 }
 .dark .mcm-page .perf-agents .table-scroll tbody td .hbar-t {
-  background: rgba(251, 146, 60, 0.14);
+  background: rgba(100, 116, 139, 0.14);
 }
 .mcm-page .perf-agents .table-scroll tbody td .hbar-t i {
   background: linear-gradient(90deg, var(--aa-accent) 0%, var(--aa-accent-deep) 100%) !important;
   box-shadow: 0 0 6px rgba(234, 88, 12, 0.35);
   transition: width 0.2s ease;
+}
+.dark .mcm-page .perf-agents .table-scroll tbody td .hbar-t i {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
 }
 
 /* ------------------------------------------------------------

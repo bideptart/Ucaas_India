@@ -34,24 +34,25 @@ body.perf-warm-backdrop {
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
   --fl-glass-shadow-hover: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
 }
+/* Neutral gray, not orange — global Dark Mode rebrand. */
 .dark .perf-flows,
 .dark body.perf-warm-backdrop,
 body.perf-warm-backdrop.dark {
-  --fl-accent: #fb923c;
-  --fl-accent-deep: #f97316;
-  --fl-accent-ink: #fdba74;
-  --fl-wash: #2a1710;
-  --fl-ink: #f4f6fb;
-  --fl-muted: #93a1ba;
-  --fl-hairline: rgba(251, 146, 60, 0.14);
-  --fl-row-hover: rgba(251, 146, 60, 0.1);
+  --fl-accent: #f97316;
+  --fl-accent-deep: #ea580c;
+  --fl-accent-ink: #ff8a2a;
+  --fl-wash: #111c26;
+  --fl-ink: #f5f7fa;
+  --fl-muted: #aab6c1;
+  --fl-hairline: rgba(249, 115, 22, 0.16);
+  --fl-row-hover: rgba(249, 115, 22, 0.1);
 
-  --fl-glass: rgba(17, 24, 39, 0.72);
-  --fl-glass-border: rgba(251, 146, 60, 0.18);
+  --fl-glass: rgba(11, 20, 28, 0.72);
+  --fl-glass-border: rgba(249, 115, 22, 0.2);
   --fl-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --fl-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
+  --fl-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
 }
 
 /* ------------------------------------------------------------
@@ -66,6 +67,9 @@ body.perf-warm-backdrop.dark {
   border-radius: 14px;
   background: var(--fl-wash);
   border: 1px solid rgba(249, 115, 22, 0.18);
+}
+.dark .perf-flows .fl-notice {
+  border-color: rgba(100, 116, 139, 0.24);
 }
 .perf-flows .fl-notice-icon {
   width: 15px;
@@ -102,6 +106,9 @@ body.perf-warm-backdrop.dark {
   box-shadow: var(--fl-glass-shadow-hover);
   transform: translateY(-2px);
 }
+.dark .mcm-page .perf-flows .stat:hover {
+  border-color: rgba(100, 116, 139, 0.3);
+}
 .mcm-page .perf-flows .stat .k {
   color: var(--fl-muted);
 }
@@ -134,7 +141,7 @@ body.perf-warm-backdrop.dark {
   box-shadow: 0 1px 0 0 var(--fl-hairline);
 }
 .dark .perf-flows .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .perf-flows .table-scroll thead th {
   color: var(--fl-muted);
@@ -212,8 +219,8 @@ body.perf-warm-backdrop.dark {
   white-space: nowrap;
 }
 .dark .perf-flows .table-scroll tbody td .fl-site {
-  background: rgba(251, 146, 60, 0.16);
-  color: #fdba74;
+  background: rgba(249, 115, 22, 0.16);
+  color: #ff8a2a;
 }
 
 /* Entries Today — right-aligned tabular figures. */

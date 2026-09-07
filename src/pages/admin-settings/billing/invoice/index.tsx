@@ -59,7 +59,7 @@ const StatusPill = ({ value }: { value: string }) => {
           ? 'bg-blue-100 text-blue-700'
           : key === 'processing' || key === 'pending'
             ? 'bg-amber-100 text-amber-700'
-            : 'bg-gray-100 text-gray-600';
+            : 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3';
   return (
     <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${tone}`}>
       {value || 'Unknown'}
@@ -151,7 +151,7 @@ const Invoice = () => {
       accessorKey: 'tax_detail.total_amount',
       meta: { textAlign: 'right' },
       cell: ({ row }: any) => (
-        <span className="block text-right tabular-nums font-medium text-gray-900">
+        <span className="block text-right tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
           {moneyOrUnavailable(
             row?.original?.tax_detail?.total_amount ?? row?.original?.total_amount,
           )}
@@ -190,7 +190,7 @@ const Invoice = () => {
               side="top"
             >
               <span
-                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
+                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white"
                 onClick={() => {
                   if (isPaymentCompleted) {
                     setRowData(invoice);
@@ -268,7 +268,7 @@ const Invoice = () => {
       description="Every charge raised on the account, with its tax broken out. Open a row to see what it covered."
       actions={
         <Button
-          className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+          className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
           onClick={handleDownloadCSV}
           title="Download as CSV"
         >
@@ -287,7 +287,7 @@ const Invoice = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700" />}
+            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
           />
           <div className="min-w-[9rem]">
             <CustomSelect
@@ -346,7 +346,7 @@ const Invoice = () => {
 
       {failureDetails && (
         <Dialog open={true} onOpenChange={(open) => !open && setFailureDetails(null)}>
-          <DialogContent className="max-h-[85vh] max-w-2xl overflow-hidden bg-white">
+          <DialogContent className="max-h-[85vh] max-w-2xl overflow-hidden bg-white dark:bg-mcm-surface">
             <DialogHeader>
               <DialogTitle>Why this payment did not go through</DialogTitle>
               <DialogDescription>
@@ -355,8 +355,8 @@ const Invoice = () => {
                   : 'Payment details'}
               </DialogDescription>
             </DialogHeader>
-            <div className="max-h-[60vh] overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-800">
+            <div className="max-h-[60vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-4">
+              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-800 dark:text-mcm-ink-2">
                 {failureDetails.description}
               </p>
             </div>

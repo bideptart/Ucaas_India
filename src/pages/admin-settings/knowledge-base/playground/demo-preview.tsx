@@ -92,9 +92,9 @@ const WidgetCard = ({
   footer?: React.ReactNode;
 }) => (
   <div className="flex h-full w-full items-center justify-center overflow-auto p-4">
-    <div className="flex max-h-full w-full max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_50px_-12px_rgba(15,23,42,0.35)]">
+    <div className="flex max-h-full w-full max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white dark:bg-mcm-surface shadow-[0_18px_50px_-12px_rgba(15,23,42,0.35)]">
       <div className="flex flex-col items-center gap-2 bg-[#111114] px-6 py-7 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#111114]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-mcm-surface text-[#111114]">
           {icon}
         </div>
         <h3 className="mt-1 text-[22px] font-extrabold leading-tight text-white">{title}</h3>
@@ -216,7 +216,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
         <div className="flex min-h-[220px] flex-1 flex-col px-5 pt-5">
           <p className="text-[13px] font-bold text-primary">Your conversations</p>
           <div className="flex flex-1 flex-col items-center justify-center gap-2 py-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FBE2C8]/50">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FBE2C8]/50 dark:bg-mcm-surface-3">
               <MessageSquare className="h-6 w-6 text-primary" />
             </div>
             <p className="text-sm font-bold text-primary">No recent conversations</p>
@@ -243,7 +243,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
             }}
             placeholder="Type a message..."
             maxLength={300}
-            className="h-11 flex-1 rounded-full border border-slate-200 bg-white px-4 text-[13px] text-slate-800 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
+            className="h-11 flex-1 rounded-full border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 text-[13px] text-slate-800 dark:text-mcm-ink outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
           />
           <button
             type="button"
@@ -267,7 +267,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
               className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed ${
                 line.from === 'caller'
                   ? 'rounded-br-sm bg-[#111114] text-white'
-                  : 'rounded-bl-sm bg-[#FBE2C8]/50 text-slate-800'
+                  : 'rounded-bl-sm bg-[#FBE2C8]/50 dark:bg-mcm-surface-3 text-slate-800 dark:text-mcm-ink'
               }`}
             >
               {line.text}
@@ -352,15 +352,15 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-100">
             <Mic className="h-9 w-9 text-slate-400" />
           </div>
-          <p className="text-[15px] leading-relaxed text-slate-500">
+          <p className="text-[15px] leading-relaxed text-slate-500 dark:text-mcm-ink-3">
             {state === 'ended' ? (
               <>
-                Call with <span className="font-bold text-slate-800">{agentName}</span> ended after{' '}
+                Call with <span className="font-bold text-slate-800 dark:text-mcm-ink">{agentName}</span> ended after{' '}
                 {formatDuration(seconds)}.
               </>
             ) : (
               <>
-                Our AI agent <span className="font-bold text-slate-800">{agentName}</span> is ready
+                Our AI agent <span className="font-bold text-slate-800 dark:text-mcm-ink">{agentName}</span> is ready
                 to assist you over a voice call.
               </>
             )}
@@ -385,10 +385,10 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
     >
       <div className="flex min-h-[220px] flex-1 flex-col px-5 py-5">
         <div className="flex flex-col items-center gap-1">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FBE2C8]/60 text-xl font-extrabold uppercase text-primary">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FBE2C8]/60 dark:bg-mcm-surface-3 text-xl font-extrabold uppercase text-primary">
             {agentName.charAt(0) || 'A'}
           </div>
-          <p className="mt-1 text-sm font-bold text-slate-800">{agentName}</p>
+          <p className="mt-1 text-sm font-bold text-slate-800 dark:text-mcm-ink">{agentName}</p>
           <p className="text-[12px] font-semibold text-slate-400">
             {state === 'ringing' ? 'Connecting...' : formatDuration(seconds)}
           </p>
@@ -398,11 +398,11 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
           {shownLines.map((line) => (
             <div key={line.at} className="text-[12px] leading-relaxed">
               <span
-                className={`font-bold ${line.from === 'agent' ? 'text-primary' : 'text-slate-800'}`}
+                className={`font-bold ${line.from === 'agent' ? 'text-primary' : 'text-slate-800 dark:text-mcm-ink'}`}
               >
                 {line.from === 'agent' ? agentName : 'Caller'}:
               </span>{' '}
-              <span className="text-slate-500">{line.text}</span>
+              <span className="text-slate-500 dark:text-mcm-ink-3">{line.text}</span>
             </div>
           ))}
         </div>

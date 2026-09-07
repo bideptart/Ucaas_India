@@ -173,7 +173,7 @@ const ExportContacts: FC<IExportContactsProps> = ({
                     handleExportModalClose();
                     reset();
                   }}
-                  className="cursor-pointer text-gray-500 hover:text-gray-900 opacity-70 hover:opacity-100 transition-opacity"
+                  className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 hover:text-gray-900 dark:hover:text-mcm-ink opacity-70 hover:opacity-100 transition-opacity"
                 >
                   <CloseIcon className="w-3 h-3" />
                 </div>

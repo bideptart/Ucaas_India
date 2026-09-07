@@ -51,7 +51,7 @@ const ActivityArea = ({ range, duration, timings, activityType }: any) => {
   return (
     <div className="w-full p-1 rounded">
       <div className="flex justify-center mb-1">
-        <p className="text-gray-700 font-semibold text-sm flex items-center">
+        <p className="text-gray-700 dark:text-mcm-ink-2 font-semibold text-sm flex items-center">
           Timezone - {timezone}
         </p>
       </div>

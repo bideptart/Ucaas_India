@@ -110,7 +110,7 @@ const DateDropdown = ({
         <div
           className={
             showCustomPickerBelow
-              ? 'absolute right-0 top-full z-50 mt-2 w-[21rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.92)] backdrop-blur-[12px] p-3 shadow-lg'
+              ? 'absolute right-0 top-full z-50 mt-2 w-[21rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.92)] backdrop-blur-[12px] p-3 shadow-lg dark:border-mcm-line dark:bg-mcm-surface'
               : 'flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap'
           }
         >
@@ -177,7 +177,7 @@ const DateDropdown = ({
             <button
               type="button"
               title="Clear"
-              className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary"
+              className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink-3"
               onClick={() => setDateRange((prev: any) => ({ ...prev, from: '', to: '' }))}
             >
               <Icon name="CloseIcon" className="h-3.5 w-3.5" />
@@ -210,7 +210,7 @@ const DateDropdown = ({
                   to: date,
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
               showMonthDropdown
               showYearDropdown
               peekNextMonth
@@ -234,7 +234,7 @@ const DateDropdown = ({
                   to: newEndTime,
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
               showTimeSelect
               showTimeSelectOnly
               timeFormat="HH:mm"
@@ -251,7 +251,7 @@ const DateDropdown = ({
                   to: moment(time).format('HH:mm'),
                 }));
               }}
-              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+              className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
               showTimeSelect
               showTimeSelectOnly
               timeFormat="HH:mm"

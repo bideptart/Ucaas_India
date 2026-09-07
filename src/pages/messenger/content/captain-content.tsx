@@ -13,7 +13,7 @@ type CaptainMessage = { id: string; role: 'visitor' | 'assistant' | 'agent'; con
 
 const bubbleClass = (role: CaptainMessage['role']) =>
   role === 'visitor'
-    ? 'bg-white text-gray-900 border border-gray-200'
+    ? 'bg-white dark:bg-mcm-surface-3 text-gray-900 dark:text-mcm-ink border border-gray-200 dark:border-mcm-line'
     : role === 'agent'
       ? 'bg-primary text-white'
       : 'bg-indigo-500 text-white';
@@ -95,24 +95,24 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-between gap-3 p-3 border-b border-[#EEE7DD]">
+      <div className="flex items-center justify-between gap-3 p-3 border-b border-[#EEE7DD] dark:border-b-mcm-line">
         <div className="flex items-center gap-2 min-w-0">
           {onBackToList && (
-            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-[#FBE2C8]/40 lg:hidden">
+            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3 lg:hidden">
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
           <CustomAvatar name={label} size="36" showPresence={false} />
           <div className="min-w-0">
-            <p className="font-medium text-[#2E2D35] truncate">{label}</p>
-            <p className="text-xs text-[#9A948F] truncate">
+            <p className="font-medium text-[#2E2D35] dark:text-mcm-ink-2 truncate">{label}</p>
+            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 truncate">
               {selectedChat.visitor_email && selectedChat.visitor_name ? selectedChat.visitor_email : selectedChat.assistant_name || 'Captain'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Bot className="w-4 h-4 text-[#9A948F]" />
-          <span className="text-xs text-[#9A948F]">AI replying</span>
+          <Bot className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
+          <span className="text-xs text-[#9A948F] dark:text-mcm-ink-3">AI replying</span>
           <Switch checked={!aiPaused} onCheckedChange={(checked) => mutateToggleAi(checked)} />
         </div>
       </div>
@@ -125,8 +125,8 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
             <div key={m.id} className={`flex items-start gap-2 ${isVisitor ? 'justify-start' : 'flex-row-reverse justify-start'}`}>
               <CustomAvatar name={isVisitor ? label : m.role === 'agent' ? 'You' : 'AI Assistant'} size="32" showPresence={false} />
               <div className={`flex max-w-[70%] flex-col gap-1 ${isVisitor ? 'items-start' : 'items-end'}`}>
-                <div className="flex items-baseline gap-1.5 px-1 text-xs text-[#9A948F]">
-                  <span className="font-medium text-[#9A948F]">{senderName}</span>
+                <div className="flex items-baseline gap-1.5 px-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
+                  <span className="font-medium text-[#9A948F] dark:text-mcm-ink-3">{senderName}</span>
                   <span>{moment(m.created_at).format('h:mm A')}</span>
                 </div>
                 <div className={`rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${bubbleClass(m.role)}`}>
@@ -139,7 +139,7 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex items-end gap-2 border-t border-[#EEE7DD] p-3">
+      <div className="flex items-end gap-2 border-t border-[#EEE7DD] dark:border-t-mcm-line p-3">
         <div className="flex-1">
           <TextEditor
             ref={editorRef}

@@ -55,7 +55,7 @@ const Sparkline = ({ data, color }: { data: number[]; color: string }) => {
 
 const CardLoader = ({ dark = false }: { dark?: boolean }) => (
   <div
-    className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-[inherit] ${dark ? 'bg-black/40' : 'bg-white/60'}`}
+    className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-[inherit] ${dark ? 'bg-black/40' : 'bg-white/60 dark:bg-mcm-surface/70'}`}
   >
     <div
       className={`h-5 w-5 animate-spin rounded-full border-2 border-t-transparent ${dark ? 'border-white' : 'border-primary'}`}
@@ -133,7 +133,7 @@ function InfoTip({ text }: { text: string }) {
       <button
         type="button"
         aria-label="What is this?"
-        className="grid h-4 w-4 place-items-center rounded-full border border-slate-300 text-[10px] font-bold text-slate-500"
+        className="grid h-4 w-4 place-items-center rounded-full border border-slate-300 dark:border-mcm-line text-[10px] font-bold text-slate-500 dark:text-mcm-ink-3"
       >
         i
       </button>
@@ -163,19 +163,19 @@ function AnalyticsPanel({
 }) {
   return (
     <div
-      className={`relative rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ${className}`}
+      className={`relative rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] ${className}`}
     >
       {isLoading && <CardLoader dark={dark} />}
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-1.5">
-            <h3 className={`text-[14px] font-bold ${dark ? 'text-white' : 'text-[#2E2D35]'}`}>
+            <h3 className={`text-[14px] font-bold ${dark ? 'text-white' : 'text-[#2E2D35] dark:text-mcm-ink'}`}>
               {title}
             </h3>
             {tip ? <InfoTip text={tip} /> : null}
           </div>
           {subtitle ? (
-            <p className={`mt-1 text-xs ${dark ? 'text-white/60' : 'text-slate-500'}`}>
+            <p className={`mt-1 text-xs ${dark ? 'text-white/60' : 'text-slate-500 dark:text-mcm-ink-3'}`}>
               {subtitle}
             </p>
           ) : null}
@@ -200,10 +200,10 @@ function KpiCard({
   isLoading?: boolean;
 }) {
   return (
-    <div className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+    <div className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
       {isLoading && <CardLoader />}
-      <div className="text-[12px] font-medium leading-4 text-slate-500">{label}</div>
-      <div className="mt-2 text-[25px] font-black leading-8 text-[#2E2D35]">{value}</div>
+      <div className="text-[12px] font-medium leading-4 text-slate-500 dark:text-mcm-ink-3">{label}</div>
+      <div className="mt-2 text-[25px] font-black leading-8 text-[#2E2D35] dark:text-mcm-ink">{value}</div>
       <div className={`mt-1 text-[12px] font-medium ${bad ? 'text-[#DC5049]' : 'text-emerald-500'}`}>
         {delta}
       </div>
@@ -213,15 +213,15 @@ function KpiCard({
 
 function TopicProgressRow({ name, value }: { name: string; value: number }) {
   return (
-    <div className="flex items-center gap-3 border-b border-[#EEE7DD] py-2.5 last:border-b-0">
-      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-700">{name}</span>
+    <div className="flex items-center gap-3 border-b border-[#EEE7DD] dark:border-mcm-line py-2.5 last:border-b-0">
+      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">{name}</span>
       <span className="h-2 w-32 overflow-hidden rounded-full bg-slate-100">
         <span
           className="block h-full rounded-full bg-primary"
           style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
         />
       </span>
-      <span className="w-10 text-right text-xs font-bold text-slate-800">{value}%</span>
+      <span className="w-10 text-right text-xs font-bold text-slate-800 dark:text-mcm-ink">{value}%</span>
     </div>
   );
 }
@@ -763,9 +763,9 @@ export default function ReceptionistAnalytics({
   if (ANALYTICS_COMING_SOON) {
     // Existing analytics implementation is preserved below; temporarily show a simple placeholder.
     return (
-      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
-        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
+        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
             <button
               type="button"
               onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
@@ -782,7 +782,7 @@ export default function ReceptionistAnalytics({
               AI Receptionists
             </button>
             <span>/</span>
-            <span className="font-semibold text-[#2E2D35]">Analytics</span>
+            <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">Analytics</span>
           </div>
           <Button type="button" variant="outline" onClick={onClose}>
             <ArrowLeft className="h-4 w-4" />
@@ -790,16 +790,16 @@ export default function ReceptionistAnalytics({
           </Button>
         </div>
         <div className="flex flex-1 items-center justify-center p-6">
-          <p className="text-base font-semibold text-slate-600">Coming soon</p>
+          <p className="text-base font-semibold text-slate-600 dark:text-mcm-ink-2">Coming soon</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
-      <div className="flex min-h-[72px] shrink-0 flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
+      <div className="flex min-h-[72px] shrink-0 flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
@@ -812,7 +812,7 @@ export default function ReceptionistAnalytics({
             AI Receptionists
           </button>
           <span>/</span>
-          <span className="font-semibold text-[#2E2D35]">Analytics & Reports</span>
+          <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">Analytics & Reports</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
@@ -820,7 +820,7 @@ export default function ReceptionistAnalytics({
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value as any)}
-              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
+              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 dark:text-mcm-ink outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary"
             >
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>
@@ -828,14 +828,14 @@ export default function ReceptionistAnalytics({
               <option value="30d">Last 30 days</option>
               <option value="90d">Last 90 days</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3 pointer-events-none" />
           </div>
 
           <div className="relative">
             <select
               value={selectedRepId}
               onChange={(e) => setSelectedRepId(e.target.value)}
-              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
+              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 dark:text-mcm-ink outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary"
             >
               <option value="all">All receptionists</option>
               {activeReceptionists.map((r) => (
@@ -844,14 +844,14 @@ export default function ReceptionistAnalytics({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3 pointer-events-none" />
           </div>
 
           <Button
             type="button"
             variant="outline"
             onClick={exportAnalyticsCsv}
-            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]"
+            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line"
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -862,7 +862,7 @@ export default function ReceptionistAnalytics({
             variant="outline"
             onClick={() => void exportAnalyticsPdf()}
             disabled={isExportingPdf}
-            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]"
+            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line"
           >
             <FileText className="h-3.5 w-3.5" />
             {isExportingPdf ? 'Generating PDF...' : 'PDF Report'}
@@ -910,11 +910,11 @@ export default function ReceptionistAnalytics({
             isLoading={isLoading}
           >
             <div className="mt-4 flex items-center justify-end">
-              <span className="rounded-full border border-[#EEE7DD] bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-full border border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
                 All receptionists
               </span>
             </div>
-            <div className="mt-2 divide-y divide-[#EEE7DD]">
+            <div className="mt-2 divide-y divide-[#EEE7DD] dark:divide-mcm-line">
               {activeReceptionists.map((rep) => (
                 <div
                   key={rep.id}
@@ -929,8 +929,8 @@ export default function ReceptionistAnalytics({
                       {rep.initials}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="truncate text-sm font-bold text-[#2E2D35]">{rep.name}</h4>
-                      <p className="text-xs text-slate-500 truncate">{rep.subtitle}</p>
+                      <h4 className="truncate text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{rep.name}</h4>
+                      <p className="text-xs text-slate-500 dark:text-mcm-ink-3 truncate">{rep.subtitle}</p>
                     </div>
                   </div>
                   <div className="hidden w-[420px] shrink-0 grid-cols-[64px_96px_112px_100px] items-center gap-4 md:grid">
@@ -938,7 +938,7 @@ export default function ReceptionistAnalytics({
                       <div className="text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
                         Calls
                       </div>
-                      <div className="mt-0.5 text-sm font-bold text-slate-800">{rep.calls}</div>
+                      <div className="mt-0.5 text-sm font-bold text-slate-800 dark:text-mcm-ink">{rep.calls}</div>
                     </div>
                     <div>
                       <div className="text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
@@ -960,7 +960,7 @@ export default function ReceptionistAnalytics({
                       <div className="text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
                         CSAT
                       </div>
-                      <div className="mt-0.5 text-sm font-bold text-slate-800">{rep.csatLabel}</div>
+                      <div className="mt-0.5 text-sm font-bold text-slate-800 dark:text-mcm-ink">{rep.csatLabel}</div>
                     </div>
                     <div className="w-full">
                       <Sparkline data={rep.sparklineData} color={rep.sparklineColor} />
@@ -1013,7 +1013,7 @@ export default function ReceptionistAnalytics({
               <div className="relative h-[150px] w-[150px] shrink-0">
                 <div className="absolute inset-0 z-10 grid place-items-center text-center pointer-events-none">
                   <div>
-                    <div className="text-[22px] font-black leading-6 text-[#2E2D35]">
+                    <div className="text-[22px] font-black leading-6 text-[#2E2D35] dark:text-mcm-ink">
                       {metrics.totalCalls}
                     </div>
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
@@ -1044,10 +1044,10 @@ export default function ReceptionistAnalytics({
                 {pieData.map((item) => (
                   <div key={item.name} className="flex items-center gap-2 text-xs">
                     <span className="h-2.5 w-2.5 rounded-sm" style={{ background: item.color }} />
-                    <span className="min-w-0 flex-1 truncate font-medium text-slate-600">
+                    <span className="min-w-0 flex-1 truncate font-medium text-slate-600 dark:text-mcm-ink-2">
                       {item.name}
                     </span>
-                    <span className="font-bold text-slate-800">{item.pct}%</span>
+                    <span className="font-bold text-slate-800 dark:text-mcm-ink">{item.pct}%</span>
                   </div>
                 ))}
               </div>
@@ -1090,7 +1090,7 @@ export default function ReceptionistAnalytics({
               <div className="relative h-[150px] w-[150px] shrink-0">
                 <div className="absolute inset-0 z-10 grid place-items-center text-center pointer-events-none">
                   <div>
-                    <div className="text-[22px] font-black leading-6 text-[#2E2D35]">
+                    <div className="text-[22px] font-black leading-6 text-[#2E2D35] dark:text-mcm-ink">
                       {talkPercent}%
                     </div>
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
@@ -1121,10 +1121,10 @@ export default function ReceptionistAnalytics({
                 {talkItems.map((item) => (
                   <div key={item.name} className="flex items-center gap-2 text-xs">
                     <span className="h-2.5 w-2.5 rounded-sm" style={{ background: item.color }} />
-                    <span className="min-w-0 flex-1 truncate font-medium text-slate-600">
+                    <span className="min-w-0 flex-1 truncate font-medium text-slate-600 dark:text-mcm-ink-2">
                       {item.name}
                     </span>
-                    <span className="font-bold text-slate-800">{item.pct}%</span>
+                    <span className="font-bold text-slate-800 dark:text-mcm-ink">{item.pct}%</span>
                   </div>
                 ))}
                 <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] font-medium text-emerald-800">
@@ -1154,7 +1154,7 @@ export default function ReceptionistAnalytics({
                   />
                 ))
               ) : (
-                <div className="rounded-lg border border-dashed border-[#EEE7DD] bg-slate-50 px-4 py-7 text-center text-xs font-semibold text-slate-500">
+                <div className="rounded-lg border border-dashed border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-4 py-7 text-center text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">
                   No topic data yet
                 </div>
               )}
@@ -1170,26 +1170,26 @@ export default function ReceptionistAnalytics({
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-[#EEE7DD] text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
+                  <tr className="border-b border-[#EEE7DD] dark:border-mcm-line text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
                     <th className="py-2.5">Receptionist</th>
                     <th className="py-2.5 text-right">Calls</th>
                     <th className="py-2.5 text-right">Res%</th>
                     <th className="py-2.5 text-right">Sent</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EEE7DD]">
+                <tbody className="divide-y divide-[#EEE7DD] dark:divide-mcm-line">
                   {activeReceptionists.slice(0, 5).map((rep) => (
                     <tr
                       key={rep.id}
-                      className="cursor-pointer transition-colors hover:bg-slate-50/70"
+                      className="cursor-pointer transition-colors hover:bg-slate-50/70 dark:hover:bg-mcm-surface-3"
                       onClick={() => setSelectedRepId(rep.id)}
                     >
-                      <td className="py-3 font-semibold text-slate-800">{rep.name}</td>
-                      <td className="py-3 text-right font-bold text-slate-800">{rep.calls}</td>
+                      <td className="py-3 font-semibold text-slate-800 dark:text-mcm-ink">{rep.name}</td>
+                      <td className="py-3 text-right font-bold text-slate-800 dark:text-mcm-ink">{rep.calls}</td>
                       <td className="py-3 text-right font-bold text-emerald-600">
                         {rep.resolution}%
                       </td>
-                      <td className="py-3 text-right font-semibold text-slate-800">
+                      <td className="py-3 text-right font-semibold text-slate-800 dark:text-mcm-ink">
                         {rep.sentiment !== null
                           ? `😐 ${Math.round(rep.sentiment)}`
                           : 'Not analyzed'}
@@ -1247,7 +1247,7 @@ export default function ReceptionistAnalytics({
               {activeReceptionists.slice(0, 4).map((rep) => (
                 <div
                   key={rep.id}
-                  className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#EEE7DD] p-3 transition-colors hover:bg-slate-50"
+                  className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-3 transition-colors hover:bg-slate-50"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -1257,8 +1257,8 @@ export default function ReceptionistAnalytics({
                       {rep.initials}
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-slate-900">{rep.name}</h4>
-                      <p className="text-[10px] text-slate-500">{rep.subtitle}</p>
+                      <h4 className="text-xs font-semibold text-slate-900 dark:text-mcm-ink">{rep.name}</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-mcm-ink-3">{rep.subtitle}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

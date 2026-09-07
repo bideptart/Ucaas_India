@@ -56,14 +56,14 @@ const AddPathModal = ({
           Add Webhook path
           <div
             onClick={handleClose}
-            className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+            className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
           >
             <CloseIcon className="w-3 h-3" />
           </div>
         </div>
       </div>
       <DialogDescription>
-        <div className="flex flex-col gap-4 bg-white">
+        <div className="flex flex-col gap-4 bg-white dark:bg-mcm-surface">
           <div className="w-full">
             <CustomSelect
               label={'Type'}

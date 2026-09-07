@@ -64,7 +64,7 @@ const Participants = () => {
         className="flex flex-col gap-3 overflow-y-auto w-full h-full max-h-[calc(100vh_-_22rem)] py-2"
         role="list"
       > */}
-        <li className="flex bg-white" role="menu-item">
+        <li className="flex bg-white dark:bg-mcm-surface" role="menu-item">
           <div className="flex items-center gap-3 w-full">
             <div className="gap-2.5 flex items-center">
               <div className="w-8 h-8 rounded-md bg-red-500 flex items-center justify-center">
@@ -73,7 +73,7 @@ const Participants = () => {
             </div>
             <div className="flex justify-between w-[calc(100%_-_2.25rem)]">
               <div className="flex flex-col gap-0.5">
-                <h6 className="text-gray-900 truncate text-sm">
+                <h6 className="text-gray-900 dark:text-mcm-ink truncate text-sm">
                   {displayName} {isHost ? '(Host)' : isMember ? '(Member)' : '(Guest)'}
                 </h6>
               </div>
@@ -81,22 +81,22 @@ const Participants = () => {
                 <div onClick={() => muteLocalAudioTrack()} className="cursor-pointer">
                   {isLocalAudioMuted ? (
                     <CustomTooltip text="Unmute" side="top">
-                      <LucideMicOff className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                      <LucideMicOff className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                     </CustomTooltip>
                   ) : (
                     <CustomTooltip text="Mute" side="top">
-                      <LucideMic className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                      <LucideMic className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                     </CustomTooltip>
                   )}
                 </div>
                 <div className="cursor-pointer" onClick={() => muteLocalVideoTrack()}>
                   {isLocalVideoMuted ? (
                     <CustomTooltip text="Video on" side="top">
-                      <LucideVideoOff className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                      <LucideVideoOff className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                     </CustomTooltip>
                   ) : (
                     <CustomTooltip text="Video off" side="top">
-                      <LucideVideo className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                      <LucideVideo className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                     </CustomTooltip>
                   )}
                 </div>
@@ -120,7 +120,7 @@ const Participants = () => {
               ? '(Guest)'
               : '(Member)';
             return (
-              <li key={_id} className="flex bg-white" role="menu-item">
+              <li key={_id} className="flex bg-white dark:bg-mcm-surface" role="menu-item">
                 <div className="flex items-center gap-3 w-full">
                   <div className="gap-2.5 flex items-center">
                     <div className="w-8 h-8 rounded-md bg-red-500 flex items-center justify-center">
@@ -129,7 +129,7 @@ const Participants = () => {
                   </div>
                   <div className="flex justify-between w-[calc(100%_-_2.25rem)]">
                     <div className="flex flex-col gap-0.5">
-                      <h6 className="text-gray-900 truncate text-sm">
+                      <h6 className="text-gray-900 dark:text-mcm-ink truncate text-sm">
                         {displayName} {isParticipantHost ? '(Host)' : t}
                       </h6>
                     </div>
@@ -142,13 +142,13 @@ const Participants = () => {
                             onClick={() => handleKickParticipant(_id, displayName)}
                             title="Remove participant"
                           >
-                            <LucideExternalLink className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                            <LucideExternalLink className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                           </div>
                         </CustomTooltip>
                       )}
                       {isUserHandRasied(_id) && (
                         <div className="cursor-pointer">
-                          <Hand className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                          <Hand className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                         </div>
                       )}
                       <div
@@ -159,11 +159,11 @@ const Participants = () => {
                       >
                         {isAudioMuted ? (
                           <CustomTooltip text="Unmute" side="top">
-                            <LucideMicOff className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                            <LucideMicOff className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                           </CustomTooltip>
                         ) : (
                           <CustomTooltip text="Mute" side="top">
-                            <LucideMic className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                            <LucideMic className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                           </CustomTooltip>
                         )}
                       </div>
@@ -175,11 +175,11 @@ const Participants = () => {
                       >
                         {isVideoMuted ? (
                           <CustomTooltip text="Video on" side="top">
-                            <LucideVideoOff className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                            <LucideVideoOff className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                           </CustomTooltip>
                         ) : (
                           <CustomTooltip text="Video off" side="top">
-                            <LucideVideo className="text-gray-900 hover:opacity-80 w-5 h-5" />
+                            <LucideVideo className="text-gray-900 dark:text-mcm-ink hover:opacity-80 w-5 h-5" />
                           </CustomTooltip>
                         )}
                       </div>
@@ -198,7 +198,7 @@ const Participants = () => {
             {roomAccessRequests &&
               roomAccessRequests?.map((item) => {
                 return (
-                  <li className="flex bg-white" role="menu-item">
+                  <li className="flex bg-white dark:bg-mcm-surface" role="menu-item">
                     <div className="flex items-center gap-3 w-full">
                       <div className="gap-2.5 flex items-center">
                         <div className="w-8 h-8 rounded-md bg-red-500 flex items-center justify-center">
@@ -206,7 +206,7 @@ const Participants = () => {
                         </div>
                       </div>
                       <div className="flex items-center justify-between w-[calc(100%_-_2.25rem)]">
-                        <h6 className="truncate text-gray-900">{item?._displayName}</h6>
+                        <h6 className="truncate text-gray-900 dark:text-mcm-ink">{item?._displayName}</h6>
 
                         <div className="flex items-center gap-2.5">
                           <Button

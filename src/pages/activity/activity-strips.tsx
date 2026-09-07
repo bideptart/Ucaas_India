@@ -167,10 +167,10 @@ const ActivityTimeStrips = ({
     >
       <AccordionItem
         value={activityDetails?.id}
-        className="border border-dashed border-primary/40 rounded-lg bg-white mb-2 p-2 last:border-b-1"
+        className="border border-dashed border-primary/40 rounded-lg bg-white dark:bg-mcm-surface mb-2 p-2 last:border-b-1"
       >
         <AccordionTrigger className="flex items-center p-0">
-          <div className="flex items-center w-full bg-gray-50 sm:p-2 xs:py-2 xs:px-0">
+          <div className="flex items-center w-full bg-gray-50 dark:bg-mcm-surface-3 sm:p-2 xs:py-2 xs:px-0">
             <div className="w-[10%] text-center">
               <div className="bg-ucass-primary-200 text-primary text-xs px-2 py-1 rounded">
                 {activityDetails?.label}
@@ -178,7 +178,7 @@ const ActivityTimeStrips = ({
             </div>
             <div className="flex-1 flex justify-between px-2">
               {fiveMinutePositions?.map((_, i) => (
-                <div key={i} className="text-xs text-gray-600">
+                <div key={i} className="text-xs text-gray-600 dark:text-mcm-ink-3">
                   {i * HOUR_DIVISIONS}
                 </div>
               ))}
@@ -195,8 +195,8 @@ const ActivityTimeStrips = ({
 
             return (
               <div key={time} className="flex items-center mb-1 h-12">
-                <div className="w-[10%] text-center text-xs text-gray-700">{time}</div>
-                <div className="relative flex-1 h-full bg-white ml-2">
+                <div className="w-[10%] text-center text-xs text-gray-700 dark:text-mcm-ink-3">{time}</div>
+                <div className="relative flex-1 h-full bg-white dark:bg-mcm-surface ml-2">
                   <div
                     className={`absolute top-1/2 left-0 w-full border-t ${
                       hourActivities?.length ? 'border-primary/30' : 'border-red-200'
@@ -220,7 +220,7 @@ const ActivityTimeStrips = ({
                     {hourActivities?.length ? (
                       <RenderHourActivities {...{ hourActivities, time }} />
                     ) : (
-                      <div className="flex justify-center max-w-28 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border border-red-200 rounded px-4 py-1 text-xs text-red-500 bg-white z-10">
+                      <div className="flex justify-center max-w-28 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border border-red-200 dark:border-red-900/40 rounded px-4 py-1 text-xs text-red-500 bg-white dark:bg-mcm-surface z-10">
                         {NO_ACTION_TEXT}
                       </div>
                     )}

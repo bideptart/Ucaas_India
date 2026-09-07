@@ -95,7 +95,7 @@ const AllChannelsChats = ({
   }, [allChats, captainConversations, user?.uuid]);
 
   if (!merged.length) {
-    return <div className="flex h-full items-center justify-center p-6 text-sm text-gray-400">No conversations yet</div>;
+    return <div className="flex h-full items-center justify-center p-6 text-sm text-gray-400 dark:text-mcm-ink-3">No conversations yet</div>;
   }
 
   return (
@@ -108,7 +108,7 @@ const AllChannelsChats = ({
             key={row.key}
             type="button"
             onClick={() => setSelectedChat({ ...row.raw, __channelKind: row.kind })}
-            className={`flex items-center gap-3 border-b border-gray-100 p-3 text-left hover:bg-gray-50 ${isActive ? 'bg-indigo-50' : ''}`}
+            className={`flex items-center gap-3 border-b border-gray-100 dark:border-mcm-line p-3 text-left hover:bg-gray-50 dark:hover:bg-mcm-surface-3 ${isActive ? 'bg-indigo-50 dark:bg-mcm-surface-3' : ''}`}
           >
             <div className="relative shrink-0">
               <CustomAvatar name={row.name} size="36" showPresence={false} />
@@ -120,10 +120,10 @@ const AllChannelsChats = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="truncate text-sm font-medium text-gray-900">{row.name}</p>
-                <span className="shrink-0 text-[11px] text-gray-400">{row.timestamp ? moment(row.timestamp).fromNow() : ''}</span>
+                <p className="truncate text-sm font-medium text-gray-900 dark:text-mcm-ink">{row.name}</p>
+                <span className="shrink-0 text-[11px] text-gray-400 dark:text-mcm-ink-3">{row.timestamp ? moment(row.timestamp).fromNow() : ''}</span>
               </div>
-              <p className="truncate text-xs text-gray-500">{row.preview}</p>
+              <p className="truncate text-xs text-gray-500 dark:text-mcm-ink-3">{row.preview}</p>
             </div>
           </button>
         );

@@ -13,13 +13,13 @@ const LeadContactActivity = ({ rowData }: { rowData: any }) => {
         <LeadContactDetails rowData={rowData} />
       </div>
       <Tabs defaultValue="Logs" className="w-[calc(100%-22rem)] border rounded-lg gap-0">
-        <div className="border-b border-gray-200 w-full">
+        <div className="border-b border-gray-200 dark:border-mcm-line w-full">
           <TabsList className="flex text-sm font-semibold text-center p-0 rounded-none min-h-10">
             {tabList?.map((tab) => (
               <TabsTrigger
                 key={tab}
                 value={tab}
-                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6 text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6 text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
               >
                 {tab}
               </TabsTrigger>

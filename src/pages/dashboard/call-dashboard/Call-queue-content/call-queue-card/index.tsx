@@ -128,7 +128,7 @@ const CallQueueCard = ({ queue, refetch }: ICallQueueCardProps) => {
   }, [activeQueueData?.uuid, uuid]);
 
   return (
-    <div className="flex flex-col border border-gray-200 bg-gray-100 rounded-xl w-full p-3 gap-3">
+    <div className="flex flex-col border border-border bg-muted rounded-xl w-full p-3 gap-3">
       <div className="flex items-center justify-between">
         <p className="capitalize text-md font-semibold truncate">{name}</p>
         <div className="flex items-center gap-1">
@@ -152,15 +152,15 @@ const CallQueueCard = ({ queue, refetch }: ICallQueueCardProps) => {
           </button>
 
           <div className="flex gap-1 items-center">
-            <Icon name="Grid" className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-500 truncate text-xs">{extension || ''}</span>
+            <Icon name="Grid" className="w-4 h-4 text-muted-foreground" />
+            <span className="text-muted-foreground truncate text-xs">{extension || ''}</span>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] font-semibold text-gray-500 uppercase">Manager</span>
-        <div className="flex items-center gap-3 border rounded-lg p-2 bg-white">
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase">Manager</span>
+        <div className="flex items-center gap-3 border rounded-lg p-2 bg-card">
           <CustomAvatar
             name={parsedManager?.name}
             extension={extension}
@@ -170,7 +170,7 @@ const CallQueueCard = ({ queue, refetch }: ICallQueueCardProps) => {
             <span className="text-sm font-medium">{parsedManager?.name}</span>
             <small className="text-primary text-[10px]">{parsedManager?.role}</small>
             <CustomTooltip text={parsedManager?.email}>
-              <small className="text-gray-500 truncate text-xs">
+              <small className="text-muted-foreground truncate text-xs">
                 {parsedManager?.email || 'No email'}
               </small>
             </CustomTooltip>
@@ -181,7 +181,7 @@ const CallQueueCard = ({ queue, refetch }: ICallQueueCardProps) => {
       {/* Members Section */}
       {members && members?.length > 0 && (
         <div className="flex flex-col gap-1 pt-2">
-          <span className="text-[11px] font-semibold text-gray-500 uppercase">Members</span>
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase">Members</span>
           <div className="flex -space-x-2">
             {members.slice(0, 5).map((member: IMember, memberIndex: number) => {
               const username = member?.name || 'Unknown';
@@ -207,14 +207,14 @@ const CallQueueCard = ({ queue, refetch }: ICallQueueCardProps) => {
                           if (parent && !parent.querySelector('.initials-fallback')) {
                             const fallback = document.createElement('div');
                             fallback.className =
-                              'initials-fallback w-full h-full flex items-center justify-center rounded-full border-2 border-gray-400 bg-gray-100 text-gray-600 capitalize text-sm font-medium';
+                              'initials-fallback w-full h-full flex items-center justify-center rounded-full border-2 border-border bg-muted text-muted-foreground capitalize text-sm font-medium';
                             fallback.textContent = initials;
                             parent.appendChild(fallback);
                           }
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center rounded-full border-2 border-gray-400 bg-gray-100 text-gray-600 capitalize text-sm font-medium">
+                      <div className="w-full h-full flex items-center justify-center rounded-full border-2 border-border bg-muted text-muted-foreground capitalize text-sm font-medium">
                         {initials}
                       </div>
                     )}

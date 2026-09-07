@@ -172,7 +172,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           timeIntervals={60}
           timeCaption="Time"
           dateFormat="h:mm aa"
-          className="w-full px-2 py-2 min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2 min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
       <span className="">-</span>
@@ -187,7 +187,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           dateFormat="h:mm aa"
           minTime={startTime}
           maxTime={maxTime}
-          className="w-full px-2 py-2  min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2  min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
     </div>

@@ -209,17 +209,17 @@ const CostCentres = () => {
               <SettingRow
                 label="A person's own split"
                 description="Beats everything else. Use it for somebody whose work genuinely spans two budgets."
-                control={<span className="text-xs font-semibold text-gray-500">1st</span>}
+                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">1st</span>}
               />
               <SettingRow
                 label="The split on their licence"
                 description="Applies when the person has none of their own."
-                control={<span className="text-xs font-semibold text-gray-500">2nd</span>}
+                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">2nd</span>}
               />
               <SettingRow
                 label="The split on their location"
                 description="The fallback. Setting one here covers everybody at that location in one go."
-                control={<span className="text-xs font-semibold text-gray-500">3rd</span>}
+                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">3rd</span>}
               />
               <SettingRow
                 label="Nothing set anywhere"

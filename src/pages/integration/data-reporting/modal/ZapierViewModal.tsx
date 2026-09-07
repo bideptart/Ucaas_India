@@ -39,7 +39,7 @@ const ZapierViewModal = ({
         {data?.zaps?.map((zap, index) => (
           <div
             key={index}
-            className="sm:flex-row flex-col flex sm:items-center gap-4 justify-between border rounded-md border-gray-200 p-3 hover:shadow-sm transition"
+            className="sm:flex-row flex-col flex sm:items-center gap-4 justify-between border rounded-md border-gray-200 dark:border-mcm-line p-3 hover:shadow-sm transition"
           >
             <div className="flex sm:flex-row flex-col sm:items-center gap-4">
               <div className="flex gap-1 mt-1">
@@ -56,7 +56,7 @@ const ZapierViewModal = ({
                 <span className="font-medium text-sm w-full sm:min-w-[375px] whitespace-normal">
                   {zap.label}
                 </span>
-                <span className="text-xs text-gray-500">{zap.subtitle}</span>
+                <span className="text-xs text-gray-500 dark:text-mcm-ink-3">{zap.subtitle}</span>
               </div>
             </div>
             <div className="flex">

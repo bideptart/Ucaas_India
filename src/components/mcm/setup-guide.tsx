@@ -70,11 +70,11 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
   };
 
   return (
-    <div className="rounded-xl border border-primary/20 bg-ucass-primary-200/30 p-4">
+    <div className="rounded-xl border border-primary/20 dark:border-primary/30 bg-ucass-primary-200/30 dark:bg-mcm-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900">Finish setting up your phone system</p>
-          <p className="mt-0.5 text-xs text-gray-600">
+          <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">Finish setting up your phone system</p>
+          <p className="mt-0.5 text-xs text-gray-600 dark:text-mcm-ink-3">
             {completed} of {total} done
             {licences ? ` · ${licences.used} of ${licences.bought} licences used` : ''}
           </p>
@@ -84,7 +84,7 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
             type="button"
             onClick={() => setExpanded((value) => !value)}
             aria-label={expanded ? 'Collapse' : 'Expand'}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-white/60"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-gray-500 dark:text-mcm-ink-3 hover:bg-white/60 dark:hover:bg-mcm-surface-3"
           >
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
@@ -93,7 +93,7 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
             onClick={handleDismiss}
             aria-label="Hide setup guide"
             title="Hide this"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-white/60"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-gray-500 dark:text-mcm-ink-3 hover:bg-white/60 dark:hover:bg-mcm-surface-3"
           >
             <X className="h-4 w-4" />
           </button>
@@ -102,7 +102,7 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
 
       {/* Progress bar: the last step is never auto-ticked, so it is excluded
           rather than making the bar look permanently unfinished. */}
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/70">
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/70 dark:bg-mcm-surface-3">
         <div
           className="h-full rounded-full bg-primary transition-all"
           style={{ width: `${Math.round((completed / Math.max(total - 1, 1)) * 100)}%` }}
@@ -120,8 +120,8 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
                   onClick={() => goToStep(step.path, step.anchor)}
                   className={`flex w-full cursor-pointer items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
                     isNext
-                      ? 'border-primary bg-white'
-                      : 'border-transparent bg-white/60 hover:bg-white'
+                      ? 'border-primary bg-white dark:bg-mcm-surface-3'
+                      : 'border-transparent bg-white/60 hover:bg-white dark:bg-mcm-surface-3/60 dark:hover:bg-mcm-surface-3'
                   }`}
                 >
                   <span
@@ -130,7 +130,7 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
                         ? 'bg-green-100 text-green-700'
                         : isNext
                           ? 'bg-primary text-white'
-                          : 'bg-gray-200 text-gray-600'
+                          : 'bg-gray-200 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3'
                     }`}
                   >
                     {step.done ? <Check className="h-3 w-3" /> : index + 1}
@@ -138,20 +138,20 @@ const SetupGuide = ({ companyInfo }: { companyInfo?: any }) => {
 
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900">{step.title}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">{step.title}</span>
                       {isNext && (
                         <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
                           Next
                         </span>
                       )}
                     </span>
-                    <span className="block text-xs text-gray-600">{step.purpose}</span>
-                    <span className="mt-0.5 block text-xs font-medium text-gray-500">
+                    <span className="block text-xs text-gray-600 dark:text-mcm-ink-3">{step.purpose}</span>
+                    <span className="mt-0.5 block text-xs font-medium text-gray-500 dark:text-mcm-ink-3">
                       {step.detail}
                     </span>
                   </span>
 
-                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-gray-400" />
+                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-gray-400 dark:text-mcm-ink-3" />
                 </button>
               </li>
             );

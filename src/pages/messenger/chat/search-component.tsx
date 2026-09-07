@@ -230,7 +230,7 @@ const SearchComponent = ({
 
   return (
     <div className="w-full search-component-main relative">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex justify-center items-center text-[#9A948F]">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3">
         <SearchIcon width={18} height={18} />
       </div>
       <input
@@ -238,7 +238,7 @@ const SearchComponent = ({
         value={inputValue}
         autoFocus
         placeholder="Search messages..."
-        className="w-full h-9 pl-9 pr-3 text-sm border border-[#EEE7DD] rounded-lg bg-[#FBE2C8]/45 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+        className="w-full h-9 pl-9 pr-3 text-sm border border-[#EEE7DD] dark:border-mcm-line rounded-lg bg-[#FBE2C8]/45 dark:bg-[#1a2733]/45 dark:text-mcm-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
         onChange={(e) => {
           const val = e.target.value;
           setInputValue(val);
@@ -252,11 +252,11 @@ const SearchComponent = ({
 
       {/* Dropdown results */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl shadow-xl overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-[rgba(251,249,246,0.88)] dark:bg-[rgba(30,41,59,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-[rgba(71,85,105,0.9)] rounded-xl shadow-xl overflow-hidden">
           {isLoading ? (
-            <div className="py-6 text-center text-sm text-[#9A948F]">Searching...</div>
+            <div className="py-6 text-center text-sm text-[#9A948F] dark:text-mcm-ink-3">Searching...</div>
           ) : results?.length === 0 ? (
-            <div className="py-6 text-center text-sm text-[#9A948F]">No messages found</div>
+            <div className="py-6 text-center text-sm text-[#9A948F] dark:text-mcm-ink-3">No messages found</div>
           ) : (
             <div className="overflow-y-auto max-h-80">
               {results?.map((option: any, index: number) => {
@@ -267,17 +267,17 @@ const SearchComponent = ({
                 return (
                   <div
                     key={option?.messageId || index}
-                    className="flex flex-col gap-1 px-4 py-3 hover:bg-ucass-active-bg cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                    className="flex flex-col gap-1 px-4 py-3 hover:bg-ucass-active-bg cursor-pointer border-b border-gray-100 dark:border-mcm-line last:border-0 transition-colors"
                     onClick={() => handleClickResult(option)}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-[#2E2D35] truncate">{sender}</span>
+                      <span className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink truncate">{sender}</span>
                       {time && (
-                        <span className="text-[11px] text-[#9A948F] shrink-0 ml-2">{time}</span>
+                        <span className="text-[11px] text-[#9A948F] dark:text-mcm-ink-3 shrink-0 ml-2">{time}</span>
                       )}
                     </div>
                     {preview ? (
-                      <div className="text-sm text-[#9A948F] line-clamp-2">{preview}</div>
+                      <div className="text-sm text-[#9A948F] dark:text-mcm-ink-3 line-clamp-2">{preview}</div>
                     ) : null}
                   </div>
                 );

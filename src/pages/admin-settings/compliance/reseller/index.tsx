@@ -73,14 +73,14 @@ const Reseller = () => {
               <CustomTooltip text={action.tooltipText} side="top">
                 <div
                   key={index}
-                  className={`${isDefault ? 'cursor-not-allowed bg-gray-100 text-gray-900/80' : `cursor-pointer ${action.className}`} flex items-center justify-center rounded-full w-8 h-8   `}
+                  className={`${isDefault ? 'cursor-not-allowed bg-gray-100 text-gray-900/80 dark:bg-mcm-surface-3 dark:text-mcm-ink-2' : `cursor-pointer ${action.className}`} flex items-center justify-center rounded-full w-8 h-8   `}
                   onClick={() => {
                     action.onClick();
                   }}
                 >
                   <Icon
                     name={action.icon as IconName}
-                    className={`w-5 h-5 ${isDefault ? 'text-gray-400' : ''}`}
+                    className={`w-5 h-5 ${isDefault ? 'text-gray-400 dark:text-mcm-ink-3' : ''}`}
                   />
                 </div>
               </CustomTooltip>
@@ -94,10 +94,10 @@ const Reseller = () => {
     <>
       <section className="w-full overflow-x-auto overflow-y-hidden">
         <div className="w-full  flex flex-col gap-3">
-          <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+          <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white dark:border-mcm-line dark:bg-mcm-surface">
             <div>
-              <p className="text-gray-900 font-semibold text-lg">10DLC Reseller</p>
-              <p className="text-gray-500 text-xs">
+              <p className="text-gray-900 font-semibold text-lg dark:text-mcm-ink">10DLC Reseller</p>
+              <p className="text-gray-500 text-xs dark:text-mcm-ink-3">
                 Reseller records used when you register brands and campaigns on behalf of your own
                 customers.
               </p>

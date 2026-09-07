@@ -141,12 +141,12 @@ const Greetings = () => {
 
   return (
     <>
-      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+        <div className="flex items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
           <div>
-            <p className="text-gray-900 font-semibold text-lg">Greetings</p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-foreground font-semibold text-lg">Greetings</p>
+            <p className="text-muted-foreground text-xs">
               The recordings callers hear on your extension — welcome message, hold music and
               voicemail.
             </p>

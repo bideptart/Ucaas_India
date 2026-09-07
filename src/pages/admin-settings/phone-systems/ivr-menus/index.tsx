@@ -100,7 +100,7 @@ const IvrMenus: FC = () => {
             ivrActions?.edit && {
               icon: 'EditStrokIcon',
               onClick: () => openIvr(data),
-              className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit',
             },
           hasIvrAccess &&
@@ -168,7 +168,7 @@ const IvrMenus: FC = () => {
         }
       >
         <div className="flex flex-col gap-2">
-          <p className="text-gray-900 text-sm">
+          <p className="text-foreground text-sm">
             Use this to build your automated menu. After creating your IVR here, you can assign it
             to any Phone Number in your system to manage greetings, routing, and voicemail messages
             automatically.
@@ -207,10 +207,10 @@ const IvrMenus: FC = () => {
           content={
             ivrNotFound ? (
               <div className="p-6">
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-foreground">
                   This IVR menu is not on the current page of results
                 </p>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Search for it by name in the list behind this panel, then open it from there.
                 </p>
                 <button type="button" className="btn primary mt-4" onClick={closeIvr}>

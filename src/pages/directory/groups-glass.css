@@ -238,3 +238,98 @@
 .gp-create-group-body .gp-role-form-footer button[type='submit']:disabled {
   opacity: 0.6 !important;
 }
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block,
+   covering both the Groups split-pane page and the shared Create-group
+   dialog shell (reused by Roles' "New role" and Departments' wizard). ---- */
+.dark .gp-groups {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-groups .gp-groups-refresh {
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent, #f97316);
+}
+.dark .gp-groups .gp-groups-refresh:hover {
+  background: var(--mcm-accent-wash, #1a2733);
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+.dark .gp-groups .gp-ug-left {
+  background: var(--mcm-surface, #111c26) !important;
+  border-right-color: #1b2934 !important;
+}
+.dark .gp-groups .list-row:hover {
+  background: rgba(100, 116, 139, 0.14);
+}
+/* A solid orange fill across the whole row read as "orange background",
+   not "selected item" — kept to a translucent wash plus the accent-lit
+   left edge/text below, the same "orange signals, never fills" rule the
+   rest of the dark theme follows. */
+.dark .gp-groups .list-row.on {
+  background: rgba(249, 115, 22, 0.14);
+  box-shadow: inset 3px 0 0 var(--mcm-accent, #f97316);
+}
+.dark .gp-groups .list-row.on {
+  color: #f3f6f9 !important;
+}
+.dark .gp-groups .list-row.on .list-row-name,
+.dark .gp-groups .list-row.on .list-row-meta,
+.dark .gp-groups .list-row.on p {
+  color: #f3f6f9 !important;
+}
+.dark .gp-groups .gp-ug-detail-head {
+  background: var(--mcm-surface, #111c26) !important;
+  border-bottom-color: #1b2934 !important;
+}
+.dark .gp-groups .gp-ug-right-body {
+  background: rgba(11, 20, 28, 0.6) !important;
+}
+.dark .gp-groups .bg-white.border.border-gray-200 {
+  border-color: #1b2934 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.dark .gp-create-group-dialog {
+  background: #111c26;
+  border-color: #1b2934;
+}
+.dark .gp-create-group-head {
+  border-bottom: 1px solid #1b2934;
+}
+.dark .gp-create-group-head h2 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-create-group-close {
+  background: var(--mcm-surface-3, #1a2733);
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-create-group-close:hover {
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+.dark .gp-create-group-body .bg-gray-50 {
+  background: var(--mcm-accent-wash, #1a2733) !important;
+}
+.dark .gp-create-group-body .border-gray-200 {
+  border-color: #1b2934 !important;
+}
+.dark .gp-create-group-body .bg-white:not([data-slot='button']) {
+  background: var(--mcm-surface, #111c26) !important;
+}
+.dark .gp-create-group-body .gp-role-form-footer button[type='button'] {
+  color: var(--mcm-accent, #f97316) !important;
+  border: 1px solid var(--mcm-accent, #f97316) !important;
+}
+.dark .gp-create-group-body .gp-role-form-footer button[type='button']:hover {
+  background: var(--mcm-accent, #f97316) !important;
+  color: #f8fafc !important;
+}
+.dark .gp-create-group-body .gp-role-form-footer button[type='submit'] {
+  background: var(--mcm-accent, #f97316) !important;
+  color: #f8fafc !important;
+  border: 1px solid var(--mcm-accent, #f97316) !important;
+}
+.dark .gp-create-group-body .gp-role-form-footer button[type='submit']:hover {
+  background: var(--mcm-accent-ink, #ff8a2a) !important;
+  color: #111c26 !important;
+}

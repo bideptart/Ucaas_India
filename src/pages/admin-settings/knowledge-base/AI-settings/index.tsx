@@ -128,31 +128,31 @@ function AISettings() {
   };
 
   return (
-    <form className="w-full bg-gray-200/15 flex flex-col">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+    <form className="w-full bg-muted/40 flex flex-col">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
         <div>
-          <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
             <button
               type="button"
               onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-              className="text-slate-500 transition-colors hover:text-primary"
+              className="text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
             >
               AI Agents
             </button>
-            <div className="-rotate-90 text-gray-800">
+            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Settings</span>
           </div>
         </div>
-        <p className="text-gray-500 text-xs">
+        <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
           How your AI tools behave — models, limits and what they may act on.
         </p>
       </div>
 
       <div className="w-full h-full flex  flex-col sm:flex-row gap-4 justify-between p-3">
-        <div className="h-full bg-white rounded-lg border p-4 w-full">
-          <h3 className="font-semibold text-gray-800 mb-3">AI Bot</h3>
+        <div className="h-full bg-white dark:bg-mcm-surface rounded-lg border p-4 w-full">
+          <h3 className="font-semibold text-gray-800 dark:text-mcm-ink-2 mb-3">AI Bot</h3>
           <div className="flex flex-col gap-1 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             <div className="flex flex-col gap-2">
               {socialMediaList
@@ -160,10 +160,10 @@ function AISettings() {
                 ?.map((media) => (
                   <div
                     key={media.key}
-                    className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 transition"
+                    className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition"
                   >
-                    <div className="flex items-center gap-2 text-gray-800">
-                      <Icon name={media.icon as IconType} className="w-5 h-5 text-gray-700" />
+                    <div className="flex items-center gap-2 text-gray-800 dark:text-mcm-ink-2">
+                      <Icon name={media.icon as IconType} className="w-5 h-5 text-gray-700 dark:text-mcm-ink-2" />
                       <span className="font-medium">{media.name}</span>
                     </div>
 
@@ -223,16 +223,16 @@ function AISettings() {
           </div>
         </div>
 
-        <div className="h-full bg-white rounded-lg border p-4 w-full">
-          <h3 className="font-semibold text-gray-800 mb-3">AI Assistance</h3>
+        <div className="h-full bg-white dark:bg-mcm-surface rounded-lg border p-4 w-full">
+          <h3 className="font-semibold text-gray-800 dark:text-mcm-ink-2 mb-3">AI Assistance</h3>
           <div className="flex flex-col gap-2 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             {socialMediaList.map((media) => (
               <div
                 key={media?.key}
-                className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 transition"
+                className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition"
               >
-                <div className="flex items-center gap-2 text-gray-800">
-                  <Icon name={media?.icon as IconType} className="w-5 h-5 text-gray-700" />
+                <div className="flex items-center gap-2 text-gray-800 dark:text-mcm-ink-2">
+                  <Icon name={media?.icon as IconType} className="w-5 h-5 text-gray-700 dark:text-mcm-ink-2" />
                   <span className="font-medium">{media?.name}</span>
                 </div>
 

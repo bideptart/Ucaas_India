@@ -249,7 +249,7 @@ const Hours: FC<IHoursProps> = ({ type: hourType, isUser, result = [], features 
   return (
     <>
       <div className="flex flex-col gap-4 pt-2 template-forwarding-hours">
-        <h6 className="font-semibold text-md flex items-center gap-2 text-gray-900">
+        <h6 className="font-semibold text-md flex items-center gap-2 text-gray-900 dark:text-mcm-ink">
           Set how you'd like to answer calls when conditions are met.{' '}
           {forwardValueError && (
             <div className="flex justify-end">

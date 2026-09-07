@@ -341,7 +341,7 @@ const AdminScopePage = () => {
                 control={
                   <select
                     aria-label="Choose a person to give a scope to"
-                    className="h-10 w-full min-w-56 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-slate-500"
+                    className="h-10 w-full min-w-56 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-slate-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink dark:disabled:bg-mcm-surface-3"
                     value=""
                     disabled={unassigned.length === 0}
                     onChange={(event) => {
@@ -396,7 +396,7 @@ const AdminScopePage = () => {
                   >
                     <div className="flex flex-col gap-2">
                       {directory.locations.length === 0 ? (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-mcm-ink-3">
                           No locations yet. Add one under Company before using this scope.
                         </p>
                       ) : (
@@ -418,7 +418,7 @@ const AdminScopePage = () => {
                                 )
                               }
                             />
-                            <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                            <Building2 className="h-3.5 w-3.5 text-gray-500 dark:text-mcm-ink-3" />
                             {location.name}
                           </label>
                         ))
@@ -434,7 +434,7 @@ const AdminScopePage = () => {
                   >
                     <div className="flex flex-col gap-2">
                       {directory.departments.length === 0 ? (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-mcm-ink-3">
                           No departments yet. Add one under Phone System before using this scope.
                         </p>
                       ) : (

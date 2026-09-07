@@ -240,11 +240,11 @@ const GuestScreen = ({
             <div className="w-1/2  flex items-center justify-center p-5">
               <form
                 onSubmit={handleSubmit(handleSubmitForm)}
-                className="flex flex-col gap-4 w-full bg-white  rounded-xl p-8"
+                className="flex flex-col gap-4 w-full bg-white dark:bg-mcm-surface  rounded-xl p-8"
               >
                 {/* {isGuest && ( */}
                 <>
-                  <h2 className="mb-3 text-2xl font-semibold text-gray-900 leading-snug">
+                  <h2 className="mb-3 text-2xl font-semibold text-gray-900 dark:text-mcm-ink leading-snug">
                     Just one step away from your meeting
                   </h2>
                 </>

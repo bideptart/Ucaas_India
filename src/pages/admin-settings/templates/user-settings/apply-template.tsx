@@ -258,10 +258,10 @@ const ApplyUserSettingsTemplate = ({
 
   return (
     <div className="flex h-full min-h-0 w-full flex-1 flex-col gap-4">
-      <div className="flex items-start gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A948F]" />
-        <p className="text-xs text-[#2E2D35]">
-          <span className="font-semibold text-[#2E2D35]">What this writes.</span> Each person you pick
+      <div className="flex items-start gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3 dark:border-mcm-line dark:bg-mcm-surface">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9A948F] dark:text-mcm-ink-3" />
+        <p className="text-xs text-[#2E2D35] dark:text-mcm-ink-2">
+          <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">What this writes.</span> Each person you pick
           is saved with only the fields "{template?.name}" has switched on — everything else on their
           record is written back exactly as it was, the same as picking this template from that
           person's own Edit screen. A person this template has nothing turned on for is skipped rather
@@ -269,7 +269,7 @@ const ApplyUserSettingsTemplate = ({
         </p>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-[#EEE7DD] p-3">
+      <div className="flex min-h-0 flex-1 flex-col rounded-xl border border-[#EEE7DD] p-3 dark:border-mcm-line">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full sm:max-w-[280px]">
             <Input
@@ -280,7 +280,7 @@ const ApplyUserSettingsTemplate = ({
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#2E2D35]">
+            <span className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">
               {chosenPeople.length} of {people.length} chosen
             </span>
             <Button
@@ -298,9 +298,9 @@ const ApplyUserSettingsTemplate = ({
         {loadingPeople ? (
           <Loader />
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[#EEE7DD]">
+          <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-[#EEE7DD] dark:border-mcm-line">
             {visible.length === 0 ? (
-              <p className="p-4 text-center text-xs text-[#9A948F]">Nobody matches that search.</p>
+              <p className="p-4 text-center text-xs text-[#9A948F] dark:text-mcm-ink-3">Nobody matches that search.</p>
             ) : (
               visible.map((person) => {
                 const result = ran ? results[person.uuid] : undefined;
@@ -308,7 +308,7 @@ const ApplyUserSettingsTemplate = ({
                 return (
                   <label
                     key={person.uuid}
-                    className="flex cursor-pointer items-start gap-3 border-b border-gray-100 p-3 last:border-b-0 hover:bg-[#FBE2C8]/45"
+                    className="flex cursor-pointer items-start gap-3 border-b border-gray-100 p-3 last:border-b-0 hover:bg-[#FBE2C8]/45 dark:border-mcm-line dark:hover:bg-mcm-surface-3"
                   >
                     <Checkbox
                       className="mt-0.5"
@@ -322,16 +322,16 @@ const ApplyUserSettingsTemplate = ({
                       }
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-xs font-semibold text-[#2E2D35]">{person.name}</span>
+                      <span className="block text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">{person.name}</span>
                       {person.detail ? (
-                        <span className="block text-xs text-[#9A948F]">{person.detail}</span>
+                        <span className="block text-xs text-[#9A948F] dark:text-mcm-ink-3">{person.detail}</span>
                       ) : null}
                       {result && Icon ? (
                         <span
                           className={`mt-1 flex items-start gap-1 text-xs ${OUTCOME_COLOUR[result.outcome]}`}
                         >
                           <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                          <span className="text-[#2E2D35]">{result.text}</span>
+                          <span className="text-[#2E2D35] dark:text-mcm-ink">{result.text}</span>
                         </span>
                       ) : null}
                     </span>
@@ -343,8 +343,8 @@ const ApplyUserSettingsTemplate = ({
         )}
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4">
-        <p className="text-xs text-[#9A948F]">
+      <div className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 dark:border-mcm-line dark:bg-mcm-surface">
+        <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
           People are saved one at a time, so a long list takes a moment. Please leave this open until
           it finishes.
         </p>

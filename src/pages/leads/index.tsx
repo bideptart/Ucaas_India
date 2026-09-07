@@ -175,7 +175,7 @@ const Leads: FC = () => {
           />
         ) : (
           <>
-            <div className="flex flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 md:min-h-[65px] md:flex-row md:items-center md:justify-between md:px-3 md:py-0">
+            <div className="flex flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-2 py-2 md:min-h-[65px] md:flex-row md:items-center md:justify-between md:px-3 md:py-0">
               <Tabs
                 value={tabName}
                 onValueChange={handleTabChange}
@@ -185,13 +185,13 @@ const Leads: FC = () => {
                   <TabsList className="flex h-full w-full rounded-none bg-transparent p-0 text-center text-sm font-semibold md:w-auto">
                     <TabsTrigger
                       value={LEAD_TABS_CONST.LEAD_LIST}
-                      className="relative m-auto flex min-h-12 w-2/4 gap-1 rounded-none border-b-2 bg-transparent px-3 text-xs font-semibold text-[#2E2D35] shadow-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:min-h-14 sm:px-4 sm:text-sm lg:min-h-16 lg:px-6"
+                      className="relative m-auto flex min-h-12 w-2/4 gap-1 rounded-none border-b-2 bg-transparent px-3 text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink shadow-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:min-h-14 sm:px-4 sm:text-sm lg:min-h-16 lg:px-6"
                     >
                       {LEAD_TABS_CONST.LEAD_LIST}
                     </TabsTrigger>
                     <TabsTrigger
                       value={LEAD_TABS_CONST.LEAD_GROUP_LIST}
-                      className="relative m-auto flex min-h-12 w-2/4 gap-1 rounded-none border-b-2 bg-transparent px-3 text-xs font-semibold text-[#2E2D35] shadow-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:min-h-14 sm:px-4 sm:text-sm lg:min-h-16 lg:px-6"
+                      className="relative m-auto flex min-h-12 w-2/4 gap-1 rounded-none border-b-2 bg-transparent px-3 text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink shadow-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:min-h-14 sm:px-4 sm:text-sm lg:min-h-16 lg:px-6"
                     >
                       {LEAD_TABS_CONST.LEAD_GROUP_LIST}
                     </TabsTrigger>
@@ -226,7 +226,7 @@ const Leads: FC = () => {
                     onChange={(e) => {
                       setSearch(e.target.value);
                     }}
-                    Icon={<SearchLine className=" text-[#2E2D35]" />}
+                    Icon={<SearchLine className=" text-[#2E2D35] dark:text-mcm-ink" />}
                   />
                 </div>
                 {/* <CustomSelect
@@ -245,7 +245,7 @@ const Leads: FC = () => {
                   inputClass="team_chat"
                 /> */}
                 <Button
-                  className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white text-primary hover:bg-primary hover:text-white"
+                  className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white dark:bg-mcm-surface text-primary hover:bg-primary hover:text-white"
                   type="button"
                   onClick={() => setDrawerState((prev) => ({ ...prev, updateContacts: true }))}
                   title="Upload Contacts"
@@ -255,7 +255,7 @@ const Leads: FC = () => {
                 {tabName === LEAD_TABS_CONST.LEAD_LIST && (
                   <>
                     <Button
-                      className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white text-primary hover:bg-primary hover:text-white"
+                      className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white dark:bg-mcm-surface text-primary hover:bg-primary hover:text-white"
                       type="button"
                       onClick={() => setDrawerState((prev) => ({ ...prev, exportContacts: true }))}
                       title="Export Contacts"
@@ -267,7 +267,7 @@ const Leads: FC = () => {
 
                 {leadsAccess?.add && (
                   <Button
-                    className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white text-primary hover:bg-primary hover:text-white"
+                    className="flex h-9 w-9 shrink-0 max-h-9 max-w-9 min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-primary bg-white dark:bg-mcm-surface text-primary hover:bg-primary hover:text-white"
                     type="button"
                     onClick={() =>
                       tabName === LEAD_TABS_CONST.LEAD_GROUP_LIST

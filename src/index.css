@@ -237,80 +237,116 @@
 }
 
 .dark {
-  /* ---- MCM Unified Console tokens (dark redefines values only) ------- */
-  --mcm-ground: #0a0f1a;
-  --mcm-surface: #111827;
-  --mcm-surface-2: #161f31;
-  --mcm-surface-3: #1e293e;
-  --mcm-ink: #eef2f9;
-  --mcm-ink-2: #c3cddf;
-  --mcm-ink-3: #93a1ba;
-  --mcm-ink-4: #6b7a96;
-  --mcm-line: #26314a;
-  --mcm-line-2: #1c2537;
+  /* ---- MCM Unified Console tokens (dark redefines values only) -------
+     Premium dark palette per the 2026-09-05 global re-theme (revised
+     2026-09-05b: exact hex + "no brown" correction). Orange is the
+     primary accent, but it lives on text/icons/borders/buttons/active
+     states only — every "wash"/highlighted-background token below is a
+     neutral dark surface, never an orange- or brown-tinted fill, per
+     explicit instruction that orange must never cover a large area. */
+  /* 2026-09-05 dark-theme polish pass: --surface/-2/-3 measured at a
+     1.05:1 luminance contrast against --ground — cards barely separated
+     from the page behind them. Stepped up (same hue, still dark, no
+     hue change, nothing near pure black) so ground < surface < surface-2
+     < surface-3 reads as a real elevation ladder instead of one flat
+     plane. ink-2/ink-3 were identical (#aab6c1), collapsing "secondary"
+     and "muted/helper" into one visual tier; ink-4 measured 3.93:1
+     against --mcm-surface, under the 4.5:1 AA floor for body text. All
+     three now step down from --mcm-ink while staying >=5:1 on every
+     surface tone. */
+  --mcm-ground: #080d12;
+  --mcm-surface: #111c26;
+  --mcm-surface-2: #16222c;
+  --mcm-surface-3: #1a2733;
+  --mcm-ink: #f3f6f9;
+  --mcm-ink-2: #aab6c1;
+  --mcm-ink-3: #8b98a6;
+  --mcm-ink-4: #7c8894;
+  --mcm-line: #1b2934;
+  --mcm-line-2: #263642;
 
-  --mcm-accent: #ffab5e;
-  --mcm-accent-ink: #ffc98a;
-  --mcm-accent-wash: #2b1f12;
-  --mcm-accent-edge: #4a341c;
+  /* Primary accent restored to orange — the global no-orange-in-dark
+     rebrand is reversed by explicit request; light mode's tokens (never
+     touched by that rebrand) already used this same hue. --accent-wash
+     is a NEUTRAL surface (not a tinted orange/brown fill) — accent shows
+     through --accent-ink text and --accent-edge borders instead, so a
+     "highlighted" pill or banner never becomes a solid orange/brown card. */
+  --mcm-accent: #f97316;
+  --mcm-accent-ink: #ff8a2a;
+  --mcm-accent-wash: #1a2733;
+  --mcm-accent-edge: rgba(249, 115, 22, 0.4);
+  --mcm-accent-hover: #ff8a2a;
 
   --mcm-ai: #a97fff;
   --mcm-ai-ink: #c0a3ff;
-  --mcm-ai-wash: #231a3d;
+  --mcm-ai-wash: #131625;
   --mcm-ai-edge: #3c2d66;
 
   --mcm-live: #2dd4bf;
-  --mcm-live-wash: #0f2f2c;
-  --mcm-warn: #f0a24b;
-  --mcm-warn-wash: #33240f;
+  --mcm-live-wash: #0d1f1c;
+  --mcm-warn: #f97316;
+  --mcm-warn-wash: #1a2733;
   --mcm-crit: #f87171;
-  --mcm-crit-wash: #361618;
+  --mcm-crit-wash: #24151a;
   --mcm-hold: #38bdf8;
-  --mcm-hold-wash: #0d2a3a;
+  --mcm-hold-wash: #0d1e28;
 
   --mcm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --mcm-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --mcm-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
 
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  /* shadcn's own token layer, kept identical to the --mcm-* set above so
+     a plain shadcn <Card> never drifts from an --mcm-surface panel next
+     to it. */
+  --background: #080d12;
+  --foreground: #f3f6f9;
+  --card: #111c26;
+  --card-foreground: #f3f6f9;
+  --popover: #111c26;
+  --popover-foreground: #f3f6f9;
   /* Dark theme gets the same !important protection as the light theme's
      --primary, and the matching ucass-* overrides — same runtime-override
-     risk from organization-context.tsx applies here too. */
-  --primary: #ffab5e !important;
-  --primary-foreground: oklch(0.205 0 0);
-  --color-ucass-primary-100: #2b1f12 !important;
-  --color-ucass-primary-200: #ffab5e !important;
-  --color-ucass-active: #ffc98a !important;
-  --color-ucass-active-bg: #2b1f12 !important;
-  --color-ucass-login-bg: #2b1f12 !important;
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+     risk from organization-context.tsx applies here too.
+
+     Restored to the brand orange per the 2026-09-05 re-theme (previously
+     neutral gray). --color-ucass-primary-100/200 are neutral dark
+     surfaces, not a brown/orange wash — the same "no orange background
+     fills" correction as --mcm-accent-wash above — used for hover/active
+     surfaces like the bell, theme toggle and avatar chip. */
+  --primary: #f97316 !important;
+  --primary-foreground: #1a0f06;
+  --color-ucass-primary-100: #16222c !important;
+  --color-ucass-primary-200: #1a2733 !important;
+  --color-ucass-active: #ff8a2a !important;
+  --color-ucass-active-bg: #1a2733 !important;
+  --color-ucass-login-bg: #16222c !important;
+  --secondary: #16222c;
+  --secondary-foreground: #f3f6f9;
+  --muted: #16222c;
+  --muted-foreground: #aab6c1;
+  --accent: #1a2733;
+  --accent-foreground: #ff8a2a;
+  --destructive: #f87171;
+  --border: #1b2934;
+  --input: #141f29;
+  --ring: #f97316;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Sidebar reads as its own layer against --background — a touch darker
+     than --card so the nav visually separates from the content it frames
+     (the same relationship GitHub/Linear's dark sidebars have against
+     their content pane). */
+  --sidebar: #070c11;
+  --sidebar-foreground: #f3f6f9;
+  --sidebar-primary: #f97316;
+  --sidebar-primary-foreground: #1a0f06;
+  --sidebar-accent: #1a2733;
+  --sidebar-accent-foreground: #ff8a2a;
+  --sidebar-border: #1b2934;
+  --sidebar-ring: #f97316;
 }
 
 @layer base {
@@ -334,19 +370,15 @@
     background-attachment: fixed;
   }
 
-  /* The same backdrop for dark mode. Without it the light warm gradient
-     stayed put under dark-mode surfaces and light body text, which left
-     whole screens unreadable. Same four warm pools, dropped to embers
-     over a near-black base so the frosted panels still have something to
-     pick up. */
+  /* Flat canonical deep-navy, not the warm-orange ember glow the old
+     glassmorphism backdrop painted here — that gradient bled through
+     every page's edges/corners (visible behind .mcm-page and any page
+     wrapper with its own transparent gaps) as a warm/brown tint no
+     per-page fix could remove, since body sits behind everything.
+     Per the 2026-09-05 re-theme: orange is the accent, never a
+     full-page ambient wash. */
   .dark body {
-    background:
-      radial-gradient(1000px 750px at 4% -6%, rgba(255, 138, 46, 0.2), transparent 58%),
-      radial-gradient(900px 700px at 102% -4%, rgba(255, 105, 30, 0.16), transparent 55%),
-      radial-gradient(950px 700px at 50% 118%, rgba(255, 160, 90, 0.14), transparent 60%),
-      radial-gradient(650px 500px at 100% 100%, rgba(255, 130, 60, 0.12), transparent 55%),
-      linear-gradient(160deg, #0b1018 0%, #171019 100%);
-    background-attachment: fixed;
+    background: #080d12;
   }
 
   #root,
@@ -470,6 +502,44 @@
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
     border-color: transparent !important;
     color: #ffffff !important;
+  }
+
+  /* Neither toolbar rule above ever got a dark companion, so every plain
+     toolbar button inside a `.filters` wrapper (Do Not Contact List's "Add
+     DNC"/"Upload DNC", the Performance Calls toolbar, ...) stayed a solid
+     white or literal-orange card regardless of theme. */
+  .dark
+    .mcm-page
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: var(--mcm-surface, #111c26) !important;
+    border: 1px solid var(--mcm-line, #1b2934) !important;
+    color: var(--mcm-ink, #f3f6f9) !important;
+  }
+  .dark
+    .mcm-page
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: var(--mcm-surface-3, #1a2733) !important;
+    color: var(--mcm-ink, #f3f6f9) !important;
+  }
+  .dark
+    .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    background: rgba(249, 115, 22, 0.14) !important;
+    border: 1px solid rgba(249, 115, 22, 0.4) !important;
+    color: var(--mcm-accent-ink, #ff8a2a) !important;
+  }
+  .dark
+    .mcm-page
+    .perf-interactions
+    .filters
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    border-color: transparent !important;
+    color: #1a0f06 !important;
   }
 
   .custom-react-select__control:hover {
@@ -1073,6 +1143,66 @@
     opacity: 50 !important;
   }
 
+  /* react-select (the base .custom-react-select__* preset used by every
+     plain dropdown/multi-select in the app) predates the Dark Theme pass
+     and was never wired to it — every color above is a literal light-mode
+     value, so these controls kept a white box, a white open menu, and
+     near-black text. On the dashboard's own dark surfaces that near-black
+     text (`--color-gray-900`/`--color-black`) sits close enough to white
+     that it read as barely-there — effectively unreadable, not just
+     off-theme. Has to stay inside `@layer base`, right beside the rules it
+     overrides: for `!important` declarations the cascade reverses layer
+     order and treats unlayered styles as lowest priority (see the
+     .mcm-daycell:disabled note below), so an override placed outside this
+     layer would lose to the light-mode rules above regardless of
+     specificity. */
+  .dark .custom-react-select__control {
+    background-color: var(--mcm-surface-3, #334155) !important;
+    border-color: var(--mcm-line, #475569) !important;
+  }
+  .dark .custom-react-select__menu {
+    background-color: var(--popover, #1e293b) !important;
+  }
+  .dark .custom-react-select__option {
+    color: var(--mcm-ink, #f8fafc) !important;
+  }
+  .dark .custom-react-select__option:hover,
+  .dark .custom-react-select__option--is-focused {
+    background-color: rgba(249, 115, 22, 0.14) !important;
+    color: var(--mcm-accent-ink, #ff8a2a) !important;
+  }
+  .dark .custom-react-select__indicator,
+  .dark .custom-react-select__single-value,
+  .dark .custom-react-select__multi-value__label {
+    color: var(--mcm-ink, #f8fafc) !important;
+  }
+  .dark .custom-react-select__placeholder {
+    color: var(--mcm-ink-3, #94a3b8) !important;
+  }
+  .dark .custom-react-select__multi-value {
+    background-color: var(--mcm-surface-3, #334155) !important;
+  }
+  .dark input:disabled,
+  .dark select:disabled,
+  .dark textarea:disabled,
+  .dark .custom-react-select__option--is-disabled,
+  .dark .custom-react-select__control--is-disabled {
+    background-color: var(--mcm-surface-3, #334155) !important;
+    color: var(--mcm-ink-4, #64748b) !important;
+  }
+  /* The plain `button:disabled` reset above (gray-100/gray-500) has the same
+     unconditional-light problem as the input reset it sits beside, but never
+     got its own dark companion — every disabled button app-wide (a "Join"
+     before a meeting starts, a submit button mid-validation, etc.) rendered
+     as a flat light-grey pill regardless of theme. `:not(.mini):not(.btn)`
+     mirrors the base rule so this never touches the app's own themed pill
+     buttons, which already carry their own `:disabled` treatment. */
+  .dark button:disabled:not(.mini):not(.btn) {
+    background-color: var(--mcm-surface-3, #334155) !important;
+    border-color: var(--mcm-surface-3, #334155) !important;
+    color: var(--mcm-ink-4, #64748b) !important;
+  }
+
   /* Calendar day cells are buttons, but they are not form controls. The
      rule above paints every disabled button with a grey-100 fill and
      grey-500 text, which put filled grey discs behind the greyed-out days
@@ -1280,6 +1410,36 @@
   flex-shrink: 0;
 }
 
+/* This component predates the dark-theme tokens and was never wired to
+   them, so the header's search pill stayed a hardcoded white/cream box
+   against the dark header bar. Reusing the same --mcm-* surface tokens
+   the rest of the app's Dark Mode already runs on. */
+.dark .global-search-input-wrapper {
+  background: rgba(11, 20, 28, 0.75);
+  border-color: var(--mcm-line, #1b2934);
+}
+.dark .global-search-input-wrapper:focus-within,
+.dark .global-search-input-wrapper.is-open {
+  border-color: #f97316;
+  background: var(--mcm-surface, #111c26);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+.dark .global-search-input {
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .global-search-input::placeholder {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .global-search-kbd {
+  color: var(--mcm-ink-3, #aab6c1);
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-line, #1b2934);
+}
+.dark .global-search-cmd-k {
+  color: var(--mcm-ink-3, #aab6c1);
+  border-color: var(--mcm-line, #1b2934);
+}
+
 /* ── Dropdown ──────────────────────────────────────────────────────────────── */
 
 .global-search-dropdown {
@@ -1313,6 +1473,18 @@
   }
 }
 
+/* This dropdown never got a `.dark` companion at all — it rendered as a
+   solid white card with near-black text on every page regardless of
+   theme. Reuses the same --mcm-* surface tokens the rest of Dark Mode
+   runs on. */
+.dark .global-search-dropdown {
+  background: var(--mcm-surface, #111c26);
+  border-color: var(--mcm-line, #1b2934);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.4),
+    0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
 /* ── Section label ─────────────────────────────────────────────────────────── */
 
 .global-search-section-label {
@@ -1327,6 +1499,10 @@
 
 .global-search-section-label:first-child {
   border-top: none;
+}
+.dark .global-search-section-label {
+  color: var(--mcm-ink-3, #aab6c1);
+  border-top-color: var(--mcm-line, #1b2934);
 }
 
 /* ── Result item ───────────────────────────────────────────────────────────── */
@@ -1352,12 +1528,22 @@
 .global-search-item.is-active {
   background: #f8fafc;
 }
+.dark .global-search-item {
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .global-search-item:hover,
+.dark .global-search-item.is-active {
+  background: var(--mcm-surface-3, #1a2733);
+}
 
 .global-search-item-title {
   font-size: 14px;
   color: #0f172a;
   line-height: 1.4;
   white-space: nowrap;
+}
+.dark .global-search-item-title {
+  color: var(--mcm-ink, #f3f6f9);
 }
 
 .global-search-item-badge {
@@ -1368,6 +1554,9 @@
   padding: 0;
   flex-shrink: 0;
   white-space: nowrap;
+}
+.dark .global-search-item-badge {
+  color: #ff8a2a;
 }
 
 /* ── Empty / loading state ─────────────────────────────────────────────────── */
@@ -1874,14 +2063,29 @@
   flex: none;
   display: grid;
   place-items: center;
+  /* 2026-09-05d: no chip. Light theme's img (ucaas-logo.png) is a black
+     wordmark that already sits fine on the light header. Dark theme now
+     swaps in a separate recolored asset (ucaas-logo-dark.png — white
+     wordmark, orange subtext, same cloud/headset artwork) instead of
+     needing a light patch behind the original black-text file, so no
+     background/box is needed in either theme. */
 }
 
 .mcm-brand-mark img {
-  width: 96.27px;
-  height: 48px;
-  object-fit: contain;
-  display: block;
+  /* Height fixed, width left to the browser (not object-fit: contain
+     inside a fixed box) so the intrinsic 700x356 ratio is followed
+     exactly — no rounding mismatch, no letterboxing, no distortion. */
+  height: 38px;
+  width: auto;
   margin: 0 auto;
+  /* No `display` here on purpose. This rule is plain/unlayered CSS,
+     which always beats Tailwind's `@layer utilities` regardless of
+     specificity — an explicit `display: block` here silently defeated
+     the `dark:hidden` / `hidden dark:block` toggle on the two logo
+     <img> tags below (both stayed visible, stacked, in every theme).
+     The browser's own UA stylesheet already sets img to display:block,
+     so this was always redundant for the visible-in-both-themes case
+     anyway. */
 }
 
 .mcm-brand-text {
@@ -1897,6 +2101,9 @@
   letter-spacing: -0.02em;
   color: #0f172a;
 }
+.dark .mcm-brand-name {
+  color: var(--mcm-ink, #f3f6f9);
+}
 
 .mcm-brand-sub {
   font-size: 9.5px;
@@ -1904,6 +2111,9 @@
   letter-spacing: 0.06em;
   color: #94a3b8;
   margin-top: 1px;
+}
+.dark .mcm-brand-sub {
+  color: var(--mcm-ink-3, #aab6c1);
 }
 
 /* Below the widest breakpoint the wordmark goes and the mark carries it. */
@@ -2188,6 +2398,19 @@
   background: var(--cal-panel);
   border-right: 1px solid var(--cal-line);
 }
+/* This mini-calendar (Calendar/Task Listing's left rail) predates the
+   Dark Theme pass and carries its own bare-named token set rather than
+   the shared --mcm-* ones, so it had no .dark companion at all and stayed
+   a warm cream panel regardless of theme. Mapped onto --mcm-* here, same
+   as every other page-specific token set fixed this project. */
+.dark .mcm-calpanel {
+  --cal-panel: var(--mcm-ground, #0f172a);
+  --cal-raised: var(--mcm-surface-3, #334155);
+  --cal-well: var(--mcm-surface, #1e293b);
+  --cal-line: var(--mcm-line, #475569);
+  --cal-line-strong: var(--mcm-line, #475569);
+  --cal-muted: var(--mcm-ink-3, #94a3b8);
+}
 
 /* Raised: month, year and the two month-step arrows. */
 .mcm-calpanel .mcm-cal-ctrl {
@@ -2357,6 +2580,9 @@
   font-weight: 500;
   color: #334155;
 }
+.dark .mcm-tasktable .mcm-task-date {
+  color: var(--mcm-ink-2, #cbd5e1);
+}
 .mcm-tasktable .mcm-task-time {
   display: inline-flex;
   align-items: center;
@@ -2394,11 +2620,21 @@
   font-weight: 600;
   color: #0f172a;
 }
+/* The most visible symptom of this file having no dark wiring at all: the
+   title is the one column every row leads with, and #0f172a (near-black)
+   on the now-dark row background was reading as barely-there rather than
+   simply off-theme. */
+.dark .mcm-tasktable .mcm-task-title {
+  color: var(--mcm-ink, #f8fafc);
+}
 
 .mcm-tasktable .mcm-task-source {
   font-size: 12px;
   color: #475569;
   text-transform: capitalize;
+}
+.dark .mcm-tasktable .mcm-task-source {
+  color: var(--mcm-ink-3, #94a3b8);
 }
 
 /* Placeholder, not data: a bare "--" inherited body ink and read as
@@ -2406,6 +2642,9 @@
 .mcm-tasktable .mcm-task-empty {
   color: #cbd5e1;
   user-select: none;
+}
+.dark .mcm-tasktable .mcm-task-empty {
+  color: var(--mcm-ink-4, #64748b);
 }
 
 /* The pager is TableManager's next sibling and the two bordered cards sat
@@ -2442,6 +2681,18 @@
   border-color: rgba(225, 200, 165, 0.9);
   background: rgba(255, 255, 255, 0.7);
   color: #475569;
+}
+/* This is the actual source of the "gray box around the … button" —
+   not the button's own (already dark-aware) hover style, but THIS rule,
+   which repaints it the moment the pointer is anywhere on the row, not
+   just on the button. Reads as a persistent-looking light box because a
+   reader's cursor naturally passes over the row while scanning the table
+   — no dark variant existed, so it stayed rgba(255,255,255,0.7) regardless
+   of theme. */
+.dark .mcm-tasktable tbody tr:hover td:last-child button {
+  border-color: #1b2934;
+  background: var(--mcm-surface-3, #334155);
+  color: var(--mcm-ink-3, #94a3b8);
 }
 
 /* ==================================================================
@@ -2660,4 +2911,377 @@
   background: linear-gradient(135deg, #f2794f, #ea5c34);
   color: #fff;
   border-color: transparent;
+}
+
+/* ============================================================
+   Dark theme — global catch for the app's warm-glass literal palette.
+
+   Eight colours (a cream glass background, a tan glass border, a tan
+   card fill, a divider hex, a wash hex, a charcoal text hex, and two
+   muted-brown text hexes) are hand-written as Tailwind arbitrary values
+   — `bg-[rgba(251,249,246,0.88)]`, `border-[#EEE7DD]`, `text-[#2E2D35]`,
+   etc — in place of the design system's own tokens, well over a hundred
+   files deep across the whole app for several of them (confirmed by
+   grep). Individually retrofitting each call site the way the Templates
+   pages and the Directory/Performance/Dashboard pages earlier in this
+   pass were done is not a tractable amount of work in one sweep, and
+   would still miss any new page written the same way tomorrow.
+
+   The fix that actually scales: an attribute selector matches on the
+   raw `class` attribute STRING, and Tailwind arbitrary-value classes put
+   the literal colour text straight into that string — so a selector
+   built from that text matches `bg-[rgba(251,249,246,0.88)]`,
+   `bg-[rgba(251,249,246,0.5)]`, and any other opacity of the same
+   colour, on any element, in any file, present or future, without
+   touching a single one of them. `!important` is required: a same-
+   specificity utility class from Tailwind's own generated stylesheet
+   would otherwise win the tie by source order, same reasoning as every
+   other `!important` in this file for the identical problem.
+
+   Base vs. hover, and why it isn't one rule per colour: an earlier
+   version of this block used one blanket `[class*="…"]` selector per
+   colour, unconditionally, for every element the substring appeared in
+   — which silently broke every `hover:bg-[…]`/`hover:text-[…]`/
+   `hover:border-[…]` usage of these same literals (six figures worth of
+   files use these as hover-only accents, not just base fills). Since
+   "hover:bg-[X]" always contains the bare "bg-[X]" as a literal
+   substring, a plain `[class*="bg-[X"]` selector matches BOTH the
+   unprefixed utility and the hover-prefixed one identically, and with no
+   `:hover` condition of its own applies its !important color in EVERY
+   state — so an element meant to tint only on hover sat permanently
+   tinted, and one with both a base and a hover shade of the same colour
+   lost the hover feedback entirely (both states rendered identically).
+   Splitting each colour into a base selector (anchored to the start of
+   the class string or right after a space, so it can only match the
+   bare utility — "hover:" is never followed by a space before the
+   utility name it modifies) and a separate `:hover`-guarded selector for
+   the hover-prefixed form fixes both failure modes: unprefixed usage
+   still always applies (unconditional, correct), hover-prefixed usage
+   only applies while actually hovered (conditional, correct), and an
+   element with both gets the base colour normally and the (here, same)
+   colour on hover — indistinguishable from before only in that this
+   catch-all doesn't attempt to reproduce each call site's own subtle
+   opacity delta between its base and hover shade; the colour itself is
+   always right, in every state.
+
+   This does not replace fixing a specific page properly when it comes
+   up for its own Phase 3 pass — it is the safety net underneath that
+   work, so a page nobody has reached yet still looks like part of the
+   same dark theme instead of a bare cream card sitting in the middle of
+   it.
+
+   2026-09-05: the output colour here (and in the rgba(255,252,248...)
+   group below) was rgba(11, 20, 28, 0.9) — the card tone from before the
+   later "increase separation" pass moved the canonical card colour to
+   #111c26. Since this rule runs `!important`, it was silently overriding
+   any `dark:bg-mcm-surface`-class fix on the same element (e.g.
+   TableManager's own footer) with that older, slightly darker shade.
+   Bumped to match the current token so this safety net and the real
+   token agree. */
+.dark [class^="bg-[rgba(251,249,246"],
+.dark [class*=" bg-[rgba(251,249,246"],
+.dark [class^="bg-[rgba(251, 249, 246"],
+.dark [class*=" bg-[rgba(251, 249, 246"] {
+  background-color: rgba(17, 28, 38, 0.9) !important;
+}
+.dark [class*="hover:bg-[rgba(251,249,246"]:hover,
+.dark [class*="hover:bg-[rgba(251, 249, 246"]:hover,
+.dark [class*="focus:bg-[rgba(251,249,246"]:focus,
+.dark [class*="focus:bg-[rgba(251, 249, 246"]:focus {
+  background-color: rgba(17, 28, 38, 0.9) !important;
+}
+
+.dark [class^="border-[rgba(225,200,165"],
+.dark [class*=" border-[rgba(225,200,165"],
+.dark [class^="border-[rgba(225, 200, 165"],
+.dark [class*=" border-[rgba(225, 200, 165"] {
+  border-color: #1b2934 !important;
+}
+.dark [class*="hover:border-[rgba(225,200,165"]:hover,
+.dark [class*="hover:border-[rgba(225, 200, 165"]:hover {
+  border-color: #1b2934 !important;
+}
+
+.dark [class^="border-[#EEE7DD"],
+.dark [class*=" border-[#EEE7DD"],
+.dark [class^="divide-[#EEE7DD"],
+.dark [class*=" divide-[#EEE7DD"] {
+  border-color: #334155 !important;
+}
+.dark [class*="hover:border-[#EEE7DD"]:hover,
+.dark [class*="hover:divide-[#EEE7DD"]:hover {
+  border-color: #334155 !important;
+}
+
+.dark [class^="text-[#2E2D35"],
+.dark [class*=" text-[#2E2D35"] {
+  color: #f8fafc !important;
+}
+.dark [class*="hover:text-[#2E2D35"]:hover {
+  color: #f8fafc !important;
+}
+
+.dark [class^="text-[#9A948F"],
+.dark [class*=" text-[#9A948F"] {
+  color: #94a3b8 !important;
+}
+.dark [class*="hover:text-[#9A948F"]:hover {
+  color: #94a3b8 !important;
+}
+
+/* Three more literals from the same warm-card family, found auditing the
+   Users/Groups panel (a page this catch-all hadn't been checked against
+   yet) — same reasoning as the five above, added here rather than left
+   for the next page that happens to trip over them. #FBE2C8 in
+   particular has heavy hover-only usage (40 files use it as
+   `hover:bg-[#FBE2C8]/…` with no base fill at all — a plain highlight
+   revealed on hover), so it needs the same base/hover split. */
+.dark [class^="bg-[#FBE2C8"],
+.dark [class*=" bg-[#FBE2C8"] {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+.dark [class*="hover:bg-[#FBE2C8"]:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* #fff1e0 and #8a6f57 have no hover-prefixed usage anywhere in the
+   codebase (checked directly), so the simple unconditional form is
+   correct as-is for these two — no base/hover split needed. */
+.dark [class*="#fff1e0"] {
+  background-color: #334155 !important;
+}
+.dark [class*="#8a6f57"] {
+  color: #94a3b8 !important;
+}
+
+/* border-[#DCD3C6] (company-logo.tsx) — two more literals from the same
+   warm-card family, found auditing Billing/Company. No hover-prefixed
+   usage found, so no base/hover split needed. */
+.dark [class*="#DCD3C6"] {
+  border-color: #334155 !important;
+}
+/* bg-[#F0DFC5] is used both as a base fill (license-management,
+   billing/summary) and, heavily, as a `hover:bg-[#F0DFC5]` highlight with
+   no base fill (messenger, new-contact, campaign) — same base/hover split
+   as #FBE2C8 above, for the same reason. */
+.dark [class^="bg-[#F0DFC5"],
+.dark [class*=" bg-[#F0DFC5"] {
+  background-color: #334155 !important;
+}
+.dark [class*="hover:bg-[#F0DFC5"]:hover {
+  background-color: #334155 !important;
+}
+
+/* Live Wallboard's own warm-card literals (rgba(255,252,248,0.97) card
+   fill, rgba(214,163,90,...) border) — found auditing Performance's Live
+   Wallboard (src/pages/dashboard/live-dashboard/index.tsx), currently used
+   only there but heavy (9 cards) and, like #FBE2C8 above, used as a
+   `hover:` fill with no base fill on some elements — same base/hover
+   split for the same reason. */
+.dark [class^="bg-[rgba(255,252,248"],
+.dark [class*=" bg-[rgba(255,252,248"] {
+  background-color: rgba(17, 28, 38, 0.9) !important;
+}
+.dark [class*="hover:bg-[rgba(255,252,248"]:hover {
+  background-color: rgba(17, 28, 38, 0.9) !important;
+}
+.dark [class^="border-[rgba(214,163,90"],
+.dark [class*=" border-[rgba(214,163,90"] {
+  border-color: #1b2934 !important;
+}
+.dark [class*="hover:border-[rgba(214,163,90"]:hover {
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* Tinted info/warning/status banners across the whole app (bg-amber-50,
+   bg-red-50, bg-blue-50, ...): a plain-Tailwind-palette pattern used in
+   40-60+ files each ("Not set up yet" on Company, "These routes are
+   stored but not yet carried out" on Numbers by Line, and every similar
+   callout), always paired with dark gray-900/800/700/600 text that reads
+   fine on the original pale tint but goes dark-on-dark once the
+   background below is themed. Each family keeps its own hue as a low-
+   opacity wash rather than collapsing to one neutral dark surface, so a
+   warning still reads as amber/red and not "just another dark box" — the
+   same principle as the Chat/Performance ambient-glow fixes, kept to a
+   small badge/banner instead of the whole page. Real classes, not
+   arbitrary-value literals, so plain class selectors suffice; !important
+   still needed to beat Tailwind's own (non-important) utility of the same
+   name. */
+/* Matched via attribute selector, not a plain class selector: Tailwind
+   gives an opacity modifier (bg-amber-50/60) its own distinct class name,
+   which a plain `.bg-amber-50` selector does not match at all — and
+   several of the 40-60 files per color do use one. `[class~=]` catches
+   the bare, space-delimited class exactly (and, unlike `[class*=]`
+   alone, can never also match "bg-amber-500" as a substring); the
+   `bg-amber-50/` prefix/space form catches every opacity variant. */
+/* These three (amber/yellow/orange) resolve to a NEUTRAL dark surface
+   fill, not an orange/brown-tinted one — the accent still signals through
+   the border and (via the text-gray-* overrides below) the text color,
+   matching the "orange never covers a large area" rule everywhere else
+   in the dark theme. Red/green/blue/etc below keep their own tinted
+   wash since those are genuinely distinct status hues, not the brand
+   accent color bleeding into a background. */
+.dark [class~="bg-amber-50"],
+.dark [class*=" bg-amber-50/"],
+.dark [class^="bg-amber-50/"] {
+  background-color: var(--mcm-surface-3, #1a2733) !important;
+  border-color: rgba(217, 119, 6, 0.35) !important;
+}
+.dark [class~="bg-yellow-50"],
+.dark [class*=" bg-yellow-50/"],
+.dark [class^="bg-yellow-50/"] {
+  background-color: var(--mcm-surface-3, #1a2733) !important;
+  border-color: rgba(202, 138, 4, 0.35) !important;
+}
+.dark [class~="bg-orange-50"],
+.dark [class*=" bg-orange-50/"],
+.dark [class^="bg-orange-50/"] {
+  background-color: var(--mcm-surface-3, #1a2733) !important;
+  border-color: rgba(234, 88, 12, 0.35) !important;
+}
+.dark [class~="bg-red-50"],
+.dark [class*=" bg-red-50/"],
+.dark [class^="bg-red-50/"] {
+  background-color: rgba(185, 28, 28, 0.16) !important;
+  border-color: rgba(220, 38, 38, 0.35) !important;
+}
+.dark [class~="bg-green-50"],
+.dark [class*=" bg-green-50/"],
+.dark [class^="bg-green-50/"] {
+  background-color: rgba(21, 128, 61, 0.16) !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
+}
+.dark [class~="bg-emerald-50"],
+.dark [class*=" bg-emerald-50/"],
+.dark [class^="bg-emerald-50/"] {
+  background-color: rgba(4, 120, 87, 0.16) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+.dark [class~="bg-blue-50"],
+.dark [class*=" bg-blue-50/"],
+.dark [class^="bg-blue-50/"] {
+  background-color: rgba(29, 78, 216, 0.16) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+.dark [class~="bg-sky-50"],
+.dark [class*=" bg-sky-50/"],
+.dark [class^="bg-sky-50/"] {
+  background-color: rgba(3, 105, 161, 0.16) !important;
+  border-color: rgba(14, 165, 233, 0.35) !important;
+}
+.dark [class~="bg-indigo-50"],
+.dark [class*=" bg-indigo-50/"],
+.dark [class^="bg-indigo-50/"] {
+  background-color: rgba(67, 56, 202, 0.16) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+.dark [class~="bg-amber-50"],
+.dark [class*=" bg-amber-50/"],
+.dark [class~="bg-yellow-50"],
+.dark [class*=" bg-yellow-50/"],
+.dark [class~="bg-orange-50"],
+.dark [class*=" bg-orange-50/"],
+.dark [class~="bg-red-50"],
+.dark [class*=" bg-red-50/"],
+.dark [class~="bg-green-50"],
+.dark [class*=" bg-green-50/"],
+.dark [class~="bg-emerald-50"],
+.dark [class*=" bg-emerald-50/"],
+.dark [class~="bg-blue-50"],
+.dark [class*=" bg-blue-50/"],
+.dark [class~="bg-sky-50"],
+.dark [class*=" bg-sky-50/"],
+.dark [class~="bg-indigo-50"],
+.dark [class*=" bg-indigo-50/"],
+/* Same nine backgrounds, matched as an ANCESTOR here (no trailing class
+   on the selector) so the rule below can reach text-gray-* children
+   rather than only the banner element itself. */
+.dark [class~="bg-amber-50"] .text-gray-900,
+.dark [class~="bg-amber-50"] .text-gray-800,
+.dark [class~="bg-amber-50"] .text-gray-700,
+.dark [class~="bg-amber-50"] .text-gray-600,
+.dark [class*=" bg-amber-50/"] .text-gray-900,
+.dark [class*=" bg-amber-50/"] .text-gray-800,
+.dark [class*=" bg-amber-50/"] .text-gray-700,
+.dark [class*=" bg-amber-50/"] .text-gray-600,
+.dark [class~="bg-yellow-50"] .text-gray-900,
+.dark [class~="bg-yellow-50"] .text-gray-800,
+.dark [class~="bg-yellow-50"] .text-gray-700,
+.dark [class~="bg-yellow-50"] .text-gray-600,
+.dark [class*=" bg-yellow-50/"] .text-gray-900,
+.dark [class*=" bg-yellow-50/"] .text-gray-800,
+.dark [class*=" bg-yellow-50/"] .text-gray-700,
+.dark [class*=" bg-yellow-50/"] .text-gray-600,
+.dark [class~="bg-orange-50"] .text-gray-900,
+.dark [class~="bg-orange-50"] .text-gray-800,
+.dark [class~="bg-orange-50"] .text-gray-700,
+.dark [class~="bg-orange-50"] .text-gray-600,
+.dark [class*=" bg-orange-50/"] .text-gray-900,
+.dark [class*=" bg-orange-50/"] .text-gray-800,
+.dark [class*=" bg-orange-50/"] .text-gray-700,
+.dark [class*=" bg-orange-50/"] .text-gray-600,
+.dark [class~="bg-red-50"] .text-gray-900,
+.dark [class~="bg-red-50"] .text-gray-800,
+.dark [class~="bg-red-50"] .text-gray-700,
+.dark [class~="bg-red-50"] .text-gray-600,
+.dark [class*=" bg-red-50/"] .text-gray-900,
+.dark [class*=" bg-red-50/"] .text-gray-800,
+.dark [class*=" bg-red-50/"] .text-gray-700,
+.dark [class*=" bg-red-50/"] .text-gray-600,
+.dark [class~="bg-green-50"] .text-gray-900,
+.dark [class~="bg-green-50"] .text-gray-800,
+.dark [class~="bg-green-50"] .text-gray-700,
+.dark [class~="bg-green-50"] .text-gray-600,
+.dark [class*=" bg-green-50/"] .text-gray-900,
+.dark [class*=" bg-green-50/"] .text-gray-800,
+.dark [class*=" bg-green-50/"] .text-gray-700,
+.dark [class*=" bg-green-50/"] .text-gray-600,
+.dark [class~="bg-emerald-50"] .text-gray-900,
+.dark [class~="bg-emerald-50"] .text-gray-800,
+.dark [class~="bg-emerald-50"] .text-gray-700,
+.dark [class~="bg-emerald-50"] .text-gray-600,
+.dark [class*=" bg-emerald-50/"] .text-gray-900,
+.dark [class*=" bg-emerald-50/"] .text-gray-800,
+.dark [class*=" bg-emerald-50/"] .text-gray-700,
+.dark [class*=" bg-emerald-50/"] .text-gray-600,
+.dark [class~="bg-blue-50"] .text-gray-900,
+.dark [class~="bg-blue-50"] .text-gray-800,
+.dark [class~="bg-blue-50"] .text-gray-700,
+.dark [class~="bg-blue-50"] .text-gray-600,
+.dark [class*=" bg-blue-50/"] .text-gray-900,
+.dark [class*=" bg-blue-50/"] .text-gray-800,
+.dark [class*=" bg-blue-50/"] .text-gray-700,
+.dark [class*=" bg-blue-50/"] .text-gray-600,
+.dark [class~="bg-sky-50"] .text-gray-900,
+.dark [class~="bg-sky-50"] .text-gray-800,
+.dark [class~="bg-sky-50"] .text-gray-700,
+.dark [class~="bg-sky-50"] .text-gray-600,
+.dark [class*=" bg-sky-50/"] .text-gray-900,
+.dark [class*=" bg-sky-50/"] .text-gray-800,
+.dark [class*=" bg-sky-50/"] .text-gray-700,
+.dark [class*=" bg-sky-50/"] .text-gray-600,
+.dark [class~="bg-indigo-50"] .text-gray-900,
+.dark [class~="bg-indigo-50"] .text-gray-800,
+.dark [class~="bg-indigo-50"] .text-gray-700,
+.dark [class~="bg-indigo-50"] .text-gray-600,
+.dark [class*=" bg-indigo-50/"] .text-gray-900,
+.dark [class*=" bg-indigo-50/"] .text-gray-800,
+.dark [class*=" bg-indigo-50/"] .text-gray-700,
+.dark [class*=" bg-indigo-50/"] .text-gray-600 {
+  color: var(--mcm-ink-2, #cbd5e1) !important;
+}
+
+/* `PageSidebarLayout`'s "glass" variant (Meetings/Campaign sidebars) paints
+   its title, border and collapse-button hover with an inline `style` sunset
+   orange — inline styles can't carry their own `.dark` companion, so the
+   component adds these hook classes alongside them for Dark Mode to
+   override. Global on purpose: the layout is shared by both modules. */
+.dark .psl-glass-title {
+  color: #f3f6f9 !important;
+}
+.dark .psl-glass-border {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+}
+.dark .psl-glass-collapse-hover {
+  background: #f97316 !important;
 }

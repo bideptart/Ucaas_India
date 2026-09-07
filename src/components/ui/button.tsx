@@ -17,14 +17,14 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive border border-destructive text-white shadow-xs hover:bg-destructive/90 cursor-pointer min-h-10',
         destructiveOutline:
-          'bg-red-50 border border-red-200 text-red-600 shadow-xs  cursor-pointer min-h-10',
+          'bg-mcm-crit-wash border border-mcm-crit/40 text-mcm-crit shadow-xs  cursor-pointer min-h-10',
         outline:
-          'bg-white border border-primary text-primary shadow-xs hover:bg-primary/90 hover:text-white cursor-pointer min-h-10',
+          'bg-card border border-primary text-primary shadow-xs hover:bg-primary/90 hover:text-white cursor-pointer min-h-10',
         secondary:
-          'bg-gray-100 border border-gray-200 text-gray-900 shadow-xs hover:bg-gray-100/90 cursor-pointer min-h-10',
+          'bg-muted border border-border text-foreground shadow-xs hover:bg-muted/70 cursor-pointer min-h-10',
         ghost: 'hover:bg-accent hover:text-accent dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
-        transparent: 'text-gray-700 hover:text-primary cursor-pointer',
+        transparent: 'text-mcm-ink-3 hover:text-primary cursor-pointer',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

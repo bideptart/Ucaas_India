@@ -56,10 +56,10 @@ const BillingResources = () => {
         description="What this account holds — seats, numbers, storage and AI usage — and who is using them."
       >
         <div className="p-3">
-          <p className="text-sm font-semibold text-gray-900">
+          <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">
             Your plan details could not be loaded
           </p>
-          <p className="mt-1 text-xs text-gray-600">
+          <p className="mt-1 text-xs text-gray-600 dark:text-mcm-ink-3">
             Nothing about your account has changed and no seat has been affected. Reload the page —
             if it keeps happening, the Plan screen shows the same figures.
           </p>

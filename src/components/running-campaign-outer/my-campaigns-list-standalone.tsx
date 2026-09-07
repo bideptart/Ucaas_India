@@ -694,7 +694,7 @@ const MyCampaignListStandalone = () => {
                         return (
                           <div
                             key={campaign?._id}
-                            className="flex flex-col justify-between min-h-32 group rounded-xl border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
+                            className="flex flex-col justify-between min-h-32 group rounded-xl border border-slate-200 bg-white dark:bg-mcm-surface px-4 py-3 hover:border-slate-300"
                           >
                             <div className="gap-3  items-start justify-between sm:gap-3 xs:flex-col sm:flex-row flex">
                               <div className="min-w-0 flex-1 sm:mb-0 mb-2">
@@ -796,7 +796,7 @@ const MyCampaignListStandalone = () => {
                                     <PopoverContent className="w-80 p-3">
                                       <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
-                                          <div className="text-sm text-gray-900 font-semibold capitalize">
+                                          <div className="text-sm text-gray-900 dark:text-mcm-ink font-semibold capitalize">
                                             Dialed In Total
                                           </div>
                                           <div className="min-w-5 min-h-5 px-1.5 py-0.5 text-xs font-medium border border-300/50 bg-stone-100 hover:bg-stone-50 text-slate-500 rounded-sm">
@@ -931,7 +931,7 @@ const MyCampaignListStandalone = () => {
                   <div className="relative w-full">
                     <Input
                       placeholder="Search assigned queue"
-                      className="pl-10 w-full bg-slate-50 border-slate-200 focus-visible:bg-white"
+                      className="pl-10 w-full bg-slate-50 border-slate-200 focus-visible:bg-white dark:focus-visible:bg-mcm-surface"
                       IconPosition="left-0 pl-2 inset-y-0"
                       value={queueSearch}
                       onChange={(e) => {

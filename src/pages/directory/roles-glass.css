@@ -211,3 +211,131 @@
 .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary']:hover {
   background: #c96f1f !important;
 }
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block:
+   every literal light-mode value here gets a dark-appropriate equivalent,
+   reusing the app's existing --mcm-* tokens rather than inventing new
+   colors. Covers the two portaled dialogs too (form + assign-users), since
+   neither sits inside .mcm-page in the DOM and both hardcode their own
+   light-only palette exactly like the rest of this file. ---- */
+.dark .gp-roles {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-roles .page-head,
+.dark .gp-roles .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-roles .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-roles .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-roles .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-roles .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-roles .page-caveat {
+  background: rgba(14, 24, 33, 0.75);
+  border-left-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-roles .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-roles .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-roles .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+/* The "x of y" result-count chip's light rule above (`.gp-roles .fchip.live`)
+   hardcodes a light mint fill with `!important`, so without this override it
+   stayed a bright light-mode chip even in Dark Mode. `--live`/`--live-wash`
+   already resolve to the correct dark-teal pair here (set on `.dark
+   .mcm-page`, the ancestor this sits inside) — this rule's extra class just
+   needs to out-specificity the light one, no `!important` required. */
+.dark .gp-roles .fchip.live {
+  /* The light rule above sets background/border-color with `!important`,
+     so beating it on selector specificity alone isn't enough — `!important`
+     always wins over a plain declaration regardless of specificity. This
+     rule needs `!important` too; it still wins the tie because `.dark
+     .gp-roles .fchip.live` is the more specific of the two. */
+  /* A solid muted-teal fill (not the faint `--live-wash` tint) so this chip
+     reads with the same weight as the header avatar's own solid initials
+     chip, instead of nearly disappearing into the dark toolbar. */
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+.dark .gp-roles .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.dark .gp-roles th {
+  background: #16222c;
+  color: var(--mcm-ink-3, #aab6c1);
+  border-bottom: 2px solid #1b2934;
+}
+.dark .gp-roles td {
+  border-bottom-color: #1b2934;
+}
+.dark .gp-roles tbody tr:hover {
+  background: rgba(17, 29, 39, 0.6);
+}
+.dark .gp-roles .tag.neu {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-roles .gp-role-actions .mini {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-roles .gp-role-actions .mini:disabled,
+.dark .gp-roles .gp-role-actions .mini:disabled:hover {
+  background: rgba(14, 24, 33, 0.6);
+  border-color: #293746;
+}
+.dark .gp-role-form-dialog {
+  background: var(--mcm-surface, #111c26) !important;
+}
+.dark .gp-role-form-dialog .gp-create-group-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-assign-users-dialog {
+  background: #111c26;
+  border-color: #1b2934;
+}
+.dark .gp-assign-users-dialog .border-gray-200 {
+  border-color: #1b2934 !important;
+}
+.dark .gp-assign-users-dialog .bg-gray-50 {
+  background: var(--mcm-accent-wash, #1a2733) !important;
+}
+.dark .gp-assign-users-dialog .text-primary {
+  color: var(--mcm-accent-ink, #ff8a2a) !important;
+}
+.dark .gp-assign-users-dialog [class*='hover:bg-gray-50']:hover {
+  background: rgba(100, 116, 139, 0.15) !important;
+}
+.dark .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary'] {
+  background: var(--mcm-accent, #f97316) !important;
+  border-color: var(--mcm-accent, #f97316) !important;
+  color: #f8fafc !important;
+}
+.dark .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary']:hover {
+  background: var(--mcm-accent-ink, #ff8a2a) !important;
+  color: #111c26 !important;
+}

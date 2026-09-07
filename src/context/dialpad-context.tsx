@@ -3003,16 +3003,16 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
             onEscapeKeyDown={(event) => event.preventDefault()}
             onInteractOutside={(event) => event.preventDefault()}
           >
-            <DialogHeader className="bg-gradient-to-r from-primary/10 via-white to-primary/5 px-5 py-4 text-left">
+            <DialogHeader className="bg-gradient-to-r from-primary/10 via-white to-primary/5 dark:via-mcm-surface px-5 py-4 text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Dialpad Permissions
               </p>
-              <DialogTitle className="mt-1 text-xl font-semibold text-gray-900">
+              <DialogTitle className="mt-1 text-xl font-semibold text-gray-900 dark:text-mcm-ink">
                 {permissionPopup.title}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 px-5 pb-5 pt-1">
-              <DialogDescription className="text-sm leading-6 text-gray-700">
+              <DialogDescription className="text-sm leading-6 text-gray-700 dark:text-mcm-ink-2">
                 {permissionPopup.description}
               </DialogDescription>
 
@@ -3021,14 +3021,14 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
                   <div className="space-y-2 rounded-xl border border-primary/10 bg-primary/5 p-3">
                     {permissionPopup.pendingPermissions.map((permission) => (
                       <div key={permission} className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-primary/10">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-mcm-surface-3 shadow-sm ring-1 ring-primary/10">
                           {permission === 'microphone' ? (
                             <Mic className="h-4 w-4 text-primary" />
                           ) : (
                             <Video className="h-4 w-4 text-primary" />
                           )}
                         </div>
-                        <span className="text-sm font-medium capitalize text-gray-800">
+                        <span className="text-sm font-medium capitalize text-gray-800 dark:text-mcm-ink-2">
                           {permission} Access
                         </span>
                       </div>

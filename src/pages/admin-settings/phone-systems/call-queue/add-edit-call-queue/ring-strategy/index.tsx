@@ -111,7 +111,7 @@ const RingStrategy = () => {
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1">
       <div className="flex flex-col gap-4 px-1 sm:px-3 lg:flex-row lg:items-start lg:gap-5">
-        <p className="text-gray-800 text-sm">
+        <p className="text-foreground text-sm">
           Set how you'd like to answer calls when conditions are met.{' '}
         </p>
         <div className="w-full lg:max-w-[300px] lg:pl-1">
@@ -140,7 +140,7 @@ const RingStrategy = () => {
                 : { label: '', value: '' }
             }
           />
-          <p className="text-gray-800 text-xs mt-3">
+          <p className="text-foreground text-xs mt-3">
             {DEPARTMENT_RING_STRATEGY_DESC[
               watch('settings.ring_strategy.value')
                 ?.value as keyof typeof DEPARTMENT_RING_STRATEGY_DESC
@@ -449,13 +449,13 @@ const RingStrategy = () => {
       </SettingCard>
 
       <div className="w-full">
-        <p className="font-semibold text-gray-900 truncate text-md mb-2">Call Queue Members</p>
+        <p className="font-semibold text-foreground truncate text-md mb-2">Call Queue Members</p>
         {watch('settings.ring_strategy.value')?.value === 'top-down' ? (
           <>
             <div className="w-full lg:w-2/3">
-              <div className="flex flex-col gap-2 overflow-auto border border-gray-200 rounded-xl">
-                <Table className="w-full text-sm text-gray-700 h-full ">
-                  <TableHeader className="bg-gray-100/40 text-gray-90/80">
+              <div className="flex flex-col gap-2 overflow-auto border border-border rounded-xl">
+                <Table className="w-full text-sm text-muted-foreground h-full ">
+                  <TableHeader className="bg-muted/40 text-gray-90/80">
                     <TableRow>
                       <TableHead className="px-4 py-2 font-medium text-left "></TableHead>
 
@@ -467,7 +467,7 @@ const RingStrategy = () => {
                     </TableRow>
                   </TableHeader>
 
-                  <TableBody className="bg-white w-full font-normal">
+                  <TableBody className="bg-card w-full font-normal">
                     <SelectedMemberList
                       {...{
                         members: watchMembers,
@@ -482,9 +482,9 @@ const RingStrategy = () => {
           </>
         ) : (
           <div className="w-full lg:w-2/3">
-            <div className="flex flex-col gap-2 overflow-auto border border-gray-200 rounded-xl">
-              <Table className="w-full text-sm text-gray-700 h-full ">
-                <TableHeader className="bg-gray-100/40 text-gray-90/80">
+            <div className="flex flex-col gap-2 overflow-auto border border-border rounded-xl">
+              <Table className="w-full text-sm text-muted-foreground h-full ">
+                <TableHeader className="bg-muted/40 text-gray-90/80">
                   <TableRow>
                     <TableHead className="px-4 py-2 font-medium text-left text-text-gray-90/80">
                       Name
@@ -495,7 +495,7 @@ const RingStrategy = () => {
                   </TableRow>
                 </TableHeader>
 
-                <TableBody className="divide-y divide-gray-200 bg-white w-full font-normal">
+                <TableBody className="divide-y divide-border bg-card w-full font-normal">
                   {watchMembers.map((data: any, index: any) => {
                     const fullName = data?.last_name
                       ? `${data?.first_name} ${data?.last_name}`
@@ -517,13 +517,13 @@ const RingStrategy = () => {
                                   <p className="capitalize font-medium text-sm">{fullName}</p>
                                   <p className="text-primary text-[11px]">{data?.role}</p>
                                 </div>
-                                <div className="flex items-center gap-1 text-gray-500 text-sm">
+                                <div className="flex items-center gap-1 text-muted-foreground text-sm">
                                   <Icon name="Grid" className="w-4 h-4" />
                                   <span>{data?.value}</span>
                                 </div>
                               </div>
                               {data?.email && (
-                                <p className="text-gray-500 text-[11px] truncate">{data?.email}</p>
+                                <p className="text-muted-foreground text-[11px] truncate">{data?.email}</p>
                               )}
                             </div>
                           </div>

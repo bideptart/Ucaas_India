@@ -34,7 +34,7 @@ const ManageWebhook = () => {
     setModalState(true);
   };
   return (
-    <div className="w-full min-w-0 bg-gray-200/15 flex flex-col overflow-hidden">
+    <div className="w-full min-w-0 bg-muted/40 flex flex-col overflow-hidden">
       {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
       <div className="mcm-intpage-head mcm-intpage-head-row">
         <div>
@@ -53,7 +53,7 @@ const ManageWebhook = () => {
               if (value.startsWith(' ')) return;
               setSearch(value);
             }}
-            Icon={<SearchLine className="text-gray-700" />}
+            Icon={<SearchLine className="text-gray-700 dark:text-mcm-ink-2" />}
           />
           <button type="button" className="btn primary" onClick={handleOpen}>
             <Icon name="PlusIcon" className="w-3 h-3" />

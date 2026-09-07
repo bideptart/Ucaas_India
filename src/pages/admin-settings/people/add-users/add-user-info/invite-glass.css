@@ -22,8 +22,14 @@
   max-height: 88vh;
   background: #ffffff !important;
 }
+.dark .gp-invite-dialog {
+  background: var(--mcm-surface, #1e293b) !important;
+}
 .gp-invite-dialog .gp-create-group-head {
   background: #ffffff;
+}
+.dark .gp-invite-dialog .gp-create-group-head {
+  background: var(--mcm-surface, #1e293b);
 }
 
 /* The platform's own wrapper (`add-users/index.tsx`) is `h-full ...
@@ -66,15 +72,25 @@
   margin-top: 4px !important;
   margin-bottom: 10px !important;
 }
+.dark .gp-invite-dialog .mcm-invite-summary {
+  background: var(--mcm-surface, #1e293b);
+  border-color: rgba(100, 116, 139, 0.2);
+}
 .gp-invite-dialog .mcm-invite-summary > p {
   font-size: 12.5px !important;
   color: #6b5c4d !important;
+}
+.dark .gp-invite-dialog .mcm-invite-summary > p {
+  color: var(--mcm-ink-3, #94a3b8) !important;
 }
 .gp-invite-dialog .mcm-invite-summary > p:first-child {
   font-size: 13px !important;
   font-weight: 700 !important;
   color: #2a2733 !important;
   margin-bottom: 2px !important;
+}
+.dark .gp-invite-dialog .mcm-invite-summary > p:first-child {
+  color: var(--mcm-ink, #f8fafc) !important;
 }
 
 /* ---- bulk "Enter no. / Add Users / Select location" row — stacked full
@@ -87,6 +103,10 @@
   padding: 12px 14px;
   flex-direction: column !important;
   align-items: stretch !important;
+}
+.dark .gp-invite-dialog .mcm-bulk-add {
+  background: var(--mcm-surface-3, #334155);
+  border-color: rgba(100, 116, 139, 0.25);
 }
 .gp-invite-dialog .mcm-bulk-add > div {
   width: 100% !important;
@@ -103,9 +123,17 @@
   border-color: rgba(242, 153, 74, 0.25);
   background: #fffdfb;
 }
+.dark .gp-invite-dialog .mcm-invite [data-slot='input'] {
+  border-color: #1b2934;
+  background: var(--mcm-surface, #111c26);
+}
 .gp-invite-dialog .mcm-invite [data-slot='input']:hover,
 .gp-invite-dialog .mcm-invite [data-slot='input']:focus {
   border-color: #f2994a;
+}
+.dark .gp-invite-dialog .mcm-invite [data-slot='input']:hover,
+.dark .gp-invite-dialog .mcm-invite [data-slot='input']:focus {
+  border-color: #f97316;
 }
 
 /* ---- duplicate/role notices — same warm card language as the summary
@@ -114,6 +142,10 @@
   background: #fff1e0 !important;
   border-color: rgba(242, 153, 74, 0.35) !important;
   border-radius: 10px !important;
+}
+.dark .gp-invite-dialog .mcm-invite-summary p[role='status'] {
+  background: var(--mcm-surface-3, #1a2733) !important;
+  border-color: rgba(249, 115, 22, 0.35) !important;
 }
 
 /* ---- invitee cards — forced to one column regardless of viewport width.
@@ -133,6 +165,11 @@
   padding: 16px !important;
   box-shadow: 0 4px 14px rgba(160, 95, 30, 0.08);
   position: relative;
+}
+.dark .gp-invite-dialog .mcm-invitee {
+  background: var(--mcm-surface, #111c26);
+  border-color: #1b2934 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 /* Taken out of grid flow entirely and pinned to the card's corner instead
    of `order: -1` — as a grid item it still claimed a full row of its own
@@ -159,6 +196,9 @@
 .gp-invite-dialog .mcm-invite .flag-dropdown {
   border-color: rgba(242, 153, 74, 0.25) !important;
 }
+.dark .gp-invite-dialog .mcm-invite .flag-dropdown {
+  border-color: #1b2934 !important;
+}
 
 /* "Select location" / "Role" dropdowns — matched to the same rounded warm
    border every plain input in this dialog already has, instead of the
@@ -168,9 +208,17 @@
   background-color: #fffdfb !important;
   border-radius: 12px !important;
 }
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control {
+  border-color: #1b2934 !important;
+  background-color: var(--mcm-surface, #111c26) !important;
+}
 .gp-invite-dialog .mcm-invite .custom-react-select__control:hover,
 .gp-invite-dialog .mcm-invite .custom-react-select__control--is-focused {
   border-color: #f2994a !important;
+}
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control:hover,
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control--is-focused {
+  border-color: #f97316 !important;
 }
 
 /* ---- footer ---- */
@@ -184,16 +232,32 @@
   color: #f2994a !important;
   border-radius: 9px !important;
 }
+.dark .gp-invite-dialog .btn.ghost {
+  border-color: #f97316 !important;
+  color: #ff8a2a !important;
+}
 .gp-invite-dialog .btn.ghost:hover {
   background: #f2994a !important;
   border-color: #f2994a !important;
   color: #ffffff !important;
+}
+.dark .gp-invite-dialog .btn.ghost:hover {
+  background: #f97316 !important;
+  border-color: #f97316 !important;
+  color: #1a0f06 !important;
 }
 .gp-invite-dialog .btn.primary {
   background: #f2994a;
   border-color: #f2994a;
   border-radius: 9px;
 }
+.dark .gp-invite-dialog .btn.primary {
+  background: #f97316;
+  border-color: #f97316;
+}
 .gp-invite-dialog .btn.primary:hover {
   background: #c96f1f;
+}
+.dark .gp-invite-dialog .btn.primary:hover {
+  background: #475569;
 }

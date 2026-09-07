@@ -14,7 +14,7 @@ const CallVolume = () => {
     dataCallVolumeList?.data?.data?.result || {};
 
   const getCallOpacity = (value: any) => {
-    if (!value || value == '-') return 'bg-white';
+    if (!value || value == '-') return 'bg-white dark:bg-mcm-surface';
     let seconds = 0;
     const minuteMatch = value.match(/(\d+)m/);
     const secondMatch = value.match(/(\d+)s/);
@@ -25,15 +25,15 @@ const CallVolume = () => {
       seconds += parseInt(secondMatch[1], 10);
     }
     if (seconds < 60) {
-      return 'bg-gray-100';
+      return 'bg-gray-100 dark:bg-slate-700';
     }
     if (seconds < 60 && seconds <= 600) {
-      return 'bg-gray-200';
+      return 'bg-gray-200 dark:bg-slate-600';
     }
     if (seconds > 600 && seconds <= 1200) {
-      return 'bg-gray-300';
+      return 'bg-gray-300 dark:bg-slate-500';
     }
-    return 'bg-gray-400';
+    return 'bg-gray-400 dark:bg-slate-400';
   };
 
   const activitiesDays = activitiesHeaders?.days ?? [];
@@ -58,13 +58,13 @@ const CallVolume = () => {
       <ReportsPageLayout>
         <div className="w-full h-full flex flex-col sm:p-4 max-h-[cal(100vh-180px)] overflow-y-auto">
           <div className="w-full flex head">
-            <div className="w-full min-h-14 flex justify-center items-center text-sm bg-[#F0DFC5] border-r-0 border-l border-[#EEE7DD]">
+            <div className="w-full min-h-14 flex justify-center items-center text-sm bg-[#F0DFC5] dark:bg-[#334155] border-r-0 border-l border-[#EEE7DD]">
               Time
             </div>
             {activitiesDays?.map((dayKey: string) => {
               const dayKeyArr = dayKey ? dayKey?.split(' ') : '';
               return (
-                <div className="w-full min-h-14 flex flex-col justify-center items-center text-sm bg-[#F0DFC5] border-r-0 border-l border-[#EEE7DD]">
+                <div className="w-full min-h-14 flex flex-col justify-center items-center text-sm bg-[#F0DFC5] dark:bg-[#334155] border-r-0 border-l border-[#EEE7DD]">
                   <span className="sm:hidden">{getShortDayName(dayKeyArr?.[0])}</span>
                   <span className="hidden sm:inline">{dayKeyArr?.[0]}</span>
                   <span className="text-xs">({dayKeyArr?.[1]})</span>
@@ -76,7 +76,7 @@ const CallVolume = () => {
             return (
               <>
                 <div className="w-full flex">
-                  <div className="w-full min-h-14 flex justify-center items-center text-sm bg-white border-r-0 border-b border-l border-[#EEE7DD]">
+                  <div className="w-full min-h-14 flex justify-center items-center text-sm bg-white dark:bg-mcm-surface border-r-0 border-b border-l border-[#EEE7DD]">
                     {formatTimeToAmPm(time)}
                   </div>
                   {activitiesDays?.map((dayKey: string) => {
@@ -97,19 +97,19 @@ const CallVolume = () => {
         <div className="w-full bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 flex items-center justify-center gap-2 border-t border-[rgba(225,200,165,0.9)]">
           <div className="flex items-center gap-1.5">
             <span className="text-[#2E2D35] text-sm font-medium">Low Engagement</span>
-            <span className="bg-gray-100 p-2.5 rounded-sm"></span>
+            <span className="bg-gray-100 dark:bg-slate-700 p-2.5 rounded-sm"></span>
             {/* <span className="text-gray-700 text-sm font-medium">Most Busy Hours</span> */}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="bg-gray-200 p-2.5 rounded-sm"></span>
+            <span className="bg-gray-200 dark:bg-slate-600 p-2.5 rounded-sm"></span>
             {/* <span className="text-gray-700 text-sm font-medium">Most Busy Day</span> */}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="bg-gray-300 p-2.5 rounded-sm"></span>
+            <span className="bg-gray-300 dark:bg-slate-500 p-2.5 rounded-sm"></span>
             {/* <span className="text-gray-700 text-sm font-medium">Low Engagement</span> */}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="bg-gray-400 p-2.5 rounded-sm"></span>
+            <span className="bg-gray-400 dark:bg-slate-400 p-2.5 rounded-sm"></span>
             <span className="text-[#2E2D35] text-sm font-medium">High Engagement</span>
           </div>
         </div>

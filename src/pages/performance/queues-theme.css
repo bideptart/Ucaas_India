@@ -57,24 +57,26 @@ body.perf-warm-backdrop {
   --qa-crit-glow: rgba(211, 47, 47, 0.28);
   --qa-crit-glow-soft: rgba(211, 47, 47, 0.14);
 }
+/* Orange accent restored per the 2026-09-05 global re-theme (previously
+   neutralized to gray); base surfaces stay on the new deep-navy palette. */
 .dark .perf-queues,
 .dark body.perf-warm-backdrop,
 body.perf-warm-backdrop.dark {
-  --qa-accent: #fb923c;
-  --qa-accent-deep: #f97316;
-  --qa-accent-ink: #fdba74;
-  --qa-wash: #2a1710;
-  --qa-ink: #f4f6fb;
-  --qa-muted: #93a1ba;
-  --qa-hairline: rgba(251, 146, 60, 0.14);
-  --qa-row-hover: rgba(251, 146, 60, 0.1);
+  --qa-accent: #f97316;
+  --qa-accent-deep: #ea580c;
+  --qa-accent-ink: #ff8a2a;
+  --qa-wash: #111c26;
+  --qa-ink: #f5f7fa;
+  --qa-muted: #aab6c1;
+  --qa-hairline: rgba(249, 115, 22, 0.16);
+  --qa-row-hover: rgba(249, 115, 22, 0.1);
 
-  --qa-glass: rgba(17, 24, 39, 0.72);
-  --qa-glass-border: rgba(251, 146, 60, 0.18);
+  --qa-glass: rgba(11, 20, 28, 0.72);
+  --qa-glass-border: rgba(249, 115, 22, 0.2);
   --qa-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --qa-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
+  --qa-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
 }
 
 /* ------------------------------------------------------------
@@ -100,6 +102,10 @@ body.perf-warm-backdrop .mcm-page .grouped-row .stat:hover {
   border-color: rgba(249, 115, 22, 0.3);
   box-shadow: var(--qa-glass-shadow-hover);
   transform: translateY(-2px);
+}
+.dark body.perf-warm-backdrop .mcm-page .hero-row .stat:hover,
+.dark body.perf-warm-backdrop .mcm-page .grouped-row .stat:hover {
+  border-color: rgba(100, 116, 139, 0.3);
 }
 body.perf-warm-backdrop .mcm-page .hero-row .k,
 body.perf-warm-backdrop .mcm-page .grouped-row .k {
@@ -160,6 +166,9 @@ body.perf-warm-backdrop .mcm-page .grouped-row .grouped-stat-divider {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
+}
+.dark .mcm-page .perf-queues .qa-notice {
+  border-color: rgba(100, 116, 139, 0.24);
 }
 .dark .mcm-page .perf-queues .qa-notice {
   color: var(--qa-accent-ink);
@@ -268,7 +277,7 @@ body.perf-warm-backdrop .mcm-page .grouped-row .grouped-stat-divider {
   box-shadow: 0 1px 0 0 var(--qa-hairline);
 }
 .dark .mcm-page .perf-queues .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .mcm-page .perf-queues .table-scroll thead th {
   color: var(--qa-muted);

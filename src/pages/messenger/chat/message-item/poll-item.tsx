@@ -71,12 +71,14 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
       <div
         className={cn(
           'flex flex-col w-full max-w-[320px] rounded-lg overflow-hidden',
-          isMine ? 'bg-transparent text-black' : 'bg-white text-black',
+          isMine
+            ? 'bg-transparent text-black dark:text-mcm-ink'
+            : 'bg-white dark:bg-mcm-surface-3 text-black dark:text-mcm-ink',
         )}
       >
         <div className="p-3 pb-2">
           <h3 className="font-semibold text-[15px] leading-tight mb-1">{poll.question}</h3>
-          <p className="text-[11px] text-gray-500 uppercase tracking-wider font-medium">
+          <p className="text-[11px] text-gray-500 dark:text-mcm-ink-3 uppercase tracking-wider font-medium">
             {poll.isMultipleChoice ? 'Select one or more' : 'Select one'} • {totalVotes}{' '}
             {totalVotes === 1 ? 'vote' : 'votes'}
           </p>
@@ -93,7 +95,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                 disabled={!onVote}
                 onClick={() => onVote?.(option.id)}
                 className={cn(
-                  'relative group w-full text-left rounded-md transition-all duration-200 overflow-hidden border border-gray-100',
+                  'relative group w-full text-left rounded-md transition-all duration-200 overflow-hidden border border-gray-100 dark:border-mcm-line',
                   onVote ? 'cursor-pointer hover:border-primary/30' : 'cursor-default',
                 )}
               >
@@ -102,7 +104,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                   <div
                     className={cn(
                       'absolute left-0 top-0 h-full transition-all duration-500 ease-out',
-                      isVotedByMe ? 'bg-primary/20' : 'bg-gray-100',
+                      isVotedByMe ? 'bg-primary/20' : 'bg-gray-100 dark:bg-mcm-surface',
                     )}
                     style={{ width: `${percentage}%` }}
                   />
@@ -118,7 +120,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                     <span
                       className={cn(
                         'text-[13px] truncate',
-                        isVotedByMe ? 'font-semibold text-primary' : 'text-gray-700',
+                        isVotedByMe ? 'font-semibold text-primary' : 'text-gray-700 dark:text-mcm-ink-2',
                       )}
                     >
                       {option.text}
@@ -128,7 +130,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                   {totalVotes > 0 && (
                     <div className="flex items-center gap-1.5 shrink-0">
                       {/* <span className="text-[11px] font-bold text-gray-600">{percentage}%</span> */}
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-400 dark:text-mcm-ink-3">
                         ({option.votes?.length || 0})
                       </span>
                     </div>
@@ -139,7 +141,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
           })}
         </div>
 
-        <div className="px-3 pb-3 pt-1 border-t border-gray-100 flex justify-center">
+        <div className="px-3 pb-3 pt-1 border-t border-gray-100 dark:border-mcm-line flex justify-center">
           <button
             type="button"
             onClick={() => setIsViewVotesOpen(true)}
@@ -151,9 +153,9 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
       </div>
 
       <Dialog open={isViewVotesOpen} onOpenChange={setIsViewVotesOpen}>
-        <DialogContent className="w-[90vw] sm:max-w-[425px] bg-white rounded-xl shadow-2xl p-0 overflow-hidden flex flex-col max-h-[80vh] min-w-0">
-          <DialogHeader className="p-6 pb-2 shrink-0 border-b border-gray-100 min-w-0">
-            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2 min-w-0">
+        <DialogContent className="w-[90vw] sm:max-w-[425px] bg-white dark:bg-mcm-surface rounded-xl shadow-2xl p-0 overflow-hidden flex flex-col max-h-[80vh] min-w-0">
+          <DialogHeader className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-mcm-line min-w-0">
+            <DialogTitle className="text-lg font-bold text-gray-900 dark:text-mcm-ink flex items-center gap-2 min-w-0">
               <Check size={18} className="text-primary shrink-0" />
               <span className="truncate">Poll Results</span>
             </DialogTitle>
@@ -161,10 +163,10 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
 
           <div className="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar min-w-0">
             <div className="min-w-0">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+              <span className="text-xs font-semibold text-gray-400 dark:text-mcm-ink-3 uppercase tracking-wider block mb-1">
                 Question
               </span>
-              <h4 className="text-base font-bold text-gray-800 leading-tight break-words whitespace-pre-wrap">
+              <h4 className="text-base font-bold text-gray-800 dark:text-mcm-ink leading-tight break-words whitespace-pre-wrap">
                 {poll.question}
               </h4>
             </div>
@@ -175,8 +177,8 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                 return (
                   <div key={option.id} className="space-y-2.5 min-w-0">
                     {/* Option Header */}
-                    <div className="flex justify-between items-center bg-gray-50/70 p-2.5 rounded-lg border border-gray-100 gap-3 min-w-0">
-                      <span className="font-semibold text-[13px] text-gray-800 break-words whitespace-pre-wrap min-w-0 flex-1">
+                    <div className="flex justify-between items-center bg-gray-50/70 dark:bg-mcm-surface-3/70 p-2.5 rounded-lg border border-gray-100 dark:border-mcm-line gap-3 min-w-0">
+                      <span className="font-semibold text-[13px] text-gray-800 dark:text-mcm-ink break-words whitespace-pre-wrap min-w-0 flex-1">
                         {option.text}
                       </span>
                       <span className="shrink-0 bg-primary/10 text-primary text-[11px] font-bold px-2.5 py-0.5 rounded-full">
@@ -192,7 +194,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                           return (
                             <div
                               key={voterUuid}
-                              className="flex items-center gap-3 py-1 px-1.5 rounded-md hover:bg-gray-50 transition-colors min-w-0"
+                              className="flex items-center gap-3 py-1 px-1.5 rounded-md hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition-colors min-w-0"
                             >
                               <span className="shrink-0">
                                 <CustomAvatar
@@ -202,11 +204,11 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                                 />
                               </span>
                               <div className="flex flex-col min-w-0">
-                                <span className="text-[13px] font-medium text-gray-700 truncate">
+                                <span className="text-[13px] font-medium text-gray-700 dark:text-mcm-ink-2 truncate">
                                   {details.name}
                                 </span>
                                 {details.extension && (
-                                  <span className="text-[10px] text-gray-400">
+                                  <span className="text-[10px] text-gray-400 dark:text-mcm-ink-3">
                                     Ext: {details.extension}
                                   </span>
                                 )}
@@ -216,7 +218,7 @@ const PollItem: React.FC<PollItemProps> = ({ poll, isMine, onVote }) => {
                         })}
                       </div>
                     ) : (
-                      <div className="text-[11px] text-gray-400 italic pl-3">No votes yet</div>
+                      <div className="text-[11px] text-gray-400 dark:text-mcm-ink-3 italic pl-3">No votes yet</div>
                     )}
                   </div>
                 );

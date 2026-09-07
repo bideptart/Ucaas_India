@@ -41,7 +41,7 @@ function AccordionTrigger({
 
   return (
     <AccordionPrimitive.Header
-      className={cn('flex', isSidebar && ['text-gray-900/80', activeHeaderClassName])}
+      className={cn('flex', isSidebar && ['text-foreground/80', activeHeaderClassName])}
     >
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
@@ -62,7 +62,7 @@ function AccordionTrigger({
               isSidebar
                 ? isActive
                   ? activeIconClassName
-                  : 'text-gray-400'
+                  : 'text-muted-foreground'
                 : 'text-muted-foreground pointer-events-none',
             )}
           />

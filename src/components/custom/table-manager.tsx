@@ -96,6 +96,7 @@ function TableManager({
   splitStickyHeader = false,
   fixedPageRows,
   visibleRowCount,
+  rowHeight,
   defaultPageSize,
   perPageOptions = perPagesArr,
 }: Readonly<{
@@ -175,6 +176,18 @@ function TableManager({
      this is "how many rows show before you'd need to scroll," pagination's
      page size is "how many rows are loaded onto the page at all." */
   visibleRowCount?: number;
+  /* Opt-in, pairs with visibleRowCount. When set, the scroll box's height
+     is plain arithmetic (visibleRowCount * rowHeight) instead of
+     visibleRowCount * a row height measured live off the DOM
+     (getBoundingClientRect) — measuring live turned out to disagree with
+     itself at non-100% browser zoom (a real Chromium/Firefox sub-pixel
+     rounding quirk under zoom), so the box came out sized for slightly
+     fewer rows than the CSS actually renders, clipping the last one.
+     Pass the exact px value the row height is fixed to in CSS (e.g.
+     templates-table.css's `height: 70px` on tbody td) so the two can
+     never disagree regardless of zoom. Falls back to the old measured
+     fixedRowHeight when omitted, unchanged for any other caller. */
+  rowHeight?: number;
   /* Opt-in. The pager's own page-size state starts at this value instead
      of the hardcoded 25 — unlike fixedPageRows, the "per page" picker
      stays visible and this number stays fully changeable through it. Pass
@@ -426,46 +439,89 @@ function TableManager({
       ) as HTMLTableRowElement[];
       const firstBodyRow = bodyRows[0];
 
-      /* scrollWidth, not getBoundingClientRect().width — measured before
-         table-layout: fixed is ever applied, the table is still auto-layout
-         but still capped at `w-full` (100% of its container), so if every
-         column's true content need already added up to more than that
-         (nowrap actions icons are the usual culprit), auto-layout had
-         already quietly compressed this cell to fit *before* we ever
-         measured it. getBoundingClientRect() reports that already-shrunk
-         box; scrollWidth reports what the content inside actually needs
-         regardless of how the box around it got sized, which is the
-         number a fixed column should actually be given. Skipping this
-         step is exactly how the Actions column ended up permanently ~20px
-         too narrow: it kept getting re-measured off its own prior
-         (already too-narrow) rendered width instead of its content's real
-         requirement, and every remeasure just echoed the same number
-         back.
-         Also the MAX across every currently-rendered row, not just the
-         first: a column's content isn't guaranteed to be the same width
-         on every row (Actions can show a different icon set depending on
-         a template's applied-status; Name's subtext length varies), and a
-         fixed column never grows to fit a cell that turns out to need
-         more than whichever row happened to be measured. */
+      /* scrollWidth (tried here previously) turned out not to measure what
+         a column actually needs at all: it only differs from the box's own
+         width when content OVERFLOWS that box, so for anything shorter
+         than the width a real browser table-layout algorithm already
+         handed it — "0 / 3" sitting in a column the algorithm generously
+         widened to help fill the table's own w-full width — scrollWidth
+         just echoes that generous box size straight back, not the text's
+         real minimum. Unfixing table-layout back to auto before reading
+         it (also tried) didn't help either, because auto-layout ITSELF
+         redistributes a table's leftover width across columns rather than
+         shrinking each one strictly to content — the box scrollWidth
+         reports from was already inflated before it was ever measured.
+         A detached clone sidesteps the whole problem: appended to <body>
+         (no table ancestor at all) and forced to width: max-content, an
+         element can only be as wide as its own content genuinely needs —
+         nothing to redistribute into, nothing to inflate. */
+      const measureIntrinsicWidth = (source: HTMLElement) => {
+        const clone = source.cloneNode(true) as HTMLElement;
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.left = '-9999px';
+        clone.style.top = '0';
+        clone.style.width = 'max-content';
+        clone.style.minWidth = '0';
+        clone.style.maxWidth = 'none';
+        document.body.appendChild(clone);
+        const width = clone.getBoundingClientRect().width;
+        document.body.removeChild(clone);
+        return width;
+      };
+
       const widths = Array.from(headerRow.children).map((headerCell, index) => {
-        const headerWidth = (headerCell as HTMLElement).scrollWidth;
+        const headerWidth = measureIntrinsicWidth(headerCell as HTMLElement);
         const maxBodyWidth = bodyRows.reduce((max, row) => {
           const cell = row.children[index] as HTMLElement | undefined;
-          return cell ? Math.max(max, cell.scrollWidth) : max;
+          return cell ? Math.max(max, measureIntrinsicWidth(cell)) : max;
         }, 0);
         return Math.max(headerWidth, maxBodyWidth);
       });
-      /* Percent of the row's own total, not raw pixels. Pixels go stale the
-         moment table-layout:fixed is applied: a later remeasure at a
-         narrower viewport just reads back the cells' current (already
-         fixed) width instead of what they'd naturally need now, so the
-         table stayed pinned at its first-measured width and started
-         overflowing/cutting off text the moment the window was narrower
-         than that. A ratio of the total scales down with it for free —
-         every cell shrinks by the same factor, so the ratio itself never
-         goes stale, measured again or not. */
+      // The table's own current width — unaffected by which layout mode
+      // it's in, so unlike widths[] this doesn't need any of the above.
+      const tableWidth = bodyContainer.clientWidth || headerRow.getBoundingClientRect().width || 1;
+
+      /* Percent, not raw pixels — pixels go stale the moment table-layout:
+         fixed is applied (a later remeasure at a narrower viewport just
+         reads back the cells' current, already-fixed width instead of
+         what they'd naturally need now). A ratio scales down for free
+         instead.
+         Which column's ratio absorbs the table's own slack (its `w-full`
+         is usually wider than the sum of every column's actual content
+         need) matters: a plain per-column ratio-of-total spreads that
+         slack over EVERY column equally, including ones that never
+         wanted it — a short "0 / 3" or a fixed-format date grew visibly
+         wider than its own text the moment a neighbouring column (Name,
+         after it started truncating instead of wrapping) needed less,
+         freeing slack for every OTHER column to inflate into, this one
+         included. One column marked `meta: { flexWidth: true }` opts in
+         to being the one that grows or shrinks with the table instead;
+         every other column is pinned to its own measured share of the
+         table's actual rendered width (not of the content-need total),
+         so it holds still regardless of what its neighbours are doing.
+         Falls back to the old share-everything-equally split when no
+         column opts in, unchanged for every other caller of this prop. */
       const totalWidth = widths.reduce((sum, w) => sum + w, 0) || 1;
-      const percentWidths = widths.map((w) => (w / totalWidth) * 100);
+      const flexIndex = (() => {
+        let i = 0;
+        if (hasSubRows) i += 1;
+        for (const column of columns) {
+          if (column?.meta?.flexWidth) return i;
+          i += 1;
+        }
+        return -1;
+      })();
+      const percentWidths =
+        flexIndex >= 0 && flexIndex < widths.length
+          ? widths.map((w, i) => {
+              if (i === flexIndex) {
+                const othersWidth = totalWidth - w;
+                return Math.max(0, 100 - (othersWidth / tableWidth) * 100);
+              }
+              return (w / tableWidth) * 100;
+            })
+          : widths.map((w) => (w / totalWidth) * 100);
 
       setSplitColumnWidths((current) =>
         current.length === percentWidths.length &&
@@ -556,7 +612,7 @@ function TableManager({
       <TableRow key={headerGroup.id} ref={splitStickyHeader ? headerRowRef : undefined}>
         {hasSubRows && (
           <TableHead
-            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+            className={`px-2 xl:px-4 py-2 font-bold border-b border-border last-of-type:border-r-0 text-foreground dark:!text-mcm-ink-2 ${extraThClass}`}
           ></TableHead>
         )}
         {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -584,7 +640,16 @@ function TableManager({
           return (
             <TableHead
               key={`${header.id}_${headerIndex}`}
-              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+              /* dark:!text-mcm-ink-2, not just text-foreground: `.mcm-page
+                 th` (mcm-page.css) sets every <th> under .mcm-page to the
+                 dimmer --ink-3 tier, and being plain unlayered CSS it beats
+                 this `text-foreground` utility (in @layer utilities)
+                 regardless of specificity — headers here rendered dimmer
+                 than the component ever asked for. `!` forces this one
+                 back to the app's secondary-text tier, the same fix
+                 pattern the `alignClass` comment above already uses for
+                 this exact class of bug. */
+              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-border last-of-type:border-r-0 text-foreground dark:!text-mcm-ink-2 ${extraThClass}`}
             >
               {header.isPlaceholder
                 ? null
@@ -609,13 +674,25 @@ function TableManager({
       )}
 
       <Table
-        className="w-full text-xs xxl:text-sm text-[#2E2D35] h-full "
+        className="w-full text-xs xxl:text-sm text-foreground h-full "
         style={splitColGroup ? { tableLayout: 'fixed' } : undefined}
       >
         {splitColGroup}
         {!splitStickyHeader && (
           <TableHeader
-            className="bg-[#FBE2C8] text-black sticky top-0 left-0 z-10 isolate"
+            /* dark:bg-mcm-surface-2, not the plain bg-mcm-accent-wash light
+               mode still uses: --mcm-accent-wash is a warm accent-tinted
+               wash (#fff1e0 in light — a reasonable stand-in for the
+               original literal bg-[#FBE2C8] this replaced), but in dark
+               mode it's #2b1f12, a genuinely brown surface — fine as a
+               small highlight, too much as an entire sticky header's
+               background ("this whole table is brown" instead of "dark
+               with an orange accent"). The splitStickyHeader path below
+               already uses the neutral bg-mcm-surface-2 for its own
+               header in both themes; matched here for dark only, so this
+               path's light mode (and every other consumer of
+               --mcm-accent-wash) is untouched. */
+            className="bg-mcm-accent-wash dark:bg-mcm-surface-2 text-foreground sticky top-0 left-0 z-10 isolate"
             style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
           >
             {/* bg-[#FBE2C8] + first/last:rounded-*-xl on each cell (not just
@@ -625,11 +702,28 @@ function TableManager({
                 ancestor's corner clip in Chromium (position:sticky +
                 overflow + border-radius), so the corner cells round
                 themselves to match instead. */}
-            {renderHeaderRow('bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl')}
+            {renderHeaderRow(
+              'bg-mcm-accent-wash dark:bg-mcm-surface-2 first:rounded-tl-xl last:rounded-tr-xl',
+            )}
           </TableHeader>
         )}
 
-        <TableBody className="divide-y divide-[#EEE7DD] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] h-full w-full font-normal">
+        {/* dark:!bg-mcm-surface-2, not the old rgba(30,41,59,0.85) (a
+            pre-refresh slate that read as a somewhat strong teal/dark
+            tone) — a step lighter than the scroll wrapper's own
+            dark:bg-mcm-surface below, so rows read as a distinct surface
+            over the table's background rather than one flat plane.
+            Needs the `!`: this element's own unconditional light-mode
+            `bg-[rgba(251,249,246...]` class is also what a global
+            unlayered !important catch-all in index.css targets (the
+            safety net for call sites that never got a dark variant at
+            all) — that catch-all still wins over a plain (non-important)
+            Tailwind utility regardless of specificity, since Tailwind's
+            utilities sit in @layer utilities and unlayered rules beat
+            layered ones. Only a layered !important (this `!` modifier)
+            outranks it, per the CSS spec's reversed important-vs-layer
+            order. */}
+        <TableBody className="divide-y divide-[#EEE7DD] dark:divide-mcm-line bg-[rgba(251,249,246,0.88)] dark:!bg-mcm-surface-2 backdrop-blur-[12px] h-full w-full font-normal">
           {hasRows
               ? table.getRowModel().rows.map((row) => {
                   const isSummaryRow = row.original?.isSummary;
@@ -678,7 +772,7 @@ function TableManager({
                     <TableRow key={`filler_${fillerIndex}`} className="pointer-events-none">
                       <TableCell
                         colSpan={columns.length + (hasSubRows ? 1 : 0)}
-                        className="h-11 min-h-11 border-b border-gray-200"
+                        className="h-11 min-h-11 border-b border-border"
                         style={fixedRowHeight ? { height: fixedRowHeight } : undefined}
                       />
                     </TableRow>
@@ -707,18 +801,18 @@ function TableManager({
             <img src={NotFound} alt="" className={imageSize} />
             {String(search || '').trim() ? (
               <>
-                <p className="text-md font-medium text-[#2E2D35]">
+                <p className="text-md font-medium text-foreground">
                   Nothing matches &ldquo;{String(search).trim()}&rdquo;
                 </p>
-                <p className="max-w-md text-sm text-[#2E2D35]">
+                <p className="max-w-md text-sm text-muted-foreground">
                   Check the spelling, or clear the search to see everything.
                 </p>
               </>
             ) : (
               <>
-                <p className="text-md font-medium text-[#2E2D35]">{emptyTablePlaceholder}</p>
+                <p className="text-md font-medium text-foreground">{emptyTablePlaceholder}</p>
                 {descriptionEmptyTable ? (
-                  <p className="max-w-md text-sm text-[#2E2D35]">{descriptionEmptyTable}</p>
+                  <p className="max-w-md text-sm text-muted-foreground">{descriptionEmptyTable}</p>
                 ) : null}
                 {emptyAction ? <div className="pt-2">{emptyAction}</div> : null}
               </>
@@ -757,38 +851,27 @@ function TableManager({
            scrolling element any more. splitColGroup keeps their column
            boundaries pinned to each other despite that split. */
         <div
-          /* fixedPageRows must always show its full 8 rows — never
-             compress. h-full/min-h-0 (stretching this box down to match a
-             sibling panel's bounded height) is only right for the plain
-             scrolling case; under fixedPageRows it was squeezing the box
-             shorter than 8 real rows whenever the row it shares with an
-             insights panel didn't have quite enough height, which is
-             exactly what forced a scrollbar back into a table that was
-             supposed to never have one. Left at its natural content height
-             instead, so it can't be compressed — a sibling panel's own
-             h-full then simply matches whatever that natural height turns
-             out to be. */
-          /* flex-1, not h-full: this box has a sibling below it now
-             whenever pagination shows (the pager bar, rendered after this
-             whole splitStickyHeader block) — h-full claims 100% of
-             .templates-table's own height regardless of what that sibling
-             needs, squeezing the pager out of the visible area entirely.
-             flex-1 fills whatever's actually left once the pager (its own
-             natural height, shrink-0 in templates-table.css) has taken
-             its share. */
-          className={`flex flex-col overflow-hidden rounded-[20px] border border-[#efe2cf] bg-white ${
+          /* fixedPageRows and visibleRowCount both pin the row count to an
+             exact number (padded blanks for the former, an inner scroll box
+             for the latter) — the card's own height is just whatever that
+             fixed row count plus the header naturally comes out to, never
+             stretched to match a sibling insights panel's height. A
+             mismatch against that panel is fine; the pager below (its own
+             card, gap-separated in templates-table.css) is what actually
+             needs to stay visually independent of this one, not the panel. */
+          className={`flex flex-col overflow-hidden rounded-[20px] border border-border bg-card ${
             fixedPageRows || visibleRowCount ? '' : 'flex-1 min-h-0'
           } ${customClass}`}
           style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
         >
-          <div className="shrink-0 bg-[#faf5ee]">
+          <div className="shrink-0 bg-mcm-surface-2">
             <Table
-              className="w-full text-xs xxl:text-sm text-[#2E2D35]"
+              className="w-full text-xs xxl:text-sm text-foreground"
               style={splitColGroup ? { tableLayout: 'fixed' } : undefined}
             >
               {splitColGroup}
               <TableHeader
-                className="bg-[#faf5ee] text-black"
+                className="bg-mcm-surface-2 text-foreground"
                 style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
               >
                 {headerRowContent}
@@ -817,23 +900,53 @@ function TableManager({
                rows pagination actually loads onto the page (its own page
                size, independent of this number), only visibleRowCount of
                them show before the rest scroll — height pinned to
-               visibleRowCount * a real measured row height, same
-               fixedRowHeight fixedPageRows measures. */
+               visibleRowCount * rowHeight (the caller's own CSS constant,
+               see that prop's comment for why this is plain arithmetic
+               rather than a DOM measurement here), falling back to a
+               measured fixedRowHeight only when no rowHeight was given.
+               The +3px on the rowHeight path is deliberate slack, not a
+               mistake: browser page zoom (Ctrl +/-, confirmed against a
+               real report — 100% clipped the last row, 80% didn't) can
+               make Chromium's layout engine round an element's rendered
+               height a hair off its literal CSS px value, and that error
+               compounds over 4-8 stacked rows enough to hide the last one
+               even though this box's own height is exact arithmetic with
+               nothing to round. 3px of headroom absorbs that drift; each
+               row's own `overflow: hidden` (templates-table.css) still
+               hard-caps it at rowHeight, so the worst this can ever do is
+               let a few px of the next row peek in — never hide the last
+               real one. */
             className={
               fixedPageRows
-                ? 'table-scroll bg-white'
-                : `overflow-auto table-scroll bg-white ${
-                    tableMaxHeight || visibleRowCount ? '' : 'min-h-0 flex-1'
-                  }`
+                ? 'table-scroll bg-card'
+                : visibleRowCount
+                  /* overflow-x-hidden, not overflow-auto's default (both
+                     axes): these columns are always meant to fit — sized to
+                     the container's own width via splitColumnWidths
+                     (percentages of tableWidth, table-layout: fixed) — so
+                     horizontal scroll was never an intended behaviour here.
+                     Left at overflow-auto, ANY horizontal overflow (a
+                     narrower browser window, a zoom level that leaves less
+                     width than the columns' measured minimums) drew a
+                     horizontal scrollbar INSIDE this box — which eats into
+                     the same fixed vertical height meant for rows, quietly
+                     shrinking how many of visibleRowCount actually fit.
+                     Hidden entirely, that can't happen; only the vertical
+                     scrollbar (still needed once real content passes
+                     visibleRowCount) takes any of this box's height. */
+                  ? 'overflow-y-auto overflow-x-hidden table-scroll bg-card'
+                  : `overflow-auto table-scroll bg-card ${tableMaxHeight ? '' : 'min-h-0 flex-1'}`
             }
             style={
               fixedPageRows
                 ? undefined
                 : tableMaxHeight
                   ? { height: tableMaxHeight }
-                  : visibleRowCount && fixedRowHeight
-                    ? { height: visibleRowCount * fixedRowHeight }
-                    : undefined
+                  : visibleRowCount && rowHeight
+                    ? { height: visibleRowCount * rowHeight + 3 }
+                    : visibleRowCount && fixedRowHeight
+                      ? { height: visibleRowCount * fixedRowHeight }
+                      : undefined
             }
           >
             {bodyContent}
@@ -848,10 +961,10 @@ function TableManager({
            showing through at the top corners. A sticky descendant can't
            escape an ancestor that isn't also the scroll container, so this
            clips reliably. */
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] overflow-hidden">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line overflow-hidden">
           <div
             ref={tableScrollRef}
-            className={`overflow-auto table-scroll bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+            className={`overflow-auto table-scroll bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] ${customClass}`}
             style={
               isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
             }
@@ -866,10 +979,10 @@ function TableManager({
         // inner wrapper below is kept: it hugged its contents, so
         // `justify-between` had no slack and both groups bunched at the
         // left instead of the pager sitting out at the right corner.
-        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
-              <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-[#EEE7DD]">
+              <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-[#EEE7DD] dark:sm:divide-mcm-line">
                 {!fixedPageRows && (
                   <div className="flex items-center gap-2">
                     <div className="w-20 tableSelect">
@@ -891,10 +1004,10 @@ function TableManager({
                         menuPlacement="top"
                       />
                     </div>
-                    <Label className="text-[#2E2D35]/80 sm:pr-3">per page</Label>
+                    <Label className="text-[#2E2D35]/80 dark:text-mcm-ink-2 sm:pr-3">per page</Label>
                   </div>
                 )}
-                <Label className="text-[#2E2D35]/80 sm:pl-3">
+                <Label className="text-[#2E2D35]/80 dark:text-mcm-ink-2 sm:pl-3">
                   {/* Static mode has no fetch response to read a total off of —
                       tableData is already the caller's full (filtered) list in
                       that case, so its length IS the total. */}
@@ -906,7 +1019,7 @@ function TableManager({
                 </Label>
               </div>
               <Button
-                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 hover:text-primary rounded-full border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 dark:text-mcm-ink-2 hover:text-primary dark:hover:bg-mcm-accent-wash rounded-full border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px]"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleManualRefetch()}

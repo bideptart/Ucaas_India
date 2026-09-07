@@ -73,3 +73,47 @@
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
 }
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block. ---- */
+.dark .gp-blocked {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-blocked .page-head,
+.dark .gp-blocked .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-blocked .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-blocked .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-blocked .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-blocked .page-head p {
+  color: var(--mcm-ink-3, #94a3b8);
+}
+.dark .gp-blocked .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-blocked .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-blocked .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-blocked .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}

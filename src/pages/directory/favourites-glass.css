@@ -98,3 +98,63 @@
   background: rgba(255, 205, 155, 0.14);
   box-shadow: inset 3px 0 0 var(--accent);
 }
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block:
+   every literal light-mode value here gets a dark-appropriate equivalent,
+   reusing the app's existing --mcm-* tokens rather than inventing new
+   colors, so the warm-glass DESIGN survives instead of flattening to
+   plain slate. ---- */
+/* Flat neutral, not the warm-orange glow — global Dark Mode rebrand. */
+.dark .gp-favourites {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-favourites .page-head,
+.dark .gp-favourites .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-favourites .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-favourites .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-favourites .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-favourites .page-head p {
+  color: var(--mcm-ink-3, #94a3b8);
+}
+.dark .gp-favourites .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-favourites .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-favourites .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-favourites .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.dark .gp-favourites th {
+  background: #16222c;
+  color: var(--mcm-ink-3, #8b98a6);
+  border-bottom: 2px solid #1b2934;
+}
+.dark .gp-favourites td {
+  border-bottom-color: #1b2934;
+}
+.dark .gp-favourites tbody tr:hover {
+  background: rgba(17, 29, 39, 0.6);
+}

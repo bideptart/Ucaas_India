@@ -1,0 +1,15 @@
+/**
+ * The notification drawer marks each unread dot and each card's left-edge
+ * accent stripe via an inline `style={{ borderLeftColor / backgroundColor:
+ * getCategoryAccent() }}` (see index.tsx) — a single orange hex shared by
+ * every notification type. Inline styles always win over a `dark:` utility
+ * class, so this couldn't be neutralised from the className string; these
+ * rules use `!important` to beat the inline style itself in Dark Mode only.
+ */
+.dark .mcm-notif-accent-border {
+  border-left-color: #f97316 !important;
+}
+
+.dark .mcm-notif-accent-dot {
+  background-color: #f97316 !important;
+}

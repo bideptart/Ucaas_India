@@ -165,7 +165,7 @@ const Destinations = () => {
                   {['Destination', 'Code', 'Outbound', 'Inbound', 'SMS', ''].map((h, i) => (
                     <th
                       key={h || i}
-                      className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
+                      className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
                         i === 0 || i === 1 ? 'text-left' : 'text-right'
                       }`}
                     >
@@ -177,25 +177,25 @@ const Destinations = () => {
               <tbody>
                 {shown.map((d) => (
                   <tr key={d.iso}>
-                    <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
                       <span className="mr-2">{d.flag}</span>
                       {d.name}
                     </td>
-                    <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-700">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 pr-4 tabular-nums text-gray-700 dark:text-mcm-ink-2">
                       {d.dialCode}
                     </td>
-                    <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-900">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 pr-4 text-right tabular-nums text-gray-900 dark:text-mcm-ink">
                       {d.state === 'priced' ? price(d.outbound) : '—'}
                     </td>
-                    <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
                       {d.state === 'priced' ? price(d.inbound) : '—'}
                     </td>
-                    <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
                       {d.state === 'priced' ? price(d.sms) : '—'}
                     </td>
                     {/* A dash on its own would read as "free". The state column is
                         what stops a blank price being mistaken for a zero one. */}
-                    <td className="border-b border-gray-100 py-2.5 text-right text-xs">
+                    <td className="border-b border-gray-100 dark:border-mcm-line py-2.5 text-right text-xs">
                       {d.state === 'priced' ? null : d.state === 'unknown' ? (
                         <button
                           type="button"
@@ -208,10 +208,10 @@ const Destinations = () => {
                         <span
                           className={
                             d.state === 'failed'
-                              ? 'text-red-700'
+                              ? 'text-red-700 dark:text-red-400'
                               : d.state === 'unpriced'
-                                ? 'text-gray-500'
-                                : 'text-gray-400'
+                                ? 'text-gray-500 dark:text-mcm-ink-3'
+                                : 'text-gray-400 dark:text-mcm-ink-3'
                           }
                           title={d.note}
                         >
@@ -223,7 +223,7 @@ const Destinations = () => {
                 ))}
                 {shown.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-4 text-center text-xs text-gray-600">
+                    <td colSpan={6} className="py-4 text-center text-xs text-gray-600 dark:text-mcm-ink-3">
                       Nothing matches “{search}”.
                     </td>
                   </tr>

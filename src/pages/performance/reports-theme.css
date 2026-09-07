@@ -26,11 +26,13 @@
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 .dark .perf-reports {
-  --rp-wash: #2a1710;
-  --rp-muted: #93a1ba;
-  --rp-ink: #f4f6fb;
-  --rp-glass: rgba(17, 24, 39, 0.72);
-  --rp-glass-border: rgba(251, 146, 60, 0.18);
+  --rp-accent: #f97316;
+  --rp-accent-ink: #ff8a2a;
+  --rp-wash: #1a2733;
+  --rp-muted: #aab6c1;
+  --rp-ink: #f3f6f9;
+  --rp-glass: rgba(11, 20, 28, 0.72);
+  --rp-glass-border: rgba(249, 115, 22, 0.18);
   --rp-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
@@ -45,12 +47,9 @@ body.perf-warm-backdrop .perf-reports {
     radial-gradient(circle at 50% 85%, rgba(253, 186, 116, 0.5) 0%, transparent 55%),
     #fdf6ee;
 }
+/* Flat neutral, not the warm-orange glow — global Dark Mode rebrand. */
 .dark body.perf-warm-backdrop .perf-reports {
-  background:
-    radial-gradient(circle at 15% 15%, rgba(154, 82, 30, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(194, 65, 12, 0.24) 0%, transparent 55%),
-    #0a0f1a;
+  background: var(--mcm-ground, #070d13);
 }
 
 /* ------------------------------------------------------------
@@ -89,8 +88,8 @@ body.perf-warm-backdrop .perf-reports {
   box-shadow: 0 1px 2px rgba(234, 88, 12, 0.05);
 }
 .dark .perf-reports .rp-toolbar {
-  background: rgba(23, 15, 10, 0.6);
-  border-color: rgba(251, 146, 60, 0.18);
+  background: rgba(11, 20, 28, 0.6);
+  border-color: rgba(100, 116, 139, 0.18);
 }
 
 /* Groups related controls (picker vs. date vs. export) so the bar reads as
@@ -108,7 +107,7 @@ body.perf-warm-backdrop .perf-reports {
   background: rgba(249, 115, 22, 0.16);
 }
 .dark .perf-reports .rp-toolbar-divider {
-  background: rgba(251, 146, 60, 0.2);
+  background: rgba(249, 115, 22, 0.2);
 }
 
 /* Report selector — a custom dropdown (Radix DropdownMenu) rather than a
@@ -142,6 +141,7 @@ body.perf-warm-backdrop .perf-reports {
 }
 .dark .perf-reports .rp-select-trigger {
   background: rgba(17, 24, 39, 0.55) !important;
+  border-color: rgba(100, 116, 139, 0.22) !important;
   color: var(--rp-ink) !important;
 }
 .perf-reports .rp-select-trigger:hover {
@@ -151,6 +151,10 @@ body.perf-warm-backdrop .perf-reports {
   outline: none;
   border-color: #f97316 !important;
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+.dark .perf-reports .rp-select-trigger[data-state='open'] {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 .perf-reports .rp-select-value {
   overflow: hidden;
@@ -185,8 +189,8 @@ body.perf-warm-backdrop .perf-reports {
     0 4px 12px -2px rgba(60, 40, 30, 0.1);
 }
 .dark .rp-report-menu {
-  background: rgba(23, 15, 10, 0.98);
-  border-color: rgba(251, 146, 60, 0.22);
+  background: rgba(11, 20, 28, 0.98);
+  border-color: rgba(100, 116, 139, 0.22);
 }
 .rp-report-menu-group + .rp-report-menu-group {
   margin-top: 4px;
@@ -194,7 +198,7 @@ body.perf-warm-backdrop .perf-reports {
   border-top: 1px solid rgba(249, 115, 22, 0.12);
 }
 .dark .rp-report-menu-group + .rp-report-menu-group {
-  border-top-color: rgba(251, 146, 60, 0.16);
+  border-top-color: rgba(100, 116, 139, 0.16);
 }
 .rp-report-menu-label {
   padding: 6px 8px 4px;
@@ -224,8 +228,8 @@ body.perf-warm-backdrop .perf-reports {
 }
 .dark .rp-report-menu-item:focus,
 .dark .rp-report-menu-item:hover:not([data-disabled]) {
-  background: rgba(251, 146, 60, 0.14) !important;
-  color: #fdba74 !important;
+  background: rgba(249, 115, 22, 0.14) !important;
+  color: #ff8a2a !important;
 }
 .rp-report-menu-item[data-selected] {
   background: linear-gradient(135deg, #fff1eb 0%, #fed7aa 100%);
@@ -233,8 +237,8 @@ body.perf-warm-backdrop .perf-reports {
   font-weight: 700;
 }
 .dark .rp-report-menu-item[data-selected] {
-  background: rgba(251, 146, 60, 0.22);
-  color: #fdba74;
+  background: rgba(249, 115, 22, 0.22);
+  color: #ff8a2a;
 }
 .rp-report-menu-item[data-disabled] {
   opacity: 0.6;
@@ -265,7 +269,7 @@ body.perf-warm-backdrop .perf-reports {
   white-space: nowrap;
 }
 .dark .perf-reports .rp-range {
-  background: rgba(251, 146, 60, 0.1);
+  background: rgba(249, 115, 22, 0.1);
 }
 .perf-reports .rp-range svg {
   color: var(--rp-accent-ink);
@@ -297,11 +301,22 @@ body.perf-warm-backdrop .perf-reports {
     border-color 0.16s ease,
     box-shadow 0.16s ease;
 }
+.dark .perf-reports .rp-toolbar .btn.ghost.sm {
+  background: rgba(249, 115, 22, 0.14);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #ff8a2a;
+}
 .perf-reports .rp-toolbar .btn.ghost.sm:hover:not(:disabled) {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-color: transparent;
   color: #fff;
   box-shadow: 0 4px 14px -2px rgba(249, 115, 22, 0.35);
+}
+.dark .perf-reports .rp-toolbar .btn.ghost.sm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #1a0f06;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
 }
 
 /* ------------------------------------------------------------
@@ -313,9 +328,9 @@ body.perf-warm-backdrop .perf-reports {
   color: var(--rp-accent-ink);
 }
 .dark .perf-reports .rp-notice {
-  background: rgba(154, 82, 30, 0.22);
-  border-color: rgba(251, 146, 60, 0.28);
-  color: #fdba74;
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: rgba(249, 115, 22, 0.28);
+  color: #ff8a2a;
 }
 
 /* ------------------------------------------------------------
@@ -333,6 +348,9 @@ body.perf-warm-backdrop .perf-reports {
 .perf-reports .pc-head {
   background: transparent;
   border-color: rgba(249, 115, 22, 0.12);
+}
+.dark .perf-reports .pc-head {
+  border-color: rgba(100, 116, 139, 0.18);
 }
 .perf-reports .pc-head h3 {
   color: var(--rp-ink);
@@ -379,7 +397,7 @@ body.perf-warm-backdrop .perf-reports {
 }
 .dark .perf-reports button.rp-catalog-card {
   background: rgba(17, 24, 39, 0.45) !important;
-  border-color: rgba(251, 146, 60, 0.16) !important;
+  border-color: rgba(100, 116, 139, 0.16) !important;
 }
 .perf-reports button.rp-catalog-card:hover:not(.is-locked) {
   transform: translateY(-2px);
@@ -396,7 +414,8 @@ body.perf-warm-backdrop .perf-reports {
   box-shadow: 0 6px 18px -6px rgba(234, 88, 12, 0.28);
 }
 .dark .perf-reports button.rp-catalog-card.is-selected {
-  background: rgba(251, 146, 60, 0.18) !important;
+  border-color: #f97316 !important;
+  background: rgba(249, 115, 22, 0.14) !important;
 }
 .perf-reports button.rp-catalog-card.is-locked {
   cursor: not-allowed;
@@ -411,6 +430,7 @@ body.perf-warm-backdrop .perf-reports {
 }
 .dark .perf-reports button.rp-catalog-card.is-locked {
   background: rgba(17, 24, 39, 0.3) !important;
+  border-color: rgba(100, 116, 139, 0.16) !important;
 }
 .perf-reports .rp-catalog-title {
   display: flex;
@@ -424,7 +444,7 @@ body.perf-warm-backdrop .perf-reports {
   color: #c2410c;
 }
 .dark .perf-reports .rp-catalog-card.is-selected .rp-catalog-title {
-  color: #fdba74;
+  color: #ff8a2a;
 }
 .perf-reports .rp-catalog-card.is-locked .rp-catalog-title {
   color: var(--rp-muted);
@@ -459,7 +479,7 @@ body.perf-warm-backdrop .perf-reports {
   box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.12);
 }
 .dark .perf-reports .rp-table-wrap table thead th {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .perf-reports .rp-table-wrap table tbody tr {
   transition: background-color 0.16s ease;
@@ -468,13 +488,13 @@ body.perf-warm-backdrop .perf-reports {
   background: rgba(255, 241, 235, 0.5);
 }
 .dark .perf-reports .rp-table-wrap table tbody tr:hover {
-  background: rgba(251, 146, 60, 0.08);
+  background: rgba(249, 115, 22, 0.08);
 }
 .perf-reports .rp-table-wrap table tbody tr.rp-total-row {
   background: rgba(249, 115, 22, 0.08);
 }
 .dark .perf-reports .rp-table-wrap table tbody tr.rp-total-row {
-  background: rgba(251, 146, 60, 0.12);
+  background: rgba(249, 115, 22, 0.12);
 }
 .perf-reports .rp-table-wrap table tbody tr.rp-total-row td {
   color: var(--rp-ink);

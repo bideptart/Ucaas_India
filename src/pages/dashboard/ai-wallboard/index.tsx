@@ -404,7 +404,7 @@ const metricToneClasses = {
   blue: { icon: 'text-primary', value: 'text-primary' },
   red: { icon: 'text-[#DC5049]', value: 'text-[#DC5049]' },
   orange: { icon: 'text-amber-600', value: 'text-amber-600' },
-  gray: { icon: 'text-[#2E2D35]', value: 'text-[#2E2D35]' },
+  gray: { icon: 'text-[#2E2D35] dark:text-mcm-ink', value: 'text-[#2E2D35] dark:text-mcm-ink' },
 };
 
 // const moodBadgeClasses: Record<AgentMood, string> = {
@@ -421,7 +421,7 @@ const sentimentLabelBadgeClass = (value?: string) => {
   if (val === 'positive') return 'bg-green-100 text-green-700';
   if (val === 'negative') return 'bg-red-100 text-red-600';
   if (val === 'neutral') return 'bg-amber-100 text-amber-700';
-  return 'bg-gray-100 text-gray-600';
+  return 'bg-muted text-muted-foreground';
 };
 
 // const riskBadgeClasses: Record<AgentRisk, string> = {
@@ -433,7 +433,7 @@ const sentimentLabelBadgeClass = (value?: string) => {
 
 const scoreToneClass = (value: string) =>
   value === 'N/A'
-    ? 'text-[#9A948F]'
+    ? 'text-[#9A948F] dark:text-mcm-ink-3'
     : value.trim().startsWith('-')
       ? 'text-[#DC5049]'
       : 'text-[#4EAE6E]';
@@ -462,7 +462,7 @@ const getAgentInitials = (name: string) => {
 //   if (tone === 'blue') return 'text-primary';
 //   if (tone === 'green') return 'text-green-600';
 //   if (tone === 'orange') return 'text-amber-600';
-//   return 'text-gray-500';
+//   return 'text-muted-foreground';
 // };
 
 const createLinePath = (points: number[], width = 360, height = 160, padding = 14) => {
@@ -583,7 +583,7 @@ const formatDurationFromSeconds = (seconds?: number) => {
 //       </button>
 //       <button
 //         type="button"
-//         className="rounded-md border border-gray-200 bg-gray-100 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-200"
+//         className="rounded-md border border-border bg-gray-100 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-gray-200"
 //       >
 //         Tag for QA
 //       </button>
@@ -597,7 +597,7 @@ const statusPillClass: Record<AgentStatus, string> = {
   RINGING: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
   'WRAP UP': 'bg-amber-100 text-amber-700 border border-amber-200',
   'ON HOLD': 'bg-red-100 text-red-700 border border-red-200',
-  OFFLINE: 'bg-gray-100 text-gray-400 border border-gray-200',
+  OFFLINE: 'bg-muted text-muted-foreground border border-border',
 };
 const AiWallboard = () => {
   const {
@@ -922,17 +922,17 @@ const AiWallboard = () => {
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden p-3">
       <div className="mx-auto flex w-full max-w-470 flex-col gap-3">
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none">
           <div className="flex  flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] ">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink ">
                 <Sparkles className="h-5 w-5 text-primary" />
                 Live AI Wallboard
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-[#DC5049]">
                   LIVE
                 </span>
               </h3>
-              <p className="mt-1 text-xs font-medium text-[#9A948F] sm:text-sm">
+              <p className="mt-1 text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 sm:text-sm">
                 Real-time sentiment, AI reception, and agent monitoring
               </p>
             </div>
@@ -969,7 +969,7 @@ const AiWallboard = () => {
             return (
               <div
                 key={metric.label}
-                className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+                className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none"
               >
                 {showAlertDot && (
                   // <span className="absolute right-2 top-2 h-3 w-3 min-h-3 min-w-3 flex rounded-full bg-red-500" />
@@ -982,7 +982,7 @@ const AiWallboard = () => {
                 )}
                 <div className="flex flex-col items-center gap-1.5 text-center">
                   <IconComp className={`h-5 w-5 ${metricToneClasses[metric.tone].icon}`} />
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                     {metric.label}
                   </p>
                   <p className={`text-2xl font-semibold ${metricToneClasses[metric.tone].value}`}>
@@ -998,9 +998,9 @@ const AiWallboard = () => {
         </div>
 
         <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] w-full">
-            <div className="border-b border-[#EEE7DD] px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
+            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
+              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                 <TrendingUp className="h-4 w-4 text-[#4EAE6E]" />
                 Sentiment
               </h4>
@@ -1009,7 +1009,7 @@ const AiWallboard = () => {
               <div className="relative h-48">
                 <div className="absolute inset-0 flex flex-col justify-between">
                   {[0, 1, 2, 3, 4].map((line) => (
-                    <div key={line} className="border-t border-dashed border-[#EEE7DD]" />
+                    <div key={line} className="border-t border-dashed border-[#EEE7DD] dark:border-mcm-line" />
                   ))}
                 </div>
                 <div className="relative flex h-full items-end justify-between gap-2 px-2">
@@ -1051,7 +1051,7 @@ const AiWallboard = () => {
                             />
                           </CustomTooltip>
                         </div>
-                        <p className="text-center text-[10px] font-medium leading-4 text-[#9A948F]">
+                        <p className="text-center text-[10px] font-medium leading-4 text-[#9A948F] dark:text-mcm-ink-3">
                           {mappedLabel}
                         </p>
                       </div>
@@ -1062,9 +1062,9 @@ const AiWallboard = () => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] w-full">
-            <div className="border-b border-[#EEE7DD] px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
+            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
+              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                 <Headphones className="h-4 w-4 text-primary" />
                 AI AHT
               </h4>
@@ -1079,6 +1079,7 @@ const AiWallboard = () => {
                     x2="408"
                     y2={24 + line * 36}
                     stroke="#EEE7DD"
+                    className="ai-wallboard-gridline"
                     strokeDasharray="4 4"
                   />
                 ))}
@@ -1086,6 +1087,7 @@ const AiWallboard = () => {
                   d={createLinePath(aiAhtChartValues, 420, 190, 18)}
                   fill="none"
                   stroke="#f2994a"
+                  className="ai-wallboard-aht-line"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
@@ -1111,14 +1113,14 @@ const AiWallboard = () => {
                         cy={y}
                         r="6"
                         fill="#f2994a"
-                        className="cursor-pointer hover:fill-[#f2994a]/70 transition-colors"
+                        className="ai-wallboard-aht-dot cursor-pointer hover:fill-[#f2994a]/70 dark:hover:fill-[#f97316]/70 transition-colors"
                       />
                     </CustomTooltip>
                   );
                 })}
               </svg>
               <div
-                className="mt-1 grid text-center text-[10px] font-medium text-[#9A948F]"
+                className="mt-1 grid text-center text-[10px] font-medium text-[#9A948F] dark:text-mcm-ink-3"
                 style={{
                   gridTemplateColumns: `repeat(${Math.max(aiAhtChartLabels.length, 1)}, minmax(0, 1fr))`,
                 }}
@@ -1130,9 +1132,9 @@ const AiWallboard = () => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] w-full">
-            <div className="border-b border-[#EEE7DD] px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
+            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
+              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                 <Bot className="h-4 w-4 text-primary" />
                 Most Common AI Intents
               </h4>
@@ -1141,7 +1143,7 @@ const AiWallboard = () => {
               <div className="relative h-48">
                 <div className="absolute inset-0 flex flex-col justify-between">
                   {[0, 1, 2, 3, 4].map((line) => (
-                    <div key={line} className="border-t border-dashed border-[#EEE7DD]" />
+                    <div key={line} className="border-t border-dashed border-[#EEE7DD] dark:border-mcm-line" />
                   ))}
                 </div>
                 {aiIntentBuckets.length > 0 ? (
@@ -1176,7 +1178,7 @@ const AiWallboard = () => {
                             </CustomTooltip>
                           </div>
                           <p
-                            className="truncate w-full px-1 text-center text-[10px] font-medium leading-4 text-[#9A948F]"
+                            className="truncate w-full px-1 text-center text-[10px] font-medium leading-4 text-[#9A948F] dark:text-mcm-ink-3"
                             title={bar.label}
                           >
                             {bar.label}
@@ -1187,9 +1189,9 @@ const AiWallboard = () => {
                   </div>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white/90 backdrop-blur-sm px-4 py-1.5 shadow-xs">
-                      <Bot className="h-3.5 w-3.5 text-[#9A948F]" />
-                      <span className="text-xs font-semibold text-[#9A948F]">No data found</span>
+                    <div className="flex items-center gap-2 rounded-full border border-border bg-card/90 backdrop-blur-sm px-4 py-1.5 shadow-xs">
+                      <Bot className="h-3.5 w-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
+                      <span className="text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">No data found</span>
                     </div>
                   </div>
                 )}
@@ -1200,49 +1202,49 @@ const AiWallboard = () => {
 
         <div className="grid gap-3 grid-cols-1 md:grid-cols-12">
           <div className="flex flex-col col-span-12 md:col-span-4">
-            <div className="flex h-full flex-col rounded-xl border border-[rgba(214,163,90,0.55)] shadow-xs">
-              <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 rounded-t-xl">
-                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+            <div className="flex h-full flex-col rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line shadow-xs">
+              <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-4 py-3 rounded-t-xl">
+                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                   <Bot className="h-4 w-4 text-primary" />
                   AI Receptionist Performance
                 </h4>
               </div>
               <div className="flex flex-1 flex-col justify-between space-y-3 p-4">
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Handled by AI only
                     </p>
-                    <p className="text-lg font-semibold text-[#2E2D35]">{handledTodayValue}</p>
+                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{handledTodayValue}</p>
                   </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Transferred to Agent
                     </p>
-                    <p className="text-lg font-semibold text-[#2E2D35]">{transferredCallsValue}</p>
+                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{transferredCallsValue}</p>
                   </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Transfer Percentage
                     </p>
-                    <p className="text-lg font-semibold text-[#2E2D35]">{transferToAgentValue}</p>
+                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{transferToAgentValue}</p>
                   </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Avg Duration
                     </p>
-                    <p className="text-lg font-semibold text-[#2E2D35]">{avgDurationValue}</p>
+                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{avgDurationValue}</p>
                   </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Leads Captured
                     </p>
-                    <p className="text-lg font-semibold text-[#2E2D35]">{leadCapturedValue}</p>
+                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{leadCapturedValue}</p>
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-2.5">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                     Voice vs Text Interactions
                   </p>
                   <div className="h-3 overflow-hidden rounded-full bg-ucass-active-bg">
@@ -1254,7 +1256,7 @@ const AiWallboard = () => {
                         {voicePercent > 5 ? `${voicePercent.toFixed(0)}%` : ''}
                       </div>
                       <div
-                        className="bg-[#f2994a] text-right text-[9px] font-semibold text-white flex items-center justify-end pr-1"
+                        className="bg-[#f2994a] dark:bg-[#f97316] text-right text-[9px] font-semibold text-white flex items-center justify-end pr-1"
                         style={{ width: `${textPercent}%` }}
                       >
                         {textPercent > 5 ? `${textPercent.toFixed(0)}%` : ''}
@@ -1266,7 +1268,7 @@ const AiWallboard = () => {
             </div>
 
             {/* <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                  <div className="flex items-center justify-between rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
                     <span>Active AI Chats/Calls</span>
                     <span className="font-semibold">28</span>
                   </div>
@@ -1291,7 +1293,7 @@ const AiWallboard = () => {
                 {aiAlerts.map((alert, index) => (
                   <div
                     key={`${alert.text}-${index}`}
-                    className="flex items-start justify-between gap-2 border-b border-gray-200 px-4 py-3 last:border-b-0"
+                    className="flex items-start justify-between gap-2 border-b border-border px-4 py-3 last:border-b-0"
                   >
                     <p
                       className={`text-sm font-medium ${
@@ -1303,7 +1305,7 @@ const AiWallboard = () => {
                       }`}
                     >
                       {alert.text}
-                      <span className="mt-1 block text-xs font-medium text-gray-500">
+                      <span className="mt-1 block text-xs font-medium text-muted-foreground">
                         {alert.age}
                       </span>
                     </p>
@@ -1314,20 +1316,20 @@ const AiWallboard = () => {
           </div>
 
           <div className="space-y-3 col-span-12 md:col-span-8">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)]  shadow-xs">
-              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] px-4 py-3 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-t-xl">
-                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line  shadow-xs">
+              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line px-4 py-3 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] rounded-t-xl">
+                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                   <Headphones className="h-4 w-4 text-primary" />
                   Agent Sentiment Status
                 </h4>
-                <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8]/45 px-3 py-1">
-                  <p className="text-[11px] font-medium text-[#9A948F]">
+                <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 px-3 py-1">
+                  <p className="text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                     Top: {aiWallboardSummary?.agent_sentiment_top?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_top?.avg_sentiment || '0'}) &nbsp; | &nbsp;
                     Bottom: {aiWallboardSummary?.agent_sentiment_bottom?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_bottom?.avg_sentiment || '0'}) &nbsp; |
                     &nbsp;
-                    <span className="font-semibold text-[#9A948F]">
+                    <span className="font-semibold text-[#9A948F] dark:text-mcm-ink-3">
                       Idle {'>'}5m: {aiWallboardSummary?.idle_over_5_minutes?.length || 0}
                     </span>
                   </p>
@@ -1342,8 +1344,8 @@ const AiWallboard = () => {
                   return (
                     <div
                       key={`${agent.name}-${index}`}
-                      className={`rounded-xl border bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ${
-                        isHighRisk ? 'border-red-200' : 'border-[rgba(225,200,165,0.9)]'
+                      className={`rounded-xl border bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none ${
+                        isHighRisk ? 'border-red-200' : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2  mb-3">
@@ -1352,11 +1354,11 @@ const AiWallboard = () => {
                             {agent.initials}
                           </div>
                           <div>
-                            <p className="text-base leading-6 font-semibold text-[#2E2D35]">
+                            <p className="text-base leading-6 font-semibold text-[#2E2D35] dark:text-mcm-ink">
                               {agent.name}
                             </p>
-                            <p className="flex items-center gap-1 text-xs font-medium text-[#9A948F] whitespace-nowrap">
-                              <p className="flex items-center gap-1 text-[11px] font-medium text-[#9A948F]">
+                            <p className="flex items-center gap-1 text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 whitespace-nowrap">
+                              <p className="flex items-center gap-1 text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                                 {(() => {
                                   const status = getAgentStatus(agent);
                                   return (
@@ -1397,31 +1399,31 @@ const AiWallboard = () => {
                       </div>
 
                       <div className="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2">
-                        <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8]/45 p-1.5 sm:p-2">
+                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
                           <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] truncate"
+                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
                             title="Today Calls"
                           >
                             Total
                           </p>
-                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35]">
+                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                             {agent.liveScore}
                           </p>
                         </div>
-                        <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8]/45 p-1.5 sm:p-2">
+                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
                           <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] truncate"
+                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
                             title="Sentiment Calls"
                           >
                             Monitored
                           </p>
-                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35]">
+                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                             {agent?.today_sentiment_calls || 'N/A'}
                           </p>
                         </div>
-                        <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8]/45 p-1.5 sm:p-2">
+                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
                           <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] truncate"
+                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
                             title="Avg Sentiment"
                           >
                             Average
@@ -1435,7 +1437,7 @@ const AiWallboard = () => {
                       </div>
 
                       <div className="mt-2">
-                        <div className="mb-1 flex items-center justify-between text-[10px] font-semibold text-[#9A948F]">
+                        <div className="mb-1 flex items-center justify-between text-[10px] font-semibold text-[#9A948F] dark:text-mcm-ink-3">
                           <span>
                             POS {agent.posCount} ({agent.pos}%)
                           </span>
@@ -1446,14 +1448,14 @@ const AiWallboard = () => {
                             NEG {agent.negCount} ({agent.neg}%)
                           </span>
                         </div>
-                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-[#FBE2C8]/40">
+                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3">
                           <div className="bg-[#4EAE6E] h-full" style={{ width: `${agent.pos}%` }} />
                           <div className="bg-gray-400 h-full" style={{ width: `${agent.neu}%` }} />
                           <div className="bg-[#DC5049] h-full" style={{ width: `${agent.neg}%` }} />
                         </div>
                       </div>
 
-                      {/* <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-200 pt-2.5">
+                      {/* <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border pt-2.5">
                         <div className="text-center">
                           <p className="text-xl font-semibold text-red-500">{agent.negCalls}</p>
                           <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
@@ -1478,7 +1480,7 @@ const AiWallboard = () => {
                         </div>
                       </div>
 
-                      <div className="mt-2 border-t border-gray-200 pt-2">
+                      <div className="mt-2 border-t border-border pt-2">
                         <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
                           Sentiment Trend (Last 5 Calls)
                         </p>
@@ -1496,13 +1498,13 @@ const AiWallboard = () => {
             </div>
 
             {/* <div className="grid gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-gray-200 bg-white shadow-xs">
-                <div className="border-b border-gray-200 px-4 py-3">
-                  <h4 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+              <div className="rounded-xl border border-border bg-card shadow-xs">
+                <div className="border-b border-border px-4 py-3">
+                  <h4 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                     <TrendingUp className="h-4 w-4 text-amber-600" />
                     Emotion Pressure Score
                   </h4>
-                  <p className="text-xs font-medium text-gray-500">
+                  <p className="text-xs font-medium text-muted-foreground">
                     High negative mood traffic detection per queue
                   </p>
                 </div>
@@ -1510,7 +1512,7 @@ const AiWallboard = () => {
                   {emotionPressure.map((item) => (
                     <div key={item.queue}>
                       <div className="mb-1 flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-gray-700">
+                        <p className="text-sm font-semibold text-muted-foreground">
                           {item.queue}
                           {item.warning && (
                             <span className="ml-1 inline-flex align-middle">
@@ -1518,9 +1520,9 @@ const AiWallboard = () => {
                             </span>
                           )}
                         </p>
-                        <p className="text-xs font-medium text-gray-500">{item.calls} live calls</p>
+                        <p className="text-xs font-medium text-muted-foreground">{item.calls} live calls</p>
                       </div>
-                      <div className="h-1.5 w-full rounded-full bg-gray-200">
+                      <div className="h-1.5 w-full rounded-full bg-muted">
                         <div
                           className={`h-1.5 rounded-full ${pressureBarClass(item.tone)}`}
                           style={{ width: `${item.pressure}%` }}
@@ -1531,13 +1533,13 @@ const AiWallboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-gray-200 bg-white shadow-xs">
-                <div className="border-b border-gray-200 px-4 py-3">
-                  <h4 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+              <div className="rounded-xl border border-border bg-card shadow-xs">
+                <div className="border-b border-border px-4 py-3">
+                  <h4 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                     <Users className="h-4 w-4 text-green-600" />
                     Team Sentiment Overview
                   </h4>
-                  <p className="text-xs font-medium text-gray-500">
+                  <p className="text-xs font-medium text-muted-foreground">
                     Aggregated performance across all online agents
                   </p>
                 </div>
@@ -1557,13 +1559,13 @@ const AiWallboard = () => {
                     </div>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                    <div className="rounded-lg border border-border bg-muted p-3 text-center">
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
                         Most Stressed
                       </p>
                       <p className="text-base font-semibold text-red-500">Michael Chen</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                    <div className="rounded-lg border border-border bg-muted p-3 text-center">
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
                         Best Performer
                       </p>
@@ -1592,27 +1594,27 @@ const AiWallboard = () => {
 
               <div className="overflow-x-auto">
                 <Table className="min-w-[960px]">
-                  <TableHeader className="bg-gray-50">
+                  <TableHeader className="bg-muted">
                     <TableRow>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Queue / Intent
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Caller Info
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Agent
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Duration
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Sentiment Score
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Risk Factor
                       </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Action
                       </TableHead>
                     </TableRow>
@@ -1623,13 +1625,13 @@ const AiWallboard = () => {
                         key={`${call.intent}-${call.caller}`}
                         className="hover:bg-red-50/40"
                       >
-                        <TableCell className="px-3 py-2 text-sm font-medium text-gray-700">
+                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
                           {call.intent}
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-medium text-gray-500">
+                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
                           {call.caller}
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-medium text-gray-700">
+                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
                           {call.agent}
                         </TableCell>
                         <TableCell className="px-3 py-2 text-sm font-semibold text-amber-600">

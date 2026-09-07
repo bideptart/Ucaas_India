@@ -409,7 +409,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.listen && (
               <CustomTooltip text="Listen" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*87', data?.extension)}
                 >
                   <Ear className="w-4 h-4" />
@@ -419,7 +419,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.whisper && (
               <CustomTooltip text="Whisper" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*86', data?.extension)}
                 >
                   <MicIcon className="w-4 h-4" />
@@ -429,7 +429,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.barge && (
               <CustomTooltip text="Barge" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*88', data?.extension)}
                 >
                   <UsersIcon className="w-4 h-4" />
@@ -439,7 +439,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.intercept && (
               <CustomTooltip text="Intercept" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => monitorCall('*89', data?.extension)}
                 >
                   <CallIntersection className="w-5 h-5" />
@@ -449,7 +449,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
             {monitoringAccessActions?.hangup && (
               <CustomTooltip text="Hangup" side="top">
                 <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => terminateCallSession(callInfo)}
                 >
                   <ImPhoneHangUp className="w-5 h-5" />
@@ -473,10 +473,10 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
         {!embedded && (
           <MonitoringTopbarSlot>
-            <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-              <div className="text-gray-900 font-semibold text-lg flex items-center gap-1 min-w-0">
+            <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+              <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1 min-w-0">
                 <span className="truncate">Monitoring</span>
-                <div className="-rotate-90 text-gray-800 shrink-0">
+                <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2 shrink-0">
                   <Icon name="ChevronIcon" className="w-5 h-5" />
                 </div>
                 <span className="text-primary text-md truncate">All Extensions</span>
@@ -503,49 +503,49 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
         >
           {isShowSummary && (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 ">
-              <div className="flex justify-between border border-gray-200 rounded-lg w-full p-3 gap-1 bg-white">
+              <div className="flex justify-between border border-gray-200 dark:border-mcm-line rounded-lg w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
                 <div className="flex flex-col">
-                  <p className="font-semibold text-gray-900 truncate text-sm">Calls Waiting</p>
-                  <h2 className="text-gray-700 truncate text-2xl font-semibold">
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Calls Waiting</p>
+                  <h2 className="text-gray-700 dark:text-mcm-ink-2 truncate text-2xl font-semibold">
                     {callOnWaiting || 0}
                   </h2>
                 </div>
-                <div className="cursor-pointer   bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
+                <div className="cursor-pointer   bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
                   <Clock className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex justify-between border border-gray-200 rounded-lg w-full p-3 gap-1 bg-white">
+              <div className="flex justify-between border border-gray-200 dark:border-mcm-line rounded-lg w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
                 <div className="flex flex-col">
-                  <p className="font-semibold text-gray-900 truncate text-sm">Online Users</p>
-                  <h2 className="text-gray-700 truncate text-2xl font-semibold">
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Online Users</p>
+                  <h2 className="text-gray-700 dark:text-mcm-ink-2 truncate text-2xl font-semibold">
                     {onlineUser?.length || 0}
                     {/* {usersOnlineStatus?.length ? usersOnlineStatus?.filter((item) => item?.online)?.length : 0} */}
                   </h2>
                 </div>
-                <div className="cursor-pointer   bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
+                <div className="cursor-pointer   bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
                   <UsersGroup className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex justify-between border border-gray-200 rounded-lg w-full p-3 gap-1 bg-white">
+              <div className="flex justify-between border border-gray-200 dark:border-mcm-line rounded-lg w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
                 <div className="flex flex-col">
-                  <p className="font-semibold text-gray-900 truncate text-sm">Offline Users</p>
-                  <h2 className="text-gray-700 truncate text-2xl font-semibold">
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Offline Users</p>
+                  <h2 className="text-gray-700 dark:text-mcm-ink-2 truncate text-2xl font-semibold">
                     {Math.max(Number(totalUsers) - Object.keys(onlineUser || {}).length, 0)}
                     {/* {usersOnlineStatus?.length ? usersOnlineStatus?.filter((item) => item?.online)?.length : 0} */}
                   </h2>
                 </div>
-                <div className="cursor-pointer   bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
+                <div className="cursor-pointer   bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
                   <Warning className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex justify-between border border-gray-200 rounded-lg w-full p-3 gap-1 bg-white">
+              <div className="flex justify-between border border-gray-200 dark:border-mcm-line rounded-lg w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
                 <div className="flex flex-col">
-                  <p className="font-semibold text-gray-900 truncate text-sm">Users On Call</p>
-                  <h2 className="text-gray-700 truncate text-2xl font-semibold">
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Users On Call</p>
+                  <h2 className="text-gray-700 dark:text-mcm-ink-2 truncate text-2xl font-semibold">
                     {agentsOnCall || 0}
                   </h2>
                 </div>
-                <div className="cursor-pointer   bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
+                <div className="cursor-pointer   bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white  flex items-center justify-center rounded-full w-8 h-8 ">
                   <PhoneCalling className="w-6 h-6" />
                 </div>
               </div>

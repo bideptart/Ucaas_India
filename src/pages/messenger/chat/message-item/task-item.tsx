@@ -61,13 +61,15 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isMine, currentChat, msgObj }
     <div
       className={cn(
         'max-w-[300px] rounded-2xl overflow-hidden border shadow-sm transition-all hover:shadow-md',
-        isMine ? 'bg-white border-ucass-active-bg' : 'bg-white border-gray-100',
+        isMine
+          ? 'bg-white dark:bg-mcm-surface border-ucass-active-bg dark:border-mcm-line'
+          : 'bg-white dark:bg-mcm-surface border-gray-100 dark:border-mcm-line',
       )}
     >
       <div
         className={cn(
           'px-4 py-3 flex items-center gap-3',
-          isMine ? 'bg-ucass-active-bg/50' : 'bg-gray-50/50',
+          isMine ? 'bg-ucass-active-bg/50 dark:bg-mcm-surface-3/50' : 'bg-gray-50/50 dark:bg-mcm-surface-3/50',
         )}
       >
         <div
@@ -75,13 +77,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isMine, currentChat, msgObj }
             'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
             isMine
               ? 'bg-primary text-white shadow-lg shadow-primary/20'
-              : 'bg-gray-200 text-gray-600',
+              : 'bg-gray-200 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-2',
           )}
         >
           <CheckCircle2 className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <h4 className="text-[15px] font-bold text-gray-900 truncate uppercase tracking-tight">
+          <h4 className="text-[15px] font-bold text-gray-900 dark:text-mcm-ink truncate uppercase tracking-tight">
             Task
           </h4>
           {/* <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Action Item</p> */}
@@ -90,10 +92,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isMine, currentChat, msgObj }
 
       <div className="p-4 space-y-4">
         <div className="space-y-1">
-          <h3 className="text-[16px] font-bold text-gray-800 leading-tight">
+          <h3 className="text-[16px] font-bold text-gray-800 dark:text-mcm-ink leading-tight">
             {task?.name || 'Untitled Task'}
           </h3>
-          <div className="flex items-center gap-1.5 text-gray-400">
+          <div className="flex items-center gap-1.5 text-gray-400 dark:text-mcm-ink-3">
             <Globe className="w-3 h-3" />
             <span className="text-[11px] font-medium">{task?.timezone || 'No Timezone'}</span>
           </div>
@@ -101,22 +103,22 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, isMine, currentChat, msgObj }
 
         <div className="grid grid-cols-2 gap-3 pt-1">
           <div className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
+            <div className="w-7 h-7 rounded-lg bg-gray-50 dark:bg-mcm-surface-3 flex items-center justify-center text-gray-400 dark:text-mcm-ink-3 group-hover:text-primary transition-colors">
               <Calendar className="w-3.5 h-3.5" />
             </div>
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Date</p>
-              <p className="text-[12px] font-semibold text-gray-700 truncate">{formattedDate}</p>
+              <p className="text-[10px] text-gray-400 dark:text-mcm-ink-3 uppercase font-bold tracking-tighter">Date</p>
+              <p className="text-[12px] font-semibold text-gray-700 dark:text-mcm-ink-2 truncate">{formattedDate}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 group bg-white">
-            <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
+          <div className="flex items-center gap-2 group bg-white dark:bg-mcm-surface">
+            <div className="w-7 h-7 rounded-lg bg-gray-50 dark:bg-mcm-surface-3 flex items-center justify-center text-gray-400 dark:text-mcm-ink-3 group-hover:text-primary transition-colors">
               <Clock className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Time</p>
-              <p className="text-[12px] font-semibold text-gray-700 truncate">{formattedTime}</p>
+              <p className="text-[10px] text-gray-400 dark:text-mcm-ink-3 uppercase font-bold tracking-tighter">Time</p>
+              <p className="text-[12px] font-semibold text-gray-700 dark:text-mcm-ink-2 truncate">{formattedTime}</p>
             </div>
           </div>
         </div>

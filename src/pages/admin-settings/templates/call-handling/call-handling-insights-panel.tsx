@@ -27,8 +27,8 @@ const ACCENT = 'var(--color-primary, #ea6b42)';
    rounded containers into each other for no reason. A bottom divider does
    the same job of separating sections without another border box. */
 const PanelCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="border-b border-[#f5e6d3] pb-4 last:border-0 last:pb-0">
-    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#b5502f]">{title}</p>
+  <div className="border-b border-[#f5e6d3] pb-4 last:border-0 last:pb-0 dark:border-mcm-line">
+    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#b5502f] dark:text-mcm-ink-3">{title}</p>
     {children}
   </div>
 );
@@ -48,7 +48,7 @@ const CallHandlingInsightsPanel = ({
   if (loading) {
     return (
       <div
-        className="w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white p-5"
+        className="w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white p-5 dark:border-mcm-line dark:bg-mcm-surface"
         style={INSIGHTS_CARD_SHADOW}
       >
         <Loader />
@@ -59,7 +59,7 @@ const CallHandlingInsightsPanel = ({
   if (templates.length === 0) {
     return (
       <div
-        className="w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white p-5 text-xs text-gray-500"
+        className="w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white p-5 text-xs text-gray-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink-3"
         style={INSIGHTS_CARD_SHADOW}
       >
         Insights show up once there is at least one template.
@@ -97,7 +97,7 @@ const CallHandlingInsightsPanel = ({
 
   return (
     <div
-      className="templates-insights-panel w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white flex flex-col gap-4 p-5"
+      className="templates-insights-panel w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white flex flex-col gap-4 p-5 dark:border-mcm-line dark:bg-mcm-surface"
       style={INSIGHTS_CARD_SHADOW}
     >
       <PanelCard title="Template Status Distribution">
@@ -116,7 +116,7 @@ const CallHandlingInsightsPanel = ({
           </div>
           <div className="flex flex-col gap-1">
             {statusData.map((slice) => (
-              <div key={slice.name} className="flex items-center gap-1.5 text-[11px] text-gray-600">
+              <div key={slice.name} className="flex items-center gap-1.5 text-[11px] text-gray-600 dark:text-mcm-ink-3">
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: slice.colour }} />
                 {slice.name} ({slice.value})
               </div>
@@ -129,8 +129,8 @@ const CallHandlingInsightsPanel = ({
         <div className="flex flex-col gap-2">
           {frequentFields.map((field) => (
             <div key={field.label} className="flex items-center gap-2">
-              <span className="w-20 shrink-0 truncate text-[11px] text-gray-600">{field.label}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full border border-[#f0d6b4] bg-[#fdeee0]">
+              <span className="w-20 shrink-0 truncate text-[11px] text-gray-600 dark:text-mcm-ink-3">{field.label}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full border border-[#f0d6b4] bg-[#fdeee0] dark:border-mcm-line dark:bg-mcm-surface-3">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -139,13 +139,13 @@ const CallHandlingInsightsPanel = ({
                   }}
                 />
               </div>
-              <span className="w-4 shrink-0 text-right text-[11px] text-gray-500">{field.count}</span>
+              <span className="w-4 shrink-0 text-right text-[11px] text-gray-500 dark:text-mcm-ink-3">{field.count}</span>
             </div>
           ))}
         </div>
       </PanelCard>
 
-      <p className="text-[11px] font-semibold text-gray-400">
+      <p className="text-[11px] font-semibold text-gray-400 dark:text-mcm-ink-3">
         Demo numbers below — not counted from real queue or activity data yet.
       </p>
 
@@ -173,10 +173,10 @@ const CallHandlingInsightsPanel = ({
       <PanelCard title="Recent System Events">
         <div className="flex flex-col gap-2">
           {recentEvents.map((event, index) => (
-            <div key={index} className="text-[11px] text-gray-600">
-              <span className="font-semibold text-gray-800">{event.templateName}</span> — {event.actor}{' '}
+            <div key={index} className="text-[11px] text-gray-600 dark:text-mcm-ink-3">
+              <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">{event.templateName}</span> — {event.actor}{' '}
               {event.text}
-              <span className="text-gray-400"> · {event.hoursAgo}h ago</span>
+              <span className="text-gray-400 dark:text-mcm-ink-3"> · {event.hoursAgo}h ago</span>
             </div>
           ))}
         </div>

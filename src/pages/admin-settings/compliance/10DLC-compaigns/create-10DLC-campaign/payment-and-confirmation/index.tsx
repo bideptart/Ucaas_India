@@ -14,26 +14,26 @@ const PaymentAndConfirmation = ({ formInstance }: { formInstance: UseFormReturn<
         <h3 className="text-shadow-gray-900 flex items-center gap-1.5 font-medium ">
           Payment and Confirmation
         </h3>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-sm dark:text-mcm-ink-3">
           All campaigns have a 3 month minimum commitment. This means that we bill monthly, for a
           minimum of 3 months. At the end of the initial 3 month period, campaigns renew on a
           month-to-month basis.
         </p>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-sm dark:text-mcm-ink-3">
           You will initially be charged up to $20 once you've submitted your application. This is
           non-refundable.
         </p>
       </div>
       <div className="w-full flex flex-col gap-3 mb-4 mt-2">
         <div className="grid w-full gap-2 sm:grid-cols-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Item</div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Price</div>
+          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900 dark:border-mcm-line dark:text-mcm-ink">Item</div>
+          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900 dark:border-mcm-line dark:text-mcm-ink">Price</div>
         </div>
         <div className="grid w-full gap-2 sm:grid-cols-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">
+          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900 dark:border-mcm-line dark:text-mcm-ink">
             Application fee
           </div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">
+          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900 dark:border-mcm-line dark:text-mcm-ink">
             $20.00 upfront one-off
           </div>
         </div>

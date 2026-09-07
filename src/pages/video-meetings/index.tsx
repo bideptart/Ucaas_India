@@ -8,6 +8,7 @@ import { SuspenseOutlet } from '@/components/custom/route-suspense';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar, { meetingSidebarArr } from './sidebar';
+import './video-meetings.css';
 
 const VideoMeetings = () => {
   const { features } = useCompanyFeatures();
@@ -39,13 +40,7 @@ const VideoMeetings = () => {
   }, [IS_ADMIN, features]);
 
   return (
-    <div
-      className="relative flex h-full min-h-0 w-full flex-col overflow-hidden md:flex-row"
-      style={{
-        background:
-          'radial-gradient(75% 65% at 100% 0%, rgba(231,139,80,0.16) 0%, transparent 100%), radial-gradient(65% 60% at 0% 100%, rgba(217,101,46,0.1) 0%, transparent 100%), radial-gradient(55% 50% at 30% 15%, rgba(251,224,196,0.28) 0%, transparent 100%), #fdfbf9',
-      }}
-    >
+    <div className="video-meetings-bg relative flex h-full min-h-0 w-full flex-col overflow-hidden md:flex-row">
       {/* Light sunset-orange blobs behind the glass layer - this is what the frosted cards blur/tint against */}
       <div
         aria-hidden
@@ -86,8 +81,8 @@ const VideoMeetings = () => {
                   className={cn(
                     'inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition-colors',
                     isActive
-                      ? 'shadow-sm'
-                      : 'border-gray-200 bg-white text-[#2E2D35] hover:border-primary/40 hover:bg-gray-50',
+                      ? 'shadow-sm vm-sunset-badge'
+                      : 'border-gray-200 bg-white text-[#2E2D35] hover:border-primary/40 hover:bg-gray-50 dark:border-[rgba(71,85,105,0.5)] dark:bg-mcm-surface-3 dark:text-mcm-ink dark:hover:bg-mcm-surface',
                   )}
                   style={
                     isActive

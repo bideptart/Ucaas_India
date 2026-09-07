@@ -551,7 +551,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         {!isDisable && (
           <label
             htmlFor="file-upload"
-            className="rounded-full border border-gray-200 relative w-14 h-14 cursor-pointer"
+            className="rounded-full border border-gray-200 dark:border-mcm-line relative w-14 h-14 cursor-pointer"
           >
             {watch('avatar') || imagePreview || avatar ? (
               <div className="h-full w-full rounded-full relative group">
@@ -803,7 +803,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           </div>
 
           <div className="flex flex-col w-full gap-4">
-            <p className="font-semibold text-gray-900">Address Information</p>
+            <p className="font-semibold text-gray-900 dark:text-mcm-ink">Address Information</p>
             <div className="flex gap-4 flex-wrap">
               <Input
                 placeholder="Enter street"
@@ -956,7 +956,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         </div>
       </div>
       {!isDisable && (
-        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 bg-white">
+        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface">
           {!hideCancelButton ? (
             <Button
               type="button"

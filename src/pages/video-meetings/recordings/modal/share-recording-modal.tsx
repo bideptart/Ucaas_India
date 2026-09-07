@@ -131,7 +131,9 @@ const ShareRecordingModal: FC<ShareRecordingModalProps> = ({
         </div>
 
         <div className="flex flex-col gap-4">
-          <p className="text-gray-900 text-sm">Select users to share this recording with.</p>
+          <p className="text-gray-900 dark:text-mcm-ink text-sm">
+            Select users to share this recording with.
+          </p>
 
           <div className="flex items-center gap-4 pr-4">
             <Input
@@ -151,12 +153,19 @@ const ShareRecordingModal: FC<ShareRecordingModalProps> = ({
           </div>
 
           <div className="flex flex-col h-full">
-            <ul className="divide-y divide-gray-200 overflow-auto max-h-[300px] pr-3" role="list">
+            <ul
+              className="divide-y divide-gray-200 dark:divide-mcm-line overflow-auto max-h-[300px] pr-3"
+              role="list"
+            >
               {filteredUsers && filteredUsers?.length > 0 ? (
                 filteredUsers?.map((user: any) => {
                   // const fullName = `${user?.first_name} ${user?.last_name || ''}`;
                   return (
-                    <li key={user.email} className="flex cursor-pointer bg-white" role="menu-item">
+                    <li
+                      key={user.email}
+                      className="flex cursor-pointer bg-white dark:bg-mcm-surface"
+                      role="menu-item"
+                    >
                       <div className="flex items-center w-full h-16 gap-2">
                         <CustomAvatar
                           name={user?.name}
@@ -166,8 +175,12 @@ const ShareRecordingModal: FC<ShareRecordingModalProps> = ({
                         />
                         <div className="flex items-center justify-between text-sm w-[calc(100%_-_3rem)]">
                           <div className="flex flex-col">
-                            <p className="font-semibold text-gray-900 truncate">{user?.name}</p>
-                            <p className="text-gray-800 whitespace-nowrap">{user?.email}</p>
+                            <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate">
+                              {user?.name}
+                            </p>
+                            <p className="text-gray-800 dark:text-mcm-ink-2 whitespace-nowrap">
+                              {user?.email}
+                            </p>
                           </div>
                           <Checkbox
                             onCheckedChange={() => handleSelectUser(user)}
@@ -179,7 +192,7 @@ const ShareRecordingModal: FC<ShareRecordingModalProps> = ({
                   );
                 })
               ) : (
-                <li className="text-center py-4 text-gray-700">
+                <li className="text-center py-4 text-gray-700 dark:text-mcm-ink-3">
                   <p>No user found</p>
                 </li>
               )}

@@ -285,7 +285,7 @@ const BussinessHoursModal: FC<IBussinessModalProps> = ({
             <DialogTitle className="text-base font-semibold">Business Hours</DialogTitle>
             <div
               onClick={handleCancel}
-              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -296,16 +296,16 @@ const BussinessHoursModal: FC<IBussinessModalProps> = ({
           onValueChange={setActiveTab}
           className="flex w-full max-h-[calc(100vh-250px)] overflow-auto pr-1"
         >
-          <div className="border-b border-gray-200 w-full">
+          <div className="border-b border-gray-200 dark:border-mcm-line w-full">
             <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none bg-transparent min-h-10 ">
               <TabsTrigger
-                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                 value={TABS.GENERAL_SETTINGS}
               >
                 {TABS.GENERAL_SETTINGS}{' '}
               </TabsTrigger>
               <TabsTrigger
-                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                 value={TABS.CUSTOM_SETTINGS}
               >
                 {TABS.CUSTOM_SETTINGS}{' '}
@@ -315,7 +315,7 @@ const BussinessHoursModal: FC<IBussinessModalProps> = ({
 
           <TabsContent value={TABS.GENERAL_SETTINGS}>
             <RadioGroup
-              className="border border-gray-200 rounded-xl flex gap-4 p-3 min-h-10 mb-2"
+              className="border border-gray-200 dark:border-mcm-line rounded-xl flex gap-4 p-3 min-h-10 mb-2"
               value={watch('settings.operational_hours.type')}
               onValueChange={(value) => {
                 handleRadioChange(value);
@@ -437,7 +437,7 @@ const BussinessHoursModal: FC<IBussinessModalProps> = ({
                   })}
 
                   {!aiMode && (
-                    <div className="p-3 border border-gray-200 rounded-lg gap-3 flex flex-col">
+                    <div className="p-3 border border-gray-200 dark:border-mcm-line rounded-lg gap-3 flex flex-col">
                       <ForwardingActions
                         setValue={setValue}
                         watch={watch}
@@ -511,7 +511,7 @@ const BussinessHoursModal: FC<IBussinessModalProps> = ({
                 return (
                   <div
                     key={field.id}
-                    className="flex flex-col gap-2 bg-white p-3 rounded-lg border border-ucass-primary-200"
+                    className="flex flex-col gap-2 bg-white dark:bg-mcm-surface-3/50 p-3 rounded-lg border border-ucass-primary-200"
                   >
                     <div className="flex items-end gap-2 justify-between">
                       <div className="flex items-end gap-2 w-[calc(100%_-_2.5rem)]">

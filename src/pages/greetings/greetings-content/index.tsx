@@ -128,26 +128,30 @@ const GreetingContent: FC = () => {
     {
       header: 'Size',
       accessorKey: 'size',
-      cell: ({ getValue }: any) => <div className="text-gray-600">{formatSize(getValue())}</div>,
+      cell: ({ getValue }: any) => (
+        <div className="text-gray-600 dark:text-mcm-ink-3">{formatSize(getValue())}</div>
+      ),
     },
     {
       header: 'Type',
       accessorKey: 'type',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600">{capitalizeFirstLetter(getValue())}</div>
+        <div className="text-gray-600 dark:text-mcm-ink-3">{capitalizeFirstLetter(getValue())}</div>
       ),
     },
     {
       header: 'Duration',
       accessorKey: 'duration',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600">{formatDuration(getValue())}</div>
+        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDuration(getValue())}</div>
       ),
     },
     {
       header: 'Created At',
       accessorKey: 'created_at',
-      cell: ({ getValue }: any) => <div className="text-gray-600">{formatDate(getValue())}</div>,
+      cell: ({ getValue }: any) => (
+        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDate(getValue())}</div>
+      ),
     },
     {
       header: 'Action',
@@ -163,7 +167,7 @@ const GreetingContent: FC = () => {
             onClick: () => {
               handleOpenAudio(srcUrl);
             },
-            className: ' bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: ' bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white',
             tooltipText: 'Play',
             access: true,
           },
@@ -173,7 +177,7 @@ const GreetingContent: FC = () => {
               setGreetingData(data);
               setModalState({ isEdit: true });
             },
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white',
             tooltipText: 'Edit',
             access: !data?.is_default,
           },
@@ -194,7 +198,7 @@ const GreetingContent: FC = () => {
               <CustomTooltip text={action.tooltipText} side="top">
                 <div
                   key={index}
-                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 text-gray-900/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
+                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2'}  flex items-center justify-center rounded-full w-8 h-8 `}
                   onClick={() => {
                     if (action?.access) {
                       action.onClick();
@@ -217,16 +221,16 @@ const GreetingContent: FC = () => {
   return (
     // <section className="w-full overflow-auto max-h-[calc(100vh-64px)] ">
     <section className="w-full overflow-auto  ">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
         <div>
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
             Media Files{' '}
-            <div className="-rotate-90 text-gray-800">
+            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">{capitalizeFirstLetter(type)}</span>
           </p>
-          <p className="text-gray-500 text-xs">{typeBlurb[type] || typeBlurb.all}</p>
+          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">{typeBlurb[type] || typeBlurb.all}</p>
           <div className="mt-2 flex flex-wrap gap-1">
             {TYPE_TABS.map((tab) => (
               <button
@@ -236,7 +240,7 @@ const GreetingContent: FC = () => {
                 className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
                   type === tab.key
                     ? 'bg-ucass-primary-200 text-primary'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-mcm-ink-2 hover:bg-gray-100 dark:hover:bg-mcm-surface-3'
                 }`}
               >
                 {tab.label}
@@ -255,7 +259,7 @@ const GreetingContent: FC = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700" />}
+            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
           />
           {greetingAccess?.add && !drawerState && (
             <Button
@@ -270,18 +274,18 @@ const GreetingContent: FC = () => {
         </div>
       </div>
       {drawerState ? (
-        <div className="w-full flex justify-center py-6 px-4 bg-gray-50/50 ">
-          <div className=" w-full max-w-[800px] bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-full">
+        <div className="w-full flex justify-center py-6 px-4 bg-gray-50/50 dark:bg-mcm-surface-3/50 ">
+          <div className=" w-full max-w-[800px] bg-white dark:bg-mcm-surface rounded-xl shadow-sm border border-gray-100 dark:border-mcm-line p-6 flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Add Media File</h2>
-                <p className="text-sm text-gray-500 mt-1">Create or upload a new audio file</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-mcm-ink">Add Media File</h2>
+                <p className="text-sm text-gray-500 dark:text-mcm-ink-3 mt-1">Create or upload a new audio file</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setDrawerState(false)}
-                className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 px-3"
+                className="text-gray-500 dark:text-mcm-ink-3 hover:text-gray-700 dark:hover:text-mcm-ink-2 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 h-8 px-3"
               >
                 <Icon name="CloseIcon" className="w-3 h-3" />
               </Button>

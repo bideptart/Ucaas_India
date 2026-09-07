@@ -340,13 +340,13 @@ const ForwardingActions = ({
       <div className="flex items-center gap-1">
         {label && (
           <h6
-            className={`font-semibold truncate text-md text-gray-900 ${errorResponse ? 'text-red' : ''}`}
+            className={`font-semibold truncate text-md text-gray-900 dark:text-mcm-ink ${errorResponse ? 'text-red' : ''}`}
           >
             {label}
           </h6>
         )}
       </div>
-      {description && <p className="text-gray-800 text-sm">{description} </p>}
+      {description && <p className="text-gray-800 dark:text-mcm-ink-2 text-sm">{description} </p>}
       <div className={`flex sm:flex-row flex-col w-full  items-start ${gap}`}>
         <div className={`flex w-full sm:w-auto ${mainTypeDivClass}`}>
           <CustomSelect

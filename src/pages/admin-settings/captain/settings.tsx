@@ -28,9 +28,9 @@ type Settings = {
 };
 
 const textAreaClass =
-  'w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition-all placeholder:text-gray-400 hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10';
+  'w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition-all placeholder:text-gray-400 hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink dark:placeholder:text-mcm-ink-3';
 const selectClass =
-  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition-all hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10';
+  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition-all hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink';
 
 const Section = ({
   title,
@@ -41,9 +41,9 @@ const Section = ({
   description: string;
   children: React.ReactNode;
 }) => (
-  <div className="rounded-2xl border border-gray-200 bg-white p-5">
-    <div className="text-sm font-semibold text-gray-950">{title}</div>
-    <div className="mt-0.5 text-xs text-gray-500">{description}</div>
+  <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-mcm-line dark:bg-mcm-surface">
+    <div className="text-sm font-semibold text-gray-950 dark:text-mcm-ink">{title}</div>
+    <div className="mt-0.5 text-xs text-gray-500 dark:text-mcm-ink-3">{description}</div>
     <div className="mt-4 flex flex-col gap-4">{children}</div>
   </div>
 );
@@ -61,8 +61,8 @@ const ToggleRow = ({
 }) => (
   <div className="flex items-start justify-between gap-4">
     <div>
-      <div className="text-sm font-medium text-gray-800">{label}</div>
-      <div className="text-xs text-gray-500">{hint}</div>
+      <div className="text-sm font-medium text-gray-800 dark:text-mcm-ink-2">{label}</div>
+      <div className="text-xs text-gray-500 dark:text-mcm-ink-3">{hint}</div>
     </div>
     <Switch checked={checked} onCheckedChange={onChange} />
   </div>
@@ -130,7 +130,7 @@ const CaptainSettings = () => {
           pageTitle="Settings"
         />
         <div className="flex items-center gap-3">
-          {savedAt && <span className="text-xs text-gray-500">Saved at {savedAt}</span>}
+          {savedAt && <span className="text-xs text-gray-500 dark:text-mcm-ink-3">Saved at {savedAt}</span>}
           <Button
             type="button"
             variant="primary"
@@ -149,7 +149,7 @@ const CaptainSettings = () => {
       )}
 
       {isLoading || !settings ? (
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm text-gray-500">
+        <div className="flex h-40 items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm text-gray-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink-3">
           Loading...
         </div>
       ) : (
@@ -173,7 +173,7 @@ const CaptainSettings = () => {
                   value={settings.reply_delay_seconds}
                   onChange={(e) => set('reply_delay_seconds', Number(e.target.value))}
                 />
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
                   A short pause reads as more considered than an instant reply.
                 </div>
               </div>
@@ -283,7 +283,7 @@ const CaptainSettings = () => {
                   value={settings.transcript_retention_days}
                   onChange={(e) => set('transcript_retention_days', Number(e.target.value))}
                 />
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
                   Transcripts are deleted once they pass this age.
                 </div>
               </div>

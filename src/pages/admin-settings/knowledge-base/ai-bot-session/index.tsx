@@ -175,7 +175,7 @@ const getOutcomeClass = (outcome: string) => {
   if (outcome === 'Resolved') return 'bg-emerald-100 text-emerald-700';
   if (outcome === 'Handoff') return 'bg-amber-100 text-amber-800';
   if (outcome === 'Callback') return 'bg-blue-100 text-blue-700';
-  if (outcome === 'Active') return 'bg-slate-100 text-slate-700';
+  if (outcome === 'Active') return 'bg-slate-100 dark:bg-mcm-surface-3 text-slate-700 dark:text-mcm-ink-2';
   return 'bg-rose-100 text-rose-700';
 };
 
@@ -290,22 +290,22 @@ const SentimentGraph = ({ session }: { session: any }) => {
   return (
     <div className="group relative flex w-fit items-center gap-[7px]">
       <span className="text-sm">{getSentimentEmoji(session)}</span>
-      <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200">
+      <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200 dark:bg-mcm-surface-3">
         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${score}%` }} />
       </div>
-      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3 text-left shadow-xl group-hover:block">
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
           Sentiment scores
         </div>
         {hasScores ? (
           <div className="space-y-2">
             {sentimentScores.map((item) => (
               <div key={item.key}>
-                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700">
+                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-mcm-ink-2">
                   <span>{item.label}</span>
                   <span>{item.score}/100</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-mcm-surface-3">
                   <div
                     className={`h-full rounded-full ${item.colorClass}`}
                     style={{ width: `${item.score}%` }}
@@ -315,7 +315,7 @@ const SentimentGraph = ({ session }: { session: any }) => {
             ))}
           </div>
         ) : (
-          <div className="text-xs font-semibold text-slate-500">Not analyzed</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Not analyzed</div>
         )}
       </div>
     </div>
@@ -323,9 +323,9 @@ const SentimentGraph = ({ session }: { session: any }) => {
 };
 
 const StatCard = ({ title, value, icon }: { title: string; value: string; icon?: string }) => (
-  <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-3.5 shadow-sm">
-    <div className="text-[11px] font-medium text-slate-500">{title}</div>
-    <div className="mt-1 text-[22px] font-bold leading-tight text-slate-950">{value}</div>
+  <div className="rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-3.5 shadow-sm">
+    <div className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">{title}</div>
+    <div className="mt-1 text-[22px] font-bold leading-tight text-slate-950 dark:text-mcm-ink">{value}</div>
     <div className="mt-0.5 min-h-[14px] text-[11px] leading-none text-emerald-600">
       {icon || '\u00a0'}
     </div>
@@ -525,17 +525,17 @@ const AiBotSession = () => {
   };
 
   return (
-    <section className="relative flex h-full w-full flex-col overflow-hidden bg-slate-50">
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-7 py-[18px]">
-        <div className="text-base font-semibold text-slate-950">
+    <section className="relative flex h-full w-full flex-col overflow-hidden bg-slate-50 dark:bg-mcm-ground">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-7 py-[18px]">
+        <div className="text-base font-semibold text-slate-950 dark:text-mcm-ink">
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-            className="font-medium text-slate-500 transition-colors hover:text-primary"
+            className="font-medium text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
           >
             AI Agents
           </button>
-          <span className="mx-2 text-slate-400">/</span>
+          <span className="mx-2 text-slate-400 dark:text-mcm-ink-3">/</span>
           Sessions
         </div>
         <div className="flex items-center gap-2">
@@ -543,7 +543,7 @@ const AiBotSession = () => {
             <select
               value={dateRange}
               onChange={(event) => setDateRange(event.target.value)}
-              className="h-[34px] min-w-[140px] appearance-none rounded-[7px] border border-slate-200 bg-white px-3 pr-9 text-xs font-semibold text-slate-950 outline-none"
+              className="h-[34px] min-w-[140px] appearance-none rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-9 text-xs font-semibold text-slate-950 dark:text-mcm-ink outline-none"
             >
               {dateRangeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -551,12 +551,12 @@ const AiBotSession = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-mcm-ink-3" />
           </div>
           <button
             type="button"
             onClick={exportCsv}
-            className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:border-slate-400"
+            className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-slate-400 dark:hover:border-mcm-line"
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -566,8 +566,8 @@ const AiBotSession = () => {
 
       <div className="flex-1 overflow-y-auto px-7 py-6">
         <div>
-          <h1 className="text-[19px] font-extrabold leading-tight text-slate-950">Sessions</h1>
-          <p className="mt-1 text-[13px] text-slate-500">
+          <h1 className="text-[19px] font-extrabold leading-tight text-slate-950 dark:text-mcm-ink">Sessions</h1>
+          <p className="mt-1 text-[13px] text-slate-500 dark:text-mcm-ink-3">
             Every AI receptionist call & AI chatbot conversation — with transcripts, sentiment &
             outcomes.
           </p>
@@ -585,12 +585,12 @@ const AiBotSession = () => {
 
         <div className="mb-3.5 flex flex-nowrap items-center gap-2.5 max-xl:flex-wrap">
           <div className="relative min-w-[220px] flex-[1_1_220px]">
-            <Search className="absolute left-[13px] top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-[13px] top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-mcm-ink-3" />
             <input
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
               placeholder="Search by contact, agent, intent or transcript..."
-              className="h-[38px] w-full rounded-[10px] border border-slate-200 bg-white pl-[38px] pr-3 text-[13.5px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+              className="h-[38px] w-full rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface pl-[38px] pr-3 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none placeholder:text-slate-400 dark:text-mcm-ink-3 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
             />
           </div>
           {(['all', 'call', 'chat'] as SessionChannel[]).map((channel) => {
@@ -604,7 +604,7 @@ const AiBotSession = () => {
                 className={`inline-flex h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold ${
                   isActive
                     ? 'border-blue-600 bg-blue-600 text-white'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3'
                 }`}
               >
                 {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
@@ -619,7 +619,7 @@ const AiBotSession = () => {
                 const option = agentOptions.find((item) => item.value === event.target.value);
                 setSelectedAgent(option || allAgentsOption);
               }}
-              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 bg-white px-3 pr-8 text-[13.5px] text-slate-900 outline-none"
+              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-8 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none"
             >
               {agentOptions.map((option) => (
                 <option key={option.value || 'all-agents'} value={option.value}>
@@ -627,7 +627,7 @@ const AiBotSession = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-mcm-ink-2" />
           </div>
           <div className="relative min-w-[170px]">
             <select
@@ -636,7 +636,7 @@ const AiBotSession = () => {
                 const option = outcomeOptions.find((item) => item.value === event.target.value);
                 setSelectedOutcome(option || allOutcomesOption);
               }}
-              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 bg-white px-3 pr-8 text-[13.5px] text-slate-900 outline-none"
+              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-8 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none"
             >
               {outcomeOptions.map((option) => (
                 <option key={option.value || 'all-outcomes'} value={option.value}>
@@ -644,12 +644,12 @@ const AiBotSession = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-mcm-ink-2" />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50 px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface shadow-sm">
+          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-200 dark:border-mcm-line bg-gradient-to-b from-white to-slate-50 dark:from-mcm-surface dark:to-mcm-surface-3 px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
             <div>Channel</div>
             <div>Agent</div>
             <div>Contact</div>
@@ -662,7 +662,7 @@ const AiBotSession = () => {
           </div>
 
           {isLoadingSessions || isLoadingReceptionists || isLoadingChatAgents ? (
-            <div className="flex min-h-[260px] items-center justify-center text-slate-500">
+            <div className="flex min-h-[260px] items-center justify-center text-slate-500 dark:text-mcm-ink-3">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Loading sessions...
             </div>
@@ -675,7 +675,7 @@ const AiBotSession = () => {
               return (
                 <div
                   key={session?.sessionId}
-                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-100 px-[18px] py-3 last:border-b-0 hover:bg-slate-50"
+                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-[18px] py-3 last:border-b-0 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
                   onClick={() => setSelectedSession(session)}
                 >
                   <div>
@@ -687,12 +687,12 @@ const AiBotSession = () => {
                     </div>
                     <div className="min-w-0">
                       <div
-                        className="truncate text-[13px] font-bold text-slate-950"
+                        className="truncate text-[13px] font-bold text-slate-950 dark:text-mcm-ink"
                         title={agentName}
                       >
                         {agentName}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-mcm-ink-3">
                         {deletedAgent ? (
                           <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">
                             Deleted
@@ -706,21 +706,21 @@ const AiBotSession = () => {
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-slate-800">
+                    <div className="truncate text-[13px] font-semibold text-slate-800 dark:text-mcm-ink">
                       {getContactTitle(session)}
                     </div>
-                    <div className="truncate font-mono text-[11px] text-slate-500">
+                    <div className="truncate font-mono text-[11px] text-slate-500 dark:text-mcm-ink-3">
                       {getContactSubText(session)}
                     </div>
                   </div>
-                  <div className="whitespace-nowrap text-[12.5px] text-slate-700">
+                  <div className="whitespace-nowrap text-[12.5px] text-slate-700 dark:text-mcm-ink-2">
                     {formatStarted(session?.startedAt || session?.createdAt)}
                   </div>
-                  <div className="whitespace-nowrap text-[12.5px] text-slate-700">
+                  <div className="whitespace-nowrap text-[12.5px] text-slate-700 dark:text-mcm-ink-2">
                     {formatDuration(session?.durationMs)}
                   </div>
                   <div
-                    className="whitespace-nowrap text-[12.5px] font-bold text-slate-900"
+                    className="whitespace-nowrap text-[12.5px] font-bold text-slate-900 dark:text-mcm-ink"
                     title={getCostBasis(session)}
                   >
                     {hasSessionCost(session) ? formatCost(session?.totalCostUSD) : '-'}
@@ -737,7 +737,7 @@ const AiBotSession = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedSession(session)}
-                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
                       aria-label="Open session"
                     >
                       <MessageSquare className="h-[15px] w-[15px]" />
@@ -747,7 +747,7 @@ const AiBotSession = () => {
               );
             })
           ) : (
-            <div className="flex min-h-[260px] items-center justify-center text-slate-500">
+            <div className="flex min-h-[260px] items-center justify-center text-slate-500 dark:text-mcm-ink-3">
               No sessions found.
             </div>
           )}
@@ -755,7 +755,7 @@ const AiBotSession = () => {
           !isLoadingReceptionists &&
           !isLoadingChatAgents &&
           tableRows.length ? (
-            <div className="flex items-center justify-between border-t border-slate-200 px-[18px] py-3 text-xs text-slate-500">
+            <div className="flex items-center justify-between border-t border-slate-200 dark:border-mcm-line px-[18px] py-3 text-xs text-slate-500 dark:text-mcm-ink-3">
               <div>
                 Showing {pageStart}-{pageEnd} of {tableRows.length}
               </div>
@@ -764,18 +764,18 @@ const AiBotSession = () => {
                   type="button"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-1.5 font-semibold text-slate-700 dark:text-mcm-ink-2 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-1.5 font-semibold text-slate-700 dark:text-mcm-ink-2 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                 </button>

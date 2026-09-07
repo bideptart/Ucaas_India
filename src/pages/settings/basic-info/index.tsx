@@ -205,12 +205,12 @@ const BasicInfoSettings = () => {
 
   return (
     <>
-      <section className="flex h-full w-full flex-col overflow-hidden bg-gray-200/15">
+      <section className="flex h-full w-full flex-col overflow-hidden bg-muted/40">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+        <div className="flex items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
           <div>
-            <p className="text-gray-900 font-semibold text-lg">Basic Info</p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-foreground font-semibold text-lg">Basic Info</p>
+            <p className="text-muted-foreground text-xs">
               Your name, job title and location as colleagues see them in the directory — and below,
               how calls actually reach you.
             </p>
@@ -233,7 +233,7 @@ const BasicInfoSettings = () => {
                 greetings={userInfoData?.greetings}
               />
             </div>
-            <div className="mx-auto flex w-full flex-col gap-4 rounded-xl bg-white p-6 shadow-xs md:max-w-[80%]">
+            <div className="mx-auto flex w-full flex-col gap-4 rounded-xl bg-card p-6 shadow-xs md:max-w-[80%]">
               <div className="flex items-center gap-5 mb-6">
                 <label htmlFor="file-upload" className="relative shrink-0 cursor-pointer group">
                   <div className="relative w-24 h-24 rounded-full ring-4 ring-white shadow-md overflow-hidden">
@@ -279,8 +279,8 @@ const BasicInfoSettings = () => {
                 </label>
 
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-semibold text-gray-900">Profile photo</p>
-                  <p className="text-xs text-gray-500">JPG or PNG. Recommended 400×400px.</p>
+                  <p className="text-sm font-semibold text-foreground">Profile photo</p>
+                  <p className="text-xs text-muted-foreground">JPG or PNG. Recommended 400×400px.</p>
                   <div className="flex items-center gap-4 mt-1.5">
                     <label
                       htmlFor="file-upload"
@@ -325,7 +325,7 @@ const BasicInfoSettings = () => {
                       customClass=""
                     />
                     {basicInfoAccess?.edit && (
-                      <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-4">
+                      <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
                         <Button
                           variant={'primary'}
                           type="submit"

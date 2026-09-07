@@ -78,9 +78,9 @@ const HolidaysTable = ({ holidays = [], width = 'full' }: { holidays: any[]; wid
   };
   return (
     <div className={`w-${width}`}>
-      <div className="flex flex-col gap-2 overflow-auto border border-gray-200 rounded-xl">
-        <Table className="w-full text-sm text-gray-700 h-full ">
-          <TableHeader className="bg-gray-100/40 text-gray-90/80">
+      <div className="flex flex-col gap-2 overflow-auto border border-gray-200 dark:border-mcm-line rounded-xl">
+        <Table className="w-full text-sm text-gray-700 dark:text-mcm-ink-2 h-full ">
+          <TableHeader className="bg-gray-100/40 dark:bg-mcm-surface-3/40 text-gray-90/80">
             <TableRow>
               <TableHead className="px-4 py-2 font-medium text-left text-text-gray-90/80">
                 Name
@@ -100,7 +100,7 @@ const HolidaysTable = ({ holidays = [], width = 'full' }: { holidays: any[]; wid
             </TableRow>
           </TableHeader>
 
-          <TableBody className="divide-y divide-gray-200 bg-white w-full font-normal">
+          <TableBody className="divide-y divide-gray-200 dark:divide-mcm-line bg-white dark:bg-mcm-surface w-full font-normal">
             {holidays.map((data: any, index: any) => {
               const displayType =
                 typeof data?.type === 'object'

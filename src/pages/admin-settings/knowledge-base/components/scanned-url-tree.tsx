@@ -202,8 +202,8 @@ const ScannedPageRow = ({
 }) => (
   <label
     className={cx(
-      'flex min-h-[34px] items-center gap-2 border-b border-gray-100 px-3.5 py-1.5 text-left transition-colors last:border-b-0',
-      selected ? 'bg-primary/[0.04]' : 'bg-white',
+      'flex min-h-[34px] items-center gap-2 border-b border-gray-100 dark:border-mcm-line px-3.5 py-1.5 text-left transition-colors last:border-b-0',
+      selected ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
       disabled ? 'cursor-default' : 'cursor-pointer hover:bg-slate-50',
     )}
   >
@@ -213,13 +213,13 @@ const ScannedPageRow = ({
       checked={selected}
       disabled={disabled}
       onChange={(event) => onToggle(event.target.checked)}
-      className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+      className="h-3.5 w-3.5 rounded border-gray-300 dark:border-mcm-line text-primary focus:ring-primary disabled:cursor-not-allowed"
     />
     <File className="h-3.5 w-3.5 shrink-0 text-slate-400" />
     <div className="min-w-0 flex-1">
-      <p className="truncate text-[13px] font-semibold text-gray-900">{getPageLabel(url)}</p>
+      <p className="truncate text-[13px] font-semibold text-gray-900 dark:text-mcm-ink">{getPageLabel(url)}</p>
     </div>
-    <span className="max-w-[360px] shrink truncate text-xs text-slate-500">{url}</span>
+    <span className="max-w-[360px] shrink truncate text-xs text-slate-500 dark:text-mcm-ink-3">{url}</span>
   </label>
 );
 
@@ -251,8 +251,8 @@ const TreeRow = ({
     <div className="flex flex-col">
       <div
         className={cx(
-          'flex min-h-[34px] items-center gap-2 border-b border-gray-100 px-3.5 py-1.5 text-left transition-colors',
-          allSelected || someSelected ? 'bg-primary/[0.04]' : 'bg-white',
+          'flex min-h-[34px] items-center gap-2 border-b border-gray-100 dark:border-mcm-line px-3.5 py-1.5 text-left transition-colors',
+          allSelected || someSelected ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
           'hover:bg-slate-50',
         )}
         style={{ paddingLeft: `${depth * 18 + 14}px` }}
@@ -262,7 +262,7 @@ const TreeRow = ({
             type="button"
             onClick={() => setIsExpanded((current) => !current)}
             aria-expanded={isExpanded}
-            className="flex h-4 w-4 items-center justify-center border-none bg-transparent text-slate-400 outline-none hover:text-slate-700"
+            className="flex h-4 w-4 items-center justify-center border-none bg-transparent text-slate-400 outline-none hover:text-slate-700 dark:hover:text-mcm-ink-2"
           >
             {isExpanded ? (
               <ChevronDown className="h-3.5 w-3.5 stroke-[2.4]" />
@@ -282,26 +282,26 @@ const TreeRow = ({
             if (element) element.indeterminate = someSelected;
           }}
           onChange={(event) => handleCheckboxChange(event.target.checked)}
-          className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+          className="h-3.5 w-3.5 rounded border-gray-300 dark:border-mcm-line text-primary focus:ring-primary disabled:cursor-not-allowed"
         />
 
         {hasChildren ? (
-          <Folder className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+          <Folder className="h-3.5 w-3.5 shrink-0 text-slate-500 dark:text-mcm-ink-3" />
         ) : (
           <File className="h-3.5 w-3.5 shrink-0 text-slate-400" />
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-gray-900">{node.segment}</p>
+          <p className="truncate text-[13px] font-semibold text-gray-900 dark:text-mcm-ink">{node.segment}</p>
         </div>
 
         {hasChildren ? (
-          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 dark:text-mcm-ink-3">
             {selectedCount}/{nodeUrls.length}
           </span>
         ) : (
           node.url && (
-            <span className="max-w-[360px] shrink truncate text-xs text-slate-500">{node.url}</span>
+            <span className="max-w-[360px] shrink truncate text-xs text-slate-500 dark:text-mcm-ink-3">{node.url}</span>
           )
         )}
       </div>
@@ -336,15 +336,15 @@ const ScannedUrlTree = ({
   const hasResults = looseLinks.length > 0 || folderNodes.length > 0;
 
   if (!hasResults) {
-    return <div className="px-4 py-12 text-center text-sm text-slate-500">{emptyMessage}</div>;
+    return <div className="px-4 py-12 text-center text-sm text-slate-500 dark:text-mcm-ink-3">{emptyMessage}</div>;
   }
 
   return (
-    <div className={cx('overflow-y-auto bg-white', className)}>
+    <div className={cx('overflow-y-auto bg-white dark:bg-mcm-surface', className)}>
       {looseLinks.length > 0 && (
         <section className="flex flex-col">
-          <div className="flex items-center justify-between border-b border-gray-100 bg-slate-50 px-3.5 py-2">
-            <p className="text-xs font-bold text-gray-950">Pages</p>
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-mcm-line bg-slate-50 px-3.5 py-2">
+            <p className="text-xs font-bold text-gray-950 dark:text-mcm-ink">Pages</p>
             <span className="text-[11px] font-semibold text-slate-400">{looseLinks.length}</span>
           </div>
           {looseLinks.map((url) => (
@@ -361,8 +361,8 @@ const ScannedUrlTree = ({
 
       {folderNodes.length > 0 && (
         <section className="flex flex-col">
-          <div className="flex items-center justify-between border-b border-gray-100 bg-slate-50 px-3.5 py-2">
-            <p className="text-xs font-bold text-gray-950">Folders</p>
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-mcm-line bg-slate-50 px-3.5 py-2">
+            <p className="text-xs font-bold text-gray-950 dark:text-mcm-ink">Folders</p>
             <span className="text-[11px] font-semibold text-slate-400">{folderNodes.length}</span>
           </div>
           {folderNodes.map((node) => (

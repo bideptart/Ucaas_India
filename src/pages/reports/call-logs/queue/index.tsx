@@ -103,7 +103,7 @@ const QueueCallLogs = () => {
                   type="single"
                   collapsible
 
-                  className="w-full border rounded-md bg-white"
+                  className="w-full border dark:border-mcm-line rounded-md bg-white dark:bg-mcm-surface"
                   key={item?.uuid}
                 >
                   <AccordionItem value="item-1" className="border-none">
@@ -111,39 +111,39 @@ const QueueCallLogs = () => {
                       variant="default"
                       className="p-4 hover:no-underline   rounded-none"
                     >
-                      <div className="flex w-full items-center justify-between text-sm font-medium text-gray-700">
+                      <div className="flex w-full items-center justify-between text-sm font-medium text-gray-700 dark:text-mcm-ink-2">
                         <span className="text-sm font-semibold text-primary">
                           {item?.name || '-'}
                         </span>
 
-                        <div className="flex items-center gap-8 text-gray-600">
+                        <div className="flex items-center gap-8 text-gray-600 dark:text-mcm-ink-3">
                           <span>
                             Total Calls :{' '}
-                            <span className="font-semibold text-gray-800">
+                            <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">
                               {item?.queue_stats?.total_calls || '-'}
                             </span>
                           </span>
                           <span>
                             Answered Calls :{' '}
-                            <span className="font-semibold text-gray-800">
+                            <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">
                               {item?.queue_stats?.answered_calls || '-'}
                             </span>
                           </span>
                           <span>
                             Abandoned Calls :{' '}
-                            <span className="font-semibold text-gray-800">
+                            <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">
                               {item?.queue_stats?.missed_calls || '-'}
                             </span>
                           </span>
                           <span>
                             Avg Waiting Time :{' '}
-                            <span className="font-semibold text-gray-800">
+                            <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">
                               {formatDuration(item?.queue_stats?.avg_waiting_time)}
                             </span>
                           </span>
                           <span>
                             Avg Engage Time :{' '}
-                            <span className="font-semibold text-gray-800">
+                            <span className="font-semibold text-gray-800 dark:text-mcm-ink-2">
                               {formatDuration(item?.queue_stats?.avg_engage_time)}
                             </span>
                           </span>
@@ -151,7 +151,7 @@ const QueueCallLogs = () => {
                       </div>
                     </AccordionTrigger>
 
-                    <AccordionContent className="p-3 text-sm text-gray-600 border-t">
+                    <AccordionContent className="p-3 text-sm text-gray-600 dark:text-mcm-ink-3 border-t dark:border-mcm-line">
                       <div className="w-full flex flex-col gap-2">
                         <TableManager
                           {...{
@@ -181,7 +181,7 @@ const QueueCallLogs = () => {
               {/* <Icon name="NotFound" className="text-gray-500 w-15 h-15" /> */}
               {/* <p className="text-sm text-gray-700">{emptyTablePlaceholder || descriptionEmptyTable}</p> */}
               <img src={NotFound} alt="NotFound" className="w-32" />
-              <p className="text-md font-medium text-gray-900">No Call Queue Logs Found</p>
+              <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">No Call Queue Logs Found</p>
             </div>
           )}
         </div>

@@ -70,7 +70,7 @@ const PlanSummary = ({
 
   return (
     <>
-      <div className="bg-white  rounded-xl py-4 shadow-secondary/5 focus:shadow-secondary/8 shadow-md gap-6 flex flex-col relative w-full">
+      <div className="bg-white dark:bg-mcm-surface  rounded-xl py-4 shadow-secondary/5 focus:shadow-secondary/8 shadow-md gap-6 flex flex-col relative w-full">
         <div className="flex justify-between flex-row gap-4 px-8 min-h-[72px]">
           <div className="flex flex-col gap-3 justify-center items-center w-full">
             <h4 className="text-primary font-semibold text-base">
@@ -89,16 +89,16 @@ const PlanSummary = ({
                 </span>
               )}
             </div>
-            <h4 className="text-gray-500 text-base">/user/{PlanDurationMap[planDuration]}</h4>
+            <h4 className="text-gray-500 dark:text-mcm-ink-3 text-base">/user/{PlanDurationMap[planDuration]}</h4>
           </div>
         </div>
         <div className="flex flex-col gap-3 px-8">
-          <h5 className=" font-semibold text-base uppercase border-b border-gray-200 pb-3">
+          <h5 className=" font-semibold text-base uppercase border-b border-gray-200 dark:border-mcm-line pb-3">
             FEATURES
           </h5>
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between border-b border-gray-200 pb-3">
-              <p className="text-gray-800 font-regular text-sm">
+            <div className="flex justify-between border-b border-gray-200 dark:border-mcm-line pb-3">
+              <p className="text-gray-800 dark:text-mcm-ink-2 font-regular text-sm">
                 {licenseCount || 1} User(s) (Line Included)
               </p>
               <p className="text-primary font-bold text-sm">
@@ -107,7 +107,7 @@ const PlanSummary = ({
             </div>
 
             <div className="flex justify-between">
-              <p className="text-gray-800 font-regular text-sm">1 DID Cost </p>
+              <p className="text-gray-800 dark:text-mcm-ink-2 font-regular text-sm">1 DID Cost </p>
               <div className="flex items-center gap-1">
                 <p className="text-primary font-bold text-sm">FREE</p>
                 <CustomTooltip
@@ -146,11 +146,11 @@ const PlanSummary = ({
         </div>
         {page === 2 && (
           <div className="w-full p-4 pb-0 flex flex-col gap-4">
-            <div className="flex flex-col border border-gray-200 bg-gray-100 p-4 rounded-lg">
+            <div className="flex flex-col border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3 p-4 rounded-lg">
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
-                  <h5 className=" text-gray-700 text-sm">Subtotal</h5>
-                  <p className="text-gray-700 text-sm">
+                  <h5 className=" text-gray-700 dark:text-mcm-ink-2 text-sm">Subtotal</h5>
+                  <p className="text-gray-700 dark:text-mcm-ink-2 text-sm">
                     {isPending ? (
                       <Skeleton className="h-3 w-[50px] bg-gray-200" />
                     ) : (
@@ -159,8 +159,8 @@ const PlanSummary = ({
                   </p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <h5 className=" text-gray-700 text-sm">Taxes</h5>
-                  <p className="text-gray-700 text-sm">
+                  <h5 className=" text-gray-700 dark:text-mcm-ink-2 text-sm">Taxes</h5>
+                  <p className="text-gray-700 dark:text-mcm-ink-2 text-sm">
                     {isPending ? (
                       <Skeleton className="h-3 w-[80px] bg-gray-200" />
                     ) : (
@@ -171,7 +171,7 @@ const PlanSummary = ({
                     )}
                   </p>
                 </div>
-                <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                <div className="flex justify-between border-t border-gray-200 dark:border-mcm-line pt-2 mt-2">
                   <h3 className=" font-semibold text-base text-primary">Total</h3>
                   <div className="flex items-center gap-2">
                     {isTrailPlan ? (

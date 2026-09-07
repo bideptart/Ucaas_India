@@ -562,7 +562,7 @@ const AddNumber = ({ handleClose }: any) => {
           <div className="min-h-0 flex-1 overflow-y-auto pr-0.5 sm:pr-1">
             {stepLookUp?.[currentStep]}
           </div>
-          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-gray-200 pt-3 sm:justify-end sm:pt-4">
+          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-gray-200 dark:border-mcm-line pt-3 sm:justify-end sm:pt-4">
             <Button
               onClick={() => {
                 if (currentStep === 1) {

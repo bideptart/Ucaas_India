@@ -93,7 +93,7 @@ const UsageBar = ({ row }: { row: UsageRow }) => {
   const colour =
     band === 'over' ? 'bg-red-500' : band === 'warning' ? 'bg-amber-500' : 'bg-gray-400';
   return (
-    <div className="mt-1.5 h-1 w-full max-w-[8rem] overflow-hidden rounded-full bg-gray-100">
+    <div className="mt-1.5 h-1 w-full max-w-[8rem] overflow-hidden rounded-full bg-gray-100 dark:bg-mcm-surface-3">
       <div
         className={`h-full rounded-full ${colour}`}
         style={{ width: `${Math.min(pct, 100)}%` }}
@@ -110,7 +110,7 @@ const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
           {['Service', 'Included', 'Used', 'Over', 'Rate', 'Cost'].map((h, i) => (
             <th
               key={h}
-              className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
+              className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
                 i === 0 ? 'text-left' : 'text-right'
               }`}
             >
@@ -132,13 +132,13 @@ const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
              missing — it simply does not exist on this plan. */
           const unlimited = isUnlimitedAllowance(row.included);
           return (
-            <tr key={row.service} className={dim ? 'text-gray-500' : ''}>
+            <tr key={row.service} className={dim ? 'text-gray-500 dark:text-mcm-ink-3' : ''}>
               <td className="border-b border-gray-100 py-2.5 pr-4 align-top">
-                <span className={dim ? 'font-medium' : 'font-medium text-gray-900'}>
+                <span className={dim ? 'font-medium' : 'font-medium text-gray-900 dark:text-mcm-ink'}>
                   {row.service}
                 </span>
                 <UsageBar row={row} />
-                {row.note ? <p className="mt-1 text-[11px] text-gray-500">{row.note}</p> : null}
+                {row.note ? <p className="mt-1 text-[11px] text-gray-500 dark:text-mcm-ink-3">{row.note}</p> : null}
               </td>
               <td className="border-b border-gray-100 py-2.5 pr-4 text-right align-top tabular-nums">
                 {units(row.included, row.unit)}
@@ -148,7 +148,7 @@ const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
               </td>
               <td
                 className={`border-b border-gray-100 py-2.5 pr-4 text-right align-top tabular-nums ${
-                  row.over !== null && row.over > 0 ? 'font-semibold text-gray-900' : ''
+                  row.over !== null && row.over > 0 ? 'font-semibold text-gray-900 dark:text-mcm-ink' : ''
                 }`}
               >
                 {unlimited ? 'None' : units(row.over, row.unit)}
@@ -183,7 +183,7 @@ const SpendTable = ({
   empty: string;
 }) => {
   if (groups.length === 0) {
-    return <p className="py-3 text-xs text-gray-600">{empty}</p>;
+    return <p className="py-3 text-xs text-gray-600 dark:text-mcm-ink-3">{empty}</p>;
   }
 
   return (
@@ -194,7 +194,7 @@ const SpendTable = ({
             {[unit, 'Spent', 'Calls', 'Talk time', 'Share'].map((h, i) => (
               <th
                 key={h}
-                className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
+                className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
                   i === 0 ? 'text-left' : 'text-right'
                 }`}
               >
@@ -206,19 +206,19 @@ const SpendTable = ({
         <tbody>
           {groups.map((g) => (
             <tr key={g.key}>
-              <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
+              <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
                 {g.label}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums font-medium text-gray-900">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
                 {moneyOrUnavailable(g.amount)}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
                 {g.calls.toLocaleString()}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
                 {readDuration(g.seconds)}
               </td>
-              <td className="border-b border-gray-100 py-2.5 text-right tabular-nums text-gray-500">
+              <td className="border-b border-gray-100 py-2.5 text-right tabular-nums text-gray-500 dark:text-mcm-ink-3">
                 {shareOf(g.amount, total)}%
               </td>
             </tr>
@@ -424,7 +424,7 @@ const Usage = () => {
             spendLoading ? (
               <Skeleton className="h-6 w-24 bg-gray-200" />
             ) : (
-              <span className="text-2xl font-semibold tabular-nums text-gray-900">
+              <span className="text-2xl font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
                 {moneyOrUnavailable(totals.amount)}
               </span>
             )
@@ -444,7 +444,7 @@ const Usage = () => {
                 label="Charged"
                 description="What these calls added to your bill."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
                     {moneyOrUnavailable(totals.amount)}
                   </span>
                 }
@@ -453,7 +453,7 @@ const Usage = () => {
                 label="Calls"
                 description="Everything placed or received, whether it was charged or included."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
                     {totals.calls.toLocaleString()}
                   </span>
                 }
@@ -462,7 +462,7 @@ const Usage = () => {
                 label="Talk time"
                 description="Connected time only. Ringing and unanswered calls are not counted."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
                     {readDuration(totals.seconds)}
                   </span>
                 }
@@ -471,7 +471,7 @@ const Usage = () => {
                 label="Out and in"
                 description="Outbound calls are usually where the charges are. Inbound is here for comparison."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
                     {totals.outboundCalls.toLocaleString()} out ·{' '}
                     {totals.inboundCalls.toLocaleString()} in
                   </span>

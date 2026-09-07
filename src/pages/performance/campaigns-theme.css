@@ -33,12 +33,17 @@
     0 4px 12px -2px rgba(60, 40, 30, 0.06),
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
+/* Neutral gray, not orange — global Dark Mode rebrand. --ca-accent/-ink
+   had no dark override at all before (fell back to the light-mode
+   orange unnoticed); added here rather than left missing. */
 .dark .perf-campaigns {
-  --ca-wash: #2a1710;
-  --ca-muted: #93a1ba;
-  --ca-ink: #f4f6fb;
-  --ca-glass: rgba(17, 24, 39, 0.72);
-  --ca-glass-border: rgba(251, 146, 60, 0.18);
+  --ca-accent: #f97316;
+  --ca-accent-ink: #ff8a2a;
+  --ca-wash: #111c26;
+  --ca-muted: #aab6c1;
+  --ca-ink: #f5f7fa;
+  --ca-glass: rgba(11, 20, 28, 0.72);
+  --ca-glass-border: rgba(249, 115, 22, 0.2);
   --ca-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
@@ -76,12 +81,9 @@ body.perf-warm-backdrop .perf-campaigns {
     radial-gradient(circle at 50% 85%, rgba(253, 186, 116, 0.5) 0%, transparent 55%),
     #fdf6ee;
 }
+/* Flat neutral, not the warm-orange glow — global Dark Mode rebrand. */
 .dark body.perf-warm-backdrop .perf-campaigns {
-  background:
-    radial-gradient(circle at 15% 15%, rgba(154, 82, 30, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 85% 20%, rgba(251, 146, 60, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(194, 65, 12, 0.24) 0%, transparent 55%),
-    #0a0f1a;
+  background: var(--mcm-ground, #070d13);
 }
 
 /* ------------------------------------------------------------
@@ -126,8 +128,8 @@ body.perf-warm-backdrop .perf-campaigns {
   color: var(--ca-ink) !important;
 }
 .dark .perf-campaigns .cmp-search input {
-  background: rgba(17, 24, 39, 0.7) !important;
-  border-color: rgba(251, 146, 60, 0.28) !important;
+  background: rgba(13, 24, 33, 0.7) !important;
+  border-color: rgba(249, 115, 22, 0.28) !important;
   color: var(--ca-ink) !important;
 }
 .perf-campaigns .cmp-search input::placeholder {
@@ -140,6 +142,10 @@ body.perf-warm-backdrop .perf-campaigns {
 .perf-campaigns .cmp-search input:focus {
   border-color: #f97316 !important;
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+.dark .perf-campaigns .cmp-search input:focus {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
 .perf-campaigns .fchip {
@@ -165,6 +171,19 @@ body.perf-warm-backdrop .perf-campaigns {
   font-weight: 700;
   border-radius: 999px;
 }
+.dark .perf-campaigns .fchip {
+  background: rgba(16, 26, 35, 0.5);
+  border-color: rgba(249, 115, 22, 0.18);
+  color: var(--ca-muted);
+}
+.dark .perf-campaigns .fchip:hover {
+  background: rgba(249, 115, 22, 0.14);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+.dark .perf-campaigns .fchip.on {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.22) 0%, rgba(234, 88, 12, 0.3) 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.5);
+}
 
 /* ------------------------------------------------------------
    3. Campaigns data table — container, header, rows
@@ -179,7 +198,7 @@ body.perf-warm-backdrop .perf-campaigns {
 }
 .dark .perf-campaigns .panel-card {
   background: rgba(17, 24, 39, 0.75);
-  border-color: rgba(251, 146, 60, 0.18);
+  border-color: rgba(100, 116, 139, 0.18);
 }
 
 .perf-campaigns .table-scroll {
@@ -194,7 +213,7 @@ body.perf-warm-backdrop .perf-campaigns {
   box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.08);
 }
 .dark .perf-campaigns .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .perf-campaigns .table-scroll thead th {
   color: var(--ca-muted);
@@ -211,6 +230,10 @@ body.perf-warm-backdrop .perf-campaigns {
 .perf-campaigns .table-scroll tbody tr:hover,
 .perf-campaigns .table-scroll tbody tr.rowlink:hover {
   background: rgba(255, 241, 235, 0.5);
+}
+.dark .perf-campaigns .table-scroll tbody tr:hover,
+.dark .perf-campaigns .table-scroll tbody tr.rowlink:hover {
+  background: rgba(249, 115, 22, 0.1);
 }
 .perf-campaigns .table-scroll tbody td {
   color: #334155;
@@ -233,6 +256,10 @@ body.perf-warm-backdrop .perf-campaigns {
 .perf-campaigns .pc-foot {
   background: transparent;
   border-color: rgba(249, 115, 22, 0.12);
+}
+.dark .perf-campaigns .pc-head,
+.dark .perf-campaigns .pc-foot {
+  border-color: rgba(100, 116, 139, 0.18);
 }
 .perf-campaigns .pc-head h3 {
   color: var(--ca-ink);
@@ -262,6 +289,7 @@ body.perf-warm-backdrop .perf-campaigns {
 }
 .dark .perf-campaigns .pc-head .src.live {
   background: rgba(17, 24, 39, 0.5);
+  border-color: rgba(100, 116, 139, 0.24);
   color: var(--ca-muted);
 }
 .perf-campaigns .pc-head .src.live svg {
@@ -311,8 +339,8 @@ body.perf-warm-backdrop .perf-campaigns {
   box-shadow: inset 0 1px 2px 0 rgba(60, 40, 30, 0.08);
 }
 .dark .perf-campaigns .segbar {
-  background: rgba(251, 146, 60, 0.14);
-  border-color: rgba(251, 146, 60, 0.16);
+  background: rgba(100, 116, 139, 0.14);
+  border-color: rgba(100, 116, 139, 0.16);
 }
 .perf-campaigns .segbar i.ans {
   background: linear-gradient(90deg, #34d399 0%, #059669 100%) !important;
@@ -366,6 +394,17 @@ body.perf-warm-backdrop .perf-campaigns {
 .perf-campaigns .mini.ic:disabled {
   opacity: 0.55;
 }
+.dark .perf-campaigns .mini.ic {
+  background: rgba(11, 20, 28, 0.6);
+  border-color: rgba(249, 115, 22, 0.3);
+  color: var(--ca-accent-ink);
+  box-shadow: none;
+}
+.dark .perf-campaigns .mini.ic:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #1a0f06;
+}
 
 /* Pagination footer's own refresh button (table-manager.tsx) carries its
    own cream/tan pill as Tailwind arbitrary-value classes, which the design
@@ -375,6 +414,14 @@ body.perf-warm-backdrop .perf-campaigns {
 .perf-campaigns button[class*='backdrop-blur'] {
   background: rgba(251, 249, 246, 0.88) !important;
   border: 1px solid rgba(225, 200, 165, 0.9) !important;
+}
+.dark .perf-campaigns button[class*='backdrop-blur'] {
+  background: rgba(11, 20, 28, 0.85) !important;
+  border: 1px solid #1b2934 !important;
+  color: var(--ca-muted) !important;
+}
+.dark .perf-campaigns button[class*='backdrop-blur']:hover {
+  background: var(--ca-wash) !important;
 }
 
 /* The pager group (« ‹ 1 › ») is intentionally left at its global default

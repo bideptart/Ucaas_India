@@ -321,6 +321,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           <div
             className="pb-5"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+            data-theme-divider
           >
             <Input
               {...register('name')}
@@ -330,17 +331,18 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
               required
               error={errors?.name?.message}
               maxLength={50}
-              className="border-0 border-b border-gray-200 rounded-none bg-transparent px-0 shadow-none focus:border-primary hover:border-gray-300"
+              className="border-0 border-b border-gray-200 dark:border-mcm-line rounded-none bg-transparent px-0 shadow-none focus:border-primary hover:border-gray-300"
             />
           </div>
 
           <div
             className="flex flex-col gap-5 pb-5"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+            data-theme-divider
           >
             <div className="flex flex-col gap-1.5 w-full">
               <Label>Timezone</Label>
-              <div className="flex min-h-10 w-full items-center rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
+              <div className="flex min-h-10 w-full items-center rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-2">
                 {watch('timezone')?.label || 'Asia/Kolkata'}
               </div>
             </div>
@@ -349,6 +351,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           <div
             className="flex flex-col gap-5 pb-5 md:flex-row md:items-end"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+            data-theme-divider
           >
             <div className="flex flex-col gap-1.5 w-full">
               <Label>Meeting Date</Label>
@@ -412,6 +415,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
           <div
             className="flex flex-col gap-2.5 pb-5"
             style={{ borderBottom: '1.5px solid rgba(231,139,80,0.18)' }}
+            data-theme-divider
           >
             <Label>Estimated Duration</Label>
             <div className="flex flex-wrap gap-y-2.5 gap-x-2">
@@ -419,7 +423,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
                 <div
                   key={item.value}
                   onClick={() => setDuration(item.value)}
-                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'border-transparent bg-primary text-white' : 'border-gray-200 bg-transparent text-gray-900'}`}
+                  className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'border-transparent bg-primary text-white' : 'border-gray-200 bg-transparent text-gray-900 dark:border-mcm-line dark:text-mcm-ink-2'}`}
                 >
                   {item.label}
                 </div>
@@ -463,7 +467,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
             </div>
             {videAccess?.invite && (
               <DropdownMenu>
-                <DropdownMenuTrigger className="mb-3 w-full cursor-pointer rounded-xl border border-primary bg-white px-3 py-2 text-sm text-primary hover:bg-primary hover:text-white sm:ml-auto sm:w-auto">
+                <DropdownMenuTrigger className="mb-3 w-full cursor-pointer rounded-xl border border-primary bg-white dark:bg-transparent px-3 py-2 text-sm text-primary hover:bg-primary hover:text-white sm:ml-auto sm:w-auto">
                   <div className="flex items-center gap-2 justify-center ">
                     <Icon name="Invite" className="w-5 h-5" /> Invite Participants
                   </div>
@@ -498,7 +502,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
                       member?.email && (
                         <li
                           key={member.email}
-                          className="flex items-start justify-between gap-3 rounded-xl border border-gray-200 px-3 py-2 sm:items-center sm:border-0 sm:px-0"
+                          className="flex items-start justify-between gap-3 rounded-xl border border-gray-200 dark:border-mcm-line px-3 py-2 sm:items-center sm:border-0 sm:px-0"
                         >
                           <div className="flex min-w-0 items-start gap-2 sm:items-center">
                             <Icon name="CheckMarkIcon" className="text-green-500 w-4 h-4" />

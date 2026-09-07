@@ -8,7 +8,7 @@ const AccountCreatedPopup = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200">
+      <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200 dark:border-mcm-line">
         <div className="font-semibold truncate text-md flex items-center justify-between">
           Account created
           <div
@@ -20,7 +20,7 @@ const AccountCreatedPopup = () => {
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <div className="bg-gray-100 border border-gray-200 w-20 h-20 rounded-full flex items-center justify-center">
+        <div className="bg-gray-100 dark:bg-mcm-surface-3 border border-gray-200 dark:border-mcm-line w-20 h-20 rounded-full flex items-center justify-center">
           <SmileIcon />
         </div>
         <h3 className=" text-2xl font-semibold text-center">Congratulations!</h3>
@@ -28,7 +28,7 @@ const AccountCreatedPopup = () => {
       <h4 className=" font-medium text-xl text-center">
         Welcome aboard! 🎉 Your signup is complete.!
       </h4>
-      <p className="text-gray-800 text-base font-normal text-center">
+      <p className="text-gray-800 dark:text-mcm-ink-2 text-base font-normal text-center">
         {/* <span className="font-semibold text-primary">
           We’ve sent your login credentials to your registered email.{' '}
         </span> */}

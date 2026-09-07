@@ -217,12 +217,12 @@ export const General: FC<GeneralProps> = ({ heading = 'General' }) => {
 
   return (
     <>
-      <section className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-gray-200/15">
+      <section className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-muted/40">
         {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+        <div className="flex items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
           <div>
-            <p className="text-gray-900 font-semibold text-lg">{heading}</p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-foreground font-semibold text-lg">{heading}</p>
+            <p className="text-muted-foreground text-xs">
               Your own regional settings, business hours and call handling. Company-wide rules live
               under Phone System → Preferences.
             </p>

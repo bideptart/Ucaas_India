@@ -20,7 +20,7 @@
  * in this file — the actions bar this button sits in is a sibling of the
  * body, outside it, so a body-anchored :has() would never see it. */
 .mcm-adminpage:has(.templates-table) .mcm-adminpage-actions .btn.ghost {
-  background: #fff;
+  background: var(--surface, #fff);
   color: var(--accent-ink, #c96f1f);
   border: 1px solid var(--accent, #f2994a);
   transition:
@@ -42,7 +42,12 @@
  * !important is what actually settles that reliably (already the pattern
  * this file uses for the row-hover override, same reasoning). */
 .templates-table .table-refresh-btn {
-  background: #fff !important;
+  /* var(--surface), not a literal #fff: --surface already carries a
+     `.dark .mcm-page` override (mcm-page.css), same as --accent-ink/
+     --accent below — a hardcoded #fff here was the one thing on this
+     button NOT riding that token, so it stayed white after everything
+     else around it went dark. */
+  background: var(--surface, #fff) !important;
   color: var(--accent-ink, #c96f1f) !important;
   border: 1px solid var(--accent, #f2994a) !important;
   transition:
@@ -86,15 +91,13 @@
 
 /* .templates-table (index.tsx) wraps TableManager's whole output — the
  * table card AND, whenever pagination shows, the pager bar rendered right
- * after it as a sibling. As a plain block div, .templates-table just
- * stacks them (table card height + pager height), and since the table
- * card is stretched to fill .templates-table's own externally-set height
- * (matching the insights panel — see the height-chain comment further
- * down), there was never any room *left* for the pager: it was being
- * pushed below the visible/bounded area rather than shrinking to fit.
- * flex-column here, with the table card as flex-1 (table-manager.tsx) and
- * the pager left to its own natural height below it, is what actually
- * reserves that room. */
+ * after it as a sibling. Both are natural-height now (table-manager.tsx's
+ * splitStickyHeader card is no longer stretched to match the insights
+ * panel), so flex-column here just stacks them with a real gap between —
+ * not the panel's own bottom edge, but visual separation from the pager,
+ * which is the one this actually needs to stay independent of (own
+ * rounded/bordered/shadowed card, never touching or merging into the
+ * table above it). */
 .templates-table {
   display: flex;
   flex-direction: column;
@@ -102,6 +105,8 @@
 }
 .templates-table > div:last-child {
   flex-shrink: 0;
+  margin-top: 22px;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(20, 20, 20, 0.06));
 }
 
 /* table-manager.tsx's `splitStickyHeader`/`fixedPageRows` props (opt-in,
@@ -229,32 +234,81 @@
 .mcm-adminpage-body:has(.templates-table) > .panel-card > .tbl-wrap > div {
   height: 100%;
 }
-/* Comfortable, readable rows: the shared table styling (table-manager-row.tsx,
- * used by 40+ other pages) is tuned tighter than a dedicated data table
- * wants. Scoped here rather than changed at the source. min-height (not
- * height) so a row that genuinely needs more than 60px — long tag text,
- * say — can still grow instead of getting clipped to exactly 60. */
+/* Row size: fixed, compact, deliberately NOT tied to how tall the card's
+ * sibling insights panel happens to be (see the .templates-table comment
+ * above) — 70px is comfortable for a badge + single-line text without
+ * padding reading as excessive, and matches what visibleRowCount (4 on
+ * User Settings, 5 on Call Handling) multiplies out to for the inner
+ * scroll box below, so the box height and each row's real rendered height
+ * always agree — no partial row cut off at the bottom, no blank gap
+ * either. vertical-align: middle keeps every column's content centred
+ * against that fixed height regardless of how many lines it wraps to. */
 .mcm-admin .templates-table table thead th {
-  padding: 12px 8px;
-  font-size: 11px;
-  letter-spacing: 0.07em;
+  /* 54px, not the 60px this used to be: the whole card's vertical
+     footprint (header + visibleRowCount rows + gap + pager) has to fit
+     inside the browser window at 100% zoom without the page itself
+     needing to scroll — that's a real, finite budget on a normal laptop
+     screen, and every px trimmed off the header is a px more of headroom
+     for that budget without changing how many rows show. */
+  height: 52px;
+  padding: 0 12px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #8a6f57;
   background: #faf5ee;
+  vertical-align: middle;
+}
+.mcm-admin .templates-table table {
+  /* Default `border-collapse: separate` puts ~2px of border-spacing
+     between every row, which the box-height math below (visibleRowCount *
+     one measured row's height) never accounts for — across 4-5 rows that
+     silently ate several px, enough to clip part of the last row. Collapse
+     removes it so a measured row height is the row's whole vertical
+     footprint, nothing hidden between rows. */
+  border-collapse: collapse;
 }
 .mcm-admin .templates-table table tbody td {
-  padding: 12px 8px;
-  min-height: 58px;
-  font-size: 13.5px;
-  /* The shared cell styling (table-manager-row.tsx) is nowrap by default —
-     fine for a badge or a date, but Call Handling's Name column is a
-     plain, user-authored string with no length limit ("Copy of standard
-     business hours"), and nowrap forces the *whole* column to be as wide
-     as its single longest name instead of just wrapping to a second line
-     like User Settings' Name (name + subtitle, already two lines) does.
-     A table-layout: fixed column can't borrow width from its neighbours
-     to fit an unbroken line — this is what actually fits it. */
-  white-space: normal;
+  padding: 0 12px;
+  /* height/min-height alone are only a SUGGESTED floor on a table cell —
+     the CSS spec still lets a cell grow past both if its content (a
+     wrapped tag, a longer name before it truncates on first paint) needs
+     more room, which silently made that one row taller than the fixed
+     row height the box math (visibleRowCount * measured row height)
+     assumed every row would be — enough rows like that and the box runs
+     out of room before showing all of visibleRowCount. overflow: hidden
+     makes 70px an actual hard cap, not a suggestion, so every row is
+     provably identical regardless of its content. The shared cell
+     (table-manager-row.tsx) also carries a hardcoded `h-11` (height: 44px,
+     not just a floor) — an explicit height wins over a min-height
+     regardless of which is smaller, so min-height alone here was never
+     going to shrink the row; height needs its own override too,
+     min-height kept as the actual floor beneath it. */
+  /* 60px, uniform across both Templates pages now — same "has to fit the
+     window at 100% zoom, not just be internally consistent" budget as the
+     header above. Matches the rowHeight: 60 passed into TableManager
+     alongside visibleRowCount on both pages, so the box math and this
+     CSS value are never computed from each other, just both written to
+     agree here. */
+  height: 60px;
+  min-height: 60px;
+  overflow: hidden;
+  font-size: 14px;
+  vertical-align: middle;
+  /* nowrap, not the `normal` this used to be: Name now handles its own
+     truncation (the `truncate` class on its span already forces nowrap +
+     ellipsis there), so nothing left in this table actually wants to
+     wrap — but `normal` still let it happen anywhere it did, and it did:
+     "Not applied yet" (three words) wrapped to two lines while "Applied"
+     stayed on one, so that one row silently grew past the fixed 66/70px
+     every other row was held to (overflow: hidden clips a row that's
+     forced taller by its own content, but can't stop the column's
+     measured width from being narrower than three words in the first
+     place — nowrap is what prevents the wrap itself, at the source).
+     Every column here is meant to be a short, fixed-format value (a
+     status word, a date, a "0 / 3") that never needs more than one
+     line — nowrap holds every one of them to that, uniformly. */
+  white-space: nowrap;
 }
 /* ---- Row colour by status ----
  * Plain white rows read as unstyled once the table itself became a real
@@ -290,4 +344,51 @@
  * wins rather than depending on which rule happens to be declared last. */
 .mcm-admin .templates-table table tbody tr:hover {
   background: #fdf1e0 !important;
+}
+
+/* This file predates the app's Dark Theme pass and was never wired to
+   it — every color above is a literal light-mode hex, so the Call
+   Handling / User Settings tables kept a cream header, a cream row-hover
+   flash, and a light refresh button even after the rest of the app went
+   dark. Reusing the same --mcm-* tokens the rest of Dark Mode runs on;
+   !important mirrors the specificity/`!important` the light-mode rules
+   above already needed to win the same ties. */
+.dark .mcm-admin .templates-table table tbody td {
+  border-bottom-color: #334155;
+}
+.dark .templates-table .table-scroll,
+.dark .templates-insights-panel {
+  scrollbar-color: #475569 transparent;
+}
+.dark .templates-table .table-scroll::-webkit-scrollbar-thumb,
+.dark .templates-insights-panel::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+.dark .templates-table .table-scroll::-webkit-scrollbar-thumb:hover,
+.dark .templates-insights-panel::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
+.dark .mcm-admin .templates-table table thead th {
+  color: var(--mcm-ink-3, #aab6c1);
+  background: var(--mcm-surface-3, #1a2733);
+}
+.dark .mcm-admin .templates-table table tbody tr:hover {
+  background: rgba(51, 65, 85, 0.6) !important;
+}
+
+/* Recharts renders its own default tooltip box with an inline white
+   background and its axis tick labels with a literal, warm-cream-era fill —
+   neither rides any app token, so both insights panels (User Settings and
+   Call Handling) popped a white card and a hard-to-read tick label on a dark
+   surface. Recharts' own stable classnames (recharts-default-tooltip,
+   recharts-cartesian-axis-tick) are the hook, since the colour values
+   themselves are passed as component props (contentStyle / tick), not
+   something a page-level class can reach directly. */
+.dark .templates-insights-panel .recharts-default-tooltip {
+  background: var(--mcm-surface, #1e293b) !important;
+  border-color: var(--mcm-line, #475569) !important;
+  color: var(--mcm-ink, #f8fafc) !important;
+}
+.dark .templates-insights-panel .recharts-cartesian-axis-tick text {
+  fill: var(--mcm-ink-3, #94a3b8) !important;
 }

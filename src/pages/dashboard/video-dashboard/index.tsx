@@ -64,8 +64,8 @@ const BarChart = ({
   return (
     <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
       {isPendingStatsData ? (
-        <div className="h-full w-full bg-white ">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white ">
+        <div className="h-full w-full bg-card ">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-card ">
             <div className="flex items-center justify-center p-5">
               <Loader variant="blue" />
             </div>
@@ -74,10 +74,10 @@ const BarChart = ({
       ) : !hasData ? (
         <div className="flex h-full w-full flex-col items-center justify-center gap-1.5">
           <img src={NotFound} alt="No meeting activity" className="w-24 min-w-24" />
-          <p className="text-center text-sm font-medium text-[#2E2D35]">
+          <p className="text-center text-sm font-medium text-[#2E2D35] dark:text-mcm-ink">
             No meeting activity yet
           </p>
-          <p className="text-center text-xs text-[#9A948F]">
+          <p className="text-center text-xs text-[#9A948F] dark:text-mcm-ink-3">
             Volume will appear here once meetings are hosted on this date.
           </p>
         </div>
@@ -335,17 +335,17 @@ const VideoDashboard = () => {
       return (
         <div
           key={`${listType}-${meeting?.meetingId}`}
-          className="flex items-center justify-between gap-2 rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2.5 py-2"
+          className="flex items-center justify-between gap-2 rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-2.5 py-2"
         >
           <div className="flex min-w-0 items-start gap-2">
-            <div className="flex min-w-[52px] flex-col items-center rounded-xl bg-[#FBE2C8]/40 p-1.5">
-              <p className="text-sm font-semibold text-[#2E2D35]">{formattedDate?.day || ''}</p>
-              <p className="text-[11px] text-[#9A948F]">{formattedDate?.month || ''}</p>
+            <div className="flex min-w-[52px] flex-col items-center rounded-xl bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 p-1.5">
+              <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{formattedDate?.day || ''}</p>
+              <p className="text-[11px] text-[#9A948F] dark:text-mcm-ink-3">{formattedDate?.month || ''}</p>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
               <div className="flex items-center gap-2">
                 <h4
-                  className="max-w-[180px] truncate text-sm font-semibold text-[#2E2D35]"
+                  className="max-w-[180px] truncate text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink"
                   title={meeting?.name || 'Meeting Name'}
                 >
                   {meeting?.name || 'Meeting Name'}
@@ -354,20 +354,20 @@ const VideoDashboard = () => {
                   <>
                     <span className={`rounded-full px-1.5 py-0.5 text-xs ${classes}`}>{label}</span>
                     <CustomTooltip text={`Invited by: ${meeting?.hostName || 'Person'}`} side="top">
-                      <UserPlus className="h-4 w-4 text-[#9A948F]" />
+                      <UserPlus className="h-4 w-4 text-[#9A948F] dark:text-mcm-ink-3" />
                     </CustomTooltip>
                   </>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-semibold flex items-center gap-1 text-xs text-[#9A948F]">
+                <p className="text-semibold flex items-center gap-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
                   <Icon name="TimerIcon" />
                   <span>{getAbbreviationByTimeZone(meeting?.timezone)}</span>
                   {formatTime(meeting?.startTimeLocal)} - {formatTime(meeting?.endTimeLocal) || ''}
                 </p>
                 <CustomTooltip text="Invitees" side="top">
                   <div
-                    className="text-semibold flex cursor-pointer items-center gap-1 text-sm text-[#9A948F]"
+                    className="text-semibold flex cursor-pointer items-center gap-1 text-sm text-[#9A948F] dark:text-mcm-ink-3"
                     onClick={() => {
                       if (!meeting?.members?.length) return;
                       setModalState((prev) => ({ ...prev, meetingInvites: true }));
@@ -381,7 +381,7 @@ const VideoDashboard = () => {
                 {(isActive || !isFutureTime) && (
                   <CustomTooltip text="Attendees" side="top">
                     <div
-                      className="text-semibold flex cursor-pointer items-center gap-1 text-sm text-[#9A948F]"
+                      className="text-semibold flex cursor-pointer items-center gap-1 text-sm text-[#9A948F] dark:text-mcm-ink-3"
                       onClick={() => {
                         const joinedCount = Array.isArray(meeting?.members)
                           ? meeting.members.filter(
@@ -454,7 +454,7 @@ const VideoDashboard = () => {
             )}
             {(isActive || isFutureTime) && listType === 'invited' && (
               <span
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] hover:bg-gray-500 hover:text-white"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 hover:bg-primary hover:text-white"
                 onClick={() => {
                   setModalState((prev) => ({
                     ...prev,
@@ -468,7 +468,7 @@ const VideoDashboard = () => {
             )}
             {listType === 'upcoming_owned' && (
               <DropdownMenu>
-                <DropdownMenuTrigger className="focus:outline-0 flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white">
+                <DropdownMenuTrigger className="focus:outline-0 flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white">
                   <Icon name="MenuDots" className="h-5 w-5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -531,10 +531,10 @@ const VideoDashboard = () => {
     meetings: any[];
     isPendingList: boolean;
   }) => (
-    <div className="flex min-h-60 flex-1 flex-col rounded-3xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3 ">
+    <div className="flex min-h-60 flex-1 flex-col rounded-3xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 ">
       <div className="mb-2.5 px-1">
-        <h3 className="text-base font-semibold text-[#2E2D35]">{title}</h3>
-        <p className="text-xs text-[#9A948F]">{description}</p>
+        <h3 className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
+        <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">{description}</p>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto pr-1">
         {isPendingList ? (
@@ -546,10 +546,10 @@ const VideoDashboard = () => {
         ) : (
           <div className="mx-auto flex h-full w-full flex-col items-center justify-center gap-1 py-5">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="text-center text-sm font-medium text-[#2E2D35]">
+            <p className="text-center text-sm font-medium text-[#2E2D35] dark:text-mcm-ink">
               {listType === 'invited' ? 'No meeting invitations yet' : 'Nothing scheduled yet'}
             </p>
-            <p className="text-center text-xs text-[#9A948F]">
+            <p className="text-center text-xs text-[#9A948F] dark:text-mcm-ink-3">
               {listType === 'invited'
                 ? 'Invited meetings will appear here when available.'
                 : 'Create a meeting to get started.'}
@@ -570,19 +570,40 @@ const VideoDashboard = () => {
               type="button"
               onClick={tile.onClick}
               disabled={tile.disabled}
-              className="group flex min-h-[100px] flex-col justify-between rounded-[18px] border border-[rgba(214,163,90,0.55)] bg-white shadow-[0_8px_20px_-6px_rgba(154,78,30,0.18)] p-2.5 text-left transition-all hover:border-primary/40 hover:shadow-[0_10px_24px_-6px_rgba(154,78,30,0.28)] disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-[126px] sm:rounded-[24px] sm:p-4 gap-2"
+              /* !bg-card, not plain bg-card: `.mcm-page button:not([data-slot=
+                 "tabs-trigger"])` (a global reset for this page's plain
+                 buttons) sets `background: none` and — being a class + tag +
+                 attribute-selector combination — outranks `.bg-card` (a
+                 single class) on specificity alone, no !important needed on
+                 its side. That's the actual root cause of these tiles
+                 blending into the page: bg-card was resolving to fully
+                 transparent, not just a similar-looking dark tone. The `!`
+                 modifier forces this declaration to !important so it finally
+                 wins. Same fix needed on the hover background for the same
+                 reason.
+
+                 That same reset rule also ships `border: 0` in its
+                 shorthand — border-WIDTH and border-STYLE, not just colour.
+                 The `border-{colour}` utilities below only ever set the
+                 colour channel, so even after fixing the colour to
+                 dark:border-mcm-line, the border rendered at computed
+                 border-width: 0px / border-style: none — a correctly
+                 coloured border with nothing to paint it on. `!border`
+                 forces the width+style shorthand back to 1px solid so the
+                 colour actually shows. */
+              className="group flex min-h-[100px] flex-col justify-between rounded-[18px] !border border-[rgba(214,163,90,0.55)] dark:border-mcm-line !bg-card shadow-[0_8px_20px_-6px_rgba(154,78,30,0.18)] dark:shadow-none p-2.5 text-left transition-all hover:border-primary/40 dark:hover:border-mcm-accent-edge dark:hover:!bg-mcm-surface-3 hover:shadow-[0_10px_24px_-6px_rgba(154,78,30,0.28)] dark:hover:shadow-none disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-[126px] sm:rounded-[24px] sm:p-4 gap-2"
             >
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-ucass-active-bg text-primary sm:h-10 sm:w-10 sm:rounded-xl">
                 <Icon name={tile.icon} className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
-                  <h3 className="text-[11px] leading-4 font-semibold text-[#2E2D35] sm:text-sm">
+                  <h3 className="text-[11px] leading-4 font-semibold text-[#2E2D35] dark:text-mcm-ink sm:text-sm">
                     {tile.title}
                   </h3>
-                  <p className="hidden text-xs text-[#9A948F] sm:block">{tile.description}</p>
+                  <p className="hidden text-xs text-[#9A948F] dark:text-mcm-ink-3 sm:block">{tile.description}</p>
                 </div>
-                <div className="hidden h-7 w-7 items-center justify-center rounded-full border border-[#EEE7DD] text-[#9A948F] transition-colors group-hover:border-primary group-hover:text-primary sm:flex">
+                <div className="hidden h-7 w-7 items-center justify-center rounded-full border border-[#EEE7DD] dark:border-mcm-line text-[#9A948F] dark:text-mcm-ink-3 transition-colors group-hover:border-primary group-hover:text-primary sm:flex">
                   <Icon name="ArrowRightUp" className="h-3.5 w-3.5" />
                 </div>
               </div>
@@ -591,11 +612,11 @@ const VideoDashboard = () => {
         </div>
 
         <div className="grid h-full min-h-0 grid-cols-1 gap-4 xl:grid-cols-[1fr_30rem] ">
-          <div className="rounded-[24px] border border-[rgba(214,163,90,0.55)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 sm:p-5">
+          <div className="rounded-[24px] border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-4 sm:p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
               <div>
-                <h2 className="text-lg font-semibold text-[#2E2D35]">Meeting volume summary</h2>
-                <p className="text-sm text-[#9A948F]">
+                <h2 className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">Meeting volume summary</h2>
+                <p className="text-sm text-[#9A948F] dark:text-mcm-ink-3">
                   Activity across the selected organization date
                 </p>
               </div>
@@ -603,7 +624,7 @@ const VideoDashboard = () => {
                 {moment(date).format('ddd, DD MMM')}
               </span>
             </div>
-            <div className="chart-container flex w-full min-h-[360px] items-center justify-center rounded-2xl border border-[#EEE7DD] bg-[#FBE2C8]/25">
+            <div className="chart-container flex w-full min-h-[360px] items-center justify-center rounded-2xl border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/25">
               <BarChart data={graphData} isPendingStatsData={isPendingStatsData} />
             </div>
           </div>

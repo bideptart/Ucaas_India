@@ -65,7 +65,8 @@ const Verification = ({ search }: { search: string }) => {
               setRowData({ isEdit: true, formData: data });
               //   setDrawerState((prev) => ({ ...prev, editAddress: true }));
             },
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className:
+              'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white',
             tooltipText: 'View Verification',
           },
           {

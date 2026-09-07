@@ -28,3 +28,8 @@
   background: #fff1e0;
   color: #c96f1f;
 }
+.dark .gp-filter-menu [data-slot='dropdown-menu-item']:hover,
+.dark .gp-filter-menu [data-slot='dropdown-menu-item'][data-highlighted] {
+  background: var(--mcm-accent-wash, #1a2733);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}

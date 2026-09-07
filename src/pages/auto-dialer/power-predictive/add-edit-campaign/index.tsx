@@ -255,10 +255,10 @@ const CreateCampaign = (props: Props) => {
         className="w-full flex flex-col gap-2 justify-between h-full p-3 "
       >
         <div
-          className="flex flex-col gap-3 bg-white rounded-xl h-[calc(100vh_-_13rem)] overflow-auto"
+          className="flex flex-col gap-3 bg-white dark:bg-mcm-surface rounded-xl h-[calc(100vh_-_13rem)] overflow-auto"
           onClick={() => _setOpen(false)}
         >
-          <div className="border border-gray-200 rounded-xl p-3 gap-4 flex flex-col">
+          <div className="border border-gray-200 dark:border-mcm-line rounded-xl p-3 gap-4 flex flex-col">
             <div className="flex w-full gap-4">
               <div className="flex flex-col gap-1.5 w-full">
                 <Input
@@ -338,7 +338,7 @@ const CreateCampaign = (props: Props) => {
               </div>
             </div>
             <div className="flex flex-col w-full gap-4">
-              <p className="font-semibold text-gray-900">Days to run</p>
+              <p className="font-semibold text-gray-900 dark:text-mcm-ink">Days to run</p>
               <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-4">
                   <Label>Days</Label>
@@ -389,7 +389,7 @@ const CreateCampaign = (props: Props) => {
                           );
                         }}
                         selected={null}
-                        className="border normal-case border-gray-300 focus:shadow-secondary/5 focus:outline-none shadow-secondary/5 disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm  hover:border-primary rounded-xl focus:border-primary w-full px-3 min-h-10 custom-className"
+                        className="border normal-case border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:outline-none shadow-secondary/5 disabled:bg-gray-300 dark:disabled:bg-mcm-surface-3 disabled:text-slate-500 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 bg-white dark:bg-mcm-surface shadow-sm text-sm  hover:border-primary rounded-xl focus:border-primary w-full px-3 min-h-10 custom-className"
                         calendarClassName="custom-className-calendar"
                         popperClassName="custom-className-popper"
                         showMonthDropdown
@@ -476,7 +476,7 @@ const CreateCampaign = (props: Props) => {
               </div>
             </div>
           </div>
-          <div className="border border-gray-200 rounded-xl p-3 gap-4 flex flex-col">
+          <div className="border border-gray-200 dark:border-mcm-line rounded-xl p-3 gap-4 flex flex-col">
             <div className="flex w-full gap-4">
               <div className="flex flex-col gap-1.5 w-full">
                 <CustomSelect

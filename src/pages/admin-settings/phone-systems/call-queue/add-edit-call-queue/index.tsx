@@ -747,13 +747,13 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
             onValueChange={handleTabChange}
             className="flex min-h-0 w-full flex-1 flex-col gap-3"
           >
-            <div className="w-full overflow-x-auto overflow-y-hidden border-b border-gray-200">
+            <div className="w-full overflow-x-auto overflow-y-hidden border-b border-border">
               <TabsList className="flex min-h-11 w-max min-w-full rounded-none p-0 text-center text-sm font-semibold">
                 {Object.entries(TAB_CONSTANT).map(([key, value]) => (
                   <TabsTrigger
                     key={key}
                     value={value}
-                    className="relative flex h-full shrink-0 cursor-pointer gap-1 rounded-none border-b-2 px-4 py-3 font-semibold whitespace-nowrap text-gray-700 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6"
+                    className="relative flex h-full shrink-0 cursor-pointer gap-1 rounded-none border-b-2 px-4 py-3 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6"
                   >
                     {value}
                   </TabsTrigger>
@@ -786,7 +786,7 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
             </TabsContent>
           </Tabs>
 
-          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-gray-200 pt-3 sm:justify-end sm:pt-4">
+          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-border pt-3 sm:justify-end sm:pt-4">
             <Button
               type="button"
               variant={'transparent'}

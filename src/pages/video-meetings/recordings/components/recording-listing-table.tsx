@@ -313,7 +313,7 @@ const RecordingListingTable = ({
               {record.memberNames.map((name: string, index: number) => (
                 <p
                   key={`${name}-${index}`}
-                  className="border-t border-white/25 py-0.5 text-xs first:border-t-0"
+                  className="border-t border-white/25 dark:border-[rgba(100,116,139,0.15)] py-0.5 text-xs first:border-t-0"
                 >
                   {name}
                 </p>
@@ -324,7 +324,7 @@ const RecordingListingTable = ({
       >
         <button
           type="button"
-          className="inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold text-white"
+          className="vm-sunset-grad inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold text-white"
           style={{ background: 'linear-gradient(135deg, #E78B50, #D9652E)' }}
         >
           {record.memberNames.length}
@@ -342,13 +342,13 @@ const RecordingListingTable = ({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/70 bg-white/50 backdrop-blur-md text-[#64748b] hover:bg-white/80"
+            className="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/70 bg-white/50 backdrop-blur-md text-[#64748b] hover:bg-white/80 dark:border-[rgba(100,116,139,0.3)] dark:bg-[rgba(30,41,59,0.6)] dark:text-mcm-ink-2 dark:hover:bg-[rgba(30,41,59,0.9)]"
             aria-label="Recording actions"
           >
             <MoreVertical className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44 border border-[#d7dbe2]">
+        <DropdownMenuContent align="end" className="w-44 border border-[#d7dbe2] dark:border-mcm-line">
           <DropdownMenuItem
             onClick={() => handleDownloadRecording(record)}
             disabled={isDownloading}
@@ -383,15 +383,15 @@ const RecordingListingTable = ({
   };
 
   return (
-    <div className="flex min-h-[calc(100svh-320px)] max-h-[calc(100svh-180px)] flex-1 flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/45 backdrop-blur-xl shadow-[0_4px_20px_rgba(154,52,18,0.06),inset_0_1px_0_rgba(255,255,255,0.85)]">
-      <div className="flex flex-col gap-3 border-b border-white/60 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+    <div className="flex min-h-[calc(100svh-320px)] max-h-[calc(100svh-180px)] flex-1 flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/45 dark:border-[rgba(100,116,139,0.25)] dark:bg-[rgba(30,41,59,0.5)] backdrop-blur-xl shadow-[0_4px_20px_rgba(154,52,18,0.06),inset_0_1px_0_rgba(255,255,255,0.85)]">
+      <div className="flex flex-col gap-3 border-b border-white/60 dark:border-[rgba(100,116,139,0.2)] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div className="relative w-full sm:max-w-[380px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" />
           <input
             value={searchText}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search recordings..."
-            className="h-10 w-full rounded-xl border border-white/80 bg-white/70 backdrop-blur-md pl-9 pr-3 text-sm text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus:ring-[3px] focus:ring-[#E78B50]/20 focus:border-[#E78B50]/50"
+            className="h-10 w-full rounded-xl border border-white/80 bg-white/70 backdrop-blur-md pl-9 pr-3 text-sm text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus:ring-[3px] focus:ring-[#E78B50]/20 focus:border-[#E78B50]/50 dark:border-[rgba(100,116,139,0.3)] dark:bg-[rgba(30,41,59,0.7)] dark:text-mcm-ink dark:focus:ring-[#64748b]/20 dark:focus:border-[#64748b]/50"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -399,7 +399,7 @@ const RecordingListingTable = ({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85 dark:border-[rgba(100,116,139,0.3)] dark:bg-[rgba(30,41,59,0.6)] dark:text-mcm-ink-2 dark:hover:bg-[rgba(30,41,59,0.9)]"
               >
                 <SlidersHorizontal className="h-4 w-4" />
               </button>
@@ -410,21 +410,21 @@ const RecordingListingTable = ({
               <DropdownMenuCheckboxItem
                 checked={videosOnly}
                 onCheckedChange={(value) => setVideosOnly(Boolean(value))}
-                className="!pl-2 pr-8 text-sm text-[#334155] data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F]"
+                className="!pl-2 pr-8 text-sm text-[#334155] dark:text-mcm-ink-2 data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F] dark:[&_svg]:text-[#cbd5e1]"
               >
                 Videos only
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={sharedOnly}
                 onCheckedChange={(value) => setSharedOnly(Boolean(value))}
-                className="!pl-2 pr-8 text-sm text-[#334155] data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F]"
+                className="!pl-2 pr-8 text-sm text-[#334155] dark:text-mcm-ink-2 data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F] dark:[&_svg]:text-[#cbd5e1]"
               >
                 Shared only
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={largeFilesOnly}
                 onCheckedChange={(value) => setLargeFilesOnly(Boolean(value))}
-                className="!pl-2 pr-8 text-sm text-[#334155] data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F]"
+                className="!pl-2 pr-8 text-sm text-[#334155] dark:text-mcm-ink-2 data-[state=checked]:font-medium [&>span]:left-auto [&>span]:right-2 [&>span]:size-3 [&_svg]:text-[#B5642F] dark:[&_svg]:text-[#cbd5e1]"
               >
                 Large files (&gt; 100 MB)
               </DropdownMenuCheckboxItem>
@@ -435,7 +435,7 @@ const RecordingListingTable = ({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85 dark:border-[rgba(100,116,139,0.3)] dark:bg-[rgba(30,41,59,0.6)] dark:text-mcm-ink-2 dark:hover:bg-[rgba(30,41,59,0.9)]"
               >
                 <ArrowUpDown className="h-4 w-4" />
               </button>
@@ -451,7 +451,7 @@ const RecordingListingTable = ({
                 >
                   <span>{option.label}</span>
                   {sortBy === option.key ? (
-                    <Check className="h-4 w-4" style={{ color: '#B5642F' }} />
+                    <Check className="h-4 w-4 vm-sunset-ink" style={{ color: '#B5642F' }} />
                   ) : null}
                 </DropdownMenuItem>
               ))}
@@ -460,7 +460,7 @@ const RecordingListingTable = ({
         </div>
       </div>
 
-      <div className="hidden grid-cols-[minmax(0,2.8fr)_0.95fr_1fr_0.95fr_0.7fr_56px] gap-4 border-b border-white/60 bg-white/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.06em] text-[#8a6a55] sm:grid">
+      <div className="hidden grid-cols-[minmax(0,2.8fr)_0.95fr_1fr_0.95fr_0.7fr_56px] gap-4 border-b border-white/60 bg-white/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.06em] text-[#8a6a55] dark:border-[rgba(100,116,139,0.2)] dark:bg-[rgba(30,41,59,0.3)] dark:text-mcm-ink-3 sm:grid">
         <div>Name</div>
         <div>Size</div>
         <div>Recorded On</div>
@@ -471,7 +471,7 @@ const RecordingListingTable = ({
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center p-8 text-sm text-[#64748b]">
+          <div className="flex items-center justify-center p-8 text-sm text-[#64748b] dark:text-[#aab6c1]">
             Loading recordings...
           </div>
         ) : filteredRecords.length ? (
@@ -480,11 +480,11 @@ const RecordingListingTable = ({
               {filteredRecords.map((record) => (
                 <div
                   key={record?._id}
-                  className="rounded-xl border border-white/70 bg-white/50 backdrop-blur-md p-3 shadow-[0_2px_10px_rgba(154,52,18,0.05)]"
+                  className="rounded-xl border border-white/70 bg-white/50 dark:border-[rgba(100,116,139,0.25)] dark:bg-[rgba(30,41,59,0.5)] backdrop-blur-md p-3 shadow-[0_2px_10px_rgba(154,52,18,0.05)]"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E78B50]/10 text-[#B5642F]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E78B50]/10 text-[#B5642F] dark:bg-[#f97316]/15 dark:text-[#ff8a2a]">
                         {record.fileType === 'video' ? (
                           <FileVideo2 className="h-4 w-4" />
                         ) : (
@@ -493,19 +493,19 @@ const RecordingListingTable = ({
                       </div>
                       <div className="min-w-0">
                         <p
-                          className="block max-w-full truncate text-sm font-semibold text-[#0f172a]"
+                          className="block max-w-full truncate text-sm font-semibold text-[#0f172a] dark:text-mcm-ink"
                           title={record?.meeting?.name ?? record.displayName}
                         >
                           {record?.meeting?.name ?? record.displayName}
                         </p>
-                        <div className="flex min-w-0 items-center gap-1 text-xs text-[#64748b]">
+                        <div className="flex min-w-0 items-center gap-1 text-xs text-[#64748b] dark:text-[#aab6c1]">
                           <p className="truncate min-w-0">
                             {record.durationLabel !== '--' ? `${record.durationLabel} - ` : ''}
                             <span className="break-all">{record.meetingId || 'Meeting'}</span>
                           </p>
                           {record?.isSharedWithMeNonAdmin ? (
                             <CustomTooltip text="Shared with you" side="top">
-                              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E78B50]/10 text-[#B5642F]">
+                              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E78B50]/10 text-[#B5642F] dark:bg-[#f97316]/15 dark:text-[#ff8a2a]">
                                 <Share2 className="h-3 w-3" />
                               </span>
                             </CustomTooltip>
@@ -518,21 +518,21 @@ const RecordingListingTable = ({
 
                   <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                     <div className="min-w-0">
-                      <p className="text-[#64748b]">Size</p>
-                      <p className="truncate font-medium text-[#0f172a]">
+                      <p className="text-[#64748b] dark:text-[#aab6c1]">Size</p>
+                      <p className="truncate font-medium text-[#0f172a] dark:text-mcm-ink">
                         {formatFileSize(record?.recordingSize || record.sizeBytes || 0)}
                       </p>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[#64748b]">Recorded On</p>
-                      <p className="truncate font-medium text-[#0f172a]">{record.modifiedLabel}</p>
+                      <p className="text-[#64748b] dark:text-[#aab6c1]">Recorded On</p>
+                      <p className="truncate font-medium text-[#0f172a] dark:text-mcm-ink">{record.modifiedLabel}</p>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[#64748b]">Owner</p>
-                      <p className="truncate font-medium text-[#0f172a]">{record.ownerLabel}</p>
+                      <p className="text-[#64748b] dark:text-[#aab6c1]">Owner</p>
+                      <p className="truncate font-medium text-[#0f172a] dark:text-mcm-ink">{record.ownerLabel}</p>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[#64748b]">Members</p>
+                      <p className="text-[#64748b] dark:text-[#aab6c1]">Members</p>
                       <div className="pt-0.5">{renderMembersBadge(record)}</div>
                     </div>
                   </div>
@@ -544,10 +544,10 @@ const RecordingListingTable = ({
               {filteredRecords.map((record) => (
                 <div
                   key={record?._id}
-                  className="grid grid-cols-[minmax(0,2.8fr)_0.95fr_1fr_0.95fr_0.7fr_56px] items-center gap-4 border-b border-white/50 px-5 py-4 transition-colors last:border-b-0 hover:bg-white/30"
+                  className="grid grid-cols-[minmax(0,2.8fr)_0.95fr_1fr_0.95fr_0.7fr_56px] items-center gap-4 border-b border-white/50 dark:border-[rgba(100,116,139,0.15)] px-5 py-4 transition-colors last:border-b-0 hover:bg-white/30 dark:hover:bg-[rgba(100,116,139,0.08)]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E78B50]/10 text-[#B5642F]">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#E78B50]/10 text-[#B5642F] dark:bg-[#f97316]/15 dark:text-[#ff8a2a]">
                       {record.fileType === 'video' ? (
                         <FileVideo2 className="h-4 w-4" />
                       ) : (
@@ -556,19 +556,19 @@ const RecordingListingTable = ({
                     </div>
                     <div className="min-w-0">
                       <p
-                        className="block max-w-full truncate text-base font-medium text-[#0f172a]"
+                        className="block max-w-full truncate text-base font-medium text-[#0f172a] dark:text-mcm-ink"
                         title={record?.meeting?.name ?? record.displayName}
                       >
                         {record?.meeting?.name ?? record.displayName}
                       </p>
-                      <div className="flex min-w-0 items-center gap-1 text-xs text-[#64748b]">
+                      <div className="flex min-w-0 items-center gap-1 text-xs text-[#64748b] dark:text-[#aab6c1]">
                         <p className="truncate min-w-0">
                           {record.durationLabel !== '--' ? `${record.durationLabel} - ` : ''}
                           {record.meetingId || 'Meeting'}
                         </p>
                         {record?.isSharedWithMeNonAdmin ? (
                           <CustomTooltip text="Shared with you" side="top">
-                            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E78B50]/10 text-[#B5642F]">
+                            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#E78B50]/10 text-[#B5642F] dark:bg-[#f97316]/15 dark:text-[#ff8a2a]">
                               <Share2 className="h-3 w-3" />
                             </span>
                           </CustomTooltip>
@@ -577,12 +577,14 @@ const RecordingListingTable = ({
                     </div>
                   </div>
 
-                  <div className="min-w-0 text-sm text-[#475569]">
+                  <div className="min-w-0 text-sm text-[#475569] dark:text-mcm-ink-2">
                     {formatFileSize(record?.recordingSize || record.sizeBytes || 0)}
                   </div>
-                  <div className="min-w-0 text-sm text-[#475569]">{record.modifiedLabel}</div>
-                  <div className="min-w-0 text-sm text-[#0f172a]">{record.ownerLabel}</div>
-                  <div className="text-sm text-[#0f172a] ml-4">{renderMembersBadge(record)}</div>
+                  <div className="min-w-0 text-sm text-[#475569] dark:text-mcm-ink-2">{record.modifiedLabel}</div>
+                  <div className="min-w-0 text-sm text-[#0f172a] dark:text-mcm-ink">{record.ownerLabel}</div>
+                  <div className="text-sm text-[#0f172a] dark:text-mcm-ink ml-4">
+                    {renderMembersBadge(record)}
+                  </div>
                   <div className="flex items-center justify-center">
                     {renderActionsMenu(record)}
                   </div>
@@ -594,14 +596,14 @@ const RecordingListingTable = ({
           <div className="flex min-h-64 flex-col items-center justify-center gap-2 p-8">
             {records.length ? (
               <>
-                <p className="text-base font-medium text-[#0f172a]">No matching results</p>
-                <p className="text-sm text-[#64748b]">Try changing search text or filters.</p>
+                <p className="text-base font-medium text-[#0f172a] dark:text-mcm-ink">No matching results</p>
+                <p className="text-sm text-[#64748b] dark:text-[#aab6c1]">Try changing search text or filters.</p>
               </>
             ) : (
               <>
                 <img src={NotFound} alt="NotFound" className="w-24 min-w-24" />
-                <p className="text-base font-medium text-[#0f172a]">{emptyTitle}</p>
-                <p className="text-sm text-[#64748b]">{emptyDescription}</p>
+                <p className="text-base font-medium text-[#0f172a] dark:text-mcm-ink">{emptyTitle}</p>
+                <p className="text-sm text-[#64748b] dark:text-[#aab6c1]">{emptyDescription}</p>
               </>
             )}
           </div>

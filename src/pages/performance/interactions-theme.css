@@ -45,24 +45,25 @@ body.perf-warm-backdrop {
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
   --ic-glass-shadow-hover: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
 }
+/* Neutral gray, not orange — global Dark Mode rebrand. */
 .dark .perf-interactions,
 .dark body.perf-warm-backdrop,
 body.perf-warm-backdrop.dark {
-  --ic-accent: #fb923c;
-  --ic-accent-deep: #f97316;
-  --ic-accent-ink: #fdba74;
-  --ic-wash: #2a1710;
-  --ic-ink: #f4f6fb;
-  --ic-muted: #93a1ba;
-  --ic-hairline: rgba(251, 146, 60, 0.14);
-  --ic-row-hover: rgba(251, 146, 60, 0.1);
+  --ic-accent: #f97316;
+  --ic-accent-deep: #ea580c;
+  --ic-accent-ink: #ff8a2a;
+  --ic-wash: #111c26;
+  --ic-ink: #f5f7fa;
+  --ic-muted: #aab6c1;
+  --ic-hairline: rgba(249, 115, 22, 0.16);
+  --ic-row-hover: rgba(249, 115, 22, 0.1);
 
-  --ic-glass: rgba(17, 24, 39, 0.72);
-  --ic-glass-border: rgba(251, 146, 60, 0.18);
+  --ic-glass: rgba(11, 20, 28, 0.72);
+  --ic-glass-border: rgba(249, 115, 22, 0.2);
   --ic-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --ic-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
+  --ic-glass-shadow-hover: 0 16px 38px -5px rgba(249, 115, 22, 0.24);
 }
 
 /* ------------------------------------------------------------
@@ -86,6 +87,9 @@ body.perf-warm-backdrop.dark {
   border-color: rgba(249, 115, 22, 0.3);
   box-shadow: var(--ic-glass-shadow-hover);
   transform: translateY(-2px);
+}
+.dark .mcm-page .perf-interactions > .grid .stat:hover {
+  border-color: rgba(100, 116, 139, 0.3);
 }
 .mcm-page .perf-interactions > .grid .stat .k {
   color: var(--ic-muted);
@@ -180,6 +184,13 @@ body.perf-warm-backdrop.dark {
 }
 .dark .perf-interactions .filters input {
   background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(100, 116, 139, 0.3) !important;
+}
+.dark .perf-interactions .filters input:hover {
+  border-color: rgba(100, 116, 139, 0.45) !important;
+}
+.dark .perf-interactions .filters input:focus {
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2) !important;
 }
 /* The search icon sits in its own absolutely-positioned span
    (`Input`'s `IconPosition` prop, `left-0 pl-2`) — nudged in and
@@ -228,7 +239,7 @@ body.perf-warm-backdrop.dark {
   box-shadow: 0 1px 0 0 var(--ic-hairline);
 }
 .dark .perf-interactions .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .perf-interactions .table-scroll thead th {
   color: var(--ic-muted);
@@ -325,12 +336,21 @@ body.perf-warm-backdrop.dark {
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
+.dark .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'] {
+  background: rgba(11, 20, 28, 0.75) !important;
+  border-color: rgba(249, 115, 22, 0.2);
+  box-shadow: none;
+}
 .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'][class*='bg-ucass-active-bg']:hover,
 .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'][class*='bg-green-100']:hover {
   background: linear-gradient(135deg, var(--ic-accent) 0%, var(--ic-accent-deep) 100%) !important;
   border-color: transparent;
   color: #fff !important;
   box-shadow: 0 6px 14px rgba(249, 115, 22, 0.26);
+}
+.dark .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'][class*='bg-ucass-active-bg']:hover,
+.dark .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'][class*='bg-green-100']:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.26);
 }
 .perf-interactions .table-scroll tbody td [class*='rounded-full'][class*='w-8'][class*='bg-purple-100']:hover {
   background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%) !important;

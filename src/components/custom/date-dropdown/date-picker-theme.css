@@ -202,3 +202,123 @@
   border-color: #f2994a;
   color: #f2994a;
 }
+
+/* ==================================================================
+   Dark mode.
+
+   This whole skin was built for a light, cream popup — every card, input
+   and control below hardcodes a literal white/off-white background and the
+   orange accent as a bare hex, with no `.dark` counterpart anywhere in the
+   file. Left alone the calendar popup and its trigger cards would still
+   render as a light card with near-black text even with the rest of the
+   app in Dark Mode. Mapped onto the app's own dark tokens: white/cream
+   surfaces -> --mcm-surface(-2/3), near-black text -> --mcm-ink(-2/-3).
+   Orange is the accent again (2026-09-05 re-theme) for the selected day
+   and the Apply button, but never as a large fill elsewhere. */
+.dark .mcm-datepicker.react-datepicker {
+  border-color: var(--mcm-line, #1b2934);
+  background: var(--mcm-surface, #111c26);
+  box-shadow:
+    0 16px 32px -8px rgba(0, 0, 0, 0.35),
+    0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.dark .mcm-datepicker .react-datepicker__header {
+  background: var(--mcm-surface-3, #1a2733);
+  border-bottom-color: var(--mcm-line, #1b2934);
+}
+.dark .mcm-datepicker .react-datepicker__current-month {
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .mcm-datepicker .react-datepicker__day-name {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .mcm-datepicker .react-datepicker__day {
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .mcm-datepicker .react-datepicker__day:hover {
+  background: rgba(249, 115, 22, 0.16);
+}
+.dark .mcm-datepicker .react-datepicker__day--selected,
+.dark .mcm-datepicker .react-datepicker__day--keyboard-selected,
+.dark .mcm-datepicker .react-datepicker__day--in-selecting-range,
+.dark .mcm-datepicker .react-datepicker__day--in-range {
+  background: #f97316;
+  color: #1a0f06;
+}
+.dark .mcm-datepicker .react-datepicker__day--keyboard-selected:hover {
+  background: #ff8a2a;
+}
+.dark .mcm-datepicker .react-datepicker__day--today:not(.react-datepicker__day--selected) {
+  color: #ff8a2a;
+}
+.dark .mcm-datepicker .react-datepicker__day--outside-month {
+  color: var(--mcm-ink-4, #7c8894);
+}
+.dark .mcm-datepicker .react-datepicker__day--disabled {
+  color: var(--mcm-ink-4, #7c8894);
+}
+.dark .mcm-datepicker .react-datepicker__navigation-icon::before {
+  border-color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .mcm-datepicker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #ff8a2a;
+}
+.dark .mcm-datepicker .react-datepicker__month-select,
+.dark .mcm-datepicker .react-datepicker__year-select {
+  border-color: var(--mcm-line, #1b2934);
+  background: var(--mcm-surface-3, #1a2733);
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .mcm-datepicker .react-datepicker__month-select:focus,
+.dark .mcm-datepicker .react-datepicker__year-select:focus {
+  border-color: #f97316;
+}
+
+.dark .mcm-date-input {
+  background: var(--mcm-surface, #111c26);
+  border-color: var(--mcm-line, #1b2934);
+}
+.dark .mcm-date-input:hover {
+  border-color: #f97316;
+}
+.dark .mcm-date-input:focus,
+.dark .mcm-date-input:focus-visible {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+.dark .mcm-date-field-value {
+  color: var(--mcm-ink, #f3f6f9);
+}
+.dark .mcm-date-field-value.is-placeholder {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+
+.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']) {
+  background: #f97316;
+  border-color: #f97316;
+  color: #1a0f06;
+}
+.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']):hover:not(:disabled) {
+  background: #ff8a2a;
+  border-color: #ff8a2a;
+}
+.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']):disabled {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-surface-3, #1a2733);
+  color: #7c8894;
+}
+
+.dark .filters input:focus-visible {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
+}
+
+.dark .mcm-page button.mcm-date-clear-btn:not([data-slot='tabs-trigger']) {
+  background: var(--mcm-surface, #111c26);
+  border-color: var(--mcm-line, #1b2934);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .mcm-page button.mcm-date-clear-btn:not([data-slot='tabs-trigger']):hover {
+  border-color: #f97316;
+  color: #ff8a2a;
+}

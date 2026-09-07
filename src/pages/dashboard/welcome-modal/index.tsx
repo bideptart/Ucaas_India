@@ -26,7 +26,7 @@ export const WelcomeModalPopup: FC = () => {
           <div className="flex flex-col gap-3 w-full">
             <div className="gap-3 flex items-center justify-center">
               <img src={Hand} alt="Hand" />
-              <h3 className="text-black text-2xl font-semibold text-start">Welcome to UCAAS!</h3>
+              <h3 className="text-foreground text-2xl font-semibold text-start">Welcome to UCAAS!</h3>
             </div>
 
             <div className="flex flex-col items-start gap-4">

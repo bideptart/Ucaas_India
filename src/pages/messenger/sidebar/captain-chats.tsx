@@ -44,16 +44,16 @@ const CaptainChats = ({
   });
 
   if (isLoading) {
-    return <div className="p-4 text-sm text-gray-400">Loading…</div>;
+    return <div className="p-4 text-sm text-gray-400 dark:text-mcm-ink-3">Loading…</div>;
   }
 
   if (!conversations.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 h-full text-center p-6">
-        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-mcm-surface-3 text-indigo-500 flex items-center justify-center">
           <Bot className="w-5 h-5" />
         </div>
-        <p className="text-sm text-gray-500">No Captain conversations yet</p>
+        <p className="text-sm text-gray-500 dark:text-mcm-ink-3">No Captain conversations yet</p>
       </div>
     );
   }
@@ -68,15 +68,15 @@ const CaptainChats = ({
             key={c.id}
             type="button"
             onClick={() => setSelectedChat(c)}
-            className={`flex items-center gap-3 p-3 text-left border-b border-gray-100 hover:bg-gray-50 ${
-              isActive ? 'bg-indigo-50' : ''
+            className={`flex items-center gap-3 p-3 text-left border-b border-gray-100 dark:border-mcm-line hover:bg-gray-50 dark:hover:bg-mcm-surface-3 ${
+              isActive ? 'bg-indigo-50 dark:bg-mcm-surface-3' : ''
             }`}
           >
             <CustomAvatar name={label} size="36" showPresence={false} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-900 truncate">{label}</p>
-                <span className="text-[11px] text-gray-400 shrink-0">{moment(c.last_message_at).fromNow()}</span>
+                <p className="text-sm font-medium text-gray-900 dark:text-mcm-ink truncate">{label}</p>
+                <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 shrink-0">{moment(c.last_message_at).fromNow()}</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
@@ -86,7 +86,7 @@ const CaptainChats = ({
                 >
                   {c.owner === 'human' ? 'You' : 'AI'}
                 </span>
-                <span className="text-xs text-gray-400 truncate">{c.assistant_name}</span>
+                <span className="text-xs text-gray-400 dark:text-mcm-ink-3 truncate">{c.assistant_name}</span>
               </div>
             </div>
           </button>

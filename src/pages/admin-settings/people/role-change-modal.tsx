@@ -129,7 +129,7 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
     if (normalized === 'AGENT') return 'text-slate-700 border-slate-200 bg-slate-50';
     if (normalized.includes('SUPPORT')) return 'text-emerald-700 border-emerald-200 bg-emerald-50';
     if (normalized.includes('SALES')) return 'text-rose-700 border-rose-200 bg-rose-50';
-    return 'text-gray-700 border-gray-200 bg-gray-50';
+    return 'text-gray-700 border-gray-200 bg-gray-50 dark:text-mcm-ink-2 dark:border-mcm-line dark:bg-mcm-surface-3';
   };
 
   const handleClose = () => {
@@ -163,15 +163,15 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
       >
         <div className="gp-role-head flex items-start justify-between p-5">
           <div className="flex flex-col gap-1">
-            <h4 className="text-gray-900 text-lg font-semibold">Select Role</h4>
-            <p className="text-sm text-gray-500">
+            <h4 className="text-gray-900 text-lg font-semibold dark:text-mcm-ink">Select Role</h4>
+            <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
               Selecting role for <span className="text-primary font-sm">{fullName}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-900 cursor-pointer"
+            className="text-gray-500 hover:text-gray-900 cursor-pointer dark:text-mcm-ink-3 dark:hover:text-mcm-ink"
           >
             <CloseIcon className="w-4 h-4" />
           </button>
@@ -188,7 +188,7 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
               if (value.startsWith(' ')) return;
               setSearch(value);
             }}
-            Icon={<SearchLine className="text-gray-500" />}
+            Icon={<SearchLine className="text-gray-500 dark:text-mcm-ink-3" />}
           />
         </div>
 
@@ -221,7 +221,7 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
                     <div className="flex items-center gap-3">
                       <RadioGroupItem value={roleValue} />
                       <div className="flex flex-col">
-                        <p className="text-gray-900 font-semibold text-md leading-tight">
+                        <p className="text-gray-900 font-semibold text-md leading-tight dark:text-mcm-ink">
                           {role?.label}
                         </p>
                       </div>
@@ -236,16 +236,16 @@ const RoleChangeModal: FC<RoleChangeModalProps> = ({ open, setOpen, userData }) 
               })}
             </RadioGroup>
           ) : (
-            <div className="w-full min-h-[180px] flex items-center justify-center text-sm text-gray-500">
+            <div className="w-full min-h-[180px] flex items-center justify-center text-sm text-gray-500 dark:text-mcm-ink-3">
               No roles found.
             </div>
           )}
         </div>
 
         <div className="gp-role-foot text-sm px-6 py-4 flex items-center justify-between">
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 font-medium dark:text-mcm-ink-3">
             Selected:{' '}
-            <span className="text-gray-900">
+            <span className="text-gray-900 dark:text-mcm-ink">
               {selectedRole?.label || currentRoleName || 'No role selected'}
             </span>
           </p>

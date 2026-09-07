@@ -56,10 +56,10 @@ const Calls = ({
             if (value.startsWith(' ')) return;
             setSearch(e.target.value);
           }}
-          Icon={<SearchLine className=" text-gray-700" />}
+          Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
         />
         <Button
-          className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white border border-gray-300 text-gray-400 hover:bg-primary hover:text-white"
+          className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white dark:bg-mcm-surface border border-gray-300 dark:border-mcm-line text-gray-400 dark:text-mcm-ink-3 hover:bg-primary hover:text-white"
           type="button"
           variant={'ghost'}
           onClick={handleRefresh}
@@ -68,28 +68,28 @@ const Calls = ({
         </Button>
       </div>
       <Tabs defaultValue="all" className="w-full ">
-        <div className="border-b border-gray-200 w-full">
-          <TabsList className=" w-full bg-white p-0 rounded-none  ">
+        <div className="border-b border-gray-200 dark:border-mcm-line w-full">
+          <TabsList className=" w-full bg-white dark:bg-mcm-surface p-0 rounded-none  ">
             <TabsTrigger
-              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700"
+              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
               value="all"
             >
               All
             </TabsTrigger>
             <TabsTrigger
-              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700"
+              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
               value="outgoing"
             >
               Outgoing
             </TabsTrigger>
             <TabsTrigger
-              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700"
+              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
               value="incoming"
             >
               Incoming
             </TabsTrigger>
             <TabsTrigger
-              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2  px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700"
+              className="cursor-pointer  data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2  px-4 data-[state=active]:border-b-primary data-[state=active]:rounded-none border-b-2 h-full font-semibold data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
               value="missed"
             >
               Missed

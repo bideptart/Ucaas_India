@@ -318,7 +318,7 @@ function Playground() {
   }, []);
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f]">
+    <section className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f] dark:text-mcm-ink">
       {/* Dynamic Style Override to position AI360 widget in Middle Panel */}
       {selectedAgent && activeWidgetId && (
         <style>{`
@@ -360,8 +360,8 @@ function Playground() {
       )}
 
       {/* Page Header (Matching other AI pages) */}
-      <div className="flex min-h-[64px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 shrink-0">
-        <div className="flex items-center gap-2 text-base font-semibold text-slate-500">
+      <div className="flex min-h-[64px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 shrink-0">
+        <div className="flex items-center gap-2 text-base font-semibold text-slate-500 dark:text-mcm-ink-3">
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
@@ -370,7 +370,7 @@ function Playground() {
             AI Agents
           </button>
           <span>/</span>
-          <span className="text-[#2E2D35]">Playground</span>
+          <span className="text-[#2E2D35] dark:text-mcm-ink">Playground</span>
         </div>
       </div>
 
@@ -424,16 +424,16 @@ function Playground() {
         {/* Workspace Columns */}
         <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
           {/* Left Column: Pick Agent List */}
-          <div className="w-82 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col overflow-hidden shrink-0">
-            <div className="p-3 border-b border-[#EEE7DD] bg-[#FBE2C8]/50 space-y-2.5">
+          <div className="w-82 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden shrink-0">
+            <div className="p-3 border-b border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/50 dark:bg-mcm-surface-3 space-y-2.5">
               {/* Mini Tabs (Primary UCAAS selected tab) */}
-              <div className="flex bg-[#FBE2C8]/40 p-1 rounded-lg border border-[#EEE7DD]/40">
+              <div className="flex bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 p-1 rounded-lg border border-[#EEE7DD]/40 dark:border-mcm-line/40">
                 <button
                   onClick={() => setActiveTab('voice')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
                     activeTab === 'voice'
                       ? 'bg-ucass-primary-200 text-primary shadow-sm'
-                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
+                      : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink bg-transparent'
                   }`}
                 >
                   <Phone className="w-3.5 h-3.5" />
@@ -444,7 +444,7 @@ function Playground() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
                     activeTab === 'chat'
                       ? 'bg-ucass-primary-200 text-primary shadow-sm'
-                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
+                      : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink bg-transparent'
                   }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -454,13 +454,13 @@ function Playground() {
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A948F]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
                 <input
                   type="text"
                   placeholder="Search agents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-lg outline-none focus:border-primary transition-all placeholder:text-[#9A948F]"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-lg outline-none focus:border-primary transition-all placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3"
                 />
               </div>
             </div>
@@ -470,11 +470,11 @@ function Playground() {
               {isPageLoading ? (
                 <div className="py-8 flex flex-col items-center justify-center gap-2">
                   <Loader variant="custom" />
-                  <p className="text-[11px] text-[#9A948F]">Loading agents...</p>
+                  <p className="text-[11px] text-[#9A948F] dark:text-mcm-ink-3">Loading agents...</p>
                 </div>
               ) : filteredAgents.length === 0 ? (
                 <div className="py-8 px-4 text-center">
-                  <p className="text-xs text-[#9A948F] font-medium">No agents found</p>
+                  <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 font-medium">No agents found</p>
                 </div>
               ) : (
                 filteredAgents.map((agent: any) => {
@@ -491,7 +491,7 @@ function Playground() {
                       className={`w-full text-left flex items-center justify-between p-2 rounded-lg border transition-all ${
                         isSelected
                           ? 'bg-ucass-primary-200/50 border-primary text-primary shadow-sm'
-                          : 'bg-white border-transparent hover:bg-slate-50 text-[#2E2D35]'
+                          : 'bg-white dark:bg-mcm-surface border-transparent hover:bg-slate-50 text-[#2E2D35] dark:text-mcm-ink'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -505,7 +505,7 @@ function Playground() {
                           <p className="text-xs font-semibold truncate leading-4">
                             {agent?.agentName}
                           </p>
-                          <p className="text-[10px] text-[#9A948F] truncate leading-3">
+                          <p className="text-[10px] text-[#9A948F] dark:text-mcm-ink-3 truncate leading-3">
                             {activeTab === 'chat' ? 'Chat Agent' : 'Voice Agent'}
                           </p>
                         </div>
@@ -518,14 +518,14 @@ function Playground() {
           </div>
 
           {/* Middle Column: Inline Sandbox Session */}
-          <div className="flex-1 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] overflow-hidden flex flex-col min-h-0 relative">
+          <div className="flex-1 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col min-h-0 relative">
             {!selectedAgent ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto">
                 <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3 text-primary">
                   <Activity className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-bold text-[#2E2D35]">Sandbox Preview</h3>
-                <p className="text-xs text-[#9A948F] mt-1 leading-relaxed">
+                <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Sandbox Preview</h3>
+                <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1 leading-relaxed">
                   Select an agent from the left column. The playground will immediately launch the
                   chat session or initiate a test voice call.
                 </p>
@@ -533,21 +533,21 @@ function Playground() {
             ) : (
               <div className="flex-1 flex flex-col min-h-0 ">
                 {/* Middle Column Header */}
-                <div className="p-3 border-b border-[#EEE7DD] flex items-center justify-between gap-3 bg-[#FBE2C8]/30 shrink-0">
+                <div className="p-3 border-b border-[#EEE7DD] dark:border-mcm-line flex items-center justify-between gap-3 bg-[#FBE2C8]/30 dark:bg-mcm-surface-3 shrink-0">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm uppercase shrink-0">
                       {String(selectedAgent?.agentName || 'A').charAt(0)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <h2 className="text-xs font-bold text-[#2E2D35] truncate max-w-[120px]">
+                        <h2 className="text-xs font-bold text-[#2E2D35] dark:text-mcm-ink truncate max-w-[120px]">
                           {selectedAgent?.agentName}
                         </h2>
                         <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/10 shrink-0">
                           Live
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-[10px] text-[#9A948F] leading-3">
+                      <div className="flex items-center gap-1 text-[10px] text-[#9A948F] dark:text-mcm-ink-3 leading-3">
                         <span>{activeTab === 'chat' ? 'Chat agent' : 'Voice receptionist'}</span>
                         <span>•</span>
                         <span className="text-primary font-semibold flex items-center gap-0.5">
@@ -560,7 +560,7 @@ function Playground() {
 
                 {/* Inline Sandbox Console */}
                 <div className="flex-1 flex flex-col min-h-0 overflow-auto">
-                  <div ref={containerRef} className="w-full flex-1 relative bg-[#FBE2C8]/50">
+                  <div ref={containerRef} className="w-full flex-1 relative bg-[#FBE2C8]/50 dark:bg-mcm-surface-3">
                     {isDemoMode() ? (
                       <PlaygroundDemoPreview
                         agentName={String(selectedAgent?.agentName || selectedAgent?.name || '')}
@@ -571,16 +571,16 @@ function Playground() {
                     )}
 
                     {isDemoMode() ? null : !activeWidgetKey ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
-                        <p className="text-sm font-semibold text-[#2E2D35]">Widget key missing</p>
-                        <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#9A948F]">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-mcm-surface z-10">
+                        <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Widget key missing</p>
+                        <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#9A948F] dark:text-mcm-ink-3">
                           Save the agent widget configuration first, then test it here.
                         </p>
                       </div>
                     ) : !isWidgetActive ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-mcm-surface z-10">
                         <Loader variant="custom" />
-                        <p className="text-xs text-[#9A948F] mt-2">
+                        <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-2">
                           Loading {activeWidgetMode === 'call' ? 'call' : 'chat'} widget inside
                           center layout...
                         </p>

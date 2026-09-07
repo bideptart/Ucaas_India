@@ -199,7 +199,7 @@ const AddGreeting: FC<IAddgreetings> = ({
       <FormProvider {...formInstance}>
         <div className="flex flex-col gap-4 pr-1 flex-1 overflow-y-auto">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col w-full">
-            <div className="border-b border-gray-200 w-full mb-4">
+            <div className="border-b border-gray-200 dark:border-mcm-line w-full mb-4">
               <TabsList className="flex text-sm font-semibold text-center p-0 rounded-none h-auto justify-start bg-transparent gap-6">
                 {Object.entries(TAB_CONSTANT).map(([key, value]) => (
                   <TabsTrigger
@@ -207,7 +207,7 @@ const AddGreeting: FC<IAddgreetings> = ({
                     value={value}
                     type="button"
                     onClick={(event) => event.stopPropagation()}
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 border-transparent px-1 pb-3 pt-2 text-gray-600 cursor-pointer rounded-none relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-none hover:text-gray-900 transition-colors"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 border-transparent px-1 pb-3 pt-2 text-gray-600 dark:text-mcm-ink-2 cursor-pointer rounded-none relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-none hover:text-gray-900 dark:hover:text-mcm-ink transition-colors"
                   >
                     {value}
                   </TabsTrigger>

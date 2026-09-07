@@ -81,8 +81,8 @@ const NumbersByLine: FC<NumbersByLineProps> = ({ search, onEditLabel, canLabel }
 
       {visible.length === 0 ? (
         <div className="px-3 py-8 text-center">
-          <p className="font-semibold text-gray-900">No lines to show</p>
-          <p className="text-sm text-gray-500">
+          <p className="font-semibold text-gray-900 dark:text-mcm-ink">No lines to show</p>
+          <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
             {groups.length
               ? 'No line matches that search.'
               : 'Point a number at a department, queue or menu and it will be grouped here.'}
@@ -92,11 +92,11 @@ const NumbersByLine: FC<NumbersByLineProps> = ({ search, onEditLabel, canLabel }
         visible.map((group) => (
           <section key={group.line.key} className="flex flex-col gap-1">
             <header className="flex flex-wrap items-baseline gap-2">
-              <h3 className="text-md font-semibold text-gray-900">{group.line.name}</h3>
+              <h3 className="text-md font-semibold text-gray-900 dark:text-mcm-ink">{group.line.name}</h3>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
                 {TYPE_WORDS[group.line.type] || group.line.type}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-mcm-ink-3">
                 {group.numbers.length} {group.numbers.length === 1 ? 'number' : 'numbers'}
               </span>
             </header>
@@ -123,13 +123,13 @@ const NumbersByLine: FC<NumbersByLineProps> = ({ search, onEditLabel, canLabel }
                               first number on the line, which is the one people
                               mean when they say "the Support number". */}
                           {index === 0 ? (
-                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-800">
+                            <span className="rounded-full bg-gray-100 dark:bg-mcm-surface-3 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-800 dark:text-mcm-ink-2">
                               Primary
                             </span>
                           ) : null}
                         </div>
                       </td>
-                      <td>{label || <span className="text-gray-500">No label</span>}</td>
+                      <td>{label || <span className="text-gray-500 dark:text-mcm-ink-3">No label</span>}</td>
                       <td>{numberTypeOf(did)}</td>
                       <td>{isSmsCapable(did) ? 'Yes' : 'No'}</td>
                       <td className="text-right">
@@ -142,7 +142,7 @@ const NumbersByLine: FC<NumbersByLineProps> = ({ search, onEditLabel, canLabel }
                             {label ? 'Edit label' : 'Add label'}
                           </button>
                         ) : (
-                          <span className="text-gray-500">--</span>
+                          <span className="text-gray-500 dark:text-mcm-ink-3">--</span>
                         )}
                       </td>
                     </tr>
@@ -155,7 +155,7 @@ const NumbersByLine: FC<NumbersByLineProps> = ({ search, onEditLabel, canLabel }
       )}
 
       {unlinked ? (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-mcm-ink-3">
           {unlinked} {unlinked === 1 ? 'number rings' : 'numbers ring'} a person, or nothing at all,
           so {unlinked === 1 ? 'it is' : 'they are'} not on a shared line. They are all in All
           numbers.

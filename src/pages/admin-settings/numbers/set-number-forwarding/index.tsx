@@ -572,7 +572,7 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
           className={`flex  w-full ${isUpsertTemplate ? 'call-handling-template-tabs' : ''}`}
         >
           <div
-            className={`border-b border-gray-200 w-full ${
+            className={`border-b border-gray-200 dark:border-mcm-line w-full ${
               isUpsertTemplate ? 'call-handling-template-tabs-header' : ''
             }`}
           >
@@ -585,7 +585,7 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
                 <TabsTrigger
                   key={index}
                   value={value}
-                  className={`data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6   text-gray-700 cursor-pointer h-full rounded-none    m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ${
+                  className={`data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6   text-gray-700 dark:text-mcm-ink-3 cursor-pointer h-full rounded-none    m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ${
                     isUpsertTemplate ? 'call-handling-template-tab-trigger' : ''
                   }`}
                 >

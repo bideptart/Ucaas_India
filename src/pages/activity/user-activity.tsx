@@ -93,8 +93,8 @@ const UserActivity = () => {
   return (
     <section className="mcm-page mcm-admin">
       <div className="w-full h-full overflow-x-auto overflow-y-hidden">
-        <div className="flex-col sm:flex-row flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">Activity</p>
+        <div className="flex-col sm:flex-row flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">Activity</p>
           <div className="sm:flex sm:items-center gap-2 filters xs:grid xs:grid-cols-2 ">
             <div className="flex gap-1">
               <DateDropdown
@@ -209,7 +209,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           timeIntervals={60}
           timeCaption="Time"
           dateFormat="h:mm aa"
-          className="w-full px-2 py-2 min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2 min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
       <span className="">-</span>
@@ -224,7 +224,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           dateFormat="h:mm aa"
           minTime={startTime}
           maxTime={maxTime}
-          className="w-full px-2 py-2  min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2  min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
     </div>

@@ -225,10 +225,14 @@ const Sidebar = () => {
 
       <section
         id="mobile-sidebar-nav"
-        className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 transition-transform duration-200 ${
+        /* Background/border moved from inline style to Tailwind classes
+           (with `dark:` variants) — inline `style` always wins over the
+           global dark-theme catch-all in index.css, which can only match
+           `class` attribute substrings, so the rail stayed permanently
+           cream-colored in Dark Mode. */
+        className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 dark:border-[rgba(71,85,105,0.5)] bg-[#fffaf4] dark:bg-[#1e293b] transition-transform duration-200 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
-        style={{ background: '#fffaf4' }}
       >
         {/* This wrapper had no height, so the scroller's `h-full` below
             resolved against auto and never constrained anything — the views
@@ -263,7 +267,7 @@ const Sidebar = () => {
                 return (
                   <Fragment key={`${id}${index}`}>
                     {sep ? (
-                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200" />
+                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200 dark:bg-mcm-line" />
                     ) : null}
                     <NavLink
                       to={isEnabled ? link || '#' : '#'}
@@ -285,10 +289,28 @@ const Sidebar = () => {
                            separate two items that share one — fall back to it
                            only where the link has no view to compare. */
                         const lit = viewKey || linkView ? activeLink : activeLink || isActive;
-                        return `min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
-                          lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
-                        } hover:bg-ucass-active-bg hover:text-ucass-active ${
-                          !isEnabled ? 'text-gray-400' : 'text-gray-700'
+                        /* `border` is applied unconditionally (transparent
+                           when not active) rather than only added on the
+                           active branch, so the 1px border-width is always
+                           reserved — adding a border only to the active
+                           state would otherwise grow that one tile by 2px
+                           and shift its icon/label by half that against its
+                           neighbours. dark:border-mcm-line-2, not
+                           dark:border-mcm-line: the active tile needs to
+                           read as clearly bordered against its own
+                           `--color-ucass-active-bg` fill (already a step
+                           lighter than the rail), so it uses the app's
+                           already-brighter second border tone rather than
+                           the standard one. Not orange: the active state
+                           here already commits to a neutral wash + white
+                           text in dark mode, with no orange anywhere on it
+                           to match. */
+                        return `min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 border ${
+                          lit
+                            ? 'bg-ucass-active-bg text-ucass-active dark:text-white border-transparent dark:border-mcm-line-2'
+                            : 'bg-transparent border-transparent'
+                        } hover:bg-ucass-active-bg hover:text-ucass-active dark:hover:text-white ${
+                          !isEnabled ? 'text-gray-400 dark:text-mcm-ink-4' : 'text-gray-700 dark:text-mcm-ink-2'
                         } ${!isEnabled ? 'cursor-not-allowed' : ''}`;
                       }}
                       // className={({ isActive }) =>
@@ -353,7 +375,7 @@ const Sidebar = () => {
                       `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200  ${
                         link && isActive
                           ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                          : 'bg-white text-gray-700'
+                          : 'bg-white dark:bg-transparent text-gray-700 dark:text-mcm-ink-2'
                       } hover:${link && isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
                     }
                   >

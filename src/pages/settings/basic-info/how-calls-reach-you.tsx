@@ -57,13 +57,13 @@ const Fact = ({
   value?: string;
   hint: string;
 }) => (
-  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
+  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3">
     <div className="flex items-center gap-2">
       <span className="text-primary">{icon}</span>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9A948F]">{label}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">{label}</p>
     </div>
-    <p className="mt-1 text-sm font-semibold text-[#2E2D35]">{value?.trim() ? value : '—'}</p>
-    <p className="mt-0.5 text-xs text-[#9A948F]">{hint}</p>
+    <p className="mt-1 text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{value?.trim() ? value : '—'}</p>
+    <p className="mt-0.5 text-xs text-[#9A948F] dark:text-mcm-ink-3">{hint}</p>
   </div>
 );
 
@@ -99,9 +99,9 @@ const HowCallsReachYou = ({
   const covered = coverage.state === 'covered';
 
   return (
-    <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/60 p-3">
-      <p className="text-sm font-semibold text-[#2E2D35]">How calls reach you</p>
-      <p className="mt-0.5 text-xs text-[#9A948F]">
+    <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[#FBE2C8]/60 dark:bg-mcm-surface-3 p-3">
+      <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">How calls reach you</p>
+      <p className="mt-0.5 text-xs text-[#9A948F] dark:text-mcm-ink-3">
         Where a call comes in, and what happens if you do not pick it up.
       </p>
 
@@ -145,15 +145,15 @@ const HowCallsReachYou = ({
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
         )}
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-[#2E2D35]">When someone calls you</p>
-          <p className="text-xs text-[#2E2D35]">{coverage.detail}</p>
+          <p className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">When someone calls you</p>
+          <p className="text-xs text-[#2E2D35] dark:text-mcm-ink">{coverage.detail}</p>
           {covered && voicemailGreeting && (
-            <p className="mt-1 inline-flex items-center gap-1 text-xs text-[#9A948F]">
+            <p className="mt-1 inline-flex items-center gap-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
               <Voicemail className="h-3.5 w-3.5" />
               Callers hear: {voicemailGreeting}
             </p>
           )}
-          <p className="mt-1 text-xs text-[#9A948F]">
+          <p className="mt-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
             Change this under <span className="font-medium">My Account → My Phone</span>.
           </p>
         </div>

@@ -122,16 +122,16 @@ const RingPreview = () => {
     >
       <div className="flex flex-col gap-2 py-3">
         {agents.length === 0 ? (
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-muted-foreground">
             Add people on the Members tab to see what would happen.
           </p>
         ) : (
           moments.map((m, i) => (
             <div key={`${m.at}-${i}`} className="flex items-baseline gap-3">
-              <span className="w-16 shrink-0 text-right font-mono text-xs tabular-nums text-gray-500">
+              <span className="w-16 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground">
                 {m.at === 0 ? 'at once' : `${m.at}s`}
               </span>
-              <span className="text-xs text-gray-700">{m.reason}</span>
+              <span className="text-xs text-muted-foreground">{m.reason}</span>
             </div>
           ))
         )}

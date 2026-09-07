@@ -318,7 +318,7 @@ const NotesWidget = ({
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold text-[#2E2D35]">Notes</h3>
         </div>
-        <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-[#2E2D35]">
+        <span className="inline-flex items-center rounded-full border border-gray-200 dark:border-mcm-line bg-white dark:bg-mcm-surface-3 px-2.5 py-1 text-xs font-semibold text-[#2E2D35]">
           {renderedNotes?.length || 0} {renderedNotes?.length === 1 ? 'note' : 'notes'}
         </span>
       </header>
@@ -333,7 +333,7 @@ const NotesWidget = ({
               >
                 <div className="flex w-full items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-2">
-                    <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-white text-[11px] font-semibold text-primary">
+                    <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-white dark:bg-mcm-surface-3 text-[11px] font-semibold text-primary">
                       {(item?.name || 'U')
                         .split(' ')
                         .filter(Boolean)

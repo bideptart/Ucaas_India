@@ -95,7 +95,7 @@ const CompanyLogo = ({ companyInfo }: { companyInfo?: any }) => {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-4 rounded-lg border border-[#EEE7DD] p-3">
-        <div className="flex h-[70px] w-[130px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#DCD3C6] bg-white/70">
+        <div className="flex h-[70px] w-[130px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#DCD3C6] bg-white/70 dark:bg-mcm-surface/70">
           {logo ? (
             <img src={logo} alt="Company logo" className="max-h-full max-w-full object-contain" />
           ) : (
@@ -119,7 +119,7 @@ const CompanyLogo = ({ companyInfo }: { companyInfo?: any }) => {
                   event.target.value = '';
                 }}
               />
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#DCD3C6] bg-white px-3 py-1.5 text-sm font-medium text-[#2E2D35] transition-colors hover:border-primary hover:text-primary">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#DCD3C6] bg-white dark:bg-mcm-surface px-3 py-1.5 text-sm font-medium text-[#2E2D35] transition-colors hover:border-primary hover:text-primary">
                 <Upload className="h-3.5 w-3.5" />
                 {logo ? 'Replace' : 'Upload'}
               </span>

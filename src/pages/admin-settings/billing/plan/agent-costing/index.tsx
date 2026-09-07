@@ -47,7 +47,7 @@ const columns = [
       return (
         <span className="flex items-center gap-2 max-w-full overflow-hidden">
           <span
-            className="font-medium text-gray-900 truncate max-w-[170px] inline-block"
+            className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[170px] inline-block"
             title={row?.original?.agentName || 'Unknown'}
           >
             {row?.original?.agentName || 'Unknown'}

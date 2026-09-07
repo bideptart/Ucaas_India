@@ -64,7 +64,7 @@ function Label({
       htmlFor={htmlFor || automaticHtmlFor}
       data-slot="label"
       className={cn(
-        'flex items-center gap-2 text-sm leading-none font-medium group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+        'flex items-center gap-2 text-sm leading-none font-medium text-foreground group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
         (htmlFor || automaticHtmlFor) &&
           "relative cursor-pointer select-none after:absolute after:-inset-y-2 after:inset-x-0 after:content-['']",
         className,

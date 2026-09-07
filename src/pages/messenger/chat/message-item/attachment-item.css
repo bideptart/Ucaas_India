@@ -1,0 +1,9 @@
+/* attachment-item.tsx sets the audio-attachment seek-track background via an
+   inline style (needed for the `isMine` light literal in light mode), which
+   cannot carry a `.dark` selector on its own. This class hooks the received
+   (!isMine) track only, so the sent-message track's translucent white fill
+   (already theme-safe against its own dark-safe bubble background) is left
+   untouched. */
+.dark .audio-progress-track {
+  background: #1a2733 !important;
+}

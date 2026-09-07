@@ -120,13 +120,13 @@ const Create10DLCBrand = ({ setDrawerState }: any) => {
         }}
         className="flex w-full ten-dlc-brand-tabs"
       >
-        <div className="border-b border-gray-200 w-full ten-dlc-brand-tabs-header">
+        <div className="border-b border-gray-200 w-full ten-dlc-brand-tabs-header dark:border-mcm-line">
           <TabsList className="flex text-sm font-semibold p-0 rounded-none bg-transparent min-h-10 ten-dlc-brand-tabs-list">
             {steps.map((step) => (
               <TabsTrigger
                 key={step}
                 value={step}
-                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ten-dlc-brand-tab-trigger"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4   m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ten-dlc-brand-tab-trigger"
               >
                 {step}
               </TabsTrigger>

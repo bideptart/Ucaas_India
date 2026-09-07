@@ -117,7 +117,7 @@ const DispositionModal: FC<DispositionProps> = ({ modalState, setModalState, edi
   ${
     errors?.description?.message
       ? 'border-red-300 hover:border-red-300 focus:border-red-300 focus-visible:border-red-300'
-      : 'border-gray-300 hover:border-primary focus:border-primary focus-visible:border-primary'
+      : 'border-gray-300 dark:border-mcm-line hover:border-primary focus:border-primary focus-visible:border-primary'
   } 
   focus-visible:outline-none`}
                   placeholder="Enter description"

@@ -23,11 +23,13 @@
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 .dark .perf-callbacks {
-  --pc-wash: #2a1710;
-  --pc-muted: #93a1ba;
-  --pc-ink: #f4f6fb;
-  --pc-glass: rgba(17, 24, 39, 0.72);
-  --pc-glass-border: rgba(251, 146, 60, 0.18);
+  --pc-accent: #f97316;
+  --pc-accent-ink: #ff8a2a;
+  --pc-wash: #1a2733;
+  --pc-muted: #aab6c1;
+  --pc-ink: #f5f7fa;
+  --pc-glass: rgba(11, 20, 28, 0.72);
+  --pc-glass-border: rgba(249, 115, 22, 0.18);
   --pc-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
@@ -97,9 +99,9 @@
     border-color 0.16s ease;
 }
 .dark .perf-callbacks [data-slot='tabs-trigger'] {
-  color: #cbd5e1;
-  background: rgba(17, 24, 39, 0.5) !important;
-  border-color: rgba(251, 146, 60, 0.28);
+  color: #aab6c1;
+  background: rgba(13, 24, 33, 0.5) !important;
+  border-color: rgba(249, 115, 22, 0.28);
 }
 .perf-callbacks [data-slot='tabs-trigger']:hover {
   background: rgba(255, 241, 235, 0.9) !important;
@@ -107,7 +109,7 @@
   color: var(--pc-accent-ink);
 }
 .dark .perf-callbacks [data-slot='tabs-trigger']:hover {
-  background: rgba(251, 146, 60, 0.14) !important;
+  background: rgba(249, 115, 22, 0.14) !important;
 }
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
@@ -116,6 +118,13 @@
   box-shadow: 0 2px 8px -3px rgba(249, 115, 22, 0.22);
   color: var(--pc-accent-ink);
   font-weight: 700;
+}
+.dark .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
+.dark .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.35);
+  color: #1a0f06;
 }
 
 /* ------------------------------------------------------------
@@ -136,7 +145,7 @@
   box-shadow: 0 1px 0 0 rgba(249, 115, 22, 0.08);
 }
 .dark .perf-callbacks .table-scroll thead {
-  background: rgba(23, 15, 10, 0.97);
+  background: rgba(11, 20, 28, 0.97);
 }
 .perf-callbacks .table-scroll thead th {
   color: var(--pc-muted);
@@ -152,6 +161,9 @@
 }
 .perf-callbacks .table-scroll tbody tr:hover {
   background: rgba(255, 241, 235, 0.5);
+}
+.dark .perf-callbacks .table-scroll tbody tr:hover {
+  background: rgba(249, 115, 22, 0.1);
 }
 .perf-callbacks .table-scroll tbody td {
   color: #334155;
@@ -199,8 +211,8 @@
   white-space: nowrap;
 }
 .dark .perf-callbacks .table-scroll tbody td .capitalize {
-  background: rgba(251, 146, 60, 0.16);
-  color: #fdba74;
+  background: rgba(249, 115, 22, 0.16);
+  color: #ff8a2a;
 }
 
 /* Voicemail row actions (Play, Call back) — the same warm circular button
@@ -214,6 +226,16 @@
   color: var(--pc-accent-ink);
   box-shadow: 0 1px 2px rgba(249, 115, 22, 0.06);
 }
+.dark
+  .perf-callbacks
+  .table-scroll
+  tbody
+  td
+  [class*='rounded-full'][class*='bg-ucass-active-bg'] {
+  background: rgba(16, 26, 35, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  box-shadow: none;
+}
 .perf-callbacks
   .table-scroll
   tbody
@@ -222,6 +244,16 @@
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   border-color: transparent;
   color: #fff;
+}
+.dark
+  .perf-callbacks
+  .table-scroll
+  tbody
+  td
+  [class*='rounded-full'][class*='bg-ucass-active-bg']:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #1a0f06;
 }
 .perf-callbacks .table-scroll tbody td [class*='rounded-full'][class*='bg-green-100'] {
   background: rgba(220, 252, 231, 0.9);
@@ -264,6 +296,17 @@
 .perf-callbacks button[class*='backdrop-blur'] {
   background: rgba(251, 249, 246, 0.88) !important;
   border: 1px solid rgba(225, 200, 165, 0.9) !important;
+}
+/* This rule never had a dark counterpart, so the refresh button kept its
+   light cream pill in Dark Mode regardless of theme — same glass tokens
+   this file already uses for every other dark surface here. */
+.dark .perf-callbacks button[class*='backdrop-blur'] {
+  background: var(--pc-glass) !important;
+  border: 1px solid var(--pc-glass-border) !important;
+  color: var(--pc-muted) !important;
+}
+.dark .perf-callbacks button[class*='backdrop-blur']:hover {
+  background: var(--pc-wash) !important;
 }
 
 /* The pager group (« ‹ 1 › ») is intentionally left at its global default

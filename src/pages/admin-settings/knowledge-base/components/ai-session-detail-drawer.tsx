@@ -170,7 +170,7 @@ const getOutcomeClass = (outcome: string) => {
   if (outcome === 'Resolved') return 'bg-emerald-100 text-emerald-700';
   if (outcome === 'Handoff') return 'bg-amber-100 text-amber-800';
   if (outcome === 'Callback') return 'bg-blue-100 text-blue-700';
-  if (outcome === 'Active') return 'bg-slate-100 text-slate-700';
+  if (outcome === 'Active') return 'bg-slate-100 text-slate-700 dark:text-mcm-ink-2';
   return 'bg-rose-100 text-rose-700';
 };
 
@@ -270,15 +270,15 @@ const SentimentGraph = ({ session }: { session: any }) => {
       <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${score}%` }} />
       </div>
-      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3 text-left shadow-xl group-hover:block">
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
           Sentiment scores
         </div>
         {hasScores ? (
           <div className="space-y-2">
             {sentimentScores.map((item) => (
               <div key={item.key}>
-                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700">
+                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-mcm-ink-2">
                   <span>{item.label}</span>
                   <span>{item.score}/100</span>
                 </div>
@@ -292,7 +292,7 @@ const SentimentGraph = ({ session }: { session: any }) => {
             ))}
           </div>
         ) : (
-          <div className="text-xs font-semibold text-slate-500">Not analyzed</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Not analyzed</div>
         )}
       </div>
     </div>
@@ -309,9 +309,9 @@ const DetailItem = ({
   className?: string;
 }) => (
   <div>
-    <div className="text-[11px] font-medium text-slate-500">{label}</div>
+    <div className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">{label}</div>
     <div
-      className={`mt-0.5 flex items-center gap-1.5 text-[13px] font-bold text-slate-950 ${className}`}
+      className={`mt-0.5 flex items-center gap-1.5 text-[13px] font-bold text-slate-950 dark:text-mcm-ink ${className}`}
     >
       {value}
     </div>
@@ -351,15 +351,15 @@ const AiSessionDetailDrawer = ({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/45">
       <div className="flex h-full w-full max-w-[560px] flex-col bg-slate-50 shadow-2xl">
-        <div className="flex items-start gap-3 border-b border-slate-200 bg-white px-5 py-4">
+        <div className="flex items-start gap-3 border-b border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-5 py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-base font-extrabold text-slate-950">
+              <h2 className="truncate text-base font-extrabold text-slate-950 dark:text-mcm-ink">
                 {session ? getContactTitle(session) : 'AI session'}
               </h2>
               {session ? <ChannelPill channel={session?.channel} isSessionLabel /> : null}
             </div>
-            <p className="mt-1 truncate text-xs text-slate-500">
+            <p className="mt-1 truncate text-xs text-slate-500 dark:text-mcm-ink-3">
               {session
                 ? `${getContactSubText(session)} · ${getAgentName(session, agentById)} · ${formatStarted(
                     session?.startedAt || session?.createdAt,
@@ -370,7 +370,7 @@ const AiSessionDetailDrawer = ({
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 dark:text-mcm-ink-3 hover:bg-slate-100 hover:text-slate-900 dark:hover:text-mcm-ink"
             aria-label="Close session"
           >
             <X className="h-4 w-4" />
@@ -378,19 +378,19 @@ const AiSessionDetailDrawer = ({
         </div>
 
         {isLoading ? (
-          <div className="flex flex-1 items-center justify-center text-slate-500">
+          <div className="flex flex-1 items-center justify-center text-slate-500 dark:text-mcm-ink-3">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             Loading session...
           </div>
         ) : !session ? (
-          <div className="flex flex-1 items-center justify-center px-5 text-center text-sm font-semibold text-slate-500">
+          <div className="flex flex-1 items-center justify-center px-5 text-center text-sm font-semibold text-slate-500 dark:text-mcm-ink-3">
             {emptyMessage}
           </div>
         ) : (
           <>
             <div className="flex-1 overflow-y-auto px-5 py-[18px]">
-              <div className="rounded-xl border border-slate-200 bg-white px-4 py-3.5">
-                <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+              <div className="rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-3.5">
+                <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
                   Session details
                 </div>
                 <div className="grid grid-cols-1 gap-x-4 gap-y-2.5 sm:grid-cols-2">
@@ -414,13 +414,13 @@ const AiSessionDetailDrawer = ({
                             {hasSessionCost(session) ? formatCost(session?.totalCostUSD) : '-'}
                           </span>
                           {getCostBasis(session) ? (
-                            <span className="text-[11px] font-medium text-slate-500">
+                            <span className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">
                               · {getCostBasis(session)}
                             </span>
                           ) : null}
                         </div>
                         {getCostDeductionLabel(session) ? (
-                          <span className="text-[11px] font-semibold text-slate-500">
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-mcm-ink-3">
                             {getCostDeductionLabel(session)}
                           </span>
                         ) : null}
@@ -470,11 +470,11 @@ const AiSessionDetailDrawer = ({
                 </div>
               </div>
 
-              <div className="mt-3.5 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
-                <div className="text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+              <div className="mt-3.5 rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-3.5">
+                <div className="text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
                   ✨ AI summary
                 </div>
-                <p className="mt-2.5 text-[13px] leading-relaxed text-slate-700">
+                <p className="mt-2.5 text-[13px] leading-relaxed text-slate-700 dark:text-mcm-ink-2">
                   {String(session?.summary || '').trim() ||
                     'No summary available for this session.'}
                 </p>
@@ -483,7 +483,7 @@ const AiSessionDetailDrawer = ({
                     {selectedIntents.map((intent) => (
                       <span
                         key={intent.label}
-                        className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600"
+                        className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:text-mcm-ink-2"
                       >
                         {intent.label}
                       </span>
@@ -492,12 +492,12 @@ const AiSessionDetailDrawer = ({
                 ) : null}
               </div>
 
-              <div className="mt-3.5 rounded-xl border border-slate-200 bg-white px-4 py-3.5">
-                <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+              <div className="mt-3.5 rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-3.5">
+                <div className="mb-2.5 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
                   Transcript
                 </div>
                 {isLoadingMessages ? (
-                  <div className="flex min-h-[180px] items-center justify-center text-slate-500">
+                  <div className="flex min-h-[180px] items-center justify-center text-slate-500 dark:text-mcm-ink-3">
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Loading transcript...
                   </div>
@@ -516,7 +516,7 @@ const AiSessionDetailDrawer = ({
                       return (
                         <div
                           key={`${message?.at || index}-${message?.role}`}
-                          className="border-b border-slate-100 py-2.5 first:pt-0 last:border-b-0 last:pb-0"
+                          className="border-b border-slate-100 dark:border-mcm-line py-2.5 first:pt-0 last:border-b-0 last:pb-0"
                         >
                           <div className="flex gap-2.5">
                             <div
@@ -528,7 +528,7 @@ const AiSessionDetailDrawer = ({
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-[11px] font-bold text-slate-500">
+                                <span className="text-[11px] font-bold text-slate-500 dark:text-mcm-ink-3">
                                   {displayName}
                                 </span>
                                 {offset ? (
@@ -544,7 +544,7 @@ const AiSessionDetailDrawer = ({
                                   </span>
                                 ) : null}
                               </div>
-                              <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-slate-800">
+                              <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-slate-800 dark:text-mcm-ink">
                                 {message?.data}
                               </p>
                             </div>
@@ -554,12 +554,12 @@ const AiSessionDetailDrawer = ({
                     })}
                   </div>
                 ) : (
-                  <div className="py-12 text-center text-slate-500">No transcript available.</div>
+                  <div className="py-12 text-center text-slate-500 dark:text-mcm-ink-3">No transcript available.</div>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 bg-white px-5 py-3">
+            <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-5 py-3">
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -569,7 +569,7 @@ const AiSessionDetailDrawer = ({
                       transcriptText,
                     )
                   }
-                  className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:border-slate-400"
+                  className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-slate-400 dark:hover:border-mcm-line"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download
@@ -577,7 +577,7 @@ const AiSessionDetailDrawer = ({
                 <button
                   type="button"
                   onClick={() => copyText(transcriptText)}
-                  className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:border-slate-400"
+                  className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-slate-400 dark:hover:border-mcm-line"
                 >
                   <Copy className="h-3.5 w-3.5" />
                   Copy

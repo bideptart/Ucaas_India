@@ -201,7 +201,7 @@ const CallList = forwardRef(
             <Loader variant="blue" size="sm" />
           </div>
         ) : (
-          <div className="divide-y divide-gray-200 overflow-auto h-full">
+          <div className="divide-y divide-gray-200 dark:divide-mcm-line overflow-auto h-full">
             {entries && entries?.length > 0 ? (
               <>
                 {entries?.map(({ main = {}, count = 0 }: any) => {
@@ -226,21 +226,21 @@ const CallList = forwardRef(
                         setSelectedId(main?.id);
                       }}
                       key={main?.id}
-                      className={`flex cursor-pointer ${selectedId === main?.id ? 'bg-gray-100' : 'bg-white'}`}
+                      className={`flex cursor-pointer ${selectedId === main?.id ? 'bg-gray-100 dark:bg-mcm-surface-3' : 'bg-white dark:bg-mcm-surface'}`}
                     >
                       <div className="flex items-center w-full px-3 h-16 gap-2">
                         <div className="relative">
                           {main?.contact_username ? (
                             <CustomAvatar name={main?.contact_username} />
                           ) : (
-                            <div className="rounded-full bg-gray-500 flex items-center justify-center">
+                            <div className="rounded-full bg-gray-500 dark:bg-mcm-surface-3 flex items-center justify-center">
                               <User className="h-9 w-9" />
                             </div>
                           )}
                         </div>
                         <div className="flex flex-col justify-between text-sm w-[calc(100%_-_3rem)] gap-1">
                           <div className="flex justify-between gap-2">
-                            <p className=" text-gray-900 font-medium truncate">
+                            <p className=" text-gray-900 dark:text-mcm-ink font-medium truncate">
                               {main?.contact_name
                                 ? main?.contact_name
                                 : main?.contact_username
@@ -252,13 +252,13 @@ const CallList = forwardRef(
                                     : main?.destination_number}{' '}
                               {main?.count ? `(${main?.count})` : ''}
                             </p>
-                            <p className="text-gray-500 text-end  whitespace-nowrap text-xs">
+                            <p className="text-gray-500 dark:text-mcm-ink-3 text-end  whitespace-nowrap text-xs">
                               {relativeTime}
                             </p>
                           </div>
                           <div className="flex justify-between">
                             <div className="flex gap-1">
-                              <div className="text-gray-900/80 truncate pr-2 text-xs">
+                              <div className="text-gray-900/80 dark:text-mcm-ink-2 truncate pr-2 text-xs">
                                 {['Missed', 'Inbound'].includes(main?.direction) ? (
                                   <NumberWithFlag number={main?.display_caller_number} />
                                 ) : (
@@ -302,10 +302,10 @@ const CallList = forwardRef(
                                                 <p color="textPrimary">{main?.contact_name}</p>
                                               )} */}
                                               {main?.display_caller_number?.length < 5 && (
-                                                <p className="text-gray-900/80 truncate">{`${main?.display_caller_number}`}</p>
+                                                <p className="text-gray-900/80 dark:text-mcm-ink-2 truncate">{`${main?.display_caller_number}`}</p>
                                               )}
                                               {main?.display_caller_number?.length > 5 && (
-                                                <div className="text-gray-900/80 truncate">
+                                                <div className="text-gray-900/80 dark:text-mcm-ink-2 truncate">
                                                   {
                                                     <NumberWithFlag
                                                       number={main?.display_caller_number}
@@ -362,7 +362,7 @@ const CallList = forwardRef(
                               </div>
                             </div>
                             <div className="flex gap-0.5 justify-end items-center">
-                              <p className="text-gray-500 flex items-center gap-0.5 text-xs">
+                              <p className="text-gray-500 dark:text-mcm-ink-3 flex items-center gap-0.5 text-xs">
                                 {main?.recording_file &&
                                 reportsActionAccess?.call_recording_listen ? (
                                   <span>
@@ -420,10 +420,10 @@ const CallList = forwardRef(
             ) : (
               <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                 <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-                <p className="text-md font-medium text-gray-900">
+                <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">
                   {tabType == 'call' ? `No recent ${tabType}s available` : `No ${tabType}s yet`}
                 </p>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-mcm-ink-2">
                   {tabType == 'call'
                     ? 'Start or receive a call to see it listed here.'
                     : tabType == 'voicemail'

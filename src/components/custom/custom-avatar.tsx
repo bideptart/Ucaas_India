@@ -1,9 +1,7 @@
 import { useSocketEvents } from '@/hooks/use-socket-events';
-import { darkenColor, getEnv, lightenColorWithAlpha, stringToColour } from '@/lib/utils';
+import { getEnv } from '@/lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/hooks/use-user';
-import BusyImage from '@/assets/images/status/busy.png';
-import DNDImage from '@/assets/images/status/do-not-disturb.png';
 import CustomTooltip from './custom-tooltip';
 import UserLoginActivityModal from './userLoginActivityModal';
 import LightBoxPreview from '@/pages/messenger/chat/message-item/lightbox-preview';
@@ -58,12 +56,74 @@ const getCachedAvatarObjectUrl = async (apiMediaUrl: string) => {
   return request;
 };
 
+/* One flat colour per presence state — Available/On Call/Do Not Disturb/
+   Offline — instead of the previous mix (two plain-colour dots plus two
+   detailed clock/do-not-disturb icon PNGs at the same tiny size, where the
+   icons just read as a blurry smudge). `call` was also red before, which
+   collided with `dnd`'s own red and left "on a call" reading as an error
+   state rather than the orange the rest of the app uses for it. `busy` is
+   the same on-a-call meaning as `call` under a different key some callers
+   use, so it gets the same colour rather than a third one. */
+const STATUS_DOT_COLOR: Record<string, string> = {
+  online: '#22c55e',
+  call: '#f97316',
+  busy: '#f97316',
+  dnd: '#ef4444',
+  offline: '#6b7280',
+};
+
+/* Every dot the same size and the same subtle "cutout" ring (matching
+   whatever surface it sits on, light or dark) rather than each status
+   bringing its own size/shape. */
+const StatusDot = ({ status }: { status: string }) => (
+  <span
+    className="block rounded-full"
+    style={{
+      width: 9,
+      height: 9,
+      background: STATUS_DOT_COLOR[status] || STATUS_DOT_COLOR.offline,
+      boxShadow: '0 0 0 2px var(--mcm-surface, #fff)',
+    }}
+  />
+);
+
+/* A curated set of avatar colours instead of deriving one from an arbitrary
+   hash of the name — that produced literally any hue/lightness (including
+   muddy, near-black or low-contrast combinations) and a barely-there 20%-
+   opacity background whose actual contrast depended on whatever surface it
+   sat over. Each entry here is a deliberately chosen, moderately-saturated
+   solid background paired with a light text colour, so contrast holds
+   regardless of theme or the card/table/header it's placed on. Still
+   deterministic per name (same agent always lands on the same colour), just
+   picked from a fixed, professional-looking set rather than the full colour
+   wheel. */
+const AVATAR_PALETTE = [
+  { bg: '#2563eb', text: '#eff6ff' }, // blue
+  { bg: '#0d9488', text: '#ecfdf5' }, // teal
+  { bg: '#7c3aed', text: '#f5f3ff' }, // violet
+  { bg: '#db2777', text: '#fdf2f8' }, // pink
+  { bg: '#d97706', text: '#fffbeb' }, // amber
+  { bg: '#059669', text: '#ecfdf5' }, // green
+  { bg: '#4f46e5', text: '#eef2ff' }, // indigo
+  { bg: '#475569', text: '#f1f5f9' }, // slate
+];
+
+const getAvatarPalette = (name: string) => {
+  if (!name) return AVATAR_PALETTE[AVATAR_PALETTE.length - 1];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % AVATAR_PALETTE.length;
+  return AVATAR_PALETTE[index];
+};
+
 export const statusImageLookup: any = {
-  busy: <img src={BusyImage} alt="BusyImage" className="w-2.5 h-2.5" />,
-  dnd: <img src={DNDImage} alt="DNDImage" className="w-2.5 h-2.5" />,
-  online: <div className="w-2 h-2 rounded-full bg-green-500" />,
-  offline: <div className="w-2 h-2 rounded-full bg-gray-500" />,
-  call: <div className="w-2 h-2 rounded-full bg-red-500" />,
+  busy: <StatusDot status="busy" />,
+  dnd: <StatusDot status="dnd" />,
+  online: <StatusDot status="online" />,
+  offline: <StatusDot status="offline" />,
+  call: <StatusDot status="call" />,
 };
 
 interface AvatarProps {
@@ -192,9 +252,7 @@ const CustomAvatar = ({
     : presenceOverride || (isOnline ? userStatus || 'online' : 'offline');
 
   const NAME = name;
-  const nameColour = stringToColour(NAME);
-  const lightColor = darkenColor(`${nameColour}`, 90);
-  const darkColor = lightenColorWithAlpha(`${nameColour}`, 5);
+  const { bg: darkColor, text: lightColor } = getAvatarPalette(NAME);
 
   const handleAvatarImageError = () => {
     setHasImageError(true);
@@ -216,9 +274,8 @@ const CustomAvatar = ({
           width: `${size}px`,
           minWidth: `${size}px`,
           height: `${size}px`,
-          background: '#FFFFFF',
         }}
-        className={`rounded-full border border-white relative cursor-pointer`}
+        className={`rounded-full border border-white dark:border-mcm-line bg-white dark:bg-mcm-surface-3 relative cursor-pointer`}
         onClick={(e) => {
           if (image && mediaUrl && !hasImageError) {
             e.stopPropagation();
@@ -229,15 +286,14 @@ const CustomAvatar = ({
         }}
       >
         {showPresence && (
-          <div
-            className={`flex items-center justify-content-center absolute top-[25%] -right-[90%]`}
-            style={{
-              width: `${size}px`,
-              minWidth: `${size}px`,
-              height: `${size}px`,
-              background: 'transparent',
-            }}
-          >
+          /* Sized to just the dot itself and pinned to the avatar's own
+             bottom-right corner (a small negative offset so it sits half
+             on/half off the edge, the standard presence-dot placement)
+             rather than a wrapper the full size of the avatar positioned
+             by percentage offsets — that made the dot's exact spot drift
+             with avatar `size` and left it floating well outside the
+             circle at larger sizes instead of anchored to the edge. */
+          <div className="absolute -bottom-0.5 -right-0.5 z-10 leading-none">
             <CustomTooltip
               text={
                 <div className={status === 'dnd' ? '' : 'capitalize'}>
@@ -245,7 +301,12 @@ const CustomAvatar = ({
                 </div>
               }
             >
-              {statusImageLookup[status]}
+              {/* `status` can carry any string the presence feed sends
+                  (e.g. "available") that isn't one of this lookup's five
+                  keys — falling through with nothing rendered a dot-less
+                  avatar for an actually-online agent. Default to the
+                  online/green dot rather than silently showing none. */}
+              {statusImageLookup[status] || statusImageLookup.online}
             </CustomTooltip>
           </div>
         )}

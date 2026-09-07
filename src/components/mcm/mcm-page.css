@@ -97,35 +97,56 @@
     'Segoe UI', sans-serif;
 }
 .dark .mcm-page {
-  --ground: #0a0f1a;
-  /* Same translucency as light mode, tinted from the dark surfaces. */
-  --surface: rgba(23, 32, 50, 0.62);
-  --surface-2: rgba(30, 41, 62, 0.55);
-  --surface-3: rgba(38, 49, 74, 0.58);
-  --surface-solid: #111827;
-  --surface-2-solid: #161f31;
-  --ink: #eef2f9;
-  --ink-2: #c3cddf;
-  --ink-3: #93a1ba;
-  --ink-4: #6b7a96;
-  --line: #26314a;
-  --line-2: #1c2537;
-  --accent: #ffab5e;
-  --accent-ink: #ffc98a;
-  --accent-wash: #2b1f12;
-  --accent-edge: #4a341c;
+  --ground: #080d12;
+  /* Same translucency approach as before, tinted from the new deeper
+     surfaces so frosted panels stay legible.
+
+     2026-09-05 dark-theme polish pass: --surface/-2/-3 and their -solid
+     aliases were measured at a 1.05:1 luminance contrast against --ground
+     (index.css) — cards were barely distinguishable from the page behind
+     them. Stepped up so ground < surface < surface-2 < surface-3 reads as
+     a real elevation ladder rather than one flat plane; still dark, no
+     hue change, nothing near pure black or pure white. */
+  --surface: rgba(17, 28, 38, 0.72);
+  --surface-2: rgba(22, 34, 44, 0.68);
+  --surface-3: rgba(26, 39, 51, 0.72);
+  --surface-solid: #111c26;
+  --surface-2-solid: #16222c;
+  --ink: #f3f6f9;
+  /* ink-2/ink-3 were identical (#aab6c1), collapsing "secondary" and
+     "muted/helper" into one tier — the hierarchy the theme calls for needs
+     them visually distinct. ink-4 measured 3.93:1 against --surface-solid,
+     under the 4.5:1 AA floor for body text ("muted... but never too
+     faint"). All three now step down from --ink while staying >=5:1 on
+     every surface tone. */
+  --ink-2: #aab6c1;
+  --ink-3: #8b98a6;
+  --ink-4: #7c8894;
+  --line: #1b2934;
+  --line-2: #263642;
+  /* Primary accent restored to orange per the 2026-09-05 global re-theme
+     (previously neutralized to gray). Light mode's .mcm-page block above
+     was never touched by either rebrand. --accent-wash/--warn-wash are
+     NEUTRAL dark surfaces, not an orange/brown-tinted fill — orange
+     signals through --accent-ink text and --accent-edge borders instead,
+     per the "orange never covers a large area, no brown backgrounds"
+     correction. */
+  --accent: #f97316;
+  --accent-ink: #ff8a2a;
+  --accent-wash: #1a2733;
+  --accent-edge: rgba(249, 115, 22, 0.4);
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
-  --ai-wash: #231a3d;
+  --ai-wash: #131625;
   --ai-edge: #3c2d66;
   --live: #2dd4bf;
-  --live-wash: #0f2f2c;
-  --warn: #f0a24b;
-  --warn-wash: #33240f;
+  --live-wash: #0d1f1c;
+  --warn: #f97316;
+  --warn-wash: #1a2733;
   --crit: #f87171;
-  --crit-wash: #361618;
+  --crit-wash: #24151a;
   --hold: #38bdf8;
-  --hold-wash: #0d2a3a;
+  --hold-wash: #0d1e28;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
@@ -136,17 +157,17 @@
      Both sides of the merge fixed this gap independently. The shared three
      take upstream's values: its surface is more transparent and it pairs
      that with a stronger blur, which only works as a pair. */
-  --glass-surface: rgba(17, 24, 39, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-surface: rgba(7, 13, 19, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.06);
   --glass-blur: blur(16px) saturate(180%);
 
   /* These three have no upstream counterpart, and the page sidebar, table
      shell and tab-strip divider are painted with them — dropping them in
      favour of upstream's set would leave those surfaces on the light
      values and put the white fog back under dark-mode text. */
-  --glass-chrome: rgba(14, 21, 36, 0.62);
-  --glass-hairline: rgba(255, 255, 255, 0.08);
-  --glass-line: rgba(255, 255, 255, 0.1);
+  --glass-chrome: rgba(6, 11, 16, 0.68);
+  --glass-hairline: rgba(255, 255, 255, 0.06);
+  --glass-line: rgba(255, 255, 255, 0.08);
 }
 
 /* ---- base ---- */
@@ -1069,7 +1090,11 @@
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--ink-4);
+  /* Was --ink-4 (the dimmest, "muted/disabled" tier) — headers need to
+     read clearly at a glance while still sitting behind the row content
+     they label, so --ink-3 (the "muted/helper" tier, brighter than ink-4,
+     dimmer than ink-2) fits better than the near-invisible bottom rung. */
+  color: var(--ink-3);
   padding: 9px 12px;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
@@ -3927,7 +3952,10 @@
   gap: 10px;
   margin-top: 12px;
   padding: 12px 0;
-  background: var(--surface-1, #fff);
+  /* --surface-1 doesn't exist as a design token (the real name is
+     --surface) — the fallback #fff was silently winning every time,
+     which is why this stayed white regardless of theme. */
+  background: var(--surface, #fff);
   border-top: 1px solid var(--line, #e5e7eb);
 }
 
@@ -4506,6 +4534,17 @@
   background: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
   box-shadow: inset 3px 0 0 var(--accent);
 }
+/* Dark mode: the rule above has no counterpart, so the selected sidebar
+   item (e.g. Monitoring's "All Calls") kept mixing orange into `#fff7ef`
+   — a near-white cream — regardless of theme. A translucent orange wash
+   instead of a mixed-in light colour, matching the "accent shows as a
+   wash + border, never a light/solid fill" rule the rest of the dark
+   theme already follows. Needs its own `!important` to outrank the
+   light-mode rule's. */
+.dark .mcm-admin .mcm-subnav .border-r-primary {
+  background: rgba(249, 115, 22, 0.14) !important;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
 /* `:not(.text-primary)` matters: the current-page rule above sets accent
    ink at the same specificity as this one, and this block comes later in
    the file, so without the exclusion it would win and the active row would
@@ -4974,6 +5013,34 @@
   font-weight: 600;
   color: var(--ink-2);
   cursor: pointer;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
+}
+/* Neither control had a hover or focus state at all — a dropdown/input
+   that looks identical whether or not the pointer is over it doesn't read
+   as interactive. Border brightens and text lightens on hover; the focus
+   ring reuses the theme's own accent, same as every other control.
+   Explicitly prefixed `.dark` (not relying on `!important`): a later,
+   more general `.dark .mcm-console-select` rule (further down this file)
+   sets the same border-color property at equal specificity to a bare
+   `:hover`/`:focus-visible` selector, and ties resolve to whichever rule
+   is later in the file — which was that one, silently overriding these.
+   Adding `.dark` to these selectors makes them outrank it on specificity
+   alone. Ring uses a translucent slice of `--accent` directly rather than
+   `--accent-wash`: in this token set accent-wash is deliberately neutral
+   (the "no large orange fill" rule elsewhere in the theme), which is
+   right for a filled background but reads as no focus colour at all for
+   a ring meant to be visibly orange. */
+.dark .mcm-console-select:hover {
+  border-color: var(--accent-edge);
+  color: var(--ink);
+}
+.dark .mcm-console-select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 .mcm-console-search {
@@ -4985,6 +5052,16 @@
   border: 1px solid var(--line);
   border-radius: 9px;
   background: #ffffff;
+  transition:
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
+}
+.dark .mcm-console-search:hover {
+  border-color: var(--accent-edge);
+}
+.dark .mcm-console-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .mcm-console-search input {
   width: 170px;
@@ -4993,6 +5070,9 @@
   background: transparent;
   font-size: 13px;
   color: var(--ink);
+}
+.mcm-console-search input::placeholder {
+  color: var(--ink-3);
 }
 
 /* ---- the calls ---- */
@@ -5042,6 +5122,27 @@
      that token was darkened locally for contrast, so the header came out
      rgb(90, 102, 126) instead of the deployed rgb(107, 120, 145). */
   color: rgb(107, 120, 145);
+}
+
+/* Dark mode: the rule above's `background: #ffffff !important` had no
+   counterpart at all here, so the sticky header band stayed a solid white
+   strip regardless of theme. A literal solid hex, not `var(--surface-3)`:
+   this page (Monitoring) only ever has mcm-page.css loaded, where
+   `--surface-3` is translucent (`rgba(26,39,51,0.72)`, meant to sit over a
+   blurred glass panel) — console.css's own solid `--surface-3` (used on
+   /phone) is a separate, route-split stylesheet that isn't guaranteed to
+   be loaded here, so depending on it would silently break depending on
+   navigation history. A plain hex sidesteps that: same reason the
+   original rule hardcoded white instead of a token. One step lighter than
+   the panel's own `--surface-solid` (#111c26), so the header still reads
+   as a distinct band above the rows instead of blending flat, and still
+   fully opaque — the exact property the comment on the light-mode rule
+   above calls out as required for a sticky header. Needs its own
+   `!important` to outrank the light-mode rule's. */
+.dark .mcm-console .mcm-console-table thead th {
+  background: #1a2733 !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink-3) !important;
 }
 
 /* The band keeps its colour and gets closed off at each end instead — a

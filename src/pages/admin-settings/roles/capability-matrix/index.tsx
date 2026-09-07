@@ -43,7 +43,7 @@ const Cell = ({ allowed, label }: { allowed: boolean; label: string }) => (
   <td className="px-3 py-2 text-center align-middle">
     <span
       className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${
-        allowed ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'
+        allowed ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400 dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
       }`}
       title={label}
     >
@@ -129,16 +129,16 @@ const CapabilityMatrixPage = () => {
           <div className="w-full overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="px-3 py-2 text-left font-semibold text-gray-900">Capability</th>
+                <tr className="border-b border-gray-200 dark:border-mcm-line">
+                  <th className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-mcm-ink">Capability</th>
                   {tiers.map((tier) => (
                     <th
                       key={tier.tier}
-                      className="px-3 py-2 text-center font-semibold text-gray-900"
+                      className="px-3 py-2 text-center font-semibold text-gray-900 dark:text-mcm-ink"
                       title={tier.description}
                     >
                       <span className="block">{tier.label}</span>
-                      <span className="block text-[11px] font-normal text-gray-500">
+                      <span className="block text-[11px] font-normal text-gray-500 dark:text-mcm-ink-3">
                         {SCOPE_LABEL[tier.scope]}
                       </span>
                     </th>
@@ -148,22 +148,22 @@ const CapabilityMatrixPage = () => {
               <tbody>
                 {sections.map((section) => (
                   <Fragment key={section.area}>
-                    <tr className="bg-gray-50">
+                    <tr className="bg-gray-50 dark:bg-mcm-surface-3">
                       <td
                         colSpan={tiers.length + 1}
-                        className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-gray-700"
+                        className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-gray-700 dark:text-mcm-ink-2"
                       >
                         {section.title}
-                        <span className="ml-2 font-normal normal-case tracking-normal text-gray-500">
+                        <span className="ml-2 font-normal normal-case tracking-normal text-gray-500 dark:text-mcm-ink-3">
                           {section.blurb}
                         </span>
                       </td>
                     </tr>
                     {section.rows.map((row) => (
-                      <tr key={row.rule.id} className="border-b border-gray-100">
+                      <tr key={row.rule.id} className="border-b border-gray-100 dark:border-mcm-line">
                         <td className="px-3 py-2 align-top">
-                          <span className="font-medium text-gray-900">{row.rule.title}</span>
-                          <span className="block text-xs text-gray-600">{row.rule.why}</span>
+                          <span className="font-medium text-gray-900 dark:text-mcm-ink">{row.rule.title}</span>
+                          <span className="block text-xs text-gray-600 dark:text-mcm-ink-3">{row.rule.why}</span>
                         </td>
                         {row.cells.map((cell) => (
                           <Cell

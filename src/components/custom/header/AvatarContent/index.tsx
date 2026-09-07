@@ -133,7 +133,7 @@ const AvatarContent = ({ setProfileState }: any) => {
     logoutMutate(payload);
   };
   const menuItemClass =
-    'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 cursor-pointer transition-colors hover:bg-ucass-primary-200 hover:text-primary';
+    'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-700 dark:text-mcm-ink-2 cursor-pointer transition-colors hover:bg-ucass-primary-200 hover:text-primary';
 
   return (
     <div className="flex flex-col">
@@ -149,17 +149,17 @@ const AvatarContent = ({ setProfileState }: any) => {
           isActivityInfo={false}
         />
         <div className="flex flex-col items-center gap-0.5">
-          <p className="text-sm font-semibold text-gray-900 truncate max-w-56">{fullName}</p>
-          <p className="text-xs text-gray-500 truncate max-w-56">{user?.user_info?.email || ''}</p>
+          <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink truncate max-w-56">{fullName}</p>
+          <p className="text-xs text-gray-500 dark:text-mcm-ink-3 truncate max-w-56">{user?.user_info?.email || ''}</p>
         </div>
 
         <Popover open={showPresence} onOpenChange={(val) => setShowPresence(val)}>
           <PopoverTrigger>
-            <span className="cursor-pointer flex gap-1.5 items-center rounded-full bg-white/80 px-2.5 py-1 border border-white shadow-sm">
+            <span className="cursor-pointer flex gap-1.5 items-center rounded-full bg-white/80 dark:bg-mcm-surface-3/80 px-2.5 py-1 border border-white dark:border-mcm-line shadow-sm">
               <div className="w-3.5 h-3.5">
                 {statusImageLookup[effectiveSocketStatus] ?? statusImageLookup['online']}
               </div>
-              <div className="capitalize text-xs font-medium text-gray-700">
+              <div className="capitalize text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
                 {effectiveSocketStatus === 'dnd' ? 'DND' : effectiveSocketStatus}
               </div>
             </span>
@@ -169,7 +169,7 @@ const AvatarContent = ({ setProfileState }: any) => {
               const isActive = effectiveSocketStatus === status?.value;
               return (
                 <div
-                  className={`flex items-center gap-2 w-full cursor-pointer px-2 rounded-md ${isActive ? 'bg-ucass-active-bg' : 'hover:bg-gray-200'}`}
+                  className={`flex items-center gap-2 w-full cursor-pointer px-2 rounded-md ${isActive ? 'bg-ucass-active-bg' : 'hover:bg-gray-200 dark:hover:bg-mcm-surface-3'}`}
                   onClick={() => handleStatusChange(status.value)}
                 >
                   <div className="w-4 h-4">{statusImageLookup[status.value]}</div>
@@ -188,20 +188,20 @@ const AvatarContent = ({ setProfileState }: any) => {
           into a two-column grid with phone left it truncating after just a
           few characters. Extension and phone (when there is one) share a
           row since both are short. */}
-      <div className="flex flex-col gap-2 px-3 pt-3 pb-1 text-xs text-gray-600">
+      <div className="flex flex-col gap-2 px-3 pt-3 pb-1 text-xs text-gray-600 dark:text-mcm-ink-3">
         <div className="flex items-center gap-1.5 min-w-0">
-          <Icon name="LetterLine" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+          <Icon name="LetterLine" className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-mcm-ink-3" />
           <span className="truncate">{user?.user_info?.email || '—'}</span>
         </div>
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
-            <Icon name="Grid" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+            <Icon name="Grid" className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-mcm-ink-3" />
             <span className="truncate">Ext {user?.user_info?.extension}</span>
           </div>
           {/* Always shown, even with no number yet — this fills in once a
               real backend supplies user_info.phone. */}
           <div className="flex items-center gap-1.5 min-w-0">
-            <Icon name="PhoneLine" className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+            <Icon name="PhoneLine" className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-mcm-ink-3" />
             <span className="truncate">
               {phone ? (phone.startsWith('+') ? phone : `+${phone}`) : '—'}
             </span>
@@ -251,7 +251,7 @@ const AvatarContent = ({ setProfileState }: any) => {
         </button>
       </div>
       <DropdownMenuSeparator className="my-1" />
-      <p className="text-[11px] text-gray-400 text-right px-2 pb-1">v{packageJson.version}</p>
+      <p className="text-[11px] text-gray-400 dark:text-mcm-ink-3 text-right px-2 pb-1">v{packageJson.version}</p>
     </div>
   );
 };

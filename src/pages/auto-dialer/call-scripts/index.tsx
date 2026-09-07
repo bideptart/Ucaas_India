@@ -88,7 +88,7 @@ const CallScripts = () => {
           <span className="flex gap-2 items-center">
             {scriptAccess?.edit && (
               <span
-                className={`cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white`}
+                className={`cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink hover:bg-primary hover:text-white`}
                 onClick={() => {
                   setDrawerState({ selectedCampaign: row?.original, isModalOpen: true });
                 }}
@@ -112,9 +112,9 @@ const CallScripts = () => {
 
   return (
     <>
-      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">Call Script</p>
+      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">Call Script</p>
           <div className="flex gap-2 filters">
             {scriptAccess?.add && (
               <Button

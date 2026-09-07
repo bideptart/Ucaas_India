@@ -44,7 +44,7 @@ const DialpadScheduleCallback = ({ onSave, isLoading }: DialpadScheduleCallbackP
           minDate={new Date()}
           filterTime={filterPassedTime}
           dateFormat="yyyy-MM-dd HH:mm"
-          className="border border-gray-300 focus:border-primary focus:ring-0 focus:outline-none shadow-secondary/5 disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl w-full px-3 min-h-10 custom-className"
+          className="border border-gray-300 dark:border-mcm-line focus:border-primary focus:ring-0 focus:outline-none shadow-secondary/5 disabled:bg-gray-300 dark:disabled:bg-mcm-surface-3 disabled:text-slate-500 dark:disabled:text-mcm-ink-3 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl w-full px-3 min-h-10 custom-className"
         />
       </div>
 

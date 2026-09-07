@@ -602,7 +602,7 @@ const Sidebar = () => {
                   className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors ${
                     isCurrent
                       ? 'border-primary bg-ucass-primary-200/60 text-primary'
-                      : 'border-[#EEE7DD] bg-white text-[#2E2D35]'
+                      : 'border-[#EEE7DD] bg-white text-[#2E2D35] dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink'
                   } ${item?.enabled === false ? 'cursor-not-allowed opacity-60' : ''}`}
                   disabled={item?.enabled === false}
                 >
@@ -622,9 +622,9 @@ const Sidebar = () => {
         </div>
 
         {!!activeResponsiveChildren.length && (
-          <div className="min-h-[9rem] overflow-hidden rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-            <div className="border-b border-[#EEE7DD] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
+          <div className="min-h-[9rem] overflow-hidden rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:border-mcm-line dark:bg-mcm-surface dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+            <div className="border-b border-[#EEE7DD] px-4 py-3 dark:border-mcm-line">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                 {activeResponsiveItem?.title}
               </p>
             </div>
@@ -642,10 +642,10 @@ const Sidebar = () => {
                       onClick={() => path && navigate(path)}
                       {...getRoutePrefetchHandlers(path)}
                       disabled={enabled === false}
-                      className={`flex min-h-11 w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left text-sm font-medium last:border-b-0 ${
+                      className={`flex min-h-11 w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left text-sm font-medium last:border-b-0 dark:border-mcm-line ${
                         isChildActive
                           ? 'bg-ucass-primary-200/50 text-primary'
-                          : 'bg-white text-[#2E2D35]'
+                          : 'bg-white text-[#2E2D35] dark:bg-mcm-surface dark:text-mcm-ink'
                       } ${enabled === false ? 'cursor-not-allowed opacity-60' : ''}`}
                     >
                       <Icon name={icon as IconType} className="h-4.5 w-4.5 shrink-0 p-0.5" />
@@ -679,7 +679,7 @@ const Sidebar = () => {
           <Icon name={'Grid' as IconType} className="h-4 w-4" />
           All admin screens
         </NavLink>
-        <div className="mcm-adminnav h-full min-h-0 divide-y divide-[#EEE7DD]">
+        <div className="mcm-adminnav h-full min-h-0 divide-y divide-[#EEE7DD] dark:divide-mcm-line">
           {!searchedItems?.length ? (
             <p className="mcm-adminnav-empty">No section matches that.</p>
           ) : null}
@@ -707,7 +707,20 @@ const Sidebar = () => {
                           <span className="truncate">{title}</span>
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="border md:border-0  md:bg-ucass-primary-200/20 bg-white z-10 relative">
+                      <AccordionContent
+                        /* dark:bg-mcm-surface, unprefixed so it applies at
+                           every breakpoint: base bg-white had no dark
+                           variant at all, and the md: variant it's
+                           replaced by there (bg-ucass-primary-200/20) is a
+                           translucent wash meant as a subtle highlight —
+                           reads fine as an accent, not right as an entire
+                           expanded section's opaque surface. This is the
+                           shared Admin Hub sidebar, so every collapsible
+                           section (Company, People, Numbers, AI Tools, ...)
+                           had the same white box in Dark Mode, not just
+                           this one. */
+                        className="border md:border-0  md:bg-ucass-primary-200/20 bg-white dark:bg-mcm-surface z-10 relative"
+                      >
                         {visibleChildren?.map(
                           ({ title, path, icon, extraActiveTab, enabled }: any, index: number) => {
                             return (

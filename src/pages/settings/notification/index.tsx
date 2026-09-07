@@ -76,10 +76,10 @@ const SettingsNotification = () => {
   return (
     <section className="w-full flex flex-col overflow-x-auto overflow-y-hidden">
       {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-      <div className="flex items-center justify-between p-3 border-b border-[rgba(225,200,165,0.9)] min-h-[65px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+      <div className="flex items-center justify-between p-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line min-h-[65px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px]">
         <div>
-          <p className="text-[#2E2D35] font-semibold text-lg">Notifications</p>
-          <p className="text-[#9A948F] text-xs">
+          <p className="text-[#2E2D35] dark:text-mcm-ink font-semibold text-lg">Notifications</p>
+          <p className="text-[#9A948F] dark:text-mcm-ink-3 text-xs">
             What you get alerted about, and whether it arrives in the browser, by email or both.
           </p>
         </div>
@@ -89,9 +89,9 @@ const SettingsNotification = () => {
         className="gap-3 p-3 flex flex-col justify-between h-full"
       >
         <div className="flex flex-col gap-2  overflow-y-auto pr-1">
-          <h4 className="text-[#2E2D35] font-semibold text-md">Notification Settings</h4>
+          <h4 className="text-[#2E2D35] dark:text-mcm-ink font-semibold text-md">Notification Settings</h4>
 
-          <p className="text-[#2E2D35] text-sm mb-1">
+          <p className="text-[#2E2D35] dark:text-mcm-ink text-sm mb-1">
             Manage how you receive notifications across different channels
           </p>
 
@@ -110,17 +110,17 @@ const SettingsNotification = () => {
           </div>
           <div className="w-full flex flex-col gap-3">
             {NOTIFICATION_TYPES_LIST.map((item) => (
-              <div className="border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl" key={item?.id}>
-                <div className="w-full flex items-center gap-3 border-b border-[#EEE7DD] px-4 py-3">
+              <div className="border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] rounded-xl" key={item?.id}>
+                <div className="w-full flex items-center gap-3 border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
                   {item?.iconType === 'circle' ? (
                     <span className={item?.iconClass}></span>
                   ) : (
                     <Icon name={item?.iconName} className={item?.iconClass} />
                   )}
                   <div className="min-w-0">
-                    <p className="font-semibold truncate text-md text-[#2E2D35]">{item?.name}</p>
+                    <p className="font-semibold truncate text-md text-[#2E2D35] dark:text-mcm-ink">{item?.name}</p>
                     {(item as any)?.description && (
-                      <p className="text-xs text-[#9A948F]">{(item as any).description}</p>
+                      <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">{(item as any).description}</p>
                     )}
                   </div>
                   {/* Every channel off means this event reaches the person nowhere.
@@ -136,12 +136,12 @@ const SettingsNotification = () => {
                     return (
                       <div key={value} className="w-full flex flex-col gap-2">
                         <div
-                          className={`w-full flex items-center justify-between gap-2 ${watch(`${item?.value}.${value}`) ? 'bg-ucass-primary-200/50 border-primary/15' : 'border-[#EEE7DD] bg-[#FBE2C8]/40'}  border  rounded-md p-3`}
+                          className={`w-full flex items-center justify-between gap-2 ${watch(`${item?.value}.${value}`) ? 'bg-ucass-primary-200/50 border-primary/15' : 'border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/40 dark:bg-mcm-surface-3'}  border  rounded-md p-3`}
                         >
                           <div className="min-w-0">
-                            <Label className="text-[#2E2D35] text-sm">{label}</Label>
+                            <Label className="text-[#2E2D35] dark:text-mcm-ink text-sm">{label}</Label>
                             {hint && (
-                              <p className="text-[11px] leading-tight text-[#9A948F]">{hint}</p>
+                              <p className="text-[11px] leading-tight text-[#9A948F] dark:text-mcm-ink-3">{hint}</p>
                             )}
                           </div>
                           <Switch

@@ -500,10 +500,10 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
     <>
       <section className="w-full  ">
         <MonitoringTopbarSlot>
-          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+            <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
               Monitoring
-              <div className="-rotate-90 text-gray-800">
+              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">
@@ -511,7 +511,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               </span>
               {activeQueueId && (
                 <>
-                  <div className="-rotate-90 text-gray-800">
+                  <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                     <Icon name="ChevronIcon" className="w-5 h-5" />
                   </div>
                   <span className="text-primary text-md font-medium">
@@ -556,7 +556,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                         <h2 className="text-xl text-gray-900">{item?.name}</h2>
                       </div> */}
                         <div>
-                          <div className="text-sm font-semibold text-gray-800 mb-2">
+                          <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2 mb-2">
                             Agents ({members?.length})
                           </div>
                           <TableManager
@@ -573,7 +573,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                         </div>
 
                         <div>
-                          <div className="text-sm font-semibold text-gray-800 mb-2">
+                          <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2 mb-2">
                             Waiting Callers ({getQueueLiveCallsWaitingByUuid()?.length})
                           </div>
                           <TableManager
@@ -594,11 +594,11 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               ) : (
                 <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                   <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-                  <p className="text-md font-medium text-gray-900">
+                  <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">
                     {' '}
                     No {queueType === QUEUE_TYPE.campaign ? 'campaign' : 'queue'} calls available
                   </p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-mcm-ink-2">
                     Calls routed through{' '}
                     {queueType === QUEUE_TYPE.campaign ? 'campaigns' : 'queues'} will appear here.
                   </p>

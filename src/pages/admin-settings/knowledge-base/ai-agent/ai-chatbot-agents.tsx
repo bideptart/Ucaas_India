@@ -32,7 +32,7 @@ import AgentAnalytics from './agent-analytics';
 import ChatAgentConfigureModal from './chat-agent-configure-modal';
 
 const StatCardLoader = () => (
-  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
+  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 dark:bg-mcm-surface/70 backdrop-blur-[1px]">
     <Loader2 className="h-5 w-5 animate-spin text-primary" />
   </div>
 );
@@ -90,8 +90,8 @@ const normalizeSentiment = (value: any) => {
 const sentimentBadgeClass = (sentiment: string) => {
   if (sentiment === 'positive') return 'bg-emerald-100 text-emerald-700';
   if (sentiment === 'negative') return 'bg-red-100 text-red-700';
-  if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700';
-  return 'bg-[#FBE2C8]/40 text-[#9A948F]';
+  if (sentiment === 'neutral') return 'bg-slate-100 dark:bg-mcm-surface-3 text-slate-700 dark:text-mcm-ink-2';
+  return 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3';
 };
 
 const sentimentEmoji = (sentiment: string) => {
@@ -695,7 +695,7 @@ function AiChatbotAgents() {
                 <button
                   type="button"
                   title={agentName}
-                  className="block max-w-full truncate text-left text-[14px] font-extrabold leading-5 text-slate-950 transition-colors hover:text-primary cursor-pointer"
+                  className="block max-w-full truncate text-left text-[14px] font-extrabold leading-5 text-slate-950 dark:text-mcm-ink transition-colors hover:text-primary cursor-pointer"
                   onClick={(event) => {
                     event.stopPropagation();
                     openAgentDetails(agent);
@@ -703,7 +703,7 @@ function AiChatbotAgents() {
                 >
                   {agentName}
                 </button>
-                <div className="mt-0.5 flex min-w-0 items-start gap-1.5 text-[11px] leading-4 text-slate-500">
+                <div className="mt-0.5 flex min-w-0 items-start gap-1.5 text-[11px] leading-4 text-slate-500 dark:text-mcm-ink-3">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                   <span className="line-clamp-2">{getAgentSubtitle(agent)}</span>
                 </div>
@@ -744,7 +744,7 @@ function AiChatbotAgents() {
                       ? 'border-emerald-200 bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80'
                       : draft
                         ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-50/80'
-                        : 'border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-100/80'
+                        : 'border-slate-200 dark:border-mcm-line bg-slate-100 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-100/80 dark:hover:bg-mcm-surface-3/80'
                   }`}
                 >
                   <span
@@ -757,18 +757,18 @@ function AiChatbotAgents() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[140px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-lg rounded-xl p-1 z-50 animate-none"
+                className="w-[140px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-lg rounded-xl p-1 z-50 animate-none"
               >
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('live')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span>Live</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('inactive')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-slate-400" />
                   <span>Paused</span>
@@ -787,7 +787,7 @@ function AiChatbotAgents() {
         ),
         accessorKey: 'conversations',
         cell: ({ row }: any) => (
-          <div className="text-[14px] font-extrabold text-slate-950">
+          <div className="text-[14px] font-extrabold text-slate-950 dark:text-mcm-ink">
             {formatNumber(pickNumber(row?.original, metricPaths.conversations))}
           </div>
         ),
@@ -796,7 +796,7 @@ function AiChatbotAgents() {
         header: 'Resolution',
         accessorKey: 'resolution',
         cell: ({ row }: any) => (
-          <div className="text-[14px] font-extrabold text-slate-950">
+          <div className="text-[14px] font-extrabold text-slate-950 dark:text-mcm-ink">
             {formatPercent(pickNumber(row?.original, metricPaths.resolution))}
           </div>
         ),
@@ -824,7 +824,7 @@ function AiChatbotAgents() {
 
           if (!chats || !score) {
             return (
-              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 px-2 py-1 text-xs font-semibold text-[#9A948F]">
+              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 px-2 py-1 text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">
                 Not analyzed
               </span>
             );
@@ -838,7 +838,7 @@ function AiChatbotAgents() {
                 {sentimentEmoji(label)} {label} · {displayScore}
               </span>
               {hasScores ? (
-                <div className="relative h-1.5 w-[108px] overflow-hidden rounded-full bg-slate-200">
+                <div className="relative h-1.5 w-[108px] overflow-hidden rounded-full bg-slate-200 dark:bg-mcm-surface-3">
                   <span
                     className="absolute left-0 top-0 h-full bg-emerald-500"
                     style={{ width: `${positivePercent}%` }}
@@ -853,21 +853,21 @@ function AiChatbotAgents() {
                   />
                 </div>
               ) : (
-                <div className="h-1.5 w-[108px] overflow-hidden rounded-full bg-slate-200" />
+                <div className="h-1.5 w-[108px] overflow-hidden rounded-full bg-slate-200 dark:bg-mcm-surface-3" />
               )}
               {hasScores && (
-                <div className="pointer-events-none absolute right-0 top-10 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
-                  <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+                <div className="pointer-events-none absolute right-0 top-10 z-30 hidden w-[190px] rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3 text-left shadow-xl group-hover:block">
+                  <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
                     Sentiment scores
                   </div>
                   <div className="space-y-2">
                     {sentimentScores.map((item) => (
                       <div key={item.key}>
-                        <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700">
+                        <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-mcm-ink-2">
                           <span>{item.label}</span>
                           <span>{item.score}/100</span>
                         </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-mcm-surface-3">
                           <div
                             className={`h-full rounded-full ${item.colorClass}`}
                             style={{ width: `${item.score}%` }}
@@ -886,7 +886,7 @@ function AiChatbotAgents() {
         header: 'Last updated',
         accessorKey: 'updatedAt',
         cell: ({ row }: any) => (
-          <span className="text-[14px] font-medium text-slate-700">
+          <span className="text-[14px] font-medium text-slate-700 dark:text-mcm-ink-2">
             {getLastUpdated(row?.original)}
           </span>
         ),
@@ -913,13 +913,13 @@ function AiChatbotAgents() {
             agentAccess?.edit && {
               icon: 'EditStrokIcon' as IconName,
               onClick: () => openConfigureAgent(agent),
-              className: 'bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white',
+              className: 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit agent',
             },
             agentAccess?.edit && {
               icon: 'Chat' as IconName,
               onClick: () => openPromptEditor(agent),
-              className: 'bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white',
+              className: 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit prompt',
             },
             agentAccess?.delete &&
@@ -982,20 +982,20 @@ function AiChatbotAgents() {
   return (
     <>
       <section className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f4f5f7]">
-        <div className="flex min-h-[64px] flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-h-[64px] flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-3 text-[18px] font-bold text-slate-950">
+            <div className="flex items-center gap-3 text-[18px] font-bold text-slate-950 dark:text-mcm-ink">
               <button
                 type="button"
                 onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-                className="font-medium text-slate-500 transition-colors hover:text-primary"
+                className="font-medium text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
               >
                 AI Agents
               </button>
-              <span className="text-slate-400">/</span>
+              <span className="text-slate-400 dark:text-mcm-ink-3">/</span>
               <span>AI Chatbot Agents</span>
             </div>
-            <p className="mt-1 text-[13px] text-slate-500">
+            <p className="mt-1 text-[13px] text-slate-500 dark:text-mcm-ink-3">
               Agents that answer chats on your behalf, the knowledge they draw on, and how each one
               is performing.
             </p>
@@ -1007,7 +1007,7 @@ function AiChatbotAgents() {
                 type="button"
                 variant="outline"
                 onClick={() => setView('analytics')}
-                className="h-9 gap-2 rounded-lg border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300"
+                className="h-9 gap-2 rounded-lg border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-sm font-semibold text-slate-700 dark:text-mcm-ink-2 shadow-sm hover:border-slate-300 dark:hover:border-mcm-line"
               >
                 <span className="text-base leading-none">📊</span>
                 Analytics
@@ -1027,15 +1027,15 @@ function AiChatbotAgents() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-5">
+        <div className="flex items-center gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-6 py-5">
           <div className="relative max-w-full flex-1 sm:max-w-[440px]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-mcm-ink-3" />
             <input
               value={search}
               onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
               placeholder="Search agents by name..."
               maxLength={50}
-              className="h-11 w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-10 pr-4 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
+              className="h-11 w-full rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-10 pr-4 text-sm text-[#2E2D35] dark:text-mcm-ink outline-none transition-colors placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary"
             />
           </div>
           <button
@@ -1044,7 +1044,7 @@ function AiChatbotAgents() {
             className={`h-9 rounded-full border px-4 text-sm font-bold transition-colors ${
               statusFilter === 'all'
                 ? 'border-primary bg-primary text-white'
-                : 'border-[#EEE7DD] bg-white text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
+                : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-[#9A948F] dark:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line'
             }`}
           >
             All <span>{totalAgentsCount}</span>
@@ -1055,7 +1055,7 @@ function AiChatbotAgents() {
             className={`h-9 rounded-full border px-4 text-sm font-bold transition-colors ${
               statusFilter === 'live'
                 ? 'border-primary bg-primary text-white'
-                : 'border-[#EEE7DD] bg-white text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
+                : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-[#9A948F] dark:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line'
             }`}
           >
             Live <span>{liveAgentsCount}</span>
@@ -1067,11 +1067,11 @@ function AiChatbotAgents() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-primary"
+                className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors hover:border-primary"
               >
                 {(isStatsFetching || isMetricsFetching) && <StatCardLoader />}
-                <p className="text-[11px] font-medium text-slate-500">{stat.label}</p>
-                <p className="mt-[3px] text-[22px] font-bold leading-7 text-slate-950">
+                <p className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">{stat.label}</p>
+                <p className="mt-[3px] text-[22px] font-bold leading-7 text-slate-950 dark:text-mcm-ink">
                   {stat.value}
                 </p>
                 {stat.helper ? (
@@ -1089,9 +1089,9 @@ function AiChatbotAgents() {
             extraParams={{ filters: tableFilters, date_filters: selectedDateFilters }}
             select={selectTableAgents}
             clientSideSearch={false}
-            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[#f8fafc] [&_th]:px-2 [&_th]:py-3 [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-slate-500 [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[180px] [&_td]:h-[70px] [&_td]:px-2 [&_td]:py-2.5 [&_td:last-child]:w-[180px]"
+            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[#f8fafc] [&_th]:px-2 [&_th]:py-3 [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-slate-500 dark:text-mcm-ink-3 [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[180px] [&_td]:h-[70px] [&_td]:px-2 [&_td]:py-2.5 [&_td:last-child]:w-[180px]"
             loaderTableClass="min-h-[320px]"
-            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60'}
+            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3'}
             emptyTablePlaceholder="No chat agents found"
             descriptionEmptyTable="Try a different search or create a new chat agent."
           />

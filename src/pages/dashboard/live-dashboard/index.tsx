@@ -116,7 +116,7 @@ type AgentStatus = 'AVAILABLE' | 'ON CALL' | 'RINGING' | 'WRAP UP' | 'ON HOLD' |
 const AGENT_PAGE_LIMIT = 25;
 
 const toneClasses: Record<MetricTone, string> = {
-  neutral: 'text-[#2E2D35]',
+  neutral: 'text-[#2E2D35] dark:text-mcm-ink',
   success: 'text-[#4EAE6E]',
   warning: 'text-amber-600',
   danger: 'text-[#DC5049]',
@@ -129,7 +129,7 @@ const statusPillClass: Record<AgentStatus, string> = {
   RINGING: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
   'WRAP UP': 'bg-amber-100 text-amber-700 border border-amber-200',
   'ON HOLD': 'bg-red-100 text-red-700 border border-red-200',
-  OFFLINE: 'bg-[#FBE2C8]/40 text-[#9A948F] border border-[#EEE7DD]',
+  OFFLINE: 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 border border-[#EEE7DD] dark:border-mcm-line',
 };
 
 const getCallbackTaskContactPhone = (task: any) =>
@@ -204,10 +204,10 @@ const ActionButtons = ({
     hasAnyActiveCallSession ||
     isMonitoringActionLocked;
 
-  if (isButtonDisabled) return <span className="text-xs text-[#9A948F]">---</span>;
+  if (isButtonDisabled) return <span className="text-xs text-[#9A948F] dark:text-mcm-ink-3">---</span>;
 
   const actionButtonClass =
-    'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-[#FBE2C8]/40 border border-[#EEE7DD] text-[#C96F1F] shadow-sm transition-colors hover:bg-primary hover:border-primary hover:text-white';
+    'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 border border-[#EEE7DD] dark:border-mcm-line text-[#C96F1F] dark:text-[#ff8a2a] shadow-sm transition-colors hover:bg-primary hover:border-primary hover:text-white';
   const hangupButtonClass =
     'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 bg-[#FDECEA] border border-[#F5C6C2] text-[#DC5049] shadow-sm transition-colors hover:bg-[#DC5049] hover:border-[#DC5049] hover:text-white';
 
@@ -958,7 +958,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     {
       label: 'Logged In',
       value: String(usersOnlineStatus?.filter((u: any) => u.online).length || 0),
-      tone: 'text-[#2E2D35]',
+      tone: 'text-[#2E2D35] dark:text-mcm-ink',
     },
     {
       label: 'Available',
@@ -1018,7 +1018,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           (agents?.length || 0) - (usersOnlineStatus?.filter((u: any) => u.online).length || 0),
         ),
       ),
-      tone: 'text-[#9A948F]',
+      tone: 'text-[#9A948F] dark:text-mcm-ink-3',
     },
     {
       label: 'Occupancy',
@@ -1103,7 +1103,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         </div> */}
 
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-[#2E2D35]">Agent Performance Overview</h3>
+        <h3 className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Agent Performance Overview</h3>
         <Button
           onClick={handleRefreshCampaignStats}
           variant="outline"
@@ -1119,7 +1119,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
       <div className="flex flex-col gap-3">
         {dashboardMetricsByGroup.map((section) => (
           <div key={section.group}>
-            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C9A46B]">
+            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-[#C9A46B] dark:text-mcm-ink-3">
               {section.group}
             </p>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-6 xl:grid-cols-9">
@@ -1142,14 +1142,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         openDashboardMetric();
                       }
                     }}
-                    className={`rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] px-3 py-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[rgba(214,163,90,0.7)] hover:bg-[rgba(255,252,248,0.97)] hover:shadow-[0_10px_20px_-6px_rgba(154,78,30,0.28)] justify-between flex-col flex ${
+                    className={`rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-3 py-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[rgba(214,163,90,0.7)] dark:hover:border-mcm-line-2 hover:bg-[rgba(255,252,248,0.97)] dark:hover:bg-mcm-surface-3 hover:shadow-[0_10px_20px_-6px_rgba(154,78,30,0.28)] dark:hover:shadow-none justify-between flex-col flex ${
                       isClickableMetric
                         ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30'
                         : ''
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                         {item.label}
                       </p>
                       <IconComp className={`h-3.5 w-3.5 ${toneClasses[item.tone]}`} />
@@ -1173,25 +1173,25 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
       <div className="mx-auto flex w-full max-w-[1880px] flex-col mt-3">
         <div className="flex w-full  gap-4 xl:flex-row flex-col">
           <div className="flex w-full flex-col sm:flex-row xl:flex-col gap-3 sm:max-w-full  xl:max-w-96 min-w-72 xl:self-start">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none w-full">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                 Call Flow Funnel (Live)
               </h4>
               <div className="mt-3 flex flex-col gap-3">
                 {funnelData.map((item, index) => (
                   <div key={item.label} className="relative flex flex-col gap-1.5">
                     {index < funnelData.length - 1 && (
-                      <span className="absolute left-[9px] top-5 h-[calc(100%+0.75rem-4px)] w-px bg-[#EEE7DD]" />
+                      <span className="absolute left-[9px] top-5 h-[calc(100%+0.75rem-4px)] w-px bg-[#EEE7DD] dark:bg-mcm-line" />
                     )}
                     <div className="flex items-center justify-between text-xs">
-                      <span className="relative z-10 flex items-center gap-2 font-medium text-[#2E2D35]">
+                      <span className="relative z-10 flex items-center gap-2 font-medium text-[#2E2D35] dark:text-mcm-ink">
                         <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-primary/15 text-[9px] font-bold text-primary">
                           {index + 1}
                         </span>
                         {item.label}
                       </span>
-                      <span className="text-[#9A948F]">
-                        <span className="font-semibold text-[#2E2D35]">{item.value}%</span>{' '}
+                      <span className="text-[#9A948F] dark:text-mcm-ink-3">
+                        <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{item.value}%</span>{' '}
                         &middot; {item.count}
                       </span>
                     </div>
@@ -1199,14 +1199,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       color={item.color}
                       outOfValue={100}
                       taskDoneValue={item.value}
-                      className="bg-[#F0DFC5]"
+                      className="bg-[#F0DFC5] dark:bg-mcm-surface-3"
                     />
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 border-t border-dashed border-[#EEE7DD] pt-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+              <div className="mt-4 border-t border-dashed border-[#EEE7DD] dark:border-mcm-line pt-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                   Funnel Insights
                 </p>
                 <div className="mt-2 grid grid-cols-2 gap-2">
@@ -1218,22 +1218,22 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     return (
                       <div
                         key={`drop-${item.label}`}
-                        className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-2"
+                        className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-2"
                       >
-                        <p className="text-[9px] font-medium uppercase tracking-wide text-[#9A948F]">
+                        <p className="text-[9px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                           Drop: {item.label.split(' ')[0]} &rarr; {nextItem.label.split(' ')[0]}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-[#DC5049]">
                           -{dropCount}{' '}
-                          <span className="text-[10px] font-medium text-[#9A948F]">
+                          <span className="text-[10px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                             ({dropPercent}%)
                           </span>
                         </p>
                       </div>
                     );
                   })}
-                  <div className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-2">
-                    <p className="text-[9px] font-medium uppercase tracking-wide text-[#9A948F]">
+                  <div className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-2">
+                    <p className="text-[9px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Overall Conversion
                     </p>
                     <p className="mt-0.5 text-sm font-semibold text-[#4EAE6E]">
@@ -1245,7 +1245,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                           )
                         : 0}
                       %{' '}
-                      <span className="text-[10px] font-medium text-[#9A948F]">
+                      <span className="text-[10px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                         {funnelData[0]?.count || 0} &rarr;{' '}
                         {funnelData[funnelData.length - 1]?.count || 0}
                       </span>
@@ -1255,8 +1255,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               </div>
             </div>
 
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none w-full">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                 Queue Status
               </h4>
               <div className="mt-3 space-y-2.5 max-h-86 overflow-auto">
@@ -1268,45 +1268,45 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     return (
                       <div
                         key={queue?.queue}
-                        className="rounded-lg border border-[#EEE7DD] border-l-[3px] bg-[#FBE2C8]/45 p-2.5"
+                        className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line border-l-[3px] bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-2.5"
                         style={{ borderLeftColor: slaTone }}
                       >
                         <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold text-[#2E2D35]">{queue?.queue}</p>
+                          <p className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">{queue?.queue}</p>
                           <p className="text-xs font-semibold text-amber-600">
                             {queue?.total || 0}
                           </p>
                         </div>
                         <div className="mt-2 grid grid-cols-3 gap-1.5">
-                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-white/50 py-1.5">
-                            <Clock3 className="h-3 w-3 text-[#9A948F]" />
+                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-card/50 py-1.5">
+                            <Clock3 className="h-3 w-3 text-[#9A948F] dark:text-mcm-ink-3" />
                             <span className="text-xs font-semibold text-primary">
                               {queue?.avgWait}
                             </span>
-                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                               Avg Wait
                             </span>
                           </div>
-                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-white/50 py-1.5">
-                            <UsersIcon className="h-3 w-3 text-[#9A948F]" />
+                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-card/50 py-1.5">
+                            <UsersIcon className="h-3 w-3 text-[#9A948F] dark:text-mcm-ink-3" />
                             <span className="text-xs font-semibold text-[#4EAE6E]">
                               {queue?.available}
                             </span>
-                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                               Available
                             </span>
                           </div>
-                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-white/50 py-1.5">
+                          <div className="flex flex-col items-center gap-0.5 rounded-md bg-card/50 py-1.5">
                             <Gauge className="h-3 w-3" style={{ color: slaTone }} />
                             <span className="text-xs font-semibold" style={{ color: slaTone }}>
                               {queue?.sla || 0}%
                             </span>
-                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                            <span className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                               SLA
                             </span>
                           </div>
                         </div>
-                        <div className="mt-2 h-1.5 w-full rounded-full bg-[#F0DFC5]">
+                        <div className="mt-2 h-1.5 w-full rounded-full bg-[#F0DFC5] dark:bg-mcm-surface-3">
                           <div
                             className={`h-1.5 rounded-full ${getBarColor(slaValue)}`}
                             style={{ width: `${slaValue}%` }}
@@ -1316,16 +1316,16 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     );
                   })
                 ) : (
-                  <div className="rounded-lg border border-dashed border-[#EEE7DD] bg-[#FBE2C8]/45 p-3 text-center">
-                    <p className="text-xs font-medium text-[#9A948F]">No record</p>
+                  <div className="rounded-lg border border-dashed border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-3 text-center">
+                    <p className="text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3">No record</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none w-full">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                   Active Campaigns
                 </h4>
                 {activeCampaignsData.length > 0 && (
@@ -1335,12 +1335,12 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 )}
               </div>
               {activeCampaignsData.length > 0 && (
-                <div className="mt-2.5 grid grid-cols-3 gap-1.5 rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-2">
+                <div className="mt-2.5 grid grid-cols-3 gap-1.5 rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-2">
                   <div className="text-center">
-                    <p className="text-xs font-semibold text-[#2E2D35]">
+                    <p className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">
                       {activeCampaignsData.reduce((sum, c) => sum + c.dialed, 0)}
                     </p>
-                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Total Dialed
                     </p>
                   </div>
@@ -1348,7 +1348,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     <p className="text-xs font-semibold text-[#4EAE6E]">
                       {activeCampaignsData.reduce((sum, c) => sum + c.conversions, 0)}
                     </p>
-                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Conversions
                     </p>
                   </div>
@@ -1363,7 +1363,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         : 0}
                       %
                     </p>
-                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F]">
+                    <p className="text-[8px] font-medium uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Connect Rate
                     </p>
                   </div>
@@ -1379,7 +1379,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     return (
                       <div
                         key={campaign.name}
-                        className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-2.5"
+                        className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-2.5"
                       >
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-semibold text-primary">{campaign.name}</p>
@@ -1387,13 +1387,13 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                             {campaign.conversions} conv.
                           </p>
                         </div>
-                        <div className="mt-2 grid grid-cols-2 gap-y-1 text-[11px] text-[#9A948F]">
+                        <div className="mt-2 grid grid-cols-2 gap-y-1 text-[11px] text-[#9A948F] dark:text-mcm-ink-3">
                           <p>Dialed: {campaign.dialed}</p>
                           <p>Connected: {campaign.connected}</p>
                           <p>Answered %: {campaign.answerRate}</p>
                           <p>Failed: {campaign.failed}</p>
                         </div>
-                        <div className="mt-2 h-1.5 w-full rounded-full bg-[#F0DFC5]">
+                        <div className="mt-2 h-1.5 w-full rounded-full bg-[#F0DFC5] dark:bg-mcm-surface-3">
                           <div
                             className={`h-1.5 rounded-full ${getBarColor(connectRate)}`}
                             style={{ width: `${connectRate}%` }}
@@ -1403,9 +1403,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     );
                   })
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#EEE7DD] bg-[#FBE2C8]/30 py-6 text-center">
-                    <Megaphone className="h-5 w-5 text-[#C9A46B]" />
-                    <p className="text-xs font-medium text-[#9A948F]">No active campaigns</p>
+                  <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/30 py-6 text-center">
+                    <Megaphone className="h-5 w-5 text-[#C9A46B] dark:text-mcm-ink-3" />
+                    <p className="text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3">No active campaigns</p>
                   </div>
                 )}
               </div>
@@ -1413,24 +1413,24 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           </div>
 
           <div className="flex w-full flex-col gap-3 xl:min-h-[1400px]">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] p-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none w-full">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-9">
                 {liveStripStats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 px-2.5 py-1.5 text-center transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[rgba(214,163,90,0.7)] hover:bg-[rgba(255,252,248,0.97)] hover:shadow-[0_10px_20px_-6px_rgba(154,78,30,0.28)]"
+                    className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 px-2.5 py-1.5 text-center transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[rgba(214,163,90,0.7)] dark:hover:border-mcm-line-2 hover:bg-[rgba(255,252,248,0.97)] dark:hover:bg-mcm-surface-3 hover:shadow-[0_10px_20px_-6px_rgba(154,78,30,0.28)] dark:hover:shadow-none"
                   >
                     <p className={`text-lg font-semibold leading-none ${stat.tone}`}>
                       {stat.value}
                     </p>
-                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] flex items-center justify-center gap-1">
+                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3 flex items-center justify-center gap-1">
                       <span>{stat.label}</span>
                       {stat.label === 'Occupancy' && (
                         <CustomTooltip
                           text="Calculated based on total agent and number of agents on the call"
                           side="top"
                         >
-                          <Info className="h-3.5 w-3.5 text-[#9A948F] cursor-pointer" />
+                          <Info className="h-3.5 w-3.5 text-[#9A948F] dark:text-mcm-ink-3 cursor-pointer" />
                         </CustomTooltip>
                       )}
                     </p>
@@ -1440,14 +1440,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             </div>
 
             {canViewAgentRosterAndControls ? (
-              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-xl overflow-hidden  border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset]">
-                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-[#EEE7DD] bg-[#FBE2C8]/45 px-3 py-2.5">
-                  <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
+              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-xl overflow-hidden  border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] dark:shadow-none">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:!bg-mcm-surface-3 px-3 py-2.5">
+                  <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                     <Headset className="h-4 w-4 text-primary" />
                     Agent Real-time Roster and Controls
                   </h4>
-                  <div className="rounded-md border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] px-3 py-1.5 max-sm:w-full">
-                    <p className="text-[11px] font-medium text-[#9A948F]">
+                  <div className="rounded-md border border-[rgba(214,163,90,0.55)] dark:border-mcm-line bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-3 py-1.5 max-sm:w-full">
+                    <p className="text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                       Top: {topCallsText} &nbsp; | &nbsp; Bottom: {bottomCallsText}
                     </p>
                   </div>
@@ -1517,30 +1517,45 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   className="block flex-1 min-h-0 overflow-auto overflow-x-auto lg:block"
                 >
                   <Table className="min-w-245 xl:min-w-280">
-                    <TableHeader className="sticky top-0 z-10 bg-[#FBE2C8]">
+                    {/* dark:!bg-mcm-surface-3, not the plain form: a global
+                        catch-all in index.css (`.dark [class^="bg-[#FBE2C8"]`
+                        — a safety net for the 40+ places that use #FBE2C8
+                        purely as a hover-reveal tint) also matches this
+                        header's own base `bg-[#FBE2C8]` literal and forces
+                        it to a 50%-transparent `rgba(51,65,85,0.5)` — since
+                        that catch-all is unlayered CSS with `!important`, it
+                        beats a plain `dark:` Tailwind utility regardless of
+                        specificity. With the header only half-opaque, the
+                        agent rows scrolling underneath showed straight
+                        through it — the "header overlapping the rows" bug.
+                        The `!` makes this a layered !important, which wins
+                        over an unlayered one per the cascade's reversed
+                        important-vs-layer order — same fix already applied
+                        to table-manager.tsx for the same class of bug. */}
+                    <TableHeader className="sticky top-0 z-10 bg-[#FBE2C8] dark:!bg-mcm-surface-3">
                       <TableRow>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Agent Info
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Live Status
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Time In State
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Queue / Campaign
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Caller ID
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Utilization
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Daily Stats
                         </TableHead>
-                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-black">
+                        <TableHead className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wide text-foreground">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -1549,7 +1564,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       <TableBody>
                         <TableRow>
                           <TableCell colSpan={8} className="h-40">
-                            <div className="flex items-center justify-center gap-2 text-sm text-[#9A948F]">
+                            <div className="flex items-center justify-center gap-2 text-sm text-[#9A948F] dark:text-mcm-ink-3">
                               <Loader2 className="h-5 w-5 animate-spin text-primary" />
                               <span>Loading agents...</span>
                             </div>
@@ -1561,8 +1576,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         {agents?.map((agent: any, agentIndex: number) => (
                           <TableRow
                             key={agent?.extension}
-                            className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/50 hover:bg-[#FBE2C8]/60 ${
-                              agentIndex % 2 === 1 ? 'bg-[#FBF6EE]/40' : ''
+                            className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/50 hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3 ${
+                              agentIndex % 2 === 1 ? 'bg-[#FBF6EE]/40 dark:bg-mcm-surface-3/40' : ''
                             }`}
                           >
                             <TableCell className="px-3 py-2.5">
@@ -1571,10 +1586,10 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   {getInitials(`${agent?.first_name} ${agent?.last_name}`)}
                                 </div>
                                 <div className="flex flex-col">
-                                  <p className="text-[13px] font-semibold text-[#2E2D35]">
+                                  <p className="text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                     {agent?.first_name || ''} {agent?.last_name || ''}
                                   </p>
-                                  <p className="flex items-center gap-1 text-[11px] font-medium text-[#9A948F]">
+                                  <p className="flex items-center gap-1 text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                                     <span className="inline-flex items-center justify-center">
                                       {statusImageLookup[getAgentPresenceStatus(agent)] ||
                                         statusImageLookup.offline}
@@ -1598,8 +1613,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               })()}
                             </TableCell>
                             <TableCell className="px-3 py-2.5">
-                              <p className="flex items-center gap-1.5 text-xs font-medium text-[#2E2D35]">
-                                <Timer className="h-3.5 w-3.5 text-[#9A948F]" />
+                              <p className="flex items-center gap-1.5 text-xs font-medium text-[#2E2D35] dark:text-mcm-ink">
+                                <Timer className="h-3.5 w-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
                                 {(() => {
                                   const liveCall = getLiveCallForAgent(agent);
                                   const timestamp = getMonitoringCallTimestamp(liveCall, agent);
@@ -1607,7 +1622,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 })()}
                               </p>
                             </TableCell>
-                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#2E2D35]">
+                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#2E2D35] dark:text-mcm-ink">
                               {(() => {
                                 const liveCall = getLiveCallForAgent(agent);
                                 if (!liveCall) return '--';
@@ -1622,7 +1637,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 );
                               })()}
                             </TableCell>
-                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#9A948F]">
+                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3">
                               {(() => {
                                 const liveCall = getLiveCallForAgent(agent);
                                 const direction = String(liveCall?.direction || '')
@@ -1643,9 +1658,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                       color={getBarColor(utilizationPercent)}
                                       outOfValue={100}
                                       taskDoneValue={utilizationPercent}
-                                      className="bg-[#F0DFC5]"
+                                      className="bg-[#F0DFC5] dark:bg-mcm-surface-3"
                                     />
-                                    <p className="text-[11px] font-bold text-[#2E2D35]">
+                                    <p className="text-[11px] font-bold text-[#2E2D35] dark:text-mcm-ink">
                                       {formatUtilizationPercent(utilizationPercent)}
                                     </p>
                                   </div>
@@ -1653,7 +1668,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               })()}
                             </TableCell>
                             <TableCell className="px-3 py-2.5">
-                              <div className="flex flex-col text-[11px] leading-5 text-[#9A948F]">
+                              <div className="flex flex-col text-[11px] leading-5 text-[#9A948F] dark:text-mcm-ink-3">
                                 {(() => {
                                   const agentStats = getCampaignAgentStats(
                                     String(agent?.extension || ''),
@@ -1662,13 +1677,13 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                     <>
                                       <span>
                                         Calls:{' '}
-                                        <span className="font-semibold text-[#2E2D35]">
+                                        <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                           {agentStats?.total_calls ?? '--'}
                                         </span>
                                       </span>
                                       <span>
                                         AHT:{' '}
-                                        <span className="font-semibold text-[#2E2D35]">
+                                        <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                           {formatAht(agentStats?.avg_handle_time)}
                                         </span>
                                       </span>
@@ -1738,12 +1753,12 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         }}
       >
         <DialogContent className="md:max-w-[1260px] xl:max-w-[1366px] gap-0 overflow-hidden p-0">
-          <DialogHeader className="border-b border-[#EEE7DD] px-5 py-4">
-            <DialogTitle className="text-base font-semibold text-[#2E2D35]">
+          <DialogHeader className="border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+            <DialogTitle className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">
               {selectedCallListMetric?.label || 'Call'}{' '}
               {isSelectedCallbackTaskMetric ? 'tasks' : 'records'}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#9A948F]">
+            <DialogDescription className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
               {isSelectedCallbackTaskMetric
                 ? 'Showing callback tasks from the calendar task list.'
                 : 'Showing records from today using the phone call list report.'}

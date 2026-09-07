@@ -62,18 +62,29 @@
 
 /* ------------------------------------------------------------
    2. Sub-tab switcher ("Scheduled tasks" / "Queue voicemail")
+   Unified Segmented Frosted Capsule Track — the two triggers live inside
+   one pill-shaped glass track instead of floating as separate buttons, so
+   the active/inactive contrast reads correctly (elevated white pill vs.
+   transparent slate text) rather than inverted (solid white inactive pill
+   outshining a washed-out "active" peach pill).
    ------------------------------------------------------------ */
-/* The shadcn Tabs component now paints its own default off-white background
-   on the list container (`rgba(251,249,246,.85)`) at higher specificity
-   than a plain class rule beats — since the list is rectangular while the
-   pills inside it are pill-shaped, that background showed through as a
-   flat white block in the gap between them. `!important` clears it back
-   to transparent, the same fix used for the triggers just below. */
 .perf-callbacks [data-slot='tabs-list'] {
-  background: transparent !important;
-  gap: 6px;
-  padding: 0;
-  height: auto;
+  display: inline-flex !important;
+  width: fit-content !important;
+  align-items: center !important;
+  height: 34px !important;
+  gap: 2px;
+  background: rgba(255, 250, 244, 0.7) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  border-radius: 9999px;
+  padding: 3px !important;
+  box-shadow: none;
+}
+.dark .perf-callbacks [data-slot='tabs-list'] {
+  background: rgba(17, 24, 39, 0.5) !important;
+  border-color: rgba(251, 146, 60, 0.22);
 }
 
 /* `.mcm-page button[data-slot='tabs-trigger']` (mcm-page.css) sets
@@ -84,43 +95,50 @@
    mcm-page button-reset fight. */
 .perf-callbacks [data-slot='tabs-trigger'] {
   flex: none;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
+  height: 28px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  background: rgba(255, 255, 255, 0.85) !important;
-  border: 1px solid rgba(249, 115, 22, 0.28);
-  box-shadow: none;
+  line-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
   transition:
-    background-color 0.16s ease,
-    color 0.16s ease,
-    border-color 0.16s ease;
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .dark .perf-callbacks [data-slot='tabs-trigger'] {
-  color: #cbd5e1;
-  background: rgba(17, 24, 39, 0.5) !important;
-  border-color: rgba(251, 146, 60, 0.28);
+  color: #94a3b8;
 }
 .perf-callbacks [data-slot='tabs-trigger']:hover {
-  background: rgba(255, 241, 235, 0.9) !important;
-  border-color: rgba(249, 115, 22, 0.4);
-  color: var(--pc-accent-ink);
+  background: rgba(255, 255, 255, 0.5) !important;
+  color: #1a1a1a;
 }
 .dark .perf-callbacks [data-slot='tabs-trigger']:hover {
   background: rgba(251, 146, 60, 0.14) !important;
+  color: #f1f5f9;
 }
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
 .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
-  /* Flat soft peach wash, not a gradient block — the same tone-down every
-     other "this is the active one" surface in Performance got (Reports'
-     catalog toggle and selected card). */
-  background: rgba(249, 115, 22, 0.12) !important;
-  border: 1px solid rgba(249, 115, 22, 0.35);
-  box-shadow: none;
-  color: var(--pc-accent-ink);
-  font-weight: 700;
+  /* Softened off-white pill (not stark #fff) — elevated but not glaring. */
+  background: rgba(255, 253, 250, 0.92) !important;
+  border: 1px solid rgba(249, 115, 22, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(160, 95, 30, 0.12) !important;
+  color: #ea580c;
+  font-weight: 600;
+}
+.dark .perf-callbacks [data-slot='tabs-trigger'][data-state='active'],
+.dark .perf-callbacks [data-slot='tabs-trigger'][data-state='active']:hover {
+  background: rgba(30, 27, 24, 0.9) !important;
+  border-color: rgba(251, 146, 60, 0.4) !important;
+  color: #fb923c;
 }
 
 /* ------------------------------------------------------------
@@ -314,3 +332,95 @@
    (index.css `.mcm-pager*`) — plain white/gray with a solid orange current
    page — per explicit request to match that look exactly rather than
    re-theming it warm like the rest of this page. */
+
+/* ------------------------------------------------------------
+   4. Voicemail Playback modal (audio-dialog.tsx)
+   `.vm-modal` is a stable marker class on the Dialog's own content, not a
+   `.perf-callbacks` descendant — Radix portals dialogs to `document.body`,
+   so a page-scoped selector could never reach it. The class only appears
+   when the caller passes `meta` into <AudioModal>, which today is only
+   Performance > Callbacks, so this is safe to leave unscoped globally.
+   ------------------------------------------------------------ */
+.vm-player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vm-play-btn {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.28);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.vm-play-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 18px rgba(234, 88, 12, 0.34);
+}
+.vm-player-track {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+.vm-scrubber {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    #f97316 var(--vm-progress, 0%),
+    rgba(249, 115, 22, 0.15) var(--vm-progress, 0%)
+  );
+  outline: none;
+  cursor: pointer;
+  accent-color: #f97316;
+}
+.vm-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ea580c;
+  box-shadow: 0 1px 4px rgba(160, 95, 30, 0.4);
+  cursor: pointer;
+}
+.vm-scrubber::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #ea580c;
+  box-shadow: 0 1px 4px rgba(160, 95, 30, 0.4);
+  cursor: pointer;
+}
+.vm-scrubber::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.15);
+}
+.vm-player-timers {
+  display: flex;
+  justify-content: space-between;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  font-size: 11px;
+  color: #64748b;
+}

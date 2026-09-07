@@ -117,3 +117,34 @@
   border: 1px solid #1b2934;
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
 }
+/* The "N blocked" result-count chip's light rule above (`.gp-blocked
+   .fchip.live`) hardcodes a light mint fill with `!important` — the same
+   gap already found and fixed on Roles/Locations/External Contacts/
+   Favourites. */
+.dark .gp-blocked .fchip.live {
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+/* This page's whole layout (`.blocked-compact`) lives in mcm-page.css as
+   an opt-in class — its own `thead th` rule (needed for the sticky
+   header) sets `background: var(--surface)`, the same tier as this page's
+   own `.blocked-table-card`, so the header blended into the body instead
+   of standing apart the way every other Directory table's header does.
+   Scoped here (extra `.gp-blocked` ancestor out-specifies the plain
+   `.mcm-page .blocked-compact thead th` rule) rather than editing the
+   shared file, which also defines this same layout for no other page. */
+.dark .gp-blocked .blocked-compact thead th {
+  background: var(--mcm-surface-2, #16222c);
+}
+/* `.blocked-note-text` (the "Coming soon..." explanation paragraph) sets
+   `color: var(--warn)` — in dark mode that is the same amber used for the
+   "COMING SOON" label badge next to the form heading above it, so the
+   entire multi-sentence paragraph read as one large block of warning-
+   colored text instead of body copy. The badge already carries the
+   warning signal on its own; this text is elaboration, not the warning
+   itself, so it takes the same muted ink tone every other Directory
+   page's explanatory text uses. */
+.dark .gp-blocked .blocked-compact .blocked-note-text {
+  color: var(--mcm-ink-3, #8b98a6);
+}

@@ -141,7 +141,13 @@
   --ai-edge: #3c2d66;
   --live: #2dd4bf;
   --live-wash: #0d1f1c;
-  --warn: #f97316;
+  /* Amber, not a copy of --accent: this token drew the exact same orange
+     as the primary accent/CTA, so every "warn"-level alert border and
+     value (`.attn.warn`, `.kpi .v.warnv`) read as visually identical to
+     "active/primary" instead of "caution" — no way to tell a warning
+     apart from a button. Amber keeps the same warm family without
+     borrowing the brand's own hue. */
+  --warn: #f59e0b;
   --warn-wash: #1a2733;
   --crit: #f87171;
   --crit-wash: #24151a;
@@ -1041,7 +1047,11 @@
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--ink-4);
+  /* --ink-3, not --ink-4: this label names what the number below it is —
+     the same role table headers play, which already use --ink-3 for
+     exactly this reason. --ink-4 (the dimmest, "muted/disabled" tier)
+     under-served a label every KPI tile depends on to be legible. */
+  color: var(--ink-3);
 }
 .mcm-page .kpi .v {
   font-size: 26px;
@@ -1095,6 +1105,10 @@
      they label, so --ink-3 (the "muted/helper" tier, brighter than ink-4,
      dimmer than ink-2) fits better than the near-invisible bottom rung. */
   color: var(--ink-3);
+  /* One step up the existing surface ladder (surface -> surface-2) so the
+     header row reads as its own band instead of blending into the body,
+     which shared the table's plain --surface with no distinction. */
+  background: var(--surface-2);
   padding: 9px 12px;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;

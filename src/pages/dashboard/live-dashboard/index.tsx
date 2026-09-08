@@ -1163,7 +1163,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
   }, [selectedCallListMetric]);
 
   return (
-    <div className="live-wallboard-theme p-3">
+    <div className="live-wallboard-theme px-3 pt-7 pb-3">
       {/* Global --primary carries !important (src/index.css), so only another
           !important author rule can out-cascade it here; a plain inline style
           override would silently lose.

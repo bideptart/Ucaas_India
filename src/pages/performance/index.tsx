@@ -558,7 +558,9 @@ const Performance = () => {
         )}
         {activeTab === 'call-queue' && (
           <div className="dash-legacy">
-            <div className="p-3">
+            {/* `pt-7` so this tab starts on the same 28px line as the rest of
+                Performance; the other edges keep the original `p-3`. */}
+            <div className="px-3 pt-7 pb-3">
               <CallQueueContent />
             </div>
           </div>

@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import '../meetings-theme.css';
 
 const MEMBER_AVATAR_TONE_CLASSES = [
   'text-primary bg-ucass-active-bg',
@@ -372,10 +373,10 @@ const OngoingMeetings = () => {
                         <DropdownMenuContent
                           align="end"
                           sideOffset={8}
-                          className="min-w-[142px] overflow-hidden rounded-[12px] border border-[#e5e7eb] bg-white p-0 shadow-[0_6px_14px_rgba(15,23,42,0.12)]"
+                          className="mtg-menu min-w-[142px] overflow-hidden p-0"
                         >
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingInfo: true });
@@ -385,7 +386,7 @@ const OngoingMeetings = () => {
                             Info
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingInvites: true });
@@ -395,7 +396,7 @@ const OngoingMeetings = () => {
                             Invited Members
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none text-[#1f2937] hover:bg-[#f3f4f6] focus:bg-[#f3f4f6]"
+                            className="h-10 rounded-none px-4 text-[15px] font-normal leading-none"
                             onClick={() => {
                               setSelectedMeeting(meeting);
                               setModalState({ meetingAttendee: true });

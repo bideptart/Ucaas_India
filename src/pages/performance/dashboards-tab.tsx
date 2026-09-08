@@ -85,8 +85,12 @@ const DashboardsTab = () => {
 
   const hasAiContainment = typeof aiContainment === 'number';
 
+  /* `pt-7` = the `py-4` root Agents/Calls also use, plus the extra 12px
+     their stat grids add via `py-3`. This tab leads with the caption rather
+     than a grid, so the offset has to live on the root to land on the same
+     28px as the other tabs. */
   return (
-    <div className="perf-dashboards w-full px-[22px] py-4">
+    <div className="perf-dashboards w-full px-[22px] pt-7 pb-4">
       <div className="db-caption">A quick-glance overview across queues, campaigns and agents.</div>
 
       <div className="db-bento grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">

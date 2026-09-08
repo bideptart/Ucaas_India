@@ -349,7 +349,9 @@ const ReportsTab = ({
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
-        padding: '16px 22px 24px',
+        /* 28px top matches every other Performance tab (Agents/Calls reach
+           it as a `py-4` root plus the 12px their stat grids add). */
+        padding: '28px 22px 24px',
       }}
     >
       {/* ---- headline totals for the range ---- */}

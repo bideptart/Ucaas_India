@@ -292,6 +292,12 @@
 }
 .gp-location-form-dialog .mcm-site-cancel {
   color: #f2994a !important;
+  /* Outlined rather than bare text: beside a solid "Save & Continue" the
+     unbordered label read as a link rather than the other half of a pair
+     of buttons. Same orange the submit button borders itself with, so the
+     two read as one set — outline vs solid carrying the difference in
+     weight instead of button vs text. */
+  border: 1px solid #f2994a !important;
 }
 .gp-location-form-dialog .mcm-site-cancel:hover {
   background: #f2994a !important;

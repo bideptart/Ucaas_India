@@ -40,6 +40,7 @@ import { useUser } from '@/hooks/use-user';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { Clock4Icon, InfoIcon } from 'lucide-react';
+import '../meetings-theme.css';
 
 const MEMBER_AVATAR_TONE_CLASSES = [
   'text-primary bg-ucass-active-bg',
@@ -441,7 +442,7 @@ const UpcomingMeetings = () => {
                               <Icon name="PlusIcon" className="w-4 h-4" />
                               Invite
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent className="mtg-menu">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setModalState({ inviteMembers: true });
@@ -494,7 +495,7 @@ const UpcomingMeetings = () => {
                           <DropdownMenuTrigger className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-md w-8 h-8 bg-white-100 text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F]">
                             <Icon name="MenuDots" className="w-5 h-5 " />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent>
+                          <DropdownMenuContent className="mtg-menu">
                             {canEditMeeting(meeting?.startTimeLocal) &&
                               meeting?.createdById === user?.uuid &&
                               meeting?.mode !== 'CHAT' &&

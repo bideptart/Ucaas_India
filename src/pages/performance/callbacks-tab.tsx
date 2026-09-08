@@ -202,8 +202,11 @@ const CallbacksTab = () => {
     },
   ];
 
+  /* `pt-7` lands the first card on the same 28px as every other Performance
+     tab (Agents/Calls reach it as a `py-4` root plus the 12px their stat
+     grids add via `py-3`). Bottom keeps this tab's own `py-5`. */
   return (
-    <div className="perf-callbacks flex w-full flex-col gap-4 px-[22px] py-5">
+    <div className="perf-callbacks flex w-full flex-col gap-4 px-[22px] pt-7 pb-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <PerfStatCard label="Scheduled tasks" value={String(tasks.length)} icon={CalendarCheck} />
         <PerfStatCard
@@ -215,11 +218,6 @@ const CallbacksTab = () => {
         <PerfStatCard
           label="Tasks by source"
           value={bySource.length ? bySource[0][0] : '—'}
-          sub={
-            bySource.length
-              ? bySource.map(([source, count]) => `${source}: ${count}`).join(' · ')
-              : undefined
-          }
           icon={Layers}
         />
         <PerfStatCard

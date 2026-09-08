@@ -44,6 +44,7 @@ import RegionalModal from '@/components/common-settings/regional-dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { v4 as uuidV4 } from 'uuid';
+import '../../../meetings-theme.css';
 
 const normalizeMemberValue = (value?: string | number) => String(value || '').trim();
 
@@ -1059,7 +1060,7 @@ const ScheduleEventModal = ({
                               <Icon name="Invite" className="w-4.5 h-4.5" /> Invite Participants
                             </div>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent>
+                          <DropdownMenuContent className="mtg-menu">
                             <DropdownMenuItem
                               onClick={() => setModalState({ inviteMembers: true })}
                             >

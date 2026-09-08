@@ -75,6 +75,20 @@
   padding: 4px;
   margin-bottom: 16px;
 }
+/* SetupGuide returns null once setup is done (or is dismissed, or is still
+   loading) — but this wrapper around it is unconditional, so an established
+   account was left with the chrome and none of the content: a ~10px sliver
+   of card, reading as a stray rule above the table.
+
+   Hiding the empty wrapper rather than making it conditional in people.tsx:
+   the guide hides on `dismissed || isLoading || allDone`, all derived inside
+   `useSetupProgress`, and re-deriving that in the page would be a second
+   source of truth to keep in step. And rather than moving this chrome into
+   SetupGuide itself, because its other two call sites (Admin ▸ Company,
+   Admin ▸ People) deliberately render it with no card of their own. */
+.gp-people-setup:empty {
+  display: none;
+}
 /* A sticky `<thead>` doesn't change what its scrolling ancestor's own
    scrollbar covers — the track still spans the ancestor's full height,
    including the band "behind" the sticky header, so a slimmer scrollbar or

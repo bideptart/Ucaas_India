@@ -25,6 +25,7 @@ import InviteOthersModal from '../send-invites/invite-others';
 import InviteMembersModal from '../send-invites/invite-members';
 import { Icon } from '@/assets/icons/icon';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import '../meetings-theme.css';
 
 interface ScheduleMeetingProps {
   setDrawerState: (open: boolean) => void;
@@ -468,7 +469,7 @@ const ScheduleMeeting: FC<ScheduleMeetingProps> = ({ setDrawerState, initialData
                     <Icon name="Invite" className="w-5 h-5" /> Invite Participants
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent className="mtg-menu">
                   <DropdownMenuItem onClick={() => setModalState({ inviteMembers: true })}>
                     Invite Members
                   </DropdownMenuItem>

@@ -709,7 +709,7 @@ const AllCallMonitoring = () => {
             <div className="flex gap-2 "></div>
           </div>
         </MonitoringTopbarSlot>
-        <div className="w-full  p-3 flex flex-col gap-2 h-full">
+        <div className="w-full px-3 pt-7 pb-3 flex flex-col gap-2 h-full">
           {/* <h6 className="text-gray-900 font-semibold text-lg">All Calls Monitoring</h6>
           <h5 className="font-semibold text-gray-900 text-md">Calls</h5> */}
           <LiveCallList

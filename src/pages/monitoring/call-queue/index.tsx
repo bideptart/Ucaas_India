@@ -549,7 +549,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
             </div>
           </div>
         </MonitoringTopbarSlot>
-        <div className="w-full min-w-0 p-3 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-8rem)]">
+        <div className="w-full min-w-0 px-3 pt-7 pb-3 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-8rem)]">
           {isPending ? (
             <div>Loading...</div>
           ) : (

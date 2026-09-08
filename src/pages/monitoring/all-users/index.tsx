@@ -570,7 +570,7 @@ const AllUserMonitoring = ({ embedded = false }: { embedded?: boolean } = {}) =>
           className={
             embedded
               ? 'w-full flex flex-col gap-2'
-              : 'w-full h-[calc(100vh_-_8rem)]   p-3 flex flex-col gap-2 overflow-y-auto'
+              : 'w-full h-[calc(100vh_-_8rem)] px-3 pt-7 pb-3 flex flex-col gap-2 overflow-y-auto'
           }
         >
           {isShowSummary && (

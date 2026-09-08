@@ -931,7 +931,7 @@ const AiWallboard = () => {
   }, [clearRefreshLoaderTimeout]);
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden p-3">
+    <div className="h-full overflow-y-auto overflow-x-hidden px-3 pt-7 pb-3">
       <div className="mx-auto flex w-full max-w-470 flex-col gap-3">
         {/* The title sat as plain text on a flat panel, which read as a page
             heading rather than the header of a live surface. The icon gets a

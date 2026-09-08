@@ -3348,6 +3348,15 @@
   padding: 16px 22px 24px;
 }
 
+/* Activity's body specifically — the only `.mcm-admin` body carrying this
+   wash — starts its content on the same 28px line as the Performance tabs.
+   Done here rather than on the element's own Tailwind classes because the
+   rule above (`.min-h-[65px] + div`) out-specifies a utility and would keep
+   winning at 16px. */
+.mcm-admin .min-h-\[65px\] + div.bg-gray-50\/40 {
+  padding-top: 28px;
+}
+
 /* Intro paragraphs directly under a header read as a quiet note, not body copy. */
 .mcm-admin .min-h-\[65px\] + div > p.text-sm:first-child {
   margin: 0 0 12px;

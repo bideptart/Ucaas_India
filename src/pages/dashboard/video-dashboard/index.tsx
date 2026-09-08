@@ -1054,7 +1054,9 @@ const VideoDashboard = ({
 
   return (
     <section className="flex xxl:h-full w-full overflow-auto pb-4">
-      <div className="mx-auto flex h-full w-full flex-col gap-3 px-3 pt-3">
+      {/* `pt-7` (was `pt-3`) so this tab's content starts on the same 28px
+          line as every other Performance tab. */}
+      <div className="mx-auto flex h-full w-full flex-col gap-3 px-3 pt-7">
         {/* Quick actions. These were 126px-tall stacked cards that pushed every
             actual number below the fold; laid out along the row they read
             faster and give the board back a third of its first screen. */}

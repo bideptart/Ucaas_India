@@ -611,7 +611,9 @@ const MyCampaignListStandalone = () => {
           </div>
         </div>
 
-        <div className="p-3 w-full h-full gap-2 flex flex-col">
+        {/* `pt-7` so the content clears its page header by the same 28px the
+            Performance tabs leave above their first card. */}
+        <div className="px-3 pt-7 pb-3 w-full h-full gap-2 flex flex-col">
           {/* Upstream's warm panel, but the strip and rail keep their
               `mcm-tabstrip*` classes. Upstream's version is the slate/white
               gradient over a grey rail that was invisible against the panel

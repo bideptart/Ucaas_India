@@ -124,7 +124,8 @@ const Create10DLCCampaign = ({ setDrawerState }: { drawerState: boolean; setDraw
   };
 
   const onSubmit = (data: any) => {
-    const { brand_type, resellerId, cnp, payment_terms: _, ...rest } = data || {};
+    const { brand_type, resellerId, cnp, ...rest } = data || {};
+    delete rest.payment_terms;
     const payload = {
       ...rest,
       brandId: brand_type?.value,

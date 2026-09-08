@@ -2449,35 +2449,51 @@ export const demoCampaignAgents = () => {
    same reasoning as the live-call data above.
 --------------------------------------------------------------------------- */
 
-export const demoCampaignAiLiveCallData = () => ({
-  data: {
-    result: {
-      avg_sentiment: 18.4,
-      total_ai_calls: 46,
-      ai_containment_percent: 64,
-      total_ai_chats: 58,
-      transferred_calls: 17,
-      ai_receptionist_performance: {
-        handled_ai_only: 29,
-        avg_duration_sec: 96,
-        lead_captured_counts: 14,
-      },
-      voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
-      sentiment_buckets: [
-        { label: 'Positive', count: 31, percent: 55 },
-        { label: 'Neutral', count: 18, percent: 32 },
-        { label: 'Negative', count: 7, percent: 13 },
-      ],
-      intent_count: {
-        billing: 19,
-        support: 24,
-        sales: 13,
-        onboarding: 8,
-        retention: 5,
+/* Wobbles a base figure by up to `amplitude` on a smooth curve tied to the
+   real clock, so two calls a few seconds apart return visibly different
+   numbers instead of the exact same fixture — the same "reads the live
+   clock" trick demoCallStats/demoCampaignLiveCallsData use, needed here so
+   the AI Wall's Refresh button visibly moves something instead of quietly
+   re-setting state to numbers that look unchanged. */
+const wobble = (base: number, amplitude: number, phase = 0) =>
+  Math.round(base + amplitude * Math.sin(Date.now() / 1500 + phase));
+
+export const demoCampaignAiLiveCallData = () => {
+  const totalAiCalls = Math.max(0, wobble(46, 4, 0.4));
+  const totalAiChats = Math.max(0, wobble(58, 5, 1.1));
+  const transferredCalls = Math.max(0, wobble(17, 3, 1.8));
+  const handledAiOnly = Math.max(0, wobble(29, 3, 2.5));
+
+  return {
+    data: {
+      result: {
+        avg_sentiment: Number(wobble(184, 15, 0) / 10),
+        total_ai_calls: totalAiCalls,
+        ai_containment_percent: Math.min(100, Math.max(0, wobble(64, 3, 0.7))),
+        total_ai_chats: totalAiChats,
+        transferred_calls: transferredCalls,
+        ai_receptionist_performance: {
+          handled_ai_only: handledAiOnly,
+          avg_duration_sec: Math.max(0, wobble(96, 8, 3.2)),
+          lead_captured_counts: Math.max(0, wobble(14, 2, 4)),
+        },
+        voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
+        sentiment_buckets: [
+          { label: 'Positive', count: 31, percent: 55 },
+          { label: 'Neutral', count: 18, percent: 32 },
+          { label: 'Negative', count: 7, percent: 13 },
+        ],
+        intent_count: {
+          billing: 19,
+          support: 24,
+          sales: 13,
+          onboarding: 8,
+          retention: 5,
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const demoAiLiveWallboardData = () => ({
   data: {

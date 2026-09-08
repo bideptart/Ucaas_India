@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import useDebounce from '@/hooks/use-debounce';
 import NotFound from '@/assets/images/not-found-img.svg';
+import { RefreshCw } from 'lucide-react';
+import './queue-theme.css';
 
 // Temporary dev-only sample data so the queue layout can be reviewed
 // while no real queues are assigned. Only used when the API returns none.
@@ -79,6 +81,7 @@ const CallQueueContent = () => {
     data: callQueueData = [],
     isError,
     isLoading,
+    isFetching,
     refetch,
   } = useQuery({
     queryKey: ['getCallQueueInvolvements', debouncedSearch],
@@ -97,7 +100,7 @@ const CallQueueContent = () => {
       : callQueueData;
 
   return (
-    <div className="w-full flex flex-col gap-3 relative">
+    <div className="perf-queue w-full flex flex-col gap-3 relative">
       {/* The search box used to span the full width on its own, which read as
           an empty toolbar above the cards. Capping it and pairing it with the
           result count gives the row a left and a right, and says how many
@@ -106,7 +109,7 @@ const CallQueueContent = () => {
         <div className="relative w-full sm:max-w-sm">
           <Input
             placeholder="Search queues"
-            className="pl-10 w-full rounded-full border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.6)] shadow-[0_2px_10px_rgba(80,105,155,0.1)] backdrop-blur-[16px] backdrop-saturate-[40%] backdrop-brightness-[1.05] text-[#1A1A1A] placeholder:text-[#94a3b8] hover:border-primary/40 focus:border-primary/60"
+            className="queue-search pl-10 w-full rounded-full border-[rgba(255,255,255,0.9)] bg-[#fffdfb] shadow-[0_2px_10px_rgba(80,105,155,0.1)] text-[#1A1A1A] placeholder:text-[#94a3b8] hover:border-primary/40 focus:border-primary/60"
             IconPosition="left-0 pl-3 inset-y-0"
             value={search}
             onChange={(e) => {
@@ -123,27 +126,45 @@ const CallQueueContent = () => {
           )}
         </div>
 
-        {/* Was a plain cool-white glass pill (`rgba(255,255,255,0.55)`,
-            white border) — legible, but the one piece of chrome on this
-            page not on the warm-orange palette the queue cards themselves
-            already carry. An icon badge and an orange count give it the
-            same identity as everything below it, rather than reading as a
-            leftover from a different design pass. */}
-        {!isLoading && !isError && displayQueues?.length > 0 && (
-          <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(249,115,22,0.18)] bg-[#FFF6EB] py-1.5 pl-1.5 pr-3.5 shadow-[0_2px_8px_rgba(160,95,30,0.08)]">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
-              <Icon name="CallQueue" className="h-3.5 w-3.5 text-[#ea580c]" />
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Was a plain cool-white glass pill (`rgba(255,255,255,0.55)`,
+              white border) — legible, but the one piece of chrome on this
+              page not on the warm-orange palette the queue cards themselves
+              already carry. An icon badge and an orange count give it the
+              same identity as everything below it, rather than reading as a
+              leftover from a different design pass. */}
+          {!isLoading && !isError && displayQueues?.length > 0 && (
+            <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(249,115,22,0.18)] bg-[#FFF6EB] py-1.5 pl-1.5 pr-3.5 shadow-[0_2px_8px_rgba(160,95,30,0.08)]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <Icon name="CallQueue" className="h-3.5 w-3.5 text-[#ea580c]" />
+              </span>
+              <span className="text-xs font-semibold text-[#475569]">
+                {/* `#ea580c` measured 3.33:1 here against the pill's cream
+                    fill — short of the 4.5:1 small text needs; `#C2670A`, one
+                    step darker, still only reached 3.6:1 at this weight and
+                    size. `#a8460f` clears it (~5.3:1). */}
+                <span className="num font-bold text-[#a8460f]">{displayQueues.length}</span>{' '}
+                {displayQueues.length === 1 ? 'queue' : 'queues'}
+              </span>
             </span>
-            <span className="text-xs font-semibold text-[#475569]">
-              {/* `#ea580c` measured 3.33:1 here against the pill's cream
-                  fill — short of the 4.5:1 small text needs; `#C2670A`, one
-                  step darker, still only reached 3.6:1 at this weight and
-                  size. `#a8460f` clears it (~5.3:1). */}
-              <span className="num font-bold text-[#a8460f]">{displayQueues.length}</span>{' '}
-              {displayQueues.length === 1 ? 'queue' : 'queues'}
-            </span>
-          </span>
-        )}
+          )}
+
+          {/* This board had no way to pull fresh queue/agent state short of a
+              full page reload — the other three legacy boards (Wallboard, AI
+              Wall, Video) all carry their own Refresh control, this one
+              never did. Same pill styling those use. */}
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Refresh queues"
+            aria-label="Refresh queues"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(214,163,90,0.6)] bg-white px-4 py-2 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            {isFetching ? 'Refreshing' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       <div className="w-full overflow-y-auto h-[calc(100vh-12.55rem)] pr-1">

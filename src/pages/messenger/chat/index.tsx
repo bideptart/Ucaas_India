@@ -4208,7 +4208,6 @@ const AddMemberDialog = ({
 const PinnedMessagesView = ({
   currentChat,
   onClose,
-  onJumpToMessage,
 }: {
   currentChat: any;
   onClose: () => void;
@@ -4307,7 +4306,6 @@ const PinnedMessagesView = ({
 const FilesView = ({
   currentChat,
   onClose,
-  onJumpToMessage,
 }: {
   currentChat: any;
   onClose: () => void;

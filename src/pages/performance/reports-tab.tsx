@@ -163,6 +163,7 @@ const ReportsTab = ({
   selectedRange,
   dropdownVal,
   setDropdownVal,
+  globalSearch,
 }: {
   selectedRange: { from: string; to: string };
   // Performance's own Today/Division/Media picker state — threaded through
@@ -172,6 +173,10 @@ const ReportsTab = ({
   // than a second independent picker.
   dropdownVal?: any;
   setDropdownVal?: any;
+  // The Performance toolbar's centralized global search (index.tsx) —
+  // filters the report catalog's cards by title and the active report's
+  // own rendered rows by any cell value.
+  globalSearch?: string;
 }) => {
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedId, setSelectedId] = useState('queue-summary');
@@ -318,6 +323,19 @@ const ReportsTab = ({
     smsRows,
     contactLists,
   ]);
+
+  // The active report renders as a plain `string[][]` (head + rows), not a
+  // TableManager instance, so the toolbar's global search filters it here
+  // directly — a row matches if any of its own cell values contains the
+  // query, the same "match any column" rule TableManager's own
+  // `clientSideSearch` uses for Queues/Agents.
+  const normalizedGlobalSearch = globalSearch?.trim().toLowerCase() || '';
+  const filteredReportRows = useMemo(() => {
+    if (!report || !normalizedGlobalSearch) return report?.rows || [];
+    return report.rows.filter((row) =>
+      row.some((cell) => String(cell ?? '').toLowerCase().includes(normalizedGlobalSearch)),
+    );
+  }, [report, normalizedGlobalSearch]);
 
   const isLoading =
     callStats.isPending ||
@@ -467,13 +485,23 @@ const ReportsTab = ({
             </span>
           </div>
           <div className="pc-body">
-            {REPORT_CATALOG.map((group) => (
+            {REPORT_CATALOG.map((group) => {
+              // The toolbar's global search filters catalog cards by title —
+              // a group with nothing left to show doesn't render its own
+              // now-empty heading.
+              const visibleReports = normalizedGlobalSearch
+                ? group.reports.filter((definition) =>
+                    definition.title.toLowerCase().includes(normalizedGlobalSearch),
+                  )
+                : group.reports;
+              if (!visibleReports.length) return null;
+              return (
               <div key={group.group}>
                 <div className="sect-title" style={{ margin: '14px 0 8px' }}>
                   {group.group}
                 </div>
                 <div className="rp-catalog-grid">
-                  {group.reports.map((definition) => {
+                  {visibleReports.map((definition) => {
                     const isSelected = definition.id === selectedId;
                     const isAvailable = Boolean(definition.build);
                     return (
@@ -508,7 +536,8 @@ const ReportsTab = ({
                   })}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -519,7 +548,9 @@ const ReportsTab = ({
           <h3>{selected?.title}</h3>
           <span className="pc-right" style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
             {selectedRange.from} – {selectedRange.to}
-            {report ? ` · ${report.rows.length} row${report.rows.length === 1 ? '' : 's'}` : ''}
+            {report
+              ? ` · ${filteredReportRows.length} row${filteredReportRows.length === 1 ? '' : 's'}`
+              : ''}
           </span>
         </div>
         <div className="pc-body tight">
@@ -607,8 +638,8 @@ const ReportsTab = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {report?.rows.length ? (
-                    report.rows.map((row, rowIndex) => (
+                  {filteredReportRows.length ? (
+                    filteredReportRows.map((row, rowIndex) => (
                       <tr key={rowIndex} style={{ borderBottom: '1px solid var(--line-2)' }}>
                         {row.map((cell, cellIndex) => (
                           <td

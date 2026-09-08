@@ -2614,9 +2614,42 @@
 
 /* The pager is TableManager's next sibling and the two bordered cards sat
    with a 0px gap between them, so the table's bottom edge and the pager's
-   top edge read as one doubled line. */
-.mcm-tasktable + div {
+   top edge read as one doubled line.
+
+   `.mcm-tasktable` is the inner scrolling box — TableManager wraps it in
+   its own non-scrolling corner-clip div first (see the comment on that
+   wrapper in table-manager.tsx), so the pager is actually a sibling of
+   THAT wrapper, one level further out, never of `.mcm-tasktable` itself.
+   `.mcm-tasktable + div` matched nothing there and never applied.
+   `.mcm-tasktable-shell` is the page-level box one level out again (the
+   one already carrying `flex flex-col` — see the JSX in
+   video-meetings/Calender/index.tsx) that actually holds both the table
+   wrapper and the pager as direct children, so `> div + div` reaches the
+   real sibling. */
+.mcm-tasktable-shell > div + div {
   margin-top: 10px;
+}
+
+/* The table's outer corner-clip wrapper (`.mcm-tasktable-shell`'s first
+   child, rendered by TableManager) relies on `overflow: hidden` +
+   `border-radius` to keep the scrolling table's own content from
+   spilling past its rounded corners. That pairing clips the BORDER
+   correctly — the curve you see tracing the edge is always right — but
+   confirmed live it does not reliably clip the FILL underneath it: with
+   more rows than fit (any window short enough that the last row is cut
+   off mid-row, common at ordinary laptop heights), that row's own
+   background still rendered as a sharp square right into the corner,
+   square fill sitting inside a curved border, showing as a wedge of the
+   page's own background between the two. `clip-path`, unlike
+   `overflow`, isn't a scroll/paint-containment feature being pressed
+   into clipping service — it's built to cut exactly the shape it's
+   given, so it clips the fill the same way it clips the border.
+   `var(--radius-xl)` matches the `rounded-xl` already on this element,
+   so the clip traces the same curve the border and background already
+   draw — nothing here changes that shape, only makes content actually
+   respect it. */
+.mcm-tasktable-shell > div:first-child {
+  clip-path: inset(0 round var(--radius-xl));
 }
 
 /* TableManager's own `overflow-auto` scrolls both axes. The `table-fixed`

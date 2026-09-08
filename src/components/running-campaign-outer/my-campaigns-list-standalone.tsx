@@ -702,7 +702,18 @@ const MyCampaignListStandalone = () => {
                         return (
                           <div
                             key={campaign?._id}
-                            className="flex flex-col justify-between min-h-32 group rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-slate-300 hover:shadow-[0_8px_22px_-8px_rgba(15,23,42,0.14)] hover:-translate-y-0.5"
+                            /* `bg-white` on a rounded element inside `.mcm-page` gets
+                               silently rewritten to a translucent glass surface with a
+                               low-contrast `--glass-border` (mcm-page.css), which is why
+                               this card's own top border kept washing out.
+                               `bg-[var(--surface)]`/`border-[var(--line)]` are the same
+                               opaque white and a real border color, spelled so the
+                               rewrite rule's `.bg-white` selector doesn't match them.
+                               No `hover:-translate-y` either: the grid sits flush against
+                               its scroll container with no top clearance, so lifting the
+                               first row on hover pushed their rounded top edge past the
+                               container's own clip boundary and cut the border off. */
+                            className="flex flex-col justify-between min-h-44 group rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-[var(--accent-edge)] hover:shadow-[0_8px_22px_-8px_rgba(15,23,42,0.14)]"
                           >
                             <div className="gap-3  items-start justify-between sm:gap-3 xs:flex-col sm:flex-row flex">
                               <div className="min-w-0 flex-1 sm:mb-0 mb-2">

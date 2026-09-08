@@ -17,6 +17,7 @@ import AvatarContent from './AvatarContent';
 import NotificationContent from './NotificationContent';
 import GlobalSearch from './GlobalSearch';
 import AreaNav from '@/components/custom/area-nav';
+import ThemeToggle from '@/components/custom/theme-toggle';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
 import { ChevronDown, Menu, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -413,6 +414,9 @@ const Header = () => {
 
               {/* The gear lived here. Personal settings are now Admin ▸ My
                   Account, and the avatar menu still links straight to them. */}
+            </div>
+            <div className="hidden md:order-4 md:flex md:items-center">
+              <ThemeToggle />
             </div>
             <div
               id="mobile-header-wallet-profile"

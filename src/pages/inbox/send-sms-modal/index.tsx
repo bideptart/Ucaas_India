@@ -11,6 +11,7 @@ import { mediaUploadUrl, sendSms, userSMSInfo } from '@/services/api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -104,6 +105,7 @@ const trimToSmsCountLimit = (value: string, maxMessages = SMS_COUNT_LIMIT) => {
 
 const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: any) => {
   const { user } = useUser();
+  const theme = useTheme();
   const emojiContainerRef = useRef(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   // const { setParam } = useSearchParamManager();
@@ -436,7 +438,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
-                          theme={Theme.DARK}
+                          theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                           lazyLoadEmojis
                           className="z-[99999] max-h-86 max-w-76"
                           open={emojiOpen}

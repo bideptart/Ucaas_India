@@ -62,6 +62,7 @@ import {
 import { toast } from 'react-toastify';
 import { Checkbox } from '@/components/ui/checkbox';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import useDebounce from '@/hooks/use-debounce';
 import { useMessengerUsers } from '../hooks/use-messenger-users';
@@ -2249,6 +2250,7 @@ export const ChatFooter = ({
   const { features } = useCompanyFeatures();
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
   const chatFeatures = useMemo<ChatFeatureFlags>(
     () => resolveChatFeatures(isAgentChat ? 'agent' : 'messenger'),
     [isAgentChat],
@@ -3402,7 +3404,7 @@ export const ChatFooter = ({
           )}
         >
           <EmojiPicker
-            theme={Theme.DARK}
+            theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
             className={fromMeetChat ? 'meeting-chat-emoji-picker' : undefined}
             width="100%"
             height={fromMeetChat ? 'clamp(280px, 42vh, 330px)' : undefined}

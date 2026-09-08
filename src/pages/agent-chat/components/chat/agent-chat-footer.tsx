@@ -1,6 +1,7 @@
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useUser } from '@/hooks/use-user';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import AiAssist from '@/pages/messenger/content/ai-assist';
@@ -75,6 +76,7 @@ const AgentChatFooter = ({
   const { features } = useCompanyFeatures();
   const navigate = useNavigate();
   const { handleSendMessage, handleTyping, messageList } = useSocketEvents();
+  const theme = useTheme();
   const [text, setText] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [isAiAssistOpen, setIsAiAssistOpen] = useState(false);
@@ -211,7 +213,7 @@ const AgentChatFooter = ({
             {isEmojiPickerOpen ? (
               <div className="absolute bottom-9 right-0 z-50 overflow-hidden rounded-lg shadow-xl sm:bottom-10">
                 <EmojiPicker
-                  theme={Theme.DARK}
+                  theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                   lazyLoadEmojis
                   searchDisabled={false}
                   onEmojiClick={(data: any) => onTextChange(`${text}${data?.emoji || ''}`)}

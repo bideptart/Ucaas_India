@@ -16,6 +16,7 @@ import CustomSelect from '@/components/custom/custom-select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -60,6 +61,7 @@ const SendWhatsappMessage = ({
   selectClassName?: string;
 }) => {
   console.log('initialNumber', initialNumber);
+  const theme = useTheme();
   const emojiContainerRef = useRef(null);
   const [receiverNumber, setReceiverNumber] = useState(() =>
     initialNumber ? initialNumber.replace(/^\+/, '') : '',
@@ -221,7 +223,7 @@ const SendWhatsappMessage = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
-                          theme={Theme.DARK}
+                          theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                           lazyLoadEmojis
                           className="z-[99999]"
                           open={emojiOpen}

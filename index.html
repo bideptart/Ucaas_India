@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      /* The app is dark-theme only — the light/dark toggle was removed.
-         Applying `.dark` here, synchronously, before the body paints,
-         guarantees every load (fresh, hard refresh, direct URL) renders
-         dark from the first frame with no light-mode flash. */
-      document.documentElement.classList.add('dark');
+      /* The dark/light class is normally applied by ThemeToggle's own effect,
+         which can only run after React mounts and first paint — so a fresh
+         load or hard refresh briefly rendered light-mode colors (the orange
+         --primary, white surfaces) before flipping to dark. Reading the same
+         localStorage key here, synchronously, before the body paints, removes
+         that flash without touching how the toggle itself works. */
+      try {
+        if (localStorage.getItem('mcm-theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
     </script>
     <!-- Favicon set from org API (fav_icon); no default to avoid flash before API loads -->
     <!-- <link rel="icon" type="image/svg+xml" href="/fav.ico" /> -->

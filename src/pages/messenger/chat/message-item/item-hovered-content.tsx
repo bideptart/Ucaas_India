@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -64,6 +65,7 @@ const ItemHoveredContent = ({
   const { user } = useUser();
   const actorUuid = user?.uuid || user?.guest_info?.uuid || '';
   const { handleSendReaction, handlePinMessage } = useSocketEvents();
+  const theme = useTheme();
 
   const [emojiOpen, setEmojiOpen] = useState(false);
 
@@ -507,7 +509,7 @@ const ItemHoveredContent = ({
               }}
             >
               <EmojiPicker
-                theme={Theme.DARK}
+                theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                 lazyLoadEmojis
                 open={emojiOpen}
                 searchDisabled

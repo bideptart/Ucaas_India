@@ -33,6 +33,7 @@ import { useUser } from '@/hooks/use-user';
 import { count } from 'sms-length';
 import { useSmsRateCredits } from '@/hooks/use-sms-rate-credits';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -999,6 +1000,7 @@ const InboxContent = ({
 
   const smsRate = Number(sms_rates?.rate || 0);
   const chargeableAmount = chargeableSmsCount * smsRate;
+  const theme = useTheme();
   const { credits: smsCredits } = useSmsRateCredits({
     segment: smsCountData.messages,
     phone: otherNumber,
@@ -1586,7 +1588,7 @@ const InboxContent = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
-                          theme={Theme.DARK}
+                          theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                           className="border-gray-200"
                           lazyLoadEmojis
                           open={emojiOpen}

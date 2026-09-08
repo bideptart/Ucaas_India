@@ -1,5 +1,6 @@
 import { EmojiICon, Send } from '@/assets/icons';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -120,6 +121,7 @@ const TelegramContent = ({
   onBackToList?: () => void;
 }) => {
   // const [searchParams] = useSearchParams();
+  const theme = useTheme();
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [lineHeight, setLineHeight] = useState('leading-7');
@@ -448,7 +450,7 @@ const TelegramContent = ({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <EmojiPicker
-                        theme={Theme.DARK}
+                        theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                         className="border-[#EEE7DD] dark:border-mcm-line"
                         open={emojiOpen}
                         lazyLoadEmojis

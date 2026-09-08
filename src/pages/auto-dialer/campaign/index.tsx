@@ -646,13 +646,16 @@ const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
                  tables (Agents, Queues, Interactions) already use. */
               splitStickyHeader: true,
               // TableManager sizes itself to fill the rest of the viewport,
-              // which floors out at a 260px minimum — for this row's ~60px
-              // height that clips the 4th row by ~18px. Embedded (this
-              // panel sits mid-page rather than filling the screen) gets a
-              // fixed height sized for exactly 4 rows instead, so all 4
-              // show in full and a 5th scrolls. Standalone keeps the
+              // which floors out at a 260px minimum — for this row's actual
+              // ~78-79px height (name + meta stack, plus the outcome bar's
+              // two-line "X% dialled / Y left" footer) that clipped the 4th
+              // row roughly a third of the way down. Embedded (this panel
+              // sits mid-page rather than filling the screen) gets a fixed
+              // height sized for exactly 4 full rows instead (4 * ~79px +
+              // a small margin), so all 4 show in full with no scrollbar
+              // and only a 5th+ row scrolls. Standalone keeps the
               // viewport-fill sizing, which suits a full-page table.
-              ...(embedded ? { tableMaxHeight: '284px' } : {}),
+              ...(embedded ? { tableMaxHeight: '320px' } : {}),
             }}
           />
 

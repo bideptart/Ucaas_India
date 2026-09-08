@@ -634,44 +634,44 @@ const AllCallMonitoring = () => {
         // monitoringCallJoined;
         // An empty cell reads as 'no action here'; '---' reads as a failed load.
         if (isButtonDisabled) return null;
+        /* Same five-colour ladder Wallboard's action buttons use (see
+           dashboard/live-dashboard `actionButtonBase`/`*ButtonClass`) —
+           this table used one flat primary-orange for all five, which gave
+           no visual cue that Hangup is destructive and Listen is not. */
+        const actionButtonBase =
+          'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 border shadow-sm transition-colors';
+        const listenButtonClass = `${actionButtonBase} bg-[#EAF2F9] border-[#CBDDEC] text-[#2E6FA7] hover:bg-[#2E6FA7] hover:border-[#2E6FA7] hover:text-white`;
+        const whisperButtonClass = `${actionButtonBase} bg-[#EEEDFB] border-[#D5D2F3] text-[#5A54C9] hover:bg-[#5A54C9] hover:border-[#5A54C9] hover:text-white`;
+        const bargeButtonClass = `${actionButtonBase} bg-[#FDF3E1] border-[#F0DCB8] text-[#B8791B] hover:bg-[#B8791B] hover:border-[#B8791B] hover:text-white`;
+        const interceptButtonClass = `${actionButtonBase} bg-[#FBE2C8]/50 border-[#EEE7DD] text-[#C96F1F] hover:bg-[#C96F1F] hover:border-[#C96F1F] hover:text-white`;
+        const hangupButtonClass = `${actionButtonBase} bg-[#FDECEA] border-[#F5C6C2] text-[#DC5049] hover:bg-[#DC5049] hover:border-[#DC5049] hover:text-white`;
+
         return (
           <span className="flex gap-2 items-center">
             {monitoringAccessActions?.listen && (
               <CustomTooltip text="Listen" side="top">
-                <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
-                  onClick={() => monitorCall('*87', callId)}
-                >
+                <span className={listenButtonClass} onClick={() => monitorCall('*87', callId)}>
                   <Ear className="w-4 h-4" />
                 </span>
               </CustomTooltip>
             )}
             {monitoringAccessActions?.whisper && (
               <CustomTooltip text="Whisper" side="top">
-                <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
-                  onClick={() => monitorCall('*86', callId)}
-                >
+                <span className={whisperButtonClass} onClick={() => monitorCall('*86', callId)}>
                   <MicIcon className="w-4 h-4" />
                 </span>
               </CustomTooltip>
             )}
             {monitoringAccessActions?.barge && (
               <CustomTooltip text="Barge" side="top">
-                <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
-                  onClick={() => monitorCall('*88', callId)}
-                >
+                <span className={bargeButtonClass} onClick={() => monitorCall('*88', callId)}>
                   <UsersIcon className="w-4 h-4" />
                 </span>
               </CustomTooltip>
             )}
             {monitoringAccessActions?.intercept && (
               <CustomTooltip text="Intercept" side="top">
-                <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
-                  onClick={() => monitorCall('*89', callId)}
-                >
+                <span className={interceptButtonClass} onClick={() => monitorCall('*89', callId)}>
                   <CallIntersection className="w-5 h-5" />
                 </span>
               </CustomTooltip>
@@ -679,10 +679,7 @@ const AllCallMonitoring = () => {
 
             {monitoringAccessActions?.hangup && (
               <CustomTooltip text="Hangup" side="top">
-                <span
-                  className="cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-lg w-8 h-8 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
-                  onClick={() => terminateCallSession(call)}
-                >
+                <span className={hangupButtonClass} onClick={() => terminateCallSession(call)}>
                   <ImPhoneHangUp className="w-5 h-5" />
                 </span>
               </CustomTooltip>

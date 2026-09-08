@@ -278,22 +278,25 @@ const AllUserMonitoring = ({
                 activeCallTone={embedded ? getActiveCallTone(callInfo?.status) : undefined}
               />
             </div>
-            <div className="flex flex-col w-full min-w-0">
-              <div className="flex items-center justify-between  gap-2">
-                {/* `min-w-0` lets this block actually shrink below its own
-                    text's natural width inside a fixed-width column — without
-                    it, a flex child defaults to `min-width: auto` (its
-                    content's full width), so a longer name pushed the
-                    extension badge past the cell's own right edge and, with
-                    no overflow clipping on the cell, straight into the next
-                    column's text (`1005Pooja Bansal`). `truncate` below is
-                    then what actually uses that shrunk space to ellipsize
-                    instead of overflowing. */}
-                <div className="flex flex-col items-start min-w-0">
-                  <p className="capitalize w-full">{fullName}</p>
-                  <small className="text-primary text-[10px]">
-                    {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
-                  </small>
+            <div className="flex flex-col min-w-0">
+              {/* `justify-between` used to stretch the extension badge to the
+                  far edge of this cell's *assigned* column width — since the
+                  table has no fixed layout, that full-width flex row is what
+                  told the browser this column needed to be that wide in the
+                  first place, which is exactly the gap this row used to have
+                  between the name and the extension. A tight, non-stretching
+                  row lets the column shrink back to what its content
+                  actually needs. `min-w-0` still does the same job it did
+                  before: letting the name truncate instead of overflowing
+                  into the next column. */}
+              <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 shrink items-center gap-1.5">
+                  <p className="capitalize truncate">{fullName}</p>
+                  {(data?.custom_role_data?.name || data?.role_data?.name || data?.role) && (
+                    <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                      {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
+                    </span>
+                  )}
                 </div>
                 {/* `flex-shrink-0` — the extension badge is short and fixed,
                     the name is what should give way when space is tight. */}
@@ -302,9 +305,7 @@ const AllUserMonitoring = ({
                   <div>{data?.extension}</div>
                 </div>
               </div>
-              <p className="text-gray-500 dark:text-mcm-ink-3 flex justify-between">
-                <div className="truncate">{data?.email}</div>
-              </p>
+              <p className="text-gray-500 dark:text-mcm-ink-3 truncate">{data?.email}</p>
             </div>
           </div>
         );

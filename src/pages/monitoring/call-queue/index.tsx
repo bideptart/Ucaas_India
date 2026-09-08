@@ -288,9 +288,15 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
             </div>
             <div className="flex flex-col w-full">
               <div className="flex items-center justify-between  gap-2">
-                <div className="flex flex-col items-start ">
-                  <p className="capitalize text-sm">{memberDetails.name}</p>
-                  <small className="text-primary text-[10px]">{memberDetails.role}</small>
+                <div className="flex flex-col items-start min-w-0">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <p className="capitalize text-sm truncate">{memberDetails.name}</p>
+                    {memberDetails.role && (
+                      <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-primary">
+                        {memberDetails.role}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
                   <Icon name="Grid" className="w-4 h-4 " />
@@ -413,44 +419,52 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
         //   isCurrentSystemOnCall) ||
         // monitoringCallJoined;
         if (isButtonDisabled) return '---';
+        /* Same five-colour ladder Wallboard's action buttons use (see
+           dashboard/live-dashboard `actionButtonBase`/`*ButtonClass`) —
+           these five rendered as bare, uncoloured icons with no visual cue
+           that Hangup is destructive and Listen is not. Also fixes three
+           tooltips that all read "Whisper" regardless of which button they
+           were on (Barge and Hangup included). */
+        const actionButtonBase =
+          'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 border shadow-sm transition-colors';
+        const listenButtonClass = `${actionButtonBase} bg-[#EAF2F9] border-[#CBDDEC] text-[#2E6FA7] hover:bg-[#2E6FA7] hover:border-[#2E6FA7] hover:text-white`;
+        const whisperButtonClass = `${actionButtonBase} bg-[#EEEDFB] border-[#D5D2F3] text-[#5A54C9] hover:bg-[#5A54C9] hover:border-[#5A54C9] hover:text-white`;
+        const bargeButtonClass = `${actionButtonBase} bg-[#FDF3E1] border-[#F0DCB8] text-[#B8791B] hover:bg-[#B8791B] hover:border-[#B8791B] hover:text-white`;
+        const interceptButtonClass = `${actionButtonBase} bg-[#FBE2C8]/50 border-[#EEE7DD] text-[#C96F1F] hover:bg-[#C96F1F] hover:border-[#C96F1F] hover:text-white`;
+        const hangupButtonClass = `${actionButtonBase} bg-[#FDECEA] border-[#F5C6C2] text-[#DC5049] hover:bg-[#DC5049] hover:border-[#DC5049] hover:text-white`;
         return (
           <span className="flex gap-2 items-center">
-            {monitoringAccessActions?.barge && (
-              <span className="cursor-pointer" onClick={() => monitorCall('*88', callId)}>
-                <CustomTooltip text="Barge">
-                  <CallBarge />
-                </CustomTooltip>
-              </span>
-            )}
             {monitoringAccessActions?.listen && (
-              <span className="cursor-pointer" onClick={() => monitorCall('*87', callId)}>
-                <CustomTooltip text="Listen">
-                  <CallListen />
-                </CustomTooltip>
-              </span>
+              <CustomTooltip text="Listen">
+                <span className={listenButtonClass} onClick={() => monitorCall('*87', callId)}>
+                  <CallListen className="w-4 h-4" />
+                </span>
+              </CustomTooltip>
             )}
             {monitoringAccessActions?.whisper && (
-              <span className="cursor-pointer" onClick={() => monitorCall('*86', callId)}>
-                <CustomTooltip text="Whisper">
-                  <CallWhisper />
-                </CustomTooltip>
-              </span>
+              <CustomTooltip text="Whisper">
+                <span className={whisperButtonClass} onClick={() => monitorCall('*86', callId)}>
+                  <CallWhisper className="w-4 h-4" />
+                </span>
+              </CustomTooltip>
             )}
-            <span className="cursor-pointer" onClick={() => monitorCall('*89', callId)}>
-              <CustomTooltip text="Whisper">
-                <CallIntersection />
+            {monitoringAccessActions?.barge && (
+              <CustomTooltip text="Barge">
+                <span className={bargeButtonClass} onClick={() => monitorCall('*88', callId)}>
+                  <CallBarge className="w-4 h-4" />
+                </span>
               </CustomTooltip>
-            </span>
-            <span className="cursor-pointer" onClick={() => terminateCallSession(callInfo)}>
-              <CustomTooltip text="Whisper">
-                <ImPhoneHangUp />
-              </CustomTooltip>
-            </span>
-            {/* {monitoringAccessActions?.hangup && <span className="cursor-pointer" onClick={() => _terminate(presenceData['Call-ID'])}>
-              <CustomTooltip text="Hangup">
+            )}
+            <CustomTooltip text="Intercept">
+              <span className={interceptButtonClass} onClick={() => monitorCall('*89', callId)}>
+                <CallIntersection className="w-5 h-5" />
+              </span>
+            </CustomTooltip>
+            <CustomTooltip text="Hangup">
+              <span className={hangupButtonClass} onClick={() => terminateCallSession(callInfo)}>
                 <ImPhoneHangUp className="w-5 h-5" />
-              </CustomTooltip>
-            </span>} */}
+              </span>
+            </CustomTooltip>
           </span>
         );
       },

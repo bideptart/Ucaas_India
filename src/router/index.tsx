@@ -1841,7 +1841,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'call-history',
-            element: <CallHistory />,
+            element: <CallHistory splitStickyHeader tableMaxHeight="55vh" />,
           },
           {
             path: 'local-call-list',

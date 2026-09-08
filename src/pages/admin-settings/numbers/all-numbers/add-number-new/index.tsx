@@ -152,7 +152,7 @@ const AddNumber = ({ handleClose }: any) => {
         setCurrentStep((prev) => prev + 1);
         // toaster.success(data?.data?.[0]?.msg || 'Success.');
         // navigate('/identity');
-      } catch (err) {
+      } catch {
         // toaster.error('One or more uploads failed.');
       }
     },

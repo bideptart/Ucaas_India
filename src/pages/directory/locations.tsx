@@ -282,7 +282,10 @@ const Locations = () => {
 
       {/* The platform's own site form — `data` empty means create. */}
       <Dialog open={creating || Boolean(editing)} onOpenChange={(next) => !next && closeForm()}>
-        <DialogContent className="gp-create-group-dialog sm:max-w-[860px]" showCloseButton={false}>
+        <DialogContent
+          className="gp-create-group-dialog gp-location-form-dialog sm:max-w-[620px]"
+          showCloseButton={false}
+        >
           <div className="gp-create-group-head">
             <h2>{editing ? `Update location (${editing?.name || ''})` : 'New location'}</h2>
             <button

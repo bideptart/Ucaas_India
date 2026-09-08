@@ -152,6 +152,8 @@ const AgentReports = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'callAgentList',
             fetcherFn: callReportAgentList,
             columns,

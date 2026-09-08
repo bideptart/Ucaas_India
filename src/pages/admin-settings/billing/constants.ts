@@ -1,20 +1,13 @@
+import { formatMoney } from '@/lib/billing-money';
+
 export const TOP_UP_AMOUNT = [20, 50, 100, 150, 200];
 
-export const AUTO_PURCHASE_MIN_BALANCE_DATA = [
-  { label: '$20', value: 20 },
-  { label: '$30', value: 30 },
-  { label: '$50', value: 50 },
-  { label: '$75', value: 75 },
-  { label: '$100', value: 100 },
-  { label: '$125', value: 125 },
-  { label: '$150', value: 150 },
-  { label: '$175', value: 175 },
-  { label: '$200', value: 200 },
-  // { "label": "$500", "value": 500 },
-  // { "label": "$1000", "value": 1000 },
-  // { "label": "$2000", "value": 2000 },
-  // { "label": "$5000", "value": 5000 }
-];
+// `value` stays the raw figure the API expects; `label` is that figure
+// converted to INR for display, via the same conversion every other billing
+// screen uses.
+export const AUTO_PURCHASE_MIN_BALANCE_DATA = [20, 30, 50, 75, 100, 125, 150, 175, 200].map(
+  (value) => ({ label: formatMoney(value) as string, value }),
+);
 
 // export const RequestedPlanStatusMap: any = {
 //   P: 'Pending',

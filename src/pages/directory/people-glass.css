@@ -43,7 +43,15 @@
    through row after row would fight the text. */
 .gp-people .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border reads fine on Performance's darker glass cards
+     (interactions-theme.css's own --ic-glass-border), but white-on-white —
+     this card and the page's peach backdrop are both light — leaves no
+     actual edge, especially round the corner curve. --glass-border
+     (mcm-page.css) is the app's own token for exactly this — a visible
+     tan edge over a light glass card, already used the same way in
+     blocked-glass.css/date-picker-theme.css — rather than a one-off shade
+     invented for this rule. */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   /* Scrolls its own rows instead of stretching the whole page — the roster
@@ -53,16 +61,124 @@
   flex-direction: column;
   max-height: calc(100vh - 260px);
 }
-/* SetupGuide sat flush against the panel-card's edges with nothing but its
-   own 1px border between its bottom and the table's header row — no gap,
-   no shadow, nothing to read as "two separate things stacked" rather than
-   one card with a seam through it. */
+/* SetupGuide now renders as `DirectoryPage`'s `beforeTable` slot — a sibling
+   of `.panel-card`, not nested inside it — specifically so it can carry its
+   own card chrome (background, border, shadow, radius) instead of sitting
+   flush against the panel-card's edges with only a 1px border between its
+   bottom and the table's header row. Without this it read as one card with
+   a seam through it rather than two distinct things stacked. */
 .gp-people-setup {
-  margin: 16px 16px 18px;
+  background: #fffdfb;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
+  border-radius: 20px;
+  padding: 4px;
+  margin-bottom: 16px;
 }
+/* A sticky `<thead>` doesn't change what its scrolling ancestor's own
+   scrollbar covers — the track still spans the ancestor's full height,
+   including the band "behind" the sticky header, so a slimmer scrollbar or
+   extra padding (tried first) only made that band narrower, not gone; the
+   bar still visibly started at the very top, touching the header. The
+   actual fix is to stop the header from being part of the scrolling box at
+   all: `<thead>`/`<tbody>` become independent block boxes (rather than
+   table-row-groups) inside a flex column, `<tbody>` alone scrolls, and each
+   `<tr>` becomes its own `display: table` so its cells still lay out and
+   size as table columns. Column widths are pinned explicitly below so the
+   header row's columns and the body rows' columns — now laid out by
+   separate anonymous tables — land in the same place. */
 .gp-people .tbl-wrap {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
+}
+.gp-people table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.gp-people thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-people tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height — a
+     row here (avatar + up to two lines each of name/location/numbers)
+     runs ~74px, so 5.5 of them plus a little breathing room.
+     `.panel-card`'s own `max-height` still caps things on very short
+     viewports; this is what actually decides the row count on ordinary
+     ones. */
+  max-height: 450px;
+  overflow-y: auto;
+  width: 100%;
+  /* Without this the last row's bottom border sits exactly flush against
+     `.panel-card`'s clipped, rounded bottom edge — scrolled all the way
+     down, the row reads as cut off rather than fully shown. */
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-people thead tr,
+.gp-people tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-people th:nth-child(1),
+.gp-people td:nth-child(1) {
+  width: auto;
+}
+.gp-people th:nth-child(2),
+.gp-people td:nth-child(2) {
+  width: 110px;
+}
+.gp-people th:nth-child(3),
+.gp-people td:nth-child(3) {
+  width: 130px;
+}
+.gp-people th:nth-child(4),
+.gp-people td:nth-child(4) {
+  width: 150px;
+}
+.gp-people th:nth-child(5),
+.gp-people td:nth-child(5) {
+  width: 100px;
+}
+.gp-people th:nth-child(6),
+.gp-people td:nth-child(6) {
+  width: 130px;
+}
+.gp-people th:nth-child(7),
+.gp-people td:nth-child(7) {
+  width: 130px;
+}
+.gp-people th:nth-child(8),
+.gp-people td:nth-child(8) {
+  width: 260px;
+}
+/* This is the scrollbar that now actually starts where the rows do — same
+   slim styling already used for External Contacts' table. */
+.gp-people tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-people tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-people tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-people tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
 
 .gp-people .page-head {
@@ -117,14 +233,14 @@
   background: transparent;
 }
 .gp-people th {
-  /* Solid, not transparent — this is what a sticky header needs to actually
-     cover the rows scrolling underneath it rather than showing them through. */
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
+  /* Matches Performance's own table heading height (40px there vs ~33px
+     here from padding alone) — same `th` padding either way, just a
+     taller header row. */
+  height: 40px;
+  font-size: 9.5px;
 }
 .gp-people td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -136,22 +252,21 @@
 .gp-people th:last-child {
   text-align: center;
 }
-.gp-people td:last-child {
-  min-width: 280px;
-}
 .gp-people td:last-child .flex {
   justify-content: center;
   flex-wrap: wrap;
   row-gap: 6px;
   gap: 6px;
 }
-/* Matches the top navbar's own round icon buttons exactly — 36px box,
-   18px glyph (50% ratio) — rather than a size invented for this column. */
+/* Matches the top navbar's own round icon button SIZE — 36px box, 18px
+   glyph (50% ratio) — but a full circle, not the navbar's own 10px
+   rounded-square, to match Performance ▸ Calls' action-button shape
+   (interactions-theme.css: `[rounded-full][w-8]`). */
 .gp-people td:last-child .mini {
   width: 36px;
   height: 36px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 9999px;
   flex: none;
   /* `.mini`'s base rule only sets `align-items: center` (vertical) — with a
      fixed width now wider than the icon, the icon hugs the button's left
@@ -167,8 +282,10 @@
    broke the row's layout: a positioned `<tr>` with an absolutely-placed
    child is undefined by the table layout algorithm and Chromium responds by
    blowing the row up to its own stacking context on hover. */
+/* Same wash Performance ▸ Calls uses for its own row hover (--ic-row-hover
+   in interactions-theme.css). */
 .gp-people tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -176,10 +293,35 @@
   background: rgba(255, 255, 255, 0.6);
   border-color: rgba(255, 255, 255, 0.75);
 }
-.gp-people .mini:hover {
-  background: var(--accent-wash);
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
+/* Action-column buttons only: glass circle at rest, filled sunset gradient
+   on hover — matching Performance ▸ Calls' own action buttons
+   (interactions-theme.css) rather than this page's plain tint-on-hover
+   `.mini` treatment used elsewhere (e.g. the filter chips). */
+/* `:not(.mcm-fav-on)` — the favourite star keeps its own persistent gold
+   "on" state (mcm-page.css) regardless of hover; without the exclusion,
+   this rule's extra `td:last-child` ancestor made it MORE specific than
+   `.mcm-page .mini.mcm-fav-on`'s 3 classes, silently overriding the gold
+   fill with plain glass even at rest, not just on hover. Confirmed via
+   computed style before this fix: an already-favourited star's background
+   came back as this rule's white glass, not the gold color-mix(). */
+.gp-people td:last-child .mini:not(.mcm-fav-on) {
+  background: rgba(255, 255, 255, 0.75);
+  /* interactions-theme.css's own 0.16 reads fine over ITS table's darker
+     glass card — over this page's near-white glass fill the same value is
+     indistinguishable from no border at all. Bumped for actual visibility
+     here, not a literal copy of that number. */
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.gp-people td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
 
 /* "Groups" / "Export" — `.btn.ghost` is normally a neutral grey action
@@ -280,7 +422,7 @@
   --mcm-accent-edge: #ffd9ad;
   --mcm-ink: #0d1526;
   --mcm-ink-2: #3d4a63;
-  background: #fffaf3;
+  background: #ffffff;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-person-fields {
@@ -367,12 +509,15 @@ input.gp-field-v:disabled {
   cursor: pointer;
 }
 .gp-person-dialog .btn.ghost {
-  background: #fff;
-  border-color: rgba(242, 153, 74, 0.3);
-  color: var(--mcm-ink-2, #3d4a63);
+  /* Same solid orange-outline-until-filled-on-hover treatment as every
+     other Cancel/Close in Directory. */
+  background: transparent;
+  border-color: #f2994a;
+  color: #f2994a;
 }
 .gp-person-dialog .btn.ghost:hover {
-  border-color: #f2994a;
+  background: #f2994a;
+  color: #ffffff;
 }
 .gp-person-dialog .btn.primary {
   background: #f2994a;

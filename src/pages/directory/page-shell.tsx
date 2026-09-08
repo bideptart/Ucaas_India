@@ -27,6 +27,7 @@ export const DirectoryPage = ({
   note,
   actions,
   filters,
+  beforeTable,
   children,
   className,
 }: {
@@ -37,6 +38,11 @@ export const DirectoryPage = ({
   note?: ReactNode;
   actions?: ReactNode;
   filters?: ReactNode;
+  /* Rendered as its own card between the filter bar and the table's panel
+     card, rather than inside it — so something like the People setup guide
+     reads as a distinct block, not fused into the same white surface as the
+     roster below it. */
+  beforeTable?: ReactNode;
   children: ReactNode;
   /* Opt-in extra class on the page wrapper, so a single Directory view can
      carry its own layout/spacing tweaks without touching the others that
@@ -54,6 +60,7 @@ export const DirectoryPage = ({
     </div>
     {note ? <div className="page-caveat">{note}</div> : null}
     {filters ? <div className="tbar">{filters}</div> : null}
+    {beforeTable}
     <div className="panel-card">
       <div className="tbl-wrap">{children}</div>
     </div>

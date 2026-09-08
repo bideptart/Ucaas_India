@@ -13,6 +13,7 @@ import PlanSummary from './plan-summary';
 import { getEnv, getObjectLength, handleAlert } from '@/lib/utils';
 import { useGetPlans } from '@/hooks/common';
 import { durationMap } from '../admin-settings/billing/constants';
+import { formatMoney } from '@/lib/billing-money';
 import Loader from '@/components/custom/loader';
 import { useOrganization } from '@/hooks/use-organisation';
 import { getPlanDidCountries } from '@/lib/did-countries';
@@ -355,7 +356,9 @@ const SignUpPayment = () => {
                       onFailure3dsPayment={handle3DSFailure}
                       isApiLoad={PendingSignupTrial || signUpPending || PendingInitialPlanPayment}
                       submitButtonText={
-                        isTrailPlan ? 'Add Card' : `Pay $${taxCalculationData?.total_amount || 0}`
+                        isTrailPlan
+                          ? 'Add Card'
+                          : `Pay ${formatMoney(taxCalculationData?.total_amount || 0)}`
                       }
                       enableSaveCard={false}
                       showIsSaveCard={false}

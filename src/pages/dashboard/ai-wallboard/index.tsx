@@ -1,31 +1,35 @@
-// import { Button } from '@/components/ui/button';
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from '@/components/ui/table';
+// import { Button } from '@/components/ui/button'; -- unused: the risk table's
+// Action column is a plain recommendation label, not a working shortcut (see
+// the comment on the "Agents Needing Attention" card below).
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { SocketEvents } from '@/context/socket-events-context';
 import { useUser } from '@/hooks/use-user';
+import { isDemoMode } from '@/lib/demo-mode';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Bot,
   // CircleAlert,
+  Clock3,
   Headphones,
   HeartPulse,
   MessageCircle,
   // MessageSquareWarning,
   PhoneCall,
-  // ShieldAlert,
+  ShieldAlert,
   RefreshCw,
   Sparkles,
   TrendingUp,
+  UserPlus,
   Users,
 } from 'lucide-react';
-import CustomTooltip from '@/components/custom/custom-tooltip';
 
 type KpiCard = {
   label: string;
@@ -175,16 +179,17 @@ type CampaignAiLiveCallResult = {
 //   warning?: boolean;
 // };
 
-// type RiskCall = {
-//   intent: string;
-//   caller: string;
-//   agent: string;
-//   duration: string;
-//   score: string;
-//   factor: string;
-//   factorTone: 'red' | 'orange' | 'blue';
-//   action: string;
-// };
+/* No `caller`/`duration` fields: this page has no live per-call feed to
+   source them from (see the comment on `highRiskCalls` below) — a column
+   that is always "—" reads as broken, not as an intentional design. */
+type RiskCall = {
+  intent: string;
+  agent: string;
+  score: string;
+  factor: string;
+  factorTone: 'red' | 'orange';
+  action: string;
+};
 
 const kpiCards: KpiCard[] = [
   { label: 'Avg Sentiment', value: '8.4', icon: HeartPulse, tone: 'green' },
@@ -202,6 +207,20 @@ const sentimentBars: SentimentBar[] = [
   { label: 'Poor', value: 0 },
   { label: 'Critical', value: 0 },
 ];
+
+/* The five-step ramp both the Sentiment and Most Common AI Intents bars read
+   from, best to worst. Muted on purpose: the previous ramp reached straight
+   into the raw Tailwind palette for its middle steps (`yellow-400` #FACC15,
+   `orange-500` #F97316), and at full saturation those two glowed against the
+   cream card — the bars ended up louder than the numbers they exist to
+   support. These hold the same hues and the same order at roughly a quarter
+   less saturation, which is enough to keep all five steps apart from each
+   other while letting the value text lead again.
+
+   One shared constant rather than a copy per card: the two sat next to each
+   other on the board with independently written lists, so any later change to
+   one silently drifted from the other. */
+const SENTIMENT_BAR_RAMP = ['#57A177', '#D79A5B', '#D3B45C', '#CC7F52', '#C4645C'];
 
 const defaultAhtBuckets: AhtBucket[] = [
   { label: '0-2m', count: 0, percent: 0 },
@@ -366,45 +385,21 @@ const defaultAhtBuckets: AhtBucket[] = [
 //   { text: 'Support Q SLA at 65% (Threshold: 80%)', age: '15 min ago', tone: 'orange' },
 // ];
 
-// const highRiskCalls: RiskCall[] = [
-//   {
-//     intent: 'Billing Dispute',
-//     caller: '+1 (555) 019-2834',
-//     agent: 'Michael Chen',
-//     duration: '12:45',
-//     score: '3.2 / 10',
-//     factor: 'ANGER SPIKE',
-//     factorTone: 'red',
-//     action: 'Barge / Whisper',
-//   },
-//   {
-//     intent: 'Cancellation',
-//     caller: '+1 (555) 882-1022',
-//     agent: 'David Miller',
-//     duration: '08:15',
-//     score: '4.1 / 10',
-//     factor: 'HIGH FRUSTRATION',
-//     factorTone: 'orange',
-//     action: 'Monitor',
-//   },
-//   {
-//     intent: 'AI Receptionist',
-//     caller: 'Anonymous',
-//     agent: 'Unassigned',
-//     duration: '02:30',
-//     score: '4.5 / 10',
-//     factor: 'FALLBACK LOOP',
-//     factorTone: 'blue',
-//     action: 'Takeover Call',
-//   },
-// ];
+/* `highRiskCalls` used to be a static array here — fixed US phone numbers
+   (Michael Chen, +1 555...) with no connection to anything live. Nothing on
+   this page reads per-call caller ID or duration for an individual sentiment
+   event (the socket payload has no such field — see the "sentiment: null"
+   note in demo-mode.ts), so those two are not recoverable live; every other
+   column now comes from the same `agentSentimentCards` this page's own
+   sentiment cards already render, computed further down as
+   `highRiskCalls`. */
 
 const metricToneClasses = {
   green: { icon: 'text-[#4EAE6E]', value: 'text-[#4EAE6E]' },
   blue: { icon: 'text-primary', value: 'text-primary' },
   red: { icon: 'text-[#DC5049]', value: 'text-[#DC5049]' },
   orange: { icon: 'text-amber-600', value: 'text-amber-600' },
-  gray: { icon: 'text-[#2E2D35] dark:text-mcm-ink', value: 'text-[#2E2D35] dark:text-mcm-ink' },
+  gray: { icon: 'text-[#2E2D35]', value: 'text-[#2E2D35]' },
 };
 
 // const moodBadgeClasses: Record<AgentMood, string> = {
@@ -421,7 +416,7 @@ const sentimentLabelBadgeClass = (value?: string) => {
   if (val === 'positive') return 'bg-green-100 text-green-700';
   if (val === 'negative') return 'bg-red-100 text-red-600';
   if (val === 'neutral') return 'bg-amber-100 text-amber-700';
-  return 'bg-muted text-muted-foreground';
+  return 'bg-gray-100 text-gray-600';
 };
 
 // const riskBadgeClasses: Record<AgentRisk, string> = {
@@ -433,7 +428,7 @@ const sentimentLabelBadgeClass = (value?: string) => {
 
 const scoreToneClass = (value: string) =>
   value === 'N/A'
-    ? 'text-[#9A948F] dark:text-mcm-ink-3'
+    ? 'text-[#6b6459]'
     : value.trim().startsWith('-')
       ? 'text-[#DC5049]'
       : 'text-[#4EAE6E]';
@@ -451,39 +446,18 @@ const getAgentInitials = (name: string) => {
 //   return 'bg-green-500';
 // };
 
-// const factorBadgeClass = (tone: RiskCall['factorTone']) => {
-//   if (tone === 'red') return 'bg-red-100 text-red-600';
-//   if (tone === 'orange') return 'bg-amber-100 text-amber-700';
-//   return 'bg-ucass-active-bg text-ucass-active';
-// };
+const factorBadgeClass = (tone: RiskCall['factorTone']) => {
+  if (tone === 'red') return 'bg-red-100 text-red-600';
+  if (tone === 'orange') return 'bg-amber-100 text-amber-700';
+  return 'bg-ucass-active-bg text-ucass-active';
+};
 
 // const topicToneClass = (tone: TopicItem['tone']) => {
 //   if (tone === 'red') return 'text-red-500';
 //   if (tone === 'blue') return 'text-primary';
 //   if (tone === 'green') return 'text-green-600';
 //   if (tone === 'orange') return 'text-amber-600';
-//   return 'text-muted-foreground';
-// };
-
-const createLinePath = (points: number[], width = 360, height = 160, padding = 14) => {
-  const max = Math.max(...points, 1);
-  const min = Math.min(...points, 0);
-  const range = max - min || 1;
-  return points
-    .map((point, idx) => {
-      const x = padding + (idx * (width - padding * 2)) / Math.max(points.length - 1, 1);
-      const y = height - padding - ((point - min) * (height - padding * 2)) / range;
-      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
-    })
-    .join(' ');
-};
-
-// const createAreaPath = (points: number[], width = 360, height = 160, padding = 14) => {
-//   const line = createLinePath(points, width, height, padding);
-//   const endX = width - padding;
-//   const startX = padding;
-//   const baseY = height - padding;
-//   return `${line} L ${endX} ${baseY} L ${startX} ${baseY} Z`;
+//   return 'text-gray-500';
 // };
 
 // const RingChart = ({ segments }: { segments: FallbackSegment[] }) => {
@@ -583,7 +557,7 @@ const formatDurationFromSeconds = (seconds?: number) => {
 //       </button>
 //       <button
 //         type="button"
-//         className="rounded-md border border-border bg-gray-100 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-gray-200"
+//         className="rounded-md border border-gray-200 bg-gray-100 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-200"
 //       >
 //         Tag for QA
 //       </button>
@@ -591,20 +565,13 @@ const formatDurationFromSeconds = (seconds?: number) => {
 //   </div>
 // );
 type AgentStatus = 'AVAILABLE' | 'ON CALL' | 'RINGING' | 'WRAP UP' | 'ON HOLD' | 'OFFLINE';
-const statusPillClass: Record<AgentStatus, string> = {
-  AVAILABLE: 'bg-green-100 text-green-700 border border-green-200',
-  'ON CALL': 'bg-ucass-active-bg text-ucass-active border border-ucass-active-bg',
-  RINGING: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
-  'WRAP UP': 'bg-amber-100 text-amber-700 border border-amber-200',
-  'ON HOLD': 'bg-red-100 text-red-700 border border-red-200',
-  OFFLINE: 'bg-muted text-muted-foreground border border-border',
-};
 const AiWallboard = () => {
   const {
     aiLiveWallboardData,
     setAiLiveWallboardData,
     campaignAiLiveCallData,
     getAiLiveWallboardData,
+    getCampaignAiLiveCallData,
     isSocketConnected,
     liveCalls,
     usersOnlineStatus,
@@ -615,12 +582,17 @@ const AiWallboard = () => {
   const hasAiWallboardDataRef = useRef(false);
   const refreshLoaderTimeoutRef = useRef<number | null>(null);
   console.log('🚀 ~ AiWallboard ~ aiLiveWallboardData:', aiLiveWallboardData);
-  const canRefreshAiWallboard = Boolean(
-    user?.sip_credentials?.domain &&
-    user?.company_info?.uuid &&
-    user?.user_info?.uuid &&
-    isSocketConnected,
-  );
+  // Demo mode has no real socket, so `isSocketConnected` never flips true —
+  // that left this button permanently disabled instead of just clickable
+  // and inert. getAiLiveWallboardData now re-seeds demo data on its own.
+  const canRefreshAiWallboard =
+    isDemoMode() ||
+    Boolean(
+      user?.sip_credentials?.domain &&
+        user?.company_info?.uuid &&
+        user?.user_info?.uuid &&
+        isSocketConnected,
+    );
   const campaignAiLiveCallResult: CampaignAiLiveCallResult | null =
     campaignAiLiveCallData?.data?.result && typeof campaignAiLiveCallData?.data?.result === 'object'
       ? campaignAiLiveCallData.data.result
@@ -690,9 +662,6 @@ const AiWallboard = () => {
     typeof aiReceptionistPerformance?.lead_captured_counts === 'number'
       ? aiReceptionistPerformance.lead_captured_counts.toLocaleString()
       : '0';
-  const aiAhtChartValues = ahtBuckets.map((bucket) => Number(bucket?.count || 0));
-  const aiAhtChartLabels = ahtBuckets.map((bucket) => String(bucket?.label || 'N/A'));
-
   const rawIntentCount = campaignAiLiveCallResult?.intent_count || {};
   const intentEntries = Object.entries(rawIntentCount)
     .map(([label, count]) => ({
@@ -802,6 +771,35 @@ const AiWallboard = () => {
           };
         })
       : [];
+
+  /* Feeds the "Agents Needing Attention" card (below). `agentSentimentCards`
+     is per-agent, not per-call — this page has no live per-call sentiment
+     feed (see the note above the old static `highRiskCalls` array this
+     replaced) — so a genuinely "high-risk calls" table isn't buildable from
+     what this page has. This is the honest version of that: the same agents
+     already ranked in the sentiment cards above, filtered to the ones
+     actually running hot (>15% negative today) and re-sorted worst-first, so
+     the card only ever shows agents worth a supervisor's attention rather
+     than padding itself out with healthy ones. 15%, not the 40%/20% split
+     the dead code used for its risk *label* (kept below, for HIGH vs
+     ELEVATED) — a lower bar for appearing on the list at all than for being
+     called HIGH RISK once on it. */
+  const highRiskCalls: RiskCall[] = agentSentimentCards
+    .filter((agent) => agent.neg > 15)
+    .sort((a, b) => b.neg - a.neg)
+    .slice(0, 5)
+    .map((agent) => ({
+      intent:
+        agent.sentimentLabel && agent.sentimentLabel !== 'N/A'
+          ? agent.sentimentLabel
+          : 'Elevated negative sentiment',
+      agent: agent.name,
+      score: agent.todayAvg,
+      factor: agent.neg > 40 ? 'HIGH FRUSTRATION' : 'ELEVATED FRUSTRATION',
+      factorTone: agent.neg > 40 ? ('red' as const) : ('orange' as const),
+      action: agent.neg > 40 ? 'Recommend: Barge / Whisper' : 'Recommend: Monitor',
+    }));
+
   const getAgentStatus = (agent: any): AgentStatus => {
     const agentExt = String(agent?.extension || agent?.ext || '');
     if (!agentExt) return 'OFFLINE';
@@ -869,11 +867,24 @@ const AiWallboard = () => {
           }
         },
       );
+
+      /* The KPI row (Avg Sentiment, AI Containment, Total AI Calls/Chats)
+         and the AI Receptionist Performance panel read from
+         `campaignAiLiveCallData`, a completely separate piece of state that
+         `getAiLiveWallboardData` above never touches — without this call
+         those numbers stayed frozen at whatever seeded them on mount no
+         matter how many times Refresh was clicked. */
+      getCampaignAiLiveCallData({
+        domain: user?.sip_credentials?.domain,
+        company_uuid: user?.company_info?.uuid,
+        user_uuid: user?.user_info?.uuid,
+      });
     },
     [
       canRefreshAiWallboard,
       clearRefreshLoaderTimeout,
       getAiLiveWallboardData,
+      getCampaignAiLiveCallData,
       setAiLiveWallboardData,
       stopRefreshLoader,
       user?.company_info?.uuid,
@@ -922,31 +933,47 @@ const AiWallboard = () => {
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden p-3">
       <div className="mx-auto flex w-full max-w-470 flex-col gap-3">
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none">
-          <div className="flex  flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink ">
+        {/* The title sat as plain text on a flat panel, which read as a page
+            heading rather than the header of a live surface. The icon gets a
+            badge (the same one every card on this page uses), the LIVE tag
+            gets a pulsing dot so "live" is shown rather than just asserted,
+            and the whole bar picks up the frosted-glass treatment. */}
+        <div className="rounded-[20px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] shadow-[0_2px_8px_rgba(194,98,46,0.18)]">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Live AI Wallboard
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-[#DC5049]">
-                  LIVE
-                </span>
-              </h3>
-              <p className="mt-1 text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 sm:text-sm">
-                Real-time sentiment, AI reception, and agent monitoring
-              </p>
+              </div>
+              <div>
+                <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
+                  Live AI Wallboard
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-bold tracking-wide text-[#DC5049]">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#DC5049] opacity-60" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#DC5049]" />
+                    </span>
+                    LIVE
+                  </span>
+                </h3>
+                <p className="mt-0.5 text-xs font-medium text-[#6b6459]">
+                  Real-time sentiment, AI reception, and agent monitoring
+                </p>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => handleRefreshAiWallboard({ showLoader: true })}
-                disabled={!canRefreshAiWallboard || isRefreshingAiWallboard}
-                className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <RefreshCw className={`h-4 w-4 ${isRefreshingAiWallboard ? 'animate-spin' : ''}`} />
-                {isRefreshingAiWallboard ? 'Refreshing...' : 'Refresh'}
-              </button>
-            </div>
+            {/* See the note on the Wallboard refresh: without
+                `data-slot="button"` the mcm-page bare-button reset strips the
+                border, fill and colour below. This one only still read as a
+                button because `box-shadow` is not in that reset. */}
+            <button
+              type="button"
+              data-slot="button"
+              onClick={() => handleRefreshAiWallboard({ showLoader: true })}
+              disabled={!canRefreshAiWallboard || isRefreshingAiWallboard}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(214,163,90,0.6)] bg-white px-4 py-2 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshingAiWallboard ? 'animate-spin' : ''}`} />
+              {isRefreshingAiWallboard ? 'Refreshing...' : 'Refresh'}
+            </button>
           </div>
         </div>
 
@@ -969,28 +996,29 @@ const AiWallboard = () => {
             return (
               <div
                 key={metric.label}
-                className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none"
+                className="relative flex items-center justify-between gap-2 rounded-[20px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-3.5 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-transform hover:-translate-y-0.5"
               >
                 {showAlertDot && (
-                  // <span className="absolute right-2 top-2 h-3 w-3 min-h-3 min-w-3 flex rounded-full bg-red-500" />
-                  <div className="absolute right-1 top-1">
+                  <div className="absolute right-2 top-2">
                     <div className="relative flex h-4 w-4 items-center justify-center">
                       <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-50 animate-ping"></span>
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500"></span>
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col items-center gap-1.5 text-center">
-                  <IconComp className={`h-5 w-5 ${metricToneClasses[metric.tone].icon}`} />
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
                     {metric.label}
                   </p>
-                  <p className={`text-2xl font-semibold ${metricToneClasses[metric.tone].value}`}>
+                  <p className={`mt-0.5 text-[26px] font-bold leading-tight ${metricToneClasses[metric.tone].value}`}>
                     {metricValue}
                     {metric.suffix && (
                       <span className="ml-0.5 text-base font-semibold">{metric.suffix}</span>
                     )}
                   </p>
+                </div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                  <IconComp className={`h-4.5 w-4.5 ${metricToneClasses[metric.tone].icon}`} />
                 </div>
               </div>
             );
@@ -998,277 +1026,234 @@ const AiWallboard = () => {
         </div>
 
         <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
-            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
+          {/* All three cards now share one shape -- a ranked horizontal-bar
+              list -- instead of each running its own chart type (vertical
+              bars, an SVG line, more vertical bars). A label a reader can
+              scan top-to-bottom, a track that fills left-to-right, and the
+              number sitting at the end where the eye already lands after
+              reading the bar -- the same sentence structure three times
+              reads as one system, not three unrelated widgets bolted
+              together. */}
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
                 <TrendingUp className="h-4 w-4 text-[#4EAE6E]" />
-                Sentiment
-              </h4>
+              </div>
+              <h4 className="text-base font-semibold text-[#1A1A1A]">Sentiment</h4>
+            </div>
+            <div className="flex flex-col gap-3.5 p-4">
+              {dynamicSentimentBars.map((bar) => {
+                const labelMap: Record<string, string> = {
+                  'High Positive': 'Excellent',
+                  Positive: 'Good',
+                  Neutral: 'Neutral',
+                  Negative: 'Poor',
+                  'High Negative': 'Critical',
+                };
+                const mappedLabel = labelMap[bar.label] || bar.label;
+
+                const getSentimentColor = (label: string) => {
+                  const l = label.toLowerCase();
+                  if (l === 'excellent' || l === 'high positive') return SENTIMENT_BAR_RAMP[0];
+                  if (l === 'good' || l === 'positive') return SENTIMENT_BAR_RAMP[1];
+                  if (l === 'neutral') return SENTIMENT_BAR_RAMP[2];
+                  if (l === 'poor' || l === 'negative') return SENTIMENT_BAR_RAMP[3];
+                  if (l === 'critical' || l === 'high negative') return SENTIMENT_BAR_RAMP[4];
+                  return '#A8A29A';
+                };
+
+                return (
+                  <div key={bar.label} className="flex items-center gap-3">
+                    <span className="w-16 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b]">
+                      {mappedLabel}
+                    </span>
+                    <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.max(bar.value, 2)}%`,
+                          backgroundColor: getSentimentColor(mappedLabel),
+                        }}
+                      />
+                    </div>
+                    <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                      {bar.value}%
+                      {bar.count !== undefined && (
+                        <span className="ml-1 font-normal text-[#6b6459]">({bar.count})</span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <Headphones className="h-4 w-4 text-primary" />
+              </div>
+              <h4 className="text-base font-semibold text-[#1A1A1A]">AI AHT</h4>
             </div>
             <div className="p-4">
-              <div className="relative h-48">
-                <div className="absolute inset-0 flex flex-col justify-between">
-                  {[0, 1, 2, 3, 4].map((line) => (
-                    <div key={line} className="border-t border-dashed border-[#EEE7DD] dark:border-mcm-line" />
-                  ))}
-                </div>
-                <div className="relative flex h-full items-end justify-between gap-2 px-2">
-                  {dynamicSentimentBars.map((bar) => {
-                    const labelMap: Record<string, string> = {
-                      'High Positive': 'Excellent',
-                      Positive: 'Good',
-                      Neutral: 'Neutral',
-                      Negative: 'Poor',
-                      'High Negative': 'Critical',
-                    };
-                    const mappedLabel = labelMap[bar.label] || bar.label;
-
-                    const tooltipText =
-                      bar.count !== undefined
-                        ? `${mappedLabel}: ${bar.count || 0} (${bar.value}%)`
-                        : `${mappedLabel}: ${bar.value}%`;
-
-                    const getSentimentColor = (label: string) => {
-                      const l = label.toLowerCase();
-                      if (l === 'excellent' || l === 'high positive')
-                        return 'bg-[#4EAE6E] hover:bg-green-400';
-                      if (l === 'good' || l === 'positive') return 'bg-[#f2994a] hover:bg-[#f2994a]/80';
-                      if (l === 'neutral') return 'bg-yellow-400 hover:bg-yellow-300';
-                      if (l === 'poor' || l === 'negative')
-                        return 'bg-orange-500 hover:bg-orange-400';
-                      if (l === 'critical' || l === 'high negative')
-                        return 'bg-[#DC5049] hover:bg-red-400';
-                      return 'bg-gray-400 hover:bg-gray-300';
-                    };
+              {ahtBuckets.some((bucket) => Number(bucket?.count || 0) > 0) ? (
+                <div className="flex flex-col gap-3.5">
+                  {ahtBuckets.map((bucket, index) => {
+                    const count = Number(bucket?.count || 0);
+                    const maxCount = Math.max(...ahtBuckets.map((b) => Number(b?.count || 0)), 1);
+                    const widthPercent = (count / maxCount) * 100;
 
                     return (
-                      <div key={bar.label} className="flex flex-1 flex-col items-center gap-2">
-                        <div className="flex h-40 w-full items-end justify-center">
-                          <CustomTooltip text={tooltipText} side="top">
-                            <div
-                              className={`w-7 rounded-t-md cursor-pointer transition-colors ${getSentimentColor(mappedLabel)}`}
-                              style={{ height: `${Math.max(bar.value, 4)}%` }}
-                            />
-                          </CustomTooltip>
+                      <div key={`${bucket?.label}-${index}`} className="flex items-center gap-3">
+                        <span className="w-14 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b]">
+                          {bucket?.label || 'N/A'}
+                        </span>
+                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all duration-500"
+                            style={{ width: `${Math.max(widthPercent, count > 0 ? 4 : 0)}%` }}
+                          />
                         </div>
-                        <p className="text-center text-[10px] font-medium leading-4 text-[#9A948F] dark:text-mcm-ink-3">
-                          {mappedLabel}
-                        </p>
+                        <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                          {count}
+                          {bucket?.percent !== undefined && (
+                            <span className="ml-1 font-normal text-[#6b6459]">
+                              ({bucket.percent}%)
+                            </span>
+                          )}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
-            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
-                <Headphones className="h-4 w-4 text-primary" />
-                AI AHT
-              </h4>
-            </div>
-            <div className="p-4">
-              <svg viewBox="0 0 420 190" className="h-48 w-full">
-                {[0, 1, 2, 3, 4].map((line) => (
-                  <line
-                    key={line}
-                    x1="12"
-                    y1={24 + line * 36}
-                    x2="408"
-                    y2={24 + line * 36}
-                    stroke="#EEE7DD"
-                    className="ai-wallboard-gridline"
-                    strokeDasharray="4 4"
-                  />
-                ))}
-                <path
-                  d={createLinePath(aiAhtChartValues, 420, 190, 18)}
-                  fill="none"
-                  stroke="#f2994a"
-                  className="ai-wallboard-aht-line"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                {aiAhtChartValues.map((value, index) => {
-                  const max = Math.max(...aiAhtChartValues, 1);
-                  const min = Math.min(...aiAhtChartValues, 0);
-                  const x = 18 + (index * (420 - 36)) / Math.max(aiAhtChartValues.length - 1, 1);
-                  const y = 190 - 18 - ((value - min) * (190 - 36)) / (max - min || 1);
-                  const bucket = ahtBuckets[index];
-                  const count = bucket?.count ?? value;
-                  const label = bucket?.label ?? '';
-                  const percent = bucket?.percent;
-
-                  const tooltipText =
-                    percent !== undefined
-                      ? `${label}: ${count} (${percent}%)`
-                      : `${label}: ${count}`;
-
-                  return (
-                    <CustomTooltip key={`${value}-${index}`} text={tooltipText} side="top">
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="6"
-                        fill="#f2994a"
-                        className="ai-wallboard-aht-dot cursor-pointer hover:fill-[#f2994a]/70 dark:hover:fill-[#f97316]/70 transition-colors"
-                      />
-                    </CustomTooltip>
-                  );
-                })}
-              </svg>
-              <div
-                className="mt-1 grid text-center text-[10px] font-medium text-[#9A948F] dark:text-mcm-ink-3"
-                style={{
-                  gridTemplateColumns: `repeat(${Math.max(aiAhtChartLabels.length, 1)}, minmax(0, 1fr))`,
-                }}
-              >
-                {aiAhtChartLabels.map((label, index) => (
-                  <span key={`${label}-${index}`}>{label}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none w-full">
-            <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-4 py-3">
-              <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
-                <Bot className="h-4 w-4 text-primary" />
-                Most Common AI Intents
-              </h4>
-            </div>
-            <div className="p-4">
-              <div className="relative h-48">
-                <div className="absolute inset-0 flex flex-col justify-between">
-                  {[0, 1, 2, 3, 4].map((line) => (
-                    <div key={line} className="border-t border-dashed border-[#EEE7DD] dark:border-mcm-line" />
-                  ))}
+              ) : (
+                <div className="flex h-40 items-center justify-center">
+                  <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-1.5 shadow-xs">
+                    <Headphones className="h-3.5 w-3.5 text-[#6b6459]" />
+                    <span className="text-xs font-semibold text-[#6b6459]">No data found</span>
+                  </div>
                 </div>
-                {aiIntentBuckets.length > 0 ? (
-                  <div className="relative flex h-full items-end justify-start gap-4 px-4 overflow-x-auto pb-1 custom-scrollbar">
-                    {aiIntentBuckets.map((bar, index) => {
-                      const tooltipText = `${bar.label}: ${bar.count || 0}`;
+              )}
+            </div>
+          </div>
 
-                      const colors = [
-                        'bg-[#4EAE6E] hover:bg-green-400',
-                        'bg-[#f2994a] hover:bg-[#f2994a]/80',
-                        'bg-yellow-400 hover:bg-yellow-300',
-                        'bg-orange-500 hover:bg-orange-400',
-                        'bg-[#DC5049] hover:bg-red-400',
-                      ];
-                      const colorClass =
-                        colors[index % colors.length] || 'bg-gray-400 hover:bg-gray-300';
-
-                      const maxCount = Math.max(...aiIntentChartValues, 1);
-                      const heightPercent = bar.count ? (bar.count / maxCount) * 100 : 0;
-
-                      return (
-                        <div
-                          key={bar.label}
-                          className="flex flex-col items-center gap-2 w-16 shrink-0"
-                        >
-                          <div className="flex h-40 w-full items-end justify-center">
-                            <CustomTooltip text={tooltipText} side="top">
-                              <div
-                                className={`w-7 rounded-t-md cursor-pointer transition-colors ${colorClass}`}
-                                style={{ height: `${Math.max(heightPercent, 4)}%` }}
-                              />
-                            </CustomTooltip>
-                          </div>
-                          <p
-                            className="truncate w-full px-1 text-center text-[10px] font-medium leading-4 text-[#9A948F] dark:text-mcm-ink-3"
-                            title={bar.label}
-                          >
-                            {bar.label}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex items-center gap-2 rounded-full border border-border bg-card/90 backdrop-blur-sm px-4 py-1.5 shadow-xs">
-                      <Bot className="h-3.5 w-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                      <span className="text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">No data found</span>
-                    </div>
-                  </div>
-                )}
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <Bot className="h-4 w-4 text-primary" />
               </div>
+              <h4 className="text-base font-semibold text-[#1A1A1A]">Most Common AI Intents</h4>
+            </div>
+            <div className="p-4">
+              {aiIntentBuckets.length > 0 ? (
+                <div className="flex flex-col gap-3.5">
+                  {aiIntentBuckets.map((bar, index) => {
+                    const maxCount = Math.max(...aiIntentChartValues, 1);
+                    const widthPercent = bar.count ? (bar.count / maxCount) * 100 : 0;
+                    const barColor =
+                      SENTIMENT_BAR_RAMP[index % SENTIMENT_BAR_RAMP.length] || '#A8A29A';
+
+                    return (
+                      <div key={bar.label} className="flex items-center gap-3">
+                        {/* `text-primary` (#F2994A) measured 2.01:1 against
+                            this badge's own `#FFF1E0` fill at 11px — the
+                            same darker accent used elsewhere on this board
+                            for small text on a light fill. */}
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] text-[11px] font-bold text-[#a8460f]">
+                          {index + 1}
+                        </span>
+                        <span
+                          className="w-20 shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-[#64748b]"
+                          title={bar.label}
+                        >
+                          {bar.label}
+                        </span>
+                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${Math.max(widthPercent, 2)}%`,
+                              backgroundColor: barColor,
+                            }}
+                          />
+                        </div>
+                        <span className="w-8 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                          {bar.count || 0}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex h-40 items-center justify-center">
+                  <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-1.5 shadow-xs">
+                    <Bot className="h-3.5 w-3.5 text-[#6b6459]" />
+                    <span className="text-xs font-semibold text-[#6b6459]">No data found</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-12">
-          <div className="flex flex-col col-span-12 md:col-span-4">
-            <div className="flex h-full flex-col rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line shadow-xs">
-              <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-4 py-3 rounded-t-xl">
-                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
-                  <Bot className="h-4 w-4 text-primary" />
-                  AI Receptionist Performance
-                </h4>
-              </div>
-              <div className="flex flex-1 flex-col justify-between space-y-3 p-4">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                      Handled by AI only
-                    </p>
-                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{handledTodayValue}</p>
-                  </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                      Transferred to Agent
-                    </p>
-                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{transferredCallsValue}</p>
-                  </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                      Transfer Percentage
-                    </p>
-                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{transferToAgentValue}</p>
-                  </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                      Avg Duration
-                    </p>
-                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{avgDurationValue}</p>
-                  </div>
-                  <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                      Leads Captured
-                    </p>
-                    <p className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">{leadCapturedValue}</p>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-2.5">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
-                    Voice vs Text Interactions
-                  </p>
-                  <div className="h-3 overflow-hidden rounded-full bg-ucass-active-bg">
-                    <div className="flex h-full transition-all duration-500">
-                      <div
-                        className="bg-ucass-active text-right text-[9px] font-semibold text-white flex items-center justify-end pr-1"
-                        style={{ width: `${voicePercent}%` }}
-                      >
-                        {voicePercent > 5 ? `${voicePercent.toFixed(0)}%` : ''}
-                      </div>
-                      <div
-                        className="bg-[#f2994a] dark:bg-[#f97316] text-right text-[9px] font-semibold text-white flex items-center justify-end pr-1"
-                        style={{ width: `${textPercent}%` }}
-                      >
-                        {textPercent > 5 ? `${textPercent.toFixed(0)}%` : ''}
-                      </div>
-                    </div>
-                  </div>
+        {/* This panel sat directly against the cards above it, so the two
+            read as one run. It is a separate subject, so it gets space rather
+            than a rule -- another hairline next to the card edges above would
+            have been a fourth line in the same 20px. */}
+        <div className="mt-6 rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-4 py-3 rounded-t-xl">
+            <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+              <Bot className="h-4 w-4 text-primary" />
+              AI Receptionist Performance
+            </h4>
+            <div className="flex min-w-[180px] flex-1 items-center gap-2 sm:max-w-xs">
+              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-ucass-active-bg">
+                <div className="flex h-full">
+                  <div
+                    className="bg-ucass-active transition-all duration-500"
+                    style={{ width: `${voicePercent}%` }}
+                  />
+                  <div
+                    className="bg-[#f2994a] transition-all duration-500"
+                    style={{ width: `${textPercent}%` }}
+                  />
                 </div>
               </div>
+              <span className="whitespace-nowrap text-[11px] font-semibold text-[#475569]">
+                Voice {voicePercent.toFixed(0)}% / Text {textPercent.toFixed(0)}%
+              </span>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3 lg:grid-cols-5">
+            {[
+              { label: 'Handled by AI only', value: handledTodayValue, icon: Bot },
+              { label: 'Transferred to Agent', value: transferredCallsValue, icon: Users },
+              { label: 'Transfer Percentage', value: transferToAgentValue, icon: TrendingUp },
+              { label: 'Avg Duration', value: avgDurationValue, icon: Clock3 },
+              { label: 'Leads Captured', value: leadCapturedValue, icon: UserPlus },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="flex items-center justify-between gap-2 rounded-[16px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                    {stat.label}
+                  </p>
+                  <p className="mt-0.5 text-xl font-bold text-[#2E2D35]">{stat.value}</p>
+                </div>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                  <stat.icon className="h-4 w-4 text-primary" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-12">
+          <div className="flex flex-col col-span-12">
             {/* <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
                     <span>Active AI Chats/Calls</span>
                     <span className="font-semibold">28</span>
                   </div>
@@ -1293,7 +1278,7 @@ const AiWallboard = () => {
                 {aiAlerts.map((alert, index) => (
                   <div
                     key={`${alert.text}-${index}`}
-                    className="flex items-start justify-between gap-2 border-b border-border px-4 py-3 last:border-b-0"
+                    className="flex items-start justify-between gap-2 border-b border-gray-200 px-4 py-3 last:border-b-0"
                   >
                     <p
                       className={`text-sm font-medium ${
@@ -1305,7 +1290,7 @@ const AiWallboard = () => {
                       }`}
                     >
                       {alert.text}
-                      <span className="mt-1 block text-xs font-medium text-muted-foreground">
+                      <span className="mt-1 block text-xs font-medium text-gray-500">
                         {alert.age}
                       </span>
                     </p>
@@ -1315,182 +1300,184 @@ const AiWallboard = () => {
             </div> */}
           </div>
 
-          <div className="space-y-3 col-span-12 md:col-span-8">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] dark:border-mcm-line  shadow-xs">
-              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line px-4 py-3 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] rounded-t-xl">
-                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
+          {/* mt-3, not mt-6: this wrapper sits in the grid where the row gap
+              already contributes 24px, against 12px above the panel before it.
+              Matching the margins would have left 48px here against 36px
+              there -- the measured gaps are what match, not the classes. */}
+          <div className="mt-3 space-y-3 col-span-12">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] shadow-xs">
+              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] px-4 py-3 bg-[#fbf9f6] rounded-t-xl">
+                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
                   <Headphones className="h-4 w-4 text-primary" />
                   Agent Sentiment Status
                 </h4>
-                <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 px-3 py-1">
-                  <p className="text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
+                <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8] px-3 py-1">
+                  <p className="text-[11px] font-medium text-[#6b6459]">
                     Top: {aiWallboardSummary?.agent_sentiment_top?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_top?.avg_sentiment || '0'}) &nbsp; | &nbsp;
                     Bottom: {aiWallboardSummary?.agent_sentiment_bottom?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_bottom?.avg_sentiment || '0'}) &nbsp; |
                     &nbsp;
-                    <span className="font-semibold text-[#9A948F] dark:text-mcm-ink-3">
+                    <span className="font-semibold text-[#6b6459]">
                       Idle {'>'}5m: {aiWallboardSummary?.idle_over_5_minutes?.length || 0}
                     </span>
                   </p>
                 </div>
               </div>
 
-              <div className="grid gap-2 p-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-2 p-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                 {agentSentimentCards.map((agent, index) => {
-                  console.log(agent, 'agentagent');
-
                   const isHighRisk = agent.risk === 'HIGH RISK';
+                  const statusNow = getAgentStatus(agent);
                   return (
                     <div
                       key={`${agent.name}-${index}`}
-                      className={`rounded-xl border bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-none ${
-                        isHighRisk ? 'border-red-200' : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line'
+                      className={`rounded-[20px] border bg-[#fffdfb] p-4 shadow-[0_10px_34px_rgba(160,95,30,0.14)] transition-transform hover:-translate-y-0.5 ${
+                        isHighRisk ? 'border-red-200' : 'border-[rgba(249,115,22,0.14)]'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2  mb-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-10 w-10 min-w-10 items-center justify-center rounded-full bg-ucass-primary-200 font-semibold text-primary">
-                            {agent.initials}
+                      {/* Status is a dot on the avatar rather than a pill in
+                          the name line. Four cards each repeating the word
+                          OFFLINE gave the same weight to a state that is the
+                          same on every one of them; a ring says it without
+                          taking a line. */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="relative shrink-0">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF1E0] text-sm font-bold text-primary">
+                              {agent.initials}
+                            </div>
+                            <span
+                              title={statusNow}
+                              className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
+                                statusNow === 'AVAILABLE'
+                                  ? 'bg-[#4EAE6E]'
+                                  : statusNow === 'ON CALL'
+                                    ? 'bg-[#ea580c]'
+                                    : statusNow === 'RINGING'
+                                      ? 'bg-[#6366f1]'
+                                      : 'bg-[#cbd5e1]'
+                              }`}
+                            />
                           </div>
-                          <div>
-                            <p className="text-base leading-6 font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                          <div className="min-w-0">
+                            <p className="truncate text-base leading-5 font-semibold text-[#1A1A1A]">
                               {agent.name}
                             </p>
-                            <p className="flex items-center gap-1 text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 whitespace-nowrap">
-                              <p className="flex items-center gap-1 text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
-                                {(() => {
-                                  const status = getAgentStatus(agent);
-                                  return (
-                                    <span
-                                      className={`rounded-sm px-2 py-0.5 text-[10px] font-semibold tracking-wide ${statusPillClass[status]}`}
-                                    >
-                                      {status}
-                                    </span>
-                                  );
-                                })()}
-                                {`${agent?.ext?.length > 4 ? 'DID' : 'EXT'}`}: {agent?.ext || ''}
-                              </p>
-                              {/* {agent.state === 'N/A'
-                                ? 'N/A'
-                                : `${agent.state}${agent.ext !== 'N/A' ? ` • Ext ${agent.ext}` : ''}${agent.duration ? ` • ${agent.duration}` : ''}`} */}
+                            {/* `#94a3b8` (Tailwind slate-400) measured
+                                2.56:1 here — under the 4.5:1 small text
+                                needs. `#475569`, the muted-label colour this
+                                board uses everywhere else. */}
+                            <p className="mt-0.5 truncate text-[11px] font-medium text-[#475569]">
+                              {statusNow}
+                              {agent?.ext && agent.ext !== 'N/A'
+                                ? ` · ${agent.ext.length > 4 ? 'DID' : 'EXT'} ${agent.ext}`
+                                : ''}
                             </p>
                           </div>
                         </div>
-                        <div className="space-y-0.2 text-right">
-                          {/* <span
-                            className={`inline-flex rounded-sm px-2 me-1 py-0.5 text-[10px] font-semibold ${riskBadgeClasses[agent.risk]}`}
+
+                        {/* The score is what this card is for, so it reads as
+                            the headline rather than as the third of three
+                            equal stats. */}
+                        <div className="shrink-0 text-right">
+                          <p
+                            className={`num text-[26px] font-bold leading-none tracking-tight ${scoreToneClass(
+                              agent.todayAvg,
+                            )}`}
                           >
-                            {agent.risk}
-                          </span>
-                          <span
-                            className={`inline-flex rounded-sm px-2 py-0.5 text-[10px] font-semibold ${moodBadgeClasses[agent.mood]}`}
-                          >
-                            {agent.mood}
-                          </span> */}
-                          {agent.sentimentLabel && agent.sentimentLabel !== 'N/A' && (
+                            {agent.todayAvg}
+                          </p>
+                          {agent.sentimentLabel && agent.sentimentLabel !== 'N/A' ? (
                             <span
-                              className={`inline-flex rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase ${sentimentLabelBadgeClass(agent.sentimentLabel)}`}
+                              className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${sentimentLabelBadgeClass(
+                                agent.sentimentLabel,
+                              )}`}
                             >
                               {agent.sentimentLabel}
                             </span>
+                          ) : (
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
+                              Avg sentiment
+                            </p>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-2 grid grid-cols-3 gap-1.5 sm:gap-2">
-                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
-                          <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
-                            title="Today Calls"
-                          >
-                            Total
-                          </p>
-                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                      {/* One bordered strip with dividers, not three separate
+                          boxes each carrying its own border and fill -- three
+                          numbers that belong together read as one unit this
+                          way instead of three unrelated tiles. */}
+                      {/* Two supporting counts on one line, not a grey strip
+                          of three tiles -- the score they support is the
+                          headline above, so repeating it here made the card
+                          say the same number twice. */}
+                      <div className="mt-3 flex items-center gap-4 text-[11px] text-[#64748b]">
+                        <span className="flex items-baseline gap-1.5">
+                          <span className="num text-sm font-bold text-[#1A1A1A]">
                             {agent.liveScore}
-                          </p>
-                        </div>
-                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
-                          <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
-                            title="Sentiment Calls"
-                          >
-                            Monitored
-                          </p>
-                          <p className="text-lg sm:text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
-                            {agent?.today_sentiment_calls || 'N/A'}
-                          </p>
-                        </div>
-                        <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-1.5 sm:p-2">
-                          <p
-                            className="text-[9px] lg:text-[10px] font-semibold uppercase text-[#9A948F] dark:text-mcm-ink-3 truncate"
-                            title="Avg Sentiment"
-                          >
-                            Average
-                          </p>
-                          <p
-                            className={`text-lg sm:text-lg font-semibold ${scoreToneClass(agent.todayAvg)}`}
-                          >
-                            {agent.todayAvg}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-2">
-                        <div className="mb-1 flex items-center justify-between text-[10px] font-semibold text-[#9A948F] dark:text-mcm-ink-3">
-                          <span>
-                            POS {agent.posCount} ({agent.pos}%)
                           </span>
-                          <span>
-                            NEU {agent.neuCount} ({agent.neu}%)
+                          calls today
+                        </span>
+                        <span className="h-3 w-px bg-[rgba(225,200,165,0.7)]" />
+                        <span className="flex items-baseline gap-1.5">
+                          <span className="num text-sm font-bold text-[#1A1A1A]">
+                            {agent?.today_sentiment_calls ?? 0}
                           </span>
-                          <span>
-                            NEG {agent.negCount} ({agent.neg}%)
+                          monitored
+                        </span>
+                      </div>
+
+                      <div className="mt-3.5">
+                        {/* Literal widths against a full-width track, not
+                            normalised. Scaling three figures to fill the bar
+                            turned 7% negative into a solid red rail -- the one
+                            scored call rendered as though every call had gone
+                            badly. The unfilled remainder is the honest part of
+                            the picture: it is what has not been scored.
+
+                            Muted tones, too. Sentiment is context on this
+                            card, not its alarm -- the score above is what the
+                            eye should land on first. */}
+                        {agent.pos + agent.neu + agent.neg > 0 ? (
+                          <div className="flex h-2 w-full overflow-hidden rounded-full bg-[rgba(225,200,165,0.28)]">
+                            {(
+                              [
+                                ['#7FBE97', agent.pos],
+                                ['#d5dbe4', agent.neu],
+                                ['#D9958E', agent.neg],
+                              ] as [string, number][]
+                            ).map(([colour, part]) => (
+                              <div
+                                key={colour}
+                                className="h-full transition-all duration-500"
+                                style={{
+                                  background: colour,
+                                  width: `${Math.min(Math.max(part, 0), 100)}%`,
+                                }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="rounded-full bg-[rgba(225,200,165,0.22)] py-1 text-center text-[11px] font-medium text-[#475569]">
+                            No sentiment scored yet
+                          </p>
+                        )}
+                        <div className="mt-1.5 flex items-center justify-between text-[11px] font-medium text-[#475569]">
+                          <span className="flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#7FBE97]" />
+                            POS {agent.pos}%
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
+                            NEU {agent.neu}%
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#D9958E]" />
+                            NEG {agent.neg}%
                           </span>
                         </div>
-                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3">
-                          <div className="bg-[#4EAE6E] h-full" style={{ width: `${agent.pos}%` }} />
-                          <div className="bg-gray-400 h-full" style={{ width: `${agent.neu}%` }} />
-                          <div className="bg-[#DC5049] h-full" style={{ width: `${agent.neg}%` }} />
-                        </div>
                       </div>
-
-                      {/* <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border pt-2.5">
-                        <div className="text-center">
-                          <p className="text-xl font-semibold text-red-500">{agent.negCalls}</p>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
-                            Neg Calls (30m)
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-xl font-semibold text-amber-600">
-                            {agent.escalations}
-                          </p>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
-                            Escalations
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-xl font-semibold text-red-500">
-                            {agent.consecutiveNeg}
-                          </p>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
-                            Consecutive Neg
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-2 border-t border-border pt-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
-                          Sentiment Trend (Last 5 Calls)
-                        </p>
-                        <TrendSparkline
-                          points={agent.trend}
-                          tone={agent.risk === 'LOW RISK' ? 'green' : 'red'}
-                        />
-                      </div>
-
-                      <ActionButtons highRisk={isHighRisk} /> */}
                     </div>
                   );
                 })}
@@ -1498,13 +1485,13 @@ const AiWallboard = () => {
             </div>
 
             {/* <div className="grid gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-border bg-card shadow-xs">
-                <div className="border-b border-border px-4 py-3">
-                  <h4 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              <div className="rounded-xl border border-gray-200 bg-white shadow-xs">
+                <div className="border-b border-gray-200 px-4 py-3">
+                  <h4 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
                     <TrendingUp className="h-4 w-4 text-amber-600" />
                     Emotion Pressure Score
                   </h4>
-                  <p className="text-xs font-medium text-muted-foreground">
+                  <p className="text-xs font-medium text-gray-500">
                     High negative mood traffic detection per queue
                   </p>
                 </div>
@@ -1512,7 +1499,7 @@ const AiWallboard = () => {
                   {emotionPressure.map((item) => (
                     <div key={item.queue}>
                       <div className="mb-1 flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-muted-foreground">
+                        <p className="text-sm font-semibold text-gray-700">
                           {item.queue}
                           {item.warning && (
                             <span className="ml-1 inline-flex align-middle">
@@ -1520,9 +1507,9 @@ const AiWallboard = () => {
                             </span>
                           )}
                         </p>
-                        <p className="text-xs font-medium text-muted-foreground">{item.calls} live calls</p>
+                        <p className="text-xs font-medium text-gray-500">{item.calls} live calls</p>
                       </div>
-                      <div className="h-1.5 w-full rounded-full bg-muted">
+                      <div className="h-1.5 w-full rounded-full bg-gray-200">
                         <div
                           className={`h-1.5 rounded-full ${pressureBarClass(item.tone)}`}
                           style={{ width: `${item.pressure}%` }}
@@ -1533,40 +1520,40 @@ const AiWallboard = () => {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-border bg-card shadow-xs">
-                <div className="border-b border-border px-4 py-3">
-                  <h4 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              <div className="rounded-xl border border-gray-200 bg-white shadow-xs">
+                <div className="border-b border-gray-200 px-4 py-3">
+                  <h4 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
                     <Users className="h-4 w-4 text-green-600" />
                     Team Sentiment Overview
                   </h4>
-                  <p className="text-xs font-medium text-muted-foreground">
+                  <p className="text-xs font-medium text-gray-500">
                     Aggregated performance across all online agents
                   </p>
                 </div>
                 <div className="space-y-3 p-4">
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-center">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-green-600">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-green-600">
                         Team Avg Score
                       </p>
                       <p className="text-3xl font-semibold text-green-600">+0.48</p>
                     </div>
                     <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-center">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-red-500">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-red-500">
                         % Negative (Last 15m)
                       </p>
                       <p className="text-3xl font-semibold text-red-500">18%</p>
                     </div>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <div className="rounded-lg border border-border bg-muted p-3 text-center">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
                         Most Stressed
                       </p>
                       <p className="text-base font-semibold text-red-500">Michael Chen</p>
                     </div>
-                    <div className="rounded-lg border border-border bg-muted p-3 text-center">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
                         Best Performer
                       </p>
                       <p className="text-base font-semibold text-green-600">Jessica Alba</p>
@@ -1575,92 +1562,70 @@ const AiWallboard = () => {
                 </div>
               </div>
             </div> */}
-            {/* <div className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-red-200 bg-red-50 px-4 py-3">
-                <div>
-                  <h4 className="flex items-center gap-2 text-lg font-semibold text-red-500">
-                    <ShieldAlert className="h-4 w-4" />
-                    Live High-Risk Calls
-                  </h4>
-                  <p className="text-xs font-medium text-red-300">
-                    Real-time monitoring of active calls with negative sentiment or high
-                    frustration.
-                  </p>
+            {/* This card was dead JSX for a "Live High-Risk Calls" table
+                keyed to fictional US callers with no live source. Restored
+                as "Agents Needing Attention": same warm-glass card shell as
+                "Most Common AI Intents" above rather than the old plain
+                white/red-bordered box, so it reads as part of this board
+                instead of a leftover from before the redesign. Red is kept
+                only where it is load-bearing (the icon badge, the count
+                pill, the per-row risk chip) — see legacy-table-theme.css for
+                why the table chrome itself (header, hover, borders) is not
+                styled here: it inherits from `.dash-legacy`, the same rule
+                Calls' own table is measured against. */}
+            {highRiskCalls.length > 0 && (
+              <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                      <ShieldAlert className="h-4 w-4 text-[#DC5049]" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-semibold text-[#1A1A1A]">
+                        Agents Needing Attention
+                      </h4>
+                      <p className="text-xs font-medium text-[#64748b]">
+                        Elevated negative sentiment today, worst first.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-600">
+                    {highRiskCalls.length} ACTIVE
+                  </span>
                 </div>
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-500">
-                  3 ACTIVE
-                </span>
-              </div>
 
-              <div className="overflow-x-auto">
-                <Table className="min-w-[960px]">
-                  <TableHeader className="bg-muted">
-                    <TableRow>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Queue / Intent
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Caller Info
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Agent
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Duration
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Sentiment Score
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Risk Factor
-                      </TableHead>
-                      <TableHead className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Action
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {highRiskCalls.map((call) => (
-                      <TableRow
-                        key={`${call.intent}-${call.caller}`}
-                        className="hover:bg-red-50/40"
-                      >
-                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
-                          {call.intent}
-                        </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
-                          {call.caller}
-                        </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-medium text-muted-foreground">
-                          {call.agent}
-                        </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-semibold text-amber-600">
-                          {call.duration}
-                        </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-semibold text-red-500">
-                          {call.score}
-                        </TableCell>
-                        <TableCell className="px-3 py-2">
-                          <span
-                            className={`inline-flex rounded-sm px-2 py-0.5 text-[10px] font-semibold ${factorBadgeClass(call.factorTone)}`}
-                          >
-                            {call.factor}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-3 py-2">
-                          <Button
-                            variant="transparent"
-                            className="h-auto px-0 py-0 text-xs font-semibold text-primary"
-                          >
-                            {call.action}
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[640px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Sentiment</TableHead>
+                        <TableHead>Agent</TableHead>
+                        <TableHead className="lt-align-right">Today's Score</TableHead>
+                        <TableHead className="lt-align-center">Risk Factor</TableHead>
+                        <TableHead>Recommended Action</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {highRiskCalls.map((call) => (
+                        <TableRow key={call.agent}>
+                          <TableCell>{call.intent}</TableCell>
+                          <TableCell>{call.agent}</TableCell>
+                          <TableCell className="lt-align-right">{call.score}</TableCell>
+                          <TableCell className="lt-align-center">
+                            <span
+                              className={`inline-flex rounded-sm px-2 py-0.5 text-[11px] font-semibold ${factorBadgeClass(call.factorTone)}`}
+                            >
+                              {call.factor}
+                            </span>
+                          </TableCell>
+                          <TableCell>{call.action}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
-            </div> */}
+            )}
           </div>
         </div>
       </div>

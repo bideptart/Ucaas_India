@@ -69,121 +69,174 @@
 
 .gp-favourites .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 320px);
 }
+/* Header/body split into independent scroll boxes, same technique and
+   reason as People's own table (people-glass.css): a sticky `<thead>`
+   doesn't stop its scrolling ancestor's native scrollbar from spanning the
+   full box, header band included. `.tbl-wrap` and `.favourites-table-scroll`
+   (an extra wrapper this page adds around `<table>`) both used to scroll,
+   redundantly — now both are plain flex passthroughs and `<tbody>` alone
+   scrolls. */
 .gp-favourites .tbl-wrap {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
 }
+.gp-favourites .favourites-table-scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
 .gp-favourites table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   background: transparent;
+}
+.gp-favourites thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-favourites tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height. */
+  max-height: 420px;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-favourites thead tr,
+.gp-favourites tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-favourites th:nth-child(1),
+.gp-favourites td:nth-child(1) {
+  width: auto;
+}
+.gp-favourites th:nth-child(2),
+.gp-favourites td:nth-child(2) {
+  width: 90px;
+}
+.gp-favourites th:nth-child(3),
+.gp-favourites td:nth-child(3) {
+  width: 140px;
+}
+.gp-favourites th:nth-child(4),
+.gp-favourites td:nth-child(4) {
+  width: 110px;
+}
+.gp-favourites th:nth-child(5),
+.gp-favourites td:nth-child(5) {
+  width: 100px;
+}
+.gp-favourites th:nth-child(6),
+.gp-favourites td:nth-child(6) {
+  width: 170px;
+}
+.gp-favourites th:nth-child(7),
+.gp-favourites td:nth-child(7) {
+  width: 100px;
+}
+.gp-favourites th:nth-child(8),
+.gp-favourites td:nth-child(8) {
+  width: 200px;
+}
+.gp-favourites tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-favourites tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-favourites tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-favourites tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
 .gp-favourites th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
+  height: 40px;
+  font-size: 9.5px;
 }
 .gp-favourites td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
+/* The "Contact via" icon row otherwise sits flush against the card's own
+   right edge — extra breathing room past the base cell padding. The icon
+   row (4 icons, ~114px) nearly fills this column's own width on its own,
+   so a modest padding bump wasn't enough to read as a real gap; this pushes
+   it clearly off the edge. */
+.gp-favourites th:last-child,
+.gp-favourites td:last-child {
+  padding-right: 48px;
+}
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-favourites tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
-
-/* ---- Dark theme — same treatment as people-glass.css's own .dark block:
-   every literal light-mode value here gets a dark-appropriate equivalent,
-   reusing the app's existing --mcm-* tokens rather than inventing new
-   colors, so the warm-glass DESIGN survives instead of flattening to
-   plain slate. ---- */
-/* Flat neutral, not the warm-orange glow — global Dark Mode rebrand. */
-.dark .gp-favourites {
-  background: var(--mcm-ground, #080d12);
+/* Action-column icon buttons (call/SMS/WhatsApp/activity) had no override
+   at all here — plain base `.mcm-page .mini` (26px rounded-square, plain
+   tint-on-hover). Glass circle at rest, filled sunset gradient on hover,
+   matching Performance ▸ Calls' own action buttons (interactions-theme.css)
+   and every other Directory table's action column now.
+   `:not(.mcm-fav-on)` excludes the "remove from favourites" star, which
+   every row here has permanently on — it keeps its own persistent gold
+   state (mcm-page.css) rather than being pulled into this glass treatment. */
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 9999px;
+  flex: none;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
-.dark .gp-favourites .page-head,
-.dark .gp-favourites .tbar .fchip {
-  border: 1px solid #1b2934;
-  box-shadow:
-    0 10px 34px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+.gp-favourites td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
-.dark .gp-favourites .page-head {
-  background: var(--mcm-surface, #111c26);
-}
-.dark .gp-favourites .tbar .fchip {
-  background: var(--mcm-accent-wash, #1a2733);
-}
-.dark .gp-favourites .page-head h1 {
-  color: var(--mcm-ink, #f8fafc);
-}
-.dark .gp-favourites .page-head p {
-  color: var(--mcm-ink-3, #94a3b8);
-}
-.dark .gp-favourites .tbar {
-  background: rgba(14, 24, 33, 0.75);
-  border: 1px solid #1b2934;
-  box-shadow:
-    0 6px 22px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-.dark .gp-favourites .tbar .fchip {
-  background: rgba(17, 29, 39, 0.6);
-  border-color: #293746;
-}
-.dark .gp-favourites .tbar .fchip:hover {
-  background: var(--mcm-surface-3, #1a2733);
-  border-color: var(--mcm-accent-edge);
-}
-.dark .gp-favourites .panel-card {
-  background: #111c26;
-  border: 1px solid #1b2934;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
-}
-.dark .gp-favourites th {
-  background: #16222c;
-  color: var(--mcm-ink-3, #8b98a6);
-  border-bottom: 2px solid #1b2934;
-}
-.dark .gp-favourites td {
-  border-bottom-color: #1b2934;
-}
-.dark .gp-favourites tbody tr:hover {
-  background: rgba(17, 29, 39, 0.6);
-}
-/* mcm-page.css's own `.favourites-compact thead th` rule (needed for the
-   sticky header) sets `background: var(--surface)` directly — the same
-   tier as this page's own panel-card, not `--surface-2` the rule right
-   above already correctly uses. That rule has one more compound part
-   (`thead th` vs plain `th`) than the rule above, so it wins regardless
-   of file order, leaving the sticky header blended into the empty body
-   instead of standing apart from it. Extra `.gp-favourites` scoping here
-   out-specifies it without needing `!important` or touching the shared
-   sticky-position rule itself. */
-.dark .gp-favourites .favourites-compact thead th {
-  background: var(--mcm-surface-2, #16222c);
-}
-/* The "N favourites" result-count chip's light rule above (`.gp-favourites
-   .fchip.live`) hardcodes a light mint fill with `!important` — the same
-   gap already found and fixed on Locations/External Contacts/Roles. */
-.dark .gp-favourites .fchip.live {
-  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
-  border-color: transparent !important;
-  color: #f3f6f9;
-}
-/* The shared `.mcm-page .empty` component (used by every "nothing here
-   yet" state across the app) sets `color: var(--ink-4)` — documented
-   elsewhere in this codebase as measuring 3.93:1 against the dark surface,
-   under the 4.5:1 AA floor for body text. Scoped to this page rather than
-   fixing the shared rule (which would touch every other page's empty
-   state too) since only Favourites was in scope for this pass. */
-.dark .gp-favourites .empty {
-  color: var(--mcm-ink-3, #8b98a6);
+/* The now-larger (36px) icon buttons need a bigger glyph than the source
+   markup's own size={12} prop to still look proportioned — 18px is a ~50%
+   fill ratio, reads as a deliberate icon button rather than a small glyph
+   adrift in empty space. */
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) .ic {
+  width: 18px;
+  height: 18px;
 }

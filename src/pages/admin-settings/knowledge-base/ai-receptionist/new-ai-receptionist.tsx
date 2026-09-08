@@ -75,12 +75,7 @@ import { useUser } from '@/hooks/use-user';
 import useDebounce from '@/hooks/use-debounce';
 import { usePaginatedUsers } from '@/hooks/use-paginated-users';
 import { getAi360WidgetKey } from '../ai-agent/chat-agent-configure-modal';
-import {
-  hindiVoiceOptions,
-  languageOptions,
-  spanishVoiceOptions,
-  voiceOptions,
-} from '../constants';
+import { hindiVoiceOptions, languageOptions, voiceOptions } from '../constants';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FormProvider, useForm, type SetValueConfig } from 'react-hook-form';
 import { Room } from 'livekit-client';
@@ -113,7 +108,16 @@ import {
   Clock3,
 } from 'lucide-react';
 import { Grid } from '@/assets/icons';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { useBlocker, useNavigate } from 'react-router-dom';
 import WebsiteScanProgressModal, {
   type WebsiteScanProgressStatus,
@@ -474,8 +478,8 @@ const getCallSentiment = (call: any) =>
 const sentimentBadgeClass = (sentiment: string) => {
   if (sentiment === 'positive') return 'bg-emerald-100 text-emerald-700';
   if (sentiment === 'negative') return 'bg-red-100 text-red-700';
-  if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700 dark:text-mcm-ink-2';
-  return 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3';
+  if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700';
+  return 'bg-[#FBE2C8]/40 text-[#9A948F]';
 };
 const sentimentScoreText = (scores: any) => {
   const positive = Math.round(Number(scores?.positive || 0));
@@ -675,13 +679,20 @@ const LOCALE_ACCENT_MAP: Record<string, string> = {
   'en-AU': 'Australian English',
   'en-IN': 'Indian English',
   'en-CA': 'Canadian English',
-  'es-ES': 'Spanish (Spain)',
-  'es-MX': 'Spanish (Mexico)',
   'fr-FR': 'French',
   'de-DE': 'German',
   'it-IT': 'Italian',
   'pt-BR': 'Portuguese (Brazil)',
   'hi-IN': 'Hindi',
+  'mr-IN': 'Marathi',
+  'pa-IN': 'Punjabi',
+  'te-IN': 'Telugu',
+  'kn-IN': 'Kannada',
+  'bn-IN': 'Bengali',
+  'gu-IN': 'Gujarati',
+  'ta-IN': 'Tamil',
+  'ml-IN': 'Malayalam',
+  'or-IN': 'Odia',
   'ar-SA': 'Arabic',
   'zh-CN': 'Chinese (Mandarin)',
   'ja-JP': 'Japanese',
@@ -764,10 +775,48 @@ const isVoiceValueMatch = (selectedValue: unknown, voice: any) => {
   );
 };
 type VoiceGenderFilter = 'all' | 'female' | 'male';
-type VoiceLocaleFilter = 'all' | 'en-US' | 'hi-IN' | 'es-ES';
+type VoiceLocaleFilter =
+  | 'all'
+  | 'en-US'
+  | 'mr-IN'
+  | 'hi-IN'
+  | 'pa-IN'
+  | 'te-IN'
+  | 'kn-IN'
+  | 'bn-IN'
+  | 'gu-IN'
+  | 'ta-IN'
+  | 'ml-IN'
+  | 'or-IN';
 type VoiceLanguageMode = 'fixed' | 'multilingual';
 
-const MULTILINGUAL_ALLOWED_LANGUAGES: VoiceLocaleFilter[] = ['en-US', 'hi-IN', 'es-ES'];
+const VOICE_LOCALE_FILTER_OPTIONS: Array<{ label: string; value: VoiceLocaleFilter }> = [
+  { label: 'Multilingual', value: 'all' },
+  { label: 'English (US)', value: 'en-US' },
+  { label: 'Marathi', value: 'mr-IN' },
+  { label: 'Hindi', value: 'hi-IN' },
+  { label: 'Punjabi', value: 'pa-IN' },
+  { label: 'Telugu', value: 'te-IN' },
+  { label: 'Kannada', value: 'kn-IN' },
+  { label: 'Bengali', value: 'bn-IN' },
+  { label: 'Gujarati', value: 'gu-IN' },
+  { label: 'Tamil', value: 'ta-IN' },
+  { label: 'Malayalam', value: 'ml-IN' },
+  { label: 'Odia', value: 'or-IN' },
+];
+const MULTILINGUAL_ALLOWED_LANGUAGES: VoiceLocaleFilter[] = [
+  'en-US',
+  'mr-IN',
+  'hi-IN',
+  'pa-IN',
+  'te-IN',
+  'kn-IN',
+  'bn-IN',
+  'gu-IN',
+  'ta-IN',
+  'ml-IN',
+  'or-IN',
+];
 const DEFAULT_MULTILINGUAL_LANGUAGE: VoiceLocaleFilter = 'en-US';
 const getVoiceLanguageMode = (localeFilter: VoiceLocaleFilter): VoiceLanguageMode =>
   localeFilter === 'all' ? 'multilingual' : 'fixed';
@@ -780,8 +829,16 @@ const normalizeVoiceLocaleFilterValue = (value: unknown): VoiceLocaleFilter => {
     .trim()
     .toLowerCase();
   if (normalized === 'all' || normalized === 'multilingual') return 'all';
+  if (normalized === 'marathi' || normalized.startsWith('mr')) return 'mr-IN';
   if (normalized === 'hindi' || normalized.startsWith('hi')) return 'hi-IN';
-  if (normalized === 'spanish' || normalized.startsWith('es')) return 'es-ES';
+  if (normalized === 'punjabi' || normalized.startsWith('pa')) return 'pa-IN';
+  if (normalized === 'telugu' || normalized.startsWith('te')) return 'te-IN';
+  if (normalized === 'kannada' || normalized.startsWith('kn')) return 'kn-IN';
+  if (normalized === 'bengali' || normalized.startsWith('bn')) return 'bn-IN';
+  if (normalized === 'gujarati' || normalized.startsWith('gu')) return 'gu-IN';
+  if (normalized === 'tamil' || normalized.startsWith('ta')) return 'ta-IN';
+  if (normalized === 'malayalam' || normalized.startsWith('ml')) return 'ml-IN';
+  if (normalized === 'odia' || normalized.startsWith('or')) return 'or-IN';
   if (normalized === 'english' || normalized.startsWith('en')) return 'en-US';
   return 'all';
 };
@@ -833,8 +890,16 @@ const getVoiceLocaleFilter = (voice: any): VoiceLocaleFilter => {
   if (isMultilingualVoice(voice)) return 'all';
 
   const locale = String(voice?.locale || '').toLowerCase();
+  if (locale.startsWith('mr')) return 'mr-IN';
   if (locale.startsWith('hi')) return 'hi-IN';
-  if (locale.startsWith('es')) return 'es-ES';
+  if (locale.startsWith('pa')) return 'pa-IN';
+  if (locale.startsWith('te')) return 'te-IN';
+  if (locale.startsWith('kn')) return 'kn-IN';
+  if (locale.startsWith('bn')) return 'bn-IN';
+  if (locale.startsWith('gu')) return 'gu-IN';
+  if (locale.startsWith('ta')) return 'ta-IN';
+  if (locale.startsWith('ml')) return 'ml-IN';
+  if (locale.startsWith('or')) return 'or-IN';
   if (locale.startsWith('en')) return 'en-US';
   return 'all';
 };
@@ -845,13 +910,7 @@ const voiceMatchesRuntimeLanguage = (voice: any, localeFilter: VoiceLocaleFilter
     ? isMultilingualVoice(voice)
     : !isMultilingualVoice(voice) && voiceMatchesLocaleFilter(voice, localeFilter);
 const getAvailableReceptionistVoices = (apiVoices: any[], language: string) =>
-  apiVoices.length > 0
-    ? apiVoices
-    : language === 'spanish'
-      ? spanishVoiceOptions
-      : language === 'hindi'
-        ? hindiVoiceOptions
-        : voiceOptions;
+  apiVoices.length > 0 ? apiVoices : language === 'hindi' ? hindiVoiceOptions : voiceOptions;
 const getVoicePayloadValue = (voice: any, fallback = '') =>
   String(
     voice?.short_name ||
@@ -1738,7 +1797,7 @@ const normalizeStoredVoiceValue = (voiceValue: unknown) => {
     .toLowerCase();
   if (!normalized) return '';
   if (isRealtimePreviewVoice(normalized)) return normalized;
-  const matchedVoice = [...voiceOptions, ...spanishVoiceOptions, ...hindiVoiceOptions].find(
+  const matchedVoice = [...voiceOptions, ...hindiVoiceOptions].find(
     (voice) => voice.value.toLowerCase() === normalized || voice.label.toLowerCase() === normalized,
   );
   if (matchedVoice) return matchedVoice.value;
@@ -1818,6 +1877,138 @@ const mergeReceptionistMetrics = (agent: any, metricsByAgentId: Map<string, any>
     ...(metricsByAgentId.get(getReceptionistId(agent)) || {}),
   };
 };
+
+/* Sample rows shown only while the account has no real AI receptionists yet,
+   so the list's design can be seen populated instead of only as an empty
+   state. Real data always wins — see `tableSelect` below, which only falls
+   back to these when `receptionistRows` (the account's actual list) is
+   empty. The stat cards above the table stay on the real, honest counts
+   (0) rather than being padded to match; only the row list itself is
+   demonstrative. `_demo: true` marks them so every interactive cell (status
+   dropdown, caller-id assignment, edit/delete/test-call actions) can render
+   inert instead of calling a real API with a fake agent id. */
+/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
+   the floating white header card actually reads as "floating" — without a
+   saturated backdrop behind it, a white card on the AdminHub shell's own
+   near-white background has almost no contrast to float against. */
+const AI_TOOLS_PAGE_GRADIENT = [
+  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
+  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
+  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
+  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
+  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
+].join(', ');
+
+const DEMO_RECEPTIONIST_TEMPLATES: Array<{
+  name: string;
+  company: string;
+  status: 'active' | 'inactive';
+  did?: string;
+  calls?: number;
+  score?: number;
+  label?: 'positive' | 'neutral' | 'negative';
+  hoursAgo: number;
+}> = [
+  { name: 'Front Desk Ava', company: 'Nimbus Retail Pvt Ltd', status: 'active', did: '+14155550132', calls: 128, score: 82, label: 'positive', hoursAgo: 2 },
+  { name: 'Clinic Assistant Maya', company: 'Vertex Logistics', status: 'active', did: '+919876543210', calls: 54, score: 58, label: 'neutral', hoursAgo: 24 },
+  { name: 'Support Bot Leo', company: 'Shree Enterprises', status: 'inactive', hoursAgo: 144 },
+  { name: 'Reception Bot Nora', company: 'Coral Bay Hospitality', status: 'active', did: '+18005550172', calls: 210, score: 91, label: 'positive', hoursAgo: 1 },
+  { name: 'Booking Agent Zoe', company: 'Aster Healthcare', status: 'active', did: '+919988776655', calls: 76, score: 64, label: 'neutral', hoursAgo: 5 },
+  { name: 'Helpdesk Rio', company: 'Pinnacle Realty', status: 'inactive', hoursAgo: 96 },
+  { name: 'Front Office Kai', company: 'Bluewave Textiles', status: 'active', did: '+912223345566', calls: 39, score: 47, label: 'negative', hoursAgo: 8 },
+  { name: 'Concierge Iris', company: 'Orion Fintech', status: 'active', did: '+14085550199', calls: 163, score: 88, label: 'positive', hoursAgo: 3 },
+  { name: 'Dispatch Bot Finn', company: 'Sunrise Freight Co', status: 'inactive', hoursAgo: 240 },
+  { name: 'Intake Assistant Priya', company: 'GreenLeaf Diagnostics', status: 'active', did: '+919845123456', calls: 98, score: 70, label: 'positive', hoursAgo: 6 },
+  { name: 'Scheduling Bot Omar', company: 'Skyline Dental Care', status: 'active', did: '+13105550188', calls: 52, score: 61, label: 'neutral', hoursAgo: 12 },
+  { name: 'Reception Bot Wren', company: 'Harborview Law Group', status: 'inactive', hoursAgo: 72 },
+  { name: 'Sales Assistant Theo', company: 'Meridian Auto Group', status: 'active', did: '+919922334455', calls: 141, score: 79, label: 'positive', hoursAgo: 4 },
+  { name: 'Support Agent Luna', company: 'BrightPath Insurance', status: 'active', did: '+442071838750', calls: 67, score: 55, label: 'neutral', hoursAgo: 18 },
+  { name: 'Front Desk Milo', company: 'Cascade Fitness Studios', status: 'inactive', hoursAgo: 168 },
+  { name: 'Booking Bot Sana', company: 'Willow Creek Salon', status: 'active', did: '+919871234567', calls: 84, score: 73, label: 'positive', hoursAgo: 9 },
+  { name: 'Order Desk Remy', company: 'Falcon Electronics', status: 'active', did: '+16465550143', calls: 45, score: 42, label: 'negative', hoursAgo: 14 },
+  { name: 'Helpdesk Ivy', company: 'Cobalt Networks', status: 'inactive', hoursAgo: 120 },
+  { name: 'Reception Bot Arlo', company: 'Everline Furniture', status: 'active', did: '+919812345670', calls: 112, score: 85, label: 'positive', hoursAgo: 7 },
+  { name: 'Support Bot Nova', company: 'Pinehill Veterinary', status: 'active', did: '+15125550166', calls: 59, score: 60, label: 'neutral', hoursAgo: 20 },
+  { name: 'Front Desk Elio', company: 'Stratus Cloud Services', status: 'inactive', hoursAgo: 200 },
+  { name: 'Concierge Nadia', company: 'Amberly Hotels Group', status: 'active', did: '+971501234567', calls: 176, score: 89, label: 'positive', hoursAgo: 2 },
+  { name: 'Booking Assistant Yusuf', company: 'Windsor Property Mgmt', status: 'active', did: '+919090909090', calls: 63, score: 57, label: 'neutral', hoursAgo: 16 },
+  { name: 'Support Bot Cleo', company: 'Ridgeline Outdoors', status: 'inactive', hoursAgo: 48 },
+  { name: 'Intake Bot Farah', company: 'Northgate Medical Center', status: 'active', did: '+971509876543', calls: 132, score: 76, label: 'positive', hoursAgo: 3 },
+  { name: 'Dispatch Assistant Owen', company: 'Redwood Courier Services', status: 'active', did: '+14255550177', calls: 41, score: 44, label: 'negative', hoursAgo: 22 },
+  { name: 'Front Desk Sienna', company: 'Lakeshore Wellness Spa', status: 'inactive', hoursAgo: 264 },
+  { name: 'Reception Bot Diego', company: 'Copperline Manufacturing', status: 'active', did: '+919723456789', calls: 87, score: 68, label: 'neutral', hoursAgo: 10 },
+  { name: 'Support Agent Maren', company: 'Sable Tech Solutions', status: 'active', did: '+13235550122', calls: 154, score: 84, label: 'positive', hoursAgo: 5 },
+  { name: 'Booking Bot Tariq', company: 'Palmgrove Resorts', status: 'inactive', hoursAgo: 312 },
+];
+
+const sentimentCountsForScore = (calls: number, label: 'positive' | 'neutral' | 'negative') => {
+  if (label === 'positive') {
+    return { positive: Math.round(calls * 0.72), neutral: Math.round(calls * 0.2), negative: Math.round(calls * 0.08) };
+  }
+  if (label === 'negative') {
+    return { positive: Math.round(calls * 0.15), neutral: Math.round(calls * 0.25), negative: Math.round(calls * 0.6) };
+  }
+  return { positive: Math.round(calls * 0.35), neutral: Math.round(calls * 0.45), negative: Math.round(calls * 0.2) };
+};
+
+/* Sample rows shown only while the account has no real AI receptionists yet,
+   so the list's design can be seen populated instead of only as an empty
+   state. Real data always wins — see `tableSelect` below, which only falls
+   back to these when `receptionistRows` (the account's actual list) is
+   empty. The stat cards above the table stay on the real, honest counts
+   (0) rather than being padded to match; only the row list itself is
+   demonstrative. `_demo: true` marks them so every interactive cell (status
+   dropdown, caller-id assignment, edit/delete/test-call actions) can render
+   inert instead of calling a real API with a fake agent id. */
+const DEMO_AI_RECEPTIONISTS: any[] = DEMO_RECEPTIONIST_TEMPLATES.map((template, index) => ({
+  _demo: true,
+  agent_uuid: `demo-receptionist-${index + 1}`,
+  agentName: template.name,
+  companyName: template.company,
+  status: template.status,
+  did_uuid: template.did ? [{ did_number: template.did }] : [],
+  sentiment_calls: template.calls || 0,
+  avg_sentiment: template.score || 0,
+  sentiment_label: template.label,
+  sentiment_counts: template.calls && template.label
+    ? sentimentCountsForScore(template.calls, template.label)
+    : undefined,
+  updatedAt: moment().subtract(template.hoursAgo, 'hours').toISOString(),
+}));
+
+/* A page-scoped stat tile for the receptionists list — deliberately not the
+   shared `StatCard` (also used by `ReceptionistOverview`), so refining this
+   list's cards can't ripple into that other screen. Same footprint as
+   `StatCard` (min-h, border, shadow) so nothing shifts, with a touch more
+   typographic polish: a slim primary-colored accent bar and a bolder value. */
+function ReceptionistListStatCard({
+  label,
+  value,
+  helper,
+  loading = false,
+}: {
+  label: string;
+  value: string;
+  helper?: string;
+  loading?: boolean;
+}) {
+  return (
+    <div className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-shadow hover:shadow-[0_6px_16px_-4px_rgba(194,98,46,0.24)]">
+      <span
+        className="absolute inset-x-0 top-0 h-[3px]"
+        style={{ backgroundColor: 'var(--primary)', opacity: 0.55 }}
+      />
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        </div>
+      )}
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-0.5 text-[19px] font-extrabold leading-6 text-[#2E2D35]">{value}</p>
+      {helper ? <p className="mt-0.5 text-[10px] font-medium text-emerald-600">{helper}</p> : null}
+    </div>
+  );
+}
 
 function NewAiReceptionistPage() {
   const navigate = useNavigate();
@@ -1958,14 +2149,18 @@ function NewAiReceptionistPage() {
       const rowsWithMetrics = rows.map((agent: any) =>
         mergeReceptionistMetrics(agent, receptionistMetricsById),
       );
-      if (statusFilter === 'all') return rowsWithMetrics;
-      return rowsWithMetrics.filter((row: any) => {
+      /* Real data always wins: the moment an actual receptionist exists,
+         these never show, regardless of what this particular filtered/paged
+         fetch happens to return. */
+      const sourceRows = receptionistRows.length ? rowsWithMetrics : DEMO_AI_RECEPTIONISTS;
+      if (statusFilter === 'all') return sourceRows;
+      return sourceRows.filter((row: any) => {
         if (row?.deletedAt || row?.deleted_at) return false;
         const status = String(row?.status || row?.agentStatus || 'inactive').toLowerCase();
         return status === 'active' || status === 'live';
       });
     },
-    [receptionistMetricsById, statusFilter],
+    [receptionistMetricsById, statusFilter, receptionistRows.length],
   );
   const liveReceptionists = useMemo(
     () =>
@@ -2203,6 +2398,7 @@ function NewAiReceptionistPage() {
             'AI Receptionist';
           const rawStatus = String(data.status || data.agentStatus || 'inactive').toLowerCase();
           const isLive = rawStatus === 'active' || rawStatus === 'live';
+          const isDemo = Boolean(data?._demo);
           return (
             <div className="flex min-w-0 items-center gap-[11px]">
               <div className="relative shrink-0">
@@ -2222,18 +2418,34 @@ function NewAiReceptionistPage() {
                 />
               </div>
               <div className="min-w-0">
-                <button
-                  type="button"
-                  title={name}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    openReceptionistForm(data, 'view', 'overview');
-                  }}
-                  className="block max-w-[200px] truncate text-left font-semibold text-primary transition-colors hover:text-primary/80 cursor-pointer"
-                >
-                  {name}
-                </button>
-                <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-slate-500 dark:text-mcm-ink-3">
+                <div className="flex min-w-0 items-center gap-1.5">
+                  {isDemo ? (
+                    <span
+                      title={name}
+                      className="block max-w-[160px] truncate font-semibold text-[#2E2D35]"
+                    >
+                      {name}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      title={name}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openReceptionistForm(data, 'view', 'overview');
+                      }}
+                      className="block max-w-[200px] truncate text-left font-semibold text-primary transition-colors hover:text-primary/80 cursor-pointer"
+                    >
+                      {name}
+                    </button>
+                  )}
+                  {isDemo ? (
+                    <span className="shrink-0 rounded-full bg-[#FBE2C8]/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A948F]">
+                      Demo
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-slate-500">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                   <span className="truncate">{companyName} · 24/7 voice assistant</span>
                 </div>
@@ -2249,6 +2461,24 @@ function NewAiReceptionistPage() {
           const data = row.original || {};
           const rawStatus = String(data.status || data.agentStatus || 'inactive').toLowerCase();
           const isLive = rawStatus === 'active' || rawStatus === 'live';
+          const isDemo = Boolean(data?._demo);
+
+          if (isDemo) {
+            return (
+              <span
+                title="Sample data — not a real receptionist"
+                className={cx(
+                  'inline-flex h-7 min-w-[74px] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-extrabold',
+                  isLive
+                    ? 'border-emerald-200 bg-emerald-100 text-emerald-800'
+                    : 'border-slate-200 bg-slate-100 text-slate-600',
+                )}
+              >
+                <span className={cx('h-2 w-2 rounded-full', isLive ? 'bg-emerald-500' : 'bg-slate-400')} />
+                <span>{isLive ? 'Live' : 'Paused'}</span>
+              </span>
+            );
+          }
 
           const handleStatusChange = (newStatus: string) => {
             const currentStatus = isLive ? 'live' : 'inactive';
@@ -2265,7 +2495,7 @@ function NewAiReceptionistPage() {
                     'inline-flex h-7 min-w-[74px] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-extrabold cursor-pointer outline-none transition-colors duration-200',
                     isLive
                       ? 'border-emerald-200 bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80'
-                      : 'border-slate-200 dark:border-mcm-line bg-slate-100 text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-100/80',
+                      : 'border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-100/80',
                   )}
                 >
                   <span
@@ -2280,18 +2510,18 @@ function NewAiReceptionistPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[140px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-lg rounded-xl p-1 z-50 animate-none"
+                className="w-[140px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-lg rounded-xl p-1 z-50 animate-none"
               >
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('live')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3 text-[#2E2D35] dark:text-mcm-ink"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span>Live</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('inactive')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3 text-[#2E2D35] dark:text-mcm-ink"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
                 >
                   <span className="h-2 w-2 rounded-full bg-slate-400" />
                   <span>Paused</span>
@@ -2307,6 +2537,18 @@ function NewAiReceptionistPage() {
         cell: ({ row }: any) => {
           const data = row?.original || {};
           const assignedDID = data?.did_uuid?.[0]?.did_number || '';
+          const isDemo = Boolean(data?._demo);
+
+          if (isDemo) {
+            return assignedDID ? (
+              <span title="Sample data — not a real receptionist">
+                <NumberWithFlag number={assignedDID} />
+              </span>
+            ) : (
+              <span className="text-[13px] font-semibold text-[#9A948F]">Not assigned</span>
+            );
+          }
+
           return assignedDID ? (
             <button type="button" className="text-left" onClick={() => setAssignCallerAgent(data)}>
               <NumberWithFlag number={assignedDID} />
@@ -2333,7 +2575,7 @@ function NewAiReceptionistPage() {
             normalizeSentiment(data.sentiment_label) || sentimentLabelFromScore(score) || 'neutral';
           if (!calls) {
             return (
-              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 px-2 py-1 text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">
+              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 px-2 py-1 text-xs font-semibold text-[#9A948F]">
                 Not analyzed
               </span>
             );
@@ -2379,11 +2621,11 @@ function NewAiReceptionistPage() {
         cell: ({ row }: any) => {
           const date = row?.original?.updatedAt || row?.original?.updated_at;
           return date ? (
-            <span className="text-[14px] font-medium text-slate-700 dark:text-mcm-ink-2">
+            <span className="text-[14px] font-medium text-slate-700">
               {moment(date).isValid() ? moment.utc(date).local().fromNow() : '-'}
             </span>
           ) : (
-            <div className="text-center font-medium text-[#9A948F] dark:text-mcm-ink-3">---</div>
+            <div className="text-center font-medium text-[#9A948F]">---</div>
           );
         },
       },
@@ -2401,33 +2643,87 @@ function NewAiReceptionistPage() {
             );
           }
 
+          const isDemo = Boolean(data?._demo);
+          if (isDemo) {
+            /* Same four buttons as a real row, so the list still reads as a
+               finished design rather than a placeholder — just inert:
+               `pointer-events-none` and no `onClick`, since these agent ids
+               aren't real and would 404/error against the live API. */
+            const demoActions = [
+              {
+                tooltipText: 'Test call (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full opacity-60 pointer-events-none',
+                style: { backgroundColor: '#000000' },
+                icon: <Play className="h-4 w-4 text-white" />,
+              },
+              {
+                tooltipText: 'Edit Prompt (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                icon: <MessageSquare className="h-4 w-4" />,
+              },
+              {
+                tooltipText: 'Edit (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                icon: <PenLine className="h-4 w-4" />,
+              },
+              {
+                tooltipText: 'Delete (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-500 opacity-60 pointer-events-none',
+                icon: <Trash2 className="h-4 w-4" />,
+              },
+            ];
+            return (
+              <div className="flex w-full min-w-[152px] items-center justify-end gap-2">
+                {demoActions.map((action) => (
+                  <CustomTooltip key={action.tooltipText} text={action.tooltipText} side="top">
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      className={action.className}
+                      style={(action as any).style}
+                    >
+                      {action.icon}
+                    </button>
+                  </CustomTooltip>
+                ))}
+              </div>
+            );
+          }
+
           const actions = [
             {
               tooltipText: 'Test call',
               onClick: () => handleTestTalkClick(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-shadow hover:shadow-sm',
+              /* An inline style rather than `bg-black`: inside this table
+                 that utility resolves to a fully transparent background
+                 (verified via computed style — some ancestor rule in this
+                 table's cascade wins over it), leaving just the white play
+                 icon floating with no visible button behind it. The inline
+                 style always wins regardless of that conflict. */
+              style: { backgroundColor: '#000000' },
               icon: <Play className="h-4 w-4 text-white" />,
             },
             {
               tooltipText: 'Edit Prompt',
               onClick: () => setPromptAgent(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 hover:border-primary hover:text-primary',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <MessageSquare className="h-4 w-4" />,
             },
             {
               tooltipText: 'Edit',
               onClick: () => openReceptionistForm(data, 'edit'),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 hover:border-primary hover:text-primary',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <PenLine className="h-4 w-4" />,
             },
             {
               tooltipText: 'Delete',
               onClick: () => setDeleteAgent(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-100',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-red-100 text-red-500 transition-shadow hover:bg-red-100 hover:shadow-sm',
               icon: <Trash2 className="h-4 w-4" />,
             },
           ];
@@ -2436,7 +2732,12 @@ function NewAiReceptionistPage() {
             <div className="flex w-full min-w-[152px] items-center justify-end gap-2">
               {actions.map((action) => (
                 <CustomTooltip key={action.tooltipText} text={action.tooltipText} side="top">
-                  <button type="button" onClick={action.onClick} className={action.className}>
+                  <button
+                    type="button"
+                    onClick={action.onClick}
+                    className={action.className}
+                    style={(action as any).style}
+                  >
                     {action.icon}
                   </button>
                 </CustomTooltip>
@@ -2492,32 +2793,63 @@ function NewAiReceptionistPage() {
   }
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
-      <div className="flex min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-7">
-        <div>
-          <div className="flex items-center gap-2 text-base font-semibold text-slate-500 dark:text-mcm-ink-3">
-            <button
-              type="button"
-              onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-              className="transition-colors hover:text-primary"
-            >
-              AI Agents
-            </button>
-            <span>/</span>
-            <span className="text-[#2E2D35] dark:text-mcm-ink">AI Receptionists</span>
-          </div>
-          <p className="mt-0.5 text-[13px] font-normal text-slate-500 dark:text-mcm-ink-3">
+    <section
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] p-3"
+      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
+    >
+      <div
+        className="mb-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-4"
+        /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
+           app-wide, unlayered "glass pass" that deliberately turns any
+           `rounded-*` + `bg-white` card translucent — it beats the Tailwind
+           class regardless of specificity, the same way the button reset
+           above does. Inline style is what actually renders solid white. */
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 4px 14px rgba(160,95,30,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+        }}
+      >
+        <div className="min-w-0">
+          <button
+            type="button"
+            onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
+            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
+          >
+            AI Agents
+          </button>
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">
+            AI Receptionists
+          </h1>
+          <p className="mt-1 max-w-xl text-[13px] leading-5 text-[#6b5c4d]">
             An AI that answers calls, works out what the caller needs, and routes them or handles it
             outright.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             variant={'outline'}
             onClick={() => {
               setView('analytics');
             }}
-            className="gap-1 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line"
+            className="gap-1.5 text-xs font-semibold backdrop-blur-[12px] transition-shadow hover:shadow-sm"
+            /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+               is an unlayered reset that forces every plain button's
+               background/color/border to none/inherit/0 — deliberately, so
+               it beats Tailwind utilities regardless of specificity (see that
+               rule's own comment). It has no exception for the shared
+               `Button` component, so its `bg-*`/`text-*`/`border-*` classes
+               were silently losing here. Only an inline style beats an
+               unlayered rule, so the intended look is restored that way
+               rather than by touching the shared reset (which ~70 other
+               pages rely on). */
+            style={{
+              backgroundColor: 'rgba(251,249,246,0.88)',
+              borderWidth: 1,
+              borderStyle: 'solid',
+              borderColor: 'rgba(225,200,165,0.9)',
+              color: '#334155',
+            }}
           >
             <TrendingUp className="h-4 w-4" />
             Analytics
@@ -2527,6 +2859,8 @@ function NewAiReceptionistPage() {
             onClick={() => {
               openReceptionistForm(null, 'create');
             }}
+            className="shadow-sm transition-shadow hover:shadow-md"
+            style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--primary)', color: '#ffffff' }}
           >
             <Plus className="h-4 w-4" />
             Create New Receptionist
@@ -2534,45 +2868,97 @@ function NewAiReceptionistPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-7 py-4">
-        <div className="relative max-w-full flex-1 sm:max-w-[340px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3" />
+      <div
+        className="mb-2 flex w-fit max-w-full items-center gap-2.5 rounded-xl px-3.5 py-1.5"
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 3px 10px rgba(160,95,30,0.08)',
+        }}
+      >
+        <div className="group relative max-w-full sm:w-[300px]">
+          <Search
+            strokeWidth={2.5}
+            className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-[18px] w-[18px] -translate-y-1/2 text-[#6B5B4D] transition-colors group-focus-within:text-primary"
+          />
           <input
             value={search}
             onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
             placeholder="Search receptionists by name..."
             maxLength={50}
-            className="h-9 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 pl-9 pr-3 text-sm text-[#2E2D35] dark:text-mcm-ink outline-none transition-colors placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary focus:bg-[rgba(251,249,246,0.88)] dark:focus:bg-mcm-surface backdrop-blur-[12px]"
+            className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/45 pl-9 pr-8 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[#e8c9a0] focus:border-primary focus:bg-[rgba(251,249,246,0.88)] focus:ring-[3px] focus:ring-primary/12"
           />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-[#FBE2C8]/70"
+              style={{ color: '#9A948F' }}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => setStatusFilter('all')}
-          className={`h-8 rounded-full border px-3 text-xs font-semibold transition-colors ${
-            statusFilter === 'all'
-              ? 'border-primary bg-primary text-white'
-              : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] text-[#9A948F] dark:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line'
-          }`}
-        >
-          All <span>{totalReceptionistsCount}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusFilter('live')}
-          className={`h-8 rounded-full border px-3 text-xs font-semibold transition-colors ${
-            statusFilter === 'live'
-              ? 'border-primary bg-primary text-white'
-              : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] text-[#9A948F] dark:text-mcm-ink-3 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line'
-          }`}
-        >
-          Live <span>{liveReceptionistsCount}</span>
-        </button>
+        <div className="h-5 w-px shrink-0 bg-[#EEE7DD]" />
+        <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] bg-white/70 p-1 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setStatusFilter('all')}
+            className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
+              statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+            }`}
+            /* Same unlayered-reset issue as the header buttons above — a
+               plain `<button>`'s own background/color always loses to
+               `.mcm-page button {...}` unless set inline. */
+            style={
+              statusFilter === 'all'
+                ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                : { color: '#6B5B4D' }
+            }
+          >
+            All
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+              }`}
+            >
+              {totalReceptionistsCount}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter('live')}
+            className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
+              statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+            }`}
+            style={
+              statusFilter === 'live'
+                ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                : { color: '#6B5B4D' }
+            }
+          >
+            <span
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                statusFilter === 'live' ? 'bg-white' : 'bg-emerald-500'
+              }`}
+            />
+            Live
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+              }`}
+            >
+              {liveReceptionistsCount}
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-[22px] overflow-auto px-7 py-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
           {listStats.map((stat) => (
-            <StatCard
+            <ReceptionistListStatCard
               key={stat.label}
               label={stat.label}
               value={stat.value}
@@ -2582,19 +2968,40 @@ function NewAiReceptionistPage() {
           ))}
         </div>
 
-        <TableManager
-          fetcherKey={['getAIReceptionistList', 'new-ai-receptionist-table', statusFilter]}
-          fetcherFn={getAIReceptionistList}
-          columns={columns}
-          search={search}
-          extraParams={{ filters: tableFilters }}
-          clientSideSearch={false}
-          select={tableSelect}
-          customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[#f8fafc] dark:[&_thead]:bg-mcm-surface-3 [&_th]:px-[18px] [&_th]:py-[13px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-slate-500 dark:[&_th]:text-mcm-ink-3 [&_td]:h-[66px] [&_td]:px-[18px] [&_td]:py-[14px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
-          loaderTableClass="min-h-[320px]"
-          getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70 dark:hover:bg-mcm-surface-3'}
-          emptyTablePlaceholder="No receptionists found."
-        />
+        {/* `TableManager` sizes its own scroll box off `getBoundingClientRect().top`
+            and pins its header with `position: sticky` inside that box — both
+            assume the box's top offset stays put while the box itself scrolls.
+            Nesting it directly in the stat-cards row's own `overflow-auto` broke
+            that: scrolling moved the whole table (sticky header included) as
+            part of the outer scroll, since the table was carried along inside
+            it rather than being the thing that scrolls. Giving it this own
+            `min-h-0 flex-1` wrapper — with the stat-cards row no longer
+            scrollable — makes `TableManager`'s internal scroll box the only
+            one, so its header now stays fixed the way it does everywhere else
+            this component is used. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden rounded-xl">
+          {/* `TableManager`'s own scroll box combines `overflow-auto`,
+              `rounded-xl`, and `backdrop-blur` on one element — a
+              combination Chromium sometimes fails to clip correctly, letting
+              the native scrollbar render past the rounded corner instead of
+              following its curve. Wrapping it in a matching `overflow-hidden`
+              + `rounded-xl` box here (page-scoped, not touching the shared
+              component) clips that overflow without altering how the table
+              itself scrolls. */}
+          <TableManager
+            fetcherKey={['getAIReceptionistList', 'new-ai-receptionist-table', statusFilter]}
+            fetcherFn={getAIReceptionistList}
+            columns={columns}
+            search={search}
+            extraParams={{ filters: tableFilters }}
+            clientSideSearch={false}
+            select={tableSelect}
+            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:px-[18px] [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] [&_td]:h-[62px] [&_td]:px-[18px] [&_td]:py-[10px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
+            loaderTableClass="min-h-[320px]"
+            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70'}
+            emptyTablePlaceholder="No receptionists found."
+          />
+        </div>
       </div>
 
       <Dialog open={Boolean(deleteAgent)} onOpenChange={(open) => !open && setDeleteAgent(null)}>
@@ -2602,7 +3009,7 @@ function NewAiReceptionistPage() {
           <DialogHeader>
             <DialogTitle>Delete AI Receptionist</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-mcm-ink-2">
+          <p className="text-sm text-slate-600">
             Are you sure you want to delete <strong>{deleteAgent?.agentName}</strong>?
           </p>
           <DialogFooter>
@@ -5075,7 +5482,6 @@ function NewAiReceptionistBuilder({
         selectedPersonaObj,
         ...apiVoices,
         ...voiceOptions,
-        ...spanishVoiceOptions,
         ...hindiVoiceOptions,
       ].filter(Boolean);
       const matchedVoice = voiceCandidates.find((voice: any) =>
@@ -5433,12 +5839,27 @@ function NewAiReceptionistBuilder({
           variant="outline"
           disabled={isKnowledgeSummaryNavigationLocked}
           onClick={activeStep === 1 ? requestWizardLeave : handleBack}
+          /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+             is an unlayered reset that forces every plain button's
+             background/color/border to none/inherit/0 — deliberately, so
+             it beats Tailwind utilities regardless of specificity. It has
+             no exception for the shared `Button` component, so its own
+             variant classes were silently losing here across all 7 wizard
+             steps (this footer is shared). Only an inline style beats an
+             unlayered rule. */
+          style={{
+            backgroundColor: '#ffffff',
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderColor: 'var(--primary)',
+            color: 'var(--primary)',
+          }}
         >
           <ArrowLeft className="h-4 w-4" />
           {activeStep === 1 ? 'Cancel' : 'Back'}
         </Button>
         <Button
-          className="bg-primary text-white hover:bg-primary/90 hover:text-white"
+          className="hover:bg-primary/90 hover:text-white"
           disabled={
             isSubmitting ||
             isPendingToken ||
@@ -5447,6 +5868,11 @@ function NewAiReceptionistBuilder({
             isKnowledgeSummaryNavigationLocked
           }
           onClick={handleContinue}
+          style={{
+            backgroundColor: 'var(--primary)',
+            borderColor: 'var(--primary)',
+            color: '#ffffff',
+          }}
         >
           {activeStep === 6
             ? isCreatingKnowledgeSources
@@ -5469,8 +5895,8 @@ function NewAiReceptionistBuilder({
         title="What kind of receptionist do you need?"
         subtitle="Configure the receptionist for your business. You can change everything later."
       />
-      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
-        <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Identity</h3>
+      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <h3 className="text-sm font-bold text-[#2E2D35]">Identity</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field
             label="Receptionist name *"
@@ -5485,7 +5911,7 @@ function NewAiReceptionistBuilder({
               }}
               maxLength={MAX_RECEPTIONIST_NAME_LENGTH}
               placeholder="Reception Desk Assistant"
-              className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
+              className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
             />
             <div className="mt-1 flex min-h-4 items-center justify-between gap-2 text-[11px]">
               <span
@@ -5520,18 +5946,20 @@ function NewAiReceptionistBuilder({
               placeholder="e.g. Example Business"
               className={cx(
                 'h-10 w-full rounded-md border px-3 text-sm outline-none focus:border-primary',
-                stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD]',
               )}
             />
           </Field>
         </div>
         <Field label="Use case" className="mt-4">
-          <select
-            value={roleUseCase}
-            onChange={(event) => {
-              const nextUseCase = event.target.value;
+          <CustomSelect
+            isDisabled={isReadOnly || isLoadingUseCaseTemplates}
+            isLoading={isLoadingUseCaseTemplates}
+            value={roleUseCase ? { label: roleUseCase, value: roleUseCase } : null}
+            handleChange={(option: any) => {
+              const nextUseCase = option?.value || '';
               const selectedTemplate = useCaseTemplateOptions.find(
-                (option) => option.name === nextUseCase,
+                (option: any) => option.name === nextUseCase,
               );
               setRoleUseCase(nextUseCase);
               if (selectedTemplate?.welcomeGreeting) {
@@ -5546,25 +5974,19 @@ function NewAiReceptionistBuilder({
               );
               setStepErrors((prev) => ({ ...prev, systemPrompt: '' }));
             }}
-            disabled={isReadOnly || isLoadingUseCaseTemplates}
-            className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3 disabled:text-slate-600 dark:disabled:text-mcm-ink-2"
-          >
-            <option value="">
-              {isLoadingUseCaseTemplates ? 'Loading templates...' : 'Select a template'}
-            </option>
-            {useCaseTemplateOptions.map((option) => (
-              <option key={option.id} value={option.name}>
-                {option.name}
-              </option>
-            ))}
-          </select>
+            options={useCaseTemplateOptions.map((option: any) => ({
+              label: option.name,
+              value: option.name,
+            }))}
+            placeholder={isLoadingUseCaseTemplates ? 'Loading templates...' : 'Select a template'}
+          />
         </Field>
         <Field label="Short description (internal only)" className="mt-4">
           <input
             value={shortDescription}
             onChange={(event) => setShortDescription(sanitizeAiPlainText(event.target.value))}
             placeholder="What does this receptionist do?"
-            className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
+            className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
           />
         </Field>
       </div>
@@ -5579,7 +6001,7 @@ function NewAiReceptionistBuilder({
         disabled={isReadOnly}
         isLoading={isLoadingSites}
       />
-      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
         <Field
           label="System prompt"
           helper="Master instructions that shape every response. Picking a template above auto-fills this. Edit freely — most teams refine it after testing."
@@ -5592,10 +6014,10 @@ function NewAiReceptionistBuilder({
               setSystemPrompt(sanitizeAiPromptText(event.target.value));
               setStepErrors((prev) => ({ ...prev, systemPrompt: '' }));
             }}
-            className="mt-2 min-h-[170px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
+            className="mt-2 min-h-[170px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
           />
         </Field>
-        <p className="text-sm text-slate-600 dark:text-mcm-ink-2">
+        <p className="text-sm text-slate-600">
           Tip: short prompts work better than long ones. Tell the AI WHO it is, WHAT it does, and
           1–2 hard rules.
         </p>
@@ -5615,13 +6037,16 @@ function NewAiReceptionistBuilder({
       />
 
       {/* Top Banner (Choose Your AI Voice Persona) */}
-      <div className="rounded-2xl bg-[#2434A1] text-white p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-start gap-4">
-          <div className="bg-white/10 p-3 rounded-xl flex items-center justify-center shrink-0">
+          <div
+            className="h-12 w-12 rounded-full flex items-center justify-center shrink-0"
+            style={{ backgroundColor: 'var(--primary)' }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -5636,10 +6061,10 @@ function NewAiReceptionistBuilder({
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white leading-tight">
+            <h3 className="text-base font-bold text-[#2E2D35] leading-tight">
               Choose Your AI Voice Persona
             </h3>
-            <p className="mt-1 text-sm text-[#c3cbf9] leading-relaxed max-w-[500px]">
+            <p className="mt-1 text-sm text-slate-500 leading-relaxed max-w-[440px]">
               Every voice automatically responds in the caller’s language. Just pick an accent and
               personality — no language setup needed.
             </p>
@@ -5647,42 +6072,56 @@ function NewAiReceptionistBuilder({
         </div>
 
         {/* Right side stats */}
-        <div className="flex items-center gap-6 self-end md:self-auto shrink-0">
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">
-              {availableVoices?.length || 0}
-            </div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              AI Voices
-            </div>
-          </div>
-          <div className="h-10 w-px bg-white/20" />
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">50+</div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              Languages
+        <div className="flex items-center gap-3 self-stretch md:self-auto shrink-0">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Headphones className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">
+                {availableVoices?.length || 0}
+              </div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                AI Voices
+              </div>
             </div>
           </div>
-          <div className="h-10 w-px bg-white/20" />
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">Auto</div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              Detected
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Globe2 className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">50+</div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                Languages
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">Auto</div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                Detected
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Purple Auto-Multilingual Alert Callout */}
-      <div className="flex items-center justify-between bg-[#F4F2FF] border border-[#EBE6FF] rounded-xl p-4 text-sm text-[#4E3FB4]">
+      {/* Auto-Multilingual Alert Callout */}
+      <div className="flex items-center justify-between bg-[#FBE2C8]/40 border border-[rgba(225,200,165,0.9)] rounded-xl p-4 text-sm text-[#8a5a25]">
         <div className="flex items-center gap-2.5 font-medium">
-          <Globe2 className="h-4 w-4 text-[#7C5CFF] shrink-0" />
+          <span
+            className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-white shrink-0"
+          >
+            <Globe2 className="h-3.5 w-3.5 text-primary" />
+          </span>
           <span>
             Every voice automatically detects and responds in the caller’s language — no
             configuration needed.
           </span>
         </div>
-        <span className="bg-[#7C5CFF] text-white font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider shrink-0">
+        <span
+          className="text-white font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider shrink-0"
+          style={{ backgroundColor: 'var(--primary)' }}
+        >
           Auto-Multilingual
         </span>
       </div>
@@ -5692,94 +6131,88 @@ function NewAiReceptionistBuilder({
         {/* Title and Filters */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="shrink-0">
-            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink flex items-center gap-1">
+            <h3 className="text-sm font-bold text-[#2E2D35] flex items-center gap-1">
               Voice persona <span className="text-rose-500 font-normal">*</span>
             </h3>
-            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-0.5">
+            <p className="text-xs text-[#9A948F] mt-0.5">
               Select by accent &amp; personality · Tap{' '}
-              <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">▶</span> to hear a live preview
+              <span className="font-semibold text-[#2E2D35]">▶</span> to hear a live preview
             </p>
           </div>
 
           {/* Filters stacked vertically on the right */}
           <div className="flex flex-col gap-2 items-end">
             {/* Gender Buttons */}
-            <div className="flex items-center border border-[#EEE7DD] dark:border-mcm-line rounded-lg p-1 bg-[#FBE2C8]/50 dark:bg-mcm-surface-3">
+            <div className="flex items-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white p-1 shadow-[0_1px_3px_rgba(194,98,46,0.08)]">
               <button
                 type="button"
                 onClick={() => setGenderFilter('all')}
-                className={cx(
-                  'px-4 py-1.5 rounded-md text-xs font-semibold transition-all',
+                className="px-4 py-1.5 rounded-md text-xs font-semibold transition-all"
+                /* `.mcm-page button` (mcm-page.css) unlayered reset forces
+                   background/color to none/inherit ahead of any Tailwind
+                   utility — inline style is what actually wins. */
+                style={
                   genderFilter === 'all'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-slate-900 dark:hover:text-mcm-ink',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 All
               </button>
               <button
                 type="button"
                 onClick={() => setGenderFilter('female')}
-                className={cx(
-                  'px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1',
+                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1"
+                style={
                   genderFilter === 'female'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-slate-900 dark:hover:text-mcm-ink',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 <span className="text-sm">♀</span> Female
               </button>
               <button
                 type="button"
                 onClick={() => setGenderFilter('male')}
-                className={cx(
-                  'px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1',
+                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1"
+                style={
                   genderFilter === 'male'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-slate-900 dark:hover:text-mcm-ink',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 <span className="text-sm">♂</span> Male
               </button>
             </div>
 
-            {/* Locale Buttons */}
-            <div className="flex items-center border border-[#EEE7DD] dark:border-mcm-line rounded-lg p-1 bg-[#FBE2C8]/50 dark:bg-mcm-surface-3">
-              {(
-                [
-                  { key: 'all', label: 'Multilingual' },
-                  { key: 'en-US', label: 'English (US)' },
-                  { key: 'hi-IN', label: 'Hindi (IN)' },
-                  { key: 'es-ES', label: 'Spanish (ES)' },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => setLocaleFilter(opt.key)}
-                  className={cx(
-                    'px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap',
-                    localeFilter === opt.key
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'text-[#9A948F] dark:text-mcm-ink-3 hover:text-slate-900 dark:hover:text-mcm-ink',
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            {/* Locale Dropdown */}
+            <div className="w-[168px]">
+              <CustomSelect
+                value={
+                  VOICE_LOCALE_FILTER_OPTIONS.find((opt) => opt.value === localeFilter) ||
+                  VOICE_LOCALE_FILTER_OPTIONS[0]
+                }
+                handleChange={(option: any) =>
+                  setLocaleFilter((option?.value || 'all') as VoiceLocaleFilter)
+                }
+                options={VOICE_LOCALE_FILTER_OPTIONS}
+                isClearable={false}
+              />
             </div>
           </div>
         </div>
 
         {/* Search Input Bar */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A948F] dark:text-mcm-ink-3" />
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 h-4 w-4 text-[#9A948F]"
+          />
           <input
             type="text"
             value={voiceSearchQuery}
             onChange={(e) => setVoiceSearchQuery(sanitizeAiSearchText(e.target.value))}
             placeholder="Search by name, accent, or style..."
-            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-[#7C5CFF] focus:ring-2 focus:ring-[#7C5CFF]/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]"
+            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
           />
         </div>
       </div>
@@ -5795,30 +6228,30 @@ function NewAiReceptionistBuilder({
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] animate-pulse min-h-[190px] flex flex-col gap-3"
+                className="rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] animate-pulse min-h-[190px] flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between">
-                  <div className="h-4 w-20 bg-[#F0DFC5] dark:bg-mcm-surface-3 rounded" />
-                  <div className="h-4 w-12 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
+                  <div className="h-4 w-20 bg-[#F0DFC5] rounded" />
+                  <div className="h-4 w-12 bg-[#FBE2C8]/40 rounded" />
                 </div>
-                <div className="h-3 w-28 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
+                <div className="h-3 w-28 bg-[#FBE2C8]/40 rounded" />
                 <div className="flex gap-1.5">
-                  <div className="h-4 w-12 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
-                  <div className="h-4 w-14 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
-                  <div className="h-4 w-10 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
+                  <div className="h-4 w-12 bg-[#FBE2C8]/40 rounded" />
+                  <div className="h-4 w-14 bg-[#FBE2C8]/40 rounded" />
+                  <div className="h-4 w-10 bg-[#FBE2C8]/40 rounded" />
                 </div>
-                <div className="h-8 w-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded" />
-                <div className="mt-auto h-9 w-9 bg-[#F0DFC5] dark:bg-mcm-surface-3 rounded-full" />
+                <div className="h-8 w-full bg-[#FBE2C8]/40 rounded" />
+                <div className="mt-auto h-9 w-9 bg-[#F0DFC5] rounded-full" />
               </div>
             ))}
           </div>
         ) : filteredVoices.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line text-center">
-            <div className="bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 p-3 rounded-full text-[#9A948F] dark:text-mcm-ink-3 mb-3">
+          <div className="flex flex-col items-center justify-center p-12 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-2xl border border-[rgba(225,200,165,0.9)] text-center">
+            <div className="bg-[#FBE2C8]/45 p-3 rounded-full text-[#9A948F] mb-3">
               <Search className="h-6 w-6" />
             </div>
-            <h4 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">No voices found</h4>
-            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1 max-w-[280px]">
+            <h4 className="text-sm font-bold text-[#2E2D35]">No voices found</h4>
+            <p className="text-xs text-[#9A948F] mt-1 max-w-[280px]">
               We couldn't find any voices matching your filters or search. Try adjusting them!
             </p>
           </div>
@@ -5846,16 +6279,38 @@ function NewAiReceptionistBuilder({
                     }
                   }}
                   className={cx(
-                    'relative rounded-2xl border bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 text-left transition-all duration-200 cursor-pointer shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] flex flex-col justify-between min-h-[190px]',
-                    selected
-                      ? 'border-[#7C5CFF] ring-1 ring-[#7C5CFF]'
-                      : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:shadow-md',
+                    'relative rounded-2xl backdrop-blur-[12px] p-5 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[190px]',
+                    !selected && 'hover:shadow-md',
                   )}
+                  /* Tailwind's `border`/`ring-1` utilities were rendering at a
+                     sub-pixel width in this environment (measured ~0.67px),
+                     making the selected state nearly invisible. A literal
+                     2px inline border plus an orange glow survives any DPI
+                     scaling and reads as unmistakably "selected". */
+                  style={
+                    selected
+                      ? {
+                          backgroundColor: 'rgba(251,249,246,0.88)',
+                          borderWidth: 2,
+                          borderStyle: 'solid',
+                          borderColor: 'var(--primary)',
+                          boxShadow:
+                            '0 0 0 3px rgba(224,121,31,0.18), 0 12px 28px -6px rgba(194,98,46,0.22), 0 2px 8px rgba(194,98,46,0.12)',
+                        }
+                      : {
+                          backgroundColor: 'rgba(251,249,246,0.88)',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          borderColor: 'rgba(225,200,165,0.9)',
+                          boxShadow:
+                            '0 12px 28px -6px rgba(194,98,46,0.22), 0 2px 8px rgba(194,98,46,0.12)',
+                        }
+                  }
                 >
                   <div>
                     {/* Header Row: Title & Gender Tag */}
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink capitalize">
+                      <span className="text-base font-bold text-[#2E2D35] capitalize">
                         {voice.label}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -5870,7 +6325,10 @@ function NewAiReceptionistBuilder({
                           {voice.gender}
                         </span>
                         {selected && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#7C5CFF] text-white">
+                          <span
+                            className="flex h-5 w-5 items-center justify-center rounded-full text-white"
+                            style={{ backgroundColor: 'var(--primary)' }}
+                          >
                             <Check className="h-3 w-3 stroke-[3]" />
                           </span>
                         )}
@@ -5878,7 +6336,7 @@ function NewAiReceptionistBuilder({
                     </div>
 
                     {/* Accent Line */}
-                    <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1">
+                    <p className="text-xs text-[#9A948F] mt-1">
                       {accentDisplay}
                       {voice.locale && voice.locale !== 'en-US' ? ` · ${voice.locale}` : ''}
                     </p>
@@ -5888,7 +6346,7 @@ function NewAiReceptionistBuilder({
                       {meta.tags.map((tag: string) => (
                         <span
                           key={tag}
-                          className="bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 text-[10px] font-semibold px-2 py-0.5 rounded border border-[#EEE7DD] dark:border-mcm-line"
+                          className="bg-[#FBE2C8]/45 text-[#9A948F] text-[10px] font-semibold px-2 py-0.5 rounded border border-[#EEE7DD]"
                         >
                           {tag}
                         </span>
@@ -5896,7 +6354,7 @@ function NewAiReceptionistBuilder({
                     </div>
 
                     {/* Description Paragraph */}
-                    <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-3 leading-relaxed">{meta.description}</p>
+                    <p className="text-xs text-[#9A948F] mt-3 leading-relaxed">{meta.description}</p>
                   </div>
 
                   {/* Bottom Left Play Button */}
@@ -5925,10 +6383,12 @@ function NewAiReceptionistBuilder({
                         event.stopPropagation();
                         handleSelectVoice(voice);
                       }}
-                      className={cx(
-                        'h-8 px-3 text-xs font-semibold',
-                        selected ? 'bg-[#7C5CFF] text-white hover:bg-[#6d4df0]' : '',
-                      )}
+                      className="h-8 px-3 text-xs font-semibold hover:opacity-90"
+                      style={
+                        selected
+                          ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                          : undefined
+                      }
                     >
                       {selected ? (
                         <>
@@ -5964,7 +6424,7 @@ function NewAiReceptionistBuilder({
           title="Opening line & business hours"
           subtitle="Tell the receptionist what to say first, and when it should answer."
         />
-        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
           <Field label="Opening line" error={stepErrors.greetingText} fieldKey="greetingText">
             <textarea
               value={greetingText}
@@ -5973,10 +6433,10 @@ function NewAiReceptionistBuilder({
                 setStepErrors((prev) => ({ ...prev, greetingText: '' }));
                 setSelectedGreetingType('custom');
               }}
-              className="min-h-[110px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
+              className="min-h-[110px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
             />
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-              <span className="flex items-center gap-1 text-slate-500 dark:text-mcm-ink-3 font-medium mr-1">
+              <span className="flex items-center gap-1 text-slate-500 font-medium mr-1">
                 <Sparkles className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                 Try:
               </span>
@@ -5987,7 +6447,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'friendly'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
+                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
                 )}
               >
                 Friendly greeting
@@ -5999,7 +6459,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'professional'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
+                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
                 )}
               >
                 Professional intro
@@ -6011,7 +6471,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'triage'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
+                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
                 )}
               >
                 Quick triage
@@ -6023,7 +6483,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'holiday'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
+                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
                 )}
               >
                 Holiday message
@@ -6040,14 +6500,14 @@ function NewAiReceptionistBuilder({
         </div>
         {selectedLocationId !== 'none' && (
           <>
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
               <div className="flex items-baseline gap-1.5">
-                <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours</h3>
+                <h3 className="text-sm font-bold text-[#2E2D35]">Business hours</h3>
                 <span className="text-xs text-slate-400 font-normal">(optional)</span>
               </div>
-              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
+              <p className="mt-1 text-xs text-slate-500">
                 Set when your{' '}
-                <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">human agents are online</span> to
+                <span className="font-semibold text-slate-700">human agents are online</span> to
                 take calls. During these hours the AI can transfer callers to a live agent.
               </p>
 
@@ -6068,7 +6528,7 @@ function NewAiReceptionistBuilder({
                   variant="outline"
                   type="button"
                   onClick={() => openModal('bussinessHoursModal')}
-                  className="h-10 border-[#EEE7DD] dark:border-mcm-line font-semibold cursor-pointer"
+                  className="h-10 border-[#EEE7DD] font-semibold cursor-pointer"
                 >
                   <Clock3 className="mr-2 h-4 w-4" />
                   Set business hours
@@ -6076,19 +6536,19 @@ function NewAiReceptionistBuilder({
               </div>
             </div>
 
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
-              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours behavior</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+              <h3 className="text-sm font-bold text-[#2E2D35]">Business hours behavior</h3>
+              <p className="mt-1 text-xs text-slate-500">
                 What should happen when callers reach you{' '}
-                <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">during</span> business hours? Click{' '}
-                <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">Edit</span> to pick from Hangup,
+                <span className="font-semibold text-slate-700">during</span> business hours? Click{' '}
+                <span className="font-semibold text-slate-700">Edit</span> to pick from Hangup,
                 Voicemail, Announcement, Extension, External Number or IVR.
               </p>
 
               <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable human handoff</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3 leading-normal">
+                  <p className="text-sm font-semibold text-[#2E2D35]">Enable human handoff</p>
+                  <p className="mt-1 text-xs text-slate-500 leading-normal">
                     When ON, the AI can forward business-hours calls to the selected destination.
                   </p>
                 </div>
@@ -6108,7 +6568,7 @@ function NewAiReceptionistBuilder({
 
               {enableHumanHandoff && (
                 <div
-                  className="mt-4 rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/50 dark:bg-mcm-surface-3 p-4"
+                  className="mt-4 rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/50 p-4"
                   data-validation-key="forwardCall"
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -6117,7 +6577,7 @@ function NewAiReceptionistBuilder({
                         <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                           Forward Type
                         </p>
-                        <p className="mt-1 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
+                        <p className="mt-1 text-sm font-bold text-[#2E2D35]">
                           {committedForwardTypeLabel}
                         </p>
                       </div>
@@ -6126,12 +6586,12 @@ function NewAiReceptionistBuilder({
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                             {getForwardValueFieldLabel(selectedForwardType)}
                           </p>
-                          <p className="mt-1 flex items-center gap-1 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
+                          <p className="mt-1 flex items-center gap-1 text-sm font-bold text-[#2E2D35]">
                             {committedForwardValueLabel}
                             {
                               selectedForwardType === 'EXTENSION' &&
                               committedForwardState?.value?.value ? (
-                                <span className="inline-flex items-center gap-1 font-normal text-slate-500 dark:text-mcm-ink-3 ml-2">
+                                <span className="inline-flex items-center gap-1 font-normal text-slate-500 ml-2">
                                   <Grid className="h-3.5 w-3.5 text-slate-400" />
                                   {committedForwardState.value.value}
                                 </span>
@@ -6155,7 +6615,7 @@ function NewAiReceptionistBuilder({
                       variant="outline"
                       type="button"
                       onClick={handleOpenForwardDestinationModal}
-                      className="h-9 border-[#EEE7DD] dark:border-mcm-line font-semibold cursor-pointer"
+                      className="h-9 border-[#EEE7DD] font-semibold cursor-pointer"
                     >
                       <Edit3 className="mr-2 h-3.5 w-3.5" />
                       Edit
@@ -6168,9 +6628,9 @@ function NewAiReceptionistBuilder({
               )}
             </div>
 
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] min-h-96">
-              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Manager Configuration</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] min-h-96">
+              <h3 className="text-sm font-bold text-[#2E2D35]">Manager Configuration</h3>
+              <p className="mt-1 text-xs text-slate-500">
                 Select the manager who owns callback & escalation requests. The chosen manager
                 receives the schedule details and may keep the callback or reassign it to another
                 agent.
@@ -6190,8 +6650,8 @@ function NewAiReceptionistBuilder({
                   className="shrink-0 mt-1"
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable callback scheduling</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3 leading-normal">
+                  <p className="text-sm font-semibold text-[#2E2D35]">Enable callback scheduling</p>
+                  <p className="mt-1 text-xs text-slate-500 leading-normal">
                     When ON, the AI can offer to schedule a callback during a call and pass the
                     request to a manager. When OFF, the manager picker below is locked — the AI will
                     only take voicemails for follow-up.
@@ -6200,7 +6660,7 @@ function NewAiReceptionistBuilder({
               </div>
 
               <div className="mt-4 scroll-mt-24" data-validation-key="manager">
-                <span className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-mcm-ink-3">
+                <span className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
                   <UserRound className="h-3.5 w-3.5" />
                   Manager who owns callbacks & escalations
                 </span>
@@ -6240,7 +6700,7 @@ function NewAiReceptionistBuilder({
                 )}
               </div>
 
-              <div className="mt-4 flex items-start gap-2 text-xs text-slate-500 dark:text-mcm-ink-3">
+              <div className="mt-4 flex items-start gap-2 text-xs text-slate-500">
                 <UploadCloud className="h-4 w-4 shrink-0 text-slate-400 mt-0.5" />
                 <p>
                   The selected manager receives caller name, phone number, preferred callback time,
@@ -6260,25 +6720,108 @@ function NewAiReceptionistBuilder({
       if (knowledgeWebsiteMode === 'picker') {
         return (
           <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5">
-            <div>
-              <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">
-                Knowledge — your website
-              </h1>
-              <p className="mt-1 max-w-[760px] text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">
-                Pick an existing knowledge base, or create a new one by scanning your website. AI
-                turns pages and documents into Documents & FAQs.
-              </p>
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0">
+                <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">
+                  Knowledge — your website
+                </h1>
+                <p className="mt-1 max-w-[540px] text-sm leading-5 text-slate-500">
+                  Choose an existing knowledge base or create a new one by scanning your website.
+                  AI turns pages and documents into easy to understand answers.
+                </p>
+              </div>
+              <svg
+                className="hidden shrink-0 sm:block"
+                width="140"
+                height="104"
+                viewBox="0 0 140 104"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <rect x="18" y="10" width="92" height="72" rx="12" fill="#FFFFFF" />
+                <rect
+                  x="18"
+                  y="10"
+                  width="92"
+                  height="72"
+                  rx="12"
+                  stroke="#F0DFC5"
+                  strokeWidth="1.5"
+                />
+                <rect x="18" y="10" width="92" height="18" rx="12" fill="var(--primary)" />
+                <rect x="18" y="20" width="92" height="8" fill="var(--primary)" />
+                <circle cx="29" cy="19" r="2.5" fill="#FFFFFF" opacity="0.85" />
+                <circle cx="37" cy="19" r="2.5" fill="#FFFFFF" opacity="0.65" />
+                <circle cx="45" cy="19" r="2.5" fill="#FFFFFF" opacity="0.45" />
+                <circle cx="64" cy="55" r="15" stroke="var(--primary)" strokeWidth="2.5" />
+                <ellipse
+                  cx="64"
+                  cy="55"
+                  rx="6.5"
+                  ry="15"
+                  stroke="var(--primary)"
+                  strokeWidth="2.5"
+                />
+                <line x1="49" y1="55" x2="79" y2="55" stroke="var(--primary)" strokeWidth="2.5" />
+                <rect x="30" y="68" width="68" height="4" rx="2" fill="#FBE2C8" />
+                <g>
+                  <rect
+                    x="86"
+                    y="52"
+                    width="30"
+                    height="38"
+                    rx="6"
+                    fill="#FFFFFF"
+                    stroke="#F0DFC5"
+                    strokeWidth="1.5"
+                  />
+                  <rect x="92" y="60" width="18" height="3" rx="1.5" fill="#E5794D" />
+                  <rect x="92" y="67" width="18" height="3" rx="1.5" fill="#FBE2C8" />
+                  <rect x="92" y="74" width="12" height="3" rx="1.5" fill="#FBE2C8" />
+                </g>
+                <rect
+                  x="4"
+                  y="58"
+                  width="26"
+                  height="22"
+                  rx="5"
+                  fill="var(--primary)"
+                  transform="rotate(-8 4 58)"
+                />
+                <text
+                  x="9"
+                  y="76"
+                  fontSize="9"
+                  fontWeight="700"
+                  fill="#FFFFFF"
+                  transform="rotate(-8 9 76)"
+                >
+                  PDF
+                </text>
+                <path
+                  d="M118 20l2.4 5.1L126 27.5l-5.6 2.4L118 35l-2.4-5.1-5.6-2.4 5.6-2.4L118 20Z"
+                  fill="#FBE2C8"
+                />
+                <path
+                  d="M22 88l1.6 3.4L27 93l-3.4 1.6L22 98l-1.6-3.4L17 93l3.4-1.6L22 88Z"
+                  fill="#FBE2C8"
+                />
+              </svg>
             </div>
 
-            <div className="flex items-center justify-between gap-4 rounded-[14px] bg-gradient-to-r from-[#2947c9] to-[#2f7df2] px-6 py-5 text-white shadow-sm">
+            <div
+              className="flex items-center justify-between gap-4 rounded-[14px] px-6 py-5 text-white shadow-sm"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
               <div className="flex min-w-0 items-center gap-4">
-                <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-xl bg-white/15">
-                  <FileText className="h-7 w-7" />
+                <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-white">
+                  <FileText className="h-6 w-6 text-primary" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg font-bold">Create new knowledge base</h3>
                   <p className="mt-1 text-sm leading-5 text-white/85">
-                    Scan a website, pick pages, upload docs — AI does the rest.
+                    Scan a website, pick pages, upload documents — AI does the rest.
                   </p>
                 </div>
               </div>
@@ -6302,7 +6845,12 @@ function NewAiReceptionistBuilder({
                     setStepErrors((prev) => ({ ...prev, knowledgeBase: '' }));
                     setKnowledgeWebsiteMode('scan');
                   }}
-                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-white dark:bg-mcm-surface px-5 text-sm font-bold text-primary shadow-sm transition hover:bg-white/95"
+                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg px-5 text-sm font-bold shadow-sm transition hover:opacity-90"
+                  /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                     (mcm-page.css) unlayered reset forces background/color
+                     to none/inherit ahead of any Tailwind utility — inline
+                     style is what actually wins. */
+                  style={{ backgroundColor: '#ffffff', color: 'var(--primary)' }}
                 >
                   Start
                   <ArrowRight className="h-4 w-4" />
@@ -6311,19 +6859,19 @@ function NewAiReceptionistBuilder({
             </div>
 
             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
+              <span className="h-px flex-1 bg-[#F0DFC5]" />
               <span>Or pick an existing one</span>
-              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
+              <span className="h-px flex-1 bg-[#F0DFC5]" />
             </div>
 
-            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
               <div className="px-5 py-4">
-                <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">Pick a knowledge base</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-mcm-ink-3">
+                <h3 className="text-lg font-bold text-[#2E2D35]">Pick a knowledge base</h3>
+                <p className="mt-1 text-sm text-slate-500">
                   Search your existing knowledge bases or create a new one from a website.
                 </p>
                 <div className="relative mt-4">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-[#9A948F]" />
                   <input
                     value={knowledgeBaseSearch}
                     onChange={(event) =>
@@ -6331,13 +6879,13 @@ function NewAiReceptionistBuilder({
                     }
                     disabled={isReadOnly}
                     placeholder="Search knowledge bases..."
-                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3"
+                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
                   />
                 </div>
               </div>
-              <div className="divide-y divide-[#EEE7DD] dark:divide-mcm-line border-t border-[#EEE7DD] dark:border-mcm-line">
+              <div className="divide-y divide-[#EEE7DD] border-t border-[#EEE7DD]">
                 {isFetchingReusableKnowledgeAgents ? (
-                  <div className="flex items-center gap-2 px-5 py-5 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
+                  <div className="flex items-center gap-2 px-5 py-5 text-sm font-medium text-slate-500">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Loading agents...
                   </div>
@@ -6352,23 +6900,23 @@ function NewAiReceptionistBuilder({
                         onClick={() => handleSelectReusableKnowledgeAgent(agent)}
                         className={cx(
                           'flex w-full items-center gap-4 px-5 py-4 text-left transition-colors',
-                          checked ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
+                          checked ? 'bg-primary/[0.04]' : 'bg-white',
                           isReadOnly ? 'cursor-default' : 'hover:bg-slate-50',
                         )}
                       >
                         <span
                           className={cx(
                             'grid h-5 w-5 shrink-0 place-items-center rounded-full border',
-                            checked ? 'border-primary' : 'border-slate-300 dark:border-mcm-line',
+                            checked ? 'border-primary' : 'border-slate-300',
                           )}
                         >
                           {checked && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
+                          <span className="block truncate text-sm font-bold text-[#2E2D35]">
                             {agent.name}
                           </span>
-                          <span className="mt-1 block truncate text-sm text-slate-500 dark:text-mcm-ink-3">
+                          <span className="mt-1 block truncate text-sm text-slate-500">
                             {agent.meta}
                           </span>
                         </span>
@@ -6386,7 +6934,7 @@ function NewAiReceptionistBuilder({
                     );
                   })
                 ) : (
-                  <div className="px-5 py-5 text-sm text-slate-500 dark:text-mcm-ink-3">No created agents found.</div>
+                  <div className="px-5 py-5 text-sm text-slate-500">No created agents found.</div>
                 )}
               </div>
             </div>
@@ -6409,12 +6957,12 @@ function NewAiReceptionistBuilder({
 
       return (
         <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4">
-          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             <div className="mx-auto mb-3 grid h-[52px] w-[52px] place-items-center rounded-xl bg-primary/10 text-primary">
               <Globe2 className="h-[26px] w-[26px]" />
             </div>
-            <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">What's your website?</h3>
-            <p className="mx-auto mt-1 max-w-[420px] text-[13px] leading-5 text-slate-500 dark:text-mcm-ink-3">
+            <h3 className="text-lg font-bold text-[#2E2D35]">What's your website?</h3>
+            <p className="mx-auto mt-1 max-w-[420px] text-[13px] leading-5 text-slate-500">
               We'll scan it and group your Product, Service, and Contact pages — you pick what to
               use.
             </p>
@@ -6436,8 +6984,8 @@ function NewAiReceptionistBuilder({
                 disabled={isReadOnly}
                 placeholder="https://yourcompany.com"
                 className={cx(
-                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3',
-                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
+                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD]',
                 )}
               />
             </div>
@@ -6454,7 +7002,7 @@ function NewAiReceptionistBuilder({
               <button
                 type="button"
                 onClick={handleUseManualKnowledgeMode}
-                className="mt-3 text-xs font-semibold text-slate-500 dark:text-mcm-ink-3 underline underline-offset-2 hover:text-primary"
+                className="mt-3 text-xs font-semibold text-slate-500 underline underline-offset-2 hover:text-primary"
               >
                 I'll add pages manually
               </button>
@@ -6511,10 +7059,10 @@ function NewAiReceptionistBuilder({
 
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-[14px]">
-        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-medium text-primary">
+        <div className="flex w-fit max-w-full items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
           {discoveredLinks.length > 0 ? (
             <>
-              <Check className="h-4 w-4 shrink-0 stroke-[3]" />
+              <Check className="h-3.5 w-3.5 shrink-0 stroke-[3]" />
               <span>
                 Found {discoveredLinks.length.toLocaleString()} pages on {scannedDomain}. Picked the
                 most useful ones below.
@@ -6522,7 +7070,7 @@ function NewAiReceptionistBuilder({
             </>
           ) : (
             <>
-              <Info className="h-4 w-4 shrink-0" />
+              <Info className="h-3.5 w-3.5 shrink-0" />
               <span>
                 Manual mode — add content and documents below. The receptionist will use these as
                 its only knowledge base.
@@ -6540,7 +7088,7 @@ function NewAiReceptionistBuilder({
               return (
                 <div
                   key={category.id}
-                  className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px]"
+                  className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
                 >
                   <button
                     type="button"
@@ -6549,7 +7097,7 @@ function NewAiReceptionistBuilder({
                     onClick={() => setExpandedPickPageCategoryId(category.id)}
                     className={cx(
                       'flex w-full items-center gap-2.5 bg-slate-50 px-3.5 py-3 text-left',
-                      isExpanded && 'border-b border-[#EEE7DD] dark:border-mcm-line',
+                      isExpanded && 'border-b border-[#EEE7DD]',
                     )}
                   >
                     <div
@@ -6565,42 +7113,56 @@ function NewAiReceptionistBuilder({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{category.title}</h4>
-                      <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">{category.subtitle}</p>
+                      <h4 className="text-sm font-bold text-[#2E2D35]">{category.title}</h4>
+                      <p className="mt-0.5 text-xs text-slate-500">{category.subtitle}</p>
                     </div>
                     <ChevronDown
                       className={cx(
-                        'h-4 w-4 shrink-0 text-slate-500 dark:text-mcm-ink-3 transition-transform',
+                        'h-4 w-4 shrink-0 text-slate-500 transition-transform',
                         isExpanded && 'rotate-180',
                       )}
                     />
                   </button>
                   {isExpanded && (
-                    <div id={contentId} className="max-h-[320px] overflow-y-auto bg-white dark:bg-mcm-surface">
+                    <div id={contentId} className="max-h-[320px] overflow-y-auto bg-white">
                       {category.links.map((link) => {
                         const selected = selectedLinks.includes(link);
+                        const checkboxId = `pick-page-${category.id}-${link}`;
                         return (
                           <label
                             key={link}
+                            htmlFor={checkboxId}
                             className={cx(
-                              'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] dark:border-mcm-line px-3.5 py-2 transition-colors last:border-b-0',
-                              selected ? 'bg-primary/[0.04]' : 'bg-white dark:bg-mcm-surface',
+                              'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] px-3.5 py-2 transition-colors last:border-b-0',
+                              selected ? 'bg-primary/[0.04]' : 'bg-white',
                               isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-slate-50',
                             )}
                           >
-                            <input
-                              type="checkbox"
+                            <Checkbox
+                              id={checkboxId}
                               checked={selected}
                               disabled={isReadOnly}
-                              onChange={(event) => togglePickPageLink(link, event.target.checked)}
-                              className="h-[15px] w-[15px] rounded border-[#EEE7DD] dark:border-mcm-line text-primary focus:ring-primary disabled:cursor-not-allowed"
+                              onCheckedChange={(checked) =>
+                                togglePickPageLink(link, checked === true)
+                              }
+                              /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                                 (mcm-page.css) unlayered reset strips this Radix
+                                 checkbox's border/background before any Tailwind
+                                 utility can apply — inline style is what survives. */
+                              style={{
+                                borderWidth: 1.5,
+                                borderStyle: 'solid',
+                                borderColor: selected ? 'var(--primary)' : '#B9AFA0',
+                                backgroundColor: selected ? 'var(--primary)' : '#ffffff',
+                                color: '#ffffff',
+                              }}
                             />
-                            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35]">
                               {getPickPageRowLabel(link, category.stripLeadingSegments)}
                             </span>
                             <span
                               title={normalizeUrl(link)}
-                              className="max-w-[420px] shrink truncate text-[11px] text-slate-500 dark:text-mcm-ink-3"
+                              className="max-w-[420px] shrink truncate text-[11px] text-slate-500"
                             >
                               {getPickPageRowPath(link)}
                             </span>
@@ -6617,9 +7179,9 @@ function NewAiReceptionistBuilder({
 
         <div className="flex flex-col gap-4">
           {discoveredLinks.length > 0 && (
-            <div className="rounded-[10px] border border-dashed border-slate-300 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3.5">
-              <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add another URL</p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-mcm-ink-3">Paste any page not auto-detected.</p>
+            <div className="rounded-[10px] border border-dashed border-slate-300 bg-white p-3.5">
+              <p className="text-sm font-bold text-[#2E2D35]">Add another URL</p>
+              <p className="mt-1 text-xs text-slate-500">Paste any page not auto-detected.</p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input
                   value={extraUrl}
@@ -6637,8 +7199,8 @@ function NewAiReceptionistBuilder({
                   disabled={isReadOnly}
                   placeholder="https://yourcompany.com/page"
                   className={cx(
-                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3',
-                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
+                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
+                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD]',
                   )}
                 />
                 {!isReadOnly && (
@@ -6658,7 +7220,7 @@ function NewAiReceptionistBuilder({
                       key={url}
                       className="flex items-center justify-between gap-2 rounded-md bg-slate-50 px-3 py-2 text-xs"
                     >
-                      <span className="min-w-0 truncate text-slate-600 dark:text-mcm-ink-2">{url}</span>
+                      <span className="min-w-0 truncate text-slate-600">{url}</span>
                       {!isReadOnly && (
                         <button
                           type="button"
@@ -6675,10 +7237,10 @@ function NewAiReceptionistBuilder({
             </div>
           )}
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             <div className="mb-3.5">
-              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add content</h3>
-              <p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-mcm-ink-3">
+              <h3 className="text-sm font-bold text-[#2E2D35]">Add content</h3>
+              <p className="mt-0.5 text-xs leading-5 text-slate-500">
                 Type or paste the facts, policies, and answers your receptionist should know —
                 pricing, hours, addresses, refund rules, FAQs, anything. Write it in plain language;
                 the AI turns it into searchable knowledge. A blank line between topics helps keep
@@ -6690,14 +7252,14 @@ function NewAiReceptionistBuilder({
               onChange={(event) => setCustomContent(event.target.value)}
               readOnly={isReadOnly}
               disabled={isReadOnly}
-              placeholder={`Type or paste anything your receptionist should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at $12 per user / month. Pro is $24 per user / month. Enterprise is custom-quoted - offer to connect the caller with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
-              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm leading-6 text-[#2E2D35] dark:text-mcm-ink outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3"
+              placeholder={`Type or paste anything your receptionist should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at ₹996 per user / month. Pro is ₹1,992 per user / month. Enterprise is custom-quoted - offer to connect the caller with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
+              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] p-3 text-sm leading-6 text-[#2E2D35] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
             />
-            <p className="mt-1 text-right text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">
+            <p className="mt-1 text-right text-[11px] font-medium text-slate-500">
               {customContentWordCount} {customContentWordCount === 1 ? 'word' : 'words'}
             </p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-start gap-1.5 text-[11px] leading-4 text-slate-500 dark:text-mcm-ink-3">
+              <p className="flex items-start gap-1.5 text-[11px] leading-4 text-slate-500">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                 Tip: one topic per paragraph. Include exact numbers, dates, and policies so the
                 receptionist answers precisely instead of guessing.
@@ -6714,11 +7276,11 @@ function NewAiReceptionistBuilder({
                 {pendingTextItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-start justify-between gap-2 rounded-md border border-slate-100 dark:border-mcm-line bg-slate-50 px-3 py-2 text-xs"
+                    className="flex items-start justify-between gap-2 rounded-md border border-slate-100 bg-slate-50 px-3 py-2 text-xs"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{item.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-slate-500 dark:text-mcm-ink-3">{item.text}</p>
+                      <p className="truncate font-semibold text-[#2E2D35]">{item.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-slate-500">{item.text}</p>
                     </div>
                     {!isReadOnly && (
                       <button
@@ -6773,14 +7335,14 @@ function NewAiReceptionistBuilder({
                 {pendingFiles.map(({ id, file }) => (
                   <div
                     key={id}
-                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 py-2 text-sm"
+                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 py-2 text-sm"
                   >
                     <div className="grid h-7 w-7 shrink-0 place-items-center rounded bg-red-50 text-[10px] font-bold text-red-700">
                       PDF
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{file.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-mcm-ink-3">{formatFileSize(file.size)}</p>
+                      <p className="truncate font-semibold text-[#2E2D35]">{file.name}</p>
+                      <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
                     </div>
                     {!isReadOnly && (
                       <button
@@ -6829,66 +7391,19 @@ function NewAiReceptionistBuilder({
     if (isReadOnly) return null;
 
     const menuKey = `${type}-${item.id}`;
-    const isOpen = openReviewKnowledgeMenu === menuKey;
 
     return (
-      <div className="relative shrink-0">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            setOpenReviewKnowledgeMenu(isOpen ? '' : menuKey);
-          }}
-          className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 dark:text-mcm-ink-3 transition-colors hover:bg-slate-100 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
-          aria-label="Knowledge card actions"
-        >
-          ⋮
-        </button>
-        {isOpen && (
-          <div className="absolute right-0 top-7 z-30 min-w-[170px] rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleOpenReviewKnowledgeSource(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
-            >
-              📄 View Source Document
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleOpenReviewKnowledgeEdit(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
-            >
-              ✎ Edit
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleDuplicateReviewKnowledgeItem(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 dark:text-mcm-ink hover:bg-slate-50"
-            >
-              ⎘ Duplicate
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleDeleteReviewKnowledgeItem(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-red-600 hover:bg-red-50"
-            >
-              🗑 Delete
-            </button>
-          </div>
-        )}
-      </div>
+      <ReviewKnowledgeMenu
+        isOpen={openReviewKnowledgeMenu === menuKey}
+        onToggle={() =>
+          setOpenReviewKnowledgeMenu(openReviewKnowledgeMenu === menuKey ? '' : menuKey)
+        }
+        onClose={() => setOpenReviewKnowledgeMenu('')}
+        onViewSource={() => handleOpenReviewKnowledgeSource(type, item)}
+        onEdit={() => handleOpenReviewKnowledgeEdit(type, item)}
+        onDuplicate={() => handleDuplicateReviewKnowledgeItem(type, item)}
+        onDelete={() => handleDeleteReviewKnowledgeItem(type, item)}
+      />
     );
   };
 
@@ -6905,9 +7420,16 @@ function NewAiReceptionistBuilder({
       <>
         {reviewKnowledgeSourceModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
+            <div
+              className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl shadow-2xl"
+              /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css)
+                 unlayered glass-pass would turn a literal `bg-white` class
+                 translucent here — inline style keeps this modal solidly
+                 opaque instead of letting the page behind bleed through. */
+              style={{ backgroundColor: '#ffffff' }}
+            >
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeSourceModal.type === 'faq'
                     ? '💬 Source for this FAQ'
                     : '📄 Source Document'}
@@ -6915,7 +7437,7 @@ function NewAiReceptionistBuilder({
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeSourceModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
+                  className="text-slate-400 hover:text-[#2E2D35]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -6923,30 +7445,30 @@ function NewAiReceptionistBuilder({
               <div className="p-5">
                 <div className="mb-3 grid gap-1.5 rounded-lg bg-slate-50 px-3.5 py-3 text-xs">
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Title</span>
-                    <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                    <span className="min-w-[120px] font-semibold text-slate-600">Title</span>
+                    <span className="font-semibold text-[#2E2D35]">
                       {reviewKnowledgeSourceModal.title}
                     </span>
                   </div>
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Source</span>
-                    <span className="min-w-0 break-all text-[#2E2D35] dark:text-mcm-ink">{sourcePath}</span>
+                    <span className="min-w-[120px] font-semibold text-slate-600">Source</span>
+                    <span className="min-w-0 break-all text-[#2E2D35]">{sourcePath}</span>
                   </div>
                   <div className="flex gap-3">
-                    <span className="min-w-[120px] font-semibold text-slate-600 dark:text-mcm-ink-2">Imported</span>
-                    <span className="text-[#2E2D35] dark:text-mcm-ink">
+                    <span className="min-w-[120px] font-semibold text-slate-600">Imported</span>
+                    <span className="text-[#2E2D35]">
                       {reviewKnowledgeSourceModal.status || 'Just now'}
                     </span>
                   </div>
                 </div>
-                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700 dark:text-mcm-ink-2">
+                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700">
                   {reviewKnowledgeSourceModal.body ? (
                     <p className="whitespace-pre-line">{reviewKnowledgeSourceModal.body}</p>
                   ) : (
-                    <p className="text-slate-500 dark:text-mcm-ink-3">No content preview available.</p>
+                    <p className="text-slate-500">No content preview available.</p>
                   )}
-                  <div className="mt-3 rounded-md border-l-[3px] border-primary bg-primary/5 px-3 py-2 text-xs leading-5 text-slate-700 dark:text-mcm-ink-2">
-                    <b className="text-[#2E2D35] dark:text-mcm-ink">Full summarized content shown above.</b> This is
+                  <div className="mt-3 rounded-md border-l-[3px] border-primary bg-primary/5 px-3 py-2 text-xs leading-5 text-slate-700">
+                    <b className="text-[#2E2D35]">Full summarized content shown above.</b> This is
                     the content the receptionist uses to answer related questions. To revise
                     wording, use Edit on the card.
                   </div>
@@ -6970,21 +7492,24 @@ function NewAiReceptionistBuilder({
 
         {reviewKnowledgeEditModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
+            <div
+              className="w-full max-w-[540px] rounded-xl shadow-2xl"
+              style={{ backgroundColor: '#ffffff' }}
+            >
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Edit FAQ' : 'Edit document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeEditModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
+                  className="text-slate-400 hover:text-[#2E2D35]"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="p-5">
-                <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Question' : 'Document title'}
                 </label>
                 <input
@@ -6994,9 +7519,9 @@ function NewAiReceptionistBuilder({
                       prev ? { ...prev, title: event.target.value } : prev,
                     )
                   }
-                  className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
+                  className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
                 />
-                <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
+                <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Answer' : 'Document content'}
                 </label>
                 <textarea
@@ -7006,10 +7531,10 @@ function NewAiReceptionistBuilder({
                       prev ? { ...prev, body: event.target.value } : prev,
                     )
                   }
-                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                 />
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeEditModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -7023,21 +7548,24 @@ function NewAiReceptionistBuilder({
 
         {reviewKnowledgeAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white dark:bg-mcm-surface shadow-2xl">
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
+            <div
+              className="w-full max-w-[540px] rounded-xl shadow-2xl"
+              style={{ backgroundColor: '#ffffff' }}
+            >
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeAddModal.type === 'faq' ? 'Add FAQ' : 'Add document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeAddModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
+                  className="text-slate-400 hover:text-[#2E2D35]"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="p-5">
-                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] dark:border-mcm-line pb-2.5">
+                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] pb-2.5">
                   {[
                     { value: 'text' as const, label: 'Paste text' },
                     // { value: 'upload' as const, label: 'Upload file' },
@@ -7050,12 +7578,16 @@ function NewAiReceptionistBuilder({
                           prev ? { ...prev, mode: mode.value } : prev,
                         )
                       }
-                      className={cx(
-                        'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors',
+                      className="flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+                      /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                         (mcm-page.css) unlayered reset forces background/
+                         color/border to none/inherit/0 ahead of any
+                         Tailwind utility — inline style is what wins. */
+                      style={
                         reviewKnowledgeAddModal.mode === mode.value
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-[#EEE7DD] dark:border-mcm-line bg-slate-50 text-slate-700 dark:text-mcm-ink-2 hover:border-primary hover:text-primary',
-                      )}
+                          ? { borderColor: 'var(--primary)', backgroundColor: 'var(--primary)', color: '#ffffff' }
+                          : { borderColor: '#EEE7DD', backgroundColor: '#f8fafc', color: '#334155' }
+                      }
                     >
                       {mode.label}
                     </button>
@@ -7064,7 +7596,7 @@ function NewAiReceptionistBuilder({
 
                 {reviewKnowledgeAddModal.mode === 'text' ? (
                   <>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
                       {reviewKnowledgeAddModal.type === 'faq' ? 'Question' : 'Document title'}
                     </label>
                     <input
@@ -7079,9 +7611,9 @@ function NewAiReceptionistBuilder({
                           ? 'e.g. How much does it cost?'
                           : 'e.g. Refund policy'
                       }
-                      className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
+                      className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
                     />
-                    <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700 dark:text-mcm-ink-2">
+                    <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
                       {reviewKnowledgeAddModal.type === 'faq' ? 'Answer' : 'Document content'}
                     </label>
                     <textarea
@@ -7096,7 +7628,7 @@ function NewAiReceptionistBuilder({
                           ? 'Type the answer the receptionist should give. Short, conversational answers work best.'
                           : 'Type or paste the content the receptionist should learn from. Short, factual paragraphs work best.'
                       }
-                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                     />
                   </>
                 ) : (
@@ -7113,11 +7645,11 @@ function NewAiReceptionistBuilder({
                     <button
                       type="button"
                       onClick={() => reviewKnowledgeFileInputRef.current?.click()}
-                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] dark:border-mcm-line px-7 py-7 text-center text-sm text-slate-600 dark:text-mcm-ink-2 transition-colors hover:border-primary hover:bg-primary/5"
+                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] px-7 py-7 text-center text-sm text-slate-600 transition-colors hover:border-primary hover:bg-primary/5"
                     >
-                      <UploadCloud className="mx-auto mb-2 h-8 w-8 text-slate-500 dark:text-mcm-ink-3" />
-                      <b className="text-[#2E2D35] dark:text-mcm-ink">Choose a file</b>
-                      <span className="mt-1 block text-xs text-slate-500 dark:text-mcm-ink-3">
+                      <UploadCloud className="mx-auto mb-2 h-8 w-8 text-slate-500" />
+                      <b className="text-[#2E2D35]">Choose a file</b>
+                      <span className="mt-1 block text-xs text-slate-500">
                         Upload a document to add it to this knowledge base.
                       </span>
                     </button>
@@ -7127,10 +7659,10 @@ function NewAiReceptionistBuilder({
                           DOC
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                          <p className="truncate text-[13px] font-semibold text-[#2E2D35]">
                             {reviewKnowledgeAddModal.file.name}
                           </p>
-                          <p className="text-[11px] text-slate-500 dark:text-mcm-ink-3">
+                          <p className="text-[11px] text-slate-500">
                             {formatFileSize(reviewKnowledgeAddModal.file.size)}
                           </p>
                         </div>
@@ -7141,7 +7673,7 @@ function NewAiReceptionistBuilder({
                               prev ? { ...prev, file: null } : prev,
                             )
                           }
-                          className="text-slate-500 dark:text-mcm-ink-3 hover:text-red-600"
+                          className="text-slate-500 hover:text-red-600"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -7150,7 +7682,7 @@ function NewAiReceptionistBuilder({
                   </>
                 )}
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeAddModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -7193,20 +7725,20 @@ function NewAiReceptionistBuilder({
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3.5 text-left">
         <div>
-          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">Review knowledge</h1>
-          <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">
+          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">Review knowledge</h1>
+          <p className="mt-1 text-sm leading-5 text-slate-500">
             Review what was generated. Edit, delete, or add Documents and FAQs before continuing.
           </p>
         </div>
 
-        <div className="rounded-[14px] border border-[#BFDBFE] bg-gradient-to-br from-blue-50 to-emerald-50 px-[22px] py-[22px] text-center">
+        <div className="rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-gradient-to-br from-[#FFF6EA] to-[#FBE2C8]/60 px-[22px] py-[22px] text-center">
           <div className="mx-auto mb-2.5 grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white">
             <Check className="h-[26px] w-[26px] stroke-[3]" />
           </div>
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">
             Here's what your receptionist will know
           </h2>
-          <p className="mt-0.5 text-[13px] leading-5 text-slate-600 dark:text-mcm-ink-2">
+          <p className="mt-0.5 text-[13px] leading-5 text-slate-600">
             Review what was auto-extracted. You can add more docs, custom text, or FAQs from the
             tabs below.
           </p>
@@ -7219,11 +7751,11 @@ function NewAiReceptionistBuilder({
             { label: 'FAQs', value: validFaqCount },
             { label: 'Training', value: '~3 min', valueClassName: 'text-sm' },
           ].map((item) => (
-            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-3">
-              <p className="text-[11px] font-medium leading-4 text-slate-500 dark:text-mcm-ink-3">{item.label}</p>
+            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
+              <p className="text-[11px] font-medium leading-4 text-slate-500">{item.label}</p>
               <p
                 className={cx(
-                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink',
+                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35]',
                   item.valueClassName,
                 )}
               >
@@ -7234,14 +7766,14 @@ function NewAiReceptionistBuilder({
         </div>
 
         <div className="mt-1">
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">Knowledge Base Summary</h2>
-          <p className="mt-1 text-[13px] leading-5 text-slate-600 dark:text-mcm-ink-2">
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">Knowledge Base Summary</h2>
+          <p className="mt-1 text-[13px] leading-5 text-slate-600">
             Here's what the AI receptionist will use. Edit anything, delete what shouldn't be there,
             add anything missing.
           </p>
         </div>
 
-        <div className="inline-flex w-fit gap-[3px] rounded-lg bg-slate-100 p-1">
+        <div className="inline-flex w-fit gap-[3px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/50 p-1">
           {[
             {
               key: 'documents' as const,
@@ -7265,16 +7797,27 @@ function NewAiReceptionistBuilder({
                   setReviewKnowledgeTab(tab.key);
                   setReviewKnowledgeSearch('');
                 }}
-                className={cx(
-                  'inline-flex items-center gap-1.5 rounded-md border border-transparent px-3.5 py-1.5 text-xs font-semibold transition-colors',
+                className="inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-semibold transition-colors"
+                style={
                   isSelected
-                    ? 'bg-white dark:bg-mcm-surface text-[#2E2D35] dark:text-mcm-ink shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                    : 'bg-transparent text-slate-600 dark:text-mcm-ink-2 hover:bg-white dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink',
-                )}
+                    ? {
+                        backgroundColor: '#ffffff',
+                        color: '#2E2D35',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      }
+                    : { backgroundColor: 'transparent', color: '#8a5a25' }
+                }
               >
                 {tab.icon}
                 {tab.label}
-                <span className="ml-1 rounded-full bg-slate-200/80 dark:bg-mcm-surface-3 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-slate-600 dark:text-mcm-ink-2">
+                <span
+                  className="ml-1 rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none"
+                  style={
+                    isSelected
+                      ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                      : { backgroundColor: 'rgba(255,255,255,0.7)', color: '#8a5a25' }
+                  }
+                >
                   {tab.count}
                 </span>
               </button>
@@ -7284,14 +7827,14 @@ function NewAiReceptionistBuilder({
 
         <div className="mb-0.5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#9A948F]" />
             <input
               value={reviewKnowledgeSearch}
               onChange={(event) =>
                 setReviewKnowledgeSearch(sanitizeAiSearchText(event.target.value))
               }
               placeholder={searchPlaceholder}
-              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
+              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
             />
           </div>
           {!isReadOnly && (
@@ -7310,7 +7853,7 @@ function NewAiReceptionistBuilder({
         {isDocumentsTab ? (
           <div className="flex flex-col gap-2.5">
             {isSummarizingKnowledgeBase ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating summary...
               </div>
@@ -7327,20 +7870,20 @@ function NewAiReceptionistBuilder({
                     return (
                       <div
                         key={document.id}
-                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                       >
                         <div className="flex items-start justify-between gap-2.5">
-                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
+                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
                             {document.title}
                           </h3>
                           {renderReviewKnowledgeMenu('document', document)}
                         </div>
                         {copy && (
-                          <p className="mt-3 whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700 dark:text-mcm-ink-2">
+                          <p className="mt-3 whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700">
                             {copy}
                           </p>
                         )}
-                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 dark:text-mcm-ink-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                           <span className="min-w-0 truncate">
                             From {document.source || 'selected source'}
                           </span>
@@ -7350,7 +7893,7 @@ function NewAiReceptionistBuilder({
                     );
                   })
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500 dark:text-mcm-ink-3">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
                     No documents found.
                   </div>
                 )}
@@ -7360,7 +7903,7 @@ function NewAiReceptionistBuilder({
         ) : (
           <div className="flex flex-col gap-2.5">
             {isGeneratingKnowledgeFaqs ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating FAQs...
               </div>
@@ -7375,18 +7918,18 @@ function NewAiReceptionistBuilder({
                   filteredFaqs.map((faq) => (
                     <div
                       key={faq.id}
-                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                     >
                       <div className="mb-3 flex items-start justify-between gap-3">
-                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
+                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
                           {faq.question || 'Untitled FAQ'}
                         </h3>
                         {renderReviewKnowledgeMenu('faq', faq)}
                       </div>
-                      <p className="whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700 dark:text-mcm-ink-2">
+                      <p className="whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700">
                         {faq.answer || 'No answer added yet.'}
                       </p>
-                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 dark:text-mcm-ink-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                         <span className="min-w-0 truncate">
                           {faq.source ? `From ${faq.source}` : 'Manual'}
                         </span>
@@ -7395,7 +7938,7 @@ function NewAiReceptionistBuilder({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500 dark:text-mcm-ink-3">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
                     No FAQs found. Add a custom FAQ to create knowledge manually.
                   </div>
                 )}
@@ -7456,12 +7999,12 @@ function NewAiReceptionistBuilder({
         trailing={<Switch checked={enableTranscripts} disabled />}
       />
       {/* ── Data Collection ──────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+      <div className="overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-5 pt-5 pb-4">
           <div>
-            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Data Collection</h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-mcm-ink-3">
+            <h3 className="text-sm font-bold text-[#2E2D35]">Data Collection</h3>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
               When enabled, the AI politely asks callers for the details checked below and stores
               them on the call record. Turn off to collect only the caller's phone number.
             </p>
@@ -7476,17 +8019,17 @@ function NewAiReceptionistBuilder({
         {/* Info tip */}
         {isDataCollectionEnabled && (
           <div className="mx-5 mb-4 rounded-lg border border-primary/20 bg-primary/10 p-4">
-            <p className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-mcm-ink-2">
+            <p className="flex items-center gap-2 text-xs font-bold text-slate-700">
               <span>💡</span>
               When should I mark a field "Mandatory" vs "Optional"?
             </p>
-            <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-mcm-ink-2">
+            <p className="mt-2 text-xs leading-5 text-slate-600">
               <strong>Mandatory</strong> = the AI will keep politely re-asking until the caller
               answers, and will refuse to complete the task without it. Use for fields you really
               need (e.g. <span className="font-semibold text-primary">Name</span> for callbacks,{' '}
               <span className="font-semibold text-primary">Email</span> for follow-ups).
             </p>
-            <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-mcm-ink-2">
+            <p className="mt-2 text-xs leading-5 text-slate-600">
               <strong>Optional</strong> = the AI asks once and moves on if the caller declines or
               skips. Use for nice-to-have data (e.g.{' '}
               <span className="font-semibold text-primary">Date of birth</span>) — keeps the call
@@ -7496,7 +8039,7 @@ function NewAiReceptionistBuilder({
         )}
 
         {/* Fields list */}
-        <div className="border-t border-[#EEE7DD] dark:border-mcm-line">
+        <div className="border-t border-[#EEE7DD]">
           {[
             { key: 'name' as DetailField, label: 'Name', alwaysAsked: true, disabled: true },
             { key: 'phone' as DetailField, label: 'Phone', alwaysAsked: true, disabled: true },
@@ -7526,7 +8069,7 @@ function NewAiReceptionistBuilder({
                 <div
                   key={key}
                   className={cx(
-                    'flex items-center gap-4 border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-3 last:border-b-0 transition-colors',
+                    'flex items-center gap-4 border-b border-[#EEE7DD] px-5 py-3 last:border-b-0 transition-colors',
                     isChecked && !isAlwaysAsked && 'bg-amber-50/40',
                     isAlwaysAsked && 'bg-amber-50/60',
                     !isChecked && 'opacity-60',
@@ -7541,13 +8084,20 @@ function NewAiReceptionistBuilder({
                       toggleSingleDetail(key, checked === true);
                     }}
                     className="shrink-0"
+                    style={{
+                      borderWidth: 1.5,
+                      borderStyle: 'solid',
+                      borderColor: isChecked ? 'var(--primary)' : '#B9AFA0',
+                      backgroundColor: isChecked ? 'var(--primary)' : '#ffffff',
+                      color: '#ffffff',
+                    }}
                   />
 
                   {/* Label */}
                   <span
                     className={cx(
                       'flex-1 text-sm font-semibold',
-                      isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
+                      isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
                     )}
                   >
                     {label}
@@ -7581,7 +8131,7 @@ function NewAiReceptionistBuilder({
                       <span
                         className={cx(
                           'text-xs font-semibold',
-                          isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
+                          isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
                         )}
                       >
                         Mandatory
@@ -7608,7 +8158,7 @@ function NewAiReceptionistBuilder({
                       <span
                         className={cx(
                           'text-xs font-semibold',
-                          isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
+                          isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
                         )}
                       >
                         Optional
@@ -7621,13 +8171,13 @@ function NewAiReceptionistBuilder({
         </div>
 
         {/* Push to CRM */}
-        <div className="border-t border-[#EEE7DD] dark:border-mcm-line bg-amber-50/30 px-5 py-4">
+        <div className="border-t border-[#EEE7DD] bg-amber-50/30 px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-2.5">
               <span className="text-base">🎯</span>
               <div>
-                <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Push captured data to CRM</p>
-                <p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-mcm-ink-3">
+                <p className="text-sm font-bold text-[#2E2D35]">Push captured data to CRM</p>
+                <p className="mt-0.5 text-xs leading-5 text-slate-500">
                   When enabled, the AI auto-creates a contact in your CRM using the fields collected
                   above, with the full call transcript attached.
                 </p>
@@ -7647,31 +8197,28 @@ function NewAiReceptionistBuilder({
             </p>
           )}
           {isDataCollectionEnabled && enableCrmPush && (
-            <select
-              value={selectedCrmPipeline}
-              onChange={(event) => setSelectedCrmPipeline(event.target.value)}
-              disabled={isReadOnly || isFetchingConnectedCrms || connectedCrmOptions.length === 0}
-              className="mt-3 h-10 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm font-medium text-[#2E2D35] dark:text-mcm-ink outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3"
-            >
-              <option value="" disabled>
-                {isFetchingConnectedCrms
-                  ? 'Checking connected CRMs...'
-                  : connectedCrmOptions.length > 0
-                    ? 'Select CRM...'
-                    : 'No connected CRM available'}
-              </option>
-              {connectedCrmOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-              <optgroup hidden label="Legacy CRM options">
-                <option value="hubspot-sales">HubSpot — Sales pipeline</option>
-                <option value="hubspot-marketing">HubSpot — Marketing pipeline</option>
-                <option value="salesforce">Salesforce — Leads</option>
-                <option value="zoho">Zoho CRM — Contacts</option>
-              </optgroup>
-            </select>
+            <div className="mt-3">
+              <CustomSelect
+                isDisabled={isReadOnly || isFetchingConnectedCrms || connectedCrmOptions.length === 0}
+                isLoading={isFetchingConnectedCrms}
+                value={
+                  selectedCrmPipeline
+                    ? connectedCrmOptions.find(
+                        (option: any) => option.value === selectedCrmPipeline,
+                      ) || null
+                    : null
+                }
+                handleChange={(option: any) => setSelectedCrmPipeline(option?.value || '')}
+                options={connectedCrmOptions}
+                placeholder={
+                  isFetchingConnectedCrms
+                    ? 'Checking connected CRMs...'
+                    : connectedCrmOptions.length > 0
+                      ? 'Select CRM...'
+                      : 'No connected CRM available'
+                }
+              />
+            </div>
           )}
         </div>
       </div>
@@ -7712,21 +8259,15 @@ function NewAiReceptionistBuilder({
             </div>
             <label className="block">
               <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">Manager</span>
-              <select
-                value={selectedManagerId}
-                onChange={(event) => {
-                  setSelectedManagerId(event.target.value);
+              <CustomSelect
+                value={selectedManagerOption}
+                handleChange={(option: any) => {
+                  setSelectedManagerId(option?.value || '');
                   setStepErrors((prev) => ({ ...prev, manager: '' }));
                 }}
-                className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
-              >
-                <option value="">Select a manager</option>
-                {managerExtensions.map((ext: any) => (
-                  <option key={ext.uuid || ext.id} value={ext.uuid || ext.id}>
-                    {`${ext.first_name || ''} ${ext.last_name || ''}`.trim()} ({ext.extension})
-                  </option>
-                ))}
-              </select>
+                options={managerOptions}
+                placeholder="Select a manager"
+              />
             </label>
             {stepErrors.forwardCall && (
               <p className="text-sm text-red-500">{stepErrors.forwardCall}</p>
@@ -7746,7 +8287,7 @@ function NewAiReceptionistBuilder({
         title="Max Session Duration"
         copy="Set the maximum session length in seconds before the AI ends the active conversation."
         trailing={
-          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] focus-within:border-primary">
+          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary">
             <input
               type="number"
               value={maxSessionDuration}
@@ -7762,7 +8303,7 @@ function NewAiReceptionistBuilder({
               onBlur={() => setMaxSessionDuration((value) => (value === '' ? 1 : value))}
               className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
             />
-            <span className="pr-3 text-xs text-slate-500 dark:text-mcm-ink-3" aria-hidden="true">
+            <span className="pr-3 text-xs text-slate-500" aria-hidden="true">
               sec
             </span>
           </div>
@@ -7772,7 +8313,7 @@ function NewAiReceptionistBuilder({
         title="Idle Reminder"
         copy="Set how many seconds to wait before sending an idle reminder to the caller."
         trailing={
-          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] focus-within:border-primary">
+          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary">
             <input
               type="number"
               value={idleReminder}
@@ -7788,7 +8329,7 @@ function NewAiReceptionistBuilder({
               onBlur={() => setIdleReminder((value) => (value === '' ? 1 : value))}
               className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
             />
-            <span className="pr-3 text-xs text-slate-500 dark:text-mcm-ink-3" aria-hidden="true">
+            <span className="pr-3 text-xs text-slate-500" aria-hidden="true">
               sec
             </span>
           </div>
@@ -7811,7 +8352,7 @@ function NewAiReceptionistBuilder({
               )
             }
             onBlur={() => setIdleReminderRetry((value) => (value === '' ? 1 : value))}
-            className="h-9 w-28 rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
+            className="h-9 w-28 rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
           />
         }
       />
@@ -7861,16 +8402,16 @@ function NewAiReceptionistBuilder({
 
   return (
     <FormProvider {...formInstance}>
-      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
+      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
         <div
           className={cx(
-            'flex bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px]',
+            'flex bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]',
             useWizardEdit
-              ? 'min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line px-3 py-3 sm:px-6'
+              ? 'min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] px-3 py-3 sm:px-6'
               : 'p-4 pb-0',
           )}
         >
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-mcm-ink-3">
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <button type="button" onClick={onCancel} className="hover:text-primary cursor-pointer">
               AI Agents
             </button>
@@ -7879,7 +8420,7 @@ function NewAiReceptionistBuilder({
               AI Receptionists
             </button>
             <span>/</span>
-            <span className="text-[#2E2D35] dark:text-mcm-ink">
+            <span className="text-[#2E2D35]">
               {isEdit
                 ? useWizardEdit
                   ? 'Update Receptionist'
@@ -8079,7 +8620,7 @@ function ReceptionistEditHeader({
     normalizeSentiment(data?.sentiment_label) || sentimentLabelFromScore(sentimentScore);
 
   return (
-    <div className=" bg-white dark:bg-mcm-surface px-4 pt-4 pb-2 ">
+    <div className=" bg-white px-4 pt-4 pb-2 ">
       <div className="flex flex-wrap items-center gap-4">
         <CustomAvatar
           name={name}
@@ -8091,7 +8632,7 @@ function ReceptionistEditHeader({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="truncate text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">{name}</h2>
+            <h2 className="truncate text-lg font-bold text-[#2E2D35]">{name}</h2>
             <span
               className={cx(
                 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
@@ -8120,12 +8661,12 @@ function ReceptionistEditHeader({
               </Button>
             )}
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-600 dark:text-mcm-ink-2">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               <FileText className="h-4 w-4 text-primary" />
               {brand}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-left font-medium text-slate-600 dark:text-mcm-ink-2">
+            <span className="inline-flex items-center gap-1.5 text-left font-medium text-slate-600">
               <Phone className="h-3.5 w-3.5 text-pink-500" />
               {readOnly ? (
                 callerId ? (
@@ -8199,7 +8740,7 @@ function ReceptionistStepper({
   else if (activeStep === 6) currentStepId = 7;
 
   return (
-    <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-6 py-6">
+    <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-6">
       <div className="relative mx-auto max-w-[1200px]">
         {/* Progress Line */}
         <div className="absolute top-4 left-[8%] right-[8%] h-[1px] bg-[#EAECF0] -translate-y-1/2 z-0" />
@@ -8230,7 +8771,7 @@ function ReceptionistStepper({
                       'border-primary bg-primary text-white shadow-sm ring-4 ring-primary/10',
                     !isCompleted &&
                       !isActive &&
-                      'border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line',
+                      'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)]',
                   )}
                 >
                   {isCompleted ? <Check className="h-4 w-4 stroke-[3.5]" /> : step.id}
@@ -8238,7 +8779,7 @@ function ReceptionistStepper({
                 <span
                   className={cx(
                     'text-xs font-semibold px-1 text-center transition-colors',
-                    isActive ? 'text-primary' : 'text-slate-600 dark:text-mcm-ink-2 group-hover:text-slate-900 dark:hover:text-mcm-ink',
+                    isActive ? 'text-primary' : 'text-slate-600 group-hover:text-slate-900',
                   )}
                 >
                   {step.label}
@@ -8275,7 +8816,7 @@ function ReceptionistEditTabs({
     { key: 'advanced', label: 'Advanced Settings', icon: <ArrowRight className="h-4 w-4" /> },
   ];
   return (
-    <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4">
+    <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4">
       <div className="flex gap-1 overflow-x-auto">
         <button
           type="button"
@@ -8285,8 +8826,8 @@ function ReceptionistEditTabs({
             'flex h-12 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition-colors',
             activeTab === overviewTab.key
               ? 'border-primary text-primary'
-              : 'border-transparent text-slate-600 dark:text-mcm-ink-2 hover:text-primary',
-            disabled && 'cursor-not-allowed opacity-60 hover:text-slate-600 dark:hover:text-mcm-ink-2',
+              : 'border-transparent text-slate-600 hover:text-primary',
+            disabled && 'cursor-not-allowed opacity-60 hover:text-slate-600',
           )}
         >
           {overviewTab.icon}
@@ -8303,8 +8844,8 @@ function ReceptionistEditTabs({
               'flex h-12 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-semibold transition-colors',
               activeTab === tab.key
                 ? 'border-primary text-primary'
-                : 'border-transparent text-slate-600 dark:text-mcm-ink-2 hover:text-primary',
-              disabled && 'cursor-not-allowed opacity-60 hover:text-slate-600 dark:hover:text-mcm-ink-2',
+                : 'border-transparent text-slate-600 hover:text-primary',
+              disabled && 'cursor-not-allowed opacity-60 hover:text-slate-600',
             )}
           >
             {tab.icon}
@@ -8452,8 +8993,8 @@ function ReceptionistOverview({
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
               </div>
             ) : recentCalls.length ? (
-              <div className="flex flex-col divide-y divide-[#EEE7DD] dark:divide-mcm-line">
-                <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr_0.8fr] pb-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-mcm-ink-3 px-1">
+              <div className="flex flex-col divide-y divide-[#EEE7DD]">
+                <div className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr_0.8fr] pb-2 text-xs font-bold uppercase tracking-wider text-slate-500 px-1">
                   <span>Call</span>
                   <span>DID</span>
                   <span>Duration</span>
@@ -8466,15 +9007,15 @@ function ReceptionistOverview({
                     className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr_0.8fr] items-center py-3 text-sm px-1"
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{call.phone}</span>
+                      <span className="font-semibold text-[#2E2D35]">{call.phone}</span>
                       {call.startedAt && (
-                        <span className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
+                        <span className="text-xs text-[#9A948F]">
                           {moment(call.startedAt).format('MMM DD, hh:mm A')}
                         </span>
                       )}
                     </div>
-                    <span className="text-slate-600 dark:text-mcm-ink-2 truncate pr-2">{call.via_did || '-'}</span>
-                    <span className="text-slate-600 dark:text-mcm-ink-2">{formatDuration(call.durationSeconds)}</span>
+                    <span className="text-slate-600 truncate pr-2">{call.via_did || '-'}</span>
+                    <span className="text-slate-600">{formatDuration(call.durationSeconds)}</span>
                     <div>
                       {(() => {
                         const sentiment = getCallSentiment(call);
@@ -8503,7 +9044,7 @@ function ReceptionistOverview({
           </OverviewPanel>
           <OverviewPanel title="Unanswered questions">
             {unanswered.length ? (
-              <div className="flex flex-col divide-y divide-[#EEE7DD] dark:divide-mcm-line">
+              <div className="flex flex-col divide-y divide-[#EEE7DD]">
                 {unanswered.slice(0, 5).map((question: any, index: number) => (
                   <div
                     key={question.id || index}
@@ -8539,7 +9080,7 @@ function ReceptionistOverview({
               <button
                 type="button"
                 onClick={onEditRouting}
-                className="mt-3 h-9 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line text-sm font-bold text-slate-700 dark:text-mcm-ink-2 transition-colors hover:border-primary hover:text-primary"
+                className="mt-3 h-9 w-full rounded-md border border-[#EEE7DD] text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary"
               >
                 Edit routing
               </button>
@@ -8586,20 +9127,20 @@ function AddKnowledgeBaseDialog({
       }}
     >
       <DialogContent className="max-w-[720px] p-0" showCloseButton={false}>
-        <DialogHeader className="border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+        <DialogHeader className="border-b border-[#EEE7DD] px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <DialogTitle className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
+              <DialogTitle className="text-base font-bold text-[#2E2D35]">
                 Create new knowledge base
               </DialogTitle>
-              <p className="mt-1 text-sm text-slate-500 dark:text-mcm-ink-3">
+              <p className="mt-1 text-sm text-slate-500">
                 Add website pages, upload documents, or paste custom content.
               </p>
             </div>
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-md p-1 text-slate-400 hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3"
+              className="rounded-md p-1 text-slate-400 hover:bg-[#FBE2C8]/40"
             >
               <X className="h-5 w-5" />
             </button>
@@ -8638,7 +9179,7 @@ function AddKnowledgeBaseDialog({
               <input
                 value={customContentTitle}
                 onChange={(event) => setCustomContentTitle(event.target.value)}
-                className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
+                className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
               />
             </Field>
             <Field label="Content">
@@ -8646,7 +9187,7 @@ function AddKnowledgeBaseDialog({
                 value={customContent}
                 onChange={(event) => setCustomContent(event.target.value)}
                 placeholder="Paste FAQs, policies, company details, or support instructions..."
-                className="min-h-[190px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
+                className="min-h-[190px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
               />
             </Field>
             <div className="flex items-center justify-between">
@@ -8683,13 +9224,13 @@ function KnowledgeActionCard({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-4 text-left transition-colors hover:border-primary"
+      className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 text-left transition-colors hover:border-primary"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/5 text-primary">
         {icon}
       </span>
-      <span className="mt-3 block text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</span>
-      <span className="mt-1 block text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">{copy}</span>
+      <span className="mt-3 block text-sm font-bold text-[#2E2D35]">{title}</span>
+      <span className="mt-1 block text-sm leading-5 text-slate-500">{copy}</span>
     </button>
   );
 }
@@ -8697,8 +9238,8 @@ function KnowledgeActionCard({
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
-      <h2 className="text-lg font-bold tracking-normal text-[#2E2D35] dark:text-mcm-ink">{title}</h2>
-      <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">{subtitle}</p>
+      <h2 className="text-lg font-bold tracking-normal text-[#2E2D35]">{title}</h2>
+      <p className="mt-1 text-sm leading-5 text-slate-500">{subtitle}</p>
     </div>
   );
 }
@@ -8720,8 +9261,8 @@ function Field({
 }) {
   return (
     <label className={cx('block scroll-mt-24', className)} data-validation-key={fieldKey}>
-      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{label}</span>
-      {helper && <span className="mb-2 block text-xs text-slate-500 dark:text-mcm-ink-3">{helper}</span>}
+      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">{label}</span>
+      {helper && <span className="mb-2 block text-xs text-slate-500">{helper}</span>}
       {children}
       {error && <span className="mt-1 block text-xs text-red-500">{error}</span>}
     </label>
@@ -8738,10 +9279,10 @@ function SettingsRow({
   trailing: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
       <div>
-        <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
-        <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-mcm-ink-3">{copy}</p>
+        <h3 className="text-sm font-bold text-[#2E2D35]">{title}</h3>
+        <p className="mt-1 text-sm leading-5 text-slate-500">{copy}</p>
       </div>
       <div className="shrink-0">{trailing}</div>
     </div>
@@ -8750,8 +9291,8 @@ function SettingsRow({
 
 function OverviewPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
-      <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
+    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+      <h3 className="text-base font-bold text-[#2E2D35]">{title}</h3>
       <div className="mt-4">{children}</div>
     </div>
   );
@@ -8759,9 +9300,9 @@ function OverviewPanel({ title, children }: { title: string; children: ReactNode
 
 function KeyValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] dark:border-mcm-line py-2 text-sm last:border-b-0">
-      <span className="text-slate-600 dark:text-mcm-ink-2">{label}</span>
-      <strong className="text-right text-[#2E2D35] dark:text-mcm-ink">{value || '-'}</strong>
+    <div className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] py-2 text-sm last:border-b-0">
+      <span className="text-slate-600">{label}</span>
+      <strong className="text-right text-[#2E2D35]">{value || '-'}</strong>
     </div>
   );
 }
@@ -8778,15 +9319,172 @@ function StatCard({
   loading?: boolean;
 }) {
   return (
-    <div className="relative min-h-[82px] rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+    <div className="relative min-h-[82px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
       {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 dark:bg-mcm-surface/70 backdrop-blur-[1px]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       )}
-      <p className="text-[11px] font-medium leading-4 text-slate-500 dark:text-mcm-ink-3">{label}</p>
-      <p className="mt-[3px] text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">{value}</p>
+      <p className="text-[11px] font-medium leading-4 text-slate-500">{label}</p>
+      <p className="mt-[3px] text-[22px] font-bold leading-7 text-[#2E2D35]">{value}</p>
       {helper ? <p className="mt-0.5 text-[11px] font-medium text-emerald-500">{helper}</p> : null}
+    </div>
+  );
+}
+
+/* The card-actions "⋮" menu on Review's knowledge cards used a plain
+   `absolute right-0 top-7` popover, which had no idea how close its trigger
+   was to the bottom of the viewport — the last one or two items (Duplicate,
+   Delete) simply rendered past the fold with nothing to scroll them into
+   view. Portalled + viewport-aware, the same way `FieldSelect` (Directory ▸
+   Blocked) solves the identical problem: measure the trigger, open above it
+   instead of below when there isn't room, and portal to the nearest
+   `.mcm-page` so the design system's CSS variables still apply. */
+function ReviewKnowledgeMenu({
+  isOpen,
+  onToggle,
+  onClose,
+  onViewSource,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onViewSource: () => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null);
+  const MENU_WIDTH = 178;
+  const MENU_HEIGHT_ESTIMATE = 184;
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    setPortalTarget(triggerRef.current?.closest('.mcm-page') || document.body);
+    const place = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < MENU_HEIGHT_ESTIMATE + 12;
+      const top = openUp
+        ? Math.max(8, rect.top - MENU_HEIGHT_ESTIMATE - 6)
+        : rect.bottom + 6;
+      const left = Math.min(
+        Math.max(8, rect.right - MENU_WIDTH),
+        window.innerWidth - MENU_WIDTH - 8,
+      );
+      setMenuPos({ top, left });
+    };
+    place();
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeIfOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      onClose();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', closeIfOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeIfOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isOpen, onClose]);
+
+  const menuItemClass =
+    'flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50';
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggle();
+        }}
+        className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35]"
+        aria-label="Knowledge card actions"
+      >
+        ⋮
+      </button>
+      {isOpen && menuPos && portalTarget
+        ? createPortal(
+            <div
+              ref={menuRef}
+              className="fixed z-[200] w-[178px] rounded-lg border border-[rgba(225,200,165,0.9)] p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
+              /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css)
+                 unlayered glass-pass would turn a literal `bg-white` class
+                 translucent here — inline style keeps this menu solidly
+                 opaque and legible over page content. */
+              style={{ top: menuPos.top, left: menuPos.left, backgroundColor: '#ffffff' }}
+            >
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onViewSource();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                📄 View Source Document
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                ✎ Edit
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDuplicate();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                ⎘ Duplicate
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete();
+                  onClose();
+                }}
+                className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-red-600 hover:bg-red-50"
+              >
+                🗑 Delete
+              </button>
+            </div>,
+            portalTarget,
+          )
+        : null}
     </div>
   );
 }
@@ -8806,9 +9504,15 @@ function PrimaryButton({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        'inline-flex h-10 items-center justify-center whitespace-nowrap gap-1.5 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-colors hover:bg-primary/90',
-        disabled && 'cursor-not-allowed opacity-60 hover:bg-primary',
+        'inline-flex h-10 items-center justify-center whitespace-nowrap gap-1.5 rounded-lg px-4 text-sm font-bold transition-opacity hover:opacity-90',
+        disabled && 'cursor-not-allowed opacity-60 hover:opacity-60',
       )}
+      /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+         is an unlayered reset that forces every plain button's background/
+         color/border to none/inherit/0 ahead of any Tailwind utility — used
+         by 13 call sites across this wizard, so fixed once here with inline
+         style rather than at each one. */
+      style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
     >
       {children}
     </button>
@@ -8830,9 +9534,16 @@ function SecondaryButton({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 text-sm font-bold text-slate-700 dark:text-mcm-ink-2 transition-colors hover:border-gray-400 dark:hover:border-mcm-line',
-        disabled && 'cursor-not-allowed opacity-60 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
+        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-colors',
+        disabled && 'cursor-not-allowed opacity-60',
       )}
+      style={{
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: 'rgba(225,200,165,0.9)',
+        backgroundColor: 'rgba(251,249,246,0.88)',
+        color: '#334155',
+      }}
     >
       {children}
     </button>
@@ -8841,7 +9552,7 @@ function SecondaryButton({
 
 function NoDataAvailable() {
   return (
-    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
+    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500">
       No data available
     </div>
   );

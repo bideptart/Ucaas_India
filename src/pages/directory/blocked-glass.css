@@ -3,6 +3,20 @@
    so no other `.mcm-page` screen is affected. */
 
 .gp-blocked {
+  /* `.page` inside relies on being a flex item of a column flex container
+     (`flex: 1; min-height: 0; overflow-y: auto`, in mcm-page.css) to be
+     bounded to the available height and scroll internally — that's what
+     every other Directory page gets for free by having `.page` as a direct
+     child of `.mcm-page` (itself `display: flex; flex-direction: column`).
+     This wrapper (added only for the gradient background) sits between the
+     two, and as a plain block it broke that chain: `.page` fell back to its
+     natural content height, silently overflowing past `.mcm-page`'s
+     `overflow: hidden` with nothing left to scroll it — the page just
+     stopped scrolling once the "Block a number" form pushed the content
+     taller than the viewport. Repeating the same flex-column treatment here
+     passes the bounded height through instead of absorbing it. */
+  display: flex;
+  flex-direction: column;
   position: relative;
   isolation: isolate;
   min-height: 100%;
@@ -69,9 +83,273 @@
 
 .gp-blocked .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 260px);
+}
+
+/* ---- the blocked list: a table, matching Directory ▸ People's own table
+   styling exactly (same header/row/hover treatment) rather than this page
+   reading as a different product. Header/body are split into independent
+   scroll boxes, same technique and reason as People's own table
+   (people-glass.css): a sticky `<thead>` doesn't stop its scrolling
+   ancestor's native scrollbar from spanning the full box, header band
+   included. */
+.gp-blocked .tbl-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.gp-blocked table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: transparent;
+}
+.gp-blocked thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-blocked tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height. */
+  max-height: 420px;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-blocked thead tr,
+.gp-blocked tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-blocked th:nth-child(1),
+.gp-blocked td:nth-child(1) {
+  width: auto;
+}
+.gp-blocked th:nth-child(2),
+.gp-blocked td:nth-child(2) {
+  width: 150px;
+}
+.gp-blocked th:nth-child(3),
+.gp-blocked td:nth-child(3) {
+  width: auto;
+}
+.gp-blocked th:nth-child(4),
+.gp-blocked td:nth-child(4) {
+  width: 110px;
+}
+.gp-blocked th:nth-child(5),
+.gp-blocked td:nth-child(5) {
+  width: 130px;
+}
+.gp-blocked tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-blocked tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-blocked tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-blocked tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
+}
+.gp-blocked th {
+  background: #fffdfb;
+  color: #8a6f57;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
+  height: 40px;
+  font-size: 9.5px;
+}
+.gp-blocked td {
+  border-bottom-color: rgba(150, 100, 50, 0.1);
+}
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
+.gp-blocked tbody tr:hover {
+  background: rgba(255, 241, 235, 0.55);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.gp-blocked td:last-child .mini {
+  gap: 4px;
+}
+
+/* ---- "Block a number" dialog. Portaled to `document.body` (outside
+   `.mcm-page`), so — same reason every other Directory dialog uses literal
+   hex rather than this design system's `.mcm-page`-scoped CSS custom
+   properties — colours here are hard-coded instead of `var(--ink)` etc.,
+   which would resolve to nothing outside `.mcm-page`. */
+.gp-block-dialog {
+  background: #ffffff !important;
+}
+/* The `.ic` icon sprite's own fill/stroke rule is scoped to `.mcm-page`
+   (mcm-page.css) — this dialog is portaled to `document.body`, outside it,
+   so without this the sprite's line-based icons (the close "x", the shield
+   on the submit button) render with SVG's default black fill on an open
+   path, which has effectively zero area and shows nothing. */
+.gp-block-dialog .ic {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.gp-block-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gp-block-intro {
+  margin: 0;
+  font-size: 12.5px;
+  color: #6b5c4d;
+}
+.gp-block-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.gp-block-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2a2733;
+}
+.gp-block-hint {
+  font-size: 11.5px;
+  color: #8a7a67;
+  line-height: 1.4;
+}
+.gp-block-input {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(225, 200, 165, 0.9);
+  background: #fff;
+  font-size: 13px;
+  color: #2a2733;
+  outline: none;
+}
+.gp-block-input:focus {
+  border-color: #f2994a;
+  box-shadow: 0 0 0 3px rgba(242, 153, 74, 0.15);
+}
+.gp-block-select .custom-react-select__control {
+  border-color: rgba(225, 200, 165, 0.9) !important;
+  border-radius: 10px !important;
+  min-height: 38px !important;
+}
+.gp-block-summary {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff6e9;
+  border: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-summary p {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b5c4d;
+}
+.gp-block-summary p:last-child {
+  margin-bottom: 0;
+}
+.gp-block-summary p.is-blocking {
+  color: #c0392b;
+  font-weight: 600;
+}
+.gp-block-summary p.is-warning {
+  color: #b06a1a;
+}
+.gp-block-summary p.is-muted {
+  color: #9a948f;
+}
+.gp-block-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(150, 100, 50, 0.06);
+  color: #8a7a67;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.gp-block-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(242, 153, 74, 0.2);
+}
+.gp-block-cancel,
+.gp-block-secondary {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #f2994a;
+  background: #fff;
+  color: #f2994a;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.gp-block-cancel:hover,
+.gp-block-secondary:hover {
+  background: #f2994a;
+  color: #fff;
+}
+.gp-block-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #f2994a;
+  background: #f2994a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gp-block-submit:hover:not(:disabled) {
+  background: #e0863a;
+}
+.gp-block-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ---- Dark theme — same treatment as people-glass.css's own .dark block. ---- */

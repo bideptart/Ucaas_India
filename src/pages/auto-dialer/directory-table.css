@@ -1,0 +1,109 @@
+/* ============================================================
+   Directory-exact table styling for the Campaign section's other
+   TableManager-based pages (Leads, Call Scripts, Dispositions, DNC) —
+   none of these had ANY dedicated theme file before this, just the
+   platform's bare default table with flat rounded-square action icons.
+
+   Scoped under `.dtable-page`, a marker class added directly to each of
+   these pages' own outer wrapper (not `.cmp-shell`, the outer Campaign
+   shell all of them — including the already-styled Campaign List —
+   render inside via `<SuspenseOutlet />` in auto-dialer/index.tsx;
+   scoping there would also catch Campaign List's own already-Directory-
+   matched table a second time). Loaded once from auto-dialer/index.tsx
+   so every page under it picks it up without its own import.
+
+   Colours are Directory's own literal hex (people-glass.css /
+   roles-glass.css), not this section's sunset `--accent` retint
+   (campaign.css) — these tables were asked to match Directory exactly,
+   the same choice already made for Campaign List's own table. */
+
+/* Card wrapper — TableManager's own outer box (`rounded-xl border ...
+   overflow-hidden` in the non-split path, `rounded-[20px] ... flex flex-col
+   overflow-hidden` once splitStickyHeader is on) already clips to its own
+   radius; nudged to match Directory's 18px (`--r-lg`) instead of the
+   platform's own 12/20px defaults, same fix as Campaign List's table. */
+.dtable-page div:has(> .table-scroll) {
+  border-radius: 18px;
+}
+/* With `splitStickyHeader`, `.table-scroll` (the body) sits as a sibling
+   below the header, not inside it — but the shared base rule still
+   rounds all four of ITS OWN corners by default, drawing a second,
+   redundant curve right where the header meets the body. Same seam fix
+   as Campaign List's table (campaign.css) and Performance's own
+   splitStickyHeader tables (agents-theme.css et al): bottom corners only. */
+.dtable-page .table-scroll {
+  border-radius: 0 0 18px 18px;
+}
+
+/* Header — solid #fffdfb + a real 3px divider, not the platform's own
+   thinner/fainter default. `!important` because `data-slot="table-head"`
+   carries its own background utility class at equal specificity. */
+.dtable-page thead th {
+  background: #fffdfb !important;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4) !important;
+  /* The shared table-head component also carries a hardcoded
+     `border-[#EEE7DD]` vertical divider between columns — no Performance
+     or Directory table has one; dropped for the same clean single-line
+     header every other table now uses. */
+  border-right: 0 !important;
+}
+
+/* Row hover — the same peach wash + left accent bar every other
+   Performance/Directory table uses; these had no row hover at all. */
+.dtable-page tbody tr:hover {
+  background: rgba(255, 241, 235, 0.55);
+  box-shadow: inset 3px 0 0 #f2994a;
+}
+
+/* Action buttons — already a real circle (`rounded-full w-8 h-8`) in the
+   source markup, just flatly coloured (grey/red fill, solid-colour
+   hover). Glass rest state + filled sunset gradient on hover, matching
+   every Directory table's action column (people-glass.css /
+   roles-glass.css) — including Roles' own choice to put edit AND delete
+   on the same orange gradient hover rather than keeping delete's red, for
+   one consistent action-button language rather than two. Attribute
+   selectors, not a class this markup doesn't carry. */
+.dtable-page [class*='rounded-full'][class*='w-8'] {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  color: #6b5c4d;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.dtable-page [class*='rounded-full'][class*='w-8']:hover {
+  background: linear-gradient(135deg, #f2994a 0%, #c96f1f 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
+}
+/* Genuinely disabled rows (system dispositions, system DNC entries) keep
+   a flat, non-interactive look — a glass-to-gradient hover on a button
+   that does nothing on click would read as clickable when it isn't. */
+.dtable-page [class*='cursor-not-allowed'] {
+  background: rgba(148, 163, 184, 0.16) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.dtable-page [class*='cursor-not-allowed']:hover {
+  background: rgba(148, 163, 184, 0.16) !important;
+  color: inherit !important;
+  box-shadow: none !important;
+}
+
+/* Scrollbar — an exact copy of Directory's own (people-glass.css), not
+   the platform's plain default (9px, no gap between thumb and track). */
+.dtable-page .table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.dtable-page .table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.dtable-page .table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
+}

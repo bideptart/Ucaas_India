@@ -225,14 +225,10 @@ const Sidebar = () => {
 
       <section
         id="mobile-sidebar-nav"
-        /* Background/border moved from inline style to Tailwind classes
-           (with `dark:` variants) — inline `style` always wins over the
-           global dark-theme catch-all in index.css, which can only match
-           `class` attribute substrings, so the rail stayed permanently
-           cream-colored in Dark Mode. */
-        className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 dark:border-[rgba(71,85,105,0.5)] bg-[#fffaf4] dark:bg-[#1e293b] transition-transform duration-200 ${
+        className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 transition-transform duration-200 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0`}
+        style={{ background: '#fffaf4' }}
       >
         {/* This wrapper had no height, so the scroller's `h-full` below
             resolved against auto and never constrained anything — the views
@@ -243,31 +239,35 @@ const Sidebar = () => {
           <div className="rail-scroll flex h-full min-h-0 flex-col justify-between gap-1 overflow-y-auto px-2 w-full pt-4 pb-3">
             <div className="flex flex-col gap-1.5 items-center">
               {visibleNavList?.map((navItem: any, index: number) => {
-                const { id, link, icon, name, enabled, viewKey, sep, altPaths } = navItem;
+                const { id, link, icon, name, enabled, viewKey, sep, altPaths, altViews } = navItem;
                 /* A view item shares its path with every sibling, so the
                    `?view=` value decides which is lit — path alone would light
-                   them all.
-
-                   The same is true of the rail items that open a route of their
-                   own: Tasks and Calendar are both `/calendar`, separated only
-                   by the query. Comparing the whole link against the pathname
-                   also never matched, because the link carries that query and
-                   the pathname does not, so neither ever lit. */
+                   them all. Comparing the whole link against the pathname also
+                   never matched, because the link carries that query and the
+                   pathname does not, so it never lit either. */
                 const [linkPath, linkQuery = ''] = String(link).split('?');
                 const linkView = new URLSearchParams(linkQuery).get('view');
                 const onAltPath = Boolean(
                   altPaths?.some((path: string) => pathname === path || pathname?.startsWith(`${path}/`)),
                 );
                 const onLinkPath = Boolean(pathname?.startsWith(linkPath)) || onAltPath;
+                const currentQueryView = new URLSearchParams(search).get('view');
+                /* Calendar's Task Listing is a view inside Calendar's own page,
+                   not a rail item of its own — `?view=task-list` isn't the
+                   value this link's `href` carries, so without `altViews` the
+                   rail read it as "on some other, unlisted page" and nothing
+                   lit up the moment Task Listing opened. */
+                const onAltView = Boolean(currentQueryView && altViews?.includes(currentQueryView));
                 const activeLink = viewKey
                   ? onLinkPath && currentView === viewKey
-                  : onLinkPath && (!linkView || new URLSearchParams(search).get('view') === linkView);
+                  : onLinkPath &&
+                    (!linkView || currentQueryView === linkView || onAltView);
                 const isEnabled = enabled !== false;
 
                 return (
                   <Fragment key={`${id}${index}`}>
                     {sep ? (
-                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200 dark:bg-mcm-line" />
+                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200" />
                     ) : null}
                     <NavLink
                       to={isEnabled ? link || '#' : '#'}
@@ -289,28 +289,16 @@ const Sidebar = () => {
                            separate two items that share one — fall back to it
                            only where the link has no view to compare. */
                         const lit = viewKey || linkView ? activeLink : activeLink || isActive;
-                        /* `border` is applied unconditionally (transparent
-                           when not active) rather than only added on the
-                           active branch, so the 1px border-width is always
-                           reserved — adding a border only to the active
-                           state would otherwise grow that one tile by 2px
-                           and shift its icon/label by half that against its
-                           neighbours. dark:border-mcm-line-2, not
-                           dark:border-mcm-line: the active tile needs to
-                           read as clearly bordered against its own
-                           `--color-ucass-active-bg` fill (already a step
-                           lighter than the rail), so it uses the app's
-                           already-brighter second border tone rather than
-                           the standard one. Not orange: the active state
-                           here already commits to a neutral wash + white
-                           text in dark mode, with no orange anywhere on it
-                           to match. */
-                        return `min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 border ${
-                          lit
-                            ? 'bg-ucass-active-bg text-ucass-active dark:text-white border-transparent dark:border-mcm-line-2'
-                            : 'bg-transparent border-transparent'
-                        } hover:bg-ucass-active-bg hover:text-ucass-active dark:hover:text-white ${
-                          !isEnabled ? 'text-gray-400 dark:text-mcm-ink-4' : 'text-gray-700 dark:text-mcm-ink-2'
+                        /* `mcm-rail-item`/`is-active` are the hook for the
+                           active marker bar in index.css — a class rather
+                           than more utilities here because the bar is a
+                           `::before`, which Tailwind can't express inline
+                           without an arbitrary-variant soup that would be
+                           far harder to read than one named rule. */
+                        return `mcm-rail-item ${lit ? 'is-active' : ''} min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
+                          lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
+                        } hover:bg-ucass-active-bg hover:text-ucass-active ${
+                          !isEnabled ? 'text-gray-400' : 'text-gray-700'
                         } ${!isEnabled ? 'cursor-not-allowed' : ''}`;
                       }}
                       // className={({ isActive }) =>
@@ -375,7 +363,7 @@ const Sidebar = () => {
                       `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200  ${
                         link && isActive
                           ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                          : 'bg-white dark:bg-transparent text-gray-700 dark:text-mcm-ink-2'
+                          : 'bg-white text-gray-700'
                       } hover:${link && isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
                     }
                   >

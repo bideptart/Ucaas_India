@@ -1,8 +1,11 @@
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import { Bot } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 import CustomAvatar from '@/components/custom/custom-avatar';
+import { isDemoMode } from '@/lib/demo-mode';
+import { demoCaptainConversations } from '@/lib/demo-contact-centre';
 
 const CAPTAIN_API_BASE = '/captain-api/api/captain';
 
@@ -28,8 +31,12 @@ const CaptainChats = ({
   isCompactLayout?: boolean;
 }) => {
   const { user } = useUser();
+  const demoConversations = useMemo(
+    () => (isDemoMode() ? demoCaptainConversations() : []),
+    [],
+  );
 
-  const { data: conversations = [], isLoading } = useQuery({
+  const { data: liveConversations = [], isLoading } = useQuery({
     queryKey: ['captainConversations', user?.uuid],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -39,27 +46,36 @@ const CaptainChats = ({
     },
     // Same lightweight polling approach as the native Website channel — no
     // dedicated realtime channel for Captain conversations yet.
+    enabled: !isDemoMode(),
     refetchInterval: 5000,
     select: (json: any) => (json?.data as CaptainConversation[]) ?? [],
   });
 
-  if (isLoading) {
-    return <div className="p-4 text-sm text-gray-400 dark:text-mcm-ink-3">Loading…</div>;
+  const conversations = isDemoMode() ? demoConversations : liveConversations;
+
+  useEffect(() => {
+    if (selectedChat || !conversations.length) return;
+    setSelectedChat(conversations[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversations, selectedChat]);
+
+  if (isLoading && !isDemoMode()) {
+    return <div className="p-4 text-sm text-muted-foreground">Loading…</div>;
   }
 
   if (!conversations.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 h-full text-center p-6">
-        <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-mcm-surface-3 text-indigo-500 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-ucass-orange/10 text-ucass-orange flex items-center justify-center">
           <Bot className="w-5 h-5" />
         </div>
-        <p className="text-sm text-gray-500 dark:text-mcm-ink-3">No Captain conversations yet</p>
+        <p className="text-sm text-muted-foreground">No Captain conversations yet</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-y-auto">
+    <div className="flex flex-col h-full min-h-0 gap-1 overflow-y-auto p-2">
       {conversations.map((c) => {
         const isActive = selectedChat?.id === c.id;
         const label = c.visitor_name || c.visitor_email || 'Website visitor';
@@ -68,15 +84,17 @@ const CaptainChats = ({
             key={c.id}
             type="button"
             onClick={() => setSelectedChat(c)}
-            className={`flex items-center gap-3 p-3 text-left border-b border-gray-100 dark:border-mcm-line hover:bg-gray-50 dark:hover:bg-mcm-surface-3 ${
-              isActive ? 'bg-indigo-50 dark:bg-mcm-surface-3' : ''
+            className={`flex items-center gap-3 rounded-[12px] border-l-[3px] p-3 text-left transition-colors duration-200 ${
+              isActive
+                ? 'border-l-ucass-orange bg-[#FFF6EE]'
+                : 'border-l-transparent hover:border-l-[#F3D9BC] hover:bg-muted/50'
             }`}
           >
             <CustomAvatar name={label} size="36" showPresence={false} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-900 dark:text-mcm-ink truncate">{label}</p>
-                <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 shrink-0">{moment(c.last_message_at).fromNow()}</span>
+                <p className="text-sm font-medium text-gray-900 truncate">{label}</p>
+                <span className="text-[11px] text-gray-400 shrink-0">{moment(c.last_message_at).fromNow()}</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
@@ -86,7 +104,7 @@ const CaptainChats = ({
                 >
                   {c.owner === 'human' ? 'You' : 'AI'}
                 </span>
-                <span className="text-xs text-gray-400 dark:text-mcm-ink-3 truncate">{c.assistant_name}</span>
+                <span className="text-xs text-gray-400 truncate">{c.assistant_name}</span>
               </div>
             </div>
           </button>

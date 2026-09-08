@@ -23,17 +23,21 @@
  *    them, so a change on either side shows up as a failing test rather than a
  *    surprised customer.
  *
- * 3. **Currency is US dollars.** Every charge this platform makes goes through
- *    the payment processor in USD. Showing a different symbol would be a wrong
- *    fact on a billing screen, which is the one thing these screens must never
- *    do — so the symbol is fixed here rather than guessed per component.
+ * 3. **Currency is Indian Rupees.** This is an India-only product, so every
+ *    figure a customer sees is converted to INR at display time and shown
+ *    with the ₹ symbol — kept in one place here rather than guessed per
+ *    component. The underlying proration math (`prorate`, `MINIMUM_CHARGE`,
+ *    etc.) stays in its own consistent unit; only `formatMoney` converts, so
+ *    a figure is never accidentally converted twice.
  */
 
-/* Everything is charged in US dollars today. Kept as a constant, not sprinkled
-   through the screens, so the day a second currency exists there is one place
-   to change and one place to test. */
-export const BILLING_CURRENCY = 'USD';
-const CURRENCY_SYMBOL = '$';
+/* Every figure is converted to INR at the point it's formatted. Kept as a
+   constant, not sprinkled through the screens, so there is one place to
+   change the rate and one place to test it. */
+export const BILLING_CURRENCY = 'INR';
+const CURRENCY_SYMBOL = '₹';
+/* Approximate USD → INR conversion applied at display time. */
+export const USD_TO_INR_RATE = 83;
 
 /* A month, for billing purposes, is 30 days — the same rule the charge itself
    uses. Calendar months of 28 and 31 days would make the same plan cost
@@ -62,16 +66,16 @@ export const knownNumber = (value: unknown): number | null => {
 export const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 100) / 100;
 
-/* Money, written the way a customer expects to read it: symbol, thousands
-   separators, always two decimal places. "$124.50", never "$124.5".
+/* Money, written the way a customer expects to read it: symbol, Indian
+   digit grouping, always two decimal places. "₹124.50", never "₹124.5".
    An unknown figure comes back as null so the caller shows its own wording -
    this function will not print a zero it was not given. */
 export const formatMoney = (value: unknown): string | null => {
   const n = knownNumber(value);
   if (n === null) return null;
-  const rounded = roundMoney(n);
+  const rounded = roundMoney(n * USD_TO_INR_RATE);
   const negative = rounded < 0;
-  const body = Math.abs(rounded).toLocaleString('en-US', {
+  const body = Math.abs(rounded).toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

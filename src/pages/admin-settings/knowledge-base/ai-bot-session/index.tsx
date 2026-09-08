@@ -1,11 +1,25 @@
 import { getAgentList, getChatAgentList, getSessionList } from '@/services/api';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import AiSessionDetailDrawer from '@/pages/admin-settings/knowledge-base/components/ai-session-detail-drawer';
+import CustomSelect from '@/components/custom/custom-select';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, Download, Loader2, MessageSquare, Phone, Search } from 'lucide-react';
+import { Download, Loader2, MessageSquare, Phone, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type SessionChannel = 'all' | 'call' | 'chat';
+
+/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
+   the floating white header card actually reads as "floating" — without a
+   saturated backdrop behind it, a white card on the AdminHub shell's own
+   near-white background has almost no contrast to float against. */
+const AI_TOOLS_PAGE_GRADIENT = [
+  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
+  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
+  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
+  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
+  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
+].join(', ');
 type SelectOption = { label: string; value: string };
 type SessionIntent = { label: string; summary: string };
 type SentimentKey = 'positive' | 'neutral' | 'negative';
@@ -55,7 +69,7 @@ const formatDuration = (durationMs: any) => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
-const formatCost = (value: any) => `$${safeNumber(value).toFixed(2)}`;
+const formatCost = (value: any) => `₹${(safeNumber(value) * USD_TO_INR_RATE).toFixed(2)}`;
 
 const hasSessionCost = (session: any) =>
   session?.totalCostUSD !== null && session?.totalCostUSD !== undefined;
@@ -175,7 +189,7 @@ const getOutcomeClass = (outcome: string) => {
   if (outcome === 'Resolved') return 'bg-emerald-100 text-emerald-700';
   if (outcome === 'Handoff') return 'bg-amber-100 text-amber-800';
   if (outcome === 'Callback') return 'bg-blue-100 text-blue-700';
-  if (outcome === 'Active') return 'bg-slate-100 dark:bg-mcm-surface-3 text-slate-700 dark:text-mcm-ink-2';
+  if (outcome === 'Active') return 'bg-slate-100 text-slate-700';
   return 'bg-rose-100 text-rose-700';
 };
 
@@ -290,22 +304,22 @@ const SentimentGraph = ({ session }: { session: any }) => {
   return (
     <div className="group relative flex w-fit items-center gap-[7px]">
       <span className="text-sm">{getSentimentEmoji(session)}</span>
-      <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200 dark:bg-mcm-surface-3">
+      <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${score}%` }} />
       </div>
-      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-3 text-left shadow-xl group-hover:block">
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
+      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
           Sentiment scores
         </div>
         {hasScores ? (
           <div className="space-y-2">
             {sentimentScores.map((item) => (
               <div key={item.key}>
-                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-mcm-ink-2">
+                <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-slate-700">
                   <span>{item.label}</span>
                   <span>{item.score}/100</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-mcm-surface-3">
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                   <div
                     className={`h-full rounded-full ${item.colorClass}`}
                     style={{ width: `${item.score}%` }}
@@ -315,7 +329,7 @@ const SentimentGraph = ({ session }: { session: any }) => {
             ))}
           </div>
         ) : (
-          <div className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Not analyzed</div>
+          <div className="text-xs font-semibold text-slate-500">Not analyzed</div>
         )}
       </div>
     </div>
@@ -323,9 +337,9 @@ const SentimentGraph = ({ session }: { session: any }) => {
 };
 
 const StatCard = ({ title, value, icon }: { title: string; value: string; icon?: string }) => (
-  <div className="rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-3.5 shadow-sm">
-    <div className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">{title}</div>
-    <div className="mt-1 text-[22px] font-bold leading-tight text-slate-950 dark:text-mcm-ink">{value}</div>
+  <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-3.5 shadow-sm">
+    <div className="text-[11px] font-medium text-slate-500">{title}</div>
+    <div className="mt-1 text-[22px] font-bold leading-tight text-slate-950">{value}</div>
     <div className="mt-0.5 min-h-[14px] text-[11px] leading-none text-emerald-600">
       {icon || '\u00a0'}
     </div>
@@ -525,38 +539,50 @@ const AiBotSession = () => {
   };
 
   return (
-    <section className="relative flex h-full w-full flex-col overflow-hidden bg-slate-50 dark:bg-mcm-ground">
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-7 py-[18px]">
-        <div className="text-base font-semibold text-slate-950 dark:text-mcm-ink">
+    <section
+      className="relative flex h-full w-full flex-col overflow-hidden p-4"
+      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
+    >
+      <div
+        className="mb-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-4"
+        /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
+           app-wide, unlayered "glass pass" that deliberately turns any
+           `rounded-*` + `bg-white` card translucent — inline style is what
+           actually renders solid white. */
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 10px 34px rgba(160,95,30,0.16), inset 0 1px 0 rgba(255,255,255,0.8)',
+        }}
+      >
+        <div>
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-            className="font-medium text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
+            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
           >
             AI Agents
           </button>
-          <span className="mx-2 text-slate-400 dark:text-mcm-ink-3">/</span>
-          Sessions
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">Sessions</h1>
+          <p className="mt-1 text-[13px] text-[#6b5c4d]">
+            Every AI receptionist call & AI chatbot conversation — with transcripts, sentiment &
+            outcomes.
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="relative">
-            <select
-              value={dateRange}
-              onChange={(event) => setDateRange(event.target.value)}
-              className="h-[34px] min-w-[140px] appearance-none rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-9 text-xs font-semibold text-slate-950 dark:text-mcm-ink outline-none"
-            >
-              {dateRangeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-mcm-ink-3" />
+          <div className="min-w-[140px]">
+            <CustomSelect
+              value={dateRangeOptions.find((option) => option.value === dateRange) || null}
+              handleChange={(option: any) => setDateRange(option?.value || dateRangeOptions[0].value)}
+              options={dateRangeOptions}
+              placeholder="Select range..."
+            />
           </div>
           <button
             type="button"
             onClick={exportCsv}
-            className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-slate-400 dark:hover:border-mcm-line"
+            className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border px-3 text-xs font-semibold"
+            style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -564,15 +590,7 @@ const AiBotSession = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-7 py-6">
-        <div>
-          <h1 className="text-[19px] font-extrabold leading-tight text-slate-950 dark:text-mcm-ink">Sessions</h1>
-          <p className="mt-1 text-[13px] text-slate-500 dark:text-mcm-ink-3">
-            Every AI receptionist call & AI chatbot conversation — with transcripts, sentiment &
-            outcomes.
-          </p>
-        </div>
-
+      <div className="flex-1 overflow-y-auto">
         <div className="my-4 grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
           <StatCard title="Total sessions" value={String(stats.totalSessions)} />
           <StatCard title="Voice calls" value={String(stats.voiceCalls)} />
@@ -585,12 +603,12 @@ const AiBotSession = () => {
 
         <div className="mb-3.5 flex flex-nowrap items-center gap-2.5 max-xl:flex-wrap">
           <div className="relative min-w-[220px] flex-[1_1_220px]">
-            <Search className="absolute left-[13px] top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-mcm-ink-3" />
+            <Search className="absolute left-[13px] top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
               placeholder="Search by contact, agent, intent or transcript..."
-              className="h-[38px] w-full rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface pl-[38px] pr-3 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none placeholder:text-slate-400 dark:text-mcm-ink-3 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+              className="h-[38px] w-full rounded-[10px] border border-slate-200 bg-white pl-[38px] pr-3 text-[13.5px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
             />
           </div>
           {(['all', 'call', 'chat'] as SessionChannel[]).map((channel) => {
@@ -601,55 +619,44 @@ const AiBotSession = () => {
                 key={channel}
                 type="button"
                 onClick={() => setActiveChannel(channel)}
-                className={`inline-flex h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold ${
+                className="inline-flex h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold"
+                /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                   (mcm-page.css) forces a plain button's own background/
+                   color/border to none/inherit/0 ahead of any Tailwind
+                   utility — inline style is what actually wins. Also swapped
+                   the leftover blue accent for the app's orange primary, to
+                   match the rest of the AI Tools section. */
+                style={
                   isActive
-                    ? 'border-blue-600 bg-blue-600 text-white'
-                    : 'border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3'
-                }`}
+                    ? { borderColor: 'var(--primary)', backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#475569' }
+                }
               >
                 {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
                 {channel === 'all' ? 'All' : channel === 'call' ? 'Voice' : 'Chat'}
               </button>
             );
           })}
-          <div className="relative min-w-[190px]">
-            <select
-              value={selectedAgent.value}
-              onChange={(event) => {
-                const option = agentOptions.find((item) => item.value === event.target.value);
-                setSelectedAgent(option || allAgentsOption);
-              }}
-              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-8 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none"
-            >
-              {agentOptions.map((option) => (
-                <option key={option.value || 'all-agents'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-mcm-ink-2" />
+          <div className="min-w-[190px]">
+            <CustomSelect
+              value={selectedAgent}
+              handleChange={(option: any) => setSelectedAgent(option || allAgentsOption)}
+              options={agentOptions}
+              placeholder="All agents"
+            />
           </div>
-          <div className="relative min-w-[170px]">
-            <select
-              value={selectedOutcome.value}
-              onChange={(event) => {
-                const option = outcomeOptions.find((item) => item.value === event.target.value);
-                setSelectedOutcome(option || allOutcomesOption);
-              }}
-              className="h-[38px] w-full appearance-none rounded-[10px] border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 pr-8 text-[13.5px] text-slate-900 dark:text-mcm-ink outline-none"
-            >
-              {outcomeOptions.map((option) => (
-                <option key={option.value || 'all-outcomes'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-mcm-ink-2" />
+          <div className="min-w-[170px]">
+            <CustomSelect
+              value={selectedOutcome}
+              handleChange={(option: any) => setSelectedOutcome(option || allOutcomesOption)}
+              options={outcomeOptions}
+              placeholder="All outcomes"
+            />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface shadow-sm">
-          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-200 dark:border-mcm-line bg-gradient-to-b from-white to-slate-50 dark:from-mcm-surface dark:to-mcm-surface-3 px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500 dark:text-mcm-ink-3">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50 px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
             <div>Channel</div>
             <div>Agent</div>
             <div>Contact</div>
@@ -662,7 +669,7 @@ const AiBotSession = () => {
           </div>
 
           {isLoadingSessions || isLoadingReceptionists || isLoadingChatAgents ? (
-            <div className="flex min-h-[260px] items-center justify-center text-slate-500 dark:text-mcm-ink-3">
+            <div className="flex min-h-[260px] items-center justify-center text-slate-500">
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Loading sessions...
             </div>
@@ -675,24 +682,27 @@ const AiBotSession = () => {
               return (
                 <div
                   key={session?.sessionId}
-                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-[18px] py-3 last:border-b-0 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-100 px-[18px] py-3 last:border-b-0 hover:bg-slate-50"
                   onClick={() => setSelectedSession(session)}
                 >
                   <div>
                     <ChannelPill channel={session?.channel} />
                   </div>
                   <div className="flex min-w-0 items-center gap-[9px]">
-                    <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+                    <div
+                      className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style={{ backgroundColor: 'var(--primary)' }}
+                    >
                       {getInitials(agentName)}
                     </div>
                     <div className="min-w-0">
                       <div
-                        className="truncate text-[13px] font-bold text-slate-950 dark:text-mcm-ink"
+                        className="truncate text-[13px] font-bold text-slate-950"
                         title={agentName}
                       >
                         {agentName}
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-mcm-ink-3">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
                         {deletedAgent ? (
                           <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-600">
                             Deleted
@@ -706,21 +716,21 @@ const AiBotSession = () => {
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="truncate text-[13px] font-semibold text-slate-800 dark:text-mcm-ink">
+                    <div className="truncate text-[13px] font-semibold text-slate-800">
                       {getContactTitle(session)}
                     </div>
-                    <div className="truncate font-mono text-[11px] text-slate-500 dark:text-mcm-ink-3">
+                    <div className="truncate font-mono text-[11px] text-slate-500">
                       {getContactSubText(session)}
                     </div>
                   </div>
-                  <div className="whitespace-nowrap text-[12.5px] text-slate-700 dark:text-mcm-ink-2">
+                  <div className="whitespace-nowrap text-[12.5px] text-slate-700">
                     {formatStarted(session?.startedAt || session?.createdAt)}
                   </div>
-                  <div className="whitespace-nowrap text-[12.5px] text-slate-700 dark:text-mcm-ink-2">
+                  <div className="whitespace-nowrap text-[12.5px] text-slate-700">
                     {formatDuration(session?.durationMs)}
                   </div>
                   <div
-                    className="whitespace-nowrap text-[12.5px] font-bold text-slate-900 dark:text-mcm-ink"
+                    className="whitespace-nowrap text-[12.5px] font-bold text-slate-900"
                     title={getCostBasis(session)}
                   >
                     {hasSessionCost(session) ? formatCost(session?.totalCostUSD) : '-'}
@@ -737,8 +747,9 @@ const AiBotSession = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedSession(session)}
-                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border"
                       aria-label="Open session"
+                      style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#475569' }}
                     >
                       <MessageSquare className="h-[15px] w-[15px]" />
                     </button>
@@ -747,7 +758,7 @@ const AiBotSession = () => {
               );
             })
           ) : (
-            <div className="flex min-h-[260px] items-center justify-center text-slate-500 dark:text-mcm-ink-3">
+            <div className="flex min-h-[260px] items-center justify-center text-slate-500">
               No sessions found.
             </div>
           )}
@@ -755,7 +766,7 @@ const AiBotSession = () => {
           !isLoadingReceptionists &&
           !isLoadingChatAgents &&
           tableRows.length ? (
-            <div className="flex items-center justify-between border-t border-slate-200 dark:border-mcm-line px-[18px] py-3 text-xs text-slate-500 dark:text-mcm-ink-3">
+            <div className="flex items-center justify-between border-t border-slate-200 px-[18px] py-3 text-xs text-slate-500">
               <div>
                 Showing {pageStart}-{pageEnd} of {tableRows.length}
               </div>
@@ -764,18 +775,20 @@ const AiBotSession = () => {
                   type="button"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  className="rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-1.5 font-semibold text-slate-700 dark:text-mcm-ink-2 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
                 >
                   Previous
                 </button>
-                <span className="font-semibold text-slate-700 dark:text-mcm-ink-2">
+                <span className="font-semibold text-slate-700">
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  className="rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-1.5 font-semibold text-slate-700 dark:text-mcm-ink-2 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
                 >
                   Next
                 </button>

@@ -281,7 +281,7 @@ const FolderList = ({
 
   return (
     <div className="w-full flex flex-col h-full bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-white dark:bg-mcm-surface flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200 dark:border-b-mcm-line">
+      <div className="w-full shrink-0 px-4 bg-white flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200">
         <div
           className="cursor-pointer"
           onClick={() => {
@@ -298,8 +298,8 @@ const FolderList = ({
           }}
         >
           <div className="flex gap-2 items-center">
-            <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-mcm-ink-3" />
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-mcm-ink">
+            <ArrowLeft className="w-5 h-5 text-gray-500" />
+            <h3 className="text-sm lg:text-base font-semibold text-gray-900">
               {getObjectLength(selectedFolder) ? selectedFolder?.folderName : 'Folders'}
             </h3>
           </div>
@@ -312,7 +312,7 @@ const FolderList = ({
               side="left"
             >
               <div
-                className="cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 text-gray-900/80 dark:bg-mcm-surface-3 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                className="cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
                 onClick={() => {
                   if (getObjectLength(selectedFolder)) {
                     setAddFileModal(selectedFolder);
@@ -340,7 +340,7 @@ const FolderList = ({
       </div>
 
       {getObjectLength(selectedFolder) ? (
-        <div className="flex-1 w-full bg-white dark:bg-mcm-surface lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 w-full bg-white lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
           <div ref={scrollRef} className="flex-1 overflow-y-auto pr-2 pb-2">
             {(() => {
               const rawFolderAttachments = Array.isArray(selectedFolder?.attachments)
@@ -409,19 +409,19 @@ const FolderList = ({
                     return (
                       <div
                         key={`${entry?.key}-${file?.filename || file?.serverFileName || file?.name || fileIndex}`}
-                        className="group border border-gray-200 p-3.5 flex items-start gap-3 rounded-xl cursor-pointer hover:border-ucass-active-bg hover:shadow-[0_4px_16px_rgba(15,23,42,0.08)] transition-all bg-white dark:border-mcm-line dark:bg-mcm-surface"
+                        className="group border border-gray-200 p-3.5 flex items-start gap-3 rounded-xl cursor-pointer hover:border-ucass-active-bg hover:shadow-[0_4px_16px_rgba(15,23,42,0.08)] transition-all bg-white"
                       >
                         <div className="flex flex-row items-start gap-2.5 flex-1 min-w-0">
-                          <div className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 shrink-0 dark:border-mcm-line dark:bg-mcm-surface-3">
+                          <div className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 shrink-0">
                             <FileIconRender type={extension} />
                           </div>
 
                           <div className="flex flex-col justify-between text-sm flex-1 min-w-0">
                             <div className="flex flex-col">
-                              <p className="font-semibold text-gray-900 truncate max-w-[200px] dark:text-mcm-ink">
+                              <p className="font-semibold text-gray-900 truncate max-w-[200px]">
                                 {file?.name || ''}
                               </p>
-                              <p className="text-gray-800 truncate dark:text-mcm-ink-2">
+                              <p className="text-gray-800 truncate">
                                 {file?.size ? formatBytes(file.size) : ''}
                               </p>
                               <div className="min-h-[16px] mt-0.5">
@@ -445,7 +445,7 @@ const FolderList = ({
                               className={`cursor-pointer flex items-center justify-center rounded-full w-7 h-7 border transition-colors ${
                                 isFilePinned(file)
                                   ? 'bg-ucass-active-bg border-ucass-active-bg text-ucass-active hover:bg-ucass-primary-200 hover:text-primary'
-                                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-mcm-surface-3 dark:border-mcm-line dark:text-mcm-ink-3 dark:hover:bg-mcm-surface dark:hover:text-mcm-ink-2'
+                                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'
                               }`}
                             >
                               <Pin className="w-4 h-4" />
@@ -472,11 +472,11 @@ const FolderList = ({
               ) : (
                 <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden h-full">
                   <div className="flex flex-col justify-center items-center gap-2 py-5 h-full w-full mx-auto">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-mcm-surface-3 flex items-center justify-center mb-2">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-2">
                       <FileIconRender type="unknown" />
                     </div>
-                    <p className="text-base font-semibold text-gray-900 dark:text-mcm-ink">No files</p>
-                    <p className="text-sm text-center text-gray-500 dark:text-mcm-ink-3 max-w-xs">
+                    <p className="text-base font-semibold text-gray-900">No files</p>
+                    <p className="text-sm text-center text-gray-500 max-w-xs">
                       No files uploaded to this folder yet.
                     </p>
                   </div>
@@ -486,14 +486,15 @@ const FolderList = ({
           </div>
         </div>
       ) : sortedFolders?.length > 0 ? (
-        <div className="flex-1 w-full bg-white dark:bg-mcm-surface lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 w-full bg-white lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
           <div ref={folderGridRef} className="flex-1 overflow-y-auto pr-2 pb-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
               {sortedFolders?.map((v: any) => {
                 const { folderName } = v || {};
                 return (
                   <div
-                    className="group border border-gray-200 p-3.5 flex gap-3 rounded-xl cursor-pointer hover:border-ucass-active-bg hover:shadow-[0_4px_16px_rgba(15,23,42,0.08)] justify-between items-start bg-white dark:border-mcm-line dark:bg-mcm-surface transition-all"
+                    key={v?._id || folderName}
+                    className="group border border-gray-200 p-3.5 flex gap-3 rounded-xl cursor-pointer hover:border-ucass-active-bg hover:shadow-[0_4px_16px_rgba(15,23,42,0.08)] justify-between items-start bg-white transition-all"
                     onClick={() => {
                       setSelectedFolder(v);
                       setTimeout(() => {
@@ -508,14 +509,14 @@ const FolderList = ({
                   >
                     <div className="flex-col flex-1 min-w-0">
                       <div className="flex items-start gap-2">
-                        <div className="mt-0.5 text-gray-700 dark:text-mcm-ink-2 w-9 h-9 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 dark:border-mcm-line dark:bg-mcm-surface-3">
-                          <Folder className="w-5 h-5 text-gray-500 dark:text-mcm-ink-3" />
+                        <div className="mt-0.5 text-gray-700 w-9 h-9 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                          <Folder className="w-5 h-5 text-gray-500" />
                         </div>
                         <div className="flex flex-col overflow-hidden">
-                          <h3 className="text-sm font-semibold text-gray-900 truncate dark:text-mcm-ink">
+                          <h3 className="text-sm font-semibold text-gray-900 truncate">
                             {folderName || ''}
                           </h3>
-                          <span className="text-[11px] text-gray-500 truncate mt-0.5 dark:text-mcm-ink-3">
+                          <span className="text-[11px] text-gray-500 truncate mt-0.5">
                             Created by {getFolderCreatorLabel(v)} |{' '}
                             {moment(v?.createdAt).format('DD MMM YYYY')}
                           </span>
@@ -543,7 +544,7 @@ const FolderList = ({
                           className={`cursor-pointer w-7 h-7 rounded-full border flex items-center justify-center transition-colors ${
                             isFolderPinned(v)
                               ? 'bg-ucass-active-bg border-ucass-active-bg text-ucass-active hover:bg-ucass-primary-200 hover:text-primary'
-                              : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-mcm-surface-3 dark:border-mcm-line dark:text-mcm-ink-3 dark:hover:bg-mcm-surface dark:hover:text-mcm-ink-2'
+                              : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'
                           }`}
                         >
                           <Pin className="w-3.5 h-3.5" />
@@ -578,11 +579,11 @@ const FolderList = ({
       ) : (
         <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden">
           <div className="flex flex-col justify-center items-center gap-2 py-5 h-full w-full mx-auto">
-            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-mcm-surface-3 flex items-center justify-center mb-2">
-              <Folder className="w-8 h-8 text-gray-400 dark:text-mcm-ink-3" />
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+              <Folder className="w-8 h-8 text-gray-400" />
             </div>
-            <p className="text-base font-semibold text-gray-900 dark:text-mcm-ink">No folders yet</p>
-            <p className="text-sm text-center text-gray-500 dark:text-mcm-ink-3 max-w-xs">
+            <p className="text-base font-semibold text-gray-900">No folders yet</p>
+            <p className="text-sm text-center text-gray-500 max-w-xs">
               Organize your team's files by creating a folder.
             </p>
           </div>

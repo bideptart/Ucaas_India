@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import TextEditor, { defaultEditorValue } from '@/pages/messenger/chat/editor';
+import { isDemoMode } from '@/lib/demo-mode';
+import { demoCaptainMessages } from '@/lib/demo-contact-centre';
 
 const CAPTAIN_API_BASE = '/captain-api/api/captain';
 
@@ -13,7 +15,7 @@ type CaptainMessage = { id: string; role: 'visitor' | 'assistant' | 'agent'; con
 
 const bubbleClass = (role: CaptainMessage['role']) =>
   role === 'visitor'
-    ? 'bg-white dark:bg-mcm-surface-3 text-gray-900 dark:text-mcm-ink border border-gray-200 dark:border-mcm-line'
+    ? 'bg-white text-gray-900 border border-gray-200'
     : role === 'agent'
       ? 'bg-primary text-white'
       : 'bg-indigo-500 text-white';
@@ -41,11 +43,12 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
   const { data: messages = [] } = useQuery({
     queryKey: ['captainConversationMessages', selectedChat?.id],
     queryFn: async () => {
+      if (isDemoMode()) return { data: demoCaptainMessages(selectedChat.id) };
       const res = await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/messages`);
       return res.json();
     },
     enabled: Boolean(selectedChat?.id),
-    refetchInterval: 4000,
+    refetchInterval: isDemoMode() ? false : 4000,
     select: (json: any) => (json?.data as CaptainMessage[]) ?? [],
   });
 
@@ -55,6 +58,19 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   const { mutate: mutateSend, isPending: isSending } = useMutation({
     mutationFn: async (content: string) => {
+      if (isDemoMode()) {
+        const newMessage: CaptainMessage = {
+          id: `${selectedChat.id}-msg-${Date.now()}`,
+          role: 'agent',
+          content,
+          created_at: new Date().toISOString(),
+        };
+        queryClient.setQueryData(
+          ['captainConversationMessages', selectedChat.id],
+          (old: any) => ({ data: [...(old?.data || []), newMessage] }),
+        );
+        return { success: true };
+      }
       const res = await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +81,13 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
     onSuccess: () => {
       editorRef.current?.resetEditor?.();
       setDraftValue(defaultEditorValue);
-      queryClient.invalidateQueries({ queryKey: ['captainConversationMessages', selectedChat.id] });
-      queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+      /* Demo mode already appended the message straight into the cache
+         above — invalidating here would re-run queryFn and hand back the
+         static seed, silently dropping what was just "sent". */
+      if (!isDemoMode()) {
+        queryClient.invalidateQueries({ queryKey: ['captainConversationMessages', selectedChat.id] });
+        queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+      }
     },
   });
 
@@ -79,13 +100,16 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   const { mutate: mutateToggleAi } = useMutation({
     mutationFn: async (resume: boolean) => {
+      if (isDemoMode()) return;
       if (resume) {
         await fetch(`${CAPTAIN_API_BASE}/widget-conversations/${selectedChat.id}/hand-back-to-ai`, { method: 'POST' });
       }
       // Pausing (handing to a human) happens implicitly the moment an agent sends
       // a reply — mirrored below so the switch reflects intent immediately.
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['captainConversations'] }),
+    onSuccess: () => {
+      if (!isDemoMode()) queryClient.invalidateQueries({ queryKey: ['captainConversations'] });
+    },
   });
 
   if (!selectedChat) return null;
@@ -95,24 +119,24 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-between gap-3 p-3 border-b border-[#EEE7DD] dark:border-b-mcm-line">
+      <div className="flex items-center justify-between gap-3 p-3 border-b border-[#EEE7DD]">
         <div className="flex items-center gap-2 min-w-0">
           {onBackToList && (
-            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3 lg:hidden">
+            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-[#FBE2C8]/40 lg:hidden">
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
           <CustomAvatar name={label} size="36" showPresence={false} />
           <div className="min-w-0">
-            <p className="font-medium text-[#2E2D35] dark:text-mcm-ink-2 truncate">{label}</p>
-            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 truncate">
+            <p className="font-medium text-[#2E2D35] truncate">{label}</p>
+            <p className="text-xs text-[#9A948F] truncate">
               {selectedChat.visitor_email && selectedChat.visitor_name ? selectedChat.visitor_email : selectedChat.assistant_name || 'Captain'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Bot className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
-          <span className="text-xs text-[#9A948F] dark:text-mcm-ink-3">AI replying</span>
+          <Bot className="w-4 h-4 text-[#9A948F]" />
+          <span className="text-xs text-[#9A948F]">AI replying</span>
           <Switch checked={!aiPaused} onCheckedChange={(checked) => mutateToggleAi(checked)} />
         </div>
       </div>
@@ -125,8 +149,8 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
             <div key={m.id} className={`flex items-start gap-2 ${isVisitor ? 'justify-start' : 'flex-row-reverse justify-start'}`}>
               <CustomAvatar name={isVisitor ? label : m.role === 'agent' ? 'You' : 'AI Assistant'} size="32" showPresence={false} />
               <div className={`flex max-w-[70%] flex-col gap-1 ${isVisitor ? 'items-start' : 'items-end'}`}>
-                <div className="flex items-baseline gap-1.5 px-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
-                  <span className="font-medium text-[#9A948F] dark:text-mcm-ink-3">{senderName}</span>
+                <div className="flex items-baseline gap-1.5 px-1 text-xs text-[#9A948F]">
+                  <span className="font-medium text-[#9A948F]">{senderName}</span>
                   <span>{moment(m.created_at).format('h:mm A')}</span>
                 </div>
                 <div className={`rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${bubbleClass(m.role)}`}>
@@ -139,8 +163,8 @@ const CaptainContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
         <div ref={bottomRef} />
       </div>
 
-      <div className="flex items-end gap-2 border-t border-[#EEE7DD] dark:border-t-mcm-line p-3">
-        <div className="flex-1">
+      <div className="flex items-end gap-2 border-t border-[#EEE7DD] p-3">
+        <div className="min-w-0 flex-1">
           <TextEditor
             ref={editorRef}
             initialValue={defaultEditorValue}

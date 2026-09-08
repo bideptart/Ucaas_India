@@ -39,7 +39,7 @@ const extractUpdatedByName = (
       ? [updatedByIds]
       : [];
 
-  if (!ids.length) return <div className="font-medium text-[#2E2D35] dark:text-mcm-ink">---</div>;
+  if (!ids.length) return <div className="font-medium text-[#2E2D35]">---</div>;
 
   const idsToShow = [ids[ids.length - 1]];
   const usersToShow = idsToShow
@@ -54,10 +54,10 @@ const extractUpdatedByName = (
     })
     .filter(Boolean);
 
-  if (!usersToShow.length) return <div className="font-medium text-[#2E2D35] dark:text-mcm-ink">---</div>;
+  if (!usersToShow.length) return <div className="font-medium text-[#2E2D35]">---</div>;
 
   return (
-    <div className="font-medium text-[#2E2D35] dark:text-mcm-ink">
+    <div className="font-medium text-[#2E2D35]">
       {usersToShow.map((item: any, index: number) => (
         <span key={`${item?.name}-${index}`}>
           {index > 0 ? ', ' : ''}
@@ -180,7 +180,7 @@ const GroupAssignCell: FC<{
 
   if (isSystemGenerated) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-gray-150 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 cursor-not-allowed opacity-60 shadow-3xs">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-gray-150 bg-[#FBE2C8]/45 text-[#9A948F] cursor-not-allowed opacity-60 shadow-3xs">
         Change Group
         <ChevronDown className="w-3.5 h-3.5 opacity-40" />
       </span>
@@ -191,21 +191,21 @@ const GroupAssignCell: FC<{
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-gray-200 dark:border-mcm-line bg-white dark:bg-mcm-surface text-[#2E2D35] dark:text-mcm-ink cursor-pointer hover:bg-gray-50 dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink transition-all shadow-3xs">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border !border-primary bg-white text-[#2E2D35] cursor-pointer hover:bg-[#fff1e0] hover:text-[#2E2D35] transition-all shadow-3xs">
             Change Group
             <ChevronDown className="w-3.5 h-3.5 opacity-80" />
           </span>
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="w-56 p-2 flex flex-col gap-2 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-md rounded-md z-50"
+          className="w-56 p-2 flex flex-col gap-2 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-primary shadow-md rounded-md z-50"
         >
-          <div className="text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3 px-2 py-1 border-b border-gray-100 dark:border-mcm-line">
+          <div className="text-xs font-semibold text-[#9A948F] px-2 py-1 border-b border-gray-100">
             Assign Groups
           </div>
           <div className="flex flex-col max-h-48 overflow-y-auto gap-1">
             {groupList.length === 0 ? (
-              <div className="px-2 py-1.5 text-xs text-[#9A948F] dark:text-mcm-ink-3">No groups available</div>
+              <div className="px-2 py-1.5 text-xs text-[#9A948F]">No groups available</div>
             ) : (
               groupList.map((group: any) => {
                 const groupId = groupIdOf(group);
@@ -213,7 +213,7 @@ const GroupAssignCell: FC<{
                 return (
                   <div
                     key={groupId}
-                    className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3 rounded-md cursor-pointer text-sm"
+                    className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#FBE2C8]/45 rounded-md cursor-pointer text-sm"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -226,9 +226,10 @@ const GroupAssignCell: FC<{
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
+                      className="border-primary"
                     />
                     <span
-                      className="truncate flex-1 text-[#2E2D35] dark:text-mcm-ink select-none"
+                      className="truncate flex-1 text-[#2E2D35] select-none"
                       title={group.groupName}
                     >
                       {group.groupName}
@@ -241,7 +242,7 @@ const GroupAssignCell: FC<{
           <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
             <Button
               size="sm"
-              variant="transparent"
+              variant="outline"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -253,7 +254,7 @@ const GroupAssignCell: FC<{
             </Button>
             <Button
               size="sm"
-              variant="outline"
+              variant="primary"
               disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
@@ -281,7 +282,7 @@ const GroupAssignCell: FC<{
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ucass-active-bg text-ucass-active">
               <Icon name="QuestionIcon" className="h-8 w-8" />
             </div>
-            <p className="text-center text-[#9A948F] dark:text-mcm-ink-3">
+            <p className="text-center text-[#9A948F]">
               Are you sure you want to update the assigned groups for this{' '}
               {isLead ? 'lead' : 'contact'}?
             </p>
@@ -304,6 +305,12 @@ const AllNewContactsList: FC<any> = ({
      other caller of this component (Leads ▸ Contact Logs) is unaffected
      unless it explicitly opts in. */
   tableWrapperClassName = '',
+  /* Both additive, both passed straight through to `TableManager` and both
+     default to its own defaults (false/undefined) — opt-in per caller, so
+     /contact and Leads ▸ Contact Logs keep their current behaviour unless
+     they ask for this too. */
+  splitStickyHeader = false,
+  visibleRowCount,
 }) => {
   const navigate = useNavigate();
   const tableRef = useRef<any>(null);
@@ -449,7 +456,7 @@ const AllNewContactsList: FC<any> = ({
             }
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             aria-label="Select all"
-            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white dark:bg-mcm-surface shadow-sm hover:border-primary data-[state=checked]:border-primary"
+            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white shadow-sm hover:border-primary data-[state=checked]:border-primary"
           />
         </div>
       ),
@@ -459,7 +466,7 @@ const AllNewContactsList: FC<any> = ({
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select row"
-            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white dark:bg-mcm-surface shadow-sm hover:border-primary data-[state=checked]:border-primary"
+            className="size-[18px] rounded-[5px] border-2 border-[#b89b6e] bg-white shadow-sm hover:border-primary data-[state=checked]:border-primary"
           />
         </div>
       ),
@@ -484,7 +491,7 @@ const AllNewContactsList: FC<any> = ({
             image={row.original.profile?.contactPic}
           />
           <div>
-            <span className="font-medium text-[#2E2D35] dark:text-mcm-ink">
+            <span className="font-medium text-[#2E2D35]">
               {row.original.name?.first || ''} {row.original.name?.last || ''}
             </span>
             <div className="text-ucass-active">{row?.original?.contact?.email || '---'}</div>
@@ -551,7 +558,7 @@ const AllNewContactsList: FC<any> = ({
                     side="top"
                     className="capitalize"
                   >
-                    <span className="inline-flex h-6 w-6 cursor-default items-center justify-center rounded-md border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3 shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+                    <span className="inline-flex h-6 w-6 cursor-default items-center justify-center rounded-md border border-gray-200 bg-gray-100 shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
                       <img
                         src={groupIcon.icon}
                         alt={groupIcon.label}
@@ -587,7 +594,7 @@ const AllNewContactsList: FC<any> = ({
               return (
                 <CustomTooltip key={index} text={username} side="top">
                   <div className="w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800 capitalizes cursor-pointer">
-                    <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3 text-xs capitalize">
+                    <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
                       {getInitials(username)}
                     </div>
                   </div>
@@ -674,7 +681,17 @@ const AllNewContactsList: FC<any> = ({
                 <ChevronDown className="w-3.5 h-3.5 opacity-80" />
               </span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuContent
+              align="start"
+              /* `DropdownMenuContent` portals to `document.body`, outside
+                 `.mcm-page` where this app's own orange `--accent` lives —
+                 every `DropdownMenuItem` below already hovers via
+                 `focus:bg-accent`/`focus:text-accent-foreground`, so
+                 redefining those two variables here is enough to make the
+                 hover orange, without touching each item or fighting
+                 specificity with `!important`. */
+              className="w-44 [--accent:#fff1e0] [--accent-foreground:#c96f1f]"
+            >
               <DropdownMenuItem
                 onClick={() =>
                   setTagUpdateState({
@@ -736,11 +753,14 @@ const AllNewContactsList: FC<any> = ({
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <span className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-[#F0DFC5] dark:hover:bg-mcm-surface-3">
+              <span className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-[#F0DFC5]">
                 <MoreHorizontal className="w-5 h-5" />
               </span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48 [--accent:#fff1e0] [--accent-foreground:#c96f1f]"
+            >
               {canViewContact && (
                 <>
                   <DropdownMenuItem
@@ -878,6 +898,8 @@ const AllNewContactsList: FC<any> = ({
             : 'No contacts found',
           descriptionEmptyTable: payloadExtraParams?.search ? '' : 'Add contacts to get started.',
           customClass: tableWrapperClassName,
+          splitStickyHeader,
+          visibleRowCount,
         }}
       />
       <AlertConfirm
@@ -891,7 +913,7 @@ const AllNewContactsList: FC<any> = ({
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600">
               <Icon name="TrashBin" className="h-8 w-8 text-red-600" />
             </div>
-            <p className="text-center text-[#9A948F] dark:text-mcm-ink-3">
+            <p className="text-center text-[#9A948F]">
               Are you sure you want to delete the {selectedContactIds.length} selected contact
               {selectedContactIds.length > 1 ? 's' : ''}? This action cannot be undone.
             </p>
@@ -909,7 +931,7 @@ const AllNewContactsList: FC<any> = ({
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ucass-active-bg text-ucass-active">
               <Icon name="QuestionIcon" className="h-8 w-8" />
             </div>
-            <p className="text-center text-[#9A948F] dark:text-mcm-ink-3">
+            <p className="text-center text-[#9A948F]">
               Are you sure, you want to {tagUpdateState?.tag === 'STANDARD' ? 'remove' : 'make'}{' '}
               this contact {tagUpdateState?.label}?
             </p>

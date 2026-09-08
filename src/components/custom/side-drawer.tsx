@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '@/assets/icons/icon';
 import { cn } from '@/lib/utils';
 
@@ -50,7 +51,7 @@ const SideDrawer: FC<SideDrawerProps> = ({
       ? responsiveWidth || width || '90%'
       : width
     : width;
-  return (
+  return createPortal(
     <>
       {isHeader && (
         <div
@@ -142,7 +143,8 @@ const SideDrawer: FC<SideDrawerProps> = ({
           {content}
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 };
 

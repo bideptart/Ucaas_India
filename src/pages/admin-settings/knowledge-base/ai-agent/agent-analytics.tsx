@@ -21,6 +21,7 @@ import {
 } from 'recharts';
 import { downloadAnalyticsSectionAsPdf } from '@/lib/analytics-export';
 import { handleAlert } from '@/lib/utils';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 
 interface AgentAnalyticsProps {
   onClose: () => void;
@@ -157,7 +158,7 @@ const Sparkline = ({
 
 const CardLoader = ({ dark = false }: { dark?: boolean }) => (
   <div
-    className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-[inherit] ${dark ? 'bg-black/40' : 'bg-white/60 dark:bg-mcm-surface/70'}`}
+    className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-[inherit] ${dark ? 'bg-black/40' : 'bg-white/60'}`}
   >
     <div
       className={`h-5 w-5 animate-spin rounded-full border-2 border-t-transparent ${dark ? 'border-white' : 'border-primary'}`}
@@ -280,11 +281,11 @@ const KpiCard = ({
   deltaClass: string;
   isLoading: boolean;
 }) => (
-  <div className="relative flex min-h-[86px] flex-col justify-between rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+  <div className="relative flex min-h-[86px] flex-col justify-between rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
     {isLoading && <CardLoader />}
-    <p className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">{title}</p>
+    <p className="text-[11px] font-medium text-slate-500">{title}</p>
     <div className="mt-2">
-      <span className="text-[22px] font-bold leading-none text-slate-900 dark:text-mcm-ink">{value}</span>
+      <span className="text-[22px] font-bold leading-none text-slate-900">{value}</span>
       <p className={`mt-1 text-[11px] font-medium ${deltaClass}`}>{delta}</p>
     </div>
   </div>
@@ -938,9 +939,9 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
   if (ANALYTICS_COMING_SOON) {
     // Existing analytics implementation is preserved below; temporarily show a simple placeholder.
     return (
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f3f4f6] dark:bg-mcm-ground text-[#07142f] dark:text-mcm-ink">
-        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-mcm-ink-3">
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f3f4f6] text-[#07142f]">
+        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
             <button
               type="button"
               onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
@@ -957,7 +958,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
               AI Chatbot Agents
             </button>
             <span>/</span>
-            <span className="font-semibold text-gray-950 dark:text-mcm-ink">Analytics</span>
+            <span className="font-semibold text-gray-950">Analytics</span>
           </div>
           <Button type="button" variant="outline" onClick={onClose}>
             <ArrowLeft className="h-4 w-4" />
@@ -965,14 +966,14 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
           </Button>
         </div>
         <div className="flex flex-1 items-center justify-center p-6">
-          <p className="text-base font-semibold text-slate-600 dark:text-mcm-ink-2">Coming soon</p>
+          <p className="text-base font-semibold text-slate-600">Coming soon</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f3f4f6] dark:bg-mcm-ground text-[#07142f] dark:text-mcm-ink">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#f3f4f6] text-[#07142f]">
       {/* Loading overlay */}
       {/* {isLoading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-sm">
@@ -983,8 +984,8 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
         </div>
       )} */}
       {/* Top Filter Header Bar */}
-      <div className="flex min-h-[64px] shrink-0 flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-mcm-ink-3 font-medium">
+      <div className="flex min-h-[64px] shrink-0 flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
           <button
             type="button"
             onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
@@ -997,7 +998,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             AI Chatbot Agents
           </button>
           <span>/</span>
-          <span className="text-gray-950 dark:text-mcm-ink font-semibold">Analytics</span>
+          <span className="text-gray-950 font-semibold">Analytics</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 lg:justify-end">
@@ -1006,7 +1007,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value as any)}
-              className="appearance-none h-9 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-3 pr-8 text-xs font-semibold text-slate-800 dark:text-mcm-ink outline-none hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary transition-colors cursor-pointer"
+              className="appearance-none h-9 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none hover:border-[rgba(225,200,165,0.9)] focus:border-primary transition-colors cursor-pointer"
             >
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>
@@ -1014,7 +1015,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
               <option value="30d">Last 30 days</option>
               <option value="90d">Last 90 days</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
           </div>
 
           {/* Agent Filter */}
@@ -1022,7 +1023,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             <select
               value={selectedRepId}
               onChange={(e) => setSelectedRepId(e.target.value)}
-              className="appearance-none h-9 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] pl-3 pr-8 text-xs font-semibold text-slate-800 dark:text-mcm-ink outline-none hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line focus:border-primary transition-colors cursor-pointer"
+              className="appearance-none h-9 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none hover:border-[rgba(225,200,165,0.9)] focus:border-primary transition-colors cursor-pointer"
             >
               <option value="all">All agents</option>
               {activeAgents.map((r: any) => (
@@ -1031,14 +1032,14 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3 pointer-events-none" />
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
           </div>
 
           <Button
             type="button"
             variant="outline"
             onClick={exportAnalyticsCsv}
-            className="h-9 gap-1.5 border-[#EEE7DD] dark:border-mcm-line px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:bg-white dark:hover:bg-mcm-surface-3 hover:text-slate-900 dark:hover:text-mcm-ink"
+            className="h-9 gap-1.5 border-[#EEE7DD] px-3 text-xs font-semibold text-slate-700 hover:border-[rgba(225,200,165,0.9)] hover:bg-white hover:text-slate-900"
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -1049,7 +1050,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             variant="outline"
             onClick={() => void exportAnalyticsPdf()}
             disabled={isExportingPdf}
-            className="h-9 gap-1.5 border-[#EEE7DD] dark:border-mcm-line px-3 text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:bg-white dark:hover:bg-mcm-surface-3 hover:text-slate-900 dark:hover:text-mcm-ink"
+            className="h-9 gap-1.5 border-[#EEE7DD] px-3 text-xs font-semibold text-slate-700 hover:border-[rgba(225,200,165,0.9)] hover:bg-white hover:text-slate-900"
           >
             <FileText className="h-3.5 w-3.5" />
             {isExportingPdf ? 'Generating PDF...' : 'PDF Report'}
@@ -1101,7 +1102,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
               variant="outline"
               size="sm"
               onClick={() => setSelectedRepId('all')}
-              className="h-8 shrink-0 border-blue-200 bg-white dark:bg-mcm-surface px-3 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+              className="h-8 shrink-0 border-blue-200 bg-white px-3 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 hover:text-blue-800"
             >
               Clear filter · view all agents
             </Button>
@@ -1154,21 +1155,21 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
           />
         </div>
         {selectedRepId !== 'all' ? null : (
-          <div className="relative mb-[14px] rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative mb-[14px] rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-mcm-ink">Per-agent breakdown</h3>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+                <h3 className="text-sm font-bold text-slate-900">Per-agent breakdown</h3>
+                <p className="mt-0.5 text-xs text-slate-500">
                   How each chatbot is performing — pick one above to drill in.
                 </p>
               </div>
-              <span className="rounded-full border border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 dark:text-mcm-ink-2">
+              <span className="rounded-full border border-[#EEE7DD] bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
                 All agents
               </span>
             </div>
 
-            <div className="mt-[14px] divide-y divide-gray-100 dark:divide-mcm-line">
+            <div className="mt-[14px] divide-y divide-gray-100">
               {activeAgents.map((agent: any) => {
                 const isDraft = agent.status === 'draft';
                 const isPaused = agent.status === 'paused';
@@ -1201,7 +1202,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                     </div>
                     <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-2">
-                        <div className="truncate text-sm font-bold leading-tight text-slate-900 dark:text-mcm-ink">
+                        <div className="truncate text-sm font-bold leading-tight text-slate-900">
                           {agent.name}
                         </div>
                         {isDeleted && (
@@ -1210,14 +1211,14 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                           </span>
                         )}
                       </div>
-                      <div className="truncate text-xs text-slate-500 dark:text-mcm-ink-3">{agent.subtitle}</div>
+                      <div className="truncate text-xs text-slate-500">{agent.subtitle}</div>
                     </div>
                     <div className="grid grid-cols-[repeat(3,auto)_90px] items-center gap-[14px]">
                       <div>
                         <div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
                           Convos
                         </div>
-                        <div className="text-sm font-bold text-slate-900 dark:text-mcm-ink">
+                        <div className="text-sm font-bold text-slate-900">
                           {isDraft ? '—' : agent.convos}
                         </div>
                       </div>
@@ -1226,7 +1227,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                           Resolution
                         </div>
                         <div
-                          className={`text-sm font-bold ${isDraft || isPaused || agent.resolution === null ? 'text-slate-400' : resVal >= 80 ? 'text-emerald-600' : resVal >= 70 ? 'text-slate-900 dark:text-mcm-ink' : 'text-amber-600'}`}
+                          className={`text-sm font-bold ${isDraft || isPaused || agent.resolution === null ? 'text-slate-400' : resVal >= 80 ? 'text-emerald-600' : resVal >= 70 ? 'text-slate-900' : 'text-amber-600'}`}
                         >
                           {isDraft || isPaused || agent.resolution === null
                             ? '—'
@@ -1237,7 +1238,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                         <div className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
                           CSAT
                         </div>
-                        <div className="text-sm font-bold text-slate-900 dark:text-mcm-ink">
+                        <div className="text-sm font-bold text-slate-900">
                           {agent.csat != null ? agent.csat.toFixed(1) : '—'}
                         </div>
                       </div>
@@ -1263,12 +1264,12 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
         {/* Grid 1: Conversation volume & Channels */}
         <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-3">
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)] lg:col-span-2">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] lg:col-span-2">
             {isLoading && <CardLoader />}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Conversation activity</h3>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+                <h3 className="text-sm font-semibold text-slate-900">Conversation activity</h3>
+                <p className="mt-0.5 text-xs text-slate-500">
                   Daily {selectedConversationMetric.label.toLowerCase()} ·{' '}
                   {formatDateRange(startDate, endDate)}
                 </p>
@@ -1285,7 +1286,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                       className={`rounded-full px-3 py-1 transition-colors ${
                         isActive
                           ? 'text-white shadow-sm'
-                          : 'border border-[#EEE7DD] dark:border-mcm-line bg-white dark:bg-mcm-surface text-slate-600 dark:text-mcm-ink-2 hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line hover:text-slate-900 dark:hover:text-mcm-ink'
+                          : 'border border-[#EEE7DD] bg-white text-slate-600 hover:border-[rgba(225,200,165,0.9)] hover:text-slate-900'
                       }`}
                       style={isActive ? { backgroundColor: option.color } : undefined}
                     >
@@ -1347,7 +1348,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
             <div className="flex items-center justify-between mt-4 text-xs font-medium">
               <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1.5 text-slate-800 dark:text-mcm-ink">
+                <span className="flex items-center gap-1.5 text-slate-800">
                   <span
                     className="h-0.5 w-4 rounded-full"
                     style={{ backgroundColor: selectedConversationMetric.color }}
@@ -1358,17 +1359,17 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Channels</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">Where conversations came from</p>
+            <h3 className="text-sm font-semibold text-slate-900">Channels</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Where conversations came from</p>
 
             <div className="my-6 relative h-[180px] w-full flex items-center justify-center">
               <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-                <span className="text-2xl font-bold text-slate-900 dark:text-mcm-ink">
+                <span className="text-2xl font-bold text-slate-900">
                   {metrics.conversationsHandled}
                 </span>
-                <span className="text-[10px] text-slate-500 dark:text-mcm-ink-3">conversations</span>
+                <span className="text-[10px] text-slate-500">conversations</span>
               </div>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -1393,14 +1394,14 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             <div className="space-y-2">
               {channelData.map((ch: any, i: any) => (
                 <div key={i} className="flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-mcm-ink-2 font-medium">
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
                     <span
                       className="w-2.5 h-2.5 rounded-sm"
                       style={{ backgroundColor: ch.color }}
                     ></span>
                     {ch.name}
                   </div>
-                  <div className="text-slate-900 dark:text-mcm-ink font-bold text-[11px]">
+                  <div className="text-slate-900 font-bold text-[11px]">
                     {ch.value} <span className="text-slate-400 font-medium">· {ch.pct}</span>
                   </div>
                 </div>
@@ -1411,10 +1412,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
         {/* Grid 2: Conversations by hour & Resolution rate */}
         <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-2">
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Conversations by hour</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+            <h3 className="text-sm font-semibold text-slate-900">Conversations by hour</h3>
+            <p className="mt-0.5 text-xs text-slate-500">
               When your visitors chat the most (local time)
             </p>
 
@@ -1449,17 +1450,17 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative flex flex-col rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative flex flex-col rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Resolution rate</h3>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+                <h3 className="text-sm font-semibold text-slate-900">Resolution rate</h3>
+                <p className="mt-0.5 text-xs text-slate-500">
                   Conversations resolved without a handoff
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-slate-900 dark:text-mcm-ink">{metrics.resolutionRate}</p>
+                <p className="text-2xl font-bold text-slate-900">{metrics.resolutionRate}</p>
                 <p className="text-[10px] font-bold text-slate-400 flex items-center gap-0.5 justify-end">
                   {metrics.resolutionRateDelta != null
                     ? `${metrics.resolutionRateDelta > 0 ? '+' : ''}${metrics.resolutionRateDelta}pts vs last week`
@@ -1515,12 +1516,12 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
         {/* Grid 3: Intents, Unanswered, Sentiment */}
 
         {/* Agent performance */}
-        <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+        <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
           {isLoading && <CardLoader />}
-          <div className="flex flex-col gap-4 border-b border-[#EEE7DD] dark:border-mcm-line px-[22px] py-[18px] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-[#EEE7DD] px-[22px] py-[18px] sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-mcm-ink">Agent performance</h3>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+              <h3 className="text-sm font-bold text-slate-900">Agent performance</h3>
+              <p className="mt-0.5 text-xs text-slate-500">
                 All {apiFilteredAgents.length} agents compared side-by-side · click any row to drill
                 into that agent.
               </p>
@@ -1533,7 +1534,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                   performancePeriod === '7d'
                     ? 'bg-primary text-white shadow-sm'
-                    : 'bg-white dark:bg-mcm-surface border border-[#EEE7DD] dark:border-mcm-line text-slate-500 dark:text-mcm-ink-3 hover:bg-slate-50'
+                    : 'bg-white border border-[#EEE7DD] text-slate-500 hover:bg-slate-50'
                 }`}
               >
                 Last 7 days
@@ -1544,7 +1545,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                   performancePeriod === '30d'
                     ? 'bg-primary text-white shadow-sm'
-                    : 'bg-white dark:bg-mcm-surface border border-[#EEE7DD] dark:border-mcm-line text-slate-500 dark:text-mcm-ink-3 hover:bg-slate-50'
+                    : 'bg-white border border-[#EEE7DD] text-slate-500 hover:bg-slate-50'
                 }`}
               >
                 Last 30 days
@@ -1554,8 +1555,8 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
           <div className="max-h-[300px] overflow-y-auto overflow-x-auto">
             <table className="w-full min-w-[920px] border-collapse text-left">
-              <thead className="sticky top-0 bg-white dark:bg-mcm-surface z-10">
-                <tr className="border-b border-gray-100 dark:border-mcm-line text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-white dark:bg-mcm-surface">
+              <thead className="sticky top-0 bg-white z-10">
+                <tr className="border-b border-gray-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-white">
                   <th className="py-3 px-4">Agent</th>
                   <th className="py-3 px-4">Conversations</th>
                   <th className="py-3 px-4">Resolution</th>
@@ -1565,10 +1566,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                   <th className="py-3 px-4">Trend</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-mcm-line">
+              <tbody className="divide-y divide-gray-100">
                 {performanceAgents.length > 0 ? (
                   performanceAgents.map((agent: any) => (
-                    <tr key={agent.id} className="hover:bg-slate-50/50 dark:hover:bg-mcm-surface-3 transition-colors">
+                    <tr key={agent.id} className="hover:bg-slate-50/50 transition-colors">
                       {/* AGENT */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
@@ -1579,7 +1580,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                             {agent.initials}
                           </div>
                           <div className="flex min-w-0 items-center gap-2">
-                            <span className="truncate text-sm font-bold text-slate-900 dark:text-mcm-ink">
+                            <span className="truncate text-sm font-bold text-slate-900">
                               {agent.name}
                             </span>
                             {agent.deleted && (
@@ -1590,15 +1591,15 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-sm font-bold text-slate-950 dark:text-mcm-ink">
+                      <td className="py-3.5 px-4 text-sm font-bold text-slate-950">
                         {agent.conversation}
                       </td>
-                      <td className="py-3.5 px-4 text-sm text-slate-600 dark:text-mcm-ink-2">{agent.resolution}</td>
-                      <td className="py-3.5 px-4 text-sm text-slate-600 dark:text-mcm-ink-2">
+                      <td className="py-3.5 px-4 text-sm text-slate-600">{agent.resolution}</td>
+                      <td className="py-3.5 px-4 text-sm text-slate-600">
                         {agent.avgResponseTime}
                       </td>
-                      <td className="py-3.5 px-4 text-sm text-slate-600 dark:text-mcm-ink-2">{agent.handoffs}</td>
-                      <td className="py-3.5 px-4 text-sm text-slate-600 dark:text-mcm-ink-2">{agent.csat}</td>
+                      <td className="py-3.5 px-4 text-sm text-slate-600">{agent.handoffs}</td>
+                      <td className="py-3.5 px-4 text-sm text-slate-600">{agent.csat}</td>
                       <td className="py-3.5 px-4">
                         {agent.sparklineData.length ? (
                           <Sparkline data={agent.sparklineData} color={agent.sparklineColor} />
@@ -1621,10 +1622,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
         </div>
 
         <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-3">
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Top user intents</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">What visitors actually asked about</p>
+            <h3 className="text-sm font-semibold text-slate-900">Top user intents</h3>
+            <p className="mt-0.5 text-xs text-slate-500">What visitors actually asked about</p>
             <div className="mt-6 space-y-5">
               {intents.length ? (
                 intents.map((item, i) => (
@@ -1635,10 +1636,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                         style={{ width: `${Math.min(item.pct * 3, 100)}%`, minWidth: '4px' }}
                       ></div>
                     </div>
-                    <span className="text-xs font-medium text-slate-700 dark:text-mcm-ink-2 flex-1 truncate">
+                    <span className="text-xs font-medium text-slate-700 flex-1 truncate">
                       {item.name}
                     </span>
-                    <span className="text-xs font-bold text-slate-900 dark:text-mcm-ink">
+                    <span className="text-xs font-bold text-slate-900">
                       {item.value} <span className="text-slate-400 font-medium">· {item.pct}%</span>
                     </span>
                   </div>
@@ -1651,11 +1652,11 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative flex flex-col justify-between rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative flex flex-col justify-between rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Unanswered questions</h3>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">
+              <h3 className="text-sm font-semibold text-slate-900">Unanswered questions</h3>
+              <p className="mt-0.5 text-xs text-slate-500">
                 Pick an agent to see their questions, then answer each one.
               </p>
 
@@ -1663,7 +1664,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 {activeAgents.slice(0, 4).map((agent: any, i: number) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-3 border border-gray-100 dark:border-mcm-line rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-3 border border-gray-100 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -1673,10 +1674,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                         {agent.initials}
                       </div>
                       <div className="truncate">
-                        <h4 className="text-xs font-semibold text-slate-900 dark:text-mcm-ink truncate">
+                        <h4 className="text-xs font-semibold text-slate-900 truncate">
                           {agent.name}
                         </h4>
-                        <p className="text-[10px] text-slate-500 dark:text-mcm-ink-3 truncate">{agent.subtitle}</p>
+                        <p className="text-[10px] text-slate-500 truncate">{agent.subtitle}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -1691,18 +1692,18 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative flex flex-col justify-between rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative flex flex-col justify-between rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Conversation sentiment</h3>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">AI-classified from chat transcripts</p>
+              <h3 className="text-sm font-semibold text-slate-900">Conversation sentiment</h3>
+              <p className="mt-0.5 text-xs text-slate-500">AI-classified from chat transcripts</p>
 
               <div className="my-8 relative h-[180px] w-full flex items-center justify-center">
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-                  <span className="text-2xl font-bold text-slate-900 dark:text-mcm-ink">
+                  <span className="text-2xl font-bold text-slate-900">
                     {sentimentSummary.score}
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-mcm-ink-3 capitalize">
+                  <span className="text-[10px] text-slate-500 capitalize">
                     {sentimentSummary.label}
                   </span>
                 </div>
@@ -1733,14 +1734,14 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             <div className="space-y-2 mt-auto">
               {sentimentData.map((s, i) => (
                 <div key={i} className="flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-mcm-ink-2 font-medium">
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
                     <span
                       className="w-2.5 h-2.5 rounded-sm"
                       style={{ backgroundColor: s.color }}
                     ></span>
                     {s.name}
                   </div>
-                  <div className="text-slate-900 dark:text-mcm-ink font-bold text-[11px]">
+                  <div className="text-slate-900 font-bold text-[11px]">
                     {s.value}{' '}
                     {s.pct !== '—' ? (
                       <span className="text-slate-400 font-medium">· {s.pct}</span>
@@ -1756,21 +1757,21 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
         {/* Grid 4: Countries & Languages */}
         <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-2">
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Top countries</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">Where your visitors are calling from</p>
+            <h3 className="text-sm font-semibold text-slate-900">Top countries</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Where your visitors are calling from</p>
 
             <div className="mt-6 text-xs">
               {countries.map((c: any, i: any) => (
                 <div
                   key={i}
-                  className="flex items-center border-b border-gray-100 dark:border-mcm-line py-[7px] last:border-b-0"
+                  className="flex items-center border-b border-gray-100 py-[7px] last:border-b-0"
                 >
                   <span className="mr-2 text-lg leading-none">{c.flag}</span>
-                  <div className="min-w-0 flex-1 truncate font-medium text-slate-600 dark:text-mcm-ink-2">{c.name}</div>
-                  <div className="mr-2 shrink-0 font-bold text-slate-900 dark:text-mcm-ink">{c.value}</div>
-                  <div className="relative h-[5px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-[#FBE2C8]/40 dark:bg-mcm-surface-3">
+                  <div className="min-w-0 flex-1 truncate font-medium text-slate-600">{c.name}</div>
+                  <div className="mr-2 shrink-0 font-bold text-slate-900">{c.value}</div>
+                  <div className="relative h-[5px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-[#FBE2C8]/40">
                     <div
                       className="absolute inset-y-0 left-0 rounded-[3px] bg-primary"
                       style={{ width: `${c.barPct}%` }}
@@ -1781,23 +1782,23 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Languages detected</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">From visitor messages</p>
+            <h3 className="text-sm font-semibold text-slate-900">Languages detected</h3>
+            <p className="mt-0.5 text-xs text-slate-500">From visitor messages</p>
 
             <div className="mt-6 text-xs">
               {languages.map((l: any, i: any) => (
                 <div
                   key={i}
-                  className="flex items-center border-b border-gray-100 dark:border-mcm-line py-[7px] last:border-b-0"
+                  className="flex items-center border-b border-gray-100 py-[7px] last:border-b-0"
                 >
-                  <div className="min-w-0 flex-1 truncate font-medium text-slate-600 dark:text-mcm-ink-2">
+                  <div className="min-w-0 flex-1 truncate font-medium text-slate-600">
                     <span className="mr-2 text-base leading-none">{l.flag}</span>
                     <span>{l.name}</span>
                   </div>
-                  <div className="mr-2 shrink-0 font-bold text-slate-900 dark:text-mcm-ink">{l.pct}%</div>
-                  <div className="relative h-[5px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-[#FBE2C8]/40 dark:bg-mcm-surface-3">
+                  <div className="mr-2 shrink-0 font-bold text-slate-900">{l.pct}%</div>
+                  <div className="relative h-[5px] w-[60px] shrink-0 overflow-hidden rounded-[3px] bg-[#FBE2C8]/40">
                     <div
                       className="absolute inset-y-0 left-0 rounded-[3px] bg-primary"
                       style={{ width: `${l.barPct}%` }}
@@ -1811,17 +1812,17 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
 
         {/* Grid 5: Funnel, FAQs, Cost */}
         <div className="grid grid-cols-1 gap-[14px] lg:grid-cols-3">
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Handoff funnel</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">Where conversations end up</p>
+            <h3 className="text-sm font-semibold text-slate-900">Handoff funnel</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Where conversations end up</p>
 
             <div className="mt-6 space-y-4">
               {funnel.map((step: any, i: number) => (
                 <div key={i} className="space-y-1.5">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-medium text-slate-700 dark:text-mcm-ink-2">{step.name}</span>
-                    <span className="font-bold text-slate-900 dark:text-mcm-ink">
+                    <span className="font-medium text-slate-700">{step.name}</span>
+                    <span className="font-bold text-slate-900">
                       {step.value} <span style={{ color: step.color }}>· {step.pct}%</span>
                     </span>
                   </div>
@@ -1836,15 +1837,15 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Top FAQs by usage</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">Most-triggered answers this week</p>
+            <h3 className="text-sm font-semibold text-slate-900">Top FAQs by usage</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Most-triggered answers this week</p>
 
             <div className="mt-6 space-y-4">
               {faqs.map((f: any, i: number) => (
                 <div key={i} className="flex justify-between items-center text-xs">
-                  <span className="font-medium text-slate-700 dark:text-mcm-ink-2 truncate pr-4">{f.q}</span>
+                  <span className="font-medium text-slate-700 truncate pr-4">{f.q}</span>
                   <span className="shrink-0 rounded bg-emerald-50 text-emerald-700 px-2 py-0.5 font-bold text-[10px]">
                     Used {f.count}x · {f.pct}%
                   </span>
@@ -1853,17 +1854,19 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
             </div>
           </div>
 
-          <div className="relative max-h-[360px] overflow-y-auto rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
+          <div className="relative max-h-[360px] overflow-y-auto rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             {isLoading && <CardLoader />}
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink">Cost & usage</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-mcm-ink-3">AI inference spend this period</p>
+            <h3 className="text-sm font-semibold text-slate-900">Cost & usage</h3>
+            <p className="mt-0.5 text-xs text-slate-500">AI inference spend this period</p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-slate-50 p-3">
-                <p className="text-[10px] font-semibold text-slate-500 dark:text-mcm-ink-3 uppercase">Total spend</p>
-                <p className="text-xl font-bold text-slate-900 dark:text-mcm-ink mt-0.5">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase">Total spend</p>
+                <p className="text-xl font-bold text-slate-900 mt-0.5">
                   {analyticsData?.cost_usage_breakdown?.total_spend != null
-                    ? `$${Number(analyticsData.cost_usage_breakdown.total_spend).toFixed(4)}`
+                    ? `₹${(
+                        Number(analyticsData.cost_usage_breakdown.total_spend) * USD_TO_INR_RATE
+                      ).toFixed(4)}`
                     : '--'}
                 </p>
                 <p className="text-[10px] font-bold text-slate-400 flex items-center mt-1">
@@ -1871,8 +1874,8 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                 </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-3">
-                <p className="text-[10px] font-semibold text-slate-500 dark:text-mcm-ink-3 uppercase">Total replies</p>
-                <p className="text-xl font-bold text-slate-900 dark:text-mcm-ink mt-0.5">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase">Total replies</p>
+                <p className="text-xl font-bold text-slate-900 mt-0.5">
                   {totalReplies != null ? totalReplies : '--'}
                 </p>
                 <p className="text-[10px] font-medium text-slate-400 mt-1">Total replies</p>
@@ -1888,7 +1891,7 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                   const isDeleted = Boolean(a.agent_uuid && !activeAgentIdSet.has(a.agent_uuid));
                   return (
                     <div key={a.agent_uuid} className="flex justify-between text-xs">
-                      <span className="flex min-w-0 items-center gap-1.5 pr-2 text-slate-600 dark:text-mcm-ink-2 font-medium">
+                      <span className="flex min-w-0 items-center gap-1.5 pr-2 text-slate-600 font-medium">
                         <span className="truncate">
                           {a.agent_name || agentNameMap.get(a.agent_uuid) || a.agent_uuid}
                         </span>
@@ -1898,8 +1901,10 @@ export default function AgentAnalytics({ onClose, agents = [] }: AgentAnalyticsP
                           </span>
                         )}
                       </span>
-                      <span className="font-bold text-slate-900 dark:text-mcm-ink shrink-0">
-                        {a.total_spend != null ? `$${Number(a.total_spend).toFixed(4)}` : '--'}
+                      <span className="font-bold text-slate-900 shrink-0">
+                        {a.total_spend != null
+                          ? `₹${(Number(a.total_spend) * USD_TO_INR_RATE).toFixed(4)}`
+                          : '--'}
                       </span>
                     </div>
                   );

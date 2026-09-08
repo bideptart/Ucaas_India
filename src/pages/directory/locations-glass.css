@@ -69,27 +69,103 @@
 
 .gp-locations .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 320px);
 }
+/* Header/body split into independent scroll boxes, same technique and same
+   reason as People's own table (people-glass.css): a sticky `<thead>`
+   doesn't stop its scrolling ancestor's native scrollbar from spanning the
+   full box, header band included. */
 .gp-locations .tbl-wrap {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   min-height: 0;
 }
 .gp-locations table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   background: transparent;
+}
+.gp-locations thead {
+  display: block;
+  flex: none;
+  width: 100%;
+}
+.gp-locations tbody {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  /* About 5-6 rows before scrolling, regardless of viewport height. */
+  max-height: 420px;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 14px;
+  padding-right: 4px;
+}
+.gp-locations thead tr,
+.gp-locations tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+.gp-locations th:nth-child(1),
+.gp-locations td:nth-child(1) {
+  width: auto;
+}
+.gp-locations th:nth-child(2),
+.gp-locations td:nth-child(2) {
+  width: 170px;
+}
+.gp-locations th:nth-child(3),
+.gp-locations td:nth-child(3) {
+  width: 130px;
+}
+.gp-locations th:nth-child(4),
+.gp-locations td:nth-child(4) {
+  width: 110px;
+}
+.gp-locations th:nth-child(5),
+.gp-locations td:nth-child(5) {
+  width: 80px;
+}
+.gp-locations th:nth-child(6),
+.gp-locations td:nth-child(6) {
+  width: 130px;
+}
+.gp-locations tbody::-webkit-scrollbar {
+  width: 8px;
+}
+.gp-locations tbody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-locations tbody::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.gp-locations tbody::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
 }
 .gp-locations th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
+  height: 40px;
+  font-size: 9.5px;
 }
 .gp-locations td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -97,8 +173,10 @@
 .gp-locations tbody tr {
   cursor: pointer;
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-locations tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -119,25 +197,31 @@
 .gp-locations .gp-loc-actions-head {
   text-align: center;
 }
-.gp-locations .gp-loc-actions-cell {
-  min-width: 110px;
-}
 .gp-locations .gp-loc-actions {
   justify-content: center;
 }
+/* Glass circle at rest, filled sunset gradient on hover — matching
+   Performance ▸ Calls' own action buttons (interactions-theme.css) rather
+   than a rounded square with a plain tint-on-hover. */
 .gp-locations .gp-loc-actions .mini {
   width: 38px;
   height: 38px;
   padding: 0;
-  border-radius: 11px;
+  border-radius: 9999px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
-.gp-locations .gp-loc-actions .mini:hover {
-  background: var(--accent-wash);
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
+.gp-locations .gp-loc-actions .mini:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
 
 /* Mobile: the table has 6 columns (Location/Address/City-State/Timezone/
@@ -166,13 +250,89 @@
 /* ---- "New location" popup ----
    `DialogContent` renders through a portal to `document.body`, so it reuses
    the same `.gp-create-group-*` shell Groups/Roles already styled, rather
-   than a copy scoped to a class this page never sits inside. */
+   than a copy scoped to a class this page never sits inside. The shell's
+   own cream background (`#fffaf3`) read as an unwanted orange gradient wash
+   behind this form — same fix as Invite people / Edit person / New role. */
+.gp-location-form-dialog {
+  background: #ffffff !important;
+}
+.gp-location-form-dialog .gp-create-group-head {
+  background: #ffffff;
+}
+.gp-location-form-dialog .gp-create-group-body {
+  padding-top: 0 !important;
+}
+
+/* ---- fields forced to one column regardless of viewport width. The
+   platform's own `md:flex-row`/`md:w-1/2` pairs key off the *browser*
+   width, not this dialog's — so at this dialog's narrower 620px they kept
+   packing two fields per row, cramming or overflowing it. Same fix as the
+   Invite people dialog's invitee cards. ---- */
+.gp-location-form-dialog .mcm-site-form [class*='md:flex-row'] {
+  flex-direction: column !important;
+}
+.gp-location-form-dialog .mcm-site-form [class*='md:w-1/2'],
+.gp-location-form-dialog .mcm-site-form [class*='md:w-full'] {
+  width: 100% !important;
+}
+
+/* ---- intro card + stepper ---- */
+.gp-location-form-dialog .mcm-site-summary {
+  background: #fff6e9 !important;
+  border-color: rgba(242, 153, 74, 0.25) !important;
+}
+
+/* ---- fields ---- */
+.gp-location-form-dialog .mcm-site-form [data-slot='input'],
+.gp-location-form-dialog .mcm-site-form textarea {
+  border-color: rgba(242, 153, 74, 0.25) !important;
+  background: #fffdfb !important;
+}
+.gp-location-form-dialog .mcm-site-form [data-slot='input']:hover,
+.gp-location-form-dialog .mcm-site-form [data-slot='input']:focus,
+.gp-location-form-dialog .mcm-site-form textarea:hover,
+.gp-location-form-dialog .mcm-site-form textarea:focus {
+  border-color: #f2994a !important;
+}
+.gp-location-form-dialog .mcm-site-form .custom-react-select__control {
+  border-color: rgba(242, 153, 74, 0.25) !important;
+  background-color: #fffdfb !important;
+}
+.gp-location-form-dialog .mcm-site-form .custom-react-select__control:hover,
+.gp-location-form-dialog .mcm-site-form .custom-react-select__control--is-focused {
+  border-color: #f2994a !important;
+}
+.gp-location-form-dialog .mcm-site-form .border-gray-200 {
+  border-color: rgba(242, 153, 74, 0.2) !important;
+}
+.gp-location-form-dialog .mcm-site-form .bg-gray-50 {
+  background: #fff1e0 !important;
+}
+
+/* ---- footer ---- */
+.gp-location-form-dialog .mcm-site-foot {
+  border-top-color: rgba(242, 153, 74, 0.2) !important;
+}
+.gp-location-form-dialog .mcm-site-cancel {
+  color: #f2994a !important;
+}
+.gp-location-form-dialog .mcm-site-cancel:hover {
+  background: #f2994a !important;
+  color: #ffffff !important;
+}
+.gp-location-form-dialog .mcm-site-submit {
+  background: #f2994a !important;
+  border-color: #f2994a !important;
+}
+.gp-location-form-dialog .mcm-site-submit:hover:not(:disabled) {
+  background: #c96f1f !important;
+}
 
 /* ---- Location detail popup — same portal caveat as above, so it is scoped
    off its own class rather than `.gp-locations`, which it is never a DOM
    descendant of. */
 .gp-loc-dialog {
-  background: #fffaf3;
+  background: #ffffff;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-loc-fields {
@@ -211,6 +371,9 @@
   padding: 12px 20px 20px;
 }
 .gp-loc-dialog-close {
+  /* Same solid orange-outline-until-filled-on-hover treatment as every
+     other Close/Cancel in Directory — not the fainter grey-text-until-hover
+     look this had. */
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -220,13 +383,13 @@
   font-size: 13px;
   font-weight: 700;
   background: transparent;
-  border: 1px solid rgba(242, 153, 74, 0.3);
-  color: #6b5c4d;
+  border: 1px solid #f2994a;
+  color: #f2994a;
   cursor: pointer;
 }
 .gp-loc-dialog-close:hover {
-  border-color: #f2994a;
-  color: #c96f1f;
+  background: #f2994a;
+  color: #ffffff;
 }
 .gp-loc-dialog-edit {
   display: inline-flex;

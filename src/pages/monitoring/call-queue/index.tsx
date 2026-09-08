@@ -6,6 +6,7 @@ import { useSocketEvents } from '@/hooks/use-socket-events';
 import { getCallQueueInvolvements, getRunningCampaigns } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
+import { Users, Clock3 } from 'lucide-react';
 import NotFound from '@/assets/images/not-found-img.svg';
 import { QUEUE_TYPE, STATE_TYPE_NAME } from '../constants';
 import Timer from '@/components/timer';
@@ -37,6 +38,33 @@ type QueueSortedMember = {
   member: any;
   index: number;
   hasActiveCall: boolean;
+};
+
+/* Same tone tokens the Live Call Console's own status chips use, so a
+   status reads the same colour on every Monitoring screen. A small badge
+   in the Status/State cell replaces the old full-row background wash
+   (`bg-green-500/30` etc.), which painted the whole row with no reference
+   point for why. */
+const QUEUE_STATUS_TONE: Record<string, { bg: string; color: string }> = {
+  Connected: { bg: 'var(--live-wash)', color: 'var(--live)' },
+  'On Hold': { bg: 'var(--hold-wash)', color: 'var(--hold)' },
+  Ringing: { bg: 'var(--warn-wash)', color: 'var(--warn)' },
+  Waiting: { bg: 'var(--warn-wash)', color: 'var(--warn)' },
+  Trying: { bg: 'var(--warn-wash)', color: 'var(--warn)' },
+  Started: { bg: 'var(--warn-wash)', color: 'var(--warn)' },
+};
+
+const QueueStatusPill = ({ label }: { label: string }) => {
+  const tone = QUEUE_STATUS_TONE[label];
+  if (!tone) return <p className="text-gray-400">{label}</p>;
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+      style={{ background: tone.bg, color: tone.color }}
+    >
+      {label}
+    </span>
+  );
 };
 
 const getQueueId = (item: any) =>
@@ -186,24 +214,9 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
 
   const isPending = isCampaignMonitoring ? isPendingRunningCampaigns : isPendingAssignedQueues;
 
-  const getRowClassName = (row: any) => {
-    const currentQueueCalls = getQueueLiveCallsByUuid();
-    const callInfo = findMonitoringCallForMember(currentQueueCalls, row?.original);
-    if (!callInfo) return '';
-    const status = callInfo?.status || '';
-
-    switch (status) {
-      case 'ringing':
-      case 'waiting':
-        return 'bg-yellow-500/30';
-      case 'answered':
-      case 'bridged':
-      case 'on_hold':
-        return 'bg-green-500/30';
-      default:
-        return '';
-    }
-  };
+  /* No more full-row colour wash — the Status cell's own badge (see
+     QueueStatusPill above) carries that signal now. */
+  const getRowClassName = () => 'transition-colors';
 
   const getQueueLiveCallsByUuid = (queueUuid?: string) => {
     const selectedQueueId = queueUuid || openedQueueId;
@@ -340,9 +353,10 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
         const currentQueueCalls = getQueueLiveCallsByUuid();
         const callInfo = findMonitoringCallForMember(currentQueueCalls, data);
         const status = callInfo?.status || (callInfo ? 'waiting' : '');
+        const statusLabel = status ? STATE_TYPE_NAME[status as keyof typeof STATE_TYPE_NAME] : '---';
         return (
           <div>
-            <p>{status ? STATE_TYPE_NAME[status as keyof typeof STATE_TYPE_NAME] : '---'}</p>
+            <QueueStatusPill label={statusLabel} />
           </div>
         );
       },
@@ -462,9 +476,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
     {
       header: 'State',
       accessorKey: 'state',
-      cell: () => {
-        return <>Waiting</>;
-      },
+      cell: () => <QueueStatusPill label="Waiting" />,
     },
     {
       header: 'Waiting Time',
@@ -498,12 +510,12 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
 
   return (
     <>
-      <section className="w-full  ">
+      <section className="mcm-callqueue w-full min-w-0  ">
         <MonitoringTopbarSlot>
-          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-            <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
               Monitoring
-              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+              <div className="-rotate-90 text-gray-800">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">
@@ -511,7 +523,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               </span>
               {activeQueueId && (
                 <>
-                  <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+                  <div className="-rotate-90 text-gray-800">
                     <Icon name="ChevronIcon" className="w-5 h-5" />
                   </div>
                   <span className="text-primary text-md font-medium">
@@ -537,7 +549,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
             </div>
           </div>
         </MonitoringTopbarSlot>
-        <div className="w-full p-3 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-8rem)]">
+        <div className="w-full min-w-0 p-3 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-8rem)]">
           {isPending ? (
             <div>Loading...</div>
           ) : (
@@ -551,13 +563,17 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                     const sortedMembers = sortMembersWithActiveCallsFirst(members, queueId);
 
                     return (
-                      <div key={queueId} className="flex flex-col gap-4">
+                      <div key={queueId} className="flex min-w-0 flex-col gap-4">
                         {/* <div className="flex items-center justify-between bg-white p-4 rounded-lg border ">
                         <h2 className="text-xl text-gray-900">{item?.name}</h2>
                       </div> */}
-                        <div>
-                          <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2 mb-2">
-                            Agents ({members?.length})
+                        <div className="min-w-0">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800">
+                            <Users className="h-4 w-4 text-primary" />
+                            Agents
+                            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
+                              {members?.length}
+                            </span>
                           </div>
                           <TableManager
                             {...{
@@ -572,16 +588,20 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                           />
                         </div>
 
-                        <div>
-                          <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2 mb-2">
-                            Waiting Callers ({getQueueLiveCallsWaitingByUuid()?.length})
+                        <div className="min-w-0">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800">
+                            <Clock3 className="h-4 w-4 text-[#D97706]" />
+                            Waiting Callers
+                            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-600">
+                              {getQueueLiveCallsWaitingByUuid()?.length}
+                            </span>
                           </div>
                           <TableManager
                             {...{
                               columns: memberColumns,
                               staticData: getQueueLiveCallsWaitingByUuid() || [],
                               showPagination: false,
-                              getRowClassName: () => 'bg-yellow-500/30',
+                              getRowClassName: () => 'transition-colors',
                               emptyTablePlaceholder: 'No queue calls available',
                               descriptionEmptyTable:
                                 'Calls routed through queues will appear here.',
@@ -594,11 +614,11 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               ) : (
                 <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                   <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-                  <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">
+                  <p className="text-md font-medium text-gray-900">
                     {' '}
                     No {queueType === QUEUE_TYPE.campaign ? 'campaign' : 'queue'} calls available
                   </p>
-                  <p className="text-sm text-gray-700 dark:text-mcm-ink-2">
+                  <p className="text-sm text-gray-700">
                     Calls routed through{' '}
                     {queueType === QUEUE_TYPE.campaign ? 'campaigns' : 'queues'} will appear here.
                   </p>

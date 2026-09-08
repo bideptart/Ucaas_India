@@ -34,7 +34,9 @@ import {
   demoCallHandlingTemplateRows,
   demoCallStats,
   demoCalls,
+  mulberry32,
   demoCalendarTaskRows,
+  demoCallQueueInvolvements,
   demoCampaignRows,
   demoContactBookRows,
   demoContactGroupRows,
@@ -48,6 +50,7 @@ import {
   demoInboundCallRows,
   demoLocalCallRows,
   demoMeetingRows,
+  demoRecordingRows,
   demoSiteRows,
   demoTemplateRows,
   demoQueueReportRows,
@@ -199,10 +202,15 @@ export const DEMO_USER = {
     /* AuthProvider sends anyone without this to /phone-lines-auth. */
     free_did: true,
     is_trial: 'N',
-    currency: 'USD',
+    currency: 'INR',
     country: 'IN',
     timezone: 'Asia/Kolkata',
     plan_features: PLAN_FEATURES,
+    /* The header wallet pill and dialpad balance both read this — without a
+       figure here they showed a bare, symbol-less "00.00" that didn't read
+       as money at all. `formatMoney` converts this the same as every other
+       billing figure, so it lands as a plausible ₹20,376.50 balance. */
+    amount: 245.5,
   },
 };
 
@@ -408,6 +416,13 @@ type Store = {
   templates?: any[];
   callHandlingTemplates?: any[];
   numbers?: any[];
+  contacts?: any[];
+  /* Video meetings and calendar events/tasks created in-session — see the
+     "Video meetings & calendar" block below `applyWrite`. One record can back
+     both a `/api/v1/meeting/listing` row and a `/api/calendar/event-task/list`
+     row at once (a scheduled meeting is both), which is why it carries fields
+     for each rather than living in two separate arrays that could disagree. */
+  meetings?: any[];
 };
 
 const readStore = (): Store => {
@@ -443,6 +458,17 @@ const readStore = (): Store => {
           demoCallHandlingTemplateRows(),
         ),
         numbers: mergeSeed(parsed.numbers, demoAssignedDidRows()),
+        /* Contacts key off `_id`, not `uuid` like the rows `mergeSeed` above
+           was written for, so a dedicated merge keeps a stored contact from
+           being duplicated against the seed on every read. */
+        contacts: (() => {
+          const present = new Set((parsed.contacts ?? []).map((row: any) => row._id));
+          return [
+            ...(parsed.contacts ?? []),
+            ...demoContactBookRows().filter((row) => !present.has(row._id)),
+          ];
+        })(),
+        meetings: parsed.meetings ?? [],
       };
     }
   } catch {
@@ -458,6 +484,8 @@ const readStore = (): Store => {
     templates: demoTemplateRows(),
     callHandlingTemplates: demoCallHandlingTemplateRows(),
     numbers: demoAssignedDidRows(),
+    contacts: demoContactBookRows(),
+    meetings: [],
   };
 };
 
@@ -500,6 +528,118 @@ const asObject = (data: unknown): Record<string, any> => {
   return data && typeof data === 'object' ? (data as Record<string, any>) : {};
 };
 
+/* ---------------------------------------------------------------------------
+   Video meetings & calendar — one record backs both `/api/v1/meeting/*` and
+   `/api/calendar/event-task/*`, since a scheduled video meeting is both a
+   meeting and a calendar entry and the real app creates it as one action
+   (`ScheduleMeeting`'s submit calls `createMeeting`, then `createEventAndTask`
+   with the meetingId it got back). A plain calendar TASK never gets a
+   `meetingId` and only ever answers the calendar endpoints.
+--------------------------------------------------------------------------- */
+
+/** A short, Zoom-style room code — good enough to key a Jitsi room by, and
+ *  distinct from the seed's hyphenated `demo-meeting-N` ids. */
+const buildMeetingCode = () => {
+  const segment = (length: number) =>
+    Math.random().toString(36).replace(/[^a-z0-9]/g, '').padEnd(length, '0').slice(0, length);
+  return `${segment(3)}-${segment(4)}-${segment(3)}`;
+};
+
+/** `startTime` arrives as `YYYY-MM-DD HH:mm:ss` (space-separated, not
+ *  ISO) from both `ScheduleMeeting` and the dashboard's instant-meeting
+ *  payload — swapping in a `T` is enough to make `Date` parse it reliably
+ *  across browsers instead of relying on the non-standard space form. */
+const parseMeetingStart = (value: unknown): Date => {
+  if (!value) return new Date();
+  const date = new Date(typeof value === 'string' ? value.replace(' ', 'T') : (value as any));
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+};
+
+const addMinutesIso = (date: Date, minutes: number) =>
+  new Date(date.getTime() + minutes * 60_000).toISOString();
+
+/** Normalises whatever member shape a form posted (`user_uuid` from the
+ *  member picker, `userId` from an edit reload) into one shape carrying both
+ *  keys, since different readers downstream reach for different ones. */
+const mapMeetingPeople = (members: any[] = []) =>
+  members.map((member) => {
+    const id = member?.user_uuid || member?.userId || '';
+    return {
+      user_uuid: id,
+      userId: id,
+      email: member?.email || '',
+      name: member?.name || '',
+      type: member?.type || 'MEMBER',
+      joinStatus: member?.joinStatus || 'NO',
+    };
+  });
+
+/** Shape for `/api/v1/meeting/listing` rows — what the video dashboard, the
+ *  dedicated Upcoming/Invited/Ongoing/Past pages and the video console's own
+ *  `meetings-adapter` all read. */
+const toMeetingListRow = (record: any) => ({
+  meetingId: record.meetingId,
+  name: record.name,
+  hostName: record.hostName,
+  createdById: record.createdById,
+  mode: 'scheduled',
+  timezone: record.timezone,
+  startTimeLocal: record.startTimeLocal,
+  endTimeLocal: record.endTimeLocal,
+  members: record.members,
+});
+
+/** Shape for `/api/calendar/event-task/list` rows — what the Calendar page's
+ *  `transformEventTaskToSchedule` reads. */
+const toCalendarRow = (record: any) => ({
+  _id: record._id,
+  uuid: record._id,
+  name: record.name,
+  category: record.category,
+  source: record.source,
+  status: record.status,
+  mode: record.mode,
+  referenceId: record.referenceId,
+  meetings: record.meetingId ? [{ meetingId: record.meetingId }] : [],
+  assignTo: record.assignTo,
+  timezone: record.timezone,
+  startTime: record.startTime,
+  endTime: record.endTime,
+  startTimeLocal: record.startTimeLocal,
+  endTimeLocal: record.endTimeLocal,
+  createdById: record.createdById,
+  createdAt: record.createdAt,
+});
+
+/** Shape for `GET /api/calendar/event-task/<id>` — the edit-prefill call
+ *  `ScheduleEventModal` makes, read as `result[0]`. */
+const toEventTaskDetail = (record: any) => ({
+  _id: record._id,
+  name: record.name,
+  startTime: record.startTime,
+  duration: record.duration,
+  timezone: record.timezone,
+  assignTo: record.assignTo,
+  meetingDetail: { allowHost: record.allowHost, password: record.password },
+  reminder: record.reminder,
+  description: record.description,
+  reminderMode: record.reminderMode,
+});
+
+/** Shape for `/api/v1/meeting/detail` — the edit-prefill call
+ *  `ScheduleMeeting` (the dashboard's own dialog) makes, read as
+ *  `result[0]`. */
+const toMeetingDetail = (record: any) => ({
+  _id: record._id,
+  name: record.name,
+  startUtc: record.startTime,
+  timezone: record.timezone,
+  allowHost: record.allowHost,
+  password: record.password,
+  duration: record.duration,
+  members: [{ user_detail: record.assignTo }],
+});
+
 /** Writes that the management screens make; returns null when none applies. */
 /**
  * One row for an AI screen's table, from whatever its wizard posted.
@@ -535,6 +675,156 @@ const buildDemoAgentRecord = (body: Record<string, any>, kind: 'receptionist' | 
 
 const applyWrite = (url: string, body: Record<string, any>) => {
   const store = readStore();
+
+  /* Instant meeting, Schedule meeting, and the same dialog's edit path — all
+     three post here. An incoming `meetingId` means "update", matching how the
+     real endpoint distinguishes create from edit. */
+  if (url.includes('/api/v1/meeting/save')) {
+    const meetings = store.meetings ?? [];
+    const index = body.meetingId ? meetings.findIndex((row) => row.meetingId === body.meetingId) : -1;
+    const existing = index >= 0 ? meetings[index] : null;
+
+    const meetingId = existing?.meetingId || body.meetingId || buildMeetingCode();
+    const meetingType = body.meetingType || existing?.meetingType || 'SCHEDULED';
+    /* An instant meeting posts `duration: 0` — there is no real end time to
+       carry over, so it is given a generous open-ended window instead of
+       looking like it ended the instant it started. */
+    const duration =
+      Number(body.duration) || existing?.duration || (meetingType === 'INSTANT' ? 60 : 30);
+    const start = body.startTime ? parseMeetingStart(body.startTime) : new Date(existing?.startTime || Date.now());
+    const startIso = start.toISOString();
+    const endIso = addMinutesIso(start, duration);
+    const people = body.members ? mapMeetingPeople(body.members) : existing?.assignTo || [];
+
+    const record = {
+      ...existing,
+      _id: existing?._id || meetingId,
+      uuid: existing?._id || meetingId,
+      meetingId,
+      referenceId: meetingId,
+      name: body.name || existing?.name || '',
+      category: body.category || existing?.category || 'EVENT',
+      meetingType,
+      mode: body.mode || existing?.mode || 'VIDEO',
+      status: 'PENDING',
+      startTime: startIso,
+      endTime: endIso,
+      startTimeLocal: startIso,
+      endTimeLocal: endIso,
+      timezone: body.timezone || existing?.timezone || 'Asia/Kolkata',
+      allowHost: body.allowHost || existing?.allowHost || 'Y',
+      ...(body.password ? { password: body.password } : existing?.password ? { password: existing.password } : {}),
+      duration,
+      description: body.description ?? existing?.description ?? '',
+      reminder: body.reminder ?? existing?.reminder ?? false,
+      reminderMode: body.reminderMode ?? existing?.reminderMode ?? [],
+      source: body.source || existing?.source || 'CALENDAR',
+      createdById: existing?.createdById || DEMO_USER.uuid,
+      hostName: existing?.hostName || DEMO_USER.user_info.name,
+      assignTo: people,
+      members: people,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+    };
+
+    store.meetings = index >= 0 ? meetings.map((row, i) => (i === index ? record : row)) : [...meetings, record];
+    writeStore(store);
+    return ok({ ...record, meetingId });
+  }
+
+  /* Follows a meeting's own save, carrying the same fields plus the
+     `meetingId`/`referenceId` it got back — or, for a plain calendar TASK
+     with no video meeting at all, the only save call that happens. */
+  if (url.includes('/api/calendar/event-task/save')) {
+    const meetings = store.meetings ?? [];
+    const meetingId = body.meetingId || body.referenceId;
+    const index = meetingId
+      ? meetings.findIndex((row) => row.meetingId === meetingId)
+      : body.eventTaskId
+        ? meetings.findIndex((row) => row._id === body.eventTaskId)
+        : -1;
+    const existing = index >= 0 ? meetings[index] : null;
+
+    const start = body.startTime ? parseMeetingStart(body.startTime) : new Date(existing?.startTime || Date.now());
+    const startIso = existing?.startTime || start.toISOString();
+    const endIso = existing?.endTime || addMinutesIso(start, 60);
+    const people = body.members ? mapMeetingPeople(body.members) : existing?.assignTo || [];
+    const id = existing?._id || meetingId || newUuid();
+
+    const record = {
+      ...existing,
+      _id: id,
+      uuid: id,
+      ...(meetingId && { meetingId, referenceId: meetingId }),
+      name: body.name || existing?.name || '',
+      category: String(body.category || existing?.category || 'TASK').toUpperCase(),
+      mode: body.mode || existing?.mode,
+      timezone: body.timezone || existing?.timezone || 'Asia/Kolkata',
+      startTime: startIso,
+      endTime: endIso,
+      startTimeLocal: startIso,
+      endTimeLocal: endIso,
+      description: body.description ?? existing?.description ?? '',
+      reminder: body.reminder ?? existing?.reminder ?? false,
+      reminderMode: body.reminderMode ?? existing?.reminderMode ?? [],
+      source: body.source || existing?.source || 'CALENDAR',
+      assignTo: people,
+      members: existing?.members || people,
+      status: existing?.status || 'PENDING',
+      createdById: existing?.createdById || DEMO_USER.uuid,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+    };
+
+    store.meetings = index >= 0 ? meetings.map((row, i) => (i === index ? record : row)) : [...meetings, record];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/calendar/event-task/remove')) {
+    const meetings = store.meetings ?? [];
+    const target = meetings.find((row) => row._id === body.eventTaskId);
+    store.meetings = meetings.filter((row) => row._id !== body.eventTaskId);
+    writeStore(store);
+    return ok({ category: (target?.category || 'event').toLowerCase() });
+  }
+
+  if (url.includes('/api/calendar/event-task/update-status')) {
+    store.meetings = (store.meetings ?? []).map((row) =>
+      row._id === body.eventTaskId ? { ...row, status: body.status } : row,
+    );
+    writeStore(store);
+    return ok({ updated: true });
+  }
+
+  if (url.includes('/api/calendar/event-task/assign-members')) {
+    const people = mapMeetingPeople(body.members || []);
+    store.meetings = (store.meetings ?? []).map((row) =>
+      row._id === body.eventTaskId ? { ...row, assignTo: people, members: people } : row,
+    );
+    writeStore(store);
+    return ok({ updated: true });
+  }
+
+  /* Adds invitees to a meeting that already exists — merged in rather than
+     replacing, so invitees added earlier (or the host) are not dropped. */
+  if (url.includes('/api/v1/meeting/send-invite')) {
+    const meetings = store.meetings ?? [];
+    const index = meetings.findIndex((row) => row.meetingId === body.meetingId);
+    if (index >= 0) {
+      const existingKeys = new Set(
+        (meetings[index].members || []).map((member: any) => member.user_uuid || member.email),
+      );
+      const incoming = mapMeetingPeople(body.members || []).filter(
+        (member) => !existingKeys.has(member.user_uuid || member.email),
+      );
+      const merged = [...(meetings[index].members || []), ...incoming];
+      store.meetings = meetings.map((row, i) =>
+        i === index ? { ...row, members: merged, assignTo: merged } : row,
+      );
+      writeStore(store);
+    }
+    return ok({ sent: true });
+  }
+
   /* The AI builders create through these. Without somewhere to put the record
      the wizard reported success and the list it returned to stayed empty, so
      a receptionist could be created over and over and never appear. */
@@ -679,6 +969,61 @@ const applyWrite = (url: string, body: Record<string, any>) => {
   if (url.includes('/api/site/delete')) {
     const target = body.uuid || body.id || url.split('/').filter(Boolean).pop();
     store.sites = (store.sites ?? []).filter((site) => site.uuid !== target);
+    writeStore(store);
+    return ok({ deleted: true });
+  }
+
+  /* Directory ▸ External Contacts' Add/Edit Contact form posts here for both
+     — `contact_uuid` on the body marks an edit, matching how
+     create-new-contact.tsx sets it from the row being edited (`_id`).
+     Without a case here `/api/contact/list` below could never show what was
+     submitted: it used to call `demoContactBookRows()` straight, which
+     regenerates the same static seed on every read, so adding a contact
+     showed a success toast and then the new row just never appeared. */
+  if (url.includes('/api/contact/upsert')) {
+    const contacts = store.contacts ?? demoContactBookRows();
+    const existing = body.contact_uuid && contacts.find((row) => row._id === body.contact_uuid);
+    const now = new Date().toISOString();
+    const id = existing?._id ?? newUuid();
+    const record = existing
+      ? {
+          ...existing,
+          ...body,
+          _id: id,
+          uuid: existing.uuid ?? id,
+          name: { ...existing.name, ...body.name },
+          contact: { ...existing.contact, ...body.contact },
+          updatedAt: now,
+        }
+      : {
+          ...body,
+          _id: id,
+          uuid: id,
+          name: { first: body?.name?.first || '', last: body?.name?.last || '' },
+          contact: { email: body?.contact?.email || '', phone: body?.contact?.phone || '' },
+          company: body?.profile?.company || '',
+          groupMeta: [],
+          is_vip: false,
+          is_dnc: false,
+          is_blocked: false,
+          tag: 'STANDARD',
+          createdAt: now,
+          updatedAt: now,
+        };
+    store.contacts = existing
+      ? contacts.map((row) => (row._id === id ? record : row))
+      : [record, ...contacts];
+    writeStore(store);
+    return ok(record);
+  }
+
+  if (url.includes('/api/contact/delete')) {
+    const ids: string[] = Array.isArray(body.contact_uuid)
+      ? body.contact_uuid
+      : [body.contact_uuid].filter(Boolean);
+    store.contacts = (store.contacts ?? demoContactBookRows()).filter(
+      (row) => !ids.includes(row._id),
+    );
     writeStore(store);
     return ok({ deleted: true });
   }
@@ -921,15 +1266,22 @@ const matchDemoPayload = (url: string, data: unknown) => {
   /* The contact centre the Performance views read. Empty lists would leave
      Queues, Agents, Calls, Flows and Boards as five empty states. */
   if (url.includes('/api/tenant/report/call-list')) {
-    /* The phone console's History pane (history-pane.tsx) is the only
-       caller that filters this endpoint by `phone` — everyone else (Reports,
-       Callbacks) filters by `direction` or not at all. Answer it from the
-       console's own PHONE_CALL_SEED instead of the shared demoCalls() log,
-       so it can actually find repeat calls for e.g. Sam Sub's number. */
-    const phoneFilterValue = (asObject(data)?.filter || []).find(
-      (row: any) => row?.key === 'phone',
-    )?.value;
-    if (phoneFilterValue) {
+    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
+    const filterList = (asObject(data)?.filter || []) as Array<{ key?: string; value?: unknown }>;
+    const findFilter = (key: string) => filterList.find((row) => row?.key === key)?.value;
+
+    /* The phone console's History pane (history-pane.tsx) sends the exact
+       same `filter: [{key:'phone', ...}]` shape Call History's own
+       "Contact Phone Number" field does, with one difference: it never
+       sends a `filter_date` (it wants a phone's whole history, not one
+       day's report). That's the only reliable way to tell the two callers
+       apart — keying on `phone` alone routed Call History's own phone
+       filter into this console-only branch too, replacing its ranged rows
+       outright instead of narrowing them. History pane still gets its
+       richer PHONE_CALL_SEED; Call History's phone filter falls through to
+       the normal ranged path below instead. */
+    const phoneFilterValue = findFilter('phone');
+    if (phoneFilterValue && !dateRange) {
       const digitsOnly = (value: unknown) => String(value || '').replace(/\D/g, '');
       const target = digitsOnly(phoneFilterValue);
       const rows = PHONE_CALL_SEED.filter(
@@ -939,24 +1291,278 @@ const matchDemoPayload = (url: string, data: unknown) => {
       return ok(listPayload(rows, {}, data));
     }
 
-    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     // Callbacks ▸ "Queue voicemail" calls this same endpoint with
     // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
     // day's call log filtered down.
     if (asObject(data)?.type === 'voicemail') {
-      const voicemailRows = filterCallsByDateRange(demoVoicemailRows(), dateRange);
+      let voicemailRows = filterCallsByDateRange(demoVoicemailRows(), dateRange);
+      const voicemailSearch = String(asObject(data)?.search || '')
+        .trim()
+        .toLowerCase();
+      if (voicemailSearch) {
+        voicemailRows = voicemailRows.filter((row) =>
+          [row.caller_id_number, row.display_caller_number, row.contact_name, row.status]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(voicemailSearch)),
+        );
+      }
       return ok(listPayload(voicemailRows, {}, data));
     }
     let rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
     // Reports ▸ Outbound sends `filter: [{key:'direction', value:'Outbound'}, ...]` —
     // without honoring it the page would list inbound calls under "Outbound".
-    const directionFilter = (asObject(data)?.filter || []).find(
-      (row: any) => row?.key === 'direction',
-    );
-    if (directionFilter?.value) {
-      rangedCalls = rangedCalls.filter((row) => row.direction === directionFilter.value);
+    // Call History's own Call Type filter also offers "Missed", which isn't a
+    // `direction` value at all (a missed call is an Inbound row that never
+    // got answered) — matched the same way the summary cards above count it.
+    const directionFilter = findFilter('direction');
+    if (directionFilter === 'Missed') {
+      rangedCalls = rangedCalls.filter(
+        (row) => row.direction === 'Inbound' && Number(row.billsectotal) === 0,
+      );
+    } else if (directionFilter) {
+      rangedCalls = rangedCalls.filter((row) => row.direction === directionFilter);
+    }
+    // Contact Name / Contact Phone Number — Call History's own advanced
+    // filter panel, distinct from the phone-console lookup above (that one
+    // only ever sends `phone`, never alongside a `filter_date`).
+    const contactNameFilter = String(findFilter('contact_name') || '')
+      .trim()
+      .toLowerCase();
+    if (contactNameFilter) {
+      rangedCalls = rangedCalls.filter((row) =>
+        [row.contact_name, row.from_display_name, row.to_display_name]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(contactNameFilter)),
+      );
+    }
+    const phoneFilterDigits = String(findFilter('phone') || '').replace(/\D/g, '');
+    if (phoneFilterDigits) {
+      const digitsOnly = (value: unknown) => String(value || '').replace(/\D/g, '');
+      rangedCalls = rangedCalls.filter(
+        (row) =>
+          digitsOnly(row.caller_id_number).includes(phoneFilterDigits) ||
+          digitsOnly(row.destination_number).includes(phoneFilterDigits) ||
+          digitsOnly(row.display_caller_number).includes(phoneFilterDigits),
+      );
+    }
+    /* Status — the filter's "Answered" option sends `SUCCESS` (the real
+       backend's status enum), but the demo rows only ever carry `ANSWERED`
+       or `NO ANSWER` (buildCalls, above); without this mapping the single
+       most commonly picked status option matched nothing. Every other
+       option (CANCEL, VOICEMAIL, ...) has no demo rows to match either way
+       — a real limitation of the seed data, not this filter. */
+    const statusFilter = findFilter('status');
+    if (statusFilter) {
+      const targetStatus = statusFilter === 'SUCCESS' ? 'ANSWERED' : statusFilter;
+      rangedCalls = rangedCalls.filter((row) => row.status === targetStatus);
+    }
+    /* Every call-list-backed report (Call History, Inbound, Outbound, ...)
+       shares this one search box, sending `search` on every keystroke —
+       matched here the same way `/api/contact/list`'s does above, against
+       every field the table actually shows a person could type ("bill" for
+       the Billing queue, a number, an agent name), so the box narrows the
+       list instead of doing nothing. */
+    const search = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (search) {
+      rangedCalls = rangedCalls.filter((row) =>
+        [
+          row.caller_id_number,
+          row.destination_number,
+          row.display_caller_number,
+          row.via_did,
+          row.contact_name,
+          row.from_display_name,
+          row.to_display_name,
+          row.forward_name,
+          row.status,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
     }
     return ok(listPayload(rangedCalls, { call_stats: demoCallStats(rangedCalls) }, data));
+  }
+  /* Reports ▸ Analytics ▸ Call Volume — a 7-day × 24-hour heatmap
+     (call-volumn/index.tsx reads `result.headers.days` for the column
+     labels and `result.rows[].{time, [dayLabel]}` for each cell). Had no
+     handler at all before this, so every cell rendered "-" and the whole
+     grid looked broken rather than merely unstyled. Deterministic
+     (mulberry32, not Math.random) for the same reason buildCalls() is —
+     a refetch shouldn't reshuffle every cell's shade. */
+  if (url.includes('/api/tenant/report/call-volume')) {
+    // Anchored on the date picker's own end date (Filters, call-volumn/
+    // index.tsx sends `filter_date: {from, to}` same as every other
+    // call-list report) rather than always "today" — otherwise the picker
+    // would relabel the columns without changing anything they show,
+    // which reads as broken rather than merely simple. The seed is
+    // derived from the anchor too, so picking a different range actually
+    // shows a different (still deterministic-per-pick) pattern instead of
+    // the same shape sliding under new labels.
+    const anchorRaw = (asObject(data)?.filter_date as { to?: string } | undefined)?.to;
+    const anchor = anchorRaw ? new Date(`${anchorRaw}T00:00:00`) : new Date();
+    const today = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const random = mulberry32(20260901 + Math.floor(today.getTime() / 86400000));
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (6 - index));
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const mmdd = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+      // Bare "MM/DD", not "(MM/DD)" — the caller (call-volumn/index.tsx)
+      // wraps this half of the split label in its own parens already;
+      // adding a second pair here rendered as "((09/02))".
+      return `${dayName} ${mmdd}`;
+    });
+    const rows = Array.from({ length: 24 }, (_, hour) => {
+      const row: Record<string, string> = { time: `${String(hour).padStart(2, '0')}:00` };
+      // Business hours (9am-7pm) run busy; outside that, calls are sparse
+      // or nonexistent — the same shape a real contact centre's volume
+      // heatmap has, rather than uniform noise across all 24 hours.
+      const isBusinessHour = hour >= 9 && hour < 19;
+      days.forEach((day) => {
+        const isWeekend = day.startsWith('Saturday') || day.startsWith('Sunday');
+        const activityChance = isWeekend ? 0.15 : isBusinessHour ? 0.9 : 0.2;
+        if (random() > activityChance) {
+          row[day] = '-';
+          return;
+        }
+        const minutes = Math.floor(random() * (isBusinessHour ? 45 : 12));
+        const seconds = Math.floor(random() * 60);
+        row[day] = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+      });
+      return row;
+    });
+    return ok({ headers: { days }, rows });
+  }
+  /* Reports ▸ Analytics ▸ Call Analytics — the service-level dial, the four
+     summary tiles and the Incoming/Outgoing/Missed line chart
+     (analytics/index.tsx reads `result.summary.{serviceLevel, incomingACD,
+     outgoingACD, avgProcessingTime}` and `result.chartData[].{name,
+     Incoming, Outgoing, Missed}`). Had no handler at all before this, so
+     every tile read 0 and the chart drew nothing.
+
+     Derived from the same `demoCalls()` log every other report reads
+     rather than invented separately — the point of this screen is to
+     summarise those calls, so a Call History showing 133 answered calls
+     and an Analytics dial disagreeing about them would be worse than no
+     data at all. The page sends its own coarse `type` (day/week/month/
+     custom) rather than a date range, so that's resolved back into one
+     here before filtering. */
+  if (url.includes('/api/tenant/report/call-analytics')) {
+    const params = asObject(data);
+    const type = String(params?.type || 'week');
+    const toIso = (date: Date) => date.toISOString().slice(0, 10);
+    const shiftDays = (days: number) => {
+      const date = new Date();
+      date.setDate(date.getDate() - days);
+      return date;
+    };
+
+    let range: { from: string; to: string };
+    let bucket: 'hour' | 'day';
+    if (type === 'day') {
+      const day = String(params?.date || toIso(new Date()));
+      range = { from: day, to: day };
+      bucket = 'hour';
+    } else if (type === 'month') {
+      range = { from: toIso(shiftDays(29)), to: toIso(new Date()) };
+      bucket = 'day';
+    } else if (type === 'custom') {
+      range = {
+        from: String(params?.from || toIso(shiftDays(6))),
+        to: String(params?.to || toIso(new Date())),
+      };
+      bucket = range.from === range.to ? 'hour' : 'day';
+    } else {
+      range = { from: toIso(shiftDays(6)), to: toIso(new Date()) };
+      bucket = 'day';
+    }
+
+    const rangedCalls = filterCallsByDateRange(demoCalls(), range);
+    const isMissedCall = (row: any) =>
+      row.direction === 'Inbound' && Number(row.billsectotal) === 0;
+
+    /* "4 min 12 s" / "2 hr 12 min 55 s" — matching the format of the
+       hardcoded "Max:" chips these tiles already sit beside, so the
+       measured value and the ceiling next to it read as one pair rather
+       than two different notations. */
+    const formatDuration = (seconds: number) => {
+      const whole = Math.max(0, Math.round(seconds));
+      const hours = Math.floor(whole / 3600);
+      const minutes = Math.floor((whole % 3600) / 60);
+      const rest = whole % 60;
+      return [hours ? `${hours} hr` : '', minutes ? `${minutes} min` : '', `${rest} s`]
+        .filter(Boolean)
+        .join(' ');
+    };
+    const averageTalk = (rows: any[]) =>
+      rows.length ? rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0) / rows.length : 0;
+    const maxTalk = (rows: any[]) =>
+      rows.reduce((max, row) => Math.max(max, Number(row.billsectotal) || 0), 0);
+    /* Wait = the part of a call before it was answered, the same
+       `duration - billsec` split every call-log report's own "Wait Time"
+       column uses, so this tile agrees with them. */
+    const waitSeconds = (row: any) =>
+      Math.max(0, (Number(row.duration) || 0) - (Number(row.billsectotal) || 0));
+    const averageWait = (rows: any[]) =>
+      rows.length ? rows.reduce((sum, row) => sum + waitSeconds(row), 0) / rows.length : 0;
+    const maxWait = (rows: any[]) => rows.reduce((max, row) => Math.max(max, waitSeconds(row)), 0);
+
+    const inbound = rangedCalls.filter((row) => row.direction === 'Inbound');
+    const outbound = rangedCalls.filter((row) => row.direction === 'Outbound');
+    const answeredInbound = inbound.filter((row) => !isMissedCall(row));
+    const serviceLevel = inbound.length
+      ? Math.round((answeredInbound.length / inbound.length) * 100)
+      : 0;
+
+    const buckets = new Map<string, { name: string; Incoming: number; Outgoing: number; Missed: number }>();
+    if (bucket === 'hour') {
+      for (let hour = 0; hour < 24; hour += 1) {
+        const suffix = hour < 12 ? 'AM' : 'PM';
+        const display = hour % 12 === 0 ? 12 : hour % 12;
+        buckets.set(String(hour), { name: `${display} ${suffix}`, Incoming: 0, Outgoing: 0, Missed: 0 });
+      }
+    } else {
+      const cursor = new Date(`${range.from}T00:00:00`);
+      const end = new Date(`${range.to}T00:00:00`);
+      while (cursor <= end) {
+        const key = toIso(cursor);
+        const name = `${String(cursor.getMonth() + 1).padStart(2, '0')}/${String(cursor.getDate()).padStart(2, '0')}`;
+        buckets.set(key, { name, Incoming: 0, Outgoing: 0, Missed: 0 });
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    }
+
+    rangedCalls.forEach((row) => {
+      const started = new Date(row.start_stamp);
+      const key = bucket === 'hour' ? String(started.getHours()) : toIso(started);
+      const slot = buckets.get(key);
+      if (!slot) return;
+      if (isMissedCall(row)) slot.Missed += 1;
+      else if (row.direction === 'Outbound') slot.Outgoing += 1;
+      else slot.Incoming += 1;
+    });
+
+    return ok({
+      summary: {
+        serviceLevel,
+        incomingACD: formatDuration(averageTalk(answeredInbound)),
+        outgoingACD: formatDuration(averageTalk(outbound)),
+        waitTime: formatDuration(averageWait(rangedCalls)),
+        avgProcessingTime: formatDuration(averageTalk(rangedCalls)),
+        /* The "Max:" chip beside each tile was hardcoded prose ("2 hr 12
+           min 55 s") that never moved with the data — the real ceiling
+           for the same range is what makes the average beside it mean
+           anything. */
+        maxIncomingACD: formatDuration(maxTalk(answeredInbound)),
+        maxOutgoingACD: formatDuration(maxTalk(outbound)),
+        maxWaitTime: formatDuration(maxWait(rangedCalls)),
+        maxProcessingTime: formatDuration(maxTalk(rangedCalls)),
+        totalCalls: rangedCalls.length,
+      },
+      chartData: [...buckets.values()],
+    });
   }
   if (url.includes('/api/tenant/report/agents')) {
     const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
@@ -1047,8 +1653,30 @@ const matchDemoPayload = (url: string, data: unknown) => {
     const campaign = demoCampaignRows().find((row) => row._id === campaignId);
     return ok(campaign?.campaignAnalytics || {});
   }
+  /* Performance ▸ Dialer's "Running Campaign" tab — a different endpoint
+     from /api/campaign/list above (the member-based list vs. the full
+     Campaigns page), but the same rows read the same way here. */
+  if (url.includes('/api/campaign/member-based')) {
+    return ok(listPayload(demoCampaignRows(), {}, data));
+  }
+  /* Performance ▸ Dialer's "Assigned Queues" tab. The caller reads this as
+     a bare array (`result`), not `result.rows` — no listPayload wrapper. */
+  if (url.includes('/api/call-queue/queue-involvement')) {
+    const search = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    const rows = demoCallQueueInvolvements().filter(
+      (row) => !search || String(row.name || '').toLowerCase().includes(search),
+    );
+    return ok(rows);
+  }
   if (url.includes('/api/calendar/event-task/list')) {
-    return ok(listPayload(demoCalendarTaskRows(), {}, data));
+    /* The seed stays untouched (it's the always-there content this page was
+       designed to be judged against); anything scheduled or created in this
+       session — from either the Calendar page itself or the video
+       dashboard's own Schedule/Instant tiles — is appended alongside it. */
+    const storeRows = (readStore().meetings ?? []).map(toCalendarRow);
+    return ok(listPayload([...demoCalendarTaskRows(), ...storeRows], {}, data));
   }
   if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows(), {}, data));
   if (url.includes('/api/contact/group/list')) {
@@ -1069,10 +1697,31 @@ const matchDemoPayload = (url: string, data: unknown) => {
     /* Directory ▸ Blocked reads this same endpoint twice — once for the whole
        book, once filtered to `tag: 'BLOCK'` for the table itself — so the
        filter has to actually apply or "blocked" shows everyone. */
-    const tagFilter = (asObject(data)?.filters || []).find((row: any) => row?.key === 'tag');
-    const rows = tagFilter
-      ? demoContactBookRows().filter((row) => row.tag === tagFilter.value)
-      : demoContactBookRows();
+    const requestBody = asObject(data);
+    const tagFilter = (requestBody?.filters || []).find((row: any) => row?.key === 'tag');
+    const contactRows = readStore().contacts ?? demoContactBookRows();
+    let rows = tagFilter
+      ? contactRows.filter((row) => row.tag === tagFilter.value)
+      : contactRows;
+
+    /* Directory ▸ External Contacts' own search box sends `search` on every
+       keystroke (debounced) — matched the same way the real endpoint's
+       `search` param would, against name/phone/email/company, so typing
+       actually narrows the list instead of the box doing nothing. */
+    const search = String(requestBody?.search || '').trim().toLowerCase();
+    if (search) {
+      rows = rows.filter((row: any) =>
+        [
+          `${row?.name?.first || ''} ${row?.name?.last || ''}`,
+          row?.contact?.phone,
+          row?.contact?.email,
+          row?.company,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
+    }
+
     return ok(listPayload(rows, {}, data));
   }
   if (url.includes('/api/tenant/report/inbound-calls')) {
@@ -1081,7 +1730,29 @@ const matchDemoPayload = (url: string, data: unknown) => {
        every other call-list-backed report. */
     const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     const rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
-    const rows = demoInboundCallRows(rangedCalls);
+    let rows = demoInboundCallRows(rangedCalls);
+    // This page's own search box (same shared pattern as
+    // `/api/tenant/report/call-list` above) — narrows the already-Inbound
+    // rows rather than re-deriving the direction filter.
+    const inboundSearch = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (inboundSearch) {
+      rows = rows.filter((row) =>
+        [
+          row.caller_id_number,
+          row.destination_number,
+          row.display_caller_number,
+          row.via_did,
+          row.contact_name,
+          row.from_display_name,
+          row.forward_name,
+          row.status,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(inboundSearch)),
+      );
+    }
     const totalDuration = rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0);
     return ok({
       data: {
@@ -1091,7 +1762,18 @@ const matchDemoPayload = (url: string, data: unknown) => {
     });
   }
   if (url.includes('/api/tenant/local-call-list')) {
-    return ok(listPayload(demoLocalCallRows(), {}, data));
+    let localCallRows = demoLocalCallRows();
+    const localCallSearch = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (localCallSearch) {
+      localCallRows = localCallRows.filter((row) =>
+        [row.caller_id_number, row.destination_number, row.from_name, row.to_name, row.status]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(localCallSearch)),
+      );
+    }
+    return ok(listPayload(localCallRows, {}, data));
   }
   if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows(), {}, data));
   if (url.includes('/api/tenant/user/template/list')) {
@@ -1102,7 +1784,61 @@ const matchDemoPayload = (url: string, data: unknown) => {
       listPayload(readStore().callHandlingTemplates ?? demoCallHandlingTemplateRows(), {}, data),
     );
   }
-  if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows(), {}, data));
+  if (url.includes('/api/v1/meeting/listing')) {
+    /* `listType` is how the video dashboard, the dedicated Upcoming/Invited/
+       Ongoing/Past pages and the video console all ask "which book" —
+       'upcoming_owned' (you host it), 'invited' (you don't), 'ongoing' and
+       'past'. The seed (`demoMeetingRows()`) is hosted by demo *agents*, not
+       the signed-in demo user, and always shown regardless of book — same
+       as before this endpoint told create/schedule apart from list, so nothing
+       already on screen disappears. A meeting made in this session is real
+       enough to sort properly: it lands under 'upcoming_owned' for its
+       creator (there is only ever one signed-in user in demo mode, so
+       nothing of yours will ever show as 'invited') and drops out of
+       'upcoming_owned'/'invited' once its end time has passed. */
+    const requestedListType = asObject(data)?.listType;
+    const seedRows = demoMeetingRows();
+    const createdRows = (readStore().meetings ?? [])
+      .filter((row) => Boolean(row.meetingId))
+      .map(toMeetingListRow);
+    const hasEnded = (row: any) => new Date(row.endTimeLocal).getTime() < Date.now();
+    const isYours = (row: any) => row.createdById === DEMO_USER.uuid;
+
+    let rows;
+    if (requestedListType === 'past') {
+      rows = [...seedRows.filter(hasEnded), ...createdRows.filter(hasEnded)];
+    } else if (requestedListType === 'upcoming_owned') {
+      rows = [...seedRows, ...createdRows.filter((row) => isYours(row) && !hasEnded(row))];
+    } else if (requestedListType === 'invited') {
+      rows = [...seedRows, ...createdRows.filter((row) => !isYours(row) && !hasEnded(row))];
+    } else {
+      // 'ongoing' and anything else: a broad, undated pool — real 'ongoing'
+      // behaves the same way (see the note on the dashboard's own liveness
+      // check), and callers narrow it themselves against the clock.
+      rows = [...seedRows, ...createdRows];
+    }
+    return ok(listPayload(rows, {}, data));
+  }
+  /* "Join a meeting" — always resolves rather than rejecting an unrecognised
+     code, so the flow can actually be exercised without first hunting down
+     one of the generated meeting codes. A code that matches something real
+     (the seed or a meeting made this session) resolves to its real name. */
+  if (url.endsWith('/api/v1/meeting/validate')) {
+    const typedId = String(asObject(data)?.meetingId || '').trim();
+    const match =
+      (readStore().meetings ?? []).find((row) => row.meetingId === typedId) ||
+      demoMeetingRows().find((row) => row.meetingId === typedId);
+    return ok({ meetingId: match?.meetingId || typedId, name: match?.name || '' });
+  }
+  /* Edit-prefill for the dashboard's own Schedule dialog. */
+  if (url.includes('/api/v1/meeting/detail')) {
+    const meetingId = asObject(data)?.meetingId;
+    const record = (readStore().meetings ?? []).find((row) => row.meetingId === meetingId);
+    return ok(record ? [toMeetingDetail(record)] : []);
+  }
+  if (url.includes('/api/v1/meeting/recording-list')) {
+    return ok(listPayload(demoRecordingRows(), {}, data));
+  }
 
   /* Inbox and the admin Numbers list both read the same handful of company
      numbers — one function, three callers. */
@@ -1216,6 +1952,38 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/tenant/greeting/create') || url.includes('/api/tenant/greeting/update')) {
     return ok({ uuid: `demo-greeting-${Date.now()}` });
+  }
+
+  /* Both of these carry their id as the last URL segment rather than in the
+     body, so they have to be matched last — after every other `/api/v1/
+     meeting/...` and `/api/calendar/event-task/...` route above has had a
+     chance to claim the more specific path it actually is. */
+  if (/\/api\/calendar\/event-task\/[^/?]+$/.test(url)) {
+    const id = url.split('/api/calendar/event-task/')[1]?.split(/[/?]/)[0];
+    const record = (readStore().meetings ?? []).find((row) => row._id === id);
+    return ok(record ? [toEventTaskDetail(record)] : []);
+  }
+  /* `/api/v1/meeting` has several single-segment sibling routes this file
+     doesn't answer specially (feature links, recording start/stop, leave) —
+     none of them carry a real meeting's id, so they have to be named here
+     rather than assumed to be one, or e.g. "leave-meeting" would be read as
+     a request to delete the meeting literally named "leave-meeting". */
+  const OTHER_MEETING_SUBROUTES = new Set([
+    'get-access-token',
+    'end',
+    'generate-private-link',
+    'permanent-link',
+    'record',
+    'leave-meeting',
+  ]);
+  if (/\/api\/v1\/meeting\/[^/?]+$/.test(url)) {
+    const id = url.split('/api/v1/meeting/')[1]?.split(/[/?]/)[0];
+    if (id && !OTHER_MEETING_SUBROUTES.has(id)) {
+      const store = readStore();
+      store.meetings = (store.meetings ?? []).filter((row) => row.meetingId !== id && row._id !== id);
+      writeStore(store);
+      return ok({ deleted: true });
+    }
   }
 
   return ok(listPayload());

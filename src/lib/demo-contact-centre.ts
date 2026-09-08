@@ -20,7 +20,7 @@
 const DAY_START_HOUR = 9;
 
 /* Deterministic, so a refresh does not reshuffle every number on screen. */
-const mulberry32 = (seed: number) => {
+export const mulberry32 = (seed: number) => {
   let a = seed;
   return () => {
     a |= 0;
@@ -183,6 +183,59 @@ const DEMO_CAMPAIGN_SEED = [
     memberExtensions: ['1004', '1007'],
     daysAgoStarted: 30,
     daySpan: 12,
+  },
+  {
+    uuid: 'demo-campaign-holiday',
+    name: 'Holiday Promo',
+    campaignStatus: 'NEW',
+    dialMethod: 'PROGRESSIVE',
+    assignedLeads: 500,
+    answeredLeads: 0,
+    totalCallNotAnswered: 0,
+    totalDnc: 0,
+    memberExtensions: ['1005', '1008'],
+    /* Negative — starts 5 days from now, not yet dialled. */
+    daysAgoStarted: -5,
+    daySpan: 14,
+  },
+  {
+    uuid: 'demo-campaign-renewal-reminders',
+    name: 'Renewal Reminders',
+    campaignStatus: 'PROCESSING',
+    dialMethod: 'PREDICTIVE',
+    assignedLeads: 640,
+    answeredLeads: 288,
+    totalCallNotAnswered: 210,
+    totalDnc: 32,
+    memberExtensions: ['1004', '1006', '1008'],
+    daysAgoStarted: 4,
+    daySpan: 18,
+  },
+  {
+    uuid: 'demo-campaign-feedback-callback',
+    name: 'Feedback Callback',
+    campaignStatus: 'PAUSE',
+    dialMethod: 'PREVIEW',
+    assignedLeads: 220,
+    answeredLeads: 96,
+    totalCallNotAnswered: 58,
+    totalDnc: 9,
+    memberExtensions: ['1002', '1007'],
+    daysAgoStarted: 15,
+    daySpan: 12,
+  },
+  {
+    uuid: 'demo-campaign-loyalty-outreach',
+    name: 'Loyalty Outreach',
+    campaignStatus: 'COMPLETED',
+    dialMethod: 'PROGRESSIVE',
+    assignedLeads: 372,
+    answeredLeads: 265,
+    totalCallNotAnswered: 92,
+    totalDnc: 15,
+    memberExtensions: ['1005', '1006'],
+    daysAgoStarted: 45,
+    daySpan: 20,
   },
 ];
 
@@ -788,7 +841,10 @@ export const demoChatThreads = () => {
       isGroupChat: false,
       groupType: 'DM',
       users: [
-        me,
+        /* Ananya Iyer's DM (index 1) carries 2 unread messages so the
+           "Unread" status filter has a real row instead of the
+           "Create a new chat" empty state — everyone else stays read. */
+        { ...me, unreadMsg: index === 1 ? 2 : 0 },
         {
           uuid: other.uuid,
           first_name: other.first_name,
@@ -803,7 +859,9 @@ export const demoChatThreads = () => {
         senderId: other.uuid,
       },
       createdAt,
-      favoriteChats: [],
+      /* Priya Sharma's DM is starred so Favorites has a real row instead of
+         "Create a new chat" — everything else here stays unstarred. */
+      favoriteChats: index === 0 ? [DEMO_USER_UUID] : [],
       isHidden: [],
       isDeleted: false,
     };
@@ -853,7 +911,8 @@ export const demoChatThreads = () => {
         senderId: sender.uuid,
       },
       createdAt,
-      favoriteChats: [],
+      /* Sales Team is starred alongside Priya Sharma's DM above. */
+      favoriteChats: index === 0 ? [DEMO_USER_UUID] : [],
       isHidden: [],
       isDeleted: false,
     };
@@ -885,7 +944,14 @@ export const demoMessageList = () => {
   const directThreads: Array<{
     chatId: string;
     extension: string;
-    lines: Array<{ hoursAgo: number; fromMe: boolean; text: string }>;
+    lines: Array<{
+      hoursAgo: number;
+      fromMe: boolean;
+      text: string;
+      attachments?: Array<{ fileName: string; serverFileName: string; size: number; type: string }>;
+      messageType?: string;
+      alertContent?: Record<string, any>;
+    }>;
   }> = [
     {
       chatId: 'demo-chat-1',
@@ -893,6 +959,32 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 3, fromMe: true, text: 'Priya, how is the Sales queue looking this afternoon?' },
         { hoursAgo: 2.5, fromMe: false, text: 'Busy — two agents out, but we are keeping up.' },
+        {
+          hoursAgo: 2,
+          fromMe: false,
+          text: 'Here is today’s call list for the Sales queue.',
+          attachments: [
+            {
+              fileName: 'Sales-Queue-Call-List.xlsx',
+              serverFileName: 'demo-sales-queue-call-list.xlsx',
+              size: 31500,
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+          ],
+        },
+        {
+          hoursAgo: 1.5,
+          fromMe: false,
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'audio',
+            createdAt: new Date(now - 1.5 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 1.5 * HOUR_MS + 96 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 1, fromMe: false, text: 'Can you take the Sales queue for the next hour?' },
       ],
     },
@@ -902,6 +994,24 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 6, fromMe: true, text: 'Ananya, did the Retention list from this morning go out?' },
         { hoursAgo: 5.5, fromMe: false, text: 'Pulling it together now, give me a few minutes.' },
+        {
+          hoursAgo: 5,
+          fromMe: false,
+          text: 'Board here, updated live: https://app.mycountrymobile.com/reports/retention',
+        },
+        {
+          hoursAgo: 4.5,
+          fromMe: false,
+          text: 'Attaching the list itself too.',
+          attachments: [
+            {
+              fileName: 'Retention-Numbers-Morning.csv',
+              serverFileName: 'demo-retention-numbers-morning.csv',
+              size: 18900,
+              type: 'text/csv',
+            },
+          ],
+        },
         { hoursAgo: 4, fromMe: false, text: 'Sent over the Retention numbers from this morning.' },
       ],
     },
@@ -910,6 +1020,19 @@ export const demoMessageList = () => {
       extension: '1003',
       lines: [
         { hoursAgo: 30, fromMe: true, text: 'Meera, I put in a leave request for next week — can you review it?' },
+        {
+          hoursAgo: 29,
+          fromMe: true,
+          text: 'Details attached.',
+          attachments: [
+            {
+              fileName: 'Leave-Request-Arjun-Mehta.pdf',
+              serverFileName: 'demo-leave-request-arjun-mehta.pdf',
+              size: 96200,
+              type: 'application/pdf',
+            },
+          ],
+        },
         { hoursAgo: 26, fromMe: false, text: 'Approved your leave request for next week.' },
       ],
     },
@@ -925,20 +1048,69 @@ export const demoMessageList = () => {
         message: toSlateMessage(line.text),
         senderId: line.fromMe ? meUuid : other.uuid,
         createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
-        messageType: 'text',
+        messageType: line.messageType || 'text',
+        /* Team Info's Files/Media tabs (description-modal.tsx) filter on
+           `isDeleted === false` specifically — undefined fails that check
+           even though every other reader here treats it as "not deleted". */
+        isDeleted: false,
+        ...(line.attachments ? { attachments: line.attachments } : {}),
+        ...(line.alertContent ? { alertContent: line.alertContent } : {}),
       })),
     };
   });
 
+  /* `attachments`/`messageType`/`alertContent` are optional per line — most
+     lines are plain text, but a few carry a file, a link, or a call so the
+     Files/Links/Calls panels (and the sidebar Files/Pinned/Folders views,
+     which read off this same messageList) have real rows instead of always
+     showing their empty state. */
   const teamThreads: Array<{
     chatId: string;
-    lines: Array<{ hoursAgo: number; senderExt: string | null; text: string }>;
+    lines: Array<{
+      hoursAgo: number;
+      senderExt: string | null;
+      text: string;
+      attachments?: Array<{ fileName: string; serverFileName: string; size: number; type: string }>;
+      messageType?: string;
+      alertContent?: Record<string, any>;
+    }>;
   }> = [
     {
       chatId: 'demo-team-chat-1',
       lines: [
         { hoursAgo: 8, senderExt: null, text: 'Morning team — Q3 Renewals push starts today, target is 55% dialed by EOD.' },
         { hoursAgo: 5, senderExt: '1004', text: 'On it, starting with the Mumbai HQ list.' },
+        {
+          hoursAgo: 4,
+          senderExt: '1005',
+          text: 'Sharing the updated target tracker for this week.',
+          attachments: [
+            {
+              fileName: 'Q3-Renewals-Target-Tracker.xlsx',
+              serverFileName: 'demo-q3-renewals-target-tracker.xlsx',
+              size: 48200,
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            },
+          ],
+        },
+        {
+          hoursAgo: 3.5,
+          senderExt: '1004',
+          text: 'Live numbers here: https://app.mycountrymobile.com/reports/q3-renewals',
+        },
+        {
+          hoursAgo: 3.2,
+          senderExt: '1005',
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'audio',
+            createdAt: new Date(now - 3.2 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 3.2 * HOUR_MS + 214 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 3, senderExt: '1005', text: 'Q3 Renewals is at 55% dialed, on pace for Friday.' },
       ],
     },
@@ -947,6 +1119,32 @@ export const demoMessageList = () => {
       lines: [
         { hoursAgo: 24, senderExt: '1007', text: "Retention's abandon rate crept up overnight, keeping an eye on it." },
         { hoursAgo: 22, senderExt: null, text: 'Added two more agents to the Retention queue for the morning.' },
+        {
+          hoursAgo: 21.5,
+          senderExt: '1007',
+          text: 'Playbook for the abandon-rate spike, for anyone new to it.',
+          attachments: [
+            {
+              fileName: 'Retention-Escalation-Playbook.pdf',
+              serverFileName: 'demo-retention-escalation-playbook.pdf',
+              size: 265400,
+              type: 'application/pdf',
+            },
+          ],
+        },
+        {
+          hoursAgo: 21,
+          senderExt: '1008',
+          text: '',
+          messageType: 'alert',
+          alertContent: {
+            mode: 'call',
+            callStatus: 'ended',
+            callType: 'video',
+            createdAt: new Date(now - 21 * HOUR_MS).toISOString(),
+            updatedAt: new Date(now - 21 * HOUR_MS + 432 * 1000).toISOString(),
+          },
+        },
         { hoursAgo: 20, senderExt: '1008', text: "Retention's abandon rate dipped below 30% today." },
       ],
     },
@@ -960,11 +1158,283 @@ export const demoMessageList = () => {
       message: toSlateMessage(line.text),
       senderId: line.senderExt ? agent(line.senderExt).uuid : meUuid,
       createdAt: new Date(now - line.hoursAgo * HOUR_MS).toISOString(),
-      messageType: 'text',
+      messageType: line.messageType || 'text',
+      isDeleted: false,
+      ...(line.attachments ? { attachments: line.attachments } : {}),
+      ...(line.alertContent ? { alertContent: line.alertContent } : {}),
     })),
   }));
 
-  return [...directMessages, ...teamMessages];
+  /* Agent Chat (Web Chat Manager) threads — visitor-initiated live-chat
+     conversations. `senderId` matches the visitor uuids seeded in
+     `demoAgentChatThreads()`/`demoAiChatRequests()` so the thread and the
+     Contact Profile panel agree on who's who. */
+  const agentChatThreads: Array<{
+    chatId: string;
+    visitorUuid: string;
+    lines: Array<{ minutesAgo: number; fromMe: boolean; text: string }>;
+  }> = [
+    {
+      chatId: 'demo-agent-chat-1',
+      visitorUuid: 'demo-visitor-1',
+      lines: [
+        { minutesAgo: 9, fromMe: false, text: 'Hi, I wanted to check something about my number.' },
+        { minutesAgo: 8, fromMe: true, text: 'Hi Manish, sure — go ahead, I can help with that.' },
+        { minutesAgo: 6, fromMe: false, text: 'Do you support porting an existing number?' },
+      ],
+    },
+    {
+      chatId: 'demo-agent-chat-2',
+      visitorUuid: 'demo-visitor-2',
+      lines: [
+        { minutesAgo: 250, fromMe: false, text: 'Hello, how do I enable call recording for my team?' },
+        {
+          minutesAgo: 248,
+          fromMe: true,
+          text: 'Hi Divya — go to Settings > Call Recording and toggle it on for the extensions you need.',
+        },
+        { minutesAgo: 245, fromMe: false, text: 'Got it, that worked.' },
+        { minutesAgo: 240, fromMe: false, text: 'Thanks for the help, that answers it!' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-1',
+      visitorUuid: 'demo-visitor-request-1',
+      lines: [
+        { minutesAgo: 2, fromMe: false, text: 'Hi, I’m having trouble setting up call forwarding on my account.' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-2',
+      visitorUuid: 'demo-visitor-request-2',
+      lines: [
+        { minutesAgo: 5, fromMe: false, text: 'Hello, do you have a plan for small teams under 10 people?' },
+      ],
+    },
+    {
+      chatId: 'demo-ai-request-3',
+      visitorUuid: 'demo-visitor-request-3',
+      lines: [{ minutesAgo: 90, fromMe: false, text: 'Hi, is anyone there? I had a quick question about…' }],
+    },
+  ];
+
+  const agentChatMessages = agentChatThreads.map((thread) => ({
+    chatId: thread.chatId,
+    messages: thread.lines.map((line, index) => ({
+      messageId: `${thread.chatId}-msg-${index + 1}`,
+      chatId: thread.chatId,
+      message: toSlateMessage(line.text),
+      senderId: line.fromMe ? meUuid : thread.visitorUuid,
+      createdAt: new Date(now - line.minutesAgo * 60 * 1000).toISOString(),
+      messageType: 'text',
+      isDeleted: false,
+    })),
+  }));
+
+  return [...directMessages, ...teamMessages, ...agentChatMessages];
+};
+
+/** Pinned Messages panel — one pinned row per team chat, reusing the exact
+ *  message objects `demoMessageList()` already created for them so the
+ *  bubble rendered in the pinned list matches the one in the thread. */
+export const demoPinnedMessages = () => {
+  const messages = demoMessageList();
+  const pin = (chatId: string, messageId: string) => {
+    const thread = messages.find((row: any) => row.chatId === chatId);
+    const found = thread?.messages?.find((row: any) => row.messageId === messageId);
+    return found ? [found] : [];
+  };
+
+  return [
+    { chatId: 'demo-chat-1', chats: pin('demo-chat-1', 'demo-chat-1-msg-1') },
+    { chatId: 'demo-chat-2', chats: pin('demo-chat-2', 'demo-chat-2-msg-1') },
+    { chatId: 'demo-chat-3', chats: pin('demo-chat-3', 'demo-chat-3-msg-1') },
+    { chatId: 'demo-team-chat-1', chats: pin('demo-team-chat-1', 'demo-team-chat-1-msg-1') },
+    { chatId: 'demo-team-chat-2', chats: pin('demo-team-chat-2', 'demo-team-chat-2-msg-1') },
+  ];
+};
+
+/** Notes panel — a couple of team notes so "No notes yet" isn't the only
+ *  thing either seeded team chat ever shows. */
+export const demoChatNotes = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+
+  return [
+    {
+      chatId: 'demo-chat-1',
+      notes: [
+        {
+          _id: 'demo-note-dm-1',
+          chatId: 'demo-chat-1',
+          title: 'Sales queue handover',
+          noteData: toSlateMessage(
+            'Two agents out today — Priya is covering. Check back in before EOD if the queue is still busy.',
+          ),
+          creatorId: DEMO_USER_UUID,
+          receiverId: [priya.uuid],
+          createdAt: new Date(now - 3 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-chat-2',
+      notes: [
+        {
+          _id: 'demo-note-dm-2',
+          chatId: 'demo-chat-2',
+          title: 'Retention list — source',
+          noteData: toSlateMessage(
+            'Numbers are pulled from last month’s renewal misses, filtered to Mumbai HQ accounts only.',
+          ),
+          creatorId: ananya.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 4 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-1',
+      notes: [
+        {
+          _id: 'demo-note-1',
+          chatId: 'demo-team-chat-1',
+          title: 'Q3 Renewals — talking points',
+          noteData: toSlateMessage(
+            'Lead with the loyalty discount, then the annual-plan upsell. Escalate anything price-sensitive to Karan.',
+          ),
+          creatorId: priya.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 1 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-2',
+      notes: [
+        {
+          _id: 'demo-note-2',
+          chatId: 'demo-team-chat-2',
+          title: 'Retention abandon-rate checklist',
+          noteData: toSlateMessage(
+            'Check queue staffing first, then IVR wait-time announcement, then callback offer threshold.',
+          ),
+          creatorId: vikram.uuid,
+          receiverId: [DEMO_USER_UUID],
+          createdAt: new Date(now - 2 * DAY_MS).toISOString(),
+        },
+      ],
+    },
+  ];
+};
+
+/** Folders panel — one folder per seeded team chat, each holding the same
+ *  file that chat's messageList already carries as an attachment. */
+export const demoChatFolders = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const karan = DEMO_AGENTS.find((row) => row.extension === '1005') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+
+  return [
+    {
+      chatId: 'demo-chat-1',
+      folders: [
+        {
+          _id: 'demo-folder-dm-1',
+          chatId: 'demo-chat-1',
+          folderName: 'Sales Queue',
+          creatorId: priya.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 2 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Sales-Queue-Call-List.xlsx',
+              fileName: 'Sales-Queue-Call-List.xlsx',
+              filename: 'demo-sales-queue-call-list.xlsx',
+              serverFileName: 'demo-sales-queue-call-list.xlsx',
+              size: 31500,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-chat-2',
+      folders: [
+        {
+          _id: 'demo-folder-dm-2',
+          chatId: 'demo-chat-2',
+          folderName: 'Retention Lists',
+          creatorId: ananya.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 4 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Retention-Numbers-Morning.csv',
+              fileName: 'Retention-Numbers-Morning.csv',
+              filename: 'demo-retention-numbers-morning.csv',
+              serverFileName: 'demo-retention-numbers-morning.csv',
+              size: 18900,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-1',
+      folders: [
+        {
+          _id: 'demo-folder-1',
+          chatId: 'demo-team-chat-1',
+          folderName: 'Renewals Tracking',
+          creatorId: karan.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 3 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Q3-Renewals-Target-Tracker.xlsx',
+              fileName: 'Q3-Renewals-Target-Tracker.xlsx',
+              filename: 'demo-q3-renewals-target-tracker.xlsx',
+              serverFileName: 'demo-q3-renewals-target-tracker.xlsx',
+              size: 48200,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      chatId: 'demo-team-chat-2',
+      folders: [
+        {
+          _id: 'demo-folder-2',
+          chatId: 'demo-team-chat-2',
+          folderName: 'Support Playbooks',
+          creatorId: vikram.uuid,
+          isPinned: '',
+          createdAt: new Date(now - 5 * DAY_MS).toISOString(),
+          attachments: [
+            {
+              name: 'Retention-Escalation-Playbook.pdf',
+              fileName: 'Retention-Escalation-Playbook.pdf',
+              filename: 'demo-retention-escalation-playbook.pdf',
+              serverFileName: 'demo-retention-escalation-playbook.pdf',
+              size: 265400,
+              isPinned: '',
+            },
+          ],
+        },
+      ],
+    },
+  ];
 };
 
 /** Activity ▸ Agent Chat's `allAgentChats` — website-widget conversations
@@ -983,12 +1453,31 @@ export const demoAgentChatThreads = () => {
       minutesAgo: 6,
       message: 'Do you support porting an existing number?',
       isEnded: false,
+      email: 'manish.tiwari@example.com',
+      phone: '917042512233',
+      city: 'Pune',
+      country: 'India',
+      page: 'https://letsdial.com/pricing',
+      device: 'Windows 11 - Chrome 128',
+      ipAddress: '103.21.58.14',
+      pastTickets: [{ id: '#1180', status: 'Resolved', date: '2026-06-14' }],
     },
     {
       visitor: 'Divya Menon',
       minutesAgo: 240,
       message: 'Thanks for the help, that answers it!',
       isEnded: true,
+      email: 'divya.menon@example.com',
+      phone: '918041223344',
+      city: 'Bengaluru',
+      country: 'India',
+      page: 'https://letsdial.com/features/call-recording',
+      device: 'macOS Sonoma - Safari 17',
+      ipAddress: '49.207.12.88',
+      pastTickets: [
+        { id: '#1142', status: 'Resolved', date: '2026-05-02' },
+        { id: '#1098', status: 'Resolved', date: '2026-03-19' },
+      ],
     },
   ];
   return seed.map((row, index) => {
@@ -1001,7 +1490,17 @@ export const demoAgentChatThreads = () => {
       isEnded: row.isEnded,
       users: [me, { uuid: visitorUuid, name: row.visitor }],
       lastMessage: { message: row.message, createdAt, senderId: visitorUuid },
-      metaData: { status: row.isEnded ? 'resolved' : 'active', lastMessageTimeStamp: createdAt },
+      metaData: {
+        status: row.isEnded ? 'resolved' : 'active',
+        lastMessageTimeStamp: createdAt,
+        email: row.email,
+        phone: row.phone,
+        city: row.city,
+        country: row.country,
+        domain: 'letsdial.com',
+        session: { device: row.device, ipAddress: row.ipAddress, page: row.page },
+        pastTickets: row.pastTickets,
+      },
       createdAt,
       isHidden: [],
       isDeleted: false,
@@ -1016,9 +1515,48 @@ export const demoAiChatRequests = () => {
   const now = Date.now();
   const MIN_MS = 60 * 1000;
   const seed = [
-    { visitor: 'Farhan Sheikh', minutesAgo: 2, status: 'pending', domain: 'letsdial.com' },
-    { visitor: 'Ritu Choudhary', minutesAgo: 5, status: 'pending', domain: 'letsdial.com' },
-    { visitor: 'Kavya Pillai', minutesAgo: 90, status: 'abandoned', domain: 'letsdial.com' },
+    {
+      visitor: 'Farhan Sheikh',
+      minutesAgo: 2,
+      status: 'pending',
+      domain: 'letsdial.com',
+      email: 'farhan.sheikh@example.com',
+      phone: '919833441122',
+      city: 'Mumbai',
+      country: 'India',
+      page: 'https://letsdial.com/features/call-forwarding',
+      device: 'Android 14 - Chrome 128',
+      ipAddress: '106.51.24.90',
+      pastTickets: [] as Array<{ id: string; status: string; date: string }>,
+    },
+    {
+      visitor: 'Ritu Choudhary',
+      minutesAgo: 5,
+      status: 'pending',
+      domain: 'letsdial.com',
+      email: 'ritu.choudhary@example.com',
+      phone: '911204556677',
+      city: 'Gurugram',
+      country: 'India',
+      page: 'https://letsdial.com/pricing',
+      device: 'Windows 11 - Edge 127',
+      ipAddress: '117.198.33.61',
+      pastTickets: [{ id: '#1201', status: 'Resolved', date: '2026-07-22' }],
+    },
+    {
+      visitor: 'Kavya Pillai',
+      minutesAgo: 90,
+      status: 'abandoned',
+      domain: 'letsdial.com',
+      email: 'kavya.pillai@example.com',
+      phone: '914422339955',
+      city: 'Chennai',
+      country: 'India',
+      page: 'https://letsdial.com/contact',
+      device: 'iOS 17 - Safari',
+      ipAddress: '223.185.44.12',
+      pastTickets: [] as Array<{ id: string; status: string; date: string }>,
+    },
   ];
   return seed.map((row, index) => ({
     chatId: `demo-ai-request-${index + 1}`,
@@ -1026,6 +1564,119 @@ export const demoAiChatRequests = () => {
     domain: row.domain,
     createdAt: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
     users: { name: row.visitor, uuid: `demo-visitor-request-${index + 1}` },
+    metaData: {
+      email: row.email,
+      phone: row.phone,
+      city: row.city,
+      country: row.country,
+      domain: row.domain,
+      session: { device: row.device, ipAddress: row.ipAddress, page: row.page },
+      pastTickets: row.pastTickets,
+    },
+  }));
+};
+
+/** Messenger's "Website" channel (Captain widget) — a separate live-chat
+ *  subsystem from Agent Chat's own AI requests, with its own conversation
+ *  list + message thread. Distinct visitor names on purpose, so it doesn't
+ *  read as a duplicate of the Agent Chat seed. */
+export const demoCaptainConversations = () => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  const seed = [
+    {
+      id: 'demo-captain-1',
+      name: 'Priya Nambiar',
+      email: 'priya.nambiar@example.com',
+      page: 'https://letsdial.com/pricing',
+      minutesAgo: 8,
+      owner: 'ai' as const,
+      status: 'open' as const,
+      lastMessage: 'Does the Starter plan include call recording?',
+    },
+    {
+      id: 'demo-captain-2',
+      name: 'Vikram Oberoi',
+      email: 'vikram.oberoi@example.com',
+      page: 'https://letsdial.com/features/ivr',
+      minutesAgo: 40,
+      owner: 'human' as const,
+      status: 'open' as const,
+      lastMessage: 'Thanks, I will set that up now.',
+    },
+    {
+      id: 'demo-captain-3',
+      name: 'Sneha Kulkarni',
+      email: 'sneha.kulkarni@example.com',
+      page: 'https://letsdial.com/integrations/salesforce',
+      minutesAgo: 180,
+      owner: 'ai' as const,
+      status: 'resolved' as const,
+      lastMessage: 'Perfect, that answers my question!',
+    },
+  ];
+
+  return seed.map((row) => ({
+    id: row.id,
+    visitor_name: row.name,
+    visitor_email: row.email,
+    page_url: row.page,
+    status: row.status,
+    owner: row.owner,
+    last_message: row.lastMessage,
+    last_message_at: new Date(now - row.minutesAgo * MIN_MS).toISOString(),
+    assistant_id: 'demo-assistant-1',
+    assistant_name: 'Captain AI',
+  }));
+};
+
+const DEMO_CAPTAIN_THREADS: Record<
+  string,
+  Array<{ role: 'visitor' | 'assistant' | 'agent'; text: string; minutesAgo: number }>
+> = {
+  'demo-captain-1': [
+    { role: 'visitor', text: 'Hi, does the Starter plan include call recording?', minutesAgo: 9 },
+    {
+      role: 'assistant',
+      text: 'Great question! Call recording is available from the Growth plan onward. Starter includes call logs and basic IVR.',
+      minutesAgo: 8.5,
+    },
+    { role: 'visitor', text: 'Does the Starter plan include call recording?', minutesAgo: 8 },
+  ],
+  'demo-captain-2': [
+    { role: 'visitor', text: 'How do I set up a multi-level IVR?', minutesAgo: 45 },
+    {
+      role: 'assistant',
+      text: 'You can build that under Admin Settings > Call Handling > IVR. Want me to connect you with an agent for a walkthrough?',
+      minutesAgo: 44,
+    },
+    { role: 'visitor', text: 'Yes please.', minutesAgo: 42 },
+    {
+      role: 'agent',
+      text: 'Hi Vikram, happy to help — go to Admin Settings > Call Handling > IVR and click "New IVR Flow".',
+      minutesAgo: 41,
+    },
+    { role: 'visitor', text: 'Thanks, I will set that up now.', minutesAgo: 40 },
+  ],
+  'demo-captain-3': [
+    { role: 'visitor', text: 'Does letsdial integrate with Salesforce?', minutesAgo: 185 },
+    {
+      role: 'assistant',
+      text: 'Yes — letsdial has a native Salesforce integration that logs calls and syncs contacts automatically.',
+      minutesAgo: 182,
+    },
+    { role: 'visitor', text: 'Perfect, that answers my question!', minutesAgo: 180 },
+  ],
+};
+
+export const demoCaptainMessages = (conversationId: string) => {
+  const now = Date.now();
+  const MIN_MS = 60 * 1000;
+  return (DEMO_CAPTAIN_THREADS[conversationId] || []).map((line, index) => ({
+    id: `${conversationId}-msg-${index + 1}`,
+    role: line.role,
+    content: line.text,
+    created_at: new Date(now - line.minutesAgo * MIN_MS).toISOString(),
   }));
 };
 
@@ -1463,6 +2114,108 @@ export const demoMeetingRows = () => {
   });
 };
 
+/** `/api/v1/meeting/recording-list` — Video ▸ "All Recordings". A handful of
+ *  past meetings with real-looking metadata (size, duration, members) so the
+ *  table, its filters/sort and the Share/Chat actions all have something to
+ *  work against. `all-recording.tsx` reads `record.meeting.members` as a flat
+ *  array (not the `user_detail`-wrapped shape `getFlatMeetingMembers` also
+ *  tolerates), so that is the shape used here. Actual playback still needs a
+ *  real media file — these rows exist for the list, not for a working video
+ *  player, since the play/download paths fetch `/api/media/...` directly with
+ *  `fetch()` rather than through the axios instance demo mode intercepts. */
+export const demoRecordingRows = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const meera = DEMO_AGENTS.find((row) => row.extension === '1003') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+  const karan = DEMO_AGENTS.find((row) => row.extension === '1005') as DemoAgent;
+
+  const asMember = (agentRow: DemoAgent, type = 'MEMBER') => ({
+    userId: agentRow.uuid,
+    name: `${agentRow.first_name} ${agentRow.last_name}`,
+    email: `${agentRow.first_name.toLowerCase()}.${agentRow.last_name.toLowerCase()}@example.com`,
+    type,
+  });
+  /* You, the signed-in demo user — included as a meeting member (not just
+     the session owner) so Share/Chat, which check for your uuid inside
+     `meeting.members`, have at least one row to actually turn on for. */
+  const you = (type: string) => ({
+    userId: DEMO_USER_UUID,
+    name: 'Arjun Mehta',
+    email: 'arjun.mehta@example.com',
+    type,
+  });
+
+  const seed: Array<{
+    meetingName: string;
+    daysAgo: number;
+    durationSec: number;
+    sizeMb: number;
+    members: Array<{ userId: string; name: string; email: string; type: string }>;
+    videoSharedBy?: { firstName: string; lastName: string; email: string };
+  }> = [
+    {
+      meetingName: 'Q3 Renewals — Sync',
+      daysAgo: 2,
+      durationSec: 2130,
+      sizeMb: 148,
+      // You hosted this one — Share and Chat both light up.
+      members: [you('ADMIN'), asMember(priya), asMember(karan), asMember(ananya)],
+    },
+    {
+      meetingName: 'Support Escalation Review',
+      daysAgo: 5,
+      durationSec: 1860,
+      sizeMb: 96,
+      // Meera shared this with you — you can open the chat, not re-share it.
+      members: [asMember(meera, 'ADMIN'), you('MEMBER'), asMember(vikram)],
+      videoSharedBy: { firstName: 'Meera', lastName: 'Nair', email: 'meera.nair@example.com' },
+    },
+    {
+      meetingName: 'Bengaluru Team Standup',
+      daysAgo: 9,
+      durationSec: 900,
+      sizeMb: 41,
+      // You are not on this one — Play/Download only, no Share or Chat.
+      members: [asMember(ananya, 'ADMIN'), asMember(vikram)],
+    },
+    {
+      meetingName: 'Monthly Performance Review',
+      daysAgo: 16,
+      durationSec: 3120,
+      sizeMb: 210,
+      // Large enough to show up under the "Large files (> 100 MB)" filter.
+      members: [you('ADMIN'), asMember(meera), asMember(priya)],
+    },
+  ];
+
+  return seed.map((row, index) => {
+    const createdAt = new Date(now - row.daysAgo * DAY_MS).toISOString();
+    const meetingId = `demo-recording-meeting-${index + 1}`;
+    const safeName = row.meetingName.replace(/[^a-zA-Z0-9]+/g, '-');
+    const admin = row.members.find((member) => member.type === 'ADMIN');
+    return {
+      _id: `demo-recording-${index + 1}`,
+      name: `${safeName}-${meetingId}.mp4`,
+      meetName: row.meetingName,
+      meetingId,
+      createdById: admin?.userId || DEMO_USER_UUID,
+      createdAt,
+      recordingSize: row.sizeMb * 1024 * 1024,
+      recordingDuration: row.durationSec,
+      ...(row.videoSharedBy
+        ? { videoSharedBy: row.videoSharedBy, sharedVideoReceiverIds: [DEMO_USER_UUID] }
+        : {}),
+      meeting: {
+        name: row.meetingName,
+        members: row.members,
+      },
+    };
+  });
+};
+
 export const demoCampaignRows = () => {
   const now = Date.now();
   const DAY_MS = 24 * 60 * 60 * 1000;
@@ -1509,6 +2262,51 @@ export const demoCampaignRows = () => {
             name: `${member.first_name} ${member.last_name}`,
           };
         }),
+      ),
+    };
+  });
+};
+
+/** `/api/call-queue/queue-involvement` — Performance ▸ Dialer's "Assigned
+ *  Queues" tab. Each queue gets a manager (a Manager/Supervisor/Sub Admin
+ *  role agent, not just whoever's first in the member list) and an
+ *  availability flag so the Join/Leave button has something to show. */
+export const demoCallQueueInvolvements = () => {
+  const managerByQueue: Record<string, string> = {
+    'demo-queue-sales': '1003',
+    'demo-queue-support': '1011',
+    'demo-queue-billing': '1002',
+    'demo-queue-onboarding': '1003',
+    'demo-queue-retention': '1011',
+  };
+
+  return DEMO_QUEUES.map((queue, index) => {
+    const memberRows = queue.memberExtensions
+      .map((extension) => DEMO_AGENTS.find((row) => row.extension === extension))
+      .filter(Boolean) as DemoAgent[];
+    const managerRow =
+      DEMO_AGENTS.find((row) => row.extension === managerByQueue[queue.uuid]) || memberRows[0];
+
+    return {
+      uuid: queue.uuid,
+      name: queue.name,
+      extension: String(9001 + index),
+      manager: JSON.stringify({
+        name: managerRow ? `${managerRow.first_name} ${managerRow.last_name}` : 'Unassigned',
+        role: managerRow?.role_name || 'Manager',
+        email: managerRow
+          ? `${managerRow.first_name}.${managerRow.last_name}@example.com`.toLowerCase()
+          : '',
+      }),
+      agent: [{ status: index % 2 === 0 ? 'Available' : 'On Break' }],
+      members: JSON.stringify(
+        memberRows.map((member) => ({
+          user_uuid: member.uuid,
+          extension: member.extension,
+          name: `${member.first_name} ${member.last_name}`,
+          email: `${member.first_name}.${member.last_name}@example.com`.toLowerCase(),
+          role: member.role_name,
+        })),
       ),
     };
   });
@@ -1753,35 +2551,51 @@ export const demoCampaignAgents = () => {
    same reasoning as the live-call data above.
 --------------------------------------------------------------------------- */
 
-export const demoCampaignAiLiveCallData = () => ({
-  data: {
-    result: {
-      avg_sentiment: 18.4,
-      total_ai_calls: 46,
-      ai_containment_percent: 64,
-      total_ai_chats: 58,
-      transferred_calls: 17,
-      ai_receptionist_performance: {
-        handled_ai_only: 29,
-        avg_duration_sec: 96,
-        lead_captured_counts: 14,
-      },
-      voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
-      sentiment_buckets: [
-        { label: 'Positive', count: 31, percent: 55 },
-        { label: 'Neutral', count: 18, percent: 32 },
-        { label: 'Negative', count: 7, percent: 13 },
-      ],
-      intent_count: {
-        billing: 19,
-        support: 24,
-        sales: 13,
-        onboarding: 8,
-        retention: 5,
+/* Wobbles a base figure by up to `amplitude` on a smooth curve tied to the
+   real clock, so two calls a few seconds apart return visibly different
+   numbers instead of the exact same fixture — the same "reads the live
+   clock" trick demoCallStats/demoCampaignLiveCallsData use, needed here so
+   the AI Wall's Refresh button visibly moves something instead of quietly
+   re-setting state to numbers that look unchanged. */
+const wobble = (base: number, amplitude: number, phase = 0) =>
+  Math.round(base + amplitude * Math.sin(Date.now() / 1500 + phase));
+
+export const demoCampaignAiLiveCallData = () => {
+  const totalAiCalls = Math.max(0, wobble(46, 4, 0.4));
+  const totalAiChats = Math.max(0, wobble(58, 5, 1.1));
+  const transferredCalls = Math.max(0, wobble(17, 3, 1.8));
+  const handledAiOnly = Math.max(0, wobble(29, 3, 2.5));
+
+  return {
+    data: {
+      result: {
+        avg_sentiment: Number(wobble(184, 15, 0) / 10),
+        total_ai_calls: totalAiCalls,
+        ai_containment_percent: Math.min(100, Math.max(0, wobble(64, 3, 0.7))),
+        total_ai_chats: totalAiChats,
+        transferred_calls: transferredCalls,
+        ai_receptionist_performance: {
+          handled_ai_only: handledAiOnly,
+          avg_duration_sec: Math.max(0, wobble(96, 8, 3.2)),
+          lead_captured_counts: Math.max(0, wobble(14, 2, 4)),
+        },
+        voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
+        sentiment_buckets: [
+          { label: 'Positive', count: 31, percent: 55 },
+          { label: 'Neutral', count: 18, percent: 32 },
+          { label: 'Negative', count: 7, percent: 13 },
+        ],
+        intent_count: {
+          billing: 19,
+          support: 24,
+          sales: 13,
+          onboarding: 8,
+          retention: 5,
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const demoAiLiveWallboardData = () => ({
   data: {
@@ -1920,6 +2734,11 @@ export const demoCalendarTaskRows = () => {
     else if (hour < 7) startsAt.setHours(9, 0, 0, 0);
     const startAt = startsAt.getTime();
     return {
+      /* Calendar's `transformEventTaskToSchedule` reads `_id`, not `uuid` —
+         without it every row here defaulted to the same empty schedule id,
+         which is what was throwing React's "two children with the same
+         key" warning for the whole Today Events list and month grid. */
+      _id: `demo-task-${index + 1}`,
       uuid: `demo-task-${index + 1}`,
       name: task.name,
       source: task.source,
@@ -1954,4 +2773,135 @@ export const demoVoicemailRows = () => {
     is_voicemail: 1,
     recording_file: `demo-voicemail-${index + 1}.mp3`,
   }));
+};
+
+/* activity-strips.tsx buckets each entry with `moment.parseZone(timestamp)`,
+   which reads the hour exactly as written in the string's own offset — it
+   does not convert to the viewer's local time first. `Date#toISOString()`
+   always normalizes to "Z" (UTC), so a Date built from local setHours(1, ..)
+   would serialize as whatever UTC hour that local 1am happens to be (e.g.
+   19:xx the day before, on a UTC+5:30 machine) and land in the wrong row
+   entirely. Writing the offset the Date actually holds keeps the hour we
+   set intact, so it lands in the row whose label shows that same hour. */
+const toLocalIso = (d: Date) => {
+  const pad = (n: number, len = 2) => String(Math.abs(n)).padStart(len, '0');
+  const offsetMin = -d.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? '+' : '-';
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}` +
+    `${sign}${pad(Math.floor(Math.abs(offsetMin) / 60))}:${pad(Math.abs(offsetMin) % 60)}`
+  );
+};
+
+/** `user-activity-list` socket event — Performance ▸ Activity's per-hour timeline.
+ *  Built around clear login/logout pairs rather than calls scattered across
+ *  the whole day — every call sits between the `online` that logged the
+ *  agent in and the `offline` that logged them out, the way a real shift
+ *  reads (no 2am calls with nobody logged in to take them). Four shifts
+ *  spread across the day, repeated over today and the two days before it,
+ *  so a "This Week" range stays populated and today's "so far" view has
+ *  already passed at least one full login-to-logout block no matter what
+ *  hour it happens to be when this is opened. */
+export const demoUserActivities = () => {
+  const DEVICE_INFO = [
+    {
+      device_type: 'Desktop App',
+      ip_address: '103.27.14.82',
+      browser_version: 'Chrome 128',
+      os_version: 'Windows 11',
+    },
+  ];
+
+  const SHIFTS: Array<{
+    login: { h: number; m: number };
+    logout: { h: number; m: number };
+    calls: Array<{ h: number; m: number; direction: 'initiator' | 'recipient'; durationMin: number }>;
+  }> = [
+    {
+      login: { h: 0, m: 10 },
+      logout: { h: 1, m: 45 },
+      calls: [{ h: 0, m: 25, direction: 'recipient', durationMin: 6 }],
+    },
+    {
+      login: { h: 5, m: 2 },
+      logout: { h: 7, m: 10 },
+      calls: [
+        { h: 5, m: 20, direction: 'recipient', durationMin: 7 },
+        { h: 6, m: 15, direction: 'initiator', durationMin: 6 },
+      ],
+    },
+    {
+      login: { h: 10, m: 0 },
+      logout: { h: 13, m: 5 },
+      calls: [
+        { h: 10, m: 20, direction: 'recipient', durationMin: 6 },
+        { h: 11, m: 10, direction: 'initiator', durationMin: 8 },
+        { h: 12, m: 15, direction: 'recipient', durationMin: 5 },
+      ],
+    },
+    {
+      login: { h: 16, m: 0 },
+      logout: { h: 19, m: 30 },
+      calls: [
+        { h: 16, m: 20, direction: 'initiator', durationMin: 7 },
+        { h: 17, m: 15, direction: 'recipient', durationMin: 6 },
+        { h: 18, m: 30, direction: 'initiator', durationMin: 9 },
+      ],
+    },
+    {
+      login: { h: 21, m: 0 },
+      logout: { h: 22, m: 30 },
+      calls: [{ h: 21, m: 20, direction: 'recipient', durationMin: 5 }],
+    },
+  ];
+
+  const activity: Array<{ id: string; timestamp: string; activity: string; data?: any }> = [];
+  let seq = 0;
+
+  [0, 1, 2].forEach((daysAgo) => {
+    const dayStart = new Date();
+    dayStart.setDate(dayStart.getDate() - daysAgo);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const at = (h: number, m: number) => {
+      const d = new Date(dayStart);
+      d.setHours(h, m, 0, 0);
+      return d;
+    };
+
+    SHIFTS.forEach((shift) => {
+      activity.push({
+        id: `demo-act-${seq++}`,
+        timestamp: toLocalIso(at(shift.login.h, shift.login.m)),
+        activity: 'online',
+        data: DEVICE_INFO,
+      });
+
+      shift.calls.forEach((call) => {
+        const startAt = at(call.h, call.m);
+        const endAt = new Date(startAt.getTime() + call.durationMin * 60000);
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(startAt),
+          activity: 'call_start',
+          data: { Direction: call.direction },
+        });
+        activity.push({
+          id: `demo-act-${seq++}`,
+          timestamp: toLocalIso(endAt),
+          activity: 'call_end',
+        });
+      });
+
+      activity.push({
+        id: `demo-act-${seq++}`,
+        timestamp: toLocalIso(at(shift.logout.h, shift.logout.m)),
+        activity: 'offline',
+        data: DEVICE_INFO,
+      });
+    });
+  });
+
+  return { data: [{ activity }] };
 };

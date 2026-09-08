@@ -84,6 +84,10 @@
   --hold-wash: #dcf1f7;
 
   --shadow-sm: 0 1px 2px rgba(13, 21, 38, 0.06), 0 1px 1px rgba(13, 21, 38, 0.04);
+  /* The shadow a card takes under the pointer. One token so every card
+     on the account pages lifts by the same amount — they were each
+     carrying their own hand-written rgba, which drifted. */
+  --lift: 0 6px 18px -8px rgba(13, 21, 38, 0.2);
   --shadow: 0 4px 14px rgba(13, 21, 38, 0.07), 0 1px 3px rgba(13, 21, 38, 0.05);
   --shadow-lg: 0 18px 44px rgba(13, 21, 38, 0.14), 0 3px 10px rgba(13, 21, 38, 0.07);
   --r: 12px;
@@ -97,63 +101,37 @@
     'Segoe UI', sans-serif;
 }
 .dark .mcm-page {
-  --ground: #080d12;
-  /* Same translucency approach as before, tinted from the new deeper
-     surfaces so frosted panels stay legible.
-
-     2026-09-05 dark-theme polish pass: --surface/-2/-3 and their -solid
-     aliases were measured at a 1.05:1 luminance contrast against --ground
-     (index.css) — cards were barely distinguishable from the page behind
-     them. Stepped up so ground < surface < surface-2 < surface-3 reads as
-     a real elevation ladder rather than one flat plane; still dark, no
-     hue change, nothing near pure black or pure white. */
-  --surface: rgba(17, 28, 38, 0.72);
-  --surface-2: rgba(22, 34, 44, 0.68);
-  --surface-3: rgba(26, 39, 51, 0.72);
-  --surface-solid: #111c26;
-  --surface-2-solid: #16222c;
-  --ink: #f3f6f9;
-  /* ink-2/ink-3 were identical (#aab6c1), collapsing "secondary" and
-     "muted/helper" into one tier — the hierarchy the theme calls for needs
-     them visually distinct. ink-4 measured 3.93:1 against --surface-solid,
-     under the 4.5:1 AA floor for body text ("muted... but never too
-     faint"). All three now step down from --ink while staying >=5:1 on
-     every surface tone. */
-  --ink-2: #aab6c1;
-  --ink-3: #8b98a6;
-  --ink-4: #7c8894;
-  --line: #1b2934;
-  --line-2: #263642;
-  /* Primary accent restored to orange per the 2026-09-05 global re-theme
-     (previously neutralized to gray). Light mode's .mcm-page block above
-     was never touched by either rebrand. --accent-wash/--warn-wash are
-     NEUTRAL dark surfaces, not an orange/brown-tinted fill — orange
-     signals through --accent-ink text and --accent-edge borders instead,
-     per the "orange never covers a large area, no brown backgrounds"
-     correction. */
-  --accent: #f97316;
-  --accent-ink: #ff8a2a;
-  --accent-wash: #1a2733;
-  --accent-edge: rgba(249, 115, 22, 0.4);
+  --ground: #0a0f1a;
+  /* Same translucency as light mode, tinted from the dark surfaces. */
+  --surface: rgba(23, 32, 50, 0.62);
+  --surface-2: rgba(30, 41, 62, 0.55);
+  --surface-3: rgba(38, 49, 74, 0.58);
+  --surface-solid: #111827;
+  --surface-2-solid: #161f31;
+  --ink: #eef2f9;
+  --ink-2: #c3cddf;
+  --ink-3: #93a1ba;
+  --ink-4: #6b7a96;
+  --line: #26314a;
+  --line-2: #1c2537;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
-  --ai-wash: #131625;
+  --ai-wash: #231a3d;
   --ai-edge: #3c2d66;
   --live: #2dd4bf;
-  --live-wash: #0d1f1c;
-  /* Amber, not a copy of --accent: this token drew the exact same orange
-     as the primary accent/CTA, so every "warn"-level alert border and
-     value (`.attn.warn`, `.kpi .v.warnv`) read as visually identical to
-     "active/primary" instead of "caution" — no way to tell a warning
-     apart from a button. Amber keeps the same warm family without
-     borrowing the brand's own hue. */
-  --warn: #f59e0b;
-  --warn-wash: #1a2733;
+  --live-wash: #0f2f2c;
+  --warn: #f0a24b;
+  --warn-wash: #33240f;
   --crit: #f87171;
-  --crit-wash: #24151a;
+  --crit-wash: #361618;
   --hold: #38bdf8;
-  --hold-wash: #0d1e28;
+  --hold-wash: #0d2a3a;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --lift: 0 6px 18px -8px rgba(0, 0, 0, 0.55);
   --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.6);
 
@@ -163,17 +141,17 @@
      Both sides of the merge fixed this gap independently. The shared three
      take upstream's values: its surface is more transparent and it pairs
      that with a stronger blur, which only works as a pair. */
-  --glass-surface: rgba(7, 13, 19, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-surface: rgba(17, 24, 39, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-blur: blur(16px) saturate(180%);
 
   /* These three have no upstream counterpart, and the page sidebar, table
      shell and tab-strip divider are painted with them — dropping them in
      favour of upstream's set would leave those surfaces on the light
      values and put the white fog back under dark-mode text. */
-  --glass-chrome: rgba(6, 11, 16, 0.68);
-  --glass-hairline: rgba(255, 255, 255, 0.06);
-  --glass-line: rgba(255, 255, 255, 0.08);
+  --glass-chrome: rgba(14, 21, 36, 0.62);
+  --glass-hairline: rgba(255, 255, 255, 0.08);
+  --glass-line: rgba(255, 255, 255, 0.1);
 }
 
 /* ---- base ---- */
@@ -200,15 +178,29 @@
   min-height: 0;
   overflow: hidden;
 }
-/* Tab triggers are excluded from `color`/`border` below. This reset is
-   unlayered, so it beats every Tailwind utility regardless of specificity (see
-   the flex-direction note above) - including the
+/* Tab triggers and every shared Radix-based control that renders as a plain
+   `<button>` under the hood (`Button` → `data-slot="button"`, `Checkbox` →
+   `data-slot="checkbox"`, `RadioGroupItem` → `data-slot="radio-group-item"`)
+   are excluded from `color`/`border`/`background` below. This reset is
+   unlayered, so it beats every Tailwind utility regardless of specificity
+   (see the flex-direction note above) - including the
    `data-[state=active]:text-primary` and `data-[state=active]:border-b-primary`
-   that tab strips mark the open tab with. `border: 0` erased the underline and
-   `color: inherit` erased the accent, so every tab rendered identically and a
-   drawer gave no clue which tab you were on. The font, background and cursor
-   parts of the reset still apply; only the two the tabs own are left to them. */
-.mcm-page button:not([data-slot='tabs-trigger']) {
+   that tab strips mark the open tab with, and every `border`/`bg-*`/`text-*`
+   variant class those components apply. Without these exclusions, any of
+   them rendered as a plain (non-portaled) descendant of `.mcm-page` - e.g.
+   inside a `SideDrawer` or an inline (non-portaled) `Popover`, neither of
+   which renders through a portal - loses its border, background and text
+   color entirely, appearing unstyled/invisible regardless of its own
+   variant/checked/state classes. The exclusions are wrapped in `:where()` so
+   they add zero specificity: chained `:not()` clauses (without `:where()`)
+   pushed this rule's specificity above `.mcm-page .btn.primary`/`.btn.ghost`
+   (the hand-styled `.btn` buttons elsewhere in this file), which briefly
+   broke their border/color/background the same way. */
+.mcm-page button:where(
+    :not([data-slot='tabs-trigger']):not([data-slot='button']):not([data-slot='checkbox']):not(
+        [data-slot='radio-group-item']
+      )
+  ) {
   font: inherit;
   color: inherit;
   border: 0;
@@ -219,6 +211,52 @@
   font: inherit;
   background: none;
   cursor: pointer;
+}
+
+/* Pagination footer's manual-refresh button (table-manager.tsx,
+   `.table-refresh-btn`) — one authoritative definition here instead of a
+   different partial patch per Performance page (Campaigns had its own,
+   Queues/Agents/Calls/etc. had none). The actual bug: the component's own
+   className pairs `hover:text-white` with the shadcn Button `ghost`
+   variant's `hover:bg-accent` — on hover the background stays light
+   (`--accent` is a pale gray/white, not orange) while the icon turns pure
+   white, vanishing completely. At rest, several pages' broader theme
+   selectors (row/toolbar action-button glass-circle rules keyed off
+   `[class*='rounded-full']`) happened to also match this button and left
+   it with whatever icon colour that theme used for something else
+   entirely, sometimes a near-white one. Sized to an exact 32px circle
+   (the surrounding Button component only gets a rectangular pill from its
+   own default padding otherwise) and given one fixed rest/hover colour
+   pair that is never white-on-light or light-on-white. */
+.mcm-page .table-refresh-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(249, 115, 22, 0.28) !important;
+  color: #ea580c !important;
+  box-shadow: none;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-page .table-refresh-btn svg {
+  color: inherit !important;
+  stroke: currentColor;
+}
+.mcm-page .table-refresh-btn:hover {
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(234, 88, 12, 0.28);
 }
 .mcm-page input,
 .mcm-page textarea,
@@ -1047,11 +1085,7 @@
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  /* --ink-3, not --ink-4: this label names what the number below it is —
-     the same role table headers play, which already use --ink-3 for
-     exactly this reason. --ink-4 (the dimmest, "muted/disabled" tier)
-     under-served a label every KPI tile depends on to be legible. */
-  color: var(--ink-3);
+  color: var(--ink-4);
 }
 .mcm-page .kpi .v {
   font-size: 26px;
@@ -1100,15 +1134,7 @@
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  /* Was --ink-4 (the dimmest, "muted/disabled" tier) — headers need to
-     read clearly at a glance while still sitting behind the row content
-     they label, so --ink-3 (the "muted/helper" tier, brighter than ink-4,
-     dimmer than ink-2) fits better than the near-invisible bottom rung. */
-  color: var(--ink-3);
-  /* One step up the existing surface ladder (surface -> surface-2) so the
-     header row reads as its own band instead of blending into the body,
-     which shared the table's plain --surface with no distinction. */
-  background: var(--surface-2);
+  color: var(--ink-4);
   padding: 9px 12px;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
@@ -2720,6 +2746,7 @@
   background: var(--surface-2);
 }
 
+
 /* ---- cards ----
    The hand-written rgba shadows read muddy beside the console's flat
    panels; the border carries the separation instead. */
@@ -3015,6 +3042,40 @@
 }
 
 /* ---- Admin nav search ---- */
+/* Active marker on the admin nav, matching the left nav rail's own
+   (`.mcm-rail-item.is-active::before`, index.css). Both places previously
+   marked "you are here" with a peach fill alone, which reads as a hover
+   state as much as a selection.
+
+   Two selectors because this nav has two kinds of current row: the
+   standalone "All admin screens" link, and an expanded accordion group
+   header (Captain, Company, ...) — the app already tints both, so the bar
+   follows the same rule rather than inventing a third notion of active.
+   `position: relative` is set here because neither element is positioned
+   on its own, and an unpositioned parent would anchor the bar to the page
+   instead of the row. */
+.mcm-admin .mcm-adminnav-all.on,
+.mcm-admin .mcm-adminnav button[data-state='open'] {
+  position: relative;
+}
+.mcm-admin .mcm-adminnav-all.on::before,
+.mcm-admin .mcm-adminnav button[data-state='open']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  /* Centred stub rather than a full-height bar — these rows are 46px and
+     a leaf row is shorter, so a top/bottom-inset bar would come out a
+     different length on each. */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  /* Same per-tenant token the rail marker uses, so the two stay in step
+     when `active_sidebar_color` is themed. */
+  background: var(--color-ucass-active);
+}
+
 .mcm-admin .mcm-adminnav-search {
   display: flex;
   flex: none;
@@ -3950,36 +4011,6 @@
   }
 }
 
-/* Sticky action bar for a form whose Submit sits inside the scrolling area.
-   Several pages put the save button at the natural end of a long form, which
-   means it is below the fold until the person scrolls to the bottom — easy to
-   miss entirely, and the most common reason a change is filled in and never
-   saved. Sticking it to the bottom of its own scroll container keeps it on
-   screen without moving it out of the form it belongs to. */
-.mcm-stickyfoot {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 12px 0;
-  /* --surface-1 doesn't exist as a design token (the real name is
-     --surface) — the fallback #fff was silently winning every time,
-     which is why this stayed white regardless of theme. */
-  background: var(--surface, #fff);
-  border-top: 1px solid var(--line, #e5e7eb);
-}
-
-/* Pushes any hint text to the left of the buttons. */
-.mcm-stickyfoot .mcm-stickyfoot-hint {
-  margin-right: auto;
-  color: var(--ink-3, #6b7280);
-  font-size: 12px;
-}
-
 /* Briefly outlines the section a setup-guide step jumped to. Without it the
    page scrolls and nothing tells you which row you landed on. */
 .mcm-flash {
@@ -4328,112 +4359,30 @@
 }
 
 /* ============================================================
-   Directory ▸ Blocked — tighter spacing for the "Block a number" form and
-   the blocked list.
+   Directory ▸ Blocked.
 
    Opt-in via `.blocked-compact` on the page wrapper (DirectoryPage's
-   `className` prop), so only this page is affected — every other screen
-   built on `.page`/`.mcm-setcard`/`.mcm-setrow` (which SettingCard is
-   shared with, across several admin-settings screens) keeps its normal
-   spacing.
+   `className` prop), so only this page is affected. The "Block a number"
+   form used to live inline here as a `SettingCard`/`mcm-setrow` form above
+   a table — it now lives in a dialog (see `.gp-block-dialog` in
+   blocked-glass.css), so this page's own CSS is just spacing for its
+   header/search bar above the blocked-contacts grid.
 
-   This page previously pinned `.page` itself to `overflow: hidden` so only
-   the table underneath could scroll — that's brittle: at some real window
-   sizes the content still ended up taller than the fixed box, and with
-   nothing left to scroll it, the list became genuinely unreachable. `.page`
-   now keeps the same `overflow-y: auto` every other Directory page already
+   `.page` keeps the same `overflow-y: auto` every other Directory page
    relies on (the base rule above), so the page scrolls as a whole exactly
-   like People/Groups/etc. do whenever content doesn't fit — guaranteed
-   reachable regardless of viewport. The table still caps its own height
-   and scrolls internally first, so a long blocked-list doesn't balloon the
-   page — the page scroll is the fallback, not the only way to reach it. */
+   like People/Groups/etc. do whenever the grid doesn't fit — guaranteed
+   reachable regardless of viewport. */
 .mcm-page .page.blocked-compact {
-  padding: 14px 18px;
+  /* Top/sides match the plain `.page` default (People etc.) — only the
+     bottom stays tight, matching the same fix on `.favourites-compact`. */
+  padding: 22px 26px 14px;
 }
 .mcm-page .blocked-compact .page-head {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 .mcm-page .blocked-compact .tbar {
-  margin-bottom: 6px;
+  margin-bottom: 16px;
 }
-.mcm-page .blocked-compact .blocked-table-scroll {
-  max-height: 260px;
-  overflow-y: auto;
-}
-.mcm-page .blocked-compact thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--surface);
-}
-
-/* Tighter "Block a number" card — the same component other settings
-   screens use at their normal size, scaled down here so the whole form
-   fits without needing the page-level scroll this override removes. */
-.mcm-page .blocked-compact .mcm-setcard {
-  margin-bottom: 10px;
-}
-.mcm-page .blocked-compact .mcm-setcard-h {
-  padding: 8px 12px 7px;
-}
-.mcm-page .blocked-compact .mcm-setcard-body {
-  padding: 0 12px;
-}
-.mcm-page .blocked-compact .mcm-setrow {
-  padding: 6px 0;
-}
-
-/* Three distinct panels rather than one long box: the form (through "Whose
-   line"), the "Coming soon" explanation, and the blocked list each read as
-   their own card — the SettingCard's built-in `note` footer would otherwise
-   fuse the explanation onto the bottom of the form card with no border
-   between them, and the table followed on with no card chrome at all. Same
-   visual language as `.mcm-setcard` (surface, border, radius) so the three
-   read as siblings, not as three different components. */
-.mcm-page .blocked-compact .blocked-note-card {
-  background: var(--warn-wash);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-.mcm-page .blocked-compact .blocked-note-text {
-  margin: 0;
-  padding: 10px 12px;
-  color: var(--warn);
-  font-size: 11.5px;
-  line-height: 1.5;
-}
-.mcm-page .blocked-compact .blocked-table-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-.mcm-page .blocked-compact .blocked-table-card .blocked-table-scroll {
-  border-radius: inherit;
-}
-
-/* Tighter table + empty state below the form, same reasoning: this is the
-   normal shared table/empty styling other Directory pages use, just scaled
-   down here alone so everything keeps fitting without a page scroll. */
-.mcm-page .blocked-compact th {
-  padding: 7px 12px;
-}
-.mcm-page .blocked-compact td {
-  padding: 8px 12px;
-}
-.mcm-page .blocked-compact .empty {
-  padding: 20px 24px;
-}
-
-/* A further visual pass on Blocked — the search chip and the "Block a
-   number" card's icon were still the design system's default flat/neutral
-   look, standing out against how warm the rest of this page (and the
-   Contact view/External Contacts pages) already reads. Scoped to
-   `.blocked-compact` only, same as everything else above. */
 .mcm-page .blocked-compact .tbar .fchip {
   border-color: rgba(194, 65, 12, 0.16);
   box-shadow: var(--shadow-sm);
@@ -4444,23 +4393,6 @@
 .mcm-page .blocked-compact .tbar .fchip:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
-}
-.mcm-page .blocked-compact .mcm-setcard {
-  box-shadow: var(--shadow-sm);
-}
-.mcm-page .blocked-compact .mcm-setcard-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: var(--accent-wash);
-  color: var(--accent-ink);
-}
-.mcm-page .blocked-compact tbody tr:hover {
-  background: var(--accent-wash);
-}
-.mcm-page .blocked-compact .mini:hover {
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
 }
 
 /* ============================================================
@@ -4475,23 +4407,16 @@
    "the page doesn't scroll, the data does" for any realistic favourites
    list length. */
 .mcm-page .page.favourites-compact {
-  padding: 14px 18px;
+  /* Top/sides match the plain `.page` default (People etc.) — only the
+     bottom stays tight, since this page's whole point is not needing its
+     own scroll to reach a list that already scrolls internally. */
+  padding: 22px 26px 14px;
 }
 .mcm-page .favourites-compact .page-head {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 .mcm-page .favourites-compact .tbar {
-  margin-bottom: 6px;
-}
-.mcm-page .favourites-compact .favourites-table-scroll {
-  max-height: 60vh;
-  overflow-y: auto;
-}
-.mcm-page .favourites-compact thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--surface);
+  margin-bottom: 16px;
 }
 
 /* ==================================================================
@@ -4546,17 +4471,6 @@
    chip rather than a line parked beside it. */
 .mcm-admin .mcm-subnav .border-r-primary {
   background: color-mix(in srgb, var(--primary) 14%, #fff7ef) !important;
-  box-shadow: inset 3px 0 0 var(--accent);
-}
-/* Dark mode: the rule above has no counterpart, so the selected sidebar
-   item (e.g. Monitoring's "All Calls") kept mixing orange into `#fff7ef`
-   — a near-white cream — regardless of theme. A translucent orange wash
-   instead of a mixed-in light colour, matching the "accent shows as a
-   wash + border, never a light/solid fill" rule the rest of the dark
-   theme already follows. Needs its own `!important` to outrank the
-   light-mode rule's. */
-.dark .mcm-admin .mcm-subnav .border-r-primary {
-  background: rgba(249, 115, 22, 0.14) !important;
   box-shadow: inset 3px 0 0 var(--accent);
 }
 /* `:not(.text-primary)` matters: the current-page rule above sets accent
@@ -4642,15 +4556,46 @@
 .mcm-admin .table-scroll table tbody tr:hover {
   background: rgba(255, 255, 255, 0.45);
 }
-/* Its own `thead th` sibling above already carries a dark companion; this
-   rule never got one, so every `.mcm-admin` table (Campaign's Leads,
-   Dispositions, etc. all render through this same TableManager/table-scroll
-   markup) hovered a row into a near-white wash regardless of theme —
-   exactly the "light gray row" the dark theme otherwise avoids everywhere
-   else. Matches the header's own dark tone family rather than a fresh
-   color. */
-.dark .mcm-admin .table-scroll table tbody tr:hover {
-  background: rgba(22, 34, 44, 0.6);
+
+/* All Extensions — this table's own `.table-scroll` sits on an opaque
+   cream card, where the shared rule's `rgba(255,255,255,0.45)` all but
+   disappears (white-on-white). Same selector shape scoped through
+   `.mcm-allext`, so it matches the shared rule's specificity and wins on
+   being declared after it — a warm tint that actually reads here, the
+   same family of colour the Live Call Console next door already hovers
+   its own rows with. */
+.mcm-allext .table-scroll table tbody tr:hover {
+  background: rgba(251, 226, 200, 0.45);
+}
+/* Call Queue / Campaign — same fix as All Extensions above, same reason:
+   `.table-scroll` here also sits on an opaque cream card, where the shared
+   `rgba(255,255,255,0.45)` hover is invisible. */
+.mcm-callqueue .table-scroll table tbody tr:hover {
+  background: rgba(251, 226, 200, 0.45);
+}
+
+/* All Extensions — the vertical scrollbar track ran the full height of
+   the card, alongside the sticky 40px header, so it visually cut across
+   the header's rounded top-right corner instead of starting under it.
+   Same fix Performance ▸ Agents already uses for the same
+   `.table-scroll` + sticky-header combination (see agents-theme.css) —
+   pushed down to start below the header, thinned to sit clearly inside
+   the card's edge instead of crowding it. */
+.mcm-allext .table-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-track {
+  margin-top: 40px;
+  margin-bottom: 8px;
+  background: transparent;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(214, 163, 90, 0.35);
+  border-radius: 999px;
+}
+.mcm-allext .table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(214, 163, 90, 0.55);
 }
 
 /* ---- empty states sit directly on the glass ---- */
@@ -4671,8 +4616,12 @@
    where it sits over page content that genuinely does need diffusing.
 
    `rounded-full` is excluded: those are chips, avatars and toggle knobs,
-   which should stay solid. */
-.mcm-page [class*='rounded-']:not([class*='rounded-full']).bg-white {
+   which should stay solid. The shared `Button` component (`data-slot="button"`)
+   is excluded too: its `outline`/`default` variants use exactly
+   `rounded-lg bg-white`, so without this exclusion every such Button
+   rendered inside `.mcm-page` gets silently pinned to this translucent
+   glass surface/border regardless of its `variant` prop or `hover:` utilities. */
+.mcm-page [class*='rounded-']:not([class*='rounded-full']):not([data-slot='button']).bg-white {
   background: var(--glass-surface);
   border-color: var(--glass-border);
 }
@@ -4892,11 +4841,6 @@
   border-radius: var(--r);
   background: #ffffff;
   box-shadow: var(--shadow-sm);
-  /* The tone shows as a bar down the leading edge rather than a coloured
-     icon tile, so four cards side by side stay quiet. */
-  box-shadow:
-    inset 4px 0 0 var(--stat-tone, var(--line)),
-    var(--shadow-sm);
 }
 
 .mcm-stat.is-live {
@@ -4912,13 +4856,34 @@
   --stat-tone: var(--line);
 }
 
+/* A waiting-call count is the one figure on this strip that means "go look
+   now" — a soft pulse on its edge is enough to say so without turning the
+   whole card into a warning banner. */
+.mcm-stat.is-alert {
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--warn) 16%, transparent),
+    var(--shadow-sm);
+}
+
 .mcm-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   margin: 0;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-4);
+}
+
+/* Small and the same muted tone as the label, not a coloured tile — see the
+   note above the card rule on why this strip stays quiet. */
+.mcm-stat-label svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--stat-tone, var(--ink-4));
 }
 
 .mcm-stat-value {
@@ -5037,34 +5002,25 @@
   font-weight: 600;
   color: var(--ink-2);
   cursor: pointer;
-  transition:
-    background 0.14s ease,
-    border-color 0.14s ease,
-    color 0.14s ease;
 }
-/* Neither control had a hover or focus state at all — a dropdown/input
-   that looks identical whether or not the pointer is over it doesn't read
-   as interactive. Border brightens and text lightens on hover; the focus
-   ring reuses the theme's own accent, same as every other control.
-   Explicitly prefixed `.dark` (not relying on `!important`): a later,
-   more general `.dark .mcm-console-select` rule (further down this file)
-   sets the same border-color property at equal specificity to a bare
-   `:hover`/`:focus-visible` selector, and ties resolve to whichever rule
-   is later in the file — which was that one, silently overriding these.
-   Adding `.dark` to these selectors makes them outrank it on specificity
-   alone. Ring uses a translucent slice of `--accent` directly rather than
-   `--accent-wash`: in this token set accent-wash is deliberately neutral
-   (the "no large orange fill" rule elsewhere in the theme), which is
-   right for a filled background but reads as no focus colour at all for
-   a ring meant to be visibly orange. */
-.dark .mcm-console-select:hover {
-  border-color: var(--accent-edge);
-  color: var(--ink);
+
+/* The route filter: a native `<select>` popup can't be themed — its option
+   list renders with the OS's own font and highlight colour (blue on
+   Windows), not this app's. This trigger button opens the same rounded,
+   orange-hover menu every other dropdown in the console uses instead. */
+.mcm-console-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 132px;
+  transition: border-color 0.15s ease;
 }
-.dark .mcm-console-select:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+.mcm-console-select-trigger:hover {
+  border-color: rgba(214, 163, 90, 0.55);
+}
+.mcm-console-select-trigger[data-state='open'] {
+  border-color: var(--accent, #ea8a3f);
 }
 
 .mcm-console-search {
@@ -5076,16 +5032,6 @@
   border: 1px solid var(--line);
   border-radius: 9px;
   background: #ffffff;
-  transition:
-    border-color 0.14s ease,
-    box-shadow 0.14s ease;
-}
-.dark .mcm-console-search:hover {
-  border-color: var(--accent-edge);
-}
-.dark .mcm-console-search:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .mcm-console-search input {
   width: 170px;
@@ -5094,9 +5040,6 @@
   background: transparent;
   font-size: 13px;
   color: var(--ink);
-}
-.mcm-console-search input::placeholder {
-  color: var(--ink-3);
 }
 
 /* ---- the calls ---- */
@@ -5148,27 +5091,6 @@
   color: rgb(107, 120, 145);
 }
 
-/* Dark mode: the rule above's `background: #ffffff !important` had no
-   counterpart at all here, so the sticky header band stayed a solid white
-   strip regardless of theme. A literal solid hex, not `var(--surface-3)`:
-   this page (Monitoring) only ever has mcm-page.css loaded, where
-   `--surface-3` is translucent (`rgba(26,39,51,0.72)`, meant to sit over a
-   blurred glass panel) — console.css's own solid `--surface-3` (used on
-   /phone) is a separate, route-split stylesheet that isn't guaranteed to
-   be loaded here, so depending on it would silently break depending on
-   navigation history. A plain hex sidesteps that: same reason the
-   original rule hardcoded white instead of a token. One step lighter than
-   the panel's own `--surface-solid` (#111c26), so the header still reads
-   as a distinct band above the rows instead of blending flat, and still
-   fully opaque — the exact property the comment on the light-mode rule
-   above calls out as required for a sticky header. Needs its own
-   `!important` to outrank the light-mode rule's. */
-.dark .mcm-console .mcm-console-table thead th {
-  background: #1a2733 !important;
-  border-bottom: 1px solid var(--line) !important;
-  color: var(--ink-3) !important;
-}
-
 /* The band keeps its colour and gets closed off at each end instead — a
    hard edge on the outer edges only, so the row reads as a bounded strip
    rather than a fill that runs out of the panel. Nothing between the
@@ -5181,6 +5103,20 @@
   text-align: right;
 }
 
+/* Every column but Caller (1, which keeps the avatar block left) and
+   Actions (7, already right-aligned via `.is-right` above) — centred under
+   its own heading instead of pinned to the column's left edge. */
+.mcm-console-table thead th:nth-child(n + 2):not(.is-right),
+.mcm-console-table tbody td:nth-child(n + 2):not(.is-right) {
+  text-align: center;
+}
+/* `.mcm-console-route` is a flex row, which `text-align` on the cell
+   around it cannot center — flex items are positioned by the flex
+   properties, not the text-alignment of their container. */
+.mcm-console-table tbody td:nth-child(n + 2) .mcm-console-route {
+  justify-content: center;
+}
+
 .mcm-console-table tbody td {
   height: 72px;
   padding: 10px 10px;
@@ -5191,9 +5127,29 @@
   border-bottom: 0;
 }
 
-/* The call's state, down the leading edge of its row. */
-.mcm-console-table tbody td:first-child {
-  box-shadow: inset 4px 0 0 var(--row-edge, var(--line));
+/* Waiting calls need an agent right now; calls already connected don't. The
+   two spanning rows below split the list into those groups instead of
+   leaving them interleaved in whatever order the feed happens to send. */
+.mcm-console-table tbody tr.mcm-console-groupline td {
+  height: auto;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mcm-console-group.is-warn {
+  color: var(--warn);
+}
+.mcm-console-group.is-live {
+  color: var(--live);
 }
 
 .mcm-console-table tbody tr {
@@ -5352,6 +5308,17 @@
   padding: 48px 20px;
   text-align: center;
 }
+.mcm-console-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--surface-2, #f4ede4);
+  color: var(--ink-4);
+}
 .mcm-console-empty-title {
   margin: 0;
   font-size: 14px;
@@ -5370,4 +5337,1911 @@
 .dark .mcm-console-search {
   background: var(--surface-solid);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Monitor — sunset-orange frosted glass, matching Performance ▸
+   Agents (agents-theme.css `.stat` / `.table-scroll`) so the KPI strip and
+   the call console read as the same material as the rest of Performance
+   instead of a flatter, opaque white. Scoped through `.mcm-monitoring`
+   (Monitoring's own page root) rather than touching `.mcm-stat` /
+   `.mcm-console-panel` directly — other screens share those two classes. */
+.mcm-monitoring .mcm-stat {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow:
+    0 10px 34px rgba(160, 95, 30, 0.14),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.mcm-monitoring .mcm-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
+}
+
+.mcm-monitoring .mcm-console-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 10px 34px rgba(160, 95, 30, 0.14),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+}
+.mcm-monitoring .mcm-console-table thead th {
+  background: rgba(255, 253, 251, 0.75) !important;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+}
+.mcm-monitoring .mcm-console-select,
+.mcm-monitoring .mcm-console-search {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+.dark .mcm-monitoring .mcm-stat,
+.dark .mcm-monitoring .mcm-console-panel {
+  background: rgba(17, 24, 39, 0.72);
+  border-color: rgba(251, 146, 60, 0.18);
+  box-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+.dark .mcm-monitoring .mcm-console-table thead th {
+  background: rgba(23, 15, 10, 0.8) !important;
+}
+.dark .mcm-monitoring .mcm-console-select,
+.dark .mcm-monitoring .mcm-console-search {
+  background: rgba(251, 146, 60, 0.08);
+  border-color: rgba(251, 146, 60, 0.18);
+}
+.mcm-monitoring .mcm-console-empty-icon {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+.dark .mcm-monitoring .mcm-console-empty-icon {
+  background: rgba(251, 146, 60, 0.14);
+  color: #fb923c;
+}
+
+/* ==================================================================
+   My Account — shared page shell
+   ------------------------------------------------------------------
+   The page used to be one white card with three more bordered cards
+   (`.mcm-fsec`) nested inside it, everything stacked full-width at
+   `max-width: 80%`. Two problems with that: cards inside cards give the
+   eye no hierarchy, and a percentage width means the form fields keep
+   stretching on a wide monitor — at 1920px the inputs were over 1500px
+   across for content that is a first name.
+
+   So: a real container, and a split. What you can edit sits in the main
+   column; what the system already knows about you — which number rings,
+   what happens when you miss it — sits in a narrower column beside it,
+   sticky, so it stays readable while you work through the form. The
+   `.mcm-fsec` sections are now the page's own cards rather than being
+   boxed inside another one.
+   ================================================================== */
+.mcm-acct {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+.mcm-acct-body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px 28px;
+}
+
+/* 1400px rather than a percentage: wide enough for the two columns to
+   breathe, narrow enough that a text input never becomes a 1500px slab. */
+.mcm-profile-grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+@media (min-width: 1180px) {
+  .mcm-profile-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+.mcm-profile-main {
+  min-width: 0;
+}
+
+/* Sticky so the call-coverage answer stays on screen while you edit; it
+   is the thing people came to check. Falls back to a normal stacked
+   block on narrow screens, where sticky would just eat the viewport. */
+.mcm-profile-aside {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* The aside used to be `position: sticky; top: 0`, so it pinned while the
+   form scrolled past it. Two panels of reference material holding still
+   against moving content is restless to read, and it also meant the panel
+   could never be taller than the viewport without its own scrollbar
+   appearing inside the page's. It scrolls with everything else now. */
+
+/* ---- identity header ----
+   Avatar, name and the two facts that identify a person on a phone
+   system (extension, location) in one band, so the top of the page
+   answers "is this me" before any form field does. */
+.mcm-profile-id {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+
+.mcm-profile-photo {
+  position: relative;
+  flex: none;
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface-2);
+}
+.mcm-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The scrim is the only affordance saying the photo is clickable, so it
+   carries the label rather than a badge sitting permanently over the
+   picture. Opacity only — nothing here moves. */
+.mcm-profile-photo-scrim {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 21, 38, 0.45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.mcm-profile-photo:hover .mcm-profile-photo-scrim,
+.mcm-profile-photo:focus-within .mcm-profile-photo-scrim {
+  opacity: 1;
+}
+
+.mcm-profile-id-main {
+  min-width: 0;
+  flex: 1 1 240px;
+}
+.mcm-profile-id-name {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.mcm-profile-id-role {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* Extension and location as quiet facts, not form fields — they are read
+   from the record and set elsewhere. Tabular figures so the extension
+   does not jitter against the label beside it. */
+.mcm-profile-id-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 10px;
+}
+.mcm-profile-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mcm-profile-fact-k {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-profile-fact-v {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.mcm-profile-photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+.mcm-profile-photo-actions button,
+.mcm-profile-photo-actions label {
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+.mcm-profile-photo-actions .is-upload {
+  color: var(--accent-ink);
+}
+.mcm-profile-photo-actions .is-remove {
+  color: var(--crit);
+}
+.mcm-profile-photo-actions button:hover,
+.mcm-profile-photo-actions label:hover {
+  text-decoration: underline;
+}
+.mcm-profile-photo-hint {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-4);
+}
+
+/* ---- unsaved-changes bar ----
+   The first version of this was a permanently-present bordered card that
+   floated over the form, which is the worst of both: a standing strip of
+   chrome that still could not tell you whether anything was pending. This
+   only exists while there is something to save, and reads as a bar docked
+   to the bottom of the column — squared off at the bottom, lifted with a
+   shadow rather than outlined on all four sides, so it looks attached to
+   the viewport edge instead of dropped on top of the content. */
+.mcm-page .mcm-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-bottom-color: transparent;
+  border-radius: var(--r) var(--r) 0 0;
+  background: var(--surface);
+  box-shadow: 0 -6px 18px -10px rgba(13, 21, 38, 0.28);
+}
+
+/* An accent dot rather than a warning icon: there is nothing wrong here,
+   the page is just holding edits. */
+.mcm-page .mcm-savebar-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.mcm-page .mcm-savebar-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .mcm-savebar-sub {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.mcm-page .mcm-savebar-discard {
+  flex: none;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.mcm-page .mcm-savebar-discard:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--ink-4);
+  color: var(--ink);
+}
+.mcm-page .mcm-savebar-discard:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Values the record does not have yet read as absent, not as content. */
+.mcm-page .mcm-profile-id-role.is-empty,
+.mcm-page .mcm-profile-fact-v.is-empty {
+  color: var(--ink-4);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .mcm-page .mcm-savebar {
+    flex-wrap: wrap;
+  }
+  .mcm-page .mcm-savebar-text {
+    flex-basis: 100%;
+  }
+}
+
+/* ---- "How calls reach you" (Profile aside) ----
+   Written originally as a full-width band of three tiles with hex
+   literals for colour. It now sits in a 360px column, so the facts are
+   rows and the verdict — the thing somebody opened this page to check —
+   leads instead of trailing the reference data. */
+.mcm-page .mcm-coverage {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  padding: 14px;
+}
+.mcm-page .mcm-coverage-h {
+  margin-bottom: 10px;
+}
+.mcm-page .mcm-coverage-t {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.mcm-page .mcm-coverage-d {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.mcm-page .mcm-coverage-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 11px;
+  border: 1px solid;
+  border-radius: var(--r-sm);
+}
+.mcm-page .mcm-coverage-verdict.is-ok {
+  border-color: color-mix(in srgb, var(--live) 35%, var(--line));
+  background: var(--live-wash);
+}
+.mcm-page .mcm-coverage-verdict.is-warn {
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+}
+.mcm-page .mcm-coverage-verdict-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+}
+.mcm-page .mcm-coverage-verdict.is-ok .mcm-coverage-verdict-icon {
+  color: var(--live);
+}
+.mcm-page .mcm-coverage-verdict.is-warn .mcm-coverage-verdict-icon {
+  color: var(--warn);
+}
+.mcm-page .mcm-coverage-verdict-t {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.mcm-page .mcm-coverage-verdict-d {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.mcm-page .mcm-coverage-verdict-note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-coverage-verdict-note strong {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.mcm-page .mcm-coverage-facts {
+  margin-top: 10px;
+  border-top: 1px solid var(--line-2);
+}
+.mcm-page .mcm-coverage-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 0;
+}
+.mcm-page .mcm-coverage-fact + .mcm-coverage-fact {
+  border-top: 1px solid var(--line-2);
+}
+.mcm-page .mcm-coverage-fact-icon {
+  display: flex;
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-coverage-fact-k {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-page .mcm-coverage-fact-v {
+  margin: 1px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.mcm-page .mcm-coverage-fact-hint {
+  margin: 1px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+/* A single-column account page — Preferences, Notifications, Security and
+   the rest, which are one stack of settings with no companion panel. The
+   narrower cap is deliberate: a settings form is a column of labels and
+   controls, and past roughly 1000px the label and its control drift so far
+   apart that they stop reading as a pair. Profile is wider because it has
+   a second column to fill. */
+.mcm-acct-narrow {
+  width: 100%;
+  max-width: 1020px;
+  margin: 0 auto;
+}
+
+/* A short factual note in a page head — currently "N settings are set by
+   your company and cannot be changed here", which is the sort of thing
+   people otherwise work out one greyed-out control at a time. */
+.mcm-page .mcm-acct-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-end;
+  max-width: 42ch;
+  padding: 7px 11px;
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.mcm-page .mcm-acct-note svg {
+  color: var(--accent-ink);
+}
+
+/* ==================================================================
+   My Account — interaction and motion
+   ------------------------------------------------------------------
+   Deliberately quiet. These are settings screens somebody opens to change
+   one thing, so motion is here to answer two questions — "is this row the
+   one I am pointing at" and "where did that bar come from" — and nothing
+   else. Everything animates `transform`, `opacity`, `box-shadow` or
+   `border-color` only, and all of it is off under prefers-reduced-motion.
+   ================================================================== */
+
+/* Setting rows. These are rendered by `CommonSettingPermission`, which is
+   shared with ten-odd admin screens, so the hover is scoped to the account
+   pages rather than added to that component. Border and shadow only: these
+   rows sit in a tight vertical stack and lifting one would shove the
+   others visually. */
+.mcm-acct .mcm-acct-narrow .grid > div {
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-acct .mcm-acct-narrow .grid > div:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+/* A row containing the control you are actually using stays lit, so the
+   highlight does not vanish the moment the pointer moves to its select. */
+.mcm-acct .mcm-acct-narrow .grid > div:focus-within {
+  border-color: var(--accent-edge);
+}
+
+/* The save bar arrives because you changed something; sliding it up from
+   the edge says where it came from. 160ms and 8px — enough to read as
+   movement, short enough not to delay reaching the button. */
+.mcm-page .mcm-savebar {
+  animation: mcm-savebar-in 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes mcm-savebar-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Press feedback on the bar's own controls. */
+.mcm-page .mcm-savebar-discard:active:not(:disabled),
+.mcm-page .mcm-savebar button[type='submit']:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.mcm-page .mcm-savebar button[type='submit'] {
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+/* Profile identity card: the photo is the only interactive thing on it, and
+   it already has its own scrim, so the card itself only firms up its edge. */
+.mcm-page .mcm-profile-id {
+  transition: border-color 0.16s ease;
+}
+.mcm-page .mcm-profile-id:hover {
+  border-color: var(--accent-edge);
+}
+
+/* Coverage rows in the Profile aside. */
+.mcm-page .mcm-coverage-fact {
+  transition: background-color 0.16s ease;
+}
+.mcm-page .mcm-coverage-fact:hover {
+  background: var(--surface-2);
+}
+
+/* Focus rings, which none of the above had. Keyboard users get the same
+   "this is the one" answer the pointer already gets. */
+.mcm-page .mcm-profile-photo:focus-visible,
+.mcm-page .mcm-savebar-discard:focus-visible,
+.mcm-page .mcm-profile-photo-actions button:focus-visible,
+.mcm-page .mcm-profile-photo-actions label:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-acct .mcm-acct-narrow .grid > div,
+  .mcm-page .mcm-savebar,
+  .mcm-page .mcm-savebar button[type='submit'],
+  .mcm-page .mcm-profile-id,
+  .mcm-page .mcm-coverage-fact,
+  .mcm-page .mcm-avatar-chip,
+  .mcm-page .mcm-profile-photo-scrim {
+    transition: none;
+    animation: none;
+  }
+  .mcm-page .mcm-savebar-discard:active:not(:disabled),
+  .mcm-page .mcm-savebar button[type='submit']:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ==================================================================
+   My Phone — the line band
+   ------------------------------------------------------------------
+   Extension, direct number and outbound caller ID, above the rules.
+   They are the answer to "which number am I", which the rules below
+   never state, and which otherwise takes three other screens to
+   assemble. Read-only by design: two of the three are an admin's to
+   set, and the third is edited in the form underneath.
+   ================================================================== */
+.mcm-page .mcm-lineband {
+  display: grid;
+  gap: 10px;
+  /* auto-fit rather than a fixed count: My Phone puts three facts here and
+     Greetings four, and a 200px floor is the width at which the value and its
+     hint still read on one or two lines. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 14px;
+}
+.mcm-page .mcm-lineband-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-page .mcm-lineband-item:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+.mcm-page .mcm-lineband-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-lineband-k {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-page .mcm-lineband-v {
+  margin: 2px 0 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+/* A fact nobody has set says so in the quieter weight, so "None" does
+   not read as a value somebody chose. */
+.mcm-page .mcm-lineband-v.is-empty {
+  font-weight: 600;
+  color: var(--ink-4);
+}
+.mcm-page .mcm-lineband-hint {
+  margin: 2px 0 0;
+  /* Two lines held open whether or not this hint needs them. The tiles
+     are grid cells of equal height, so a hint that drops from two lines
+     to one when a value changes resizes every tile beside it — the whole
+     band twitches over a word. */
+  min-height: 2.7em;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+/* Rule panels get the same "this is the one you are pointing at" answer
+   the setting rows on Preferences get. Scoped to the account pages: the
+   same component is the admin People forwarding drawer, which is a
+   modal and does not want a hover that reads as clickable. Border and
+   shadow only — these cards sit in a tight stack and lifting one would
+   shove the rest visually. */
+.mcm-acct .mcm-rule {
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-acct .mcm-rule:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+/* An open panel whose control you are using stays lit, so the highlight
+   does not drop the moment the pointer moves onto a select. */
+.mcm-acct .mcm-rule:focus-within {
+  border-color: var(--accent-edge);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-lineband-item,
+  .mcm-acct .mcm-rule {
+    transition: none;
+  }
+}
+
+/* ==================================================================
+   Account pages — a standing notice
+   ------------------------------------------------------------------
+   For something true of the whole screen that is not about what you
+   just did: a feature that is switched off upstream, a rule the
+   company owns. Distinct from `.mcm-savebar`, which is about the edit
+   in front of you.
+   ================================================================== */
+.mcm-page .mcm-acct-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-4);
+  border-radius: var(--r);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.mcm-page .mcm-acct-alert strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .mcm-acct-alert.is-warn {
+  border-color: color-mix(in srgb, var(--warn) 34%, var(--surface));
+  border-left-color: var(--warn);
+  background: var(--warn-wash);
+}
+.mcm-page .mcm-acct-alert.is-warn strong {
+  color: var(--warn);
+}
+
+/* ==================================================================
+   Notifications — the channel grid
+   ------------------------------------------------------------------
+   Events down the side, channels across the top. This replaces three
+   stacked cards each holding four switch boxes: twelve boxes that
+   answered "is voicemail on for email" one at a time, when the
+   question is really a comparison across a row.
+
+   Below 900px the same markup stacks — the column header row is
+   dropped and each switch shows its own label — because four columns
+   of switches do not survive a phone.
+   ================================================================== */
+.mcm-page .mcm-notif {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.mcm-page .mcm-notif-head {
+  display: none;
+}
+.mcm-page .mcm-notif-corner,
+.mcm-page .mcm-notif-ch {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-notif-ch em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.35;
+  color: var(--ink-4);
+}
+
+.mcm-page .mcm-notif-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  transition: background-color 0.16s ease;
+}
+.mcm-page .mcm-notif-row + .mcm-notif-row {
+  border-top: 1px solid var(--line-2);
+}
+.mcm-page .mcm-notif-row:hover {
+  background: var(--surface-2);
+}
+.mcm-page .mcm-notif-row:focus-within {
+  background: var(--surface-2);
+}
+
+/* The event itself: icon tile, name, one line of plain English. */
+.mcm-page .mcm-notif-ev {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  min-width: 0;
+}
+.mcm-page .mcm-notif-ev-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-notif-ev-n {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Held open to one line box whether or not the marker beside the name
+     is showing, so switching a channel on cannot resize the row. */
+  min-height: 20px;
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .mcm-notif-ev-d {
+  margin: 1px 0 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+/* Said on the row it applies to. Every channel off is a real state, and
+   it is silent by definition, so nothing else on the row reports it. */
+/* Sized to fit inside the name's 20px line box: any taller and hiding it
+   would resize the row, which is the whole point of moving it here. */
+.mcm-page .mcm-notif-silent {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* One channel. A label, because on a narrow screen the column header is
+   gone and a bare switch says nothing. */
+.mcm-page .mcm-notif-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+.mcm-page .mcm-notif-cell:hover {
+  border-color: var(--accent-edge);
+}
+.mcm-page .mcm-notif-cell.is-on {
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+}
+/* The one cell of the grid that is not a setting. It holds a dash, not
+   a control, so it takes no pointer cursor and no hover edge — and it
+   is not dimmed as a whole, because the channel name beside it on a
+   narrow screen still has to be readable. */
+.mcm-page .mcm-notif-cell.is-na {
+  cursor: default;
+}
+.mcm-page .mcm-notif-cell.is-na:hover {
+  border-color: var(--line);
+  background: var(--surface);
+}
+.mcm-page .mcm-notif-na {
+  flex: none;
+  color: var(--ink-4);
+  font-size: 15px;
+  line-height: 1;
+  user-select: none;
+}
+.mcm-page .mcm-notif-cell-k {
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* The number texts go to, revealed by its own switch. Full width in the
+   grid so it sits under the row it belongs to rather than inside one
+   cramped column. */
+.mcm-page .mcm-notif-phone {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 11px 12px;
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+}
+.mcm-page .mcm-notif-phone-k {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-notif-phone-d {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+@media (min-width: 900px) {
+  .mcm-page .mcm-notif-head,
+  .mcm-page .mcm-notif-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(4, 118px);
+    align-items: center;
+    gap: 10px;
+  }
+  .mcm-page .mcm-notif-head {
+    align-items: end;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  /* The switch is the whole control up here; the column header already
+     names it, so repeating the label in every cell is twelve redundant
+     words across the grid. */
+  .mcm-page .mcm-notif-cell {
+    justify-content: center;
+    background: transparent;
+    border-color: transparent;
+  }
+  /* No box around the switch on hover. Up here the cell is invisible
+     padding that widens the hit target, so lighting it up drew a
+     bordered container out of nowhere every time the pointer crossed
+     a switch — which reads as a control appearing rather than as
+     feedback. The row underneath already lights up, and that is the
+     feedback. Written out rather than deleted because the narrow
+     layout's hover rule above would otherwise still apply, and there
+     the cell is a real bordered row where a hover edge belongs. */
+  .mcm-page .mcm-notif-cell:hover {
+    border-color: transparent;
+    background: transparent;
+  }
+  /* Declared after the hover rule and at equal specificity, so a
+     channel that is on keeps its edge while the pointer is over it
+     instead of flickering off. */
+  .mcm-page .mcm-notif-cell.is-on {
+    border-color: var(--accent-edge);
+    background: var(--accent-wash);
+  }
+  .mcm-page .mcm-notif-cell.is-na,
+  .mcm-page .mcm-notif-cell.is-na:hover {
+    border-color: transparent;
+    background: transparent;
+  }
+  .mcm-page .mcm-notif-cell-k {
+    display: none;
+  }
+  .mcm-page .mcm-notif-phone {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-notif-row,
+  .mcm-page .mcm-notif-cell {
+    transition: none;
+  }
+}
+
+/* ==================================================================
+   Greetings — the editor, dressed for the account pages
+   ------------------------------------------------------------------
+   `CommonGreetingNotification` is shared by five screens (number
+   forwarding, call queues, IVR menus, campaigns and the admin People
+   drawer), so it is NOT edited to suit this one. Its card is written
+   with hex literals and a fixed half-width control column; both are
+   corrected here, scoped to `.mcm-acct`, which leaves the other four
+   screens exactly as they were.
+   ================================================================== */
+.mcm-acct .mcm-fsec > div > div:first-child {
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+/* Each media slot becomes a row of its own rather than four stacked
+   blocks separated by nothing, so the switch, the label and the file
+   picker read as one unit. */
+.mcm-acct .mcm-fsec > div > div:first-child > div > div {
+  padding: 12px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+.mcm-acct .mcm-fsec > div > div:first-child > div > div + div {
+  margin-top: 10px;
+}
+.mcm-acct .mcm-fsec > div > div:first-child > div > div:hover {
+  border-color: var(--accent-edge);
+  background: var(--surface-2);
+}
+.mcm-acct .mcm-fsec > div > div:first-child > div > div:focus-within {
+  border-color: var(--accent-edge);
+}
+/* The control column is `w-1/2` with a `w-80` child inside it, which on a
+   narrow column leaves the picker cropped and on a wide one leaves it
+   stranded against the left edge. Full width up to a readable maximum. */
+.mcm-acct .template-greeting-control-wrap {
+  width: 100%;
+}
+.mcm-acct .template-greeting-control {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ==================================================================
+   Security & Privacy
+   ------------------------------------------------------------------
+   Two things you can do at the top, then the list of everywhere you
+   are signed in. The two actions were previously two full-width bars
+   of the same weight, which gave "change your password" and "end
+   every session you have" identical visual authority.
+   ================================================================== */
+.mcm-page .mcm-seccards {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 18px;
+}
+@media (min-width: 900px) {
+  .mcm-page .mcm-seccards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+}
+
+.mcm-page .mcm-seccard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-page .mcm-seccard:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+/* The destructive one keeps a red edge whatever the pointer is doing,
+   because which of these two cards you are about to press matters. */
+.mcm-page .mcm-seccard.is-risk {
+  border-left: 3px solid var(--crit);
+}
+.mcm-page .mcm-seccard.is-risk:hover {
+  border-color: var(--line);
+  border-left-color: var(--crit);
+}
+.mcm-page .mcm-seccard-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-seccard.is-risk .mcm-seccard-ico {
+  border-color: color-mix(in srgb, var(--crit) 30%, var(--surface));
+  background: var(--crit-wash);
+  color: var(--crit);
+}
+.mcm-page .mcm-seccard-t {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .mcm-seccard-d {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+/* Buttons on the second grid column, under the text, so both cards'
+   actions sit on the same line whatever the copy above them runs to. */
+.mcm-page .mcm-seccard-act {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  grid-column: 2;
+  margin-top: 10px;
+}
+
+/* ── The device list ─────────────────────────────────────────────── */
+.mcm-page .mcm-devices-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.mcm-page .mcm-devices-t {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.mcm-page .mcm-devices-d {
+  margin: 2px 0 0;
+  max-width: 60ch;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+.mcm-page .mcm-devices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mcm-page .mcm-device {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.mcm-page .mcm-device:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+/* The session you are reading this in. Marked on the row, not only by a
+   badge at the far end, so it is obvious before you reach the button
+   that would end it. */
+.mcm-page .mcm-device.is-current {
+  border-left: 3px solid var(--live);
+}
+.mcm-page .mcm-device-id {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+.mcm-page .mcm-device-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-device-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.mcm-page .mcm-device-n {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mcm-page .mcm-device-m {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-device-ip {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-4);
+  font-variant-numeric: tabular-nums;
+}
+.mcm-page .mcm-device-act {
+  flex: none;
+}
+.mcm-page .mcm-device-here {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--live) 30%, var(--surface));
+  border-radius: var(--r-sm);
+  background: var(--live-wash);
+  color: var(--live);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Nothing to list, and the two reasons for it read differently. */
+.mcm-page .mcm-devices-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 34px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--ink-4);
+  text-align: center;
+}
+.mcm-page .mcm-devices-empty-t {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.mcm-page .mcm-devices-empty-d {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+/* Loading: the shape of the answer, not a spinner where the answer goes. */
+.mcm-page .mcm-device.is-skeleton {
+  align-items: flex-start;
+  pointer-events: none;
+}
+.mcm-page .mcm-device.is-skeleton:hover {
+  border-color: var(--line);
+  box-shadow: none;
+}
+.mcm-page .mcm-skel {
+  display: block;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--line-2), var(--line), var(--line-2));
+  background-size: 200% 100%;
+  animation: mcm-skel-sweep 1.2s ease-in-out infinite;
+}
+.mcm-page .mcm-skel-av {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 999px;
+}
+.mcm-page .mcm-skel-l {
+  height: 10px;
+}
+@keyframes mcm-skel-sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-seccard,
+  .mcm-page .mcm-device {
+    transition: none;
+  }
+  .mcm-page .mcm-skel {
+    animation: none;
+  }
+}
+
+/* ==================================================================
+   Media Files — the add panel
+   ------------------------------------------------------------------
+   Recording, text-to-speech and upload replace the table while they
+   are open, so the panel needs to read as the thing you are now doing
+   rather than as a card floating on a grey wash.
+   ================================================================== */
+.mcm-page .mcm-media-add {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: mcm-media-add-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes mcm-media-add-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.mcm-page .mcm-media-add-h {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-page .mcm-media-add-t {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.mcm-page .mcm-media-add-d {
+  margin: 3px 0 0;
+  max-width: 56ch;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-media-add {
+    animation: none;
+  }
+}
+
+/* ==================================================================
+   My Account — arrival, reveal and lift
+   ------------------------------------------------------------------
+   One motion vocabulary for all seven screens, kept deliberately
+   small. These are settings pages somebody opens to change one thing,
+   so motion is here to answer three questions and nothing else:
+   "has the page arrived", "where did that block come from", and "is
+   this the card I am pointing at".
+
+   Everything animates `transform`, `opacity`, `border-color` or
+   `box-shadow` — never a layout property — so none of it can cost a
+   reflow, and all of it is off under prefers-reduced-motion at the
+   bottom of this block. No `will-change` anywhere: standing GPU
+   layers on a dozen cards cost more than the animation saves.
+   ================================================================== */
+
+@keyframes mcm-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Blocks settle in when the page arrives. 6px and 200ms — enough to
+   read as the page assembling itself, short enough that nobody is
+   waiting on it. `backwards` holds the start frame during the delay,
+   so a staggered card does not flash at full opacity first. */
+.mcm-acct .mcm-acct-alert,
+.mcm-acct .mcm-lineband-item,
+.mcm-acct .mcm-notif,
+.mcm-acct .mcm-seccard,
+.mcm-acct .mcm-devices,
+.mcm-acct .mcm-profile-main,
+.mcm-acct .mcm-profile-aside,
+.mcm-acct .mcm-fsec,
+.mcm-acct .mcm-rule {
+  animation: mcm-rise-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* The stagger. Only the first few, and only 35ms apart: a long cascade
+   turns into a thing you wait for. Anything past the fourth card
+   arrives with the fourth. */
+.mcm-acct .mcm-lineband-item:nth-child(2),
+.mcm-acct .mcm-seccard:nth-child(2) {
+  animation-delay: 0.035s;
+}
+.mcm-acct .mcm-lineband-item:nth-child(3) {
+  animation-delay: 0.07s;
+}
+.mcm-acct .mcm-lineband-item:nth-child(n + 4) {
+  animation-delay: 0.105s;
+}
+/* The rule panels are counted from the end, not the start: they share a
+   parent with the section heading, the summary and the coming-soon note,
+   so counting forwards would give the first rule the fourth card's
+   delay. From the end they are always the last three. */
+.mcm-acct .mcm-rule:nth-last-child(3) {
+  animation-delay: 0.035s;
+}
+.mcm-acct .mcm-rule:nth-last-child(2) {
+  animation-delay: 0.07s;
+}
+.mcm-acct .mcm-rule:nth-last-child(1) {
+  animation-delay: 0.105s;
+}
+
+/* Blocks that appear because you switched something on: the number
+   texts go to, an opened rule, the greeting picker. Same movement as
+   arrival, so revealing and arriving read as one language. */
+.mcm-acct .mcm-notif-phone,
+.mcm-acct .mcm-rule-b,
+.mcm-acct .template-greeting-control > * {
+  animation: mcm-rise-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ---- lift ----
+   Cards that stand alone in a gap take a 1px rise under the pointer.
+   Rows in a tight stack — setting rows, rule panels, notification rows
+   — deliberately do not: lifting one of those shoves its neighbours
+   visually even though nothing has moved. */
+.mcm-acct .mcm-lineband-item,
+.mcm-acct .mcm-seccard,
+.mcm-acct .mcm-device:not(.is-skeleton) {
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-acct .mcm-lineband-item:hover,
+.mcm-acct .mcm-seccard:hover,
+.mcm-acct .mcm-device:not(.is-skeleton):hover {
+  transform: translateY(-1px);
+}
+
+/* The icon tile inside a card warms up with it, so the card reads as
+   one object under the pointer rather than a box with a sticker on it. */
+.mcm-acct .mcm-lineband-ico,
+.mcm-acct .mcm-notif-ev-ico,
+.mcm-acct .mcm-seccard-ico,
+.mcm-acct .mcm-device-kind {
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+.mcm-acct .mcm-lineband-item:hover .mcm-lineband-ico,
+.mcm-acct .mcm-notif-row:hover .mcm-notif-ev-ico,
+.mcm-acct .mcm-device:hover .mcm-device-kind {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Keyboard parity. Everything above answers "am I pointing at this";
+   this answers the same question for somebody who never touches a
+   mouse, and it is the one state the pass had missing. */
+.mcm-acct .mcm-notif-cell:focus-within,
+.mcm-acct .mcm-lineband-item:focus-within,
+.mcm-acct .mcm-seccard:focus-within,
+.mcm-acct .mcm-device:focus-within {
+  border-color: var(--accent-edge);
+}
+.mcm-acct button:focus-visible,
+.mcm-acct [role='switch']:focus-visible,
+.mcm-acct .ptabstrip button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-acct .mcm-acct-alert,
+  .mcm-acct .mcm-lineband-item,
+  .mcm-acct .mcm-notif,
+  .mcm-acct .mcm-seccard,
+  .mcm-acct .mcm-devices,
+  .mcm-acct .mcm-profile-main,
+  .mcm-acct .mcm-profile-aside,
+  .mcm-acct .mcm-fsec,
+  .mcm-acct .mcm-rule,
+  .mcm-acct .mcm-notif-phone,
+  .mcm-acct .mcm-rule-b,
+  .mcm-acct .template-greeting-control > * {
+    animation: none;
+  }
+  .mcm-acct .mcm-lineband-item,
+  .mcm-acct .mcm-seccard,
+  .mcm-acct .mcm-device,
+  .mcm-acct .mcm-lineband-ico,
+  .mcm-acct .mcm-notif-ev-ico,
+  .mcm-acct .mcm-seccard-ico,
+  .mcm-acct .mcm-device-kind {
+    transition: none;
+  }
+  .mcm-acct .mcm-lineband-item:hover,
+  .mcm-acct .mcm-seccard:hover,
+  .mcm-acct .mcm-device:not(.is-skeleton):hover {
+    transform: none;
+  }
+}
+
+/* ==================================================================
+   Account pages — the slim page head
+   ------------------------------------------------------------------
+   One bar, the page's name, and an info button carrying the sentence
+   that used to sit under it.
+
+   `.mcm-adminpage-head` gives every account screen an eyebrow reading
+   "My Account", an h1, and a line of explanation — three stacked lines
+   above a form whose own fields say the same thing more precisely, and
+   the eyebrow repeats what the rail already shows and highlights. On a
+   settings screen that is a lot of the first screenful spent before
+   any control appears.
+   ================================================================== */
+.mcm-page .mcm-acct-head-slim {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 22px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--accent-edge);
+}
+.mcm-page .mcm-acct-head-slim h1 {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+.mcm-page .mcm-acct-head-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-4);
+  cursor: pointer;
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease;
+}
+.mcm-page .mcm-acct-head-info svg {
+  width: 14px;
+  height: 14px;
+}
+.mcm-page .mcm-acct-head-info:hover {
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+}
+.mcm-page .mcm-acct-head-info:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-acct-head-info {
+    transition: none;
+  }
+}
+
+/* The optional right-hand slot on the slim head: a status note on
+   Preferences, Notifications and Security; the search box and Add
+   button on Media Files. Pushed to the far end so the page name stays
+   anchored at the left edge whatever the slot holds. */
+.mcm-page .mcm-acct-head-slim-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  min-width: 0;
+}
+/* The head note is sized for a three-line block; on one slim row it
+   drops its own box and reads as a quiet line beside the title. */
+.mcm-page .mcm-acct-head-slim .mcm-acct-note {
+  align-self: center;
+  max-width: none;
+  padding: 5px 10px;
+}
+@media (max-width: 780px) {
+  .mcm-page .mcm-acct-head-slim {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .mcm-page .mcm-acct-head-slim-end {
+    width: 100%;
+    margin-left: 0;
+  }
+  .mcm-page .mcm-acct-head-slim .mcm-adminpage-actions {
+    width: 100%;
+  }
+}
+
+/* ==================================================================
+   Greetings — the four audio slots
+   ------------------------------------------------------------------
+   This page used to show the same four slots twice: summary tiles at
+   the top, editor rows underneath. One set of cards that each state
+   their own outcome removes the duplication and leaves room to say
+   something worth saying per slot.
+
+   The structure carries information rather than decorating it. The
+   three a caller meets are numbered, because they genuinely are a
+   sequence — answer, wait, miss — and the ring tone is separated out
+   under its own heading because it is the one recording on the page
+   the caller never hears. Numbering four unrelated settings would be
+   ornament; numbering a call's actual order is not.
+   ================================================================== */
+.mcm-page .mcm-gsec + .mcm-gsec {
+  margin-top: 22px;
+}
+.mcm-page .mcm-gsec-h {
+  margin-bottom: 11px;
+}
+.mcm-page .mcm-gsec-h h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+.mcm-page .mcm-gsec-h p {
+  margin: 3px 0 0;
+  max-width: 68ch;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  text-wrap: pretty;
+}
+
+.mcm-page .mcm-gslots {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 880px) {
+  .mcm-page .mcm-gslots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* The desk slot stands alone rather than being stretched across a
+     three-column track it does not fill. */
+  .mcm-page .mcm-gslots.is-single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- the card ---- */
+.mcm-page .mcm-gslot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 15px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mcm-page .mcm-gslot:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-edge);
+  box-shadow: var(--lift);
+}
+.mcm-page .mcm-gslot:focus-within {
+  border-color: var(--accent-edge);
+}
+/* A slot playing the person's own recording is the finished state, and
+   the card says so with its edge rather than with another badge. */
+.mcm-page .mcm-gslot.is-custom {
+  border-color: var(--accent-edge);
+}
+
+.mcm-page .mcm-gslot-h {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+/* The step number. Tabular so 01/02/03 sit on the same width, and
+   quiet until the card is doing something. */
+.mcm-page .mcm-gslot-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink-4);
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+.mcm-page .mcm-gslot.is-custom .mcm-gslot-step {
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+/* The desk slot has no place in the caller's sequence, so it carries an
+   icon rather than a number — the contrast is what says "this one is not
+   part of the run". Dashed edge for the same reason. */
+.mcm-page .mcm-gslot-step.is-desk {
+  border-style: dashed;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-gslot-step.is-desk svg {
+  width: 14px;
+  height: 14px;
+}
+.mcm-page .mcm-gslot.is-custom .mcm-gslot-step.is-desk {
+  border-style: solid;
+}
+.mcm-page .mcm-gslot-t {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.mcm-page .mcm-gslot-t label {
+  cursor: pointer;
+}
+.mcm-page .mcm-gslot-m {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-4);
+  text-wrap: pretty;
+}
+.mcm-page .mcm-gslot-h > button[role='switch'] {
+  margin-left: auto;
+  flex: none;
+}
+
+/* ---- what actually plays ----
+   The line people came for. Written as an outcome, not a switch
+   position, and held to two lines so four cards keep level tops. */
+.mcm-page .mcm-gslot-out {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  min-height: 54px;
+}
+.mcm-page .mcm-gslot-out-k {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-page .mcm-gslot-out-v {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.mcm-page .mcm-gslot-out.is-custom {
+  background: var(--accent-wash);
+}
+.mcm-page .mcm-gslot-out.is-custom .mcm-gslot-out-v {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+/* Switched on with nothing picked: the state that looks finished and is
+   not, so it is the one that gets the warning tone. */
+.mcm-page .mcm-gslot-out.is-unset {
+  background: var(--warn-wash);
+}
+.mcm-page .mcm-gslot-out.is-unset .mcm-gslot-out-v {
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* ---- the picker, revealed by the switch ---- */
+.mcm-page .mcm-gslot-pick {
+  animation: mcm-rise-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+/* `SelectGreeting` lays its select and buttons out as a flex row sized
+   for a drawer. In a card column the select needs to take the space and
+   the 40px buttons need to stop shrinking. */
+.mcm-page .mcm-gslot-pick > div {
+  width: 100%;
+}
+.mcm-page .mcm-gslot-pick > div > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.mcm-page .mcm-gslot-pick button {
+  flex: none;
+}
+
+/* ---- the count beside the page title ---- */
+.mcm-page .mcm-gcount {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+.mcm-page .mcm-gcount.is-custom {
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+}
+.mcm-page .mcm-gcount-n {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.mcm-page .mcm-gcount.is-custom .mcm-gcount-n {
+  color: var(--accent-ink);
+}
+.mcm-page .mcm-gcount-l {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mcm-page .mcm-gslot,
+  .mcm-page .mcm-gslot-step {
+    transition: none;
+  }
+  .mcm-page .mcm-gslot:hover {
+    transform: none;
+  }
+  .mcm-page .mcm-gslot-pick {
+    animation: none;
+  }
 }

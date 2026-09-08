@@ -144,6 +144,16 @@ export type AreaView = {
    * had left Directory entirely.
    */
   altPaths?: string[];
+  /**
+   * Other `?view=` values on this same `href` that still count as "on" this
+   * rail item, for entries whose target page has its own internal views the
+   * rail doesn't otherwise know about. Calendar's Task Listing is one of
+   * these: it lives at `/calendar?view=task-list`, a query value this entry
+   * doesn't own (`href` points at `?view=calendar`), so without listing it
+   * here the rail read every view the page has other than its own default as
+   * "nothing selected" the moment you opened it.
+   */
+  altViews?: string[];
 };
 
 /**
@@ -177,26 +187,36 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   { key: 'agents', label: 'Agents', icon: 'ContactIcon' },
   { key: 'interactions', label: 'Calls', icon: 'PhoneIcon' },
   { key: 'flows', label: 'Flows', icon: 'IntegrationIcon' },
-  { key: 'dashboards', label: 'Boards', icon: 'AnalyticsIcon' },
+  { key: 'dashboards', label: 'Boards', icon: 'LayoutDashboardIcon' },
   // everything the platform has that the console does not
-  { key: 'live-interactions', label: 'Live', icon: 'PhoneIcon', sep: true },
+  { key: 'live-interactions', label: 'Live', icon: 'RadioIcon', sep: true },
   { key: 'callbacks', label: 'Callbacks', icon: 'PhoneForwardingIcon' },
-  { key: 'campaign-activity', label: 'Campaigns', icon: 'DialerIcon' },
+  { key: 'campaign-activity', label: 'Campaigns', icon: 'TargetIcon' },
   { key: 'speech-text', label: 'Speech', icon: 'MessageIcon' },
-  { key: 'reports', label: 'Reports', icon: 'ReportsLineIcon' },
-  { key: 'live-wallboard', label: 'Wallboard', icon: 'AnalyticsIcon' },
-  { key: 'ai-wallboard', label: 'AI Wall', icon: 'AnalyticsIcon', feature: 'ai' },
-  { key: 'call-queue', label: 'Queue', icon: 'PhoneIcon', feature: 'queue' },
+  { key: 'reports', label: 'Reports', icon: 'FileBarChartIcon' },
+  { key: 'live-wallboard', label: 'Wallboard', icon: 'MonitorLucideIcon' },
+  { key: 'ai-wallboard', label: 'AI Wall', icon: 'BotIcon', feature: 'ai' },
+  { key: 'call-queue', label: 'Queue', icon: 'ListOrderedIcon', feature: 'queue' },
   { key: 'video-dashboard', label: 'Video', icon: 'VideoIcon', feature: 'video' },
   // The top-bar shortcuts, moved down here so the bar itself stays lean.
-  { key: 'ext-tasks', label: 'Tasks', icon: 'ReportsLineIcon', href: '/calendar?view=task-list', sep: true },
-  { key: 'ext-calendar', label: 'Calendar', icon: 'CalendarLine', href: '/calendar?view=calendar' },
+  // Tasks used to be its own rail entry here, but it was never a separate
+  // page — it's the same `/calendar` route with `?view=task-list`, reached
+  // today via the "Tasks List View" button inside Calendar itself. Keeping
+  // both just duplicated one destination under two labels.
+  {
+    key: 'ext-calendar',
+    label: 'Calendar',
+    icon: 'CalendarLine',
+    href: '/calendar?view=calendar',
+    altViews: ['task-list'],
+    sep: true,
+  },
   { key: 'ext-campaigns', label: 'Dialer', icon: 'DialerIcon', href: '/my-campaigns' },
   // Activity and Monitoring depend on the signed-in user (their uuid, their
   // role/plan access) so their real href is resolved in useAreaNav — this
   // placeholder just claims the slot and the icon.
-  { key: 'ext-activity', label: 'Activity', icon: 'PhoneIcon', match: '/activity' },
-  { key: 'ext-monitoring', label: 'Monitor', icon: 'AnalyticsIcon', match: '/monitoring' },
+  { key: 'ext-activity', label: 'Activity', icon: 'HistoryIcon', match: '/activity' },
+  { key: 'ext-monitoring', label: 'Monitor', icon: 'HeadsetIcon', match: '/monitoring' },
 ];
 
 /** The views an area carries in its rail, if it carries any. */
@@ -223,3 +243,32 @@ const externalViewPrefixes = (): { prefix: string; area: AreaId }[] =>
       return prefix ? [{ prefix, area }] : [];
     }),
   );
+
+/**
+ * Whether the signed-in company's plan admits a view.
+ *
+ * This lived only in `useAreaNav`, which decides what the rail renders — so a
+ * plan without AI got no "AI Wall" rail item, and that was the whole of the
+ * enforcement. The page behind the rail rendered whatever `?view=` asked for,
+ * so a pasted or bookmarked URL reached a wallboard the plan does not include.
+ *
+ * Both the rail and the page now ask this one function, which is the only way
+ * they cannot drift apart again. It reads the COMPANY plan rather than the
+ * role-scoped one, which is what the rail has always used — a view is part of
+ * what the company bought, not part of what this person may do.
+ *
+ * This is a commercial entitlement gate, not a security boundary: it decides
+ * what the console offers, and the server remains responsible for refusing
+ * data the plan does not cover.
+ */
+export const isViewAllowedByPlan = (
+  view: Pick<AreaView, 'feature'>,
+  companyPlanFeatures: any,
+): boolean => {
+  if (!view.feature) return true;
+  if (view.feature === 'video') return Boolean(companyPlanFeatures?.video?.IS_SHOW);
+  if (view.feature === 'ai') return Boolean(companyPlanFeatures?.ai?.IS_SHOW);
+  if (view.feature === 'queue')
+    return Boolean(companyPlanFeatures?.phone_system_action?.access?.QUEUE);
+  return true;
+};

@@ -7,12 +7,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { useUser } from '@/hooks/use-user';
-import moment from 'moment';
 import { Label } from '@/components/ui/label';
 import { ExtensionListView } from '@/pages/admin-settings/people/update-forwarding/call-rules/add-coworker';
 import { useSocketEvents } from '@/hooks/use-socket-events';
-import { generateUniqueId } from '@/lib/utils';
-import { chatEvents } from '@/context/socket-events';
 // import { toast } from 'react-toastify';
 import { createPrivateChatId } from '@/context/socket-events-context';
 import useDebounce from '@/hooks/use-debounce';
@@ -38,7 +35,7 @@ const CreateDirectChat = ({
 }) => {
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [userSearch, setUserSearch] = useState('');
-  const { socketEventsManager, allChats } = useSocketEvents();
+  const { createNewChat } = useSocketEvents();
   const { user } = useUser();
 
   const {
@@ -81,89 +78,22 @@ const CreateDirectChat = ({
 
     try {
       const chatId = createPrivateChatId([user.uuid, selectedUser?.uuid]);
+      const defaultEditorValue = [
+        {
+          type: 'paragraph',
+          children: [{ text: trimmedMessage }],
+        },
+      ] as any;
 
-      // Check if this chat already exists in allChats
-      const chatExists = Array.isArray(allChats)
-        ? allChats.find((chat: any) => chat?.chatId === chatId)
-        : null;
+      // createNewChat opens (or creates, then opens) the chat and sends the
+      // first message — it already knows how to do this in demo mode.
+      createNewChat(selectedUser, false, defaultEditorValue, false, chatId);
 
-      if (!chatExists) {
-        // Chat doesn't exist yet — create it first via socket
-        socketEventsManager?.emit(
-          chatEvents.CREATE_NEW_CHAT,
-          {
-            chatId,
-            company_uuid: user?.company_info?.uuid,
-            users: [
-              {
-                uuid: user?.uuid,
-                name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
-                email: user?.email || user?.user_info?.email,
-                extension: user?.extension || user?.user_info?.extension,
-              },
-              {
-                uuid: selectedUser?.uuid,
-                name: `${selectedUser?.first_name || ''} ${selectedUser?.last_name || ''}`.trim(),
-                email: selectedUser?.email,
-                extension: selectedUser?.extension || selectedUser?.value,
-              },
-            ],
-          },
-          (response: any) => {
-            console.info('Server ack: handleSendMessage', response);
-            if (trimmedMessage && response?.status === 200) {
-              const defaultEditorValue = [
-                {
-                  type: 'paragraph',
-                  children: [{ text: trimmedMessage }],
-                },
-              ] as any;
-              // ✅ send message only after chat is created
-              socketEventsManager?.emit(chatEvents.SEND_MESSAGE, {
-                chatId,
-                message: defaultEditorValue,
-                attachments: [],
-                senderId: user?.uuid,
-                messageId: generateUniqueId(),
-                receiverId: [selectedUser?.uuid],
-                createdAt: moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
-              });
-              // toast.success('Chat created successfully!');
-              if (onChatSelect) {
-                onChatSelect({ chatId });
-              }
-              reset();
-              handleClose();
-            }
-          },
-        );
-      } else {
-        console.info('Server ack: handleSendMessage', chatExists);
-        if (trimmedMessage && chatExists) {
-          const defaultEditorValue = [
-            {
-              type: 'paragraph',
-              children: [{ text: trimmedMessage }],
-            },
-          ] as any;
-          // ✅ send message only after chat is created
-          socketEventsManager?.emit(chatEvents.SEND_MESSAGE, {
-            chatId,
-            message: defaultEditorValue,
-            attachments: [],
-            senderId: user?.uuid,
-            messageId: generateUniqueId(),
-            receiverId: [selectedUser?.uuid],
-            createdAt: moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
-          });
-
-          if (onChatSelect) {
-            onChatSelect({ chatId });
-          }
-          reset();
-          handleClose();
-        }
+      if (onChatSelect) {
+        onChatSelect({ chatId });
       }
+      reset();
+      handleClose();
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {

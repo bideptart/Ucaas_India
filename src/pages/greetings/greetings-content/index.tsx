@@ -24,6 +24,8 @@ import EditGreeting from '../edit-greeting';
 import { SearchLine } from '@/assets/icons';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import AccountPageHead from '@/pages/settings/account-page-head';
+import '@/components/mcm/mcm-page.css';
 
 const GreetingContent: FC = () => {
   const { user } = useUser();
@@ -128,30 +130,26 @@ const GreetingContent: FC = () => {
     {
       header: 'Size',
       accessorKey: 'size',
-      cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{formatSize(getValue())}</div>
-      ),
+      cell: ({ getValue }: any) => <div className="text-gray-600">{formatSize(getValue())}</div>,
     },
     {
       header: 'Type',
       accessorKey: 'type',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{capitalizeFirstLetter(getValue())}</div>
+        <div className="text-gray-600">{capitalizeFirstLetter(getValue())}</div>
       ),
     },
     {
       header: 'Duration',
       accessorKey: 'duration',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDuration(getValue())}</div>
+        <div className="text-gray-600">{formatDuration(getValue())}</div>
       ),
     },
     {
       header: 'Created At',
       accessorKey: 'created_at',
-      cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDate(getValue())}</div>
-      ),
+      cell: ({ getValue }: any) => <div className="text-gray-600">{formatDate(getValue())}</div>,
     },
     {
       header: 'Action',
@@ -167,7 +165,7 @@ const GreetingContent: FC = () => {
             onClick: () => {
               handleOpenAudio(srcUrl);
             },
-            className: ' bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white',
+            className: ' bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Play',
             access: true,
           },
@@ -177,7 +175,7 @@ const GreetingContent: FC = () => {
               setGreetingData(data);
               setModalState({ isEdit: true });
             },
-            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Edit',
             access: !data?.is_default,
           },
@@ -194,11 +192,14 @@ const GreetingContent: FC = () => {
         ]?.filter(Boolean);
         return (
           <div className="flex items-center gap-2">
+            {/* The key belonged on the mapped element, which is the tooltip,
+                not on the div inside it. React warned on every render and
+                reused rows by position, so deleting a file could leave the
+                wrong action buttons behind. */}
             {actions?.map((action, index) => (
-              <CustomTooltip text={action.tooltipText} side="top">
+              <CustomTooltip key={index} text={action.tooltipText} side="top">
                 <div
-                  key={index}
-                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2'}  flex items-center justify-center rounded-full w-8 h-8 `}
+                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 text-gray-900/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
                   onClick={() => {
                     if (action?.access) {
                       action.onClick();
@@ -218,39 +219,18 @@ const GreetingContent: FC = () => {
     },
   ];
 
+  /* This page is mounted twice — in the standalone media library and under
+     My Account > Media Files — and an eyebrow here used to name which. The
+     slim head drops it: both mounts sit inside a rail that already shows and
+     highlights the area you are standing in, which is the same reason the
+     other six account pages no longer announce "My Account" either. */
+
   return (
-    // <section className="w-full overflow-auto max-h-[calc(100vh-64px)] ">
-    <section className="w-full overflow-auto  ">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-        <div>
-          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
-            Media Files{' '}
-            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
-            </div>
-            <span className="text-primary text-md">{capitalizeFirstLetter(type)}</span>
-          </p>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">{typeBlurb[type] || typeBlurb.all}</p>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {TYPE_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => navigate(tab.to)}
-                className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                  type === tab.key
-                    ? 'bg-ucass-primary-200 text-primary'
-                    : 'text-gray-600 dark:text-mcm-ink-2 hover:bg-gray-100 dark:hover:bg-mcm-surface-3'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex gap-2 filters">
+    <section className="mcm-page mcm-admin mcm-acct">
+      <AccountPageHead title="Media Files" about={typeBlurb[type] || typeBlurb.all}>
+        <div className="mcm-adminpage-actions filters">
           <Input
-            placeholder="Search"
+            placeholder="Search files"
             className="pl-10 w-full min-h-9 rounded-lg"
             IconPosition="left-0 pl-2 inset-y-0"
             value={search}
@@ -259,33 +239,55 @@ const GreetingContent: FC = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+            Icon={<SearchLine className=" text-gray-700" />}
           />
           {greetingAccess?.add && !drawerState && (
             <Button
-              className="min-h-9"
+              className="min-h-9 whitespace-nowrap"
               type="button"
               variant={'outline'}
               onClick={() => setDrawerState(true)}
             >
-              <Icon name="Plus" className="w-3 h-3" /> Add
+              <Icon name="Plus" className="w-3 h-3" /> Add file
             </Button>
           )}
         </div>
-      </div>
-      {drawerState ? (
-        <div className="w-full flex justify-center py-6 px-4 bg-gray-50/50 dark:bg-mcm-surface-3/50 ">
-          <div className=" w-full max-w-[800px] bg-white dark:bg-mcm-surface rounded-xl shadow-sm border border-gray-100 dark:border-mcm-line p-6 flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-mcm-ink">Add Media File</h2>
-                <p className="text-sm text-gray-500 dark:text-mcm-ink-3 mt-1">Create or upload a new audio file</p>
+      </AccountPageHead>
+
+      <div className="mcm-acct-body">
+        {/* The four libraries as a tab strip in the body rather than a row of
+            pills wedged under the title. It also used to sit inside a <p>,
+            which is not valid markup for a row of buttons. */}
+        <div className="ptabstrip" role="tablist">
+          {TYPE_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={type === tab.key}
+              onClick={() => navigate(tab.to)}
+              className={type === tab.key ? 'on' : ''}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {drawerState ? (
+          <div className="mcm-media-add">
+            <div className="mcm-media-add-h">
+              <div className="min-w-0">
+                <h2 className="mcm-media-add-t">Add a media file</h2>
+                <p className="mcm-media-add-d">
+                  Record it here, type it out for text-to-speech, or upload audio you already have.
+                </p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setDrawerState(false)}
-                className="text-gray-500 dark:text-mcm-ink-3 hover:text-gray-700 dark:hover:text-mcm-ink-2 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 h-8 px-3"
+                className="h-8 px-3"
+                aria-label="Close"
               >
                 <Icon name="CloseIcon" className="w-3 h-3" />
               </Button>
@@ -297,66 +299,50 @@ const GreetingContent: FC = () => {
               greetingType={type}
             />
           </div>
-        </div>
-      ) : (
-        <div className="w-full p-3 flex flex-col gap-2">
-          <TableManager
-            {...{
-              fetcherKey: 'greetingList',
-              fetcherFn: getGreetings,
-              columns,
-              search,
-              type,
-              emptyTablePlaceholder:
-                type == 'all' ? 'No media files uploaded yet' : `No ${type} file uploaded yet`,
-              descriptionEmptyTable: `Uploaded ${type} files will appear here.`,
-            }}
-          />
-          {modalState?.playMedia && (
-            <AudioModal
-              modalState={modalState}
-              setModalState={setModalState}
-              srcUrl={recordingUrl}
-              serRecordingUrl={serRecordingUrl}
-            />
-          )}
-          {modalState?.isEdit && (
-            <EditGreeting
-              modalState={modalState}
-              setModalState={setModalState}
-              initialData={greetingData}
-            />
-          )}
-          {modalState?.isDelete && (
-            <AlertConfirm
+        ) : (
+          <>
+            <TableManager
               {...{
-                apiLoading: PendingMedia || PendingGreeting,
-                onConfirm: () => {
-                  handleDeleteGreeting();
-                },
-                open: modalState,
-                setOpen: setModalState,
+                fetcherKey: 'greetingList',
+                fetcherFn: getGreetings,
+                columns,
+                search,
+                type,
+                emptyTablePlaceholder:
+                  type == 'all' ? 'No media files uploaded yet' : `No ${type} file uploaded yet`,
+                descriptionEmptyTable: `Uploaded ${type} files will appear here.`,
               }}
             />
-          )}
-          {/* {drawerState && (
-          <SideDrawer
-            isOpen={drawerState}
-            title="Upload File"
-            handleClose={() => setDrawerState(false)}
-            width="500px"
-            isHeader
-            content={
-              <AddGreeting
-                drawerState={drawerState}
-                setDrawerState={setDrawerState}
-                greetingType={type}
+            {modalState?.playMedia && (
+              <AudioModal
+                modalState={modalState}
+                setModalState={setModalState}
+                srcUrl={recordingUrl}
+                serRecordingUrl={serRecordingUrl}
               />
-            }
-          />
-        )} */}
-        </div>
-      )}
+            )}
+            {modalState?.isEdit && (
+              <EditGreeting
+                modalState={modalState}
+                setModalState={setModalState}
+                initialData={greetingData}
+              />
+            )}
+            {modalState?.isDelete && (
+              <AlertConfirm
+                {...{
+                  apiLoading: PendingMedia || PendingGreeting,
+                  onConfirm: () => {
+                    handleDeleteGreeting();
+                  },
+                  open: modalState,
+                  setOpen: setModalState,
+                }}
+              />
+            )}
+          </>
+        )}
+      </div>
     </section>
   );
 };

@@ -297,6 +297,8 @@ const SMSLogs = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'smsList',
             fetcherFn: getSmsLogList,
             columns,

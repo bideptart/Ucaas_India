@@ -85,31 +85,127 @@
 .mcm-datepicker .react-datepicker__day--disabled:hover {
   background: transparent;
 }
-.mcm-datepicker .react-datepicker__navigation {
-  top: 14px;
+/* `renderCustomHeader` swaps react-datepicker's default header — its
+   plain-text month/year, `.react-datepicker__navigation` arrows and native
+   `<select>`s — for the layout below, so none of the library's own header
+   classes render here any more.
+   The month/year triggers are a hand-built dropdown (`MiniMonthYearSelect`
+   in index.tsx), not `CustomSelect`/react-select: that component's own
+   value-container/indicator padding couldn't be trimmed enough to match a
+   native `<select>`'s footprint without still widening this calendar past
+   its own day-grid — tried twice, reverted both times. This trigger is
+   sized to the exact footprint the native `<select>` it replaces measured
+   at (113px, confirmed via computed style), so the calendar's overall
+   width is unchanged; only the open list — the one part CSS could never
+   restyle on a native `<select>`, since the OS paints that popup itself —
+   is actually new. */
+.mcm-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
-.mcm-datepicker .react-datepicker__navigation-icon::before {
-  border-color: #9a948f;
-  border-width: 2px 2px 0 0;
+.mcm-datepicker-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #9a948f;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
-.mcm-datepicker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
-  border-color: #f2994a;
+.mcm-datepicker-nav:hover:not(:disabled) {
+  color: #f2994a;
+  background: rgba(251, 226, 200, 0.5);
 }
-.mcm-datepicker .react-datepicker__month-select,
-.mcm-datepicker .react-datepicker__year-select {
+.mcm-datepicker-nav:disabled {
+  color: #d8d2c8;
+  cursor: not-allowed;
+}
+.mcm-mini-select {
+  position: relative;
+}
+.mcm-mini-select-trigger {
+  height: 22px;
   border-radius: 8px;
   border: 1px solid rgba(225, 200, 165, 0.9);
-  background: #fff;
-  padding: 3px 6px;
+  background:
+    #fff
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%239a948f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7l5 5 5-5'/%3E%3C/svg%3E")
+    no-repeat right 6px center / 12px 12px;
+  padding: 0 20px 0 8px;
   font-size: 12px;
   font-weight: 700;
   color: #2e2d35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
 }
-.mcm-datepicker .react-datepicker__month-select:focus,
-.mcm-datepicker .react-datepicker__year-select:focus {
-  outline: none;
+.mcm-mini-select-trigger:hover,
+.mcm-mini-select-trigger.is-open {
   border-color: #f2994a;
 }
+.mcm-mini-select-trigger-month {
+  width: 120px;
+}
+.mcm-mini-select-trigger-year {
+  width: 66px;
+}
+/* Same list styling every dropdown in the app already uses (peach hover,
+   solid-orange selected) — the "Assign Groups" checklist, the "Date
+   Range" preset list — just wrapped around a hand-built list instead of
+   react-select's, since that's the part this trigger size can't afford. */
+.mcm-mini-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  width: max-content;
+  min-width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgba(242, 153, 74, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(160, 95, 30, 0.16);
+  padding: 4px;
+}
+.mcm-mini-select-option {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2e2d35;
+  text-align: left;
+  cursor: pointer;
+}
+.mcm-mini-select-option:hover {
+  background: rgba(255, 241, 235, 0.65);
+  color: #1a1a1a;
+}
+.mcm-mini-select-option.is-selected {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+
+/* The preset list ("Today", "Yesterday", "Last 7 Days", ...) is themed in
+   index.css's `@layer base` instead of here — that's where the shared
+   `.custom-react-select__*` rules it needs to outrank live. For
+   `!important` declarations the cascade reverses layer order and treats
+   unlayered styles as the lowest priority, so a plain override in this
+   file can never beat an `!important` declaration inside `@layer base`,
+   no matter how specific it is. See index.css for the actual rules,
+   scoped via `inputClass="mcm-date-preset"` on the CustomSelect in
+   index.tsx. */
 
 /* The "From" / "To" cards that trigger each of the two calendars. */
 .mcm-date-field {
@@ -139,6 +235,16 @@
 }
 .mcm-date-input:hover {
   border-color: #f2994a;
+}
+/* The single-row toolbar bar (`customPickerPlacement="bottom"`) packs From,
+   To, Reset and Apply onto one ~46px-tall line — the default 36px input
+   plus this bar's own 10px (p-2.5) top/bottom padding would land near
+   56px, taller than that slim target. Scoped to `.mcm-date-range-bar` only,
+   so every other caller of this same `.mcm-date-input` (the inline
+   placement mode, still two rows) keeps its original size. */
+.mcm-date-range-bar .mcm-date-input {
+  height: 28px;
+  padding: 0 8px;
 }
 .mcm-date-input:focus,
 .mcm-date-input:focus-visible {
@@ -203,122 +309,59 @@
   color: #f2994a;
 }
 
-/* ==================================================================
-   Dark mode.
-
-   This whole skin was built for a light, cream popup — every card, input
-   and control below hardcodes a literal white/off-white background and the
-   orange accent as a bare hex, with no `.dark` counterpart anywhere in the
-   file. Left alone the calendar popup and its trigger cards would still
-   render as a light card with near-black text even with the rest of the
-   app in Dark Mode. Mapped onto the app's own dark tokens: white/cream
-   surfaces -> --mcm-surface(-2/3), near-black text -> --mcm-ink(-2/-3).
-   Orange is the accent again (2026-09-05 re-theme) for the selected day
-   and the Apply button, but never as a large fill elsewhere. */
-.dark .mcm-datepicker.react-datepicker {
-  border-color: var(--mcm-line, #1b2934);
-  background: var(--mcm-surface, #111c26);
-  box-shadow:
-    0 16px 32px -8px rgba(0, 0, 0, 0.35),
-    0 4px 10px rgba(0, 0, 0, 0.2);
+/* ------------------------------------------------------------
+   Time-only picker (`showTimeSelect` + `showTimeSelectOnly`, e.g.
+   Reports ▸ Activity's From/To hour range) — everything above this styles
+   the full calendar grid; this popup renders a completely different
+   internal structure (`.react-datepicker__time-container`, no month
+   grid), which had no rules here at all and so rendered on react-
+   datepicker's raw, unthemed default: a plain white box, blue selected
+   row, square corners — visibly a different component from every other
+   dropdown on the page. Directory's exact recipe applied the same way as
+   the calendar above.
+   ------------------------------------------------------------ */
+.mcm-datepicker.react-datepicker--time-only {
+  border-radius: 16px;
+  overflow: hidden;
 }
-.dark .mcm-datepicker .react-datepicker__header {
-  background: var(--mcm-surface-3, #1a2733);
-  border-bottom-color: var(--mcm-line, #1b2934);
+.mcm-datepicker .react-datepicker__time-container {
+  border-left: none;
+  width: 100%;
 }
-.dark .mcm-datepicker .react-datepicker__current-month {
-  color: var(--mcm-ink, #f3f6f9);
+.mcm-datepicker .react-datepicker__header--time {
+  background: rgba(251, 226, 200, 0.35);
+  border-bottom: 1px solid rgba(225, 200, 165, 0.6);
+  padding: 10px 8px;
 }
-.dark .mcm-datepicker .react-datepicker__day-name {
-  color: var(--mcm-ink-3, #aab6c1);
+.mcm-datepicker .react-datepicker-time__header {
+  font-weight: 800;
+  font-size: 13px;
+  color: #2e2d35;
 }
-.dark .mcm-datepicker .react-datepicker__day {
-  color: var(--mcm-ink, #f3f6f9);
+.mcm-datepicker .react-datepicker__time {
+  background: #fdfbf8;
 }
-.dark .mcm-datepicker .react-datepicker__day:hover {
-  background: rgba(249, 115, 22, 0.16);
+.mcm-datepicker .react-datepicker__time-box {
+  width: 100% !important;
 }
-.dark .mcm-datepicker .react-datepicker__day--selected,
-.dark .mcm-datepicker .react-datepicker__day--keyboard-selected,
-.dark .mcm-datepicker .react-datepicker__day--in-selecting-range,
-.dark .mcm-datepicker .react-datepicker__day--in-range {
-  background: #f97316;
-  color: #1a0f06;
+.mcm-datepicker .react-datepicker__time-list {
+  padding: 4px !important;
 }
-.dark .mcm-datepicker .react-datepicker__day--keyboard-selected:hover {
-  background: #ff8a2a;
+.mcm-datepicker .react-datepicker__time-list-item {
+  border-radius: 8px;
+  font-size: 13px;
+  height: auto !important;
+  padding: 7px 10px !important;
+  display: flex;
+  align-items: center;
 }
-.dark .mcm-datepicker .react-datepicker__day--today:not(.react-datepicker__day--selected) {
-  color: #ff8a2a;
+.mcm-datepicker .react-datepicker__time-list-item:hover {
+  background-color: rgba(255, 241, 235, 0.9) !important;
 }
-.dark .mcm-datepicker .react-datepicker__day--outside-month {
-  color: var(--mcm-ink-4, #7c8894);
+.mcm-datepicker .react-datepicker__time-list-item--selected {
+  background-color: #f2994a !important;
+  font-weight: 600;
 }
-.dark .mcm-datepicker .react-datepicker__day--disabled {
-  color: var(--mcm-ink-4, #7c8894);
-}
-.dark .mcm-datepicker .react-datepicker__navigation-icon::before {
-  border-color: var(--mcm-ink-3, #aab6c1);
-}
-.dark .mcm-datepicker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
-  border-color: #ff8a2a;
-}
-.dark .mcm-datepicker .react-datepicker__month-select,
-.dark .mcm-datepicker .react-datepicker__year-select {
-  border-color: var(--mcm-line, #1b2934);
-  background: var(--mcm-surface-3, #1a2733);
-  color: var(--mcm-ink, #f3f6f9);
-}
-.dark .mcm-datepicker .react-datepicker__month-select:focus,
-.dark .mcm-datepicker .react-datepicker__year-select:focus {
-  border-color: #f97316;
-}
-
-.dark .mcm-date-input {
-  background: var(--mcm-surface, #111c26);
-  border-color: var(--mcm-line, #1b2934);
-}
-.dark .mcm-date-input:hover {
-  border-color: #f97316;
-}
-.dark .mcm-date-input:focus,
-.dark .mcm-date-input:focus-visible {
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-}
-.dark .mcm-date-field-value {
-  color: var(--mcm-ink, #f3f6f9);
-}
-.dark .mcm-date-field-value.is-placeholder {
-  color: var(--mcm-ink-3, #aab6c1);
-}
-
-.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']) {
-  background: #f97316;
-  border-color: #f97316;
-  color: #1a0f06;
-}
-.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']):hover:not(:disabled) {
-  background: #ff8a2a;
-  border-color: #ff8a2a;
-}
-.dark .mcm-page button.mcm-date-apply-btn:not([data-slot='tabs-trigger']):disabled {
-  background: var(--mcm-surface-3, #1a2733);
-  border-color: var(--mcm-surface-3, #1a2733);
-  color: #7c8894;
-}
-
-.dark .filters input:focus-visible {
-  border-color: #f97316 !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
-}
-
-.dark .mcm-page button.mcm-date-clear-btn:not([data-slot='tabs-trigger']) {
-  background: var(--mcm-surface, #111c26);
-  border-color: var(--mcm-line, #1b2934);
-  color: var(--mcm-ink-3, #aab6c1);
-}
-.dark .mcm-page button.mcm-date-clear-btn:not([data-slot='tabs-trigger']):hover {
-  border-color: #f97316;
-  color: #ff8a2a;
+.mcm-datepicker .react-datepicker__time-list-item--selected:hover {
+  background-color: #e0863a !important;
 }

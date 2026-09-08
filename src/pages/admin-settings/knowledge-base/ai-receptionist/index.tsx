@@ -708,15 +708,13 @@ const AiReceptionist = () => {
         systemPrompt: newPrompt,
       };
 
-      const {
-        agent_uuid,
-        uuid,
-        did_uuid,
-        company_uuid,
-        created_at,
-        useMessageExactly,
-        ...upadedData
-      } = payload;
+      const upadedData = { ...payload };
+      delete upadedData.agent_uuid;
+      delete upadedData.uuid;
+      delete upadedData.did_uuid;
+      delete upadedData.company_uuid;
+      delete upadedData.created_at;
+      delete upadedData.useMessageExactly;
 
       mutateUpdateAgent(upadedData, {
         onSuccess: () => {

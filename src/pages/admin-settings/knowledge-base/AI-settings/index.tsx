@@ -10,6 +10,18 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { handleAlert } from '@/lib/utils';
 
+/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
+   the floating white header card actually reads as "floating" — without a
+   saturated backdrop behind it, a white card on the AdminHub shell's own
+   near-white background has almost no contrast to float against. */
+const AI_TOOLS_PAGE_GRADIENT = [
+  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
+  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
+  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
+  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
+  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
+].join(', ');
+
 const socialMediaList = [
   { key: 'facebook', apiName: 'FACEBOOK', name: 'Facebook', icon: 'Messanger' },
   { key: 'whatsapp', apiName: 'WHATSAPP', name: 'WhatsApp', icon: 'WhatsappIcon' },
@@ -128,31 +140,38 @@ function AISettings() {
   };
 
   return (
-    <form className="w-full bg-muted/40 flex flex-col">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-        <div>
-          <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-              className="text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
-            >
-              AI Agents
-            </button>
-            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
-            </div>
-            <span className="text-primary text-md">Settings</span>
-          </div>
-        </div>
-        <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
+    <form
+      className="flex h-full w-full flex-col overflow-hidden text-[#07142f] p-4"
+      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
+    >
+      <div
+        className="mb-3 rounded-2xl px-6 py-4"
+        /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
+           app-wide, unlayered "glass pass" that deliberately turns any
+           `rounded-*` + `bg-white` card translucent — inline style is what
+           actually renders solid white. */
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 10px 34px rgba(160,95,30,0.16), inset 0 1px 0 rgba(255,255,255,0.8)',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
+          className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
+        >
+          AI Agents
+        </button>
+        <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">Settings</h1>
+        <p className="mt-1 text-[13px] text-[#6b5c4d]">
           How your AI tools behave — models, limits and what they may act on.
         </p>
       </div>
 
-      <div className="w-full h-full flex  flex-col sm:flex-row gap-4 justify-between p-3">
-        <div className="h-full bg-white dark:bg-mcm-surface rounded-lg border p-4 w-full">
-          <h3 className="font-semibold text-gray-800 dark:text-mcm-ink-2 mb-3">AI Bot</h3>
+      <div className="flex w-full flex-1 flex-col gap-4 overflow-auto sm:flex-row">
+        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
+          <h3 className="mb-3 text-sm font-bold text-[#2E2D35]">AI Bot</h3>
           <div className="flex flex-col gap-1 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             <div className="flex flex-col gap-2">
               {socialMediaList
@@ -160,11 +179,13 @@ function AISettings() {
                 ?.map((media) => (
                   <div
                     key={media.key}
-                    className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition"
+                    className="flex items-center justify-between rounded-lg border border-[#EEE7DD] bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/30"
                   >
-                    <div className="flex items-center gap-2 text-gray-800 dark:text-mcm-ink-2">
-                      <Icon name={media.icon as IconType} className="w-5 h-5 text-gray-700 dark:text-mcm-ink-2" />
-                      <span className="font-medium">{media.name}</span>
+                    <div className="flex items-center gap-2.5 text-[#2E2D35]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 text-[#9A948F]">
+                        <Icon name={media.icon as IconType} className="w-4 h-4" />
+                      </span>
+                      <span className="text-sm font-semibold">{media.name}</span>
                     </div>
 
                     <Controller
@@ -223,17 +244,19 @@ function AISettings() {
           </div>
         </div>
 
-        <div className="h-full bg-white dark:bg-mcm-surface rounded-lg border p-4 w-full">
-          <h3 className="font-semibold text-gray-800 dark:text-mcm-ink-2 mb-3">AI Assistance</h3>
+        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
+          <h3 className="mb-3 text-sm font-bold text-[#2E2D35]">AI Assistance</h3>
           <div className="flex flex-col gap-2 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             {socialMediaList.map((media) => (
               <div
                 key={media?.key}
-                className="flex items-center justify-between border rounded-md p-2 hover:bg-gray-50 dark:hover:bg-mcm-surface-3 transition"
+                className="flex items-center justify-between rounded-lg border border-[#EEE7DD] bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/30"
               >
-                <div className="flex items-center gap-2 text-gray-800 dark:text-mcm-ink-2">
-                  <Icon name={media?.icon as IconType} className="w-5 h-5 text-gray-700 dark:text-mcm-ink-2" />
-                  <span className="font-medium">{media?.name}</span>
+                <div className="flex items-center gap-2.5 text-[#2E2D35]">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 text-[#9A948F]">
+                    <Icon name={media?.icon as IconType} className="w-4 h-4" />
+                  </span>
+                  <span className="text-sm font-semibold">{media?.name}</span>
                 </div>
 
                 <Controller

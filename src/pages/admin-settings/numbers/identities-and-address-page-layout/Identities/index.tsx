@@ -112,7 +112,9 @@ const Identities = ({ search }: { search: string }) => {
           queryKey: ['getIdentityList'],
         });
         setDrawerState((prev) => ({ ...prev, editIdentity: false }));
-      } catch (err) {
+      } catch {
+        /* Upload failures here are silent by design -- same as the
+           sibling add-number-new flow this mirrors. */
       }
     },
   });

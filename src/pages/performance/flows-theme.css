@@ -34,63 +34,69 @@ body.perf-warm-backdrop {
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
   --fl-glass-shadow-hover: 0 14px 35px -5px rgba(234, 88, 12, 0.18);
 }
-/* Neutral gray, not orange — global Dark Mode rebrand. */
 .dark .perf-flows,
 .dark body.perf-warm-backdrop,
 body.perf-warm-backdrop.dark {
-  --fl-accent: #f97316;
-  --fl-accent-deep: #ea580c;
-  --fl-accent-ink: #ff8a2a;
-  --fl-wash: #111c26;
-  --fl-ink: #f5f7fa;
-  --fl-muted: #aab6c1;
-  --fl-hairline: rgba(249, 115, 22, 0.16);
-  --fl-row-hover: rgba(249, 115, 22, 0.1);
+  --fl-accent: #fb923c;
+  --fl-accent-deep: #f97316;
+  --fl-accent-ink: #fdba74;
+  --fl-wash: #2a1710;
+  --fl-ink: #f4f6fb;
+  --fl-muted: #93a1ba;
+  --fl-hairline: rgba(251, 146, 60, 0.14);
+  --fl-row-hover: rgba(251, 146, 60, 0.1);
 
-  /* Was rgba(11, 20, 28, 0.72) — same low-contrast-against-ground issue
-     already fixed on Queues/Agents/Calls (--qa-glass/--aa-glass/--ic-glass):
-     re-based on the app's own --surface-2 (#16222c) at a higher alpha. */
-  --fl-glass: rgba(22, 34, 44, 0.88);
-  /* Was 0.2 — softened to a hint of the accent rather than a heavy default
-     outline, matching the same border fix everywhere else. */
-  --fl-glass-border: rgba(249, 115, 22, 0.12);
+  --fl-glass: rgba(17, 24, 39, 0.72);
+  --fl-glass-border: rgba(251, 146, 60, 0.18);
   --fl-glass-shadow:
     0 10px 30px -5px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  /* Was rgba(249, 115, 22, 0.24) at a 38px spread — same over-strong hover
-     glow already toned down elsewhere. */
-  --fl-glass-shadow-hover: 0 14px 30px -6px rgba(249, 115, 22, 0.16);
+  --fl-glass-shadow-hover: 0 16px 38px -5px rgba(251, 146, 60, 0.22);
 }
 
 /* ------------------------------------------------------------
-   1. Notice pill — the IVR description, wrapped in a warm glass pill
-   instead of floating page-note text.
+   1. Notice pill — the IVR description, wrapped in a frosted glass pill
+   instead of floating page-note text. Muted slate on translucent white,
+   matching the notice pill standard set on Dashboards (db-notice) rather
+   than the orange-wash treatment used here originally.
    ------------------------------------------------------------ */
 .perf-flows .fl-notice {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: var(--fl-wash);
-  border: 1px solid rgba(249, 115, 22, 0.18);
-}
-.dark .perf-flows .fl-notice {
-  border-color: rgba(100, 116, 139, 0.24);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  /* A single-line sentence at the very edge of the pill's width can spill
+     past the rounded corner on a narrower real browser window than any
+     one dev viewport tests — overflow:hidden clips it to the pill's own
+     shape instead of the text poking out past its background. */
+  overflow: hidden;
 }
 .perf-flows .fl-notice-icon {
   width: 15px;
   height: 15px;
   flex: none;
-  margin-top: 2px;
-  color: var(--fl-accent-ink);
+  color: #475569;
 }
+/* `.page-note` (mcm-page.css) caps itself at `max-width: 100ch`, tuned for
+   a page description rather than a pill with the band's full width to
+   work with — that cap is what forced this long description to wrap a
+   few words from the end. */
 .perf-flows .fl-notice .page-note {
   margin: 0;
-  color: var(--fl-accent-ink);
-  font-size: 12px;
+  color: #475569;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.4;
+  max-width: none;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ------------------------------------------------------------
@@ -113,9 +119,6 @@ body.perf-warm-backdrop.dark {
   box-shadow: var(--fl-glass-shadow-hover);
   transform: translateY(-2px);
 }
-.dark .mcm-page .perf-flows .stat:hover {
-  border-color: rgba(100, 116, 139, 0.3);
-}
 .mcm-page .perf-flows .stat .k {
   color: var(--fl-muted);
 }
@@ -133,32 +136,67 @@ body.perf-warm-backdrop.dark {
    350px height regardless of row count — the fix for the "massive blank
    gap beneath 4 rows" belongs at that data-table-height level, not CSS.
    ------------------------------------------------------------ */
+/* Bottom corners only — `splitStickyHeader` puts the header above this in
+   its own separate box (already owning the top corners via the
+   `thead th:first-child`/`:last-child` rules below), so `.table-scroll`
+   isn't the wrapper's own top edge anymore. Rounding all four corners
+   here carves a curved notch into the body box's own top-right corner
+   right where the vertical scrollbar starts (same bug found and fixed on
+   Performance ▸ Agents/Calls). */
 .perf-flows .table-scroll {
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px;
   border: 1px solid var(--fl-glass-border);
   background: var(--fl-glass);
   backdrop-filter: var(--fl-glass-blur);
   -webkit-backdrop-filter: var(--fl-glass-blur);
   box-shadow: var(--fl-glass-shadow);
 }
-.perf-flows .table-scroll thead {
-  background: rgba(255, 250, 244, 0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 1px 0 0 var(--fl-hairline);
+/* TableManager's own outer wrapper div (`rounded-xl border ...
+   overflow-hidden`), not `.table-scroll` itself, is what actually clips a
+   native scrollbar — a scrollbar isn't clipped by the scrolling
+   element's own border-radius, only by an ancestor's overflow:hidden.
+   That wrapper's default 12px Tailwind radius didn't match this 20px, so
+   the scrollbar rendered as a flat rectangle poking through the corner. */
+.perf-flows div:has(> .table-scroll) {
+  border-radius: 20px;
+  overflow: hidden;
 }
-.dark .perf-flows .table-scroll thead {
-  background: rgba(11, 20, 28, 0.97);
+.perf-flows .table-scroll::-webkit-scrollbar-track {
+  margin-bottom: 8px;
 }
-.perf-flows .table-scroll thead th {
-  color: var(--fl-muted);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css) plus the `.mcm-page th` base it inherits from
+   (mcm-page.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em, 9px
+   12px padding, a 3px warm-orange hairline — read off Directory's own
+   computed styles rather than approximated.
+   Scoped to `.perf-flows thead` directly, NOT `.table-scroll thead` —
+   this table renders with `splitStickyHeader` (flows-tab.tsx), which puts
+   the header in its own non-scrolling box, a *sibling* of `.table-scroll`,
+   not a descendant of it (same gotcha already hit and fixed in
+   agents-theme.css/interactions-theme.css/queues-theme.css). */
+.perf-flows thead {
+  background: #fffdfb;
+  box-shadow: none;
+}
+.dark .perf-flows thead {
+  background: rgba(23, 15, 10, 0.97);
+}
+.perf-flows thead th {
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom-color: var(--fl-hairline);
+  padding: 9px 12px !important;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   background: transparent;
+}
+.perf-flows thead th:first-child {
+  border-top-left-radius: 20px;
+}
+.perf-flows thead th:last-child {
+  border-top-right-radius: 20px;
 }
 
 .perf-flows .table-scroll tbody tr {
@@ -226,14 +264,20 @@ body.perf-warm-backdrop.dark {
   white-space: nowrap;
 }
 .dark .perf-flows .table-scroll tbody td .fl-site {
-  background: rgba(249, 115, 22, 0.16);
-  color: #ff8a2a;
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
 }
 
-/* Entries Today — right-aligned tabular figures. */
-.perf-flows .table-scroll th:nth-child(4),
+/* Every column but Flow (1, the row's own name) — Extension, Site,
+   Entries Today — centered under its header, both th and td. Site had no
+   alignment rule at all, which does not mean "left": a bare `<th>`'s own
+   browser default is centered while a bare `<td>` defaults left, so it
+   silently disagreed with its own header. */
+.perf-flows .table-scroll th:nth-child(n + 2),
+.perf-flows .table-scroll td:nth-child(n + 2) {
+  text-align: center;
+}
 .perf-flows .table-scroll td:nth-child(4) {
-  text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   color: var(--fl-ink);

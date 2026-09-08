@@ -248,15 +248,13 @@ function AiAgent() {
         systemPrompt: newPrompt,
       };
 
-      const {
-        agent_uuid,
-        uuid,
-        did_uuid,
-        company_uuid,
-        created_at,
-        useMessageExactly,
-        ...updatedData
-      } = payload;
+      const updatedData = { ...payload };
+      delete updatedData.agent_uuid;
+      delete updatedData.uuid;
+      delete updatedData.did_uuid;
+      delete updatedData.company_uuid;
+      delete updatedData.created_at;
+      delete updatedData.useMessageExactly;
 
       submitAgent(updatedData, {
         onSuccess: () => {

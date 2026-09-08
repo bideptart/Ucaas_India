@@ -1,4 +1,15 @@
-import { CircleCheck, Globe, Info, Mail, MapPin, Phone, PhoneCall, UserRound } from 'lucide-react';
+import {
+  CircleCheck,
+  Globe,
+  Info,
+  Mail,
+  MapPin,
+  Monitor,
+  Phone,
+  PhoneCall,
+  UserRound,
+  Wifi,
+} from 'lucide-react';
 import { useDialpad } from '@/hooks/use-dialpad';
 
 import { type ReactNode } from 'react';
@@ -230,50 +241,44 @@ const SectionTitle = ({ title }: { title: string }) => (
 
 const ProfileRow = ({
   icon,
+  label,
   value,
   isMuted = false,
+  isLink = false,
   action,
 }: {
   icon: ReactNode;
+  label?: string;
   value: string;
   isMuted?: boolean;
+  isLink?: boolean;
   action?: ReactNode;
 }) => (
-  <div className="flex items-center justify-between group">
-    <div className="flex items-center gap-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground">
+  <div className="group flex items-center justify-between gap-3 border-b border-border/70 py-3.5 last:border-b-0">
+    <div className="flex min-w-0 items-center gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-ucass-orange/10 text-ucass-orange">
         {icon}
       </div>
-      <div
-        className={`${isMuted ? 'italic text-muted-foreground' : 'text-foreground'} text-[15px] font-medium`}
-      >
-        {value}
+      <div className="min-w-0">
+        {label && (
+          <div className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {label}
+          </div>
+        )}
+        <div
+          className={`truncate text-[14.5px] font-semibold ${
+            isMuted
+              ? 'italic text-muted-foreground'
+              : isLink
+                ? 'text-ucass-active hover:underline cursor-pointer'
+                : 'text-foreground'
+          }`}
+        >
+          {value}
+        </div>
       </div>
     </div>
     {action && <div className="shrink-0">{action}</div>}
-  </div>
-);
-
-const SessionRow = ({
-  label,
-  value,
-  isPage = false,
-}: {
-  label: string;
-  value: string;
-  isPage?: boolean;
-}) => (
-  <div className="space-y-1">
-    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-      {label}
-    </div>
-    <div
-      className={`text-[13px] font-semibold leading-relaxed break-all ${
-        isPage ? 'text-ucass-active hover:underline cursor-pointer' : 'text-foreground'
-      }`}
-    >
-      {value}
-    </div>
   </div>
 );
 
@@ -328,7 +333,7 @@ const VisitorProfile = ({
     <div className="h-full overflow-y-auto">
       <div className="border-b border-border px-6 py-8">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-[36px] font-semibold tracking-wide text-muted-foreground">
+          <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-[3px] border-ucass-orange/25 bg-muted text-[36px] font-semibold tracking-wide text-muted-foreground shadow-[0_2px_10px_rgba(249,115,22,0.12)]">
             {shouldShowImage ? (
               <img
                 src={profileData.image}
@@ -363,7 +368,7 @@ const VisitorProfile = ({
       </div>
 
       <div className="space-y-8 px-6 py-6">
-        <section className="space-y-4">
+        <section className="space-y-1">
           <SectionTitle title="Contact Profile" />
           <ProfileRow
             icon={<Mail className="h-4 w-4" />}
@@ -403,17 +408,22 @@ const VisitorProfile = ({
         </section>
 
         {(profileData.device || profileData.ipAddress || profileData.page) && (
-          <section className="space-y-4">
+          <section className="space-y-1">
             <SectionTitle title="Active Session" />
-            <div className="rounded-2xl border border-border bg-muted/40 p-5 shadow-sm space-y-5">
-              {profileData.device && <SessionRow label="Device" value={profileData.device} />}
-              {profileData.ipAddress && (
-                <SessionRow label="IP Address" value={profileData.ipAddress} />
-              )}
-              {profileData.page && (
-                <SessionRow label="Page" value={getPath(profileData.page)} isPage />
-              )}
-            </div>
+            {profileData.device && (
+              <ProfileRow icon={<Monitor className="h-4 w-4" />} label="Device" value={profileData.device} />
+            )}
+            {profileData.ipAddress && (
+              <ProfileRow icon={<Wifi className="h-4 w-4" />} label="IP address" value={profileData.ipAddress} />
+            )}
+            {profileData.page && (
+              <ProfileRow
+                icon={<Globe className="h-4 w-4" />}
+                label="Page"
+                value={getPath(profileData.page)}
+                isLink
+              />
+            )}
           </section>
         )}
 

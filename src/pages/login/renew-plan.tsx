@@ -18,6 +18,7 @@ import PaymentScreen from '@/components/payment';
 import { CARDS_TYPE } from '@/constants/common-const';
 import Loader from '@/components/custom/loader';
 import { useBlocker, useNavigate } from 'react-router-dom';
+import { formatMoney } from '@/lib/billing-money';
 
 const RENEW_PLAN_PATH = '/renew-plan';
 
@@ -193,7 +194,7 @@ const RenewPlan = () => {
 
   if (isLoadingPlanDetails) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-mcm-ground dark:via-mcm-ground dark:to-primary/5 flex items-center justify-center">
+      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 flex items-center justify-center">
         <Loader variant="blue" />
       </div>
     );
@@ -201,7 +202,7 @@ const RenewPlan = () => {
 
   if (!hasSessionToken) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-mcm-ground dark:via-mcm-ground dark:to-primary/5 flex items-center justify-center">
+      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 flex items-center justify-center">
         <Loader variant="blue" />
       </div>
     );
@@ -209,9 +210,9 @@ const RenewPlan = () => {
 
   if (!userInfoData?.company_info) {
     return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-mcm-ground dark:via-mcm-ground dark:to-primary/5 flex items-center justify-center p-6">
+      <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 flex items-center justify-center p-6">
         <div className="text-center max-w-sm">
-          <p className="text-gray-600 dark:text-mcm-ink-2 font-medium">
+          <p className="text-gray-600 font-medium">
             Unable to load plan details. Please try logging in again.
           </p>
           <Button
@@ -232,23 +233,23 @@ const RenewPlan = () => {
   const planName = userInfoData?.plan_info?.dataValues?.plan_name || 'Plan';
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-mcm-ground dark:via-mcm-ground dark:to-primary/5 flex items-center justify-center p-6">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
         {/* Page title */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-mcm-ink tracking-tight">Plan renewal</h1>
-          <p className="text-gray-500 dark:text-mcm-ink-3 mt-1 text-sm">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Plan renewal</h1>
+          <p className="text-gray-500 mt-1 text-sm">
             Review your plan and renew to continue using the service
           </p>
         </div>
 
-        <div className="bg-white dark:bg-mcm-surface rounded-2xl shadow-lg shadow-gray-200/80 dark:shadow-black/40 border border-gray-100 dark:border-mcm-line overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/80 border border-gray-100 overflow-hidden">
           {/* Current Plan */}
-          <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-mcm-line">
+          <div className="p-6 sm:p-8 border-b border-gray-100">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-mcm-ink-3">
+                  <span className="text-xs font-medium uppercase tracking-wider text-gray-400">
                     Current plan
                   </span>
                   <span
@@ -257,7 +258,7 @@ const RenewPlan = () => {
                     {RequestedPlanStatusMap[userInfoData?.company_info?.plan_status]?.label || 'NA'}
                   </span>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-mcm-ink mt-2">
+                <h2 className="text-xl font-bold text-gray-900 mt-2">
                   {planName}
                   {userInfoData?.company_info?.is_trial === 'Y' && (
                     <span className="text-primary font-semibold ml-1.5">(Trial)</span>
@@ -299,8 +300,8 @@ const RenewPlan = () => {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl bg-gray-50/80 dark:bg-mcm-surface-3 border border-gray-100 dark:border-mcm-line p-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-mcm-ink-2">
+            <div className="mt-5 rounded-xl bg-gray-50/80 border border-gray-100 p-4">
+              <p className="text-sm font-medium text-gray-600">
                 Last billing for{' '}
                 {userInfoData?.company_info?.is_trial === 'Y'
                   ? 1
@@ -308,26 +309,30 @@ const RenewPlan = () => {
                 {userInfoData?.company_info?.is_trial === 'Y' ? 'license' : 'licenses'}
               </p>
 
-              <p className="text-gray-900 dark:text-mcm-ink font-semibold mt-2">
+              <p className="text-gray-900 font-semibold mt-2">
                 {dataGetMyPlanDetails?.last_billing?.created_at
                   ? moment(dataGetMyPlanDetails.last_billing.created_at).format('DD MMM, YYYY')
                   : 'NA'}{' '}
-                · $
-                {userInfoData?.company_info?.is_trial === 'Y' &&
-                !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
-                  ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
-                  : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0}{' '}
+                ·{' '}
+                {formatMoney(
+                  userInfoData?.company_info?.is_trial === 'Y' &&
+                    !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
+                    ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
+                    : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0,
+                )}{' '}
                 ×{' '}
                 {userInfoData?.company_info?.is_trial === 'Y' &&
                 !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
                   ? 1
                   : dataGetMyPlanDetails?.last_billing?.total_license}{' '}
-                = $
-                {userInfoData?.company_info?.is_trial === 'Y' &&
-                !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
-                  ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
-                  : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total}{' '}
-                <span className="text-gray-500 dark:text-mcm-ink-3 font-normal text-sm">(excl. tax)</span>
+                ={' '}
+                {formatMoney(
+                  userInfoData?.company_info?.is_trial === 'Y' &&
+                    !dataGetMyPlanDetails?.last_billing?.purchase_detail?.discount_enabled
+                    ? dataGetMyPlanDetails?.last_billing?.purchase_detail?.original_price || 0
+                    : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total,
+                )}{' '}
+                <span className="text-gray-500 font-normal text-sm">(excl. tax)</span>
               </p>
 
               {/* <p className="text-gray-900 font-semibold mt-2">
@@ -356,7 +361,7 @@ const RenewPlan = () => {
       {isPaymentInitiate && (
         <Dialog open={isPaymentInitiate} onOpenChange={setIsPaymentInitiate}>
           <DialogContent
-            className="w-full md:w-2/5 p-3 max-h-[99%] overflow-y-auto bg-white dark:bg-mcm-surface"
+            className="w-full md:w-2/5 p-3 max-h-[99%] overflow-y-auto bg-white"
             onEscapeKeyDown={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
             showCloseButton={false}
@@ -366,7 +371,7 @@ const RenewPlan = () => {
                 {userInfoData?.company_info?.is_trial === 'Y' ? 'Upgrade' : 'Renew'} Plan
                 <div
                   onClick={() => setIsPaymentInitiate(false)}
-                  className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background opacity-70 hover:opacity-100"
+                  className="cursor-pointer text-gray-500 ring-offset-background opacity-70 hover:opacity-100"
                 >
                   <CloseIcon className="w-3 h-3" />
                 </div>
@@ -386,7 +391,7 @@ const RenewPlan = () => {
                   setIsRenewPaymentInitiate(false);
                 }}
                 isApiLoad={isRenewPaymentInitiate || isPendingUpgradeTrialPlan}
-                submitButtonText={`Pay $${getTaxes?.total_amount || 0}`}
+                submitButtonText={`Pay ${formatMoney(getTaxes?.total_amount || 0)}`}
               />
             </div>
           </DialogContent>

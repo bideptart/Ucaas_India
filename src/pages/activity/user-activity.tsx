@@ -5,6 +5,7 @@ import moment from 'moment';
 import ActivityArea from '../activity/activity-area';
 import { Button } from '@/components/ui/button';
 import ReactDatePicker from 'react-datepicker';
+import { Clock3 } from 'lucide-react';
 import {
   ActivityAreaProps,
   activityTypes,
@@ -26,7 +27,7 @@ const UserActivity = () => {
   const { id } = useParams();
   const { userActivity, activityLoader } = useSocketEvents();
   const { user } = useUser();
-  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'America/Denver';
+  const timezone = user?.settings?.operational_hours?.regional?.timezone?.value || 'Asia/Kolkata';
   function getDate(date = new Date()) {
     return new Date(new Date(date)?.toLocaleString('en-US', { timeZone: timezone }));
   }
@@ -93,8 +94,13 @@ const UserActivity = () => {
   return (
     <section className="mcm-page mcm-admin">
       <div className="w-full h-full overflow-x-auto overflow-y-hidden">
-        <div className="flex-col sm:flex-row flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">Activity</p>
+        <div className="flex-col sm:flex-row flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-2">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-ucass-primary-200 text-primary">
+              <Clock3 className="w-4 h-4" />
+            </span>
+            Activity
+          </p>
           <div className="sm:flex sm:items-center gap-2 filters xs:grid xs:grid-cols-2 ">
             <div className="flex gap-1">
               <DateDropdown
@@ -126,16 +132,16 @@ const UserActivity = () => {
             <div className="flex gap-2">
               <Button
                 className="min-h-9 min-w-20"
-                variant={'outline'}
+                variant={'primary'}
                 type="button"
                 onClick={handleApply}
                 disabled={activityLoader}
               >
-                {activityLoader ? <Loader variant="blue" /> : 'Submit'}
+                {activityLoader ? <Loader variant="white" /> : 'Submit'}
               </Button>
               <Button
                 className="min-h-9"
-                variant={'outline'}
+                variant={'secondary'}
                 type="button"
                 onClick={() => naviagte(-1)}
               >
@@ -145,7 +151,7 @@ const UserActivity = () => {
           </div>
         </div>
 
-        <div className="sm:p-4 xs:p-0 overflow-auto max-h-[calc(100vh-130px)] pb-0">
+        <div className="sm:p-4 xs:p-0 overflow-auto max-h-[calc(100vh-130px)] pb-0 bg-gray-50/40">
           {activityLoader ? (
             <div className="flex justify-center">
               <Loader variant="blue" size="sm" />
@@ -209,7 +215,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           timeIntervals={60}
           timeCaption="Time"
           dateFormat="h:mm aa"
-          className="w-full px-2 py-2 min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2 min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
       <span className="">-</span>
@@ -224,7 +230,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           dateFormat="h:mm aa"
           minTime={startTime}
           maxTime={maxTime}
-          className="w-full px-2 py-2  min-h-10 border border-gray-200 dark:border-mcm-line rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
+          className="w-full px-2 py-2  min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
     </div>

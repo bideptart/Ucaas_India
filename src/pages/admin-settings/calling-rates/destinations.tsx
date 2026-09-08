@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { AdminPage } from '@/pages/admin-settings/page-shell';
 import { callingRatesList } from '@/services/api';
 import countryList from '@/lib/countries.json';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import {
   buildDestinations,
   markFailed,
@@ -39,7 +40,9 @@ import {
 const BATCH = 8;
 
 const price = (value?: number): string =>
-  value === undefined ? '—' : `$${value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
+  value === undefined
+    ? '—'
+    : `₹${(value * USD_TO_INR_RATE).toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
 
 const STATE_TEXT: Record<Destination['state'], string> = {
   unknown: 'Not loaded',

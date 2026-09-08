@@ -1,0 +1,398 @@
+/* ============================================================
+   Reports ▸ Analytics ▸ Call Analytics.
+
+   The screen was built on generic tokens — a pure-black service dial, a
+   bare Recharts line chart with no grid, legend or styled tooltip, and
+   tiles whose icon/"Max:" chip sat at whatever size the utilities gave
+   them. This brings it onto the same warm system every other report in
+   this section now uses (`#fffdfb` cards, `rgba(225,200,165,0.9)`
+   borders, `#f2994a` accent, `#8a6f57` muted text), and gives the chart
+   the framing a chart actually needs to be read.
+
+   Scoped to `.ca-report`, this page's own root.
+   ============================================================ */
+
+.ca-report {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+/* ------------------------------------------------------------
+   Shared card shell
+   ------------------------------------------------------------ */
+.ca-card {
+  background: #fffdfb;
+  border: 1px solid rgba(225, 200, 165, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(20, 20, 20, 0.05);
+  /* Cards arrive in the order they're read (dial → tiles → chart) rather
+     than all at once, via the per-card delays below. `backwards` so each
+     one holds its pre-animation state during its own delay instead of
+     flashing in at full opacity first. */
+  animation: ca-rise 0.42s cubic-bezier(0.22, 0.68, 0.32, 1) backwards;
+}
+@keyframes ca-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ca-dial {
+  animation-delay: 0.02s;
+}
+.ca-tiles .ca-tile:nth-child(1) {
+  animation-delay: 0.07s;
+}
+.ca-tiles .ca-tile:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.ca-tiles .ca-tile:nth-child(3) {
+  animation-delay: 0.17s;
+}
+.ca-tiles .ca-tile:nth-child(4) {
+  animation-delay: 0.22s;
+}
+.ca-chart {
+  animation-delay: 0.27s;
+}
+
+.ca-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a6f57;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------
+   Layout — dial on the left, the four metric tiles beside it
+   ------------------------------------------------------------ */
+.ca-top {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 2.4fr);
+  gap: 12px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .ca-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ca-dial {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+}
+.ca-dial-chart {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* The number and its caption sit in the dial's own opening rather than
+   floating over the arc — the old absolute percentage was positioned by
+   eye (`top:55%; left:52%`) and drifted off-centre as the card resized. */
+.ca-dial-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  pointer-events: none;
+}
+.ca-dial-number {
+  color: #2e2d35;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ca-dial-caption {
+  color: #8a6f57;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ca-dial-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(225, 200, 165, 0.6);
+  color: #2e2d35;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------
+   Metric tiles
+   ------------------------------------------------------------ */
+.ca-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .ca-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ca-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(0.22, 0.68, 0.32, 1);
+}
+.ca-tile:hover {
+  border-color: rgba(242, 153, 74, 0.55);
+  box-shadow: 0 8px 20px -8px rgba(201, 111, 31, 0.3);
+  transform: translateY(-2px);
+}
+.ca-tile-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ca-tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 10px;
+  background: #fff1e0;
+  color: #c96f1f;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s cubic-bezier(0.22, 0.68, 0.32, 1);
+}
+.ca-tile:hover .ca-tile-icon {
+  background: #f2994a;
+  color: #fff;
+  transform: scale(1.06);
+}
+.ca-tile-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.ca-tile-max {
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+.ca-tile:hover .ca-tile-max {
+  background: #fff1e0;
+  border-color: rgba(242, 153, 74, 0.5);
+}
+.ca-tile-label {
+  color: #8a6f57;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ca-tile-value {
+  color: #2e2d35;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ca-tile-max {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: none;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #fdf3e7;
+  border: 1px solid rgba(225, 200, 165, 0.7);
+  color: #6b5033;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.ca-tile-max b {
+  color: #8a6f57;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------
+   Trend chart
+   ------------------------------------------------------------ */
+.ca-chart {
+  padding: 14px;
+}
+.ca-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.ca-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ca-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b5033;
+  font-size: 11.5px;
+  font-weight: 600;
+  transition:
+    color 0.16s ease,
+    opacity 0.16s ease;
+}
+/* Hovering one key dims the other two, so the eye can pick a single
+   series out of three overlapping lines without the chart needing a
+   click-to-isolate interaction it doesn't have. */
+.ca-legend:hover .ca-legend-item {
+  opacity: 0.45;
+}
+.ca-legend:hover .ca-legend-item:hover {
+  opacity: 1;
+  color: #2e2d35;
+}
+.ca-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex: none;
+  transition: transform 0.16s cubic-bezier(0.22, 0.68, 0.32, 1);
+}
+.ca-legend-item:hover .ca-legend-dot {
+  transform: scale(1.35);
+}
+.ca-chart-body {
+  width: 100%;
+}
+/* Recharts renders its axes as SVG text, which the page's own font rules
+   never reach — set here so the chart's labels match the rest of the
+   card rather than falling back to the browser's default sans. */
+.ca-chart .recharts-cartesian-axis-tick text {
+  fill: #8a6f57;
+  font-size: 11px;
+  font-weight: 500;
+}
+.ca-chart .recharts-cartesian-grid line {
+  stroke: rgba(225, 200, 165, 0.55);
+}
+
+.ca-tooltip {
+  border-radius: 10px;
+  border: 1px solid rgba(225, 200, 165, 0.9);
+  background: #fffdfb;
+  box-shadow: 0 8px 24px -8px rgba(160, 95, 30, 0.28);
+  padding: 8px 10px;
+}
+.ca-tooltip-label {
+  color: #2e2d35;
+  font-size: 11.5px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.ca-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b5033;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.ca-tooltip-row b {
+  margin-left: auto;
+  color: #2e2d35;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nothing in range — a chart drawn over an empty array is just an empty
+   grid, which reads as broken rather than as "no calls in this range". */
+.ca-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  color: #a8907a;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* The dial and chart cards lift on hover the same way the tiles do, so
+   every card on the page answers the pointer rather than only four of
+   them. Kept softer than the tiles' — these are big surfaces, and the
+   same 2px lift on a full-width card reads as the page twitching. */
+.ca-dial,
+.ca-chart {
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.ca-dial:hover,
+.ca-chart:hover {
+  border-color: rgba(242, 153, 74, 0.45);
+  box-shadow: 0 6px 18px -10px rgba(201, 111, 31, 0.28);
+}
+
+/* Recharts' own dots don't transition on their own — this gives the
+   hovered point a soft halo instead of it just jumping a few pixels
+   wider. */
+.ca-chart .recharts-active-dot circle {
+  filter: drop-shadow(0 0 4px rgba(242, 153, 74, 0.55));
+}
+
+/* Everything above is decoration; the numbers are the content. Motion is
+   dropped wholesale for anyone who asked for less of it — matching how
+   the rest of Performance (queues-theme.css, live-theme.css) and the
+   `useAnimatedNumber` hook already treat their own animations. */
+@media (prefers-reduced-motion: reduce) {
+  .ca-card,
+  .ca-dial,
+  .ca-tiles .ca-tile {
+    animation: none;
+  }
+  .ca-tile,
+  .ca-tile-icon,
+  .ca-tile-max,
+  .ca-legend-item,
+  .ca-legend-dot,
+  .ca-dial,
+  .ca-chart {
+    transition: none;
+  }
+  .ca-tile:hover {
+    transform: none;
+  }
+  .ca-tile:hover .ca-tile-icon,
+  .ca-legend-item:hover .ca-legend-dot {
+    transform: none;
+  }
+}

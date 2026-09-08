@@ -1,5 +1,6 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { PERF_QUERY_KEYS } from '@/hooks/use-live-contact-centre';
 import { Calendar, ChevronDown, Download, Info, LayoutGrid, Lock } from 'lucide-react';
 import { useContext, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -37,15 +38,62 @@ const LINKED_REPORTS: { group: string; reports: LinkedReport[] }[] = [
     reports: [
       {
         title: 'Call History',
-        Component: lazy(() => import('@/pages/reports/call-logs/call-history')),
+        // `CallHistory` defaults `splitStickyHeader` to false (it's also
+        // used embedded in a Home dashboard drawer, which keeps the old
+        // header) — this modal wants the same Directory-matching header
+        // every other report link here already gets, so it's pinned on
+        // via a thin wrapper rather than changing the shared default.
+        // `detailsAsModal` is what makes a "To" queue/IVR link (Billing,
+        // Onboarding, Callback Offer, ...) open in CallHistory's own
+        // centered Dialog instead of a `<SideDrawer isTab>` — without it,
+        // that click opened the drawer UNDERNEATH this already-open
+        // Dialog (both portal to document.body, and the drawer's own
+        // z-index sits below a Radix Dialog's), so it was technically
+        // "open" but invisible. interactions-tab.tsx (Performance ▸
+        // Calls) already passes this for the exact same reason.
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/call-history').then((mod) => ({
+            default: () => (
+              <mod.default splitStickyHeader tableMaxHeight="55vh" detailsAsModal />
+            ),
+          })),
+        ),
       },
       {
+        // Local Call List/Inbound/Outbound/Voicemail didn't have a
+        // `detailsAsModal` escape hatch at all until now — same fix as
+        // Call History above, just newly added rather than already there.
         title: 'Local Call List',
-        Component: lazy(() => import('@/pages/reports/call-logs/local-call-list')),
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/local-call-list').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
       },
-      { title: 'Inbound', Component: lazy(() => import('@/pages/reports/call-logs/inbound')) },
-      { title: 'Outbound', Component: lazy(() => import('@/pages/reports/call-logs/outbound')) },
-      { title: 'Voicemail', Component: lazy(() => import('@/pages/reports/call-logs/voicemail')) },
+      {
+        title: 'Inbound',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/inbound').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
+      {
+        title: 'Outbound',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/outbound').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
+      {
+        title: 'Voicemail',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/voicemail').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
       { title: 'SMS Log', Component: lazy(() => import('@/pages/reports/sms-logs')) },
     ],
   },
@@ -72,13 +120,90 @@ const toCsvValue = (value: unknown) => {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
-const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: string } }) => {
+// Columns are dynamic per report (each builder defines its own `head`), so
+// alignment can't be a fixed per-index rule beyond column 0 — it's keyed by
+// the heading text every builder in `reports/builders.ts` actually uses.
+// Durations/timers/currency read right like any other magnitude column;
+// counts and percentages stay centered under their header; a handful of
+// later columns are still identity/text (a queue name, a status, a date)
+// rather than a number, so they're called out to stay left with column 0.
+const RIGHT_ALIGN_HEADINGS = new Set([
+  'ASA',
+  'AHT',
+  'Total talk',
+  'Avg wait',
+  'Longest wait',
+  'Time on calls',
+  'Total charge',
+  'Avg charge',
+  'Cost',
+  'Avg handle time',
+  'On call',
+  'Available (est.)',
+  'Avg time in call',
+]);
+const LEFT_ALIGN_HEADINGS = new Set([
+  'Queue',
+  'Routed to',
+  'Dial method',
+  'Status',
+  'Source',
+  'Created',
+  'Contact',
+  'Last call',
+  'Outcome',
+]);
+const alignForColumn = (heading: string, index: number): 'left' | 'center' | 'right' => {
+  if (index === 0 || LEFT_ALIGN_HEADINGS.has(heading)) return 'left';
+  if (RIGHT_ALIGN_HEADINGS.has(heading)) return 'right';
+  return 'center';
+};
+
+const ReportsTab = ({
+  selectedRange,
+  dropdownVal,
+  setDropdownVal,
+}: {
+  selectedRange: { from: string; to: string };
+  // Performance's own Today/Division/Media picker state — threaded through
+  // (not just its resolved `selectedRange`) so Call Volume can render the
+  // actual control beside its own "Performance" heading, two-way bound to
+  // the same state the toolbar above this dialog already shows, rather
+  // than a second independent picker.
+  dropdownVal?: any;
+  setDropdownVal?: any;
+}) => {
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedId, setSelectedId] = useState('queue-summary');
   const [openReport, setOpenReport] = useState<LinkedReport | null>(null);
   // The dropdown is the primary picker; the full catalog opens on demand,
   // matching the console.
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  // The catalog's 24 cards push the report table well down the page, so
+  // closing the catalog should bring the table back into view — but only
+  // when the catalog was actually open to begin with (picking a report from
+  // the dropdown while the catalog is already closed shouldn't jump the
+  // page at all, nothing about the layout changed). The scroll itself has
+  // to wait a frame: calling it in the same tick as `setIsCatalogOpen(false)`
+  // measures the table's position while the catalog's 24 cards are still in
+  // the DOM (React hasn't re-rendered yet), so it targets where the table
+  // *used to* sit rather than where the now-shorter page puts it.
+  const tableSectionRef = useRef<HTMLDivElement | null>(null);
+  const selectReport = (id: string) => {
+    setSelectedId(id);
+    setIsCatalogOpen((wasOpen) => {
+      if (wasOpen) {
+        // Two frames, not one: the first only guarantees this callback runs
+        // before the next paint, not that React's own commit has landed yet.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            tableSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+      }
+      return false;
+    });
+  };
 
   const selected = findReport(selectedId);
   const callStats = useCallStats(selectedRange);
@@ -99,14 +224,22 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
 
   // Agent and campaign figures only load for the reports that actually need
   // them, so switching between queue reports doesn't fire extra requests.
-  const needsAgents = selectedId === 'agent-summary';
+  const needsAgents = [
+    'agent-summary',
+    'agent-status-summary',
+    'evaluation-summary',
+    'adherence-summary',
+  ].includes(selectedId);
   const needsCampaigns = selectedId === 'campaign-performance';
   const needsAi = selectedId === 'sentiment-topics';
   const needsSms = selectedId === 'media-type';
   const needsLists = selectedId === 'contact-list-status';
 
   const { data: agentStatsRows = [], isPending: isAgentPending } = useQuery({
-    queryKey: ['performanceReportAgentSummary', selectedRange],
+    /* The same request the page hook makes, so it shares that cache entry
+       instead of fetching the identical 200-row report a second time under a
+       key of its own. */
+    queryKey: [PERF_QUERY_KEYS.agentReport, selectedRange],
     queryFn: () =>
       callReportAgentList({
         page: 1,
@@ -216,7 +349,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
-        padding: '16px 22px 96px',
+        padding: '16px 22px 24px',
       }}
     >
       {/* ---- headline totals for the range ---- */}
@@ -280,7 +413,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         data-selected={isSelected ? '' : undefined}
                         onSelect={() => {
                           if (!isAvailable) return;
-                          setSelectedId(definition.id);
+                          selectReport(definition.id);
                         }}
                         className="rp-report-menu-item"
                       >
@@ -357,8 +490,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                         title={definition.unavailableReason}
                         onClick={() => {
                           if (!isAvailable) return;
-                          setSelectedId(definition.id);
-                          setIsCatalogOpen(false);
+                          selectReport(definition.id);
                         }}
                         className={`rp-catalog-card${isSelected ? ' is-selected' : ''}${
                           !isAvailable ? ' is-locked' : ''
@@ -382,7 +514,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
       )}
 
       {/* ---- selected report ---- */}
-      <div className="panel-card">
+      <div className="panel-card" ref={tableSectionRef}>
         <div className="pc-head">
           <h3>{selected?.title}</h3>
           <span className="pc-right" style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
@@ -391,30 +523,36 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
           </span>
         </div>
         <div className="pc-body tight">
-          {report?.note && (
-            <div
-              className="rp-notice"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 7,
-                margin: '10px 0',
-                padding: '9px 12px',
-                borderRadius: 'var(--r)',
-                fontSize: 11.5,
-                lineHeight: 1.5,
-              }}
-            >
-              <Info style={{ width: 14, height: 14, flex: 'none', marginTop: 1 }} />
-              <span>{report.note}</span>
-            </div>
-          )}
-          {callStats.isQueueBreakdownSampled && report && (
-            <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--ink-4)' }}>
-              Counted from the most recent {callStats.sampledRowCount} of {callStats.totalCount}{' '}
-              calls in this range.
-            </p>
-          )}
+          {(() => {
+            // One pill, one line: the SL% caption and the "sampled data"
+            // caveat used to be two different treatments stacked on top of
+            // each other (a styled pill plus a bare unstyled <p>) — joined
+            // into a single string here so there's only ever the one slim
+            // `.rp-notice` pill, with overflow ellipsis if it runs long.
+            const noticeParts = [
+              report?.note,
+              callStats.isQueueBreakdownSampled && report
+                ? `Counted from the most recent ${callStats.sampledRowCount} of ${callStats.totalCount} calls in this range.`
+                : null,
+            ].filter(Boolean);
+            if (!noticeParts.length) return null;
+            return (
+              <div
+                className="rp-notice"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  margin: '0 0 10px',
+                  padding: '0 12px',
+                  borderRadius: 999,
+                }}
+              >
+                <Info style={{ width: 14, height: 14, flex: 'none' }} />
+                <span>{noticeParts.join(' · ')}</span>
+              </div>
+            );
+          })()}
 
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
@@ -431,19 +569,36 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                 }}
               >
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--line)' }}>
-                    {report?.head.map((heading) => (
+                  {/* No border here — each `th` already carries its own 3px
+                      accent border-bottom (reports-theme.css). Under this
+                      table's `border-collapse: collapse`, this tr's own 1px
+                      border competed with that 3px one at the same edge and
+                      anti-aliased it into a faint line instead of a crisp
+                      one (same root cause found and fixed on Performance ▸
+                      Queues/Agents/Calls/Flows/Callbacks/Speech/Live). */}
+                  <tr>
+                    {report?.head.map((heading, headingIndex) => (
                       <th
                         key={heading}
                         style={{
                           whiteSpace: 'nowrap',
-                          padding: '8px 12px',
-                          textAlign: 'left',
-                          fontSize: 10,
-                          fontWeight: 700,
+                          padding: '9px 12px',
+                          /* The first column is always the row's own name
+                             (queue, agent, campaign, ...); after that,
+                             counts/percentages center under their header,
+                             durations/timers/currency right-align like any
+                             other magnitude column, and a few later text
+                             columns (status, source, a date) stay left —
+                             see `alignForColumn` above. */
+                          textAlign: alignForColumn(heading, headingIndex),
+                          // Pixel-matched to Directory ▸ People's own
+                          // `.gp-people th` (people-glass.css) + the
+                          // `.mcm-page th` base it inherits from.
+                          fontSize: 9.5,
+                          fontWeight: 800,
                           letterSpacing: '.09em',
                           textTransform: 'uppercase',
-                          color: 'var(--rp-muted)',
+                          color: '#8a6f57',
                         }}
                       >
                         {heading}
@@ -461,9 +616,17 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                             className={cellIndex === 0 ? undefined : 'num'}
                             style={{
                               whiteSpace: 'nowrap',
-                              padding: '8px 12px',
-                              fontWeight: cellIndex === 0 ? 700 : 500,
-                              color: cellIndex === 0 ? 'var(--rp-ink)' : '#334155',
+                              /* 11px/12px, 400 and `#0d1526` are Directory ▸
+                                 People's own body-cell values (people-glass.
+                                 css), read off its computed styles — this
+                                 table already matched its header exactly and
+                                 only the rows were still diverging. `#334155`
+                                 was Tailwind's slate-700: a cool grey sitting
+                                 in an otherwise entirely warm palette. */
+                              padding: '11px 12px',
+                              textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
+                              fontWeight: cellIndex === 0 ? 700 : 400,
+                              color: cellIndex === 0 ? 'var(--rp-ink)' : '#0d1526',
                             }}
                           >
                             {cell}
@@ -493,7 +656,8 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           className={cellIndex === 0 ? undefined : 'num'}
                           style={{
                             whiteSpace: 'nowrap',
-                            padding: '8px 12px',
+                            padding: '11px 12px',
+                            textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
                           }}
                         >
                           {cell}
@@ -524,7 +688,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                   <button
                     type="button"
                     key={linked.title}
-                    className="btn ghost sm"
+                    className="btn ghost sm rp-linked-chip"
                     onClick={() => setOpenReport(linked)}
                   >
                     {linked.title}
@@ -537,12 +701,45 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
       </div>
 
       <Dialog open={Boolean(openReport)} onOpenChange={(open) => !open && setOpenReport(null)}>
-        <DialogContent className="flex h-[85vh] max-w-6xl flex-col overflow-hidden p-0">
-          <DialogHeader className="px-4 py-3" style={{ borderBottom: '1px solid var(--line)' }}>
-            <DialogTitle>{openReport?.title}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-auto">
-            {openReport && (
+        {/* `rp-report-dialog` (reports-theme.css) — Radix portals DialogContent
+            to document.body, outside `.perf-reports`'s own DOM subtree, so an
+            ancestor-based selector like `.perf-reports thead th` can never
+            reach the table inside it. A class on the dialog's own element
+            survives the portal (only its *position* in the DOM moves, not
+            its own className), so the theme is scoped to that instead. */}
+        {/* `max-w-6xl` (1152px) wasn't enough room for a table with this many
+            columns (Date/From/DID/To/Status/Duration/Wait Time/Charge/
+            Action) once each carries a country-flag + full phone number —
+            table-manager.tsx's own column-width measurement is correct (it
+            proportionally shares out whatever width it's given), so the
+            columns were genuinely being squeezed below their real content
+            need rather than just under-padded, reading as no gap between
+            them at all. More viewport width, not more column padding, is
+            the actual fix. */}
+        {/* `overflow-hidden` used to sit directly on `DialogContent` — the
+            same element Radix's focus trap treats as "inside" the dialog.
+            The date picker's calendar now portals into that same element
+            (getPopperContainer, date-dropdown/index.tsx) to stay inside
+            that trap rather than escaping to `document.body`, but an
+            `overflow-hidden` box clips an absolutely-positioned descendant
+            regardless of where in its subtree that descendant lives — so
+            the clipping moves one level down, onto a plain wrapper div
+            that isn't where the calendar portals to, while `DialogContent`
+            itself stays unclipped. */}
+        <DialogContent className="flex h-[85vh] max-w-[95vw] flex-col p-0 rp-report-dialog">
+          <div className="flex h-full flex-col overflow-hidden rounded-xl">
+            {/* No bottom border/extra padding here — `ReportsPageLayout`
+                immediately below (every report's own shared header, which
+                shows "Performance" for pages reached through this dialog)
+                already draws its own border-bottom right under this title,
+                so a second bordered, padded box back to back with it read
+                as a much bigger gap between "Call Volume" and "Performance"
+                than either title actually needed on its own. */}
+            <DialogHeader className="rp-report-dialog-head px-4 pt-4 pb-0">
+              <DialogTitle>{openReport?.title}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-auto">
+              {openReport && (
               <Suspense
                 fallback={
                   <div className="flex h-full items-center justify-center">
@@ -550,9 +747,24 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                   </div>
                 }
               >
-                <openReport.Component />
+                {/* Call Volume's own date picker (beside its "Performance"
+                    heading) is bound to this same `dropdownVal`/
+                    `setDropdownVal` state, not a local copy — picking a
+                    date there moves Performance's own toolbar above this
+                    dialog too, and vice versa, rather than drifting apart
+                    as two independent pickers would. */}
+                {openReport?.title === 'Call Volume' ? (
+                  <openReport.Component
+                    selectedRange={selectedRange}
+                    dropdownVal={dropdownVal}
+                    setDropdownVal={setDropdownVal}
+                  />
+                ) : (
+                  <openReport.Component />
+                )}
               </Suspense>
-            )}
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

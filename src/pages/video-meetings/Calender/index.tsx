@@ -4,6 +4,8 @@ import '@/components/custom/calendar-component/styles.css';
 import CustomTuiCalendar from '@/components/custom/calendar-component/CustomTuiCalendar.tsx';
 import { CalendarRef } from '@/components/custom/calendar-component/constants.ts';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog.js';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as ThemedCalendar } from '@/components/ui/calendar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +44,7 @@ import {
   Bell,
   CalendarClock,
   ChevronDown,
+  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Clipboard,
@@ -50,7 +53,6 @@ import {
   List,
   LayoutGrid,
   Pencil,
-  Tag,
   Trash2,
   X,
   Users,
@@ -60,6 +62,8 @@ import {
   Circle,
   Phone,
   Plus,
+  User,
+  Clock,
 } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
@@ -140,6 +144,75 @@ const clampScheduleToStartDay = (schedule: Schedule): Schedule => {
   return { ...schedule, end: start.clone().endOf('day').toDate() };
 };
 
+/* The Task Listing filter row's From/To fields used to be native
+   `<input type="date">` elements. Their little popup calendar comes
+   straight from the browser (Chromium always renders it blue, no CSS
+   selector reaches inside it — `::-webkit-calendar-picker-indicator`
+   only styles the small icon, not the popup), so it was the one date
+   picker on the page that couldn't be made to match the app's orange.
+   This swaps in the same themed `Calendar` (`--primary`, already
+   orange per `components/ui/calendar.tsx`) other date pickers in this
+   console use, inside a Popover anchored to the same From/To pill this
+   row already had — same layout, a calendar this app actually themes. */
+const TaskDateField = ({
+  id,
+  label,
+  value,
+  onChange,
+  min,
+  max,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  min?: string;
+  max?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const selectedDate = value ? moment(value, 'YYYY-MM-DD').toDate() : undefined;
+
+  return (
+    <div className="inline-flex items-center gap-2.5">
+      <label
+        className="text-[10px] font-bold uppercase tracking-widest text-slate-400"
+        htmlFor={id}
+      >
+        {label}
+      </label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            id={id}
+            type="button"
+            className="relative flex h-8 w-[95px] cursor-pointer items-center gap-1 bg-transparent text-xs font-semibold text-slate-700 outline-none"
+          >
+            <span className="truncate">{value || '--'}</span>
+            <CalendarClock className="h-4 w-4 shrink-0 text-[var(--primary)]" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <ThemedCalendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={(date) => {
+              onChange(date ? moment(date).format('YYYY-MM-DD') : '');
+              setOpen(false);
+            }}
+            disabled={(date) => {
+              const day = moment(date).startOf('day');
+              if (min && day.isBefore(moment(min, 'YYYY-MM-DD'))) return true;
+              if (max && day.isAfter(moment(max, 'YYYY-MM-DD'))) return true;
+              return false;
+            }}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
+
 const transformEventTaskToSchedule = (item: MeetingRawData): Schedule => {
   const { _id = '', name = '', category, assignTo = [] } = item;
 
@@ -186,11 +259,43 @@ const CalendarPage = () => {
   const [event, setEvent] = useState<ExtendedEvent | null>(null);
   console.log(event, detailsModal);
 
+  /* Closing this popup (the X button, clicking the backdrop, or Escape —
+     `onOpenChange` covers all three) never moves the mouse. The day cell
+     underneath was genuinely hovered when it was clicked to open this in
+     the first place, and a browser only re-checks `:hover` on an actual
+     pointer move, not because a dialog on top of it just unmounted — so
+     without this, that cell is left shaded exactly as if it were still
+     under the cursor, which is what read as an empty "ghost" bar still
+     sitting on the grid. See the matching comment on `resetStuckDayHover`
+     in CustomTuiCalendar.tsx for the other half of this (the same stale
+     hover can just as easily be left by opening the popup in the first
+     place, before it's even had a chance to close). Watches `modal`
+     (the create/edit Schedule Meeting form) too — same popup-over-the-
+     grid shape, same stuck-hover risk on close. */
+  useEffect(() => {
+    if (!detailsModal) {
+      childRef.current?.resetStuckHover?.();
+    }
+  }, [detailsModal]);
+
+  useEffect(() => {
+    if (!modal) {
+      childRef.current?.resetStuckHover?.();
+    }
+  }, [modal]);
+
   const [mainView, setMainView] = useState<'calendar' | 'task-list'>('calendar');
   const [taskViewMode, setTaskViewMode] = useState<'list' | 'grid'>('list');
   const childRef = useRef<CalendarRef | null>(null);
   const lastCreateTriggerAtRef = useRef<number>(0);
   const suppressNextCreationRef = useRef(false);
+  // "Today Events" defaults to a short, capped list so the mini calendar
+  // above it is never pushed off-screen. Expanding it removes that cap and
+  // scrolls the panel so the full list is what's actually in view, rather
+  // than just growing silently below the fold.
+  const [isTodayEventsExpanded, setIsTodayEventsExpanded] = useState(false);
+  const calendarAsideRef = useRef<HTMLElement | null>(null);
+  const todayEventsHeaderRef = useRef<HTMLDivElement | null>(null);
   const [category, setCategory] = useState<string>('ALL');
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null);
   const queryClient: any = useQueryClient();
@@ -658,6 +763,31 @@ const CalendarPage = () => {
     detailsRaw?.endTime || detailsRaw?.endUtc,
     loggedInUserTimezone,
   );
+  /* Two pills — date, then time — instead of one long
+     "YYYY/MM/DD HH:mm (timezone) (Your time: ...)" line. Nothing from that
+     longer string is dropped: the parts beyond the primary date/time just
+     move to a caption line under the pills, so a multi-timezone event
+     still reads its offsets, just not crammed into the same two badges. */
+  const detailsPrimaryMoment = detailsStartDate
+    ? moment(detailsStartDate)
+    : getLocalScheduleMoment(detailsModal, 'start');
+  const detailsDatePill = detailsPrimaryMoment?.isValid()
+    ? detailsPrimaryMoment.format('MMM DD, YYYY')
+    : '-';
+  const detailsTimePill = detailsPrimaryMoment?.isValid()
+    ? detailsPrimaryMoment.format('HH:mm')
+    : '-';
+  const detailsExtraLine = [
+    isEvent && detailsEndDate ? `Ends ${moment(detailsEndDate).format('MMM DD, YYYY HH:mm')}` : '',
+    detailsTimezone ? `(${detailsTimezone})` : '',
+    detailsStartInUserTimezone
+      ? `Your time: ${detailsStartInUserTimezone}${
+          isEvent && detailsEndInUserTimezone ? ` - ${detailsEndInUserTimezone}` : ''
+        } ${loggedInUserTimezone}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
   const validAttendees = Array.isArray(detailsModal?.attendees)
     ? detailsModal?.attendees?.filter(
         (email: string): email is string => typeof email === 'string' && email.trim() !== '',
@@ -834,8 +964,8 @@ const CalendarPage = () => {
                     const name = member.name || member.email || 'Unknown';
                     return (
                       <CustomTooltip key={i} text={name} side="top">
-                        <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 dark:bg-mcm-surface-3 cursor-pointer shadow-sm">
-                          <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2 text-[10px] font-bold uppercase">
+                        <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 cursor-pointer shadow-sm">
+                          <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-slate-600 text-[10px] font-bold uppercase">
                             {getInitials(name)}
                           </div>
                         </div>
@@ -843,8 +973,8 @@ const CalendarPage = () => {
                     );
                   })}
                   {assignTo.length > 4 && (
-                    <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 dark:bg-mcm-surface-3 shadow-sm">
-                      <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 dark:border-mcm-line bg-slate-200 dark:bg-mcm-surface-3 text-slate-700 dark:text-mcm-ink-2 text-[10px] font-bold">
+                    <div className="w-8 h-8 flex items-center justify-center border border-white rounded-full bg-slate-100 shadow-sm">
+                      <div className="w-full h-full flex items-center justify-center rounded-full border border-slate-300 bg-slate-200 text-slate-700 text-[10px] font-bold">
                         +{assignTo.length - 4}
                       </div>
                     </div>
@@ -899,7 +1029,7 @@ const CalendarPage = () => {
       //   header: 'Make Call',
       //   cell: ({ row }: any) => {
       //     const schedule = row.original;
-      //     if (schedule.mode !== 'CALL') return <span className="text-xs text-slate-400 dark:text-mcm-ink-3">--</span>;
+      //     if (schedule.mode !== 'CALL') return <span className="text-xs text-slate-400">--</span>;
       //     return (
       //       <button
       //         onClick={() => {
@@ -932,7 +1062,7 @@ const CalendarPage = () => {
             <div className="text-right" onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-mcm-surface-3 text-slate-500 dark:text-mcm-ink-3">
+                  <button className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100 text-slate-500">
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
@@ -1001,9 +1131,14 @@ const CalendarPage = () => {
                     </DropdownMenuItem>
                   )}
 
-                  <div className="h-px bg-slate-100 dark:bg-mcm-surface-3 my-1" />
                   {schedule?.createdById === userId ? (
                     <>
+                      {/* Only rendered together with the items it separates
+                          — a viewer who isn't this schedule's creator gets
+                          neither, and used to be left with a bare divider
+                          trailing after "Mark as Completed" with nothing
+                          below it. */}
+                      <div className="h-px bg-slate-100 my-1" />
                       {schedule?.status !== 'COMPLETED' ? (
                         <DropdownMenuItem
                           className=""
@@ -1048,9 +1183,26 @@ const CalendarPage = () => {
   );
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto overflow-x-hidden p-3 lg:overflow-hidden">
-      <div className="rounded-lg bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line overflow-visible lg:overflow-hidden">
+      <div className="rounded-lg bg-white border border-slate-200 overflow-visible lg:overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] min-h-[calc(100vh-88px)] overflow-visible lg:overflow-hidden">
-          <aside className="mcm-calpanel p-4">
+          {/* An explicit `h-[calc(100vh-88px)]` instead of `h-full`: the grid
+              row this sits in is auto-sized (no `grid-template-rows`), so
+              `h-full` had nothing definite to resolve against and the aside
+              never actually got a scroll boundary of its own — its overflow
+              fell through to whichever ancestor the browser found scrollable
+              instead, the whole page included. The aside itself never
+              scrolls (`overflow-hidden`, no visible scrollbar on this
+              panel); it's a flex column that hands its leftover height to
+              the events list below, which is the only thing that scrolls. */}
+          <aside
+            ref={calendarAsideRef}
+            className="mcm-calpanel flex h-[calc(100vh-88px)] flex-col overflow-hidden p-4"
+          >
+            {/* Expanding hides the mini calendar + Tasks button instead of
+                scrolling past them — that way the events list below can
+                claim the full panel height and still only ever scroll
+                itself, never the aside. */}
+            <div className={isTodayEventsExpanded ? 'hidden' : 'shrink-0'}>
             <div className="relative mb-3">
               {/* No prev/next arrows here. The main calendar's header already
                   steps through months, and two arrow pairs driving one date
@@ -1100,7 +1252,7 @@ const CalendarPage = () => {
               </div>
 
               {miniPickerOpen && (
-                <div className="absolute z-30 mt-2 w-full rounded-xl border border-mcm-line bg-white dark:bg-mcm-surface shadow-lg">
+                <div className="absolute z-30 mt-2 w-full rounded-xl border border-mcm-line bg-white shadow-lg">
                   {miniPickerMode === 'year' ? (
                     <div className="p-2">
                       <p className="px-1 pb-2 text-sm font-semibold text-mcm-ink-3  tracking-wide">
@@ -1243,16 +1395,48 @@ const CalendarPage = () => {
               <span>Tasks List View</span>
               <ArrowRight className="h-4 w-4" />
             </button>
-
-            <div className="mcm-cal-divider flex items-center justify-between mb-3 mt-4">
-              <p className="text-sm font-semibold text-mcm-ink">Today Events</p>
-              <span className="text-xs text-mcm-ink-3">{todayEventSchedules?.length || 0}</span>
             </div>
-            {/* `-mr-1` cancels the `pr-1`. The padding keeps the scrollbar
-                off the cards, but on its own it also pulled every card 4px
-                short of the "Tasks List View" button above, so the two
-                stacks had matching left edges and mismatched right ones. */}
-            <div className="space-y-2 max-h-[calc(100vh-474px)] overflow-y-auto pr-1 -mr-1">
+
+            {/* This block, not the aside, is what scrolls — `flex-1 min-h-0`
+                lets it claim whatever height the (possibly hidden) block
+                above leaves behind, and it's the only element in the panel
+                with `overflow-y-auto`, so the aside itself never shows a
+                scrollbar of its own. */}
+            <div className="mt-4 flex min-h-0 flex-1 flex-col">
+              <div
+                ref={todayEventsHeaderRef}
+                className="mcm-cal-divider flex shrink-0 items-center justify-between mb-3"
+              >
+                <p className="text-sm font-semibold text-mcm-ink">Today Events</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-mcm-ink-3">{todayEventSchedules?.length || 0}</span>
+                  {/* Collapsed, up-arrow: "there's more, expand to see it
+                      all" — hides the mini calendar above so this list can
+                      take the whole panel. Expanded, down-arrow: "collapse
+                      back". */}
+                  <button
+                    type="button"
+                    aria-label={isTodayEventsExpanded ? 'Collapse today events' : 'Expand today events'}
+                    aria-expanded={isTodayEventsExpanded}
+                    onClick={() => setIsTodayEventsExpanded((prev) => !prev)}
+                    className="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border border-mcm-line text-mcm-ink-3 transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                  >
+                    {isTodayEventsExpanded ? (
+                      <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronUp className="h-3 w-3" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              {/* `pe-2` gives the scrollbar its own real gutter instead of
+                  padding-then-cancelling it with a negative margin — the
+                  old `pr-1 -mr-1` pair left a card's right edge sitting
+                  exactly under the scrollbar the moment one appeared,
+                  reading as a clipped/misaligned corner rather than a
+                  rounded one. `space-y-3` (was `space-y-2`) gives
+                  consecutive cards clearer, unambiguous separation. */}
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pe-2">
               {todayEventSchedules?.map((schedule: Schedule) => {
                 const itemCategory = String(schedule?.raw?.category || '')?.toUpperCase();
                 /* The same three colours the grid, the mini calendar's dots
@@ -1271,7 +1455,7 @@ const CalendarPage = () => {
                     key={schedule.id}
                     type="button"
                     onClick={() => handleTodayTaskClick(schedule)}
-                    className="w-full cursor-pointer rounded-xl border border-mcm-line bg-white dark:bg-mcm-surface p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
+                    className="w-full cursor-pointer rounded-xl border border-mcm-line bg-white p-3.5 text-left hover:border-[var(--primary)] hover:shadow-md transition-all duration-200 group"
                   >
                     <div className="flex items-start gap-2.5">
                       <span
@@ -1301,6 +1485,7 @@ const CalendarPage = () => {
                   No events for today.
                 </div>
               )}
+              </div>
             </div>
           </aside>
 
@@ -1340,8 +1525,25 @@ const CalendarPage = () => {
               />
             </div>
 
-            <div className={mainView === 'task-list' ? 'block p-1 pt-0' : 'hidden p-3'}>
-              <div className="">
+            {/* `h-[calc(100vh-88px)]`, not `h-full`: this sits inside a grid
+                row that only has a `min-height`, not a fixed one, so its
+                actual rendered height is content-driven — the same reason
+                the aside beside it (`calendarAsideRef`) uses this identical
+                explicit calc instead of `h-full`. `h-full` here resolved
+                against that content-driven ancestor and came out taller
+                than the real on-screen budget, so the flex column still
+                overflowed its `overflow-hidden` ancestor by ~30-50px with
+                the filter open. The explicit calc gives this column the
+                same real, fixed budget as the aside, so `flex-1 min-h-0`
+                below has an accurate box to shrink into. */}
+            <div
+              className={
+                mainView === 'task-list'
+                  ? 'flex h-[calc(100vh-88px)] min-h-0 flex-col p-4 pt-0'
+                  : 'hidden p-3'
+              }
+            >
+              <div className="shrink-0">
                 <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between pb-1">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -1354,11 +1556,11 @@ const CalendarPage = () => {
                             return prev;
                           });
                         }}
-                        className="p-1.5 rounded-lg border border-slate-200 dark:border-mcm-line hover:bg-slate-50 dark:hover:bg-mcm-surface-3 transition cursor-pointer"
+                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition cursor-pointer"
                       >
-                        <ArrowLeft className="h-4 w-4 text-slate-600 dark:text-mcm-ink-2" />
+                        <ArrowLeft className="h-4 w-4 text-slate-600" />
                       </button>
-                      <h2 className="text-xl font-bold text-slate-900 dark:text-mcm-ink tracking-tight">
+                      <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                         Task Listing
                       </h2>
                     </div>
@@ -1380,12 +1582,12 @@ const CalendarPage = () => {
                       type="button"
                       variant="outline"
                       onClick={() => setShowFilter(!showFilter)}
-                      className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+                      className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                     >
                       <FilterIcon className="w-5 h-5" />
                     </Button>
 
-                    <div className="inline-flex h-11 items-center rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-1">
+                    <div className="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white p-1">
                       <button
                         type="button"
                         aria-label="List view"
@@ -1394,7 +1596,7 @@ const CalendarPage = () => {
                         className={`cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
                           taskViewMode === 'list'
                             ? 'bg-[var(--primary)] text-white'
-                            : 'text-slate-700 dark:text-mcm-ink-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3'
+                            : 'text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         <List className="h-4 w-4 shrink-0" />
@@ -1407,7 +1609,7 @@ const CalendarPage = () => {
                         className={`cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
                           taskViewMode === 'grid'
                             ? 'bg-[var(--primary)] text-white'
-                            : 'text-slate-700 dark:text-mcm-ink-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3'
+                            : 'text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         <LayoutGrid className="h-4 w-4 shrink-0" />
@@ -1418,133 +1620,59 @@ const CalendarPage = () => {
               </div>
 
               {/* {isTaskListLoading && (
-                <div className="rounded-xl border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface p-4 space-y-2">
-                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
-                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
-                  <div className="h-10 bg-slate-100 dark:bg-mcm-surface-3 rounded animate-pulse" />
+                <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
+                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
+                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
+                  <div className="h-10 bg-slate-100 rounded animate-pulse" />
                 </div>
               )} */}
               {/* {!isTaskListLoading && taskListSchedules?.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-300 dark:border-mcm-line bg-white dark:bg-mcm-surface p-10 text-center text-slate-500 dark:text-mcm-ink-3">
+                <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
                   No tasks found
                 </div>
               )} */}
               {showFilter ? (
-                <div className="flex flex-wrap items-center justify-end gap-3 pb-3">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Created On:</span>
-                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50/30 dark:bg-mcm-surface-3/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white dark:hover:bg-mcm-surface">
-                      <div className="inline-flex items-center gap-2.5">
-                        <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
-                          htmlFor="task-created-from-date"
-                        >
-                          From
-                        </label>
-                        <div
-                          className="relative flex items-center gap-1 cursor-pointer"
-                          onClick={(e) => {
-                            const input = e.currentTarget.querySelector('input');
-                            input?.showPicker?.();
-                          }}
-                        >
-                          <input
-                            id="task-created-from-date"
-                            type="date"
-                            value={from_created}
-                            max={to_created}
-                            onChange={(e) =>
-                              handleCreatedDateFilterChange('from_created', e.target.value)
-                            }
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
-                        </div>
-                      </div>
-                      <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-mcm-surface-3" />
-                      <div className="inline-flex items-center gap-2.5">
-                        <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
-                          htmlFor="task-created-to-date"
-                        >
-                          To
-                        </label>
-                        <div
-                          className="relative flex items-center gap-1 cursor-pointer"
-                          onClick={(e) => {
-                            const input = e.currentTarget.querySelector('input');
-                            input?.showPicker?.();
-                          }}
-                        >
-                          <input
-                            id="task-created-to-date"
-                            type="date"
-                            value={to_created}
-                            min={from_created}
-                            onChange={(e) =>
-                              handleCreatedDateFilterChange('to_created', e.target.value)
-                            }
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
-                        </div>
-                      </div>
+                    <span className="text-xs font-semibold text-slate-500">Created On:</span>
+                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white">
+                      <TaskDateField
+                        id="task-created-from-date"
+                        label="From"
+                        value={from_created}
+                        max={to_created}
+                        onChange={(value) =>
+                          handleCreatedDateFilterChange('from_created', value)
+                        }
+                      />
+                      <div className="hidden sm:block h-5 w-px bg-slate-200" />
+                      <TaskDateField
+                        id="task-created-to-date"
+                        label="To"
+                        value={to_created}
+                        min={from_created}
+                        onChange={(value) => handleCreatedDateFilterChange('to_created', value)}
+                      />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-mcm-ink-3">Schedule Date:</span>
-                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50/30 dark:bg-mcm-surface-3/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white dark:hover:bg-mcm-surface">
-                      <div className="inline-flex items-center gap-2.5">
-                        <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
-                          htmlFor="task-from-date"
-                        >
-                          From
-                        </label>
-                        <div
-                          className="relative flex items-center gap-1 cursor-pointer"
-                          onClick={(e) => {
-                            const input = e.currentTarget.querySelector('input');
-                            input?.showPicker?.();
-                          }}
-                        >
-                          <input
-                            id="task-from-date"
-                            type="date"
-                            value={taskListFrom}
-                            max={taskListTo}
-                            onChange={(e) => handleTaskListDateFilterChange('from', e.target.value)}
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
-                        </div>
-                      </div>
-                      <div className="hidden sm:block h-5 w-px bg-slate-200 dark:bg-mcm-surface-3" />
-                      <div className="inline-flex items-center gap-2.5">
-                        <label
-                          className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-mcm-ink-3"
-                          htmlFor="task-to-date"
-                        >
-                          To
-                        </label>
-                        <div
-                          className="relative flex items-center gap-1 cursor-pointer"
-                          onClick={(e) => {
-                            const input = e.currentTarget.querySelector('input');
-                            input?.showPicker?.();
-                          }}
-                        >
-                          <input
-                            id="task-to-date"
-                            type="date"
-                            value={taskListTo}
-                            min={taskListFrom}
-                            onChange={(e) => handleTaskListDateFilterChange('to', e.target.value)}
-                            className="h-8 w-[95px] bg-transparent text-xs font-semibold text-slate-700 dark:text-mcm-ink-2 outline-none transition-all cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          />
-                          <CalendarClock className="h-4 w-4 text-[var(--primary)] pointer-events-none" />
-                        </div>
-                      </div>
+                    <span className="text-xs font-semibold text-slate-500">Schedule Date:</span>
+                    <div className="sm:h-11 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/30 px-4 py-1.5 sm:py-0 transition-all hover:border-[var(--primary)]/30 hover:bg-white">
+                      <TaskDateField
+                        id="task-from-date"
+                        label="From"
+                        value={taskListFrom}
+                        max={taskListTo}
+                        onChange={(value) => handleTaskListDateFilterChange('from', value)}
+                      />
+                      <div className="hidden sm:block h-5 w-px bg-slate-200" />
+                      <TaskDateField
+                        id="task-to-date"
+                        label="To"
+                        value={taskListTo}
+                        min={taskListFrom}
+                        onChange={(value) => handleTaskListDateFilterChange('to', value)}
+                      />
                     </div>
                   </div>
 
@@ -1555,7 +1683,7 @@ const CalendarPage = () => {
                         setTaskListDateRange({ from: '', to: '' });
                         setCreatedDateRange({ from_created: '', to_created: '' });
                       }}
-                      className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 text-slate-600 dark:text-mcm-ink-2 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-slate-900 dark:hover:text-mcm-ink transition-all active:scale-95 cursor-pointer animate-fade-in"
+                      className="h-11 inline-flex items-center gap-1.5 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95 cursor-pointer animate-fade-in"
                     >
                       <X className="w-3.5 h-3.5" />
                       Reset
@@ -1564,11 +1692,40 @@ const CalendarPage = () => {
                 </div>
               ) : null}
 
-              <div className={taskViewMode === 'list' ? '' : 'hidden'}>
+              {/* `isHeightSet: false` turns off TableManager's own JS-measured
+                  height (`window.innerHeight - offsetTop`, recalculated only on
+                  resize/ResizeObserver) — that measurement went stale the moment
+                  the filter row above pushed this element down without
+                  resizing it, so the table kept its old, too-tall height and
+                  shoved the pagination footer off-screen. `flex-1 min-h-0` on
+                  this wrapper and on the table's own scroll box (`customClass`)
+                  hands the sizing to plain flexbox instead: this column already
+                  sits inside the `flex h-full flex-col` task-list container, so
+                  it always gets exactly the space left over after the header,
+                  filter row, and pagination footer take theirs — recalculated
+                  by the browser on every layout change, not just on resize. */}
+              {/* `overflow-hidden` + `rounded-xl` here, on top of the
+                  identical classes `.mcm-tasktable` already carries one
+                  level down: a native scrollbar isn't reliably clipped to
+                  its own element's border-radius, so with only one
+                  rounded+scrolling box the vertical scrollbar's track ran
+                  past the curve of the table's own bottom-right corner and
+                  looked like it cut through the border. Wrapping it in a
+                  second box that clips but never scrolls contains that
+                  render artifact at this outer edge instead, without
+                  changing anything about how the inner box scrolls. */}
+              <div
+                className={
+                  taskViewMode === 'list'
+                    ? 'mcm-tasktable-shell flex flex-1 min-h-0 flex-col overflow-hidden rounded-xl'
+                    : 'hidden'
+                }
+              >
                 <TableManager
                   {...{
                     columns,
-                    customClass: 'mcm-tasktable',
+                    customClass: 'mcm-tasktable flex-1 min-h-0',
+                    isHeightSet: false,
                     fetcherKey: 'calendarMeetingListTaskList',
                     fetcherFn: calendarMeetingList,
                     onSuccess: (data: any) => {
@@ -1596,7 +1753,7 @@ const CalendarPage = () => {
                       if (isNotCompleted) {
                         return 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/50 transition-colors';
                       }
-                      return 'hover:bg-slate-50 dark:hover:bg-mcm-surface-3/80 transition-colors';
+                      return 'hover:bg-slate-50/80 transition-colors';
                     },
                   }}
                 />
@@ -1614,10 +1771,10 @@ const CalendarPage = () => {
                           e.preventDefault();
                           setDetailsModal(transformEventTaskToSchedule(schedule));
                         }}
-                        className={`cursor-pointer rounded-xl border border-slate-200 dark:border-mcm-line  p-4 text-left hover:border-cyan-300 hover:shadow-sm transition ${schedule?.category === 'TASK' && schedule?.status?.toUpperCase() !== 'COMPLETED' ? 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/5' : ''}`}
+                        className={`cursor-pointer rounded-xl border border-slate-200  p-4 text-left hover:border-cyan-300 hover:shadow-sm transition ${schedule?.category === 'TASK' && schedule?.status?.toUpperCase() !== 'COMPLETED' ? 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/5' : ''}`}
                       >
                         <div className="mb-3 flex items-start justify-between gap-2">
-                          <h3 className="text-sm font-semibold text-slate-900 dark:text-mcm-ink line-clamp-2">
+                          <h3 className="text-sm font-semibold text-slate-900 line-clamp-2">
                             {schedule.name || ''}
                           </h3>
 
@@ -1680,7 +1837,7 @@ const CalendarPage = () => {
                                 {schedule.status === 'COMPLETED' ? (
                                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                                 ) : (
-                                  <Circle className="w-4 h-4 text-slate-400 dark:text-mcm-ink-3 hover:text-emerald-600 transition-colors shrink-0" />
+                                  <Circle className="w-4 h-4 text-slate-400 hover:text-emerald-600 transition-colors shrink-0" />
                                 )}
                               </div>
                             </CustomTooltip>
@@ -1719,9 +1876,9 @@ const CalendarPage = () => {
                             )}
                           </div>
                         </div>
-                        <div className="space-y-2 text-xs text-slate-600 dark:text-mcm-ink-2">
+                        <div className="space-y-2 text-xs text-slate-600">
                           <div>
-                            <span className="font-medium text-slate-800 dark:text-mcm-ink">Scheduled: </span>
+                            <span className="font-medium text-slate-800">Scheduled: </span>
                             {getLocalScheduleMoment(schedule, 'start')?.format(
                               'DD MMM YYYY hh:mm A',
                             ) || '-'}
@@ -1731,7 +1888,7 @@ const CalendarPage = () => {
                           </div>
 
                           <div>
-                            <span className="font-medium text-slate-800 dark:text-mcm-ink">Created: </span>
+                            <span className="font-medium text-slate-800">Created: </span>
                             {moment(schedule?.createdAt).format('DD MMM YYYY')}
                           </div>
                         </div>
@@ -1745,7 +1902,7 @@ const CalendarPage = () => {
                           >
                             {itemCategory}
                           </span>
-                          {/* <span className="text-[11px] font-medium text-slate-500 dark:text-mcm-ink-3">
+                          {/* <span className="text-[11px] font-medium text-slate-500">
                             Open details
                           </span> */}
                         </div>
@@ -1758,55 +1915,83 @@ const CalendarPage = () => {
           </section>
         </div>
 
-        {detailsModal && (
-          <div
-            className="fixed inset-0 z-[1200] bg-black/30 grid place-items-center p-4"
-            onClick={() => setDetailsModal(null)}
+        {/* Was a hand-rolled fixed-overlay div — its own backdrop, its own
+            border-radius/shadow, no focus trap or Escape-to-close. Every
+            other popup in this console (Assign Members, Regional
+            Settings, the confirm dialogs) sits in the shared `Dialog`
+            primitive instead, which is why this one alone read as a
+            different piece of UI. Same header/content/footer markup
+            below, just mounted through that shared primitive now. */}
+        {/* `!animate-none` on both pieces, scoped to just this Dialog via
+            `overlayClassName`/`className` (not touching the shared
+            primitive itself, which every other dialog in the app also
+            uses): Radix's own `Presence` keeps a piece mounted after
+            `open` goes false until it sees that piece's `animationend`
+            fire, so it can wait for the exit animation before actually
+            unmounting. Selecting a different event while a just-closed
+            one's exit animation was still running (any category —
+            nothing here is type-specific) interrupts that animation
+            without ever firing `animationend`, and Presence has no
+            timeout: it waits forever, leaving the backdrop mounted,
+            full-screen, and still catching clicks — which is what read
+            as an empty floating container stuck over the grid. With no
+            animation on the piece at all, Presence has nothing to wait
+            for and unmounts immediately on close, regardless of how
+            quickly the next event gets opened after. */}
+        <Dialog open={!!detailsModal} onOpenChange={(open) => !open && setDetailsModal(null)}>
+          <DialogContent
+            className="w-full max-w-sm space-y-3 p-4 !animate-none"
+            overlayClassName="!animate-none"
+            showCloseButton={false}
           >
-            <div
-              className="w-full max-w-2xl rounded-2xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-2xl overflow-hidden p-4 space-y-3"
-              // className="w-full max-w-md rounded-xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-xl p-4 space-y-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h4 className="text-base font-semibold text-slate-900 dark:text-mcm-ink">
-                  {detailsModal?.title || detailsModal?.name}
-                </h4>
+            {detailsModal && (
+              <>
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="flex min-w-0 items-start gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100">
+                    <User className="h-4 w-4 text-slate-500" />
+                  </div>
+                  <DialogTitle className="pt-1 text-sm leading-snug font-semibold text-slate-900">
+                    {detailsModal?.title || detailsModal?.name}
+                  </DialogTitle>
+                </div>
                 <button
                   type="button"
                   onClick={() => setDetailsModal(null)}
-                  className="cursor-pointer rounded-md p-1 hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
+                  className="cursor-pointer shrink-0 rounded-md p-1 hover:bg-slate-100"
                   aria-label="Close details popup"
                 >
-                  <X className="w-4 h-4 text-slate-600 dark:text-mcm-ink-2 shrink-0" />
+                  <X className="w-4 h-4 text-slate-600 shrink-0" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-mcm-ink-2">
-                <CalendarClock className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
-                <span>
-                  {detailsStartDate
-                    ? moment(detailsStartDate).format('YYYY/MM/DD HH:mm')
-                    : getLocalScheduleMoment(detailsModal, 'start')?.format('YYYY/MM/DD HH:mm') ||
-                      '-'}
-                  {isEvent && detailsEndDate
-                    ? ` - ${moment(detailsEndDate).format('YYYY/MM/DD HH:mm')}`
-                    : ''}
-                  {detailsTimezone ? ` (${detailsTimezone})` : ''}
-                  {detailsStartInUserTimezone
-                    ? ` (Your time: ${detailsStartInUserTimezone}${
-                        isEvent && detailsEndInUserTimezone ? ` - ${detailsEndInUserTimezone}` : ''
-                      } ${loggedInUserTimezone})`
-                    : ''}
-                </span>
+              {/* Date and time as two pills, the way every other date/time
+                  pair in this console reads (the mini calendar, the
+                  Schedule Meeting form) — a single long
+                  "YYYY/MM/DD HH:mm (timezone) (Your time: ...)" line was
+                  the odd one out here, not the norm. */}
+              <div className="space-y-1">
+                <div className="flex items-stretch divide-x divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                  <div className="flex flex-1 items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700">
+                    <CalendarClock className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                    <span className="truncate">{detailsDatePill}</span>
+                  </div>
+                  <div className="flex flex-1 items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700">
+                    <Clock className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                    <span className="truncate">{detailsTimePill}</span>
+                  </div>
+                </div>
+                {detailsExtraLine ? (
+                  <p className="px-1 text-[11px] text-slate-500">{detailsExtraLine}</p>
+                ) : null}
               </div>
 
               {/* {validAttendees?.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-0.5 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
+                  <Users className="w-4 h-4 mt-0.5 text-slate-500 shrink-0" />
                   <div className="flex flex-wrap gap-1 text-xs">
                     {validAttendees.map((email: string, idx: number) => (
-                      <span key={`${email}-${idx}`} className="bg-slate-100 dark:bg-mcm-surface-3 px-2 py-1 rounded">
+                      <span key={`${email}-${idx}`} className="bg-slate-100 px-2 py-1 rounded">
                         {email}
                       </span>
                     ))}
@@ -1816,16 +2001,16 @@ const CalendarPage = () => {
 
               {detailsModal?.raw?.assignTo?.length ? (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-1 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
+                  <Users className="w-4 h-4 mt-1 text-slate-500 shrink-0" />
 
                   <div className="flex flex-wrap gap-2">
                     {detailsModal.raw.assignTo.map((item: any, idx: number) => (
                       <div
                         key={`${item?.userId}-${idx}`}
-                        className="bg-slate-100 dark:bg-mcm-surface-3 px-3 py-2 rounded-lg text-xs flex flex-col"
+                        className="bg-slate-100 px-3 py-2 rounded-lg text-xs flex flex-col"
                       >
-                        <span className="font-medium text-slate-800 dark:text-mcm-ink">{item?.name || 'N/A'}</span>
-                        <span className="text-slate-500 dark:text-mcm-ink-3 text-[11px]">{item?.email || ''}</span>
+                        <span className="font-medium text-slate-800">{item?.name || 'N/A'}</span>
+                        <span className="text-slate-500 text-[11px]">{item?.email || ''}</span>
                       </div>
                     ))}
                   </div>
@@ -1834,30 +2019,21 @@ const CalendarPage = () => {
 
               {detailsModal?.assignTo?.length ? (
                 <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 mt-1 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
+                  <Users className="w-4 h-4 mt-1 text-slate-500 shrink-0" />
 
                   <div className="flex flex-wrap gap-2">
                     {detailsModal.assignTo.map((item: any, idx: number) => (
                       <div
                         key={`${item?.userId}-${idx}`}
-                        className="bg-slate-100 dark:bg-mcm-surface-3 px-3 py-2 rounded-lg text-xs flex flex-col"
+                        className="bg-slate-100 px-3 py-2 rounded-lg text-xs flex flex-col"
                       >
-                        <span className="font-medium text-slate-800 dark:text-mcm-ink">{item?.name || 'N/A'}</span>
-                        <span className="text-slate-500 dark:text-mcm-ink-3 text-[11px]">{item?.email || ''}</span>
+                        <span className="font-medium text-slate-800">{item?.name || 'N/A'}</span>
+                        <span className="text-slate-500 text-[11px]">{item?.email || ''}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : null}
-
-              <div className="flex items-center gap-2">
-                <Tag className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
-                <span
-                  className={`text-[11px] px-2 py-1 rounded font-semibold ${isEvent ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}`}
-                >
-                  {detailsCategory || detailsModal?.category || '-'}
-                </span>
-              </div>
 
               {isEvent && detailsModal?.raw?.referenceId && !isExpired && (
                 <div className="flex items-center justify-between gap-2">
@@ -1865,7 +2041,7 @@ const CalendarPage = () => {
                     to={`/video-meet?meetCode=${detailsModal?.raw?.referenceId}`}
                     target="_blank"
                   >
-                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 dark:border-mcm-line px-3 py-1.5 text-xs font-medium hover:bg-slate-50 dark:hover:bg-mcm-surface-3">
+                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
                       <Video className="w-3.5 h-3.5 shrink-0" />
                       Join Meet
                     </button>
@@ -1873,7 +2049,7 @@ const CalendarPage = () => {
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100"
                   >
                     <Clipboard className="w-3.5 h-3.5 shrink-0" />
                     {copiedLink ? 'Copied' : 'Copy'}
@@ -1884,7 +2060,7 @@ const CalendarPage = () => {
               {detailsModal?.category === 'EVENT' && detailsModal?.referenceId && (
                 <div className="flex items-center justify-between gap-2">
                   <Link to={`/video-meet?meetCode=${detailsModal?.referenceId}`} target="_blank">
-                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 dark:border-mcm-line px-3 py-1.5 text-xs font-medium hover:bg-slate-50 dark:hover:bg-mcm-surface-3">
+                    <button className="cursor-pointer inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
                       <Video className="w-3.5 h-3.5 shrink-0" />
                       Join Meet
                     </button>
@@ -1892,7 +2068,7 @@ const CalendarPage = () => {
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100 dark:hover:bg-mcm-surface-3"
+                    className="cursor-pointer inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium hover:bg-slate-100"
                   >
                     <Clipboard className="w-3.5 h-3.5 shrink-0" />
                     {copiedLink ? 'Copied' : 'Copy'}
@@ -1901,8 +2077,8 @@ const CalendarPage = () => {
               )}
 
               {detailsModal?.raw?.reminderMode?.length > 0 && (
-                <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-mcm-ink-2">
-                  <Bell className="w-4 h-4 text-slate-500 dark:text-mcm-ink-3 shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-slate-700">
+                  <Bell className="w-4 h-4 text-slate-500 shrink-0" />
                   <span>
                     {Array.isArray(detailsModal?.raw?.reminderMode)
                       ? detailsModal?.raw?.reminderMode.join(', ')
@@ -1913,12 +2089,12 @@ const CalendarPage = () => {
 
               {detailsModal?.raw?.description || detailsModal?.description ? (
                 <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-mcm-ink-3 uppercase tracking-wider">
-                    <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-mcm-ink-3" />
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <FileText className="w-3.5 h-3.5 text-slate-400" />
                     <span>Description</span>
                   </div>
-                  <div className="rounded-xl bg-slate-50 dark:bg-mcm-surface-3 border border-slate-100 dark:border-mcm-line p-4 min-h-[80px] max-h-[180px] overflow-y-auto custom-scrollbar flex items-start w-full">
-                    <p className="text-slate-600 dark:text-mcm-ink-2 text-sm leading-relaxed w-full text-left break-words whitespace-pre-wrap">
+                  <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 min-h-[80px] max-h-[180px] overflow-y-auto custom-scrollbar flex items-start w-full">
+                    <p className="text-slate-600 text-sm leading-relaxed w-full text-left break-words whitespace-pre-wrap">
                       {detailsModal?.raw?.description || detailsModal?.description}
                     </p>
                   </div>
@@ -1927,36 +2103,53 @@ const CalendarPage = () => {
 
               {(detailsModal?.raw?.createdById === userId ||
                 detailsModal?.createdById === userId) && (
-                <div className="pt-2 border-t border-slate-200 dark:border-mcm-line flex items-center justify-between">
-                  <button
-                    type="button"
-                    disabled={isExpired || isOngoing}
-                    onClick={() => {
-                      setDetailsModal(null);
-                      setModal(true);
-                      setEvent({ schedule: detailsModal });
-                    }}
-                    className="cursor-pointer inline-flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-mcm-ink-2 hover:text-slate-900 dark:hover:text-mcm-ink disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <Pencil className="w-4 h-4 shrink-0" />
-                    Reschedule
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDeleteConfirmState({ open: true, schedule: detailsModal });
-                      setDetailsModal(null);
-                    }}
-                    className="cursor-pointer inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4 shrink-0" />
-                    Delete
-                  </button>
+                <div className="space-y-1.5 border-t border-slate-100 pt-2.5">
+                  <p className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+                    Action Hub
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      disabled={isExpired || isOngoing}
+                      onClick={() => {
+                        setDetailsModal(null);
+                        setModal(true);
+                        setEvent({ schedule: detailsModal });
+                      }}
+                      className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5 shrink-0" />
+                      Reschedule
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteConfirmState({ open: true, schedule: detailsModal });
+                        setDetailsModal(null);
+                      }}
+                      className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
+
+              {/* Category, centered under everything — the one label that
+                  applies no matter which of the sections above did or
+                  didn't render for this particular schedule. */}
+              <div className="flex justify-center">
+                <span
+                  className={`rounded-full px-3 py-1 text-[11px] font-semibold ${isEvent ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'}`}
+                >
+                  {detailsCategory || detailsModal?.category || '-'}
+                </span>
+              </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* {detailsDescriptionModal && (
           <div
@@ -1964,46 +2157,46 @@ const CalendarPage = () => {
             onClick={() => setDetailsDescriptionModal(null)}
           >
             <div
-              className="w-full max-w-2xl rounded-2xl bg-white dark:bg-mcm-surface border border-slate-200 dark:border-mcm-line shadow-2xl overflow-hidden"
+              className="w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between px-6 py-4">
-                <h4 className="text-xl font-bold text-slate-800 dark:text-mcm-ink">
+                <h4 className="text-xl font-bold text-slate-800">
                   {detailsDescriptionModal?.name || ''}
                 </h4>
                 <button
                   type="button"
                   onClick={() => setDetailsDescriptionModal(null)}
-                  className="cursor-pointer rounded-full p-2 hover:bg-slate-100 dark:hover:bg-mcm-surface-3 text-slate-400 dark:text-mcm-ink-3 hover:text-slate-600 dark:hover:text-mcm-ink-2 transition"
+                  className="cursor-pointer rounded-full p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
                 >
                   <X className="w-5 h-5 shrink-0" />
                 </button>
               </div>
 
-              <div className="h-px bg-slate-100 dark:bg-mcm-surface-3 mx-6" />
+              <div className="h-px bg-slate-100 mx-6" />
 
               <div className="p-6">
-                <div className="flex items-center gap-2 text-slate-500 dark:text-mcm-ink-3 font-bold text-xs tracking-wider mb-4 uppercase">
+                <div className="flex items-center gap-2 text-slate-500 font-bold text-xs tracking-wider mb-4 uppercase">
                   <FileText className="w-4 h-4" />
                   Description
                 </div>
 
                 <div
-                  className={`rounded-2xl bg-slate-50 dark:bg-mcm-surface-3 border border-slate-100 dark:border-mcm-line p-8 min-h-[160px] flex ${detailsDescriptionModal?.description ? 'items-start' : 'items-center justify-center'}`}
+                  className={`rounded-2xl bg-slate-50 border border-slate-100 p-8 min-h-[160px] flex ${detailsDescriptionModal?.description ? 'items-start' : 'items-center justify-center'}`}
                 >
                   {detailsDescriptionModal?.description ? (
-                    <p className="text-slate-600 dark:text-mcm-ink-2 text-sm leading-relaxed w-full text-left">
+                    <p className="text-slate-600 text-sm leading-relaxed w-full text-left">
                       {detailsDescriptionModal?.description}
                     </p>
                   ) : (
-                    <p className="text-slate-400 dark:text-mcm-ink-3 text-sm italic">No description available</p>
+                    <p className="text-slate-400 text-sm italic">No description available</p>
                   )}
                 </div>
 
                 <div className="flex justify-end pt-6">
                   <button
                     onClick={() => setDetailsDescriptionModal(null)}
-                    className="px-8 py-2 rounded-lg border border-slate-200 dark:border-mcm-line text-slate-600 dark:text-mcm-ink-2 font-bold hover:bg-slate-50 dark:hover:bg-mcm-surface-3 transition"
+                    className="px-8 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition"
                   >
                     Close
                   </button>
@@ -2014,7 +2207,7 @@ const CalendarPage = () => {
         )} */}
 
         <Dialog modal open={modal} onOpenChange={toggle}>
-          {/* `mcm-glassform` in place of `bg-white dark:bg-mcm-surface`: the dialog sits over the
+          {/* `mcm-glassform` in place of `bg-white`: the dialog sits over the
               page's warm gradient, so a frosted panel lets that carry through
               rather than dropping a flat sheet on top of it. */}
           <DialogContent className="mcm-glassform max-h-[90vh] max-w-3xl w-full flex flex-col overflow-hidden p-6">

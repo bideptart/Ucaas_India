@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
 import { ReportsPageLayout } from '../../reports-content-layout';
+import { USD_TO_INR_RATE } from '@/lib/billing-money';
 
 import { useNavigate } from 'react-router-dom';
 import { convertDateFormateApis, formatSecondsToMMSS, handleAlert, MEDIA_URL } from '@/lib/utils';
@@ -27,6 +28,7 @@ import SideDrawer from '@/components/custom/side-drawer';
 import IVRDetailsView from '@/components/activity-list/side-drawers/ivr-details-view';
 import DepartmentDetailsView from '@/components/activity-list/side-drawers/department-details-view';
 import QueueDetailsView from '@/components/activity-list/side-drawers/queue-details-view';
+import DetailsModal from '@/components/activity-list/side-drawers/details-modal';
 import TableManager from '@/components/custom/table-manager';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { useRecordingAccess } from '@/hooks/use-recording-access';
@@ -61,7 +63,14 @@ const formatWaitTime = (row: any) => {
   return formatSecondsToMMSS(waitSeconds);
 };
 
-const Inbound = () => {
+const Inbound = ({
+  // Only true when this report renders inside another already-open modal
+  // (the "Open a full report page" dialog, reports-tab.tsx) — a "To"
+  // queue/IVR link's `<SideDrawer>` there is a second portal stacking
+  // underneath that dialog's own Radix z-index, technically open but
+  // invisible.
+  detailsAsModal = false,
+}: { detailsAsModal?: boolean } = {}) => {
   const tableRef = useRef<any>(null);
   const [callStats, setCallStats] = useState<any>(null);
   const { makeCall } = useDialpad();
@@ -393,7 +402,7 @@ const Inbound = () => {
       cell: ({ row }: any) => {
         const data = row?.original;
         const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
-        return `$${value.toFixed(2)}`;
+        return `₹${(value * USD_TO_INR_RATE).toFixed(2)}`;
       },
     },
     {
@@ -576,6 +585,8 @@ const Inbound = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'inboundCallList',
             fetcherFn: callInboundList,
             select: (data: any) => data?.data?.data?.result?.data?.data,
@@ -610,14 +621,22 @@ const Inbound = () => {
           srcUrl={recordingUrl}
           serRecordingUrl={serRecordingUrl}
         />
-        {drawerState?.IVR && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.IVR}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
-            content={<IVRDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.IVR &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.IVR}
+              onClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+            >
+              <IVRDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.IVR}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+              content={<IVRDetailsView rowData={rowData} />}
+            />
+          ))}
         {drawerState?.department && (
           <SideDrawer
             isTab
@@ -632,14 +651,22 @@ const Inbound = () => {
             }
           />
         )}
-        {drawerState?.QUEUE && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.QUEUE}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
-            content={<QueueDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.QUEUE &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.QUEUE}
+              onClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+            >
+              <QueueDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.QUEUE}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+              content={<QueueDetailsView rowData={rowData} />}
+            />
+          ))}
       </div>
     </ReportsPageLayout>
   );

@@ -413,6 +413,15 @@ type Store = {
   sites?: any[];
   templates?: any[];
   callHandlingTemplates?: any[];
+  /* Created/edited Calendar events and tasks only — never the seed rows
+     `demoCalendarTaskRows()` generates. That seed is deliberately
+     recomputed fresh on every read (its times are all "N hours from
+     now", not fixed dates) so a demo calendar always looks current
+     instead of drifting into the past as real time passes; storing it
+     here once would freeze it at whatever moment this was first
+     written. The two are merged back together only at the list
+     endpoint, below. */
+  calendarTasks?: any[];
   numbers?: any[];
   contacts?: any[];
 };
@@ -450,6 +459,7 @@ const readStore = (): Store => {
           demoCallHandlingTemplateRows(),
         ),
         numbers: mergeSeed(parsed.numbers, demoAssignedDidRows()),
+        calendarTasks: parsed.calendarTasks ?? [],
         /* Contacts key off `_id`, not `uuid` like the rows `mergeSeed` above
            was written for, so a dedicated merge keeps a stored contact from
            being duplicated against the seed on every read. */
@@ -476,6 +486,7 @@ const readStore = (): Store => {
     callHandlingTemplates: demoCallHandlingTemplateRows(),
     numbers: demoAssignedDidRows(),
     contacts: demoContactBookRows(),
+    calendarTasks: [],
   };
 };
 
@@ -553,6 +564,63 @@ const buildDemoAgentRecord = (body: Record<string, any>, kind: 'receptionist' | 
 
 const applyWrite = (url: string, body: Record<string, any>) => {
   const store = readStore();
+
+  /* Schedule Meeting (Event) is a two-step save: the modal first creates
+     the meeting itself, then — in that call's own `onSuccess` — creates
+     the calendar record below carrying the returned `meetingId`. Neither
+     step had a handler here before, so both silently fell through to the
+     generic `ok(listPayload())` fallback at the very end of this file:
+     an empty-but-successful response, which is exactly why the modal's
+     "scheduled successfully" toast fired while the calendar never
+     gained anything to show — nothing was ever created because nothing
+     was ever handled. This step just needs to hand back a `meetingId`
+     for the second step to attach. */
+  if (url.includes('/api/v1/meeting/save')) {
+    return ok({ meetingId: newUuid() });
+  }
+
+  /* Both Schedule Meeting (Event) and Create Task converge on this one
+     endpoint — `category` (from the modal's own tab) is what tells them
+     apart on the calendar afterwards, same field the seed rows already
+     use to colour themselves (findColors in Calender/index.tsx: EVENT
+     blue, TASK green, MEETING violet). */
+  if (url.includes('/api/calendar/event-task/save')) {
+    const now = new Date();
+    const startTime = body.startTime ? new Date(body.startTime) : now;
+    /* Only the Event tab sends `duration` (minutes); a Task has no
+       duration field in the form at all. Same one-hour fallback the
+       seed rows use below it, so a created task previews as a span
+       rather than a zero-length entry. */
+    const durationMs = (Number(body.duration) || 60) * 60 * 1000;
+    const existingId = body.eventTaskId;
+    const created = {
+      _id: existingId || newUuid(),
+      uuid: existingId || newUuid(),
+      name: body.name || 'Untitled',
+      source: body.source || 'Manual',
+      status: 'PENDING',
+      category: String(body.category || 'TASK').toUpperCase(),
+      createdAt: now.toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: new Date(startTime.getTime() + durationMs).toISOString(),
+      timezone: body.timezone,
+      description: body.description,
+      reminder: body.reminder,
+      reminderMode: body.reminderMode,
+      assignTo: Array.isArray(body.members) ? body.members : [],
+      ...(body.meetingId ? { meetings: [{ meetingId: body.meetingId }] } : {}),
+    };
+    if (existingId) {
+      store.calendarTasks = (store.calendarTasks ?? []).map((row) =>
+        String(row._id) === String(existingId) ? { ...row, ...created } : row,
+      );
+    } else {
+      store.calendarTasks = [...(store.calendarTasks ?? []), created];
+    }
+    writeStore(store);
+    return ok(created);
+  }
+
   /* The AI builders create through these. Without somewhere to put the record
      the wizard reported success and the list it returned to stayed empty, so
      a receptionist could be created over and over and never appear. */
@@ -1138,7 +1206,10 @@ const matchDemoPayload = (url: string, data: unknown) => {
     return ok(rows);
   }
   if (url.includes('/api/calendar/event-task/list')) {
-    return ok(listPayload(demoCalendarTaskRows(), {}, data));
+    /* Newest first, ahead of the seed — a just-created item reads as
+       "the thing you just did", not buried among a dozen seeded rows. */
+    const created = [...(readStore().calendarTasks ?? [])].reverse();
+    return ok(listPayload([...created, ...demoCalendarTaskRows()], {}, data));
   }
   if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows(), {}, data));
   if (url.includes('/api/contact/group/list')) {

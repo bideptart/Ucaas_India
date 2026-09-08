@@ -658,7 +658,7 @@ const MyCampaignListStandalone = () => {
                       <Loader variant="blue" />
                     </div>
                   ) : campaignList?.length ? (
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {campaignList.map((campaign: any) => {
                         const isJoined = joinedCampaignId === campaign?._id;
                         const isRefreshingAnalytics = !!refreshingCampaignIds[campaign?._id];
@@ -695,10 +695,14 @@ const MyCampaignListStandalone = () => {
                           assignedLeads,
                         );
                         const statusBadge = getStatusBadgeConfig(campaign?.campaignStatus);
+                        const dialMethodName =
+                          CAMPAIGN_TYPE_NAME[campaign?.dialMethod] ||
+                          campaign?.dialMethod ||
+                          'Preview';
                         return (
                           <div
                             key={campaign?._id}
-                            className="flex flex-col justify-between min-h-32 group rounded-xl border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
+                            className="flex flex-col justify-between min-h-32 group rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-slate-300 hover:shadow-[0_8px_22px_-8px_rgba(15,23,42,0.14)] hover:-translate-y-0.5"
                           >
                             <div className="gap-3  items-start justify-between sm:gap-3 xs:flex-col sm:flex-row flex">
                               <div className="min-w-0 flex-1 sm:mb-0 mb-2">
@@ -716,18 +720,24 @@ const MyCampaignListStandalone = () => {
                                   )}
                                 </div>
 
-                                <p className="text-xs text-slate-500">
-                                  {CAMPAIGN_TYPE_NAME[campaign?.dialMethod] ||
-                                    campaign?.dialMethod ||
-                                    'Preview'}
-                                </p>
+                                <p className="text-xs text-slate-500">{dialMethodName}</p>
                               </div>
 
                               {isJoined ? (
                                 <button
                                   onClick={() => handleLeaveCampaign(campaign)}
                                   disabled={hasActionPending}
-                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer bg-rose-50 text-rose-700 border-rose-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                                  /* `.mcm-page button:not([data-slot='tabs-trigger'])` (a shared
+                                     reset, further up the cascade) strips background/color/border
+                                     off every plain <button>, which is why this rendered as
+                                     unstyled text instead of a rose pill — inline style always
+                                     wins over a class-based rule, reset included. */
+                                  style={{
+                                    backgroundColor: '#fff1f2',
+                                    color: '#be123c',
+                                    borderColor: '#fecdd3',
+                                  }}
+                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                   {isActionPending ? 'Leaving...' : 'Leave'}
                                 </button>
@@ -735,14 +745,19 @@ const MyCampaignListStandalone = () => {
                                 <button
                                   onClick={() => handleJoinCampaign(campaign)}
                                   disabled={hasActionPending}
-                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer bg-emerald-600 text-white border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed"
+                                  style={{
+                                    backgroundColor: '#059669',
+                                    color: '#fff',
+                                    borderColor: '#059669',
+                                  }}
+                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                   {isActionPending ? 'Joining...' : 'Join Campaign'}
                                 </button>
                               )}
                             </div>
 
-                            <div className="mt-3 flex flex-col gap-1">
+                            <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-1">
                               <div className="flex items-center min-w-[160px] w-full gap-2">
                                 {!hasAnalytics ? (
                                   <div className="flex-1 min-w-[120px]">
@@ -752,12 +767,12 @@ const MyCampaignListStandalone = () => {
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <div className="flex-1 min-w-[120px] cursor-pointer">
-                                        <div className="w-full bg-stone-300/50 rounded-xs h-3 relative overflow-hidden flex">
+                                        <div className="w-full bg-violet-50 rounded-full h-3 relative overflow-hidden flex">
                                           {pendingPercentage > 0 && (
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-orange-100 transition-all duration-300"
+                                                  className="h-full bg-violet-200 transition-all duration-300"
                                                   style={{ width: `${pendingPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -770,7 +785,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-teal-300 transition-all duration-300"
+                                                  className="h-full bg-gradient-to-r from-green-300 to-blue-300 transition-all duration-300"
                                                   style={{ width: `${connectedPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -783,7 +798,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-red-300 transition-all duration-300"
+                                                  className="h-full bg-rose-300 transition-all duration-300"
                                                   style={{ width: `${notAnsweredPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -832,7 +847,7 @@ const MyCampaignListStandalone = () => {
                                                     same tokens instead. */}
                                                 <div className="w-full bg-orange-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-orange-100 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-violet-200 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${pendingPercentage}%` }}
                                                   />
                                                 </div>
@@ -859,9 +874,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-teal-50 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-green-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-teal-300 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-gradient-to-r from-green-300 to-blue-300 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${connectedPercentage}%` }}
                                                   />
                                                 </div>
@@ -888,9 +903,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-red-50 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-rose-50 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-red-300 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-rose-300 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${notAnsweredPercentage}%` }}
                                                   />
                                                 </div>
@@ -904,7 +919,11 @@ const MyCampaignListStandalone = () => {
                                 )}
                                 <button
                                   type="button"
-                                  className="w-6 h-6 rounded-full flex items-center justify-center text-slate-500 hover:text-primary hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  style={{
+                                    backgroundColor: '#fde5c8',
+                                    color: '#c2670a',
+                                  }}
+                                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={!campaign?._id || isRefreshingAnalytics}
                                   onClick={() => {
                                     if (!campaign?._id || isRefreshingAnalytics) return;
@@ -919,6 +938,14 @@ const MyCampaignListStandalone = () => {
                                   )}
                                 </button>
                               </div>
+                              {hasAnalytics && (
+                                <p className="text-[11px] text-slate-500">
+                                  <span className="font-semibold text-slate-700">
+                                    {connectedPercentage + notAnsweredPercentage}% dialled
+                                  </span>{' '}
+                                  · {pending} left
+                                </p>
+                              )}
                             </div>
                           </div>
                         );
@@ -938,8 +965,8 @@ const MyCampaignListStandalone = () => {
                   <div className="relative w-full">
                     <Input
                       placeholder="Search assigned queue"
-                      className="pl-10 w-full bg-slate-50 border-slate-200 focus-visible:bg-white"
-                      IconPosition="left-0 pl-2 inset-y-0"
+                      className="pl-10 w-full h-11 rounded-full bg-white border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.05)] focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-orange-200 focus-visible:border-orange-300"
+                      IconPosition="left-0 pl-3.5 inset-y-0"
                       value={queueSearch}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -961,13 +988,19 @@ const MyCampaignListStandalone = () => {
                         Failed to load call queue data.
                       </div>
                     ) : isQueueLoading ? null : callQueueData?.length ? (
-                      <div className="w-full grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                        {callQueueData?.map((queue: any, index: number) => (
-                          <div key={queue?.uuid || index}>
-                            <CallQueueCard queue={queue} refetch={refetchCallQueue} />
-                          </div>
-                        ))}
-                      </div>
+                      <>
+                        <p className="text-xs font-medium text-[#9A948F] mb-2">
+                          {callQueueData.length} {callQueueData.length === 1 ? 'queue' : 'queues'}{' '}
+                          assigned to you
+                        </p>
+                        <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                          {callQueueData?.map((queue: any, index: number) => (
+                            <div key={queue?.uuid || index}>
+                              <CallQueueCard queue={queue} refetch={refetchCallQueue} />
+                            </div>
+                          ))}
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F]">
                         <img src={NotFound} alt="BusyImage" className="min-w-36 max-w-36" />

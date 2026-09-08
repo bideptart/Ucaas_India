@@ -9,7 +9,6 @@ import { useState } from 'react';
 import useDebounce from '@/hooks/use-debounce';
 import NotFound from '@/assets/images/not-found-img.svg';
 import { RefreshCw } from 'lucide-react';
-import './queue-theme.css';
 
 // Temporary dev-only sample data so the queue layout can be reviewed
 // while no real queues are assigned. Only used when the API returns none.

@@ -222,7 +222,10 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
        Radix's trap; outside any dialog (every other caller — Performance's
        own toolbar, the phone console) this still resolves to `document.body`,
        identical to before. */
-    const getPopperContainer = ({ children }: { children: React.ReactNode }) => {
+    /* `children` optional, not required — react-datepicker types this prop
+       as a `FunctionComponent<{ children?: ReactNode }>`, and a required
+       `children` isn't assignable to it. */
+    const getPopperContainer = ({ children }: { children?: React.ReactNode }) => {
       const target = presetTriggerRef.current?.closest('[role="dialog"]') || document.body;
       return createPortal(children, target);
     };

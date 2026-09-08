@@ -28,6 +28,8 @@ const getHeatLevel = (totalSeconds: number | null): number => {
   return 4;
 };
 
+type PeakSlot = { day: string; time: string; seconds: number };
+
 const LEGEND_STEPS = [
   { level: 0, label: 'None' },
   { level: 1, label: '< 1m' },
@@ -84,8 +86,13 @@ const CallVolume = ({
   // The single busiest day/hour combination — a one-line "here's the
   // headline" a raw grid can't give you at a glance, the same way a chart
   // page calls out its own high point instead of leaving it to be found.
-  const peakSlot = useMemo(() => {
-    let best: { day: string; time: string; seconds: number } | null = null;
+  /* Annotated rather than inferred: `best` is only ever assigned inside
+     the nested forEach callbacks, which TypeScript's control-flow analysis
+     can't see through — it narrows the variable back to `null` at the
+     return, infers `peakSlot` as `null`, and then reports every
+     `peakSlot.day` below as a property access on `never`. */
+  const peakSlot = useMemo<PeakSlot | null>(() => {
+    let best: PeakSlot | null = null;
     activitiesTimeSlots.forEach((time: string) => {
       activitiesDays.forEach((day: string) => {
         const seconds = parseSeconds(getActivityValue(day, time));

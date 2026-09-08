@@ -3042,6 +3042,40 @@
 }
 
 /* ---- Admin nav search ---- */
+/* Active marker on the admin nav, matching the left nav rail's own
+   (`.mcm-rail-item.is-active::before`, index.css). Both places previously
+   marked "you are here" with a peach fill alone, which reads as a hover
+   state as much as a selection.
+
+   Two selectors because this nav has two kinds of current row: the
+   standalone "All admin screens" link, and an expanded accordion group
+   header (Captain, Company, ...) — the app already tints both, so the bar
+   follows the same rule rather than inventing a third notion of active.
+   `position: relative` is set here because neither element is positioned
+   on its own, and an unpositioned parent would anchor the bar to the page
+   instead of the row. */
+.mcm-admin .mcm-adminnav-all.on,
+.mcm-admin .mcm-adminnav button[data-state='open'] {
+  position: relative;
+}
+.mcm-admin .mcm-adminnav-all.on::before,
+.mcm-admin .mcm-adminnav button[data-state='open']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  /* Centred stub rather than a full-height bar — these rows are 46px and
+     a leaf row is shorter, so a top/bottom-inset bar would come out a
+     different length on each. */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  /* Same per-tenant token the rail marker uses, so the two stay in step
+     when `active_sidebar_color` is themed. */
+  background: var(--color-ucass-active);
+}
+
 .mcm-admin .mcm-adminnav-search {
   display: flex;
   flex: none;

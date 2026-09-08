@@ -2162,6 +2162,39 @@
   font-weight: 800;
 }
 
+/* Active marker on the left nav rail. The active tile previously said "you
+   are here" with a peach fill alone, which reads as a hover state as much
+   as a selection — the bar is what makes it unambiguous, and it's the same
+   idiom the app already uses for its other "current item" markers (the
+   Inbox's active row, Directory's row hover).
+
+   `left: -6px` puts it against the rail's own edge rather than the tile's:
+   the rail is 80px with 8px of padding, so the tile starts at x=8 and this
+   lands the 3px bar at x=2 — a hair inside the edge, clear of the tile.
+   It stays inside the scroll container's padding box, so `overflow-y: auto`
+   doesn't clip it. Rounded on the outer side only, so it reads as a marker
+   growing off the edge rather than a floating capsule. */
+.mcm-rail-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  /* A short centred stub, not a bar spanning the tile's full height —
+     centred on the tile so it stays put whether the label wraps to one
+     line or two ("External Contacts"), which a top/bottom-inset bar
+     would not: that one changed length with the tile. */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  /* The same token the tile's own icon/label colour comes from
+     (`text-ucass-active`), so the bar tracks it — including the per-tenant
+     `active_sidebar_color` this variable is set from at runtime. Hardcoding
+     the orange here would have left the bar stranded on any tenant whose
+     sidebar colour isn't the default. */
+  background: var(--color-ucass-active);
+}
+
 /* Rail labels wrap to two lines instead of truncating. The tile is 64px wide,
    so "External Contacts" on one line would be cut mid-word. */
 .mcm-rail-label {

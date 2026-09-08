@@ -289,7 +289,13 @@ const Sidebar = () => {
                            separate two items that share one — fall back to it
                            only where the link has no view to compare. */
                         const lit = viewKey || linkView ? activeLink : activeLink || isActive;
-                        return `min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
+                        /* `mcm-rail-item`/`is-active` are the hook for the
+                           active marker bar in index.css — a class rather
+                           than more utilities here because the bar is a
+                           `::before`, which Tailwind can't express inline
+                           without an arbitrary-variant soup that would be
+                           far harder to read than one named rule. */
+                        return `mcm-rail-item ${lit ? 'is-active' : ''} min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
                           lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
                         } hover:bg-ucass-active-bg hover:text-ucass-active ${
                           !isEnabled ? 'text-gray-400' : 'text-gray-700'

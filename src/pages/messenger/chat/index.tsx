@@ -872,7 +872,7 @@ export const Messages = ({
             <div className="w-full flex flex-col" key={messageId || `msg-${index}`}>
               {showDateSeparator && currentDate.isValid() ? (
                 <div className="flex items-center justify-center my-4 mx-auto w-[25%]">
-                  <p className="bg-[#F0DFC5] rounded-full px-4 text-xs py-1">
+                  <p className="bg-[#F0DFC5] dark:bg-mcm-surface-3 rounded-full px-4 text-xs py-1">
                     {currentDate.isSame(moment(), 'day')
                       ? 'Today'
                       : currentDate.isSame(moment().subtract(1, 'day'), 'day')
@@ -933,7 +933,7 @@ export const Messages = ({
         })}
 
         {!displayMessages.length ? (
-          <div className="w-full py-10 flex items-center justify-center text-sm text-[#9A948F]">
+          <div className="w-full py-10 flex items-center justify-center text-sm text-[#9A948F] dark:text-mcm-ink-3">
             No messages found
           </div>
         ) : null}
@@ -1345,15 +1345,15 @@ export const ChatHeader = ({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="h-8 px-2 rounded-lg border border-[#EEE7DD] text-[#9A948F] hover:bg-[#FBE2C8]/45 flex items-center gap-1"
+            className="h-8 px-2 rounded-lg border border-[#EEE7DD] dark:border-mcm-line text-[#9A948F] dark:text-mcm-ink-3 hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 flex items-center gap-1"
             title="View participants"
           >
             <span className="text-xs font-semibold">{joinedParticipants.length}</span>
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-[230px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]">
-          <div className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-[#9A948F] border-b border-gray-100">
+        <DropdownMenuContent align="end" className="min-w-[230px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90">
+          <div className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3 border-b border-gray-100">
             Live Participants
           </div>
           <div className="max-h-72 overflow-y-auto">
@@ -1370,7 +1370,7 @@ export const ChatHeader = ({
                     {chatUser?.name || 'Unknown User'}
                   </div>
                   {chatUser?.extension ? (
-                    <div className="text-[10px] text-[#9A948F] truncate">
+                    <div className="text-[10px] text-[#9A948F] dark:text-mcm-ink-3 truncate">
                       EXT: {chatUser.extension}
                     </div>
                   ) : null}
@@ -1423,7 +1423,7 @@ export const ChatHeader = ({
       return (
         <CustomTooltip text={'You are currently on another call'} side="top">
           <button
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] bg-[#FBE2C8]/40 cursor-not-allowed`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] dark:text-mcm-ink-3 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 cursor-not-allowed`}
           >
             On Call
           </button>
@@ -1479,7 +1479,7 @@ export const ChatHeader = ({
         <CustomTooltip text={'User is already on this call'} side="top">
           <button
             disabled
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] bg-[#FBE2C8]/40 cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] dark:text-mcm-ink-3 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 cursor-not-allowed"
           >
             <PhoneCall className="w-4 h-4" />
             Call In Progress
@@ -1493,7 +1493,7 @@ export const ChatHeader = ({
         <CustomTooltip text={'Joining meeting...'} side="top">
           <button
             disabled
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] bg-[#FBE2C8]/40 cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] dark:text-mcm-ink-3 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 cursor-not-allowed"
           >
             Join Meeting
           </button>
@@ -1515,7 +1515,7 @@ export const ChatHeader = ({
         >
           <button
             disabled
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] bg-[#FBE2C8]/40 cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm text-[#9A948F] dark:text-mcm-ink-3 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 cursor-not-allowed"
           >
             <PhoneCall className="w-4 h-4" />
             {isUserOffline && !isGroupChat ? 'User Unavailable' : 'Start Call'}
@@ -1539,8 +1539,8 @@ export const ChatHeader = ({
         </button>
 
         <div className="absolute right-0 top-full pt-1 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-150 origin-top-right z-50">
-          <div className="min-w-[220px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-lg p-1 shadow-md">
-            <div className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-[#9A948F] border-b border-gray-100 select-none">
+          <div className="min-w-[220px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-lg p-1 shadow-md">
+            <div className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3 border-b border-gray-100 select-none">
               Select Call Type
             </div>
             <CustomTooltip text={audioBlockReason || 'Start voice call'} side="right">
@@ -1552,9 +1552,9 @@ export const ChatHeader = ({
                     if (!isAudioCallReady) return;
                     void handleAVCall('audio');
                   }}
-                  className="w-full flex items-center gap-2 mt-1 px-2 py-2 text-xs text-left rounded-md hover:bg-[#FBE2C8]/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer text-[#2E2D35] transition-colors"
+                  className="w-full flex items-center gap-2 mt-1 px-2 py-2 text-xs text-left rounded-md hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer text-[#2E2D35] dark:text-mcm-ink transition-colors"
                 >
-                  <PhoneCall className="w-4 h-4 text-[#9A948F] shrink-0" />
+                  <PhoneCall className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3 shrink-0" />
                   Voice Call
                 </button>
               </span>
@@ -1568,9 +1568,9 @@ export const ChatHeader = ({
                     if (!isVideoCallReady) return;
                     void handleAVCall('video');
                   }}
-                  className="w-full flex items-center gap-2 px-2 py-2 text-xs text-left rounded-md hover:bg-[#FBE2C8]/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer text-[#2E2D35] transition-colors"
+                  className="w-full flex items-center gap-2 px-2 py-2 text-xs text-left rounded-md hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 disabled:pointer-events-none disabled:opacity-50 cursor-pointer text-[#2E2D35] dark:text-mcm-ink transition-colors"
                 >
-                  <Video className="w-4 h-4 text-[#9A948F] shrink-0" />
+                  <Video className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3 shrink-0" />
                   Video Call
                 </button>
               </span>
@@ -1595,12 +1595,12 @@ export const ChatHeader = ({
           }}
         />
       )}
-      <div className="w-full min-h-16 shrink-0 border-b border-[rgba(225,200,165,0.9)] px-3 sm:px-4 flex items-center justify-between bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] gap-2 sm:gap-3">
+      <div className="w-full min-h-16 shrink-0 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 px-3 sm:px-4 flex items-center justify-between bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] gap-2 sm:gap-3">
         <div className="flex items-center gap-3 min-w-0 ">
           {onBackToList ? (
             <button
               type="button"
-              className="xl:hidden w-9 h-9 rounded-full flex items-center justify-center bg-[#FBE2C8]/40 text-[#2E2D35] hover:bg-[#F0DFC5] shrink-0 z-1"
+              className="xl:hidden w-9 h-9 rounded-full flex items-center justify-center bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35] dark:text-mcm-ink hover:bg-[#F0DFC5] dark:hover:bg-mcm-surface-3 shrink-0 z-1"
               onClick={onBackToList}
               aria-label="Back to conversations"
             >
@@ -1618,11 +1618,11 @@ export const ChatHeader = ({
               }
             />
             <div className="min-w-0">
-              <div className="text-sm font-semibold truncate text-[#2E2D35] block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
+              <div className="text-sm font-semibold truncate text-[#2E2D35] dark:text-mcm-ink block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
                 {nameToShow}
               </div>
               {subtitle ? (
-                <div className="text-xs text-[#9A948F] truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
+                <div className="text-xs text-[#9A948F] dark:text-mcm-ink-3 truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
                   {subtitle}
                 </div>
               ) : null}
@@ -1635,7 +1635,7 @@ export const ChatHeader = ({
             <div className="flex min-w-0 max-w-[52vw] sm:max-w-[62vw] xl:max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden md:overflow-visible sm:gap-2 scrollbar-hide">
               {isMessageSelectionMode ? (
                 <>
-                  <div className="text-xs font-semibold text-[#2E2D35] px-2">
+                  <div className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink px-2">
                     {selectedMessageCount} selected
                   </div>
                   <Button
@@ -1667,7 +1667,7 @@ export const ChatHeader = ({
                   <SearchComponent currentChat={currentChat} disableScrollTop={disableScrollTop} />
                   <button
                     type="button"
-                    className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[#FBE2C8]/40 text-[#9A948F] shrink-0"
+                    className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3 shrink-0"
                     onClick={resetSearch}
                     aria-label="Close search"
                   >
@@ -1702,7 +1702,7 @@ export const ChatHeader = ({
                 <CustomTooltip text="Search" side="top">
                   <button
                     type="button"
-                    className={`cursor-pointer shrink-0 flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-ucass-active hover:text-white transition-colors duration-200
+                    className={`cursor-pointer shrink-0 flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-ucass-active hover:text-white transition-colors duration-200
                    `}
                     onClick={() => setShowSearch(true)}
                     aria-label="Search"
@@ -1719,7 +1719,7 @@ export const ChatHeader = ({
                       key={idx}
                       type="button"
                       onClick={onClick}
-                      className={`cursor-pointer shrink-0 flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-ucass-active hover:text-white transition-colors duration-200
+                      className={`cursor-pointer shrink-0 flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-ucass-active hover:text-white transition-colors duration-200
                     ${activeSidebarMode === type ? 'text-ucass-active bg-ucass-active-bg' : ''}`}
                       aria-label={tooltip}
                     >
@@ -1739,17 +1739,17 @@ export const ChatHeader = ({
           if (!open) setDeleteConfirmationInput('');
         }}
       >
-        <DialogContent className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] max-w-[540px]">
+        <DialogContent className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] max-w-[540px]">
           <div className="flex flex-col items-center text-center space-y-3 pt-2">
             <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
               <AlertTriangle className="w-7 h-7 text-red-600" />
             </div>
-            <DialogTitle className="text-xl font-bold text-[#2E2D35]">
+            <DialogTitle className="text-xl font-bold text-[#2E2D35] dark:text-mcm-ink">
               {deleteActionLabel}
             </DialogTitle>
-            <DialogDescription className="text-sm text-[#9A948F] max-w-sm mx-auto">
+            <DialogDescription className="text-sm text-[#9A948F] dark:text-mcm-ink-3 max-w-sm mx-auto">
               This will permanently delete{' '}
-              <span className="font-semibold text-[#2E2D35]">{deleteTargetName || 'this chat'}</span>{' '}
+              <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{deleteTargetName || 'this chat'}</span>{' '}
               and all its messages.
             </DialogDescription>
           </div>
@@ -1937,8 +1937,8 @@ const AttachmentGlyph = ({
 }) => {
   const iconClass = large ? 'h-16 w-16' : 'h-6 w-6';
   const wrapperClass = large
-    ? 'flex h-28 w-28 items-center justify-center rounded-2xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-gray-300 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ring-1 ring-[#EEE7DD]'
-    : 'flex h-full w-full items-center justify-center rounded-md bg-[#FBE2C8]/40 text-[#9A948F]';
+    ? 'flex h-28 w-28 items-center justify-center rounded-2xl bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] text-gray-300 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ring-1 ring-[#EEE7DD]'
+    : 'flex h-full w-full items-center justify-center rounded-md bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3';
 
   if (kind === 'video') {
     return (
@@ -1967,7 +1967,7 @@ const AttachmentGlyph = ({
   return (
     <div className={wrapperClass}>
       {extension ? (
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F]">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
           {extension.slice(0, 4)}
         </span>
       ) : (
@@ -2135,10 +2135,10 @@ const AttachmentPreviewStage = ({
     return (
       <div className="flex w-[min(520px,calc(100vw-2rem))] flex-col items-center rounded-xl bg-[#f4f5f7] px-6 py-10 text-center">
         <AttachmentGlyph kind="audio" extension={item.extension} large />
-        <div className="mt-5 max-w-full truncate text-base font-semibold text-[#2E2D35]">
+        <div className="mt-5 max-w-full truncate text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">
           {item.name}
         </div>
-        <div className="mt-1 text-sm uppercase tracking-wide text-[#9A948F]">
+        <div className="mt-1 text-sm uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
           {[item.sizeLabel, item.extensionLabel].filter(Boolean).join(' - ')}
         </div>
         <audio
@@ -2184,7 +2184,7 @@ const AttachmentThumbnail = ({
         'group relative h-14 w-14 shrink-0 cursor-pointer rounded-lg border-2 bg-white p-0.5 transition-all',
         isActive
           ? 'border-ucass-active ring-2 ring-ucass-active/20'
-          : 'border-transparent hover:border-[#EEE7DD]',
+          : 'border-transparent hover:border-[#EEE7DD] dark:hover:border-mcm-line',
       )}
       title={item?.name}
     >
@@ -2209,7 +2209,7 @@ const AttachmentThumbnail = ({
             </>
           )
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#FBE2C8]/45 px-1 text-[#9A948F]">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 px-1 text-[#9A948F] dark:text-mcm-ink-3">
             <AttachmentGlyph kind={item?.kind || 'file'} extension={item?.extension} />
             <span className="max-w-full truncate text-[9px] font-semibold uppercase">
               {item?.extensionLabel || 'FILE'}
@@ -3344,11 +3344,11 @@ export const ChatFooter = ({
             <div className="text-xs font-semibold text-ucass-active truncate">
               Replying to {replySenderName || 'User'}
             </div>
-            <div className="text-xs text-[#2E2D35] truncate">{replyPreviewText || 'Message'}</div>
+            <div className="text-xs text-[#2E2D35] dark:text-mcm-ink truncate">{replyPreviewText || 'Message'}</div>
           </div>
           <button
             type="button"
-            className="w-6 h-6 rounded-full flex items-center justify-center text-[#9A948F] hover:bg-white/80"
+            className="w-6 h-6 rounded-full flex items-center justify-center text-[#9A948F] dark:text-mcm-ink-3 hover:bg-white/80"
             onClick={clearMessageAction}
             aria-label="Cancel reply"
           >
@@ -3400,7 +3400,7 @@ export const ChatFooter = ({
       <button
         type="button"
         className={cn(
-          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F]',
+          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3',
           isComposerBusy ? 'cursor-not-allowed opacity-50' : '',
         )}
         onClick={() => {
@@ -3462,7 +3462,7 @@ export const ChatFooter = ({
         'transition-colors',
         hasAttachmentPreview
           ? 'absolute inset-0 z-20 flex h-full min-h-0 w-full flex-col bg-[#edf1f6]'
-          : `w-full shrink-0 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 relative flex flex-col ${typingText ? 'gap-0' : 'gap-3'} border-t border-[rgba(225,200,165,0.9)]`,
+          : `w-full shrink-0 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-2 py-2 relative flex flex-col ${typingText ? 'gap-0' : 'gap-3'} border-t border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90`,
         isDragOver ? 'bg-ucass-active-bg ring-2 ring-primary/20 ring-inset' : '',
       )}
     >
@@ -3477,10 +3477,10 @@ export const ChatFooter = ({
                     <span className="absolute inset-0 rounded-xl ring-2 ring-ucass-active/30 animate-pulse" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[#2E2D35]">
+                    <p className="truncate text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">
                       {attachmentUploadTitle}
                     </p>
-                    <p className="text-xs text-[#9A948F]">{attachmentUploadStatusText}</p>
+                    <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">{attachmentUploadStatusText}</p>
                   </div>
                 </div>
                 <div className="rounded-lg bg-ucass-active px-2 py-1 text-xs font-semibold text-white">
@@ -3496,7 +3496,7 @@ export const ChatFooter = ({
               </div>
 
               <div className="mt-2 flex items-center justify-between gap-3 text-[11px] sm:text-xs">
-                <span className="font-medium text-[#9A948F]">{attachmentUploadHelperText}</span>
+                <span className="font-medium text-[#9A948F] dark:text-mcm-ink-3">{attachmentUploadHelperText}</span>
                 <span
                   className={cn(
                     'font-medium',
@@ -3515,7 +3515,7 @@ export const ChatFooter = ({
 
       {hasAttachmentPreview ? (
         <div className="flex h-full min-h-0 w-full flex-col bg-[#edf1f6]">
-          <div className="flex h-11 shrink-0 items-center border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5">
+          <div className="flex h-11 shrink-0 items-center border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-5">
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-medium text-[#26364d] transition-colors hover:text-primary"
@@ -3544,7 +3544,7 @@ export const ChatFooter = ({
             <div className="mt-3 w-full max-w-[680px]">
               {renderEditBanner(true)}
               {renderReplyBanner(true)}
-              <div className="relative min-h-12 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-11 py-2 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] [&_[data-test-id=menu]]:hidden">
+              <div className="relative min-h-12 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-11 py-2 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] [&_[data-test-id=menu]]:hidden">
                 <div className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#8a97ad]">
                   {renderEmojiButton('absolute bottom-8 left-0')}
                 </div>
@@ -3662,7 +3662,7 @@ export const ChatFooter = ({
                           <label
                             htmlFor={attachmentInputId}
                             className={cn(
-                              'cursor-pointer min-w-7 max-h-7 max-w-7 min-h-7 rounded-full flex justify-center items-center text-[#9A948F] transition-colors hover:text-ucass-active',
+                              'cursor-pointer min-w-7 max-h-7 max-w-7 min-h-7 rounded-full flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3 transition-colors hover:text-ucass-active',
                               isComposerBusy ? 'opacity-50 cursor-not-allowed' : '',
                             )}
                             title="Attach files"
@@ -3673,7 +3673,7 @@ export const ChatFooter = ({
                           {!fromMeetChat ? (
                             <div
                               className={cn(
-                                'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F]',
+                                'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3',
                                 isComposerBusy ? 'cursor-not-allowed opacity-50' : '',
                               )}
                               onClick={() => {
@@ -3692,7 +3692,7 @@ export const ChatFooter = ({
 
                       <div
                         className={cn(
-                          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] hover:text-ucass-active transition-colors',
+                          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3 hover:text-ucass-active transition-colors',
                           isComposerBusy ? 'cursor-not-allowed opacity-50' : '',
                         )}
                         onClick={() => {
@@ -3707,7 +3707,7 @@ export const ChatFooter = ({
                       {!fromMeetChat && canScheduleEvent ? (
                         <div
                           className={cn(
-                            'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] hover:text-ucass-active transition-colors',
+                            'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3 hover:text-ucass-active transition-colors',
                             isComposerBusy ? 'cursor-not-allowed opacity-50' : '',
                           )}
                           onClick={() => {
@@ -3729,7 +3729,7 @@ export const ChatFooter = ({
                     hasAiAssistAgent ? (
                       <div
                         className={cn(
-                          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] hover:text-ucass-active transition-colors',
+                          'cursor-pointer min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3 hover:text-ucass-active transition-colors',
                           isComposerBusy ? 'cursor-not-allowed opacity-50' : '',
                         )}
                         onClick={() => {
@@ -3748,7 +3748,7 @@ export const ChatFooter = ({
                             type="button"
                             disabled={isComposerBusy}
                             className={cn(
-                              'min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] hover:text-ucass-active transition-colors',
+                              'min-w-6 max-h-6 max-w-6 min-h-6 rounded-2xl flex justify-center items-center text-[#9A948F] dark:text-mcm-ink-3 hover:text-ucass-active transition-colors',
                               isComposerBusy ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
                             )}
                             aria-label="Set up AI assist agent"
@@ -3758,7 +3758,7 @@ export const ChatFooter = ({
                           </button>
                         </PopoverTrigger>
                         <PopoverContent
-                          className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.72)] shadow-xl"
+                          className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.72)] dark:border-mcm-line/72 shadow-xl"
                           side="top"
                         >
                           <div className="border-b border-gray-100 bg-gradient-to-br from-sky-50 to-indigo-50 px-3 py-2.5">
@@ -3766,11 +3766,11 @@ export const ChatFooter = ({
                               <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white bg-white/80 shadow-sm">
                                 <Sparkles className="h-4 w-4 text-ucass-active" />
                               </span>
-                              <p className="text-sm font-semibold text-[#2E2D35]">AI Assist Setup</p>
+                              <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">AI Assist Setup</p>
                             </div>
                           </div>
                           <div className="space-y-3 p-3">
-                            <p className="text-xs leading-5 text-[#9A948F]">
+                            <p className="text-xs leading-5 text-[#9A948F] dark:text-mcm-ink-3">
                               Set up an agent in AI Settings to start using AI-generated assistance.
                             </p>
                             <div className="flex justify-end">
@@ -3792,7 +3792,7 @@ export const ChatFooter = ({
                   <button
                     type="button"
                     className={cn(
-                      'min-w-7 max-h-7 max-w-7 min-h-7 flex justify-center items-center text-ucass-orange border-l border-[#EEE7DD] pl-2 transition-colors',
+                      'min-w-7 max-h-7 max-w-7 min-h-7 flex justify-center items-center text-ucass-orange border-l border-[#EEE7DD] dark:border-mcm-line pl-2 transition-colors',
                       !canSend || isComposerBusy
                         ? 'cursor-not-allowed opacity-50'
                         : 'cursor-pointer hover:text-primary',
@@ -4019,11 +4019,11 @@ const ThreadPanel = ({
           handleClose={() => setMessageItemAction({ action: '', msgObj: null })}
         />
       )}
-      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
+      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
         <div className="cursor-pointer" onClick={onClose}>
           <div className="flex gap-2 items-center ">
-            <ArrowLeft className="w-5 h-5 text-[#9A948F]" />
-            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35]">Thread</h3>
+            <ArrowLeft className="w-5 h-5 text-[#9A948F] dark:text-mcm-ink-3" />
+            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Thread</h3>
           </div>
         </div>
       </div>
@@ -4038,8 +4038,8 @@ const ThreadPanel = ({
           isAgentChat={isAgentChat}
         />
 
-        <div className="w-full max-w-44 mx-auto relative h-[1px] bg-[#F0DFC5] flex justify-center items-center my-6">
-          <div className="bg-[#FBE2C8]/40 px-3 py-1 absolute -top-3 text-[#9A948F] text-xs rounded-full border">
+        <div className="w-full max-w-44 mx-auto relative h-[1px] bg-[#F0DFC5] dark:bg-mcm-surface-3 flex justify-center items-center my-6">
+          <div className="bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 px-3 py-1 absolute -top-3 text-[#9A948F] dark:text-mcm-ink-3 text-xs rounded-full border">
             {Array.isArray(threadsManager) &&
             threadsManager.some((t: any) => t?.parentMsgId === threadInfo?.messageId)
               ? currentThread.length
@@ -4049,7 +4049,7 @@ const ThreadPanel = ({
         </div>
 
         {isLoading ? (
-          <div className="w-full flex items-center justify-center py-6 text-[#9A948F] text-xs">
+          <div className="w-full flex items-center justify-center py-6 text-[#9A948F] dark:text-mcm-ink-3 text-xs">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
             Loading thread...
           </div>
@@ -4163,17 +4163,17 @@ const AddMemberDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+      <DialogContent className="max-w-md bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Add Team Members</DialogTitle>
-          <DialogDescription className="text-sm text-[#9A948F]">
+          <DialogDescription className="text-sm text-[#9A948F] dark:text-mcm-ink-3">
             Select members to add to "{currentChat?.name || 'this team'}".
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#2E2D35] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink uppercase tracking-wider">
               Select Members
             </label>
             <CustomSelect
@@ -4248,18 +4248,18 @@ const PinnedMessagesView = ({
 
   return (
     <div className="w-full flex flex-col h-full bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
+      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
         <div className="cursor-pointer" onClick={onClose}>
           <div className="flex gap-2 items-center ">
-            <ArrowLeft className="w-5 h-5 text-[#9A948F]" />
-            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35]">Pinned Messages</h3>
+            <ArrowLeft className="w-5 h-5 text-[#9A948F] dark:text-mcm-ink-3" />
+            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Pinned Messages</h3>
           </div>
         </div>
       </div>
 
       {isLoading ? (
         <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden">
-          <div className="w-full flex items-center justify-center py-6 text-[#9A948F] text-xs">
+          <div className="w-full flex items-center justify-center py-6 text-[#9A948F] dark:text-mcm-ink-3 text-xs">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
             Loading pinned messages...
           </div>
@@ -4267,11 +4267,11 @@ const PinnedMessagesView = ({
       ) : pinnedItems.length === 0 ? (
         <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden">
           <div className="flex flex-col justify-center items-center gap-2 py-5 h-full w-full mx-auto">
-            <div className="w-16 h-16 rounded-full bg-[#FBE2C8]/40 flex items-center justify-center mb-2">
-              <Pin className="w-8 h-8 text-[#9A948F]" />
+            <div className="w-16 h-16 rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 flex items-center justify-center mb-2">
+              <Pin className="w-8 h-8 text-[#9A948F] dark:text-mcm-ink-3" />
             </div>
-            <p className="text-base font-semibold text-[#2E2D35]">No pinned messages yet</p>
-            <p className="text-sm text-center text-[#9A948F] max-w-xs">
+            <p className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">No pinned messages yet</p>
+            <p className="text-sm text-center text-[#9A948F] dark:text-mcm-ink-3 max-w-xs">
               Messages you pin in this chat will appear here for easy access.
             </p>
           </div>
@@ -4338,11 +4338,11 @@ const FilesView = ({
 
   return (
     <div className="w-full flex flex-col h-full bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
+      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
         <div className="cursor-pointer" onClick={onClose}>
           <div className="flex gap-2 items-center">
-            <ArrowLeft className="w-5 h-5 text-[#9A948F]" />
-            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35]">Files</h3>
+            <ArrowLeft className="w-5 h-5 text-[#9A948F] dark:text-mcm-ink-3" />
+            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Files</h3>
           </div>
         </div>
       </div>
@@ -4350,11 +4350,11 @@ const FilesView = ({
       {fileMessages.length === 0 ? (
         <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden">
           <div className="flex flex-col justify-center items-center gap-2 py-5 h-full w-full mx-auto">
-            <div className="w-16 h-16 rounded-full bg-[#FBE2C8]/40 flex items-center justify-center mb-2">
-              <FileText className="w-8 h-8 text-[#9A948F]" />
+            <div className="w-16 h-16 rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 flex items-center justify-center mb-2">
+              <FileText className="w-8 h-8 text-[#9A948F] dark:text-mcm-ink-3" />
             </div>
-            <p className="text-base font-semibold text-[#2E2D35]">No files yet</p>
-            <p className="text-sm text-center text-[#9A948F] max-w-xs">
+            <p className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">No files yet</p>
+            <p className="text-sm text-center text-[#9A948F] dark:text-mcm-ink-3 max-w-xs">
               Files shared in this chat will appear here.
             </p>
           </div>
@@ -4450,11 +4450,11 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
 
   return (
     <div className="w-full flex flex-col h-full bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
+      <div className="w-full shrink-0 px-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-[rgba(225,200,165,0.9)]">
         <div className="cursor-pointer" onClick={onClose}>
           <div className="flex gap-2 items-center ">
-            <ArrowLeft className="w-5 h-5 text-[#9A948F]" />
-            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35]">Members</h3>
+            <ArrowLeft className="w-5 h-5 text-[#9A948F] dark:text-mcm-ink-3" />
+            <h3 className="text-sm lg:text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Members</h3>
           </div>
         </div>
         {isAdmin && !currentChat?.allowFallbackChat && (
@@ -4546,11 +4546,11 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                 <div
                   key={member?.uuid || `member-${index}`}
                   className={cn(
-                    'flex flex-col gap-2 p-3 rounded-lg border transition-all bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]',
+                    'flex flex-col gap-2 p-3 rounded-lg border transition-all bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]',
                     isSelectMode && canBeRemoved ? 'cursor-pointer' : '',
                     isSelected
                       ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                      : 'border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/45',
+                      : 'border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45',
                   )}
                   onClick={handleToggleSelectCard}
                 >
@@ -4571,7 +4571,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                       }
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-[#2E2D35] truncate">
+                      <div className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink truncate">
                         {member?.name ||
                           `${member?.first_name || ''} ${member?.last_name || ''}`.trim()}
                         {isCurrentUser && (
@@ -4580,7 +4580,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[#9A948F] truncate mt-0.5">
+                      <div className="text-xs text-[#9A948F] dark:text-mcm-ink-3 truncate mt-0.5">
                         {member?.email || member?.extension}
                       </div>
                     </div>
@@ -4641,7 +4641,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
         </div>
 
         {isAdmin && !currentChat?.allowFallbackChat && (
-          <div className="pt-3 mt-3 border-t border-[#EEE7DD] shrink-0">
+          <div className="pt-3 mt-3 border-t border-[#EEE7DD] dark:border-mcm-line shrink-0">
             <Button
               type="button"
               className="w-full text-sm h-11 font-semibold cursor-pointer"
@@ -5191,8 +5191,8 @@ const ChatWorkspace = ({
     return (
       <div className="w-full h-full flex items-center justify-center bg-[var(--color-bg-gray-50)]">
         <div className="text-center px-6">
-          <div className="text-base font-semibold text-[#2E2D35]">This chat has been deleted</div>
-          <div className="text-sm text-[#9A948F] mt-1">Select a new chat to continue messaging.</div>
+          <div className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">This chat has been deleted</div>
+          <div className="text-sm text-[#9A948F] dark:text-mcm-ink-3 mt-1">Select a new chat to continue messaging.</div>
         </div>
       </div>
     );
@@ -5201,8 +5201,8 @@ const ChatWorkspace = ({
     return (
       <div className="w-full h-full flex items-center justify-center bg-[var(--color-bg-gray-50)]">
         <div className="text-center px-6">
-          <div className="text-base font-semibold text-[#2E2D35]">Select a chat</div>
-          <div className="text-sm text-[#9A948F] mt-1">
+          <div className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">Select a chat</div>
+          <div className="text-sm text-[#9A948F] dark:text-mcm-ink-3 mt-1">
             Choose a conversation from the left panel to start messaging.
           </div>
         </div>
@@ -5261,8 +5261,8 @@ const ChatWorkspace = ({
               MessageItemComponent={MessageItemComponent}
             />
             {hideFooter ? null : currentChat && currentChat?.isEnded ? (
-              <div className="w-full shrink-0 border-t border-[#EEE7DD] bg-[#FBE2C8]/45 px-4 py-3 flex items-center justify-center gap-2">
-                <span className="text-sm text-[#9A948F] font-medium">Chat has been ended</span>
+              <div className="w-full shrink-0 border-t border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 px-4 py-3 flex items-center justify-center gap-2">
+                <span className="text-sm text-[#9A948F] dark:text-mcm-ink-3 font-medium">Chat has been ended</span>
               </div>
             ) : (
               <FooterComponent
@@ -5286,7 +5286,7 @@ const ChatWorkspace = ({
         isDesktopAiLayout &&
         isAiAssistPanelOpen &&
         aiAssistPanelContext?.hasAiAssistAgent ? (
-          <div className="w-full h-[420px] border-t border-[#EEE7DD] lg:h-full lg:w-[360px] lg:min-w-[360px] lg:border-t-0 lg:border-l lg:border-[#EEE7DD]">
+          <div className="w-full h-[420px] border-t border-[#EEE7DD] dark:border-mcm-line lg:h-full lg:w-[360px] lg:min-w-[360px] lg:border-t-0 lg:border-l lg:border-[#EEE7DD] dark:lg:border-mcm-line">
             <AiAssist
               lineHeight={aiAssistPanelContext?.lineHeight || 'leading-7'}
               onClose={() => setIsAiAssistPanelOpen(false)}
@@ -5317,7 +5317,7 @@ const ChatWorkspace = ({
               if (!open) setCreateTaskMsgObj(null);
             }}
           >
-            <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1rem)] max-w-[680px] flex-col overflow-hidden bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 sm:max-w-2xl sm:p-6">
+            <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1rem)] max-w-[680px] flex-col overflow-hidden bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-4 sm:max-w-2xl sm:p-6">
               <DialogHeader className="shrink-0 pr-8">
                 <DialogTitle>Create Task</DialogTitle>
               </DialogHeader>

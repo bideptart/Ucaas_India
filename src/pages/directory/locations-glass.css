@@ -224,6 +224,29 @@
   box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
 }
 
+/* Mobile: the table has 6 columns (Location/Address/City-State/Timezone/
+   People/Actions) and no longer fits `.tbl-wrap`'s width below ~640px, so
+   the row scrolls horizontally — but that left Actions (edit/delete) at
+   the far end, unreachable without scrolling the whole row past first.
+   Pinning just that column to the right edge keeps it in reach regardless
+   of scroll position, the same way its header is already pinned
+   vertically (`position: sticky; top: 0` above). Needs its own opaque
+   background — the cell would otherwise be transparent and show the
+   scrolling columns underneath it through the "gap" the sticky position
+   leaves in the row's own background. */
+@media (max-width: 640px) {
+  .gp-locations .gp-loc-actions-head,
+  .gp-locations .gp-loc-actions-cell {
+    position: sticky;
+    right: 0;
+    background: #fffdfb;
+    box-shadow: -8px 0 8px -8px rgba(160, 95, 30, 0.2);
+  }
+  .gp-locations .gp-loc-actions-head {
+    z-index: 2;
+  }
+}
+
 /* ---- "New location" popup ----
    `DialogContent` renders through a portal to `document.body`, so it reuses
    the same `.gp-create-group-*` shell Groups/Roles already styled, rather
@@ -390,4 +413,116 @@
 }
 .gp-loc-dialog-edit:hover {
   background: #c96f1f;
+}
+
+/* ---- Dark theme — same treatment as people-glass.css's own .dark block,
+   extended to this file's own portaled location-detail dialog. ---- */
+.dark .gp-locations {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-locations .page-head,
+.dark .gp-locations .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-locations .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-locations .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-locations .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-locations .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-locations .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-locations .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-locations .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-locations .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.dark .gp-locations th {
+  background: #16222c;
+  color: var(--mcm-ink-3, #aab6c1);
+  border-bottom: 2px solid #1b2934;
+}
+@media (max-width: 640px) {
+  .dark .gp-locations .gp-loc-actions-head {
+    background: #16222c;
+    box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.4);
+  }
+  .dark .gp-locations .gp-loc-actions-cell {
+    background: #111c26;
+    box-shadow: -8px 0 8px -8px rgba(0, 0, 0, 0.4);
+  }
+}
+.dark .gp-locations td {
+  border-bottom-color: #1b2934;
+}
+.dark .gp-locations tbody tr:hover {
+  background: rgba(17, 29, 39, 0.6);
+}
+.dark .gp-locations .gp-loc-actions .mini {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+/* The "x of y" result-count chip's light rule above (`.gp-locations
+   .fchip.live`) hardcodes a light mint fill with `!important` — every
+   other Directory list (Roles, Groups, People) already carries this same
+   override for its own `.fchip.live`; this page was the one missing it,
+   so the chip stayed a bright light-mode mint patch in Dark Mode. Matches
+   the Roles page's exact treatment: a solid muted-teal fill instead of
+   the faint `--live-wash` tint, so it reads with real weight against the
+   dark toolbar instead of nearly disappearing into it. */
+.dark .gp-locations .fchip.live {
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+.dark .gp-loc-dialog {
+  background: #111c26;
+  border-color: #1b2934;
+}
+.dark .gp-loc-field-l {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-loc-field-v {
+  background: var(--mcm-accent-wash, #1a2733);
+  border: 1px solid var(--mcm-accent-edge, rgba(249, 115, 22, 0.4));
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-loc-dialog-close {
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-loc-dialog-close:hover {
+  border-color: var(--mcm-accent, #f97316);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+.dark .gp-loc-dialog-edit {
+  background: var(--mcm-accent, #f97316);
+  border: 1px solid var(--mcm-accent, #f97316);
+  color: #f8fafc;
+}
+.dark .gp-loc-dialog-edit:hover {
+  background: var(--mcm-accent-ink, #ff8a2a);
+  color: #111c26;
 }

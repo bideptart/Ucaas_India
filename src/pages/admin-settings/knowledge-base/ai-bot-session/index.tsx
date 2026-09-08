@@ -563,8 +563,8 @@ const AiBotSession = () => {
           >
             AI Agents
           </button>
-          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">Sessions</h1>
-          <p className="mt-1 text-[13px] text-[#6b5c4d]">
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">Sessions</h1>
+          <p className="mt-1 text-[13px] text-[#6b5c4d] dark:text-mcm-ink-3">
             Every AI receptionist call & AI chatbot conversation — with transcripts, sentiment &
             outcomes.
           </p>

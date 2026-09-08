@@ -64,99 +64,99 @@ const DialerAgentList: FC<IDialerAgentProps> = ({ setSelectedCampaign, selectedC
   return (
     <div className="flex flex-col gap-3 h-[calc(100vh_-_8.8rem)] overflow-auto">
       <div className="flex items-center justify-between">
-        <h5 className="text-gray-900 flex items-center gap-1.5 font-semibold">
+        <h5 className="text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold">
           Campaign Monitoring
         </h5>
         <Button type="button" variant={'outline'} onClick={() => setSelectedCampaign(null)}>
           <ChevronIcon className="w-5 h-5 rotate-90" /> Back
         </Button>
       </div>
-      <div className="border border-gray-200 rounded-xl py-3 px-2">
+      <div className="border border-gray-200 dark:border-mcm-line rounded-xl py-3 px-2">
         <div className="flex flex-wrap gap-y-2.5">
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">Calls Ringing</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Calls Ringing</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <PhoneCalling className="w-6 h-6" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">Calls Connected</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Calls Connected</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <CheckMarkIcon className="w-5 h-5" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">Calls Transferred</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Calls Transferred</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <CallForward className="w-5 h-5" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">Calls in IVR</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Calls in IVR</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <Graph className="w-5 h-5" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col ">
-                <p className="font-semibold text-gray-900 truncate text-sm">Inbound Calls</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">Inbound Calls</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <CallIncoming className="w-6 h-6" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">VM Dropped</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">VM Dropped</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <CallDropped className="w-6 h-6" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">ACD</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">ACD</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <Leads className="w-5 h-5" />
               </div>
             </div>
           </div>
           <div className="w-1/3 px-1.5">
-            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white">
+            <div className="flex justify-between border border-primary rounded-xl w-full p-3 gap-1 bg-white dark:bg-mcm-surface">
               <div className="flex flex-col">
-                <p className="font-semibold text-gray-900 truncate text-sm">ASR</p>
-                <h2 className="text-gray-800 truncate text-2xl font-semibold">0</h2>
+                <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-sm">ASR</p>
+                <h2 className="text-gray-800 dark:text-mcm-ink truncate text-2xl font-semibold">0</h2>
               </div>
-              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 text-primary">
+              <div className="flex items-center justify-center rounded-xl w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-primary">
                 <CallDropped className="w-6 h-6" />
               </div>
             </div>
@@ -166,7 +166,7 @@ const DialerAgentList: FC<IDialerAgentProps> = ({ setSelectedCampaign, selectedC
 
       <div className={`cursor-pointer transition-all duration-300 `}>
         <div onClick={() => setIsCollapsed((prev) => !prev)}>
-          <h5 className={`text-gray-900 flex items-center gap-1.5 font-semibold mt-2`}>
+          <h5 className={`text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold mt-2`}>
             {selectedCampaign?.name}
           </h5>
         </div>

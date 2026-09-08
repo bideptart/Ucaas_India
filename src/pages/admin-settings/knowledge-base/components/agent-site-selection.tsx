@@ -70,10 +70,10 @@ export default function AgentSiteSelection({
 
   return (
     <div
-      className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+      className="scroll-mt-24 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
       data-validation-key="siteLocation"
     >
-      <h3 className="text-sm font-semibold text-[#2E2D35]">Location</h3>
+      <h3 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Location</h3>
       <p className="mt-0.5 text-xs text-slate-500">
         Select the site this agent belongs to. Its timezone will be used for schedules and
         reporting.

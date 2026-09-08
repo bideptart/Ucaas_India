@@ -360,14 +360,14 @@ function CreateContentModal({
               {`${isEdit ? 'Update' : 'Create'} Content`}
               <div
                 onClick={() => setModalState(false)}
-                className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
               >
                 <CloseIcon className="w-3 h-3" />
               </div>
             </div>
           </div>
           <div className="w-full min-h-0 flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
-            <h5 className="text-gray-500 font-medium text-sm">
+            <h5 className="text-gray-500 dark:text-mcm-ink-3 font-medium text-sm">
               Manually add the information to a blank document.
             </h5>
             <Controller
@@ -398,7 +398,7 @@ function CreateContentModal({
                 render={({ field }) => (
                   <div
                     className={`w-full min-h-[170px] sm:min-h-[220px] overflow-hidden rounded-xl border p-2 ${
-                      errors?.text ? 'border-red-500' : 'border-gray-200'
+                      errors?.text ? 'border-red-500' : 'border-gray-200 dark:border-mcm-line'
                     }`}
                   >
                     <TextEditor
@@ -417,7 +417,7 @@ function CreateContentModal({
               />
             </div>
           </div>
-          <div className="shrink-0 grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 bg-white">
+          <div className="shrink-0 grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface">
             <Button
               variant={'transparent'}
               type="button"

@@ -74,7 +74,7 @@ const Sidebar = () => {
           read as the first item of the list rather than its label. */}
       <ul
         role="list"
-        className="mcm-adminnav mcm-subnav divide-y divide-gray-200 h-full flex flex-row md:flex-col"
+        className="mcm-adminnav mcm-subnav divide-y divide-gray-200 dark:divide-mcm-line h-full flex flex-row md:flex-col"
       >
         {tabsList?.map((item: any) => {
           const isEnabled = item?.enabled !== false;
@@ -88,7 +88,7 @@ const Sidebar = () => {
               }}
             >
               <div
-                className={`flex relative items-center w-full px-3 min-h-14 h-14 gap-2 cursor-pointer ${pathname.includes(item?.path) ? 'text-primary bg-ucass-primary-200/50 border-r-primary border-r-2' : 'text-gray-900/80'}  ${!isEnabled ? 'opacity-60' : ''}`}
+                className={`flex relative items-center w-full px-3 min-h-14 h-14 gap-2 cursor-pointer ${pathname.includes(item?.path) ? 'text-primary bg-ucass-primary-200/50 border-r-primary border-r-2' : 'text-gray-900/80 dark:text-mcm-ink-2'}  ${!isEnabled ? 'opacity-60' : ''}`}
               >
                 {item?.icon}
                 <p className="font-medium truncate text-sm">{item?.name}</p>

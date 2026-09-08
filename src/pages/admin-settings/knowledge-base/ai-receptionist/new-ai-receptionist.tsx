@@ -479,7 +479,7 @@ const sentimentBadgeClass = (sentiment: string) => {
   if (sentiment === 'positive') return 'bg-emerald-100 text-emerald-700';
   if (sentiment === 'negative') return 'bg-red-100 text-red-700';
   if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700';
-  return 'bg-[#FBE2C8]/40 text-[#9A948F]';
+  return 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3';
 };
 const sentimentScoreText = (scores: any) => {
   const positive = Math.round(Number(scores?.positive || 0));
@@ -1993,7 +1993,7 @@ function ReceptionistListStatCard({
   loading?: boolean;
 }) {
   return (
-    <div className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-shadow hover:shadow-[0_6px_16px_-4px_rgba(194,98,46,0.24)]">
+    <div className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-shadow hover:shadow-[0_6px_16px_-4px_rgba(194,98,46,0.24)]">
       <span
         className="absolute inset-x-0 top-0 h-[3px]"
         style={{ backgroundColor: 'var(--primary)', opacity: 0.55 }}
@@ -2004,7 +2004,7 @@ function ReceptionistListStatCard({
         </div>
       )}
       <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-0.5 text-[19px] font-extrabold leading-6 text-[#2E2D35]">{value}</p>
+      <p className="mt-0.5 text-[19px] font-extrabold leading-6 text-[#2E2D35] dark:text-mcm-ink">{value}</p>
       {helper ? <p className="mt-0.5 text-[10px] font-medium text-emerald-600">{helper}</p> : null}
     </div>
   );
@@ -2422,7 +2422,7 @@ function NewAiReceptionistPage() {
                   {isDemo ? (
                     <span
                       title={name}
-                      className="block max-w-[160px] truncate font-semibold text-[#2E2D35]"
+                      className="block max-w-[160px] truncate font-semibold text-[#2E2D35] dark:text-mcm-ink"
                     >
                       {name}
                     </span>
@@ -2440,7 +2440,7 @@ function NewAiReceptionistPage() {
                     </button>
                   )}
                   {isDemo ? (
-                    <span className="shrink-0 rounded-full bg-[#FBE2C8]/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A948F]">
+                    <span className="shrink-0 rounded-full bg-[#FBE2C8]/60 dark:bg-mcm-surface-3/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
                       Demo
                     </span>
                   ) : null}
@@ -2510,18 +2510,18 @@ function NewAiReceptionistPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[140px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-lg rounded-xl p-1 z-50 animate-none"
+                className="w-[140px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 shadow-lg rounded-xl p-1 z-50 animate-none"
               >
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('live')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span>Live</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('inactive')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-slate-400" />
                   <span>Paused</span>
@@ -2545,7 +2545,7 @@ function NewAiReceptionistPage() {
                 <NumberWithFlag number={assignedDID} />
               </span>
             ) : (
-              <span className="text-[13px] font-semibold text-[#9A948F]">Not assigned</span>
+              <span className="text-[13px] font-semibold text-[#9A948F] dark:text-mcm-ink-3">Not assigned</span>
             );
           }
 
@@ -2575,7 +2575,7 @@ function NewAiReceptionistPage() {
             normalizeSentiment(data.sentiment_label) || sentimentLabelFromScore(score) || 'neutral';
           if (!calls) {
             return (
-              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 px-2 py-1 text-xs font-semibold text-[#9A948F]">
+              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 px-2 py-1 text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">
                 Not analyzed
               </span>
             );
@@ -2625,7 +2625,7 @@ function NewAiReceptionistPage() {
               {moment(date).isValid() ? moment.utc(date).local().fromNow() : '-'}
             </span>
           ) : (
-            <div className="text-center font-medium text-[#9A948F]">---</div>
+            <div className="text-center font-medium text-[#9A948F] dark:text-mcm-ink-3">---</div>
           );
         },
       },
@@ -2658,12 +2658,12 @@ function NewAiReceptionistPage() {
               },
               {
                 tooltipText: 'Edit Prompt (sample data)',
-                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3 opacity-60 pointer-events-none',
                 icon: <MessageSquare className="h-4 w-4" />,
               },
               {
                 tooltipText: 'Edit (sample data)',
-                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3 opacity-60 pointer-events-none',
                 icon: <PenLine className="h-4 w-4" />,
               },
               {
@@ -2709,14 +2709,14 @@ function NewAiReceptionistPage() {
               tooltipText: 'Edit Prompt',
               onClick: () => setPromptAgent(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3 transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <MessageSquare className="h-4 w-4" />,
             },
             {
               tooltipText: 'Edit',
               onClick: () => openReceptionistForm(data, 'edit'),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3 transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <PenLine className="h-4 w-4" />,
             },
             {
@@ -2794,7 +2794,7 @@ function NewAiReceptionistPage() {
 
   return (
     <section
-      className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] p-3"
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink p-3"
       style={{ background: AI_TOOLS_PAGE_GRADIENT }}
     >
       <div
@@ -2818,10 +2818,10 @@ function NewAiReceptionistPage() {
           >
             AI Agents
           </button>
-          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">
             AI Receptionists
           </h1>
-          <p className="mt-1 max-w-xl text-[13px] leading-5 text-[#6b5c4d]">
+          <p className="mt-1 max-w-xl text-[13px] leading-5 text-[#6b5c4d] dark:text-mcm-ink-3">
             An AI that answers calls, works out what the caller needs, and routes them or handles it
             outright.
           </p>
@@ -2886,27 +2886,27 @@ function NewAiReceptionistPage() {
             onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
             placeholder="Search receptionists by name..."
             maxLength={50}
-            className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/45 pl-9 pr-8 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[#e8c9a0] focus:border-primary focus:bg-[rgba(251,249,246,0.88)] focus:ring-[3px] focus:ring-primary/12"
+            className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 pl-9 pr-8 text-sm text-[#2E2D35] dark:text-mcm-ink outline-none transition-colors placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 hover:border-[#e8c9a0] dark:hover:border-mcm-line focus:border-primary focus:bg-[rgba(251,249,246,0.88)] dark:focus:bg-mcm-surface/88 focus:ring-[3px] focus:ring-primary/12"
           />
           {search ? (
             <button
               type="button"
               onClick={() => setSearch('')}
               aria-label="Clear search"
-              className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-[#FBE2C8]/70"
+              className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-[#FBE2C8]/70 dark:hover:bg-mcm-surface-3/70"
               style={{ color: '#9A948F' }}
             >
               <X className="h-3.5 w-3.5" />
             </button>
           ) : null}
         </div>
-        <div className="h-5 w-px shrink-0 bg-[#EEE7DD]" />
-        <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] bg-white/70 p-1 shadow-sm">
+        <div className="h-5 w-px shrink-0 bg-[#EEE7DD] dark:bg-mcm-surface-3" />
+        <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] dark:border-mcm-line bg-white/70 p-1 shadow-sm">
           <button
             type="button"
             onClick={() => setStatusFilter('all')}
             className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-              statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+              statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
             }`}
             /* Same unlayered-reset issue as the header buttons above — a
                plain `<button>`'s own background/color always loses to
@@ -2920,7 +2920,7 @@ function NewAiReceptionistPage() {
             All
             <span
               className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+                statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
               }`}
             >
               {totalReceptionistsCount}
@@ -2930,7 +2930,7 @@ function NewAiReceptionistPage() {
             type="button"
             onClick={() => setStatusFilter('live')}
             className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-              statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+              statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
             }`}
             style={
               statusFilter === 'live'
@@ -2946,7 +2946,7 @@ function NewAiReceptionistPage() {
             Live
             <span
               className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+                statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
               }`}
             >
               {liveReceptionistsCount}
@@ -2996,9 +2996,9 @@ function NewAiReceptionistPage() {
             extraParams={{ filters: tableFilters }}
             clientSideSearch={false}
             select={tableSelect}
-            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:px-[18px] [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] [&_td]:h-[62px] [&_td]:px-[18px] [&_td]:py-[10px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
+            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:px-[18px] [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] dark:text-mcm-ink-3 [&_td]:h-[62px] [&_td]:px-[18px] [&_td]:py-[10px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
             loaderTableClass="min-h-[320px]"
-            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70'}
+            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70 dark:hover:bg-mcm-surface-3/70'}
             emptyTablePlaceholder="No receptionists found."
           />
         </div>
@@ -5895,8 +5895,8 @@ function NewAiReceptionistBuilder({
         title="What kind of receptionist do you need?"
         subtitle="Configure the receptionist for your business. You can change everything later."
       />
-      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-        <h3 className="text-sm font-bold text-[#2E2D35]">Identity</h3>
+      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Identity</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field
             label="Receptionist name *"
@@ -5911,7 +5911,7 @@ function NewAiReceptionistBuilder({
               }}
               maxLength={MAX_RECEPTIONIST_NAME_LENGTH}
               placeholder="Reception Desk Assistant"
-              className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+              className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
             />
             <div className="mt-1 flex min-h-4 items-center justify-between gap-2 text-[11px]">
               <span
@@ -5946,7 +5946,7 @@ function NewAiReceptionistBuilder({
               placeholder="e.g. Example Business"
               className={cx(
                 'h-10 w-full rounded-md border px-3 text-sm outline-none focus:border-primary',
-                stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD]',
+                stepErrors.companyBrand ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
               )}
             />
           </Field>
@@ -5986,7 +5986,7 @@ function NewAiReceptionistBuilder({
             value={shortDescription}
             onChange={(event) => setShortDescription(sanitizeAiPlainText(event.target.value))}
             placeholder="What does this receptionist do?"
-            className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+            className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
           />
         </Field>
       </div>
@@ -6001,7 +6001,7 @@ function NewAiReceptionistBuilder({
         disabled={isReadOnly}
         isLoading={isLoadingSites}
       />
-      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+      <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
         <Field
           label="System prompt"
           helper="Master instructions that shape every response. Picking a template above auto-fills this. Edit freely — most teams refine it after testing."
@@ -6014,7 +6014,7 @@ function NewAiReceptionistBuilder({
               setSystemPrompt(sanitizeAiPromptText(event.target.value));
               setStepErrors((prev) => ({ ...prev, systemPrompt: '' }));
             }}
-            className="mt-2 min-h-[170px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
+            className="mt-2 min-h-[170px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
           />
         </Field>
         <p className="text-sm text-slate-600">
@@ -6037,7 +6037,7 @@ function NewAiReceptionistBuilder({
       />
 
       {/* Top Banner (Choose Your AI Voice Persona) */}
-      <div className="rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row md:items-center justify-between gap-5">
+      <div className="rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-start gap-4">
           <div
             className="h-12 w-12 rounded-full flex items-center justify-center shrink-0"
@@ -6061,7 +6061,7 @@ function NewAiReceptionistBuilder({
             </svg>
           </div>
           <div>
-            <h3 className="text-base font-bold text-[#2E2D35] leading-tight">
+            <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink leading-tight">
               Choose Your AI Voice Persona
             </h3>
             <p className="mt-1 text-sm text-slate-500 leading-relaxed max-w-[440px]">
@@ -6073,10 +6073,10 @@ function NewAiReceptionistBuilder({
 
         {/* Right side stats */}
         <div className="flex items-center gap-3 self-stretch md:self-auto shrink-0">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white px-4 py-2.5">
             <Headphones className="h-4 w-4 text-primary shrink-0" />
             <div>
-              <div className="text-lg font-bold leading-5 text-[#2E2D35]">
+              <div className="text-lg font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
                 {availableVoices?.length || 0}
               </div>
               <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
@@ -6084,19 +6084,19 @@ function NewAiReceptionistBuilder({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white px-4 py-2.5">
             <Globe2 className="h-4 w-4 text-primary shrink-0" />
             <div>
-              <div className="text-lg font-bold leading-5 text-[#2E2D35]">50+</div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">50+</div>
               <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
                 Languages
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white px-4 py-2.5">
             <Sparkles className="h-4 w-4 text-primary shrink-0" />
             <div>
-              <div className="text-lg font-bold leading-5 text-[#2E2D35]">Auto</div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">Auto</div>
               <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
                 Detected
               </div>
@@ -6106,7 +6106,7 @@ function NewAiReceptionistBuilder({
       </div>
 
       {/* Auto-Multilingual Alert Callout */}
-      <div className="flex items-center justify-between bg-[#FBE2C8]/40 border border-[rgba(225,200,165,0.9)] rounded-xl p-4 text-sm text-[#8a5a25]">
+      <div className="flex items-center justify-between bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-xl p-4 text-sm text-[#8a5a25]">
         <div className="flex items-center gap-2.5 font-medium">
           <span
             className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-white shrink-0"
@@ -6131,19 +6131,19 @@ function NewAiReceptionistBuilder({
         {/* Title and Filters */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="shrink-0">
-            <h3 className="text-sm font-bold text-[#2E2D35] flex items-center gap-1">
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink flex items-center gap-1">
               Voice persona <span className="text-rose-500 font-normal">*</span>
             </h3>
-            <p className="text-xs text-[#9A948F] mt-0.5">
+            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-0.5">
               Select by accent &amp; personality · Tap{' '}
-              <span className="font-semibold text-[#2E2D35]">▶</span> to hear a live preview
+              <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">▶</span> to hear a live preview
             </p>
           </div>
 
           {/* Filters stacked vertically on the right */}
           <div className="flex flex-col gap-2 items-end">
             {/* Gender Buttons */}
-            <div className="flex items-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white p-1 shadow-[0_1px_3px_rgba(194,98,46,0.08)]">
+            <div className="flex items-center rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white p-1 shadow-[0_1px_3px_rgba(194,98,46,0.08)]">
               <button
                 type="button"
                 onClick={() => setGenderFilter('all')}
@@ -6205,14 +6205,14 @@ function NewAiReceptionistBuilder({
         {/* Search Input Bar */}
         <div className="relative">
           <Search
-            className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 h-4 w-4 text-[#9A948F]"
+            className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 h-4 w-4 text-[#9A948F] dark:text-mcm-ink-3"
           />
           <input
             type="text"
             value={voiceSearchQuery}
             onChange={(e) => setVoiceSearchQuery(sanitizeAiSearchText(e.target.value))}
             placeholder="Search by name, accent, or style..."
-            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
           />
         </div>
       </div>
@@ -6228,30 +6228,30 @@ function NewAiReceptionistBuilder({
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] animate-pulse min-h-[190px] flex flex-col gap-3"
+                className="rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] animate-pulse min-h-[190px] flex flex-col gap-3"
               >
                 <div className="flex items-center justify-between">
-                  <div className="h-4 w-20 bg-[#F0DFC5] rounded" />
-                  <div className="h-4 w-12 bg-[#FBE2C8]/40 rounded" />
+                  <div className="h-4 w-20 bg-[#F0DFC5] dark:bg-mcm-surface-3 rounded" />
+                  <div className="h-4 w-12 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
                 </div>
-                <div className="h-3 w-28 bg-[#FBE2C8]/40 rounded" />
+                <div className="h-3 w-28 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
                 <div className="flex gap-1.5">
-                  <div className="h-4 w-12 bg-[#FBE2C8]/40 rounded" />
-                  <div className="h-4 w-14 bg-[#FBE2C8]/40 rounded" />
-                  <div className="h-4 w-10 bg-[#FBE2C8]/40 rounded" />
+                  <div className="h-4 w-12 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
+                  <div className="h-4 w-14 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
+                  <div className="h-4 w-10 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
                 </div>
-                <div className="h-8 w-full bg-[#FBE2C8]/40 rounded" />
-                <div className="mt-auto h-9 w-9 bg-[#F0DFC5] rounded-full" />
+                <div className="h-8 w-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 rounded" />
+                <div className="mt-auto h-9 w-9 bg-[#F0DFC5] dark:bg-mcm-surface-3 rounded-full" />
               </div>
             ))}
           </div>
         ) : filteredVoices.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-2xl border border-[rgba(225,200,165,0.9)] text-center">
-            <div className="bg-[#FBE2C8]/45 p-3 rounded-full text-[#9A948F] mb-3">
+          <div className="flex flex-col items-center justify-center p-12 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 text-center">
+            <div className="bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 p-3 rounded-full text-[#9A948F] dark:text-mcm-ink-3 mb-3">
               <Search className="h-6 w-6" />
             </div>
-            <h4 className="text-sm font-bold text-[#2E2D35]">No voices found</h4>
-            <p className="text-xs text-[#9A948F] mt-1 max-w-[280px]">
+            <h4 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">No voices found</h4>
+            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1 max-w-[280px]">
               We couldn't find any voices matching your filters or search. Try adjusting them!
             </p>
           </div>
@@ -6310,7 +6310,7 @@ function NewAiReceptionistBuilder({
                   <div>
                     {/* Header Row: Title & Gender Tag */}
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-bold text-[#2E2D35] capitalize">
+                      <span className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink capitalize">
                         {voice.label}
                       </span>
                       <div className="flex items-center gap-1.5">
@@ -6336,7 +6336,7 @@ function NewAiReceptionistBuilder({
                     </div>
 
                     {/* Accent Line */}
-                    <p className="text-xs text-[#9A948F] mt-1">
+                    <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1">
                       {accentDisplay}
                       {voice.locale && voice.locale !== 'en-US' ? ` · ${voice.locale}` : ''}
                     </p>
@@ -6346,7 +6346,7 @@ function NewAiReceptionistBuilder({
                       {meta.tags.map((tag: string) => (
                         <span
                           key={tag}
-                          className="bg-[#FBE2C8]/45 text-[#9A948F] text-[10px] font-semibold px-2 py-0.5 rounded border border-[#EEE7DD]"
+                          className="bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 text-[#9A948F] dark:text-mcm-ink-3 text-[10px] font-semibold px-2 py-0.5 rounded border border-[#EEE7DD] dark:border-mcm-line"
                         >
                           {tag}
                         </span>
@@ -6354,7 +6354,7 @@ function NewAiReceptionistBuilder({
                     </div>
 
                     {/* Description Paragraph */}
-                    <p className="text-xs text-[#9A948F] mt-3 leading-relaxed">{meta.description}</p>
+                    <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-3 leading-relaxed">{meta.description}</p>
                   </div>
 
                   {/* Bottom Left Play Button */}
@@ -6424,7 +6424,7 @@ function NewAiReceptionistBuilder({
           title="Opening line & business hours"
           subtitle="Tell the receptionist what to say first, and when it should answer."
         />
-        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
           <Field label="Opening line" error={stepErrors.greetingText} fieldKey="greetingText">
             <textarea
               value={greetingText}
@@ -6433,7 +6433,7 @@ function NewAiReceptionistBuilder({
                 setStepErrors((prev) => ({ ...prev, greetingText: '' }));
                 setSelectedGreetingType('custom');
               }}
-              className="min-h-[110px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
+              className="min-h-[110px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
             />
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
               <span className="flex items-center gap-1 text-slate-500 font-medium mr-1">
@@ -6447,7 +6447,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'friendly'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white text-slate-600 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                 )}
               >
                 Friendly greeting
@@ -6459,7 +6459,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'professional'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white text-slate-600 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                 )}
               >
                 Professional intro
@@ -6471,7 +6471,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'triage'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white text-slate-600 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                 )}
               >
                 Quick triage
@@ -6483,7 +6483,7 @@ function NewAiReceptionistBuilder({
                   'h-8 px-3 rounded-full border text-xs font-semibold cursor-pointer transition-colors',
                   selectedGreetingType === 'holiday'
                     ? 'border-primary bg-primary/5 text-primary'
-                    : 'border-[#EEE7DD] bg-white text-slate-600 hover:border-[#EEE7DD]',
+                    : 'border-[#EEE7DD] dark:border-mcm-line bg-white text-slate-600 hover:border-[#EEE7DD] dark:hover:border-mcm-line',
                 )}
               >
                 Holiday message
@@ -6500,9 +6500,9 @@ function NewAiReceptionistBuilder({
         </div>
         {selectedLocationId !== 'none' && (
           <>
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
               <div className="flex items-baseline gap-1.5">
-                <h3 className="text-sm font-bold text-[#2E2D35]">Business hours</h3>
+                <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours</h3>
                 <span className="text-xs text-slate-400 font-normal">(optional)</span>
               </div>
               <p className="mt-1 text-xs text-slate-500">
@@ -6528,7 +6528,7 @@ function NewAiReceptionistBuilder({
                   variant="outline"
                   type="button"
                   onClick={() => openModal('bussinessHoursModal')}
-                  className="h-10 border-[#EEE7DD] font-semibold cursor-pointer"
+                  className="h-10 border-[#EEE7DD] dark:border-mcm-line font-semibold cursor-pointer"
                 >
                   <Clock3 className="mr-2 h-4 w-4" />
                   Set business hours
@@ -6536,8 +6536,8 @@ function NewAiReceptionistBuilder({
               </div>
             </div>
 
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-              <h3 className="text-sm font-bold text-[#2E2D35]">Business hours behavior</h3>
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Business hours behavior</h3>
               <p className="mt-1 text-xs text-slate-500">
                 What should happen when callers reach you{' '}
                 <span className="font-semibold text-slate-700">during</span> business hours? Click{' '}
@@ -6547,7 +6547,7 @@ function NewAiReceptionistBuilder({
 
               <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-[#2E2D35]">Enable human handoff</p>
+                  <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable human handoff</p>
                   <p className="mt-1 text-xs text-slate-500 leading-normal">
                     When ON, the AI can forward business-hours calls to the selected destination.
                   </p>
@@ -6568,7 +6568,7 @@ function NewAiReceptionistBuilder({
 
               {enableHumanHandoff && (
                 <div
-                  className="mt-4 rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/50 p-4"
+                  className="mt-4 rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 p-4"
                   data-validation-key="forwardCall"
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -6577,7 +6577,7 @@ function NewAiReceptionistBuilder({
                         <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                           Forward Type
                         </p>
-                        <p className="mt-1 text-sm font-bold text-[#2E2D35]">
+                        <p className="mt-1 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
                           {committedForwardTypeLabel}
                         </p>
                       </div>
@@ -6586,7 +6586,7 @@ function NewAiReceptionistBuilder({
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                             {getForwardValueFieldLabel(selectedForwardType)}
                           </p>
-                          <p className="mt-1 flex items-center gap-1 text-sm font-bold text-[#2E2D35]">
+                          <p className="mt-1 flex items-center gap-1 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
                             {committedForwardValueLabel}
                             {
                               selectedForwardType === 'EXTENSION' &&
@@ -6615,7 +6615,7 @@ function NewAiReceptionistBuilder({
                       variant="outline"
                       type="button"
                       onClick={handleOpenForwardDestinationModal}
-                      className="h-9 border-[#EEE7DD] font-semibold cursor-pointer"
+                      className="h-9 border-[#EEE7DD] dark:border-mcm-line font-semibold cursor-pointer"
                     >
                       <Edit3 className="mr-2 h-3.5 w-3.5" />
                       Edit
@@ -6628,8 +6628,8 @@ function NewAiReceptionistBuilder({
               )}
             </div>
 
-            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] min-h-96">
-              <h3 className="text-sm font-bold text-[#2E2D35]">Manager Configuration</h3>
+            <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] min-h-96">
+              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Manager Configuration</h3>
               <p className="mt-1 text-xs text-slate-500">
                 Select the manager who owns callback & escalation requests. The chosen manager
                 receives the schedule details and may keep the callback or reassign it to another
@@ -6650,7 +6650,7 @@ function NewAiReceptionistBuilder({
                   className="shrink-0 mt-1"
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-[#2E2D35]">Enable callback scheduling</p>
+                  <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Enable callback scheduling</p>
                   <p className="mt-1 text-xs text-slate-500 leading-normal">
                     When ON, the AI can offer to schedule a callback during a call and pass the
                     request to a manager. When OFF, the manager picker below is locked — the AI will
@@ -6722,7 +6722,7 @@ function NewAiReceptionistBuilder({
           <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0">
-                <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">
+                <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">
                   Knowledge — your website
                 </h1>
                 <p className="mt-1 max-w-[540px] text-sm leading-5 text-slate-500">
@@ -6859,19 +6859,19 @@ function NewAiReceptionistBuilder({
             </div>
 
             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-              <span className="h-px flex-1 bg-[#F0DFC5]" />
+              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
               <span>Or pick an existing one</span>
-              <span className="h-px flex-1 bg-[#F0DFC5]" />
+              <span className="h-px flex-1 bg-[#F0DFC5] dark:bg-mcm-surface-3" />
             </div>
 
-            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+            <div className="overflow-hidden rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
               <div className="px-5 py-4">
-                <h3 className="text-lg font-bold text-[#2E2D35]">Pick a knowledge base</h3>
+                <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">Pick a knowledge base</h3>
                 <p className="mt-1 text-sm text-slate-500">
                   Search your existing knowledge bases or create a new one from a website.
                 </p>
                 <div className="relative mt-4">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-[#9A948F]" />
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3" />
                   <input
                     value={knowledgeBaseSearch}
                     onChange={(event) =>
@@ -6879,11 +6879,11 @@ function NewAiReceptionistBuilder({
                     }
                     disabled={isReadOnly}
                     placeholder="Search knowledge bases..."
-                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
+                    className="h-11 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] pl-11 pr-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3/45"
                   />
                 </div>
               </div>
-              <div className="divide-y divide-[#EEE7DD] border-t border-[#EEE7DD]">
+              <div className="divide-y divide-[#EEE7DD] border-t border-[#EEE7DD] dark:border-mcm-line">
                 {isFetchingReusableKnowledgeAgents ? (
                   <div className="flex items-center gap-2 px-5 py-5 text-sm font-medium text-slate-500">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -6913,7 +6913,7 @@ function NewAiReceptionistBuilder({
                           {checked && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-bold text-[#2E2D35]">
+                          <span className="block truncate text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
                             {agent.name}
                           </span>
                           <span className="mt-1 block truncate text-sm text-slate-500">
@@ -6957,11 +6957,11 @@ function NewAiReceptionistBuilder({
 
       return (
         <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4">
-          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="mx-auto mt-2 w-full max-w-[540px] rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-7 py-9 text-center shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             <div className="mx-auto mb-3 grid h-[52px] w-[52px] place-items-center rounded-xl bg-primary/10 text-primary">
               <Globe2 className="h-[26px] w-[26px]" />
             </div>
-            <h3 className="text-lg font-bold text-[#2E2D35]">What's your website?</h3>
+            <h3 className="text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">What's your website?</h3>
             <p className="mx-auto mt-1 max-w-[420px] text-[13px] leading-5 text-slate-500">
               We'll scan it and group your Product, Service, and Contact pages — you pick what to
               use.
@@ -6984,8 +6984,8 @@ function NewAiReceptionistBuilder({
                 disabled={isReadOnly}
                 placeholder="https://yourcompany.com"
                 className={cx(
-                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
-                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD]',
+                  'w-full rounded-lg border px-3.5 py-[11px] text-[13px] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3/45',
+                  stepErrors.websiteUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
                 )}
               />
             </div>
@@ -7088,7 +7088,7 @@ function NewAiReceptionistBuilder({
               return (
                 <div
                   key={category.id}
-                  className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+                  className="overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]"
                 >
                   <button
                     type="button"
@@ -7097,7 +7097,7 @@ function NewAiReceptionistBuilder({
                     onClick={() => setExpandedPickPageCategoryId(category.id)}
                     className={cx(
                       'flex w-full items-center gap-2.5 bg-slate-50 px-3.5 py-3 text-left',
-                      isExpanded && 'border-b border-[#EEE7DD]',
+                      isExpanded && 'border-b border-[#EEE7DD] dark:border-mcm-line',
                     )}
                   >
                     <div
@@ -7113,7 +7113,7 @@ function NewAiReceptionistBuilder({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-bold text-[#2E2D35]">{category.title}</h4>
+                      <h4 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{category.title}</h4>
                       <p className="mt-0.5 text-xs text-slate-500">{category.subtitle}</p>
                     </div>
                     <ChevronDown
@@ -7133,7 +7133,7 @@ function NewAiReceptionistBuilder({
                             key={link}
                             htmlFor={checkboxId}
                             className={cx(
-                              'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] px-3.5 py-2 transition-colors last:border-b-0',
+                              'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] dark:border-mcm-line px-3.5 py-2 transition-colors last:border-b-0',
                               selected ? 'bg-primary/[0.04]' : 'bg-white',
                               isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-slate-50',
                             )}
@@ -7157,7 +7157,7 @@ function NewAiReceptionistBuilder({
                                 color: '#ffffff',
                               }}
                             />
-                            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35]">
+                            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                               {getPickPageRowLabel(link, category.stripLeadingSegments)}
                             </span>
                             <span
@@ -7180,7 +7180,7 @@ function NewAiReceptionistBuilder({
         <div className="flex flex-col gap-4">
           {discoveredLinks.length > 0 && (
             <div className="rounded-[10px] border border-dashed border-slate-300 bg-white p-3.5">
-              <p className="text-sm font-bold text-[#2E2D35]">Add another URL</p>
+              <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add another URL</p>
               <p className="mt-1 text-xs text-slate-500">Paste any page not auto-detected.</p>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input
@@ -7199,8 +7199,8 @@ function NewAiReceptionistBuilder({
                   disabled={isReadOnly}
                   placeholder="https://yourcompany.com/page"
                   className={cx(
-                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45',
-                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD]',
+                    'h-10 min-w-0 flex-1 rounded-lg border px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3/45',
+                    stepErrors.extraUrl ? 'border-red-400' : 'border-[#EEE7DD] dark:border-mcm-line',
                   )}
                 />
                 {!isReadOnly && (
@@ -7237,9 +7237,9 @@ function NewAiReceptionistBuilder({
             </div>
           )}
 
-          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+          <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-[22px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
             <div className="mb-3.5">
-              <h3 className="text-sm font-bold text-[#2E2D35]">Add content</h3>
+              <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Add content</h3>
               <p className="mt-0.5 text-xs leading-5 text-slate-500">
                 Type or paste the facts, policies, and answers your receptionist should know —
                 pricing, hours, addresses, refund rules, FAQs, anything. Write it in plain language;
@@ -7253,7 +7253,7 @@ function NewAiReceptionistBuilder({
               readOnly={isReadOnly}
               disabled={isReadOnly}
               placeholder={`Type or paste anything your receptionist should know — write naturally, the AI organizes it into searchable answers.\n\nEXAMPLE\nBusiness hours: Monday-Friday, 9:00 AM to 6:00 PM EST. Closed weekends and US public holidays.\nPricing: Growth plan starts at ₹996 per user / month. Pro is ₹1,992 per user / month. Enterprise is custom-quoted - offer to connect the caller with sales.\nOffice address: 123 Market Street, Suite 400, San Francisco, CA 94105.\nRefund policy: Full refund within 30 days of purchase. No refunds after 30 days.\nSupport contact: support@example.com or +1 (800) 555-0199.`}
-              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] p-3 text-sm leading-6 text-[#2E2D35] outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
+              className="min-h-[220px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm leading-6 text-[#2E2D35] dark:text-mcm-ink outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 dark:disabled:bg-mcm-surface-3/45"
             />
             <p className="mt-1 text-right text-[11px] font-medium text-slate-500">
               {customContentWordCount} {customContentWordCount === 1 ? 'word' : 'words'}
@@ -7279,7 +7279,7 @@ function NewAiReceptionistBuilder({
                     className="flex items-start justify-between gap-2 rounded-md border border-slate-100 bg-slate-50 px-3 py-2 text-xs"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-[#2E2D35]">{item.title}</p>
+                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{item.title}</p>
                       <p className="mt-0.5 line-clamp-2 text-slate-500">{item.text}</p>
                     </div>
                     {!isReadOnly && (
@@ -7321,7 +7321,7 @@ function NewAiReceptionistBuilder({
               disabled={isReadOnly || pendingFiles.length >= 5}
               className="flex min-h-[96px] w-full cursor-pointer flex-col items-center justify-center rounded-[10px] border-2 border-dashed border-slate-300 bg-white px-5 py-5 text-center transition-colors hover:border-primary hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span className="inline-flex items-center gap-2 text-sm font-bold text-[#2E2D35]">
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">
                 <UploadCloud className="h-5 w-5 text-slate-500" />
                 Add documents to the knowledge base
               </span>
@@ -7335,13 +7335,13 @@ function NewAiReceptionistBuilder({
                 {pendingFiles.map(({ id, file }) => (
                   <div
                     key={id}
-                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 py-2 text-sm"
+                    className="flex items-center gap-2 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 py-2 text-sm"
                   >
                     <div className="grid h-7 w-7 shrink-0 place-items-center rounded bg-red-50 text-[10px] font-bold text-red-700">
                       PDF
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-[#2E2D35]">{file.name}</p>
+                      <p className="truncate font-semibold text-[#2E2D35] dark:text-mcm-ink">{file.name}</p>
                       <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
                     </div>
                     {!isReadOnly && (
@@ -7428,8 +7428,8 @@ function NewAiReceptionistBuilder({
                  opaque instead of letting the page behind bleed through. */
               style={{ backgroundColor: '#ffffff' }}
             >
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeSourceModal.type === 'faq'
                     ? '💬 Source for this FAQ'
                     : '📄 Source Document'}
@@ -7437,7 +7437,7 @@ function NewAiReceptionistBuilder({
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeSourceModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -7446,29 +7446,29 @@ function NewAiReceptionistBuilder({
                 <div className="mb-3 grid gap-1.5 rounded-lg bg-slate-50 px-3.5 py-3 text-xs">
                   <div className="flex gap-3">
                     <span className="min-w-[120px] font-semibold text-slate-600">Title</span>
-                    <span className="font-semibold text-[#2E2D35]">
+                    <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                       {reviewKnowledgeSourceModal.title}
                     </span>
                   </div>
                   <div className="flex gap-3">
                     <span className="min-w-[120px] font-semibold text-slate-600">Source</span>
-                    <span className="min-w-0 break-all text-[#2E2D35]">{sourcePath}</span>
+                    <span className="min-w-0 break-all text-[#2E2D35] dark:text-mcm-ink">{sourcePath}</span>
                   </div>
                   <div className="flex gap-3">
                     <span className="min-w-[120px] font-semibold text-slate-600">Imported</span>
-                    <span className="text-[#2E2D35]">
+                    <span className="text-[#2E2D35] dark:text-mcm-ink">
                       {reviewKnowledgeSourceModal.status || 'Just now'}
                     </span>
                   </div>
                 </div>
-                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700">
+                <div className="max-h-[320px] overflow-y-auto rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-3 text-[13px] leading-[1.65] text-slate-700">
                   {reviewKnowledgeSourceModal.body ? (
                     <p className="whitespace-pre-line">{reviewKnowledgeSourceModal.body}</p>
                   ) : (
                     <p className="text-slate-500">No content preview available.</p>
                   )}
                   <div className="mt-3 rounded-md border-l-[3px] border-primary bg-primary/5 px-3 py-2 text-xs leading-5 text-slate-700">
-                    <b className="text-[#2E2D35]">Full summarized content shown above.</b> This is
+                    <b className="text-[#2E2D35] dark:text-mcm-ink">Full summarized content shown above.</b> This is
                     the content the receptionist uses to answer related questions. To revise
                     wording, use Edit on the card.
                   </div>
@@ -7496,14 +7496,14 @@ function NewAiReceptionistBuilder({
               className="w-full max-w-[540px] rounded-xl shadow-2xl"
               style={{ backgroundColor: '#ffffff' }}
             >
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Edit FAQ' : 'Edit document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeEditModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -7519,7 +7519,7 @@ function NewAiReceptionistBuilder({
                       prev ? { ...prev, title: event.target.value } : prev,
                     )
                   }
-                  className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+                  className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
                 />
                 <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Answer' : 'Document content'}
@@ -7531,10 +7531,10 @@ function NewAiReceptionistBuilder({
                       prev ? { ...prev, body: event.target.value } : prev,
                     )
                   }
-                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                  className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                 />
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeEditModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -7552,20 +7552,20 @@ function NewAiReceptionistBuilder({
               className="w-full max-w-[540px] rounded-xl shadow-2xl"
               style={{ backgroundColor: '#ffffff' }}
             >
-              <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
-                <h3 className="text-base font-bold text-[#2E2D35]">
+              <div className="flex items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+                <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                   {reviewKnowledgeAddModal.type === 'faq' ? 'Add FAQ' : 'Add document'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setReviewKnowledgeAddModal(null)}
-                  className="text-slate-400 hover:text-[#2E2D35]"
+                  className="text-slate-400 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="p-5">
-                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] pb-2.5">
+                <div className="mb-3.5 flex gap-1.5 border-b border-[#EEE7DD] dark:border-mcm-line pb-2.5">
                   {[
                     { value: 'text' as const, label: 'Paste text' },
                     // { value: 'upload' as const, label: 'Upload file' },
@@ -7611,7 +7611,7 @@ function NewAiReceptionistBuilder({
                           ? 'e.g. How much does it cost?'
                           : 'e.g. Refund policy'
                       }
-                      className="h-10 w-full rounded-lg border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+                      className="h-10 w-full rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
                     />
                     <label className="mb-1.5 mt-3 block text-xs font-semibold text-slate-700">
                       {reviewKnowledgeAddModal.type === 'faq' ? 'Answer' : 'Document content'}
@@ -7628,7 +7628,7 @@ function NewAiReceptionistBuilder({
                           ? 'Type the answer the receptionist should give. Short, conversational answers work best.'
                           : 'Type or paste the content the receptionist should learn from. Short, factual paragraphs work best.'
                       }
-                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
+                      className="min-h-[150px] w-full resize-y rounded-lg border border-[#EEE7DD] dark:border-mcm-line px-3 py-2 text-sm leading-6 outline-none focus:border-primary"
                     />
                   </>
                 ) : (
@@ -7645,10 +7645,10 @@ function NewAiReceptionistBuilder({
                     <button
                       type="button"
                       onClick={() => reviewKnowledgeFileInputRef.current?.click()}
-                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] px-7 py-7 text-center text-sm text-slate-600 transition-colors hover:border-primary hover:bg-primary/5"
+                      className="w-full rounded-[10px] border-2 border-dashed border-[#EEE7DD] dark:border-mcm-line px-7 py-7 text-center text-sm text-slate-600 transition-colors hover:border-primary hover:bg-primary/5"
                     >
                       <UploadCloud className="mx-auto mb-2 h-8 w-8 text-slate-500" />
-                      <b className="text-[#2E2D35]">Choose a file</b>
+                      <b className="text-[#2E2D35] dark:text-mcm-ink">Choose a file</b>
                       <span className="mt-1 block text-xs text-slate-500">
                         Upload a document to add it to this knowledge base.
                       </span>
@@ -7659,7 +7659,7 @@ function NewAiReceptionistBuilder({
                           DOC
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[13px] font-semibold text-[#2E2D35]">
+                          <p className="truncate text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                             {reviewKnowledgeAddModal.file.name}
                           </p>
                           <p className="text-[11px] text-slate-500">
@@ -7682,7 +7682,7 @@ function NewAiReceptionistBuilder({
                   </>
                 )}
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] px-5 py-4">
+              <div className="flex justify-end gap-2 border-t border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
                 <SecondaryButton onClick={() => setReviewKnowledgeAddModal(null)}>
                   Cancel
                 </SecondaryButton>
@@ -7725,17 +7725,17 @@ function NewAiReceptionistBuilder({
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3.5 text-left">
         <div>
-          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">Review knowledge</h1>
+          <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">Review knowledge</h1>
           <p className="mt-1 text-sm leading-5 text-slate-500">
             Review what was generated. Edit, delete, or add Documents and FAQs before continuing.
           </p>
         </div>
 
-        <div className="rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-gradient-to-br from-[#FFF6EA] to-[#FBE2C8]/60 px-[22px] py-[22px] text-center">
+        <div className="rounded-[14px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-gradient-to-br from-[#FFF6EA] to-[#FBE2C8]/60 px-[22px] py-[22px] text-center">
           <div className="mx-auto mb-2.5 grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white">
             <Check className="h-[26px] w-[26px] stroke-[3]" />
           </div>
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">
             Here's what your receptionist will know
           </h2>
           <p className="mt-0.5 text-[13px] leading-5 text-slate-600">
@@ -7751,11 +7751,11 @@ function NewAiReceptionistBuilder({
             { label: 'FAQs', value: validFaqCount },
             { label: 'Training', value: '~3 min', valueClassName: 'text-sm' },
           ].map((item) => (
-            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
+            <div key={item.label} className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-3">
               <p className="text-[11px] font-medium leading-4 text-slate-500">{item.label}</p>
               <p
                 className={cx(
-                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35]',
+                  'mt-0.5 text-xl font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink',
                   item.valueClassName,
                 )}
               >
@@ -7766,14 +7766,14 @@ function NewAiReceptionistBuilder({
         </div>
 
         <div className="mt-1">
-          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35]">Knowledge Base Summary</h2>
+          <h2 className="text-[18px] font-bold leading-6 text-[#2E2D35] dark:text-mcm-ink">Knowledge Base Summary</h2>
           <p className="mt-1 text-[13px] leading-5 text-slate-600">
             Here's what the AI receptionist will use. Edit anything, delete what shouldn't be there,
             add anything missing.
           </p>
         </div>
 
-        <div className="inline-flex w-fit gap-[3px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/50 p-1">
+        <div className="inline-flex w-fit gap-[3px] rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 p-1">
           {[
             {
               key: 'documents' as const,
@@ -7827,14 +7827,14 @@ function NewAiReceptionistBuilder({
 
         <div className="mb-0.5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#9A948F]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#9A948F] dark:text-mcm-ink-3" />
             <input
               value={reviewKnowledgeSearch}
               onChange={(event) =>
                 setReviewKnowledgeSearch(sanitizeAiSearchText(event.target.value))
               }
               placeholder={searchPlaceholder}
-              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
+              className="h-[38px] w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] pl-9 pr-3 text-[13px] outline-none focus:border-primary"
             />
           </div>
           {!isReadOnly && (
@@ -7853,7 +7853,7 @@ function NewAiReceptionistBuilder({
         {isDocumentsTab ? (
           <div className="flex flex-col gap-2.5">
             {isSummarizingKnowledgeBase ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating summary...
               </div>
@@ -7870,10 +7870,10 @@ function NewAiReceptionistBuilder({
                     return (
                       <div
                         key={document.id}
-                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                        className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line/90 hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                       >
                         <div className="flex items-start justify-between gap-2.5">
-                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
+                          <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
                             {document.title}
                           </h3>
                           {renderReviewKnowledgeMenu('document', document)}
@@ -7883,7 +7883,7 @@ function NewAiReceptionistBuilder({
                             {copy}
                           </p>
                         )}
-                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                           <span className="min-w-0 truncate">
                             From {document.source || 'selected source'}
                           </span>
@@ -7893,7 +7893,7 @@ function NewAiReceptionistBuilder({
                     );
                   })
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
                     No documents found.
                   </div>
                 )}
@@ -7903,7 +7903,7 @@ function NewAiReceptionistBuilder({
         ) : (
           <div className="flex flex-col gap-2.5">
             {isGeneratingKnowledgeFaqs ? (
-              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
+              <div className="flex items-center justify-center gap-2 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-8 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Generating FAQs...
               </div>
@@ -7918,10 +7918,10 @@ function NewAiReceptionistBuilder({
                   filteredFaqs.map((faq) => (
                     <div
                       key={faq.id}
-                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+                      className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-[22px] py-[18px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line/90 hover:shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
                     >
                       <div className="mb-3 flex items-start justify-between gap-3">
-                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35]">
+                        <h3 className="min-w-0 flex-1 break-words text-[15px] font-bold leading-5 text-[#2E2D35] dark:text-mcm-ink">
                           {faq.question || 'Untitled FAQ'}
                         </h3>
                         {renderReviewKnowledgeMenu('faq', faq)}
@@ -7929,7 +7929,7 @@ function NewAiReceptionistBuilder({
                       <p className="whitespace-pre-line break-words text-[13px] leading-[1.6] text-slate-700">
                         {faq.answer || 'No answer added yet.'}
                       </p>
-                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-3 flex flex-col gap-2 border-t border-[#EEE7DD] dark:border-mcm-line pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                         <span className="min-w-0 truncate">
                           {faq.source ? `From ${faq.source}` : 'Manual'}
                         </span>
@@ -7938,7 +7938,7 @@ function NewAiReceptionistBuilder({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
+                  <div className="rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-8 text-center text-sm text-slate-500">
                     No FAQs found. Add a custom FAQ to create knowledge manually.
                   </div>
                 )}
@@ -7999,11 +7999,11 @@ function NewAiReceptionistBuilder({
         trailing={<Switch checked={enableTranscripts} disabled />}
       />
       {/* ── Data Collection ──────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+      <div className="overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-5 pt-5 pb-4">
           <div>
-            <h3 className="text-sm font-bold text-[#2E2D35]">Data Collection</h3>
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Data Collection</h3>
             <p className="mt-1 text-xs leading-5 text-slate-500">
               When enabled, the AI politely asks callers for the details checked below and stores
               them on the call record. Turn off to collect only the caller's phone number.
@@ -8039,7 +8039,7 @@ function NewAiReceptionistBuilder({
         )}
 
         {/* Fields list */}
-        <div className="border-t border-[#EEE7DD]">
+        <div className="border-t border-[#EEE7DD] dark:border-mcm-line">
           {[
             { key: 'name' as DetailField, label: 'Name', alwaysAsked: true, disabled: true },
             { key: 'phone' as DetailField, label: 'Phone', alwaysAsked: true, disabled: true },
@@ -8069,7 +8069,7 @@ function NewAiReceptionistBuilder({
                 <div
                   key={key}
                   className={cx(
-                    'flex items-center gap-4 border-b border-[#EEE7DD] px-5 py-3 last:border-b-0 transition-colors',
+                    'flex items-center gap-4 border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-3 last:border-b-0 transition-colors',
                     isChecked && !isAlwaysAsked && 'bg-amber-50/40',
                     isAlwaysAsked && 'bg-amber-50/60',
                     !isChecked && 'opacity-60',
@@ -8097,7 +8097,7 @@ function NewAiReceptionistBuilder({
                   <span
                     className={cx(
                       'flex-1 text-sm font-semibold',
-                      isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
+                      isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
                     )}
                   >
                     {label}
@@ -8131,7 +8131,7 @@ function NewAiReceptionistBuilder({
                       <span
                         className={cx(
                           'text-xs font-semibold',
-                          isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
+                          isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
                         )}
                       >
                         Mandatory
@@ -8158,7 +8158,7 @@ function NewAiReceptionistBuilder({
                       <span
                         className={cx(
                           'text-xs font-semibold',
-                          isChecked ? 'text-[#2E2D35]' : 'text-slate-400',
+                          isChecked ? 'text-[#2E2D35] dark:text-mcm-ink' : 'text-slate-400',
                         )}
                       >
                         Optional
@@ -8171,12 +8171,12 @@ function NewAiReceptionistBuilder({
         </div>
 
         {/* Push to CRM */}
-        <div className="border-t border-[#EEE7DD] bg-amber-50/30 px-5 py-4">
+        <div className="border-t border-[#EEE7DD] dark:border-mcm-line bg-amber-50/30 px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-2.5">
               <span className="text-base">🎯</span>
               <div>
-                <p className="text-sm font-bold text-[#2E2D35]">Push captured data to CRM</p>
+                <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Push captured data to CRM</p>
                 <p className="mt-0.5 text-xs leading-5 text-slate-500">
                   When enabled, the AI auto-creates a contact in your CRM using the fields collected
                   above, with the full call transcript attached.
@@ -8222,10 +8222,10 @@ function NewAiReceptionistBuilder({
           )}
         </div>
       </div>
-      {/* <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+      {/* <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-bold text-[#2E2D35]">Routing</h3>
+            <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Routing</h3>
             <p className="mt-1 text-sm text-slate-500">
               Configure where calls should go when the AI needs help.
             </p>
@@ -8237,18 +8237,18 @@ function NewAiReceptionistBuilder({
         </div>
         {enableHumanHandoff && (
           <div className="mt-4 grid gap-3">
-            <div className="rounded-lg border border-[#EEE7DD] p-4">
+            <div className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs text-slate-500">Forward Type</p>
-                  <p className="text-sm font-bold text-[#2E2D35]">{committedForwardTypeLabel}</p>
+                  <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{committedForwardTypeLabel}</p>
                 </div>
                 {committedShouldShowForwardTo && (
                   <div>
                     <p className="text-xs text-slate-500">
                       {getForwardValueFieldLabel(selectedForwardType)}
                     </p>
-                    <p className="text-sm font-bold text-[#2E2D35]">{committedForwardValueLabel}</p>
+                    <p className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{committedForwardValueLabel}</p>
                   </div>
                 )}
                 <Button variant="outline" size="sm" onClick={handleOpenForwardDestinationModal}>
@@ -8258,7 +8258,7 @@ function NewAiReceptionistBuilder({
               </div>
             </div>
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">Manager</span>
+              <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Manager</span>
               <CustomSelect
                 value={selectedManagerOption}
                 handleChange={(option: any) => {
@@ -8275,8 +8275,8 @@ function NewAiReceptionistBuilder({
             {stepErrors.manager && <p className="text-sm text-red-500">{stepErrors.manager}</p>}
           </div>
         )}
-        <div className="mt-4 flex items-center justify-between rounded-md bg-[#FBE2C8]/45 px-3 py-2">
-          <span className="text-sm font-semibold text-[#2E2D35]">Schedule Callback</span>
+        <div className="mt-4 flex items-center justify-between rounded-md bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 px-3 py-2">
+          <span className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Schedule Callback</span>
           <Switch
             checked={enableCallbackScheduling}
             onCheckedChange={(checked) => setEnableCallbackScheduling(checked === true)}
@@ -8287,7 +8287,7 @@ function NewAiReceptionistBuilder({
         title="Max Session Duration"
         copy="Set the maximum session length in seconds before the AI ends the active conversation."
         trailing={
-          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary">
+          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] focus-within:border-primary">
             <input
               type="number"
               value={maxSessionDuration}
@@ -8313,7 +8313,7 @@ function NewAiReceptionistBuilder({
         title="Idle Reminder"
         copy="Set how many seconds to wait before sending an idle reminder to the caller."
         trailing={
-          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] focus-within:border-primary">
+          <div className="flex h-9 w-32 items-center rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] focus-within:border-primary">
             <input
               type="number"
               value={idleReminder}
@@ -8352,7 +8352,7 @@ function NewAiReceptionistBuilder({
               )
             }
             onBlur={() => setIdleReminderRetry((value) => (value === '' ? 1 : value))}
-            className="h-9 w-28 rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
+            className="h-9 w-28 rounded-md border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
           />
         }
       />
@@ -8402,12 +8402,12 @@ function NewAiReceptionistBuilder({
 
   return (
     <FormProvider {...formInstance}>
-      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
+      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
         <div
           className={cx(
-            'flex bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]',
+            'flex bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]',
             useWizardEdit
-              ? 'min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] px-3 py-3 sm:px-6'
+              ? 'min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 px-3 py-3 sm:px-6'
               : 'p-4 pb-0',
           )}
         >
@@ -8420,7 +8420,7 @@ function NewAiReceptionistBuilder({
               AI Receptionists
             </button>
             <span>/</span>
-            <span className="text-[#2E2D35]">
+            <span className="text-[#2E2D35] dark:text-mcm-ink">
               {isEdit
                 ? useWizardEdit
                   ? 'Update Receptionist'
@@ -8632,7 +8632,7 @@ function ReceptionistEditHeader({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="truncate text-lg font-bold text-[#2E2D35]">{name}</h2>
+            <h2 className="truncate text-lg font-bold text-[#2E2D35] dark:text-mcm-ink">{name}</h2>
             <span
               className={cx(
                 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
@@ -8740,7 +8740,7 @@ function ReceptionistStepper({
   else if (activeStep === 6) currentStepId = 7;
 
   return (
-    <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-6">
+    <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-6 py-6">
       <div className="relative mx-auto max-w-[1200px]">
         {/* Progress Line */}
         <div className="absolute top-4 left-[8%] right-[8%] h-[1px] bg-[#EAECF0] -translate-y-1/2 z-0" />
@@ -8771,7 +8771,7 @@ function ReceptionistStepper({
                       'border-primary bg-primary text-white shadow-sm ring-4 ring-primary/10',
                     !isCompleted &&
                       !isActive &&
-                      'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)]',
+                      'border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] text-slate-400 group-hover:border-[rgba(225,200,165,0.9)] dark:group-hover:border-mcm-line/90',
                   )}
                 >
                   {isCompleted ? <Check className="h-4 w-4 stroke-[3.5]" /> : step.id}
@@ -8816,7 +8816,7 @@ function ReceptionistEditTabs({
     { key: 'advanced', label: 'Advanced Settings', icon: <ArrowRight className="h-4 w-4" /> },
   ];
   return (
-    <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4">
+    <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4">
       <div className="flex gap-1 overflow-x-auto">
         <button
           type="button"
@@ -8833,7 +8833,7 @@ function ReceptionistEditTabs({
           {overviewTab.icon}
           {overviewTab.label}
         </button>
-        {/* <span className="my-3 h-6 w-px shrink-0 bg-[#F0DFC5]" /> */}
+        {/* <span className="my-3 h-6 w-px shrink-0 bg-[#F0DFC5] dark:bg-mcm-surface-3" /> */}
         {stepTabs.map((tab) => (
           <button
             key={tab.key}
@@ -9007,9 +9007,9 @@ function ReceptionistOverview({
                     className="grid grid-cols-[1.4fr_1fr_0.8fr_1fr_0.8fr] items-center py-3 text-sm px-1"
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-[#2E2D35]">{call.phone}</span>
+                      <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{call.phone}</span>
                       {call.startedAt && (
-                        <span className="text-xs text-[#9A948F]">
+                        <span className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
                           {moment(call.startedAt).format('MMM DD, hh:mm A')}
                         </span>
                       )}
@@ -9080,7 +9080,7 @@ function ReceptionistOverview({
               <button
                 type="button"
                 onClick={onEditRouting}
-                className="mt-3 h-9 w-full rounded-md border border-[#EEE7DD] text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary"
+                className="mt-3 h-9 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line text-sm font-bold text-slate-700 transition-colors hover:border-primary hover:text-primary"
               >
                 Edit routing
               </button>
@@ -9127,10 +9127,10 @@ function AddKnowledgeBaseDialog({
       }}
     >
       <DialogContent className="max-w-[720px] p-0" showCloseButton={false}>
-        <DialogHeader className="border-b border-[#EEE7DD] px-5 py-4">
+        <DialogHeader className="border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <DialogTitle className="text-base font-bold text-[#2E2D35]">
+              <DialogTitle className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">
                 Create new knowledge base
               </DialogTitle>
               <p className="mt-1 text-sm text-slate-500">
@@ -9140,7 +9140,7 @@ function AddKnowledgeBaseDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-md p-1 text-slate-400 hover:bg-[#FBE2C8]/40"
+              className="rounded-md p-1 text-slate-400 hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40"
             >
               <X className="h-5 w-5" />
             </button>
@@ -9179,7 +9179,7 @@ function AddKnowledgeBaseDialog({
               <input
                 value={customContentTitle}
                 onChange={(event) => setCustomContentTitle(event.target.value)}
-                className="h-10 w-full rounded-md border border-[#EEE7DD] px-3 text-sm outline-none focus:border-primary"
+                className="h-10 w-full rounded-md border border-[#EEE7DD] dark:border-mcm-line px-3 text-sm outline-none focus:border-primary"
               />
             </Field>
             <Field label="Content">
@@ -9187,7 +9187,7 @@ function AddKnowledgeBaseDialog({
                 value={customContent}
                 onChange={(event) => setCustomContent(event.target.value)}
                 placeholder="Paste FAQs, policies, company details, or support instructions..."
-                className="min-h-[190px] w-full resize-y rounded-md border border-[#EEE7DD] p-3 text-sm outline-none focus:border-primary"
+                className="min-h-[190px] w-full resize-y rounded-md border border-[#EEE7DD] dark:border-mcm-line p-3 text-sm outline-none focus:border-primary"
               />
             </Field>
             <div className="flex items-center justify-between">
@@ -9224,12 +9224,12 @@ function KnowledgeActionCard({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 text-left transition-colors hover:border-primary"
+      className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-4 text-left transition-colors hover:border-primary"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/5 text-primary">
         {icon}
       </span>
-      <span className="mt-3 block text-sm font-bold text-[#2E2D35]">{title}</span>
+      <span className="mt-3 block text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</span>
       <span className="mt-1 block text-sm leading-5 text-slate-500">{copy}</span>
     </button>
   );
@@ -9238,7 +9238,7 @@ function KnowledgeActionCard({
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
-      <h2 className="text-lg font-bold tracking-normal text-[#2E2D35]">{title}</h2>
+      <h2 className="text-lg font-bold tracking-normal text-[#2E2D35] dark:text-mcm-ink">{title}</h2>
       <p className="mt-1 text-sm leading-5 text-slate-500">{subtitle}</p>
     </div>
   );
@@ -9261,7 +9261,7 @@ function Field({
 }) {
   return (
     <label className={cx('block scroll-mt-24', className)} data-validation-key={fieldKey}>
-      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">{label}</span>
+      <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">{label}</span>
       {helper && <span className="mb-2 block text-xs text-slate-500">{helper}</span>}
       {children}
       {error && <span className="mt-1 block text-xs text-red-500">{error}</span>}
@@ -9279,9 +9279,9 @@ function SettingsRow({
   trailing: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
       <div>
-        <h3 className="text-sm font-bold text-[#2E2D35]">{title}</h3>
+        <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
         <p className="mt-1 text-sm leading-5 text-slate-500">{copy}</p>
       </div>
       <div className="shrink-0">{trailing}</div>
@@ -9291,8 +9291,8 @@ function SettingsRow({
 
 function OverviewPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
-      <h3 className="text-base font-bold text-[#2E2D35]">{title}</h3>
+    <div className="rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+      <h3 className="text-base font-bold text-[#2E2D35] dark:text-mcm-ink">{title}</h3>
       <div className="mt-4">{children}</div>
     </div>
   );
@@ -9300,9 +9300,9 @@ function OverviewPanel({ title, children }: { title: string; children: ReactNode
 
 function KeyValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] py-2 text-sm last:border-b-0">
+    <div className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] dark:border-mcm-line py-2 text-sm last:border-b-0">
       <span className="text-slate-600">{label}</span>
-      <strong className="text-right text-[#2E2D35]">{value || '-'}</strong>
+      <strong className="text-right text-[#2E2D35] dark:text-mcm-ink">{value || '-'}</strong>
     </div>
   );
 }
@@ -9319,14 +9319,14 @@ function StatCard({
   loading?: boolean;
 }) {
   return (
-    <div className="relative min-h-[82px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+    <div className="relative min-h-[82px] rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
       {loading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       )}
       <p className="text-[11px] font-medium leading-4 text-slate-500">{label}</p>
-      <p className="mt-[3px] text-[22px] font-bold leading-7 text-[#2E2D35]">{value}</p>
+      <p className="mt-[3px] text-[22px] font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">{value}</p>
       {helper ? <p className="mt-0.5 text-[11px] font-medium text-emerald-500">{helper}</p> : null}
     </div>
   );
@@ -9421,7 +9421,7 @@ function ReviewKnowledgeMenu({
           event.stopPropagation();
           onToggle();
         }}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35]"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
         aria-label="Knowledge card actions"
       >
         ⋮
@@ -9430,7 +9430,7 @@ function ReviewKnowledgeMenu({
         ? createPortal(
             <div
               ref={menuRef}
-              className="fixed z-[200] w-[178px] rounded-lg border border-[rgba(225,200,165,0.9)] p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
+              className="fixed z-[200] w-[178px] rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
               /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css)
                  unlayered glass-pass would turn a literal `bg-white` class
                  translucent here — inline style keeps this menu solidly
@@ -9552,7 +9552,7 @@ function SecondaryButton({
 
 function NoDataAvailable() {
   return (
-    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500">
+    <div className="rounded-lg border border-dashed border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-5 py-10 text-center text-sm font-medium text-slate-500">
       No data available
     </div>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -64,6 +65,7 @@ const ItemHoveredContent = ({
   const { user } = useUser();
   const actorUuid = user?.uuid || user?.guest_info?.uuid || '';
   const { handleSendReaction, handlePinMessage } = useSocketEvents();
+  const theme = useTheme();
 
   const [emojiOpen, setEmojiOpen] = useState(false);
 
@@ -304,7 +306,7 @@ const ItemHoveredContent = ({
   return (
     <>
       <div
-        className={`absolute -top-8 ${senderId === actorUuid ? 'right-0' : 'left-0'} flex items-center justify-center gap-1.5 z-10 px-2 py-1 bg-white rounded-md shadow-lg border cursor-pointer`}
+        className={`absolute -top-8 ${senderId === actorUuid ? 'right-0' : 'left-0'} flex items-center justify-center gap-1.5 z-10 px-2 py-1 bg-white dark:bg-mcm-surface rounded-md shadow-lg border dark:border-mcm-line cursor-pointer`}
       >
         {!isPinnedView ? (
           <Tooltip>
@@ -315,9 +317,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setEmojiOpen((prev) => !prev)}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <Smile size={15} className="text-gray-700" />
+                <Smile size={15} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">React</TooltipContent>
@@ -332,9 +334,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleReply}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <Reply size={14} className="text-gray-700" />
+                <Reply size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Reply</TooltipContent>
@@ -349,9 +351,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleReplyThread}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <ReplyAll size={14} className="text-gray-700" />
+                <ReplyAll size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Reply in thread</TooltipContent>
@@ -370,9 +372,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleForward}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <Forward size={14} className="text-gray-700" />
+                <Forward size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Forward</TooltipContent>
@@ -387,9 +389,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleSelect}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <CheckSquare size={14} className="text-gray-700" />
+                <CheckSquare size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Select message</TooltipContent>
@@ -408,9 +410,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleCopy}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <Copy size={14} className="text-gray-700" />
+                <Copy size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Copy</TooltipContent>
@@ -425,12 +427,12 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={pinMessageHandler}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
                 {msgObj?.isPinned ? (
-                  <PinOffIcon size={14} className="text-gray-700" />
+                  <PinOffIcon size={14} className="text-gray-700 dark:text-mcm-ink-2" />
                 ) : (
-                  <Pin size={14} className="text-gray-700" />
+                  <Pin size={14} className="text-gray-700 dark:text-mcm-ink-2" />
                 )}
               </Button>
             </TooltipTrigger>
@@ -447,9 +449,9 @@ const ItemHoveredContent = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onCreateTask?.()}
-                className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
               >
-                <ClipboardList size={14} className="text-gray-700" />
+                <ClipboardList size={14} className="text-gray-700 dark:text-mcm-ink-2" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">Create Task</TooltipContent>
@@ -469,9 +471,9 @@ const ItemHoveredContent = ({
                     variant="ghost"
                     size="sm"
                     onClick={handleEdit}
-                    className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                    className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
                   >
-                    <Edit size={14} className="text-gray-700" />
+                    <Edit size={14} className="text-gray-700 dark:text-mcm-ink-2" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">Edit</TooltipContent>
@@ -485,7 +487,7 @@ const ItemHoveredContent = ({
                   variant="ghost"
                   size="sm"
                   onClick={handleDelete}
-                  className="h-6 w-6 p-0 hover:bg-gray-100 cursor-pointer"
+                  className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-mcm-surface-3 cursor-pointer"
                 >
                   <Trash2 size={14} className="text-red-600" />
                 </Button>
@@ -507,6 +509,7 @@ const ItemHoveredContent = ({
               }}
             >
               <EmojiPicker
+                theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                 lazyLoadEmojis
                 open={emojiOpen}
                 searchDisabled

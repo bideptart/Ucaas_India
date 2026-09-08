@@ -56,7 +56,7 @@ const UserDepartment = () => {
     {
       header: 'Date',
       accessorKey: 'created_at',
-      cell: ({ getValue }: any) => <div className="text-gray-600">{formatDate(getValue())}</div>,
+      cell: ({ getValue }: any) => <div className="text-muted-foreground">{formatDate(getValue())}</div>,
     },
     {
       header: 'Department Name',
@@ -81,7 +81,7 @@ const UserDepartment = () => {
       header: 'Extension',
       accessorKey: 'extension',
       cell: ({ getValue }: any) => (
-        <div className="flex shrink-0 items-center gap-1 text-gray-500">
+        <div className="flex shrink-0 items-center gap-1 text-muted-foreground">
           <Icon name="Grid" className="w-4 h-4" aria-hidden="true" />
           <small className="text-xs tabular-nums">{getValue() || '---'}</small>
         </div>
@@ -112,7 +112,7 @@ const UserDepartment = () => {
           name = raw?.label || '';
         }
 
-        return <div className="text-gray-600 capitalize">{name || '---'}</div>;
+        return <div className="text-muted-foreground capitalize">{name || '---'}</div>;
       },
     },
     {
@@ -162,7 +162,7 @@ const UserDepartment = () => {
                           loading="lazy"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
+                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-muted text-muted-foreground text-xs capitalize">
                           {getInitials(username)}
                         </div>
                       )}
@@ -205,7 +205,7 @@ const UserDepartment = () => {
                 setRowData(data);
               },
 
-              className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit',
             },
           hasDepartmentAccess &&
@@ -250,11 +250,11 @@ const UserDepartment = () => {
   };
 
   return (
-    <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden overflow-x-auto overflow-y-hidden">
-      <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-        <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+    <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden overflow-x-auto overflow-y-hidden">
+      <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
+        <div className="text-foreground font-semibold text-lg flex items-center gap-1">
           Phone System
-          <div className="-rotate-90 text-gray-800">
+          <div className="-rotate-90 text-foreground">
             <Icon name="ChevronIcon" className="w-5 h-5" />
           </div>
           <span className="text-primary text-md">{isSharedLine ? 'Shared Lines' : 'Departments'}</span>
@@ -276,7 +276,7 @@ const UserDepartment = () => {
                 if (value.startsWith(' ')) return;
                 setSearch(value);
               }}
-              Icon={<SearchLine className="text-gray-700" aria-hidden="true" />}
+              Icon={<SearchLine className="text-muted-foreground" aria-hidden="true" />}
             />
             {hasDepartmentAccess && departmentActions?.add && (
               <Button
@@ -294,7 +294,7 @@ const UserDepartment = () => {
       </div>
       {!showInfo ? (
         <div className="w-full p-3 flex flex-col gap-2">
-          <p className="text-gray-900 text-sm">
+          <p className="text-foreground text-sm">
             {isSharedLine
               ? 'Multi-Department Sharing, this feature to link one or more departments to a single shared line. This creates a unified communication point where all assigned departments can manage calls from the same number simultaneously.'
               : 'Create a department to organize your company’s workflow. This allows you to route calls to specific teams (e.g., Support or Billing) and assign multiple users to a single extension so they can handle incoming calls together.'}

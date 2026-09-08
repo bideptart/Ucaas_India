@@ -15,14 +15,14 @@ const Breadcrumb = ({ breadcrumbs, extraInfo = '' }: BreadCumsType) => {
   };
 
   return (
-    <div className="border border-gray-200 bg-gray-100 p-3 rounded-xl">
+    <div className="border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3 p-3 rounded-xl">
       <div className={`flex ${extraInfo ? 'justify-between' : ''}`} aria-label="Breadcrumb">
         <ol className="flex items-center gap-2">
           {breadcrumbs?.map((breadcrumb: any, index) => (
             <li key={index}>
               <div className="flex items-center gap-2">
                 {index > 0 && (
-                  <div className="-rotate-90 text-gray-800">
+                  <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                     <Icon name="ChevronIcon" className="w-5 h-5" />
                   </div>
                 )}
@@ -30,7 +30,7 @@ const Breadcrumb = ({ breadcrumbs, extraInfo = '' }: BreadCumsType) => {
                   className={`inline-flex items-center ${
                     index === breadcrumbs.length - 1
                       ? 'font-semibold text-sm text-primary cursor-pointer hover:text-primary/90'
-                      : 'font-medium text-sm text-gray-900 cursor-pointer hover:text-gray-900/90'
+                      : 'font-medium text-sm text-gray-900 dark:text-mcm-ink cursor-pointer hover:text-gray-900/90 dark:hover:text-mcm-ink'
                   }`}
                 >
                   {breadcrumb.path ? (

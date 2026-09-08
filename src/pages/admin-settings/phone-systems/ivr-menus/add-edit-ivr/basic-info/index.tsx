@@ -45,8 +45,8 @@ const IvrBasicInfo = ({ initialData, onRestorePrevious, restoreRequested }: any)
     <div className="flex h-full min-h-0 flex-col gap-4 pt-1 sm:pt-2">
       {previousVersion && !restoreRequested && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
-          <p className="text-xs text-gray-700">
-            <span className="font-semibold text-gray-900">This menu was changed</span>
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">This menu was changed</span>
             {changedWhen ? ` on ${changedWhen}` : ''}
             {previousVersion.changed_by ? ` by ${previousVersion.changed_by}` : ''}. Callers hear
             changes as soon as they are saved.
@@ -59,8 +59,8 @@ const IvrBasicInfo = ({ initialData, onRestorePrevious, restoreRequested }: any)
 
       {restoreRequested && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2">
-          <p className="text-xs text-gray-700">
-            <span className="font-semibold text-gray-900">Showing the previous version.</span>{' '}
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Showing the previous version.</span>{' '}
             Nothing has been changed yet - look through the tabs, then press Save to put this back,
             or close without saving to leave the menu as it is.
           </p>
@@ -102,7 +102,7 @@ const IvrBasicInfo = ({ initialData, onRestorePrevious, restoreRequested }: any)
           />
           {!initialData?.uuid && (
             <Button
-              className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white border border-primary hover:bg-primary hover:text-white text-primary"
+              className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-card border border-primary hover:bg-primary hover:text-white text-primary"
               type="button"
               onClick={generateNewExtension}
             >

@@ -49,7 +49,7 @@ const RoleModal: FC<RoleModalProps> = ({ modalState, setModalState, data }) => {
             Select Role
             <div
               onClick={handleCancel}
-              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>

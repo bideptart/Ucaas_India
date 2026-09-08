@@ -86,7 +86,7 @@ function AIDomain() {
         return (
           <span className="flex items-center gap-2 max-w-full overflow-hidden">
             <span
-              className="font-medium text-gray-900 truncate max-w-[170px] inline-block"
+              className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[170px] inline-block"
               title={row?.original?.agentName || 'Unknown'}
             >
               {row?.original?.agentName || 'Unknown'}
@@ -108,7 +108,7 @@ function AIDomain() {
         return (
           <span className="flex items-center gap-2 max-w-full overflow-hidden">
             <span
-              className="font-medium text-gray-900 truncate max-w-[190px] inline-block"
+              className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[190px] inline-block"
               title={row?.original?.domain || 'Unknown'}
             >
               {row?.original?.domain || 'Unknown'}
@@ -163,7 +163,7 @@ function AIDomain() {
               setSelectedRowData(data);
               setModalState((prev) => ({ ...prev, widget: true }));
             },
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
             tooltipText: 'Widget',
           },
           domainAccess?.delete &&
@@ -196,18 +196,18 @@ function AIDomain() {
   ];
   return (
     <>
-      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
           <div>
-            <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+            <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-                className="text-slate-500 transition-colors hover:text-primary"
+                className="text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
               >
                 AI Agents
               </button>
-              <div className="-rotate-90 text-gray-800">
+              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">Domain</span>
@@ -219,7 +219,7 @@ function AIDomain() {
                 IconPosition="left-0 pl-2 inset-y-0"
                 value={search}
                 onChange={(e) => setSearch(e?.target?.value)}
-                Icon={<SearchLine className=" text-gray-700" />}
+                Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
               />
               {domainAccess?.add && (
                 <Button
@@ -233,7 +233,7 @@ function AIDomain() {
               )}
             </div>
           </div>
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
             Domains your AI agents are allowed to read from when building answers.
           </p>
         </div>

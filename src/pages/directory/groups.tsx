@@ -271,7 +271,7 @@ const Groups = () => {
         </section>
 
         {/* ── right: selected group's detail ────────────────────────────── */}
-        <div className="gp-ug-right-body min-h-0 flex-1 flex flex-col overflow-hidden bg-gray-200/15">
+        <div className="gp-ug-right-body min-h-0 flex-1 flex flex-col overflow-hidden bg-muted/40">
           {selected ? (
             <>
               <div className="gp-ug-detail-head w-full min-w-0 px-3 bg-white gap-2 flex items-center justify-between rounded-none border-b border-gray-200 min-h-[65px]">

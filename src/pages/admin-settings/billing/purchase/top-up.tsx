@@ -109,9 +109,9 @@ const TopUp = () => {
       </div>
 
       <div className="flex sm:flex-row flex-col justify-between  w-full gap-3">
-        <div className="border border-gray-200 rounded-xl p-3 gap-1 flex flex-col w-full bg-white">
-          <h5 className="text-gray-900 flex items-center gap-1.5 font-semibold">Top-up Now</h5>
-          <p className="text-gray-700 flex items-center gap-1.5 text-sm mb-2">
+        <div className="border border-gray-200 dark:border-mcm-line rounded-xl p-3 gap-1 flex flex-col w-full bg-white dark:bg-mcm-surface">
+          <h5 className="text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold">Top-up Now</h5>
+          <p className="text-gray-700 dark:text-mcm-ink-2 flex items-center gap-1.5 text-sm mb-2">
             Add to your balance. Anything unused stays on the account.
           </p>
           <div className="w-full mt-2">

@@ -365,7 +365,7 @@ const CompanyMessaging = () => {
                   Your 10DLC registration right now
                 </p>
                 {isDlcLoading && (
-                  <span className="rounded-sm bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-600">
+                  <span className="rounded-sm bg-gray-100 dark:bg-mcm-surface-3 px-2 py-1 text-[11px] font-semibold text-gray-600 dark:text-mcm-ink-3">
                     Checking...
                   </span>
                 )}
@@ -380,7 +380,7 @@ const CompanyMessaging = () => {
                   </span>
                 )}
                 {!isDlcLoading && !isBrandVerified && !isBrandUnverified && (
-                  <span className="rounded-sm bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-600">
+                  <span className="rounded-sm bg-gray-100 dark:bg-mcm-surface-3 px-2 py-1 text-[11px] font-semibold text-gray-600 dark:text-mcm-ink-3">
                     {isDlcError ? 'Could not check' : 'Not known'}
                   </span>
                 )}

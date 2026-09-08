@@ -19,7 +19,7 @@ const Loader = ({ variant = 'white', size = 'sm' }: any) => {
      now a real CSS value from the moment the stylesheet loads, so nothing
      is worth waiting for here. */
   if (!variants[variant]) {
-    return <span className="text-sm font-medium text-gray-500 animate-pulse">Please wait...</span>;
+    return <span className="text-sm font-medium text-gray-500 dark:text-mcm-ink-3 animate-pulse">Please wait...</span>;
   }
 
   return (

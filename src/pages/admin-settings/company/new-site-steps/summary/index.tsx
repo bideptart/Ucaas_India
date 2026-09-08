@@ -36,56 +36,56 @@ const Summary = ({ formInstance }: any) => {
   return (
     // <div className="flex flex-col gap-2 h-[calc(100vh_-_19rem)] overflow-auto pt-4">
     <div className="flex w-full flex-col gap-3">
-      <h5 className="font-semibold text-gray-900 text-md">Site Summary Overview</h5>
+      <h5 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">Site Summary Overview</h5>
       <div className="flex gap-4">
         {/* <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-3 w-1/2"> */}
-        <div className="flex w-full flex-col gap-3 rounded-xl border border-gray-200 p-4 sm:p-5">
+        <div className="flex w-full flex-col gap-3 rounded-xl border border-gray-200 dark:border-mcm-line p-4 sm:p-5">
           <div className="flex flex-col gap-4">
-            <h6 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+            <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-base flex items-center gap-2">
               <Icon name="CompayIcon" className="h-4.5 w-4.5 text-primary" />
               Location Details
             </h6>
-            <div className="flex flex-col gap-1 rounded-md border border-gray-200 bg-gray-100 p-3 sm:flex-row sm:items-center">
-              <h6 className="text-sm font-semibold text-gray-800">Location Name:</h6>
-              <span className="break-words text-sm text-gray-800">{watchSiteName}</span>
+            <div className="flex flex-col gap-1 rounded-md border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3 p-3 sm:flex-row sm:items-center">
+              <h6 className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Location Name:</h6>
+              <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchSiteName}</span>
             </div>
           </div>
           <hr className="text-gray-200 w-full my-2" />
           <div className="flex flex-col gap-3">
-            <h6 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+            <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-base flex items-center gap-2">
               <MapPinIcon className="w-4.5 h-4.5 text-primary" />
               Physical Address
             </h6>
             <div className="flex flex-col gap-2.5">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">Address:</h6>
-                <span className="break-words text-sm text-gray-800">{watchAddress}</span>
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Address:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchAddress}</span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">City:</h6>
-                <span className="break-words text-sm text-gray-800">{watchCity}</span>
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">City:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchCity}</span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">State:</h6>
-                <span className="break-words text-sm text-gray-800">{watchState}</span>
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">State:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchState}</span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">Country:</h6>
-                <span className="break-words text-sm text-gray-800">{watchCountry?.value}</span>
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Country:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchCountry?.value}</span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">Postal Code:</h6>
-                <span className="break-words text-sm text-gray-800">{watchPostalCode}</span>
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Postal Code:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">{watchPostalCode}</span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">Timezone:</h6>
-                <span className="break-words text-sm text-gray-800">
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Timezone:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">
                   {watchTimezone?.value || '---'}
                 </span>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
-                <h6 className="min-w-32 text-sm font-semibold text-gray-800">Caller ID:</h6>
-                <span className="break-words text-sm text-gray-800">
+                <h6 className="min-w-32 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Caller ID:</h6>
+                <span className="break-words text-sm text-gray-800 dark:text-mcm-ink-2">
                   {callerIdSummary[watchCallerIdType] || '---'}
                 </span>
               </div>
@@ -102,13 +102,13 @@ const Summary = ({ formInstance }: any) => {
               actually live instead of leaving somebody hunting for a step that
               does not exist. */}
           <hr className="text-gray-200 w-full my-2" />
-          <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
-            <p className="text-sm font-semibold text-gray-900">What this location will control</p>
-            <p className="mt-1 text-xs text-gray-600">
+          <div className="rounded-md border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-3">
+            <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">What this location will control</p>
+            <p className="mt-1 text-xs text-gray-600 dark:text-mcm-ink-3">
               Anyone you assign here picks up this timezone for their working hours, and this
               address is what the location is registered at for buying local numbers.
             </p>
-            <p className="mt-2 text-xs text-gray-600">
+            <p className="mt-2 text-xs text-gray-600 dark:text-mcm-ink-3">
               Billing details and the emergency address are held once for your whole company, not
               per location — you will find them under Company &amp; Locations, in Billing and in
               Emergency address. Outbound caller ID is recorded against this location but is not yet

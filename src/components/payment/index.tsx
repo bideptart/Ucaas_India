@@ -212,13 +212,13 @@ const PaymentScreen = forwardRef(
           className="flex w-full"
         >
           {(enableSaveCard || showIsStaticSaveCard) && (
-            <div className="border-b border-gray-200 w-full">
+            <div className="border-b border-gray-200 dark:border-mcm-line w-full">
               <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none min-h-10 ">
                 {Object?.values(PAYMENT_TYPES)?.map((v: any) => {
                   return (
                     <TabsTrigger
                       key={v}
-                      className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
+                      className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
                       value={v}
                     >
                       {v}
@@ -271,13 +271,13 @@ const SavedCards = ({ cards, selectedCard, setSelectedCard }: any) => {
               />
               <div
                 className="flex items-center gap-4 px-3
-                            rounded-xl border border-gray-300 
-                            peer-checked:border-primary peer-checked:bg-primary/10 
+                            rounded-xl border border-gray-300 dark:border-mcm-line
+                            peer-checked:border-primary peer-checked:bg-primary/10
                             transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 <img src={VisaCardImage} alt="Visa Card" className="w-10 h-10 object-contain" />
 
-                <div className="flex items-center gap-2 text-gray-900">
+                <div className="flex items-center gap-2 text-gray-900 dark:text-mcm-ink">
                   <p className="text-md font-semibold tracking-wider">****</p>
                   <p className="text-md font-semibold tracking-wider">{last4}</p>
                 </div>
@@ -324,20 +324,20 @@ const NewCard = ({
               showIcon: true,
               placeholder: '**** **** **** ****',
             }}
-            className="stripe-element w-full border normal-case border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10"
+            className="stripe-element w-full border normal-case border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 dark:disabled:bg-mcm-surface-3 disabled:text-slate-500 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink-2 placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10"
           />
         </div>
         <div className="flex gap-1.5 w-full flex-col">
           <p className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
             Expiration Date
           </p>
-          <CardExpiryElement className="stripe-element w-full border normal-case border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
+          <CardExpiryElement className="stripe-element w-full border normal-case border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 dark:disabled:bg-mcm-surface-3 disabled:text-slate-500 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink-2 placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
         </div>
         <div className="flex gap-1.5 w-full flex-col">
           <p className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
             CVC
           </p>
-          <CardCvcElement className="stripe-element w-full border normal-case border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
+          <CardCvcElement className="stripe-element w-full border normal-case border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-gray-300 dark:disabled:bg-mcm-surface-3 disabled:text-slate-500 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink-2 placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
         </div>
       </div>
       {showIsSaveCard && (

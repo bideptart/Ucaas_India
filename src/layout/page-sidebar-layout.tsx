@@ -47,8 +47,8 @@ const PageSidebarLayout = ({
         // Campaign, which those two pages style directly.
         'mcm-sidepanel relative transition-colors duration-300 ease-in-out',
         isGlassSidebar
-          ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)]'
-          : 'bg-white',
+          ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)] dark:bg-mcm-surface/50'
+          : 'bg-mcm-surface',
         isCampaignResponsiveTopbar
           ? 'h-auto lg:h-full'
           : isAdminResponsiveTopbar
@@ -65,16 +65,16 @@ const PageSidebarLayout = ({
           : isAdminResponsiveTopbar
             ? hovered
               ? 'border-b border-primary lg:border-r lg:border-b-0'
-              : 'border-b border-gray-200 lg:border-r lg:border-b-0'
+              : 'border-b border-mcm-line lg:border-r lg:border-b-0'
             : title === 'Reports'
               ? hovered
                 ? 'border-b border-primary md:border-r md:border-b-0'
-                : 'border-b border-gray-200 md:border-r md:border-b-0'
+                : 'border-b border-mcm-line md:border-r md:border-b-0'
               : isGlassSidebar
                 ? 'border-r'
                 : hovered
                   ? 'border-r border-primary'
-                  : 'border-r border-gray-200 ',
+                  : 'border-r border-mcm-line ',
         collapsed
           ? 'w-[0rem] min-w-[0rem]'
           : isTab
@@ -86,6 +86,7 @@ const PageSidebarLayout = ({
                 : isAdminResponsiveTopbar
                   ? 'w-full min-w-0 max-w-full lg:min-w-[16rem] lg:max-w-[16rem]'
                   : 'md:min-w-[16rem] md:max-w-[16rem] w-full xs:max-h-32 md:max-h-full',
+        isGlassSidebar && 'psl-glass-border',
       )}
       style={
         isGlassSidebar
@@ -97,16 +98,16 @@ const PageSidebarLayout = ({
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
+            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-mcm-line rounded-full p-0.5 cursor-pointer hidden',
             isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
             collapsed || hovered || isCampaignResponsiveTopbar
               ? 'opacity-100 pointer-events-auto'
               : 'opacity-0 pointer-events-none',
             hovered
               ? isGlassSidebar
-                ? 'text-white'
+                ? 'text-white psl-glass-collapse-hover'
                 : 'bg-primary text-white'
-              : 'bg-white text-gray-600',
+              : 'bg-mcm-surface text-mcm-ink-3',
           )}
           style={hovered && isGlassSidebar ? { background: '#E78B50' } : undefined}
         >
@@ -127,7 +128,7 @@ const PageSidebarLayout = ({
               // while the panel itself snaps, so the two moved at different
               // speeds. Upstream's glass border variant is kept.
               'flex items-center justify-between p-3 border-b min-h-[65px]',
-              isGlassSidebar ? 'border-orange-100/60' : 'border-gray-200',
+              isGlassSidebar ? 'border-orange-100/60 dark:border-[rgba(100,116,139,0.25)]' : 'border-mcm-line',
               title === 'Reports' && 'min-h-14 md:min-h-[65px]',
               collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100',
             )}
@@ -135,7 +136,11 @@ const PageSidebarLayout = ({
             <div className={`flex gap-1 items-center ${headerCustomClass}`}>
               <span>{icon}</span>
               <h4
-                className={cn('font-semibold text-lg', !isGlassSidebar && 'text-gray-900')}
+                className={cn(
+                  'font-semibold text-lg',
+                  !isGlassSidebar && 'text-mcm-ink',
+                  isGlassSidebar && 'psl-glass-title',
+                )}
                 style={isGlassSidebar ? { color: '#8A3F1C' } : undefined}
               >
                 {title}

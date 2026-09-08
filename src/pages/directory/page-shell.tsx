@@ -117,12 +117,19 @@ export const SearchChip = ({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
+      /* Text color moved from an inline style to a className with a `dark:`
+         variant — inline styles win over every stylesheet rule regardless
+         of specificity, so a hardcoded `color` here could never be
+         overridden by `.dark .gp-people .tbar .fchip` (or any other page's
+         dark rules) no matter what those set. Left the input's own text at
+         near-black in dark mode: readable on light-theme's cream chip, but
+         indistinguishable from the dark-theme chip behind it. */
+      className="text-[#1a1a1a] placeholder:text-[#8a6f57]/70 dark:text-mcm-ink dark:placeholder:text-mcm-ink-3"
       style={{
         border: 0,
         background: 'transparent',
         width: '100%',
         outline: 'none',
-        color: '#1a1a1a',
       }}
     />
   </label>

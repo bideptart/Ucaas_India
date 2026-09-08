@@ -39,9 +39,11 @@ import {
 } from '@/lib/addons';
 
 const PILL: Record<AddOnState, string> = {
-  included: 'border-green-200 bg-green-50 text-green-800',
-  'not-included': 'border-gray-200 bg-gray-50 text-gray-600',
-  unknown: 'border-amber-200 bg-amber-50 text-amber-800',
+  included:
+    'border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-400',
+  'not-included': 'border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3',
+  unknown:
+    'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-400',
 };
 
 const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
@@ -67,11 +69,11 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           addOn.monthlyPrice === undefined ? (
             /* Still no price for this one. Better a plain admission than a
                figure somebody budgets against. */
-            <span className="text-xs text-gray-500">{priceText()}</span>
+            <span className="text-xs text-gray-500 dark:text-mcm-ink-3">{priceText()}</span>
           ) : (
-            <span className="text-sm font-semibold tabular-nums text-gray-900">
+            <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
               {moneyOrUnavailable(addOn.monthlyPrice)}
-              <span className="ml-1 text-xs font-normal text-gray-500">a month</span>
+              <span className="ml-1 text-xs font-normal text-gray-500 dark:text-mcm-ink-3">a month</span>
             </span>
           )
         }
@@ -83,7 +85,7 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           description={`${addOn.included.toLocaleString()} ${addOn.includedUnit ?? ''} each month. Unused ones do not carry over.`.trim()}
           control={
             addOn.overageRate !== undefined ? (
-              <span className="text-xs text-gray-600 tabular-nums">
+              <span className="text-xs text-gray-600 dark:text-mcm-ink-3 tabular-nums">
                 then {moneyOrUnavailable(addOn.overageRate)} per{' '}
                 {(addOn.includedUnit ?? 'unit').replace(/s$/, '')}
               </span>
@@ -104,7 +106,7 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           {open ? (
             <ul className="mt-2 flex flex-col gap-1.5">
               {addOn.detail.map((line) => (
-                <li key={line} className="text-xs leading-relaxed text-gray-600">
+                <li key={line} className="text-xs leading-relaxed text-gray-600 dark:text-mcm-ink-3">
                   {line}
                 </li>
               ))}

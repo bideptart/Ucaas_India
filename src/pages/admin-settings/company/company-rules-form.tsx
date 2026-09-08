@@ -121,22 +121,22 @@ const CompanyRulesForm = ({ tab }: { tab: string }) => {
       )}
 
       {!isLoading && !hasCompanyDefaults && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-gray-700 mb-3">
-          <p className="font-semibold text-gray-900 mb-1">Not set up yet</p>
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-gray-700 dark:text-mcm-ink-2 mb-3">
+          <p className="font-semibold text-gray-900 dark:text-mcm-ink mb-1">Not set up yet</p>
           <p>Nothing has been set for your company yet. Choose what you want below and save.</p>
         </div>
       )}
 
       {isRules && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-xs text-gray-700 mb-3">
-          <p className="font-semibold text-gray-900 mb-1">How these settings are used</p>
+        <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-xs text-gray-700 dark:text-mcm-ink-2 mb-3">
+          <p className="font-semibold text-gray-900 dark:text-mcm-ink mb-1">How these settings are used</p>
           <p className="mb-1">
             These are what everybody at your company starts with. Each one has a{' '}
             <strong>Let people change this themselves</strong> switch: leave it off and the company
             setting stands for everyone, turn it on and a person may change that one thing on their
             own phone.
           </p>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-mcm-ink-3">
             Saving here does not rewrite phones that are already set up.
           </p>
         </div>
@@ -154,7 +154,29 @@ const CompanyRulesForm = ({ tab }: { tab: string }) => {
           )}
 
           <div className="flex justify-end pt-3">
-            <Button type="submit" variant="outline" disabled={isPending || isLoading}>
+            {/* `variant="outline"` renders `bg-card border border-primary
+               text-primary` — a permanent orange border/text with no
+               button chrome around it in practice, because this form sits
+               inside `.mcm-page`, where a global reset
+               (`.mcm-page button:not([data-slot="tabs-trigger"])`) strips
+               `background: none; border: 0;` and outranks those
+               single-class utilities on specificity. The result read as
+               plain text, not a button — same root cause, and same fix,
+               as the "Edit details"/"Company ID" pair on the company
+               record card above this form: a dark elevated surface
+               (--mcm-surface-2) with a visible --mcm-line border at rest,
+               stepping up to --mcm-surface-3 / --mcm-line-2 on hover, with
+               orange reserved for the focus ring and a text-only hover
+               tint rather than a filled background. `disabled:opacity-50`
+               already comes from the shared Button component, so the
+               muted disabled state falls out of these same colours for
+               free. */}
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={isPending || isLoading}
+              className="dark:!border dark:!border-mcm-line dark:!bg-mcm-surface-2 dark:!text-mcm-ink dark:!shadow-none dark:hover:!border-mcm-line-2 dark:hover:!bg-mcm-surface-3 dark:hover:!text-mcm-accent-ink dark:focus-visible:!border-mcm-accent-ink"
+            >
               {isPending ? 'Saving...' : hasCompanyDefaults ? 'Save changes' : 'Create defaults'}
             </Button>
           </div>

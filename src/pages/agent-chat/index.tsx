@@ -747,8 +747,8 @@ const SidebarContent = ({
 
   return (
     <div className="w-full h-full bg-white">
-      <div className="min-h-16 flex items-center px-3 sm:px-4 justify-between border-b border-[#EEE7DD]">
-        <div className="text-xl font-semibold w-full min-w-0 truncate text-[#2E2D35]">
+      <div className="min-h-16 flex items-center px-3 sm:px-4 justify-between border-b border-[#EEE7DD] dark:border-mcm-line">
+        <div className="text-xl font-semibold w-full min-w-0 truncate text-[#2E2D35] dark:text-mcm-ink">
           Web Chat Manager
         </div>
       </div>
@@ -871,7 +871,7 @@ const SidebarContent = ({
               return (
                 <div key={group?.id} className="w-full flex flex-col gap-1.5">
                   {group?.label ? (
-                    <div className="text-xs uppercase tracking-wider font-medium text-[#9A948F] flex gap-2 py-0 items-center bg-transparent min-h-9 justify-start max-h-9 px-2">
+                    <div className="text-xs uppercase tracking-wider font-medium text-[#9A948F] dark:text-mcm-ink-3 flex gap-2 py-0 items-center bg-transparent min-h-9 justify-start max-h-9 px-2">
                       {group?.label}
                     </div>
                   ) : null}
@@ -1008,7 +1008,7 @@ const AgentChatMessenger = () => {
   return (
     <div className="w-full h-full min-h-0 flex overflow-hidden bg-white mcm-warm-glass">
       <section
-        className={`${activeChatId ? 'hidden md:block' : 'w-full'} h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] lg:w-[23rem] lg:min-w-[23rem] lg:max-w-[23rem]`}
+        className={`${activeChatId ? 'hidden md:block' : 'w-full'} h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] dark:border-[rgba(71,85,105,0.9)] bg-[rgba(251,249,246,0.88)] dark:bg-[rgba(30,41,59,0.88)] backdrop-blur-[12px] lg:w-[23rem] lg:min-w-[23rem] lg:max-w-[23rem]`}
       >
         <SidebarContent
           activeTab={activeTab}

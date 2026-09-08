@@ -404,7 +404,7 @@ const DialpadMaxiTabAiAssist = ({ activeSession }: DialpadMaxiTabAiAssistProps) 
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-2xl border border-ucass-active-bg bg-white px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
+    <div className="flex h-full min-h-0 flex-col rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-primary">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-ucass-active-bg">
@@ -424,7 +424,7 @@ const DialpadMaxiTabAiAssist = ({ activeSession }: DialpadMaxiTabAiAssistProps) 
             onChange={(event) => setSelectedAgentId(event.target.value)}
             disabled={isChatAgentListLoading || chatAgentOptions.length === 0}
             aria-label="Select AI agent"
-            className="h-9 w-full rounded-lg border border-[#d7e3f5] bg-white px-2.5 text-xs font-medium text-[#2b4568] outline-none transition focus:border-primary"
+            className="h-9 w-full rounded-lg border border-[#d7e3f5] dark:border-mcm-line bg-white dark:bg-mcm-surface px-2.5 text-xs font-medium text-[#2b4568] dark:text-mcm-ink outline-none transition focus:border-primary"
           >
             {isChatAgentListLoading ? (
               <option value="">Loading agents...</option>
@@ -443,7 +443,7 @@ const DialpadMaxiTabAiAssist = ({ activeSession }: DialpadMaxiTabAiAssistProps) 
 
       <div
         ref={chatScrollRef}
-        className="min-h-0 flex-1 space-y-2 overflow-y-auto rounded-xl border border-ucass-active-bg bg-white p-2.5"
+        className="min-h-0 flex-1 space-y-2 overflow-y-auto rounded-xl border border-ucass-active-bg bg-white dark:bg-mcm-surface p-2.5"
       >
         {isNoAgentAvailable ? (
           <p className="text-xs text-[#6c809e]">
@@ -483,7 +483,7 @@ const DialpadMaxiTabAiAssist = ({ activeSession }: DialpadMaxiTabAiAssistProps) 
         ) : null}
       </div>
 
-      <div className="mt-3 rounded-xl border border-[#d7e3f5] bg-white p-2">
+      <div className="mt-3 rounded-xl border border-[#d7e3f5] dark:border-mcm-line bg-white dark:bg-mcm-surface p-2">
         <div className="relative">
           <textarea
             value={questionText}

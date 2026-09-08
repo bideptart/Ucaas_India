@@ -56,7 +56,7 @@ const QUEUE_STATUS_TONE: Record<string, { bg: string; color: string }> = {
 
 const QueueStatusPill = ({ label }: { label: string }) => {
   const tone = QUEUE_STATUS_TONE[label];
-  if (!tone) return <p className="text-gray-400">{label}</p>;
+  if (!tone) return <p className="text-gray-400 dark:text-mcm-ink-3">{label}</p>;
   return (
     <span
       className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
@@ -292,12 +292,12 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                   <p className="capitalize text-sm">{memberDetails.name}</p>
                   <small className="text-primary text-[10px]">{memberDetails.role}</small>
                 </div>
-                <div className="flex items-center gap-1 text-gray-500">
+                <div className="flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
                   <Icon name="Grid" className="w-4 h-4 " />
                   <div className="text-xs">{memberDetails.extension}</div>
                 </div>
               </div>
-              <p className="text-gray-500 flex justify-between text-sm">
+              <p className="text-gray-500 dark:text-mcm-ink-3 flex justify-between text-sm">
                 <div>{memberDetails.email}</div>
               </p>
             </div>
@@ -512,10 +512,10 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
     <>
       <section className="mcm-callqueue w-full min-w-0  ">
         <MonitoringTopbarSlot>
-          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-            <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+            <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
               Monitoring
-              <div className="-rotate-90 text-gray-800">
+              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">
@@ -523,7 +523,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               </span>
               {activeQueueId && (
                 <>
-                  <div className="-rotate-90 text-gray-800">
+                  <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
                     <Icon name="ChevronIcon" className="w-5 h-5" />
                   </div>
                   <span className="text-primary text-md font-medium">
@@ -564,11 +564,11 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
 
                     return (
                       <div key={queueId} className="flex min-w-0 flex-col gap-4">
-                        {/* <div className="flex items-center justify-between bg-white p-4 rounded-lg border ">
-                        <h2 className="text-xl text-gray-900">{item?.name}</h2>
+                        {/* <div className="flex items-center justify-between bg-white dark:bg-mcm-surface p-4 rounded-lg border ">
+                        <h2 className="text-xl text-gray-900 dark:text-mcm-ink">{item?.name}</h2>
                       </div> */}
                         <div className="min-w-0">
-                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">
                             <Users className="h-4 w-4 text-primary" />
                             Agents
                             <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
@@ -589,7 +589,7 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
                         </div>
 
                         <div className="min-w-0">
-                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800">
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">
                             <Clock3 className="h-4 w-4 text-[#D97706]" />
                             Waiting Callers
                             <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-600">
@@ -614,11 +614,11 @@ const CallQueueMonitoring = ({ queueType }: { queueType: string }) => {
               ) : (
                 <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                   <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-                  <p className="text-md font-medium text-gray-900">
+                  <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">
                     {' '}
                     No {queueType === QUEUE_TYPE.campaign ? 'campaign' : 'queue'} calls available
                   </p>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-mcm-ink-2">
                     Calls routed through{' '}
                     {queueType === QUEUE_TYPE.campaign ? 'campaigns' : 'queues'} will appear here.
                   </p>

@@ -21,16 +21,16 @@ export const AUTO_PURCHASE_MIN_BALANCE_DATA = [20, 30, 50, 75, 100, 125, 150, 17
 // };
 
 export const RequestedPlanStatusMap: Record<string, { label: string; color: string }> = {
-  P: { label: 'Pending', color: 'bg-orange-100 text-orange-600' },
-  C: { label: 'Canceled', color: 'bg-red-100 text-red-600' },
-  A: { label: 'Active', color: 'bg-green-100 text-green-600' },
-  ACTIVE: { label: 'Active', color: 'bg-green-100 text-green-600' },
-  D: { label: 'Disabled', color: 'bg-gray-200 text-gray-600' },
-  E: { label: 'Expired', color: 'bg-gray-100 text-gray-500' },
-  EXPIRED: { label: 'Expired', color: 'bg-red-200 text-red-700' },
-  R: { label: 'Rejected', color: 'bg-red-200 text-red-700' },
+  P: { label: 'Pending', color: 'bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400' },
+  C: { label: 'Canceled', color: 'bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400' },
+  A: { label: 'Active', color: 'bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400' },
+  ACTIVE: { label: 'Active', color: 'bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400' },
+  D: { label: 'Disabled', color: 'bg-gray-200 text-gray-600 dark:bg-mcm-surface-3 dark:text-mcm-ink-3' },
+  E: { label: 'Expired', color: 'bg-gray-100 text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3' },
+  EXPIRED: { label: 'Expired', color: 'bg-red-200 text-red-700 dark:bg-red-950/40 dark:text-red-400' },
+  R: { label: 'Rejected', color: 'bg-red-200 text-red-700 dark:bg-red-950/40 dark:text-red-400' },
   U: { label: 'Upgraded', color: 'bg-ucass-active-bg text-ucass-active' },
-  S: { label: 'Suspended', color: 'bg-yellow-100 text-yellow-600' },
+  S: { label: 'Suspended', color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-400' },
 };
 
 export const RequestedPlanDurationMap: any = {

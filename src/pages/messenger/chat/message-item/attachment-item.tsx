@@ -6,6 +6,7 @@ import { isAudioFile, isImageFile, isVideoFile } from '../utils';
 import FilePreview from './file-preview';
 import DownloadButton from './download-button';
 import { useMediaBlob } from './use-media-blob';
+import './attachment-item.css';
 
 interface AttachmentItemProps {
   item: any;
@@ -104,7 +105,7 @@ const AttachmentItem = ({
       <div
         className={cn(
           'border-b last:border-b-0 w-full flex flex-col gap-2 px-3 py-3',
-          isMine ? 'border-white/15' : 'border-gray-200',
+          isMine ? 'border-white/15' : 'border-gray-200 dark:border-mcm-line',
         )}
       >
         {/* Row: play button + filename + download */}
@@ -147,7 +148,12 @@ const AttachmentItem = ({
             <div className={cn('text-sm font-medium truncate', widthClassName)}>
               {item?.fileName || 'Voice message'}
             </div>
-            <div className={cn('text-xs', isMine ? 'text-gray-500' : 'text-gray-500')}>
+            <div
+              className={cn(
+                'text-xs',
+                isMine ? 'text-gray-500 dark:text-mcm-ink-3' : 'text-gray-500 dark:text-mcm-ink-3',
+              )}
+            >
               {isLoadingAudio
                 ? 'Loading...'
                 : isPlaying
@@ -162,14 +168,19 @@ const AttachmentItem = ({
             company_uuid={companyUuid}
             type="chat"
             size="size-4"
-            className={isMine ? 'text-gray-500' : 'text-gray-500'}
+            className={
+              isMine ? 'text-gray-500 dark:text-mcm-ink-3' : 'text-gray-500 dark:text-mcm-ink-3'
+            }
           />
         </div>
 
         {/* Progress / seek bar */}
         <div className="flex items-center gap-2 w-full">
           <div
-            className="relative flex-1 h-1.5 rounded-full overflow-hidden"
+            className={cn(
+              'relative flex-1 h-1.5 rounded-full overflow-hidden',
+              !isMine && 'audio-progress-track',
+            )}
             style={{ background: isMine ? 'rgba(255,255,255,0.60)' : '#e5e7eb' }}
           >
             <div
@@ -208,8 +219,8 @@ const AttachmentItem = ({
           }}
         >
           {isLoadingImage ? (
-            <div className="flex h-full w-full items-center justify-center bg-gray-100">
-              <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-mcm-surface-3">
+              <Loader2 className="w-4 h-4 animate-spin text-gray-500 dark:text-mcm-ink-3" />
             </div>
           ) : imageUrlServer ? (
             <img
@@ -218,7 +229,7 @@ const AttachmentItem = ({
               className="block h-full w-full object-cover bg-black/5"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+            <div className="flex h-full w-full items-center justify-center rounded-xl bg-gray-100 dark:bg-mcm-surface-3 text-gray-500 dark:text-mcm-ink-3">
               <ImageIcon size={26} />
             </div>
           )}
@@ -250,8 +261,8 @@ const AttachmentItem = ({
           }}
         >
           {isLoadingVideo ? (
-            <div className="flex h-full w-full items-center justify-center bg-gray-100">
-              <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-mcm-surface-3">
+              <Loader2 className="w-4 h-4 animate-spin text-gray-500 dark:text-mcm-ink-3" />
             </div>
           ) : videoUrlServer ? (
             <>
@@ -280,7 +291,7 @@ const AttachmentItem = ({
               ) : null}
             </>
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-xl bg-gray-100">
+            <div className="flex h-full w-full items-center justify-center rounded-xl bg-gray-100 dark:bg-mcm-surface-3">
               <FilePreview
                 key={`${item?.serverFileName}`}
                 filename={item?.serverFileName}
@@ -301,7 +312,9 @@ const AttachmentItem = ({
     <div
       className={cn(
         'border-b last:border-b-0 w-full min-h-14 items-center flex gap-2 px-3 py-2',
-        isMine ? 'border-white/15 text-white' : 'border-gray-200 text-gray-900',
+        isMine
+          ? 'border-white/15 text-white'
+          : 'border-gray-200 dark:border-mcm-line text-gray-900 dark:text-mcm-ink',
       )}
     >
       <div className="min-w-9 max-h-9 max-w-9 min-h-9 rounded-lg flex justify-center items-center overflow-hidden">
@@ -316,10 +329,15 @@ const AttachmentItem = ({
       </div>
 
       <div className="flex flex-col flex-1 min-w-0">
-        <div className={cn('text-sm font-medium truncate text-gray-900', widthClassName)}>
+        <div
+          className={cn(
+            'text-sm font-medium truncate text-gray-900 dark:text-mcm-ink',
+            widthClassName,
+          )}
+        >
           {item?.fileName}
         </div>
-        <div className={cn('text-xs truncate', 'text-gray-500')}>
+        <div className={cn('text-xs truncate', 'text-gray-500 dark:text-mcm-ink-3')}>
           {formatFileSize(item?.fileSize || item?.size || 0)}
         </div>
       </div>
@@ -330,7 +348,7 @@ const AttachmentItem = ({
         company_uuid={companyUuid}
         type="chat"
         size="size-4"
-        className={'text-gray-500'}
+        className={'text-gray-500 dark:text-mcm-ink-3'}
       />
     </div>
   );

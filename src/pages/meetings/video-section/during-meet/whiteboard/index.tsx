@@ -18,14 +18,14 @@ const Whiteboard = () => {
 
   if (!whiteboardUrl) {
     return (
-      <div className="bg-white rounded-lg col-span-4 flex items-center justify-center text-sm text-gray-600 p-4">
+      <div className="bg-white dark:bg-mcm-surface rounded-lg col-span-4 flex items-center justify-center text-sm text-gray-600 dark:text-mcm-ink-3 p-4">
         Whiteboard is unavailable right now.
       </div>
     );
   }
   console.log({ whiteboardUrl });
   return (
-    <div className="bg-white rounded-lg overflow-hidden w-full h-full">
+    <div className="bg-white dark:bg-mcm-surface rounded-lg overflow-hidden w-full h-full">
       <iframe
         title="Meeting Whiteboard"
         src={whiteboardUrl}

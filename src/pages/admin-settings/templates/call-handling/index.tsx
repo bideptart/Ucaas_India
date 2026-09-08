@@ -89,7 +89,7 @@ const RouteSimulatorPopover = ({ template }: { template: any }) => {
       <PopoverTrigger asChild>
         <div>
           <CustomTooltip text="Test this routing" side="top">
-            <div className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white">
+            <div className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2">
               <Icon name="PlayCircle" className="w-4 h-4" />
             </div>
           </CustomTooltip>
@@ -97,8 +97,8 @@ const RouteSimulatorPopover = ({ template }: { template: any }) => {
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-semibold text-[#2E2D35]">Test this routing</p>
-          <p className="text-[11px] text-[#9A948F]">
+          <p className="text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">Test this routing</p>
+          <p className="text-[11px] text-[#9A948F] dark:text-mcm-ink-3">
             Walks a hypothetical call through this template's rules for a moment you pick — no call is
             placed.
           </p>
@@ -107,18 +107,18 @@ const RouteSimulatorPopover = ({ template }: { template: any }) => {
               type="datetime-local"
               value={testAt}
               onChange={(event) => setTestAt(event.target.value)}
-              className="flex-1 rounded-md border border-gray-200 px-2 py-1 text-xs"
+              className="flex-1 rounded-md border border-gray-200 px-2 py-1 text-xs dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
             />
             <Button type="button" size="sm" variant="outline" onClick={run}>
               Run
             </Button>
           </div>
           {result && (
-            <div className="flex flex-col gap-2 rounded-lg border border-[#EEE7DD] p-2">
+            <div className="flex flex-col gap-2 rounded-lg border border-[#EEE7DD] p-2 dark:border-mcm-line">
               {result.steps.map((step, index) => (
                 <div key={index} className="text-xs">
-                  <span className="font-semibold text-[#2E2D35]">{step.label}: </span>
-                  <span className="text-gray-600">{step.detail}</span>
+                  <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{step.label}: </span>
+                  <span className="text-gray-600 dark:text-mcm-ink-3">{step.detail}</span>
                 </div>
               ))}
               <div
@@ -152,22 +152,22 @@ const TemplateRowPreview = ({ template }: { template: any }) => {
   return (
     <div className="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2">
       <div>
-        <p className="mb-1 text-xs font-semibold text-gray-700">Configuration</p>
-        <p className="text-xs text-gray-600">Routes to: {businessHours?.label || 'Not set'}</p>
-        <p className="text-xs text-gray-600">
+        <p className="mb-1 text-xs font-semibold text-gray-700 dark:text-mcm-ink-2">Configuration</p>
+        <p className="text-xs text-gray-600 dark:text-mcm-ink-3">Routes to: {businessHours?.label || 'Not set'}</p>
+        <p className="text-xs text-gray-600 dark:text-mcm-ink-3">
           When closed: {closedAction?.value_label || closedAction?.type_label || 'Not set'}
         </p>
-        <p className="text-xs text-gray-600">Recording: {recordingOn ? 'On' : 'Off'}</p>
+        <p className="text-xs text-gray-600 dark:text-mcm-ink-3">Recording: {recordingOn ? 'On' : 'Off'}</p>
       </div>
       <div>
-        <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+        <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-mcm-ink-2">
           Activity Timeline
-          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold text-gray-500">
+          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
             Demo
           </span>
         </p>
         {events.map((event, index) => (
-          <p key={index} className="text-[11px] text-gray-500">
+          <p key={index} className="text-[11px] text-gray-500 dark:text-mcm-ink-3">
             {event.actor} {event.text} · {event.hoursAgo}h ago
           </p>
         ))}
@@ -405,7 +405,21 @@ const CallHandling = () => {
     {
       header: () => <SortHeader label="Name" sortKey="name" sortState={sortState} onSort={handleSort} />,
       accessorKey: 'name',
+      /* This is the column that should grow or shrink with the table —
+         everything else here (Status, Applied To, Updated) is a
+         fixed-format short value that never needs more than its own
+         content asks for. See table-manager.tsx's splitStickyHeader
+         column-width comment for what this actually changes. */
+      meta: { flexWidth: true },
       cell: ({ row }) => (
+        /* block + truncate, not the plain inline span this used to be —
+           a long, user-authored name (no length limit) wrapping across
+           2-3 lines made this row much taller than its neighbours, which
+           read as the row padding/spacing being inconsistent even though
+           it was really just this one cell's content height. Single line
+           with an ellipsis keeps every row the same height regardless of
+           name length; the full name is still one click away in the edit
+           drawer this already opens. */
         <span
           onClick={() =>
             setDrawerState((prev) => ({
@@ -414,7 +428,7 @@ const CallHandling = () => {
               tempDetails: row.original,
             }))
           }
-          className="text-primary  cursor-pointer"
+          className="block w-full truncate text-left text-[16px] text-primary cursor-pointer"
         >
           {capitalizeFirstLetter(row?.original?.name)}
         </span>
@@ -427,7 +441,7 @@ const CallHandling = () => {
         const applied = (usageCounts[row?.original?.uuid] || 0) > 0;
         return (
           <span
-            className="inline-flex items-center gap-1.5 text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 text-[14px] font-semibold"
             style={{ color: applied ? 'var(--live, #0d9488)' : 'var(--ink-3, #8a6f57)' }}
           >
             <span
@@ -451,7 +465,7 @@ const CallHandling = () => {
         /* Queues stays 0 — Apply to Queue has no backend at all (see the
            Coming soon item in the Actions menu below), so showing anything
            else there would be a made-up number. */
-        return <span className="text-xs text-gray-700">0 / {count}</span>;
+        return <span className="text-[14px] text-gray-700 dark:text-mcm-ink-2">0 / {count}</span>;
       },
     },
     {
@@ -475,13 +489,13 @@ const CallHandling = () => {
                 isAddEdit: true,
                 tempDetails: data,
               })),
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
             tooltipText: 'Edit',
           },
           {
             icon: 'CopyLine',
             onClick: () => mutateDuplicate(data),
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
             tooltipText: duplicating ? 'Duplicating…' : 'Duplicate',
           },
           {
@@ -504,7 +518,7 @@ const CallHandling = () => {
               <DropdownMenuTrigger asChild>
                 <div>
                   <CustomTooltip text="Apply" side="top">
-                    <div className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white">
+                    <div className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2">
                       <Icon name="UsersIcon" className="w-4 h-4" />
                     </div>
                   </CustomTooltip>
@@ -525,13 +539,13 @@ const CallHandling = () => {
                    rather than pretending to work. */}
                 <DropdownMenuItem disabled className="flex items-center justify-between opacity-60">
                   <span>Apply to Queue</span>
-                  <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+                  <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
                     Coming soon
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled className="flex items-center justify-between opacity-60">
                   <span>Apply to Person</span>
-                  <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500">
+                  <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
                     Coming soon
                   </span>
                 </DropdownMenuItem>
@@ -616,7 +630,7 @@ const CallHandling = () => {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
-                <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                   By Date Range
                 </div>
                 <div className="flex items-center gap-1.5 px-2 py-1">
@@ -626,19 +640,19 @@ const CallHandling = () => {
                     onChange={(e) =>
                       setDateFilters((prev) => ({ ...prev, createdFrom: e.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs"
+                    className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
                     aria-label="Created from"
                   />
-                  <span className="text-[11px] text-gray-400">to</span>
+                  <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3">to</span>
                   <input
                     type="date"
                     value={dateFilters.createdTo}
                     onChange={(e) => setDateFilters((prev) => ({ ...prev, createdTo: e.target.value }))}
-                    className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs"
+                    className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
                     aria-label="Created to"
                   />
                 </div>
-                <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                   By Last Modified
                 </div>
                 <DropdownMenuCheckboxItem
@@ -664,7 +678,7 @@ const CallHandling = () => {
         }
       >
         <div className="w-full flex flex-row gap-6 min-h-0 flex-1">
-          <div className="min-w-0 flex-1 templates-table">
+          <div className="min-w-0 flex-1 templates-table call-handling-table">
             <TableManager
               {...{
                 columns,
@@ -675,7 +689,8 @@ const CallHandling = () => {
                 renderSubComponent: (template: any) => <TemplateRowPreview template={template} />,
                 emptyTablePlaceholder: 'No call handling templates found',
                 splitStickyHeader: true,
-                visibleRowCount: 5,
+                visibleRowCount: 4,
+                rowHeight: 60,
                 defaultPageSize: 8,
                 perPageOptions: [8, 25, 50, 100, 200],
                 getRowClassName: getTemplateRowClassName,

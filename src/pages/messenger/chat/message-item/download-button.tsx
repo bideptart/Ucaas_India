@@ -55,7 +55,7 @@ const DownloadButton = ({
       <CustomTooltip text="Download" side="top">
         <button
           type="button"
-          className="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white text-[#64748b] hover:bg-[#f1f5f9]"
+          className="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-mcm-line bg-white dark:bg-mcm-surface text-[#64748b] dark:text-mcm-ink-3 hover:bg-[#f1f5f9] dark:hover:bg-mcm-surface-3"
           onClick={() => {
             if (!isDownloading) {
               downloadFileInBrowser(mediaUrl);

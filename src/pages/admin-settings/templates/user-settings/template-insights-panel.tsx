@@ -18,8 +18,13 @@ import {
   getStatusColours,
 } from './dummy-template-meta';
 
-const ACCENT = '#ea6b42';
-const ACCENT_SOFT = '#f2c9a8';
+/* var(--color-primary), not a literal hex: --color-primary already carries
+   the app's dark-mode rebrand (index.css maps it to --primary, neutral gray
+   in .dark) — matching the same fix already applied to the Call Handling
+   sibling panel's ACCENT constant. A literal hex here was the one thing on
+   this chart NOT riding that token, so it stayed orange after dark mode. */
+const ACCENT = 'var(--color-primary, #ea6b42)';
+const ACCENT_SOFT = 'var(--mcm-accent-edge, #f2c9a8)';
 
 /* A section within the insights card, not a card of its own — the whole
    panel is one card (rounded-[20px], border, shadow, below); stacking a
@@ -27,8 +32,8 @@ const ACCENT_SOFT = '#f2c9a8';
    rounded containers into each other for no reason. A bottom divider does
    the same job of separating sections without another border box. */
 const PanelCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="border-b border-[#f5e6d3] pb-4 last:border-0 last:pb-0">
-    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#b5502f]">{title}</p>
+  <div className="border-b border-[#f5e6d3] pb-4 last:border-0 last:pb-0 dark:border-mcm-line">
+    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#b5502f] dark:text-mcm-ink-3">{title}</p>
     {children}
   </div>
 );
@@ -47,7 +52,7 @@ const TemplateInsightsPanel = ({
   if (loading) {
     return (
       <div
-        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5"
+        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5 dark:border-mcm-line dark:bg-mcm-surface"
         style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
       >
         <Loader />
@@ -58,7 +63,7 @@ const TemplateInsightsPanel = ({
   if (realTemplates.length === 0) {
     return (
       <div
-        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5 text-xs text-gray-500"
+        className="w-[240px] shrink-0 rounded-[20px] border border-[#efe2cf] bg-white p-5 text-xs text-gray-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink-3"
         style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
       >
         Insights show up once there is at least one template.
@@ -89,10 +94,10 @@ const TemplateInsightsPanel = ({
 
   return (
     <div
-      className="templates-insights-panel w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white flex flex-col gap-4 p-5"
+      className="templates-insights-panel w-[240px] shrink-0 h-full overflow-y-auto rounded-[20px] border border-[#efe2cf] bg-white flex flex-col gap-4 p-5 dark:border-mcm-line dark:bg-mcm-surface"
       style={{ boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(20,20,20,0.06))' }}
     >
-      <p className="text-xs font-semibold text-gray-500">
+      <p className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">
         Demo numbers — not counted from real usage yet.
       </p>
 
@@ -127,8 +132,8 @@ const TemplateInsightsPanel = ({
         <div className="flex flex-col gap-2">
           {frequentFields.map((field) => (
             <div key={field.label} className="flex items-center gap-2">
-              <span className="w-24 shrink-0 truncate text-[11px] text-gray-600">{field.label}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full border border-[#f0d6b4] bg-[#fdeee0]">
+              <span className="w-24 shrink-0 truncate text-[11px] text-gray-600 dark:text-mcm-ink-3">{field.label}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full border border-[#f0d6b4] bg-[#fdeee0] dark:border-mcm-line dark:bg-mcm-surface-3">
                 <div
                   className="h-full rounded-full"
                   style={{
@@ -137,7 +142,7 @@ const TemplateInsightsPanel = ({
                   }}
                 />
               </div>
-              <span className="w-4 shrink-0 text-right text-[11px] text-gray-500">{field.count}</span>
+              <span className="w-4 shrink-0 text-right text-[11px] text-gray-500 dark:text-mcm-ink-3">{field.count}</span>
             </div>
           ))}
         </div>
@@ -159,7 +164,7 @@ const TemplateInsightsPanel = ({
           </div>
           <div className="flex flex-col gap-1">
             {statusData.map((slice) => (
-              <div key={slice.name} className="flex items-center gap-1.5 text-[11px] text-gray-600">
+              <div key={slice.name} className="flex items-center gap-1.5 text-[11px] text-gray-600 dark:text-mcm-ink-3">
                 <span
                   className="h-2 w-2 shrink-0 rounded-full"
                   style={{ backgroundColor: slice.colour }}

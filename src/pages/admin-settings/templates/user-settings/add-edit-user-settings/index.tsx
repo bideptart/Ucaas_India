@@ -129,13 +129,13 @@ const UpsertUserSettingsTemplate: FC<UpdateForwardingProps> = ({ setDrawerState,
           onValueChange={handleTabChange}
           className="flex w-full user-settings-template-tabs"
         >
-          <div className="border-b border-gray-200 w-full user-settings-template-tabs-header">
-            <TabsList className="bg-white p-0 rounded-tl-sm rounded-tr-sm rounded-bl-none rounded-br-none min-h-10 justify-start user-settings-template-tabs-list">
+          <div className="border-b border-gray-200 w-full user-settings-template-tabs-header dark:border-mcm-line">
+            <TabsList className="bg-white p-0 rounded-tl-sm rounded-tr-sm rounded-bl-none rounded-br-none min-h-10 justify-start user-settings-template-tabs-list dark:bg-mcm-surface">
               {Object.entries(TAB_CONSTANT).map(([key, value]) => (
                 <TabsTrigger
                   key={key}
                   value={value}
-                  className="max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-primary px-4 data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:rounded-none h-full data-[state=inactive]:text-gray-700 user-settings-template-tab-trigger"
+                  className="max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-primary px-4 data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:rounded-none h-full data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-2 user-settings-template-tab-trigger"
                 >
                   {value}
                 </TabsTrigger>

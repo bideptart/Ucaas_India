@@ -17,7 +17,7 @@ const DialpadBalance = () => {
   };
 
   return (
-    <div className="mb-2.5 flex items-center justify-between gap-1.5 rounded-full border border-[#e6ebf3] bg-white px-1.5 py-1 max-[380px]:mb-2 max-[380px]:px-[5px] max-[380px]:py-[3px] sm:mb-3 sm:gap-2 sm:px-2 sm:py-1 md:mb-2 lg:mb-2 xl:mb-4">
+    <div className="mb-2.5 flex items-center justify-between gap-1.5 rounded-full border border-[#e6ebf3] dark:border-mcm-line bg-white dark:bg-mcm-surface px-1.5 py-1 max-[380px]:mb-2 max-[380px]:px-[5px] max-[380px]:py-[3px] sm:mb-3 sm:gap-2 sm:px-2 sm:py-1 md:mb-2 lg:mb-2 xl:mb-4">
       <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white max-[380px]:h-[18px] max-[380px]:w-[18px] sm:h-6 sm:w-6 lg:h-6.5 lg:w-6.5 xl:h-8 xl:w-8">
           <CircleDollarSign className="h-3 w-3 max-[380px]:h-2.5 max-[380px]:w-2.5 sm:h-4 sm:w-4" />

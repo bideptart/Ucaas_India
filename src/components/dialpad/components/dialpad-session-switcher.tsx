@@ -24,7 +24,7 @@ const DialpadSessionSwitcher = ({
   if (sessions.length <= 1) return null;
 
   return (
-    <div className="mb-2 rounded-2xl border border-[#e5edf8] bg-white px-2.5 py-1.5 max-[380px]:mb-1.5 max-[380px]:px-2 max-[380px]:py-1 sm:mb-2.5 sm:px-3 sm:py-2 md:mb-3">
+    <div className="mb-2 rounded-2xl border border-[#e5edf8] dark:border-mcm-line bg-white dark:bg-mcm-surface px-2.5 py-1.5 max-[380px]:mb-1.5 max-[380px]:px-2 max-[380px]:py-1 sm:mb-2.5 sm:px-3 sm:py-2 md:mb-3">
       <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#5f789a] max-[380px]:text-[9px] sm:mb-1.5 sm:text-[11px]">
         Call Sessions
       </div>

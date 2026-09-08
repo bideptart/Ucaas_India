@@ -291,7 +291,8 @@ const NumberList = () => {
       {
         header: 'Label',
         accessorKey: 'did_name',
-        cell: ({ row }: any) => labelOf(row?.original) || <span className="text-gray-500">--</span>,
+        cell: ({ row }: any) =>
+          labelOf(row?.original) || <span className="text-gray-500 dark:text-mcm-ink-3">--</span>,
       },
       {
         header: 'Last assigned to',
@@ -301,7 +302,7 @@ const NumberList = () => {
           const name = [held?.first_name, held?.last_name].filter(Boolean).join(' ').trim();
           /* A number can be released without ever having had an owner, so this
              says so rather than showing an empty cell that reads as missing data. */
-          return name || <span className="text-gray-500">Never assigned</span>;
+          return name || <span className="text-gray-500 dark:text-mcm-ink-3">Never assigned</span>;
         },
       },
       {
@@ -366,7 +367,7 @@ const NumberList = () => {
               Add label
             </span>
           ) : (
-            <span className="text-gray-500">--</span>
+            <span className="text-gray-500 dark:text-mcm-ink-3">--</span>
           );
         },
       },
@@ -410,14 +411,14 @@ const NumberList = () => {
               {FORWARD_TYPES_WITH_EXTENSION.includes(forwardedValue?.type) ? (
                 <div className="flex">
                   <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-2.5 py-1 w-auto">
-                    <div className="w-7 h-7 rounded-lg border border-primary/30 bg-white flex items-center justify-center text-primary text-base font-semibold leading-none">
+                    <div className="w-7 h-7 rounded-lg border border-primary/30 bg-white dark:bg-mcm-surface-3 flex items-center justify-center text-primary text-base font-semibold leading-none">
                       #
                     </div>
                     <div className="flex flex-col gap-1 leading-tight">
-                      <div className="text-[9px] font-semibold tracking-[0.08em] text-gray-500 uppercase">
+                      <div className="text-[9px] font-semibold tracking-[0.08em] text-gray-500 dark:text-mcm-ink-3 uppercase">
                         {capitalizeFirstLetter(forwardedValue?.type)}
                       </div>
-                      <small className="text-gray-900 text-xs font-semibold leading-none">
+                      <small className="text-gray-900 dark:text-mcm-ink text-xs font-semibold leading-none">
                         {forwardedValue?.name}
                         {forwardedValue?.value ? ` (${forwardedValue.value})` : ''}
                       </small>
@@ -507,7 +508,8 @@ const NumberList = () => {
           cb: () => handleNumberState(data, stateAction),
         });
 
-        const neutral = 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white';
+        const neutral =
+          'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white';
 
         const assignNumberAction =
           !data?.User && virtualNumberAccess?.action?.assign_number
@@ -664,7 +666,7 @@ const NumberList = () => {
               if (value.startsWith(' ')) return;
               setSearch(value);
             }}
-            Icon={<SearchLine className=" text-gray-700" />}
+            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-3" />}
           />
         }
       >
@@ -672,7 +674,7 @@ const NumberList = () => {
           {/* One list, three views. Each keeps its own address so a view can be
               linked to and reloaded. */}
           <nav
-            className="flex items-center gap-1 border-b border-gray-200"
+            className="flex items-center gap-1 border-b border-gray-200 dark:border-mcm-line"
             aria-label="Number views"
           >
             {Object.values(VIEWS).map((item) => {
@@ -685,7 +687,7 @@ const NumberList = () => {
                   className={`-mb-px border-b-2 px-3 py-2 text-sm transition-colors ${
                     isActive
                       ? 'border-primary font-semibold text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-mcm-ink-3 dark:hover:text-mcm-ink'
                   }`}
                 >
                   {item.tab}
@@ -695,7 +697,7 @@ const NumberList = () => {
           </nav>
 
           {view.key === 'all' && (
-            <p className="text-gray-900 text-sm">
+            <p className="text-gray-900 dark:text-mcm-ink text-sm">
               Adding an additional number to an existing user/plan will only incur a charge for the
               phone number itself. This action does not create a new subscription or user plan. Your
               monthly recurring total will be updated based on the quantity of numbers added.

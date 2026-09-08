@@ -237,7 +237,7 @@ const SendFaxModal = ({
                 'flex min-h-44 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-6 text-center transition-colors duration-200',
                 isDragging
                   ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-primary hover:bg-gray-50',
+                  : 'border-gray-300 dark:border-mcm-line bg-white dark:bg-mcm-surface-3 text-gray-700 dark:text-mcm-ink-2 hover:border-primary hover:bg-gray-50 dark:hover:bg-mcm-surface',
                 fileError && 'border-red-500',
               )}
               onDragOver={(event) => {

@@ -216,7 +216,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
         <div className="flex min-h-[96px] flex-1 flex-col px-5 pt-2.5">
           <p className="text-[13px] font-bold text-primary">Your conversations</p>
           <div className="flex flex-1 flex-col items-center justify-center gap-1 py-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FBE2C8]/50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50">
               <MessageSquare className="h-[18px] w-[18px] text-primary" />
             </div>
             <p className="text-sm font-bold text-primary">No recent conversations</p>
@@ -267,7 +267,7 @@ const ChatPreview = ({ agentName }: { agentName: string }) => {
               className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed ${
                 line.from === 'caller'
                   ? 'rounded-br-sm bg-[#111114] text-white'
-                  : 'rounded-bl-sm bg-[#FBE2C8]/50 text-slate-800'
+                  : 'rounded-bl-sm bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 text-slate-800'
               }`}
             >
               {line.text}
@@ -394,7 +394,7 @@ const CallPreview = ({ agentName }: { agentName: string }) => {
           `WidgetCard` wrapper's. */}
       <div className="flex min-h-0 flex-1 flex-col px-5 py-3">
         <div className="flex shrink-0 flex-col items-center gap-0.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FBE2C8]/60 text-base font-extrabold uppercase text-primary">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FBE2C8]/60 dark:bg-mcm-surface-3/60 text-base font-extrabold uppercase text-primary">
             {agentName.charAt(0) || 'A'}
           </div>
           <p className="mt-0.5 text-sm font-bold text-slate-800">{agentName}</p>

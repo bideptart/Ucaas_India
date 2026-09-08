@@ -141,7 +141,7 @@ function AISettings() {
 
   return (
     <form
-      className="flex h-full w-full flex-col overflow-hidden text-[#07142f] p-4"
+      className="flex h-full w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink p-4"
       style={{ background: AI_TOOLS_PAGE_GRADIENT }}
     >
       <div
@@ -163,15 +163,15 @@ function AISettings() {
         >
           AI Agents
         </button>
-        <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">Settings</h1>
-        <p className="mt-1 text-[13px] text-[#6b5c4d]">
+        <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">Settings</h1>
+        <p className="mt-1 text-[13px] text-[#6b5c4d] dark:text-mcm-ink-3">
           How your AI tools behave — models, limits and what they may act on.
         </p>
       </div>
 
       <div className="flex w-full flex-1 flex-col gap-4 overflow-auto sm:flex-row">
-        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
-          <h3 className="mb-3 text-sm font-bold text-[#2E2D35]">AI Bot</h3>
+        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
+          <h3 className="mb-3 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">AI Bot</h3>
           <div className="flex flex-col gap-1 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             <div className="flex flex-col gap-2">
               {socialMediaList
@@ -179,10 +179,10 @@ function AISettings() {
                 ?.map((media) => (
                   <div
                     key={media.key}
-                    className="flex items-center justify-between rounded-lg border border-[#EEE7DD] bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/30"
+                    className="flex items-center justify-between rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line/90 hover:bg-[#FBE2C8]/30 dark:hover:bg-mcm-surface-3/30"
                   >
-                    <div className="flex items-center gap-2.5 text-[#2E2D35]">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 text-[#9A948F]">
+                    <div className="flex items-center gap-2.5 text-[#2E2D35] dark:text-mcm-ink">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 text-[#9A948F] dark:text-mcm-ink-3">
                         <Icon name={media.icon as IconType} className="w-4 h-4" />
                       </span>
                       <span className="text-sm font-semibold">{media.name}</span>
@@ -244,16 +244,16 @@ function AISettings() {
           </div>
         </div>
 
-        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
-          <h3 className="mb-3 text-sm font-bold text-[#2E2D35]">AI Assistance</h3>
+        <div className="h-full w-full rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] backdrop-blur-[12px]">
+          <h3 className="mb-3 text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">AI Assistance</h3>
           <div className="flex flex-col gap-2 h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             {socialMediaList.map((media) => (
               <div
                 key={media?.key}
-                className="flex items-center justify-between rounded-lg border border-[#EEE7DD] bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/30"
+                className="flex items-center justify-between rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-white p-2.5 transition hover:border-[rgba(225,200,165,0.9)] dark:hover:border-mcm-line/90 hover:bg-[#FBE2C8]/30 dark:hover:bg-mcm-surface-3/30"
               >
-                <div className="flex items-center gap-2.5 text-[#2E2D35]">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 text-[#9A948F]">
+                <div className="flex items-center gap-2.5 text-[#2E2D35] dark:text-mcm-ink">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 text-[#9A948F] dark:text-mcm-ink-3">
                     <Icon name={media?.icon as IconType} className="w-4 h-4" />
                   </span>
                   <span className="text-sm font-semibold">{media?.name}</span>

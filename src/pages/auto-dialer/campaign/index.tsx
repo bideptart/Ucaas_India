@@ -73,7 +73,18 @@ const MODE_FILTERS: Array<[string, string]> = [
  * second header and a second set of totals on the same screen, so both are
  * dropped and the frame stops claiming full height.
  */
-const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
+const Campaign = ({
+  embedded = false,
+  globalSearch,
+}: {
+  embedded?: boolean;
+  /* Performance ▸ Campaigns' centralized toolbar search (index.tsx →
+     campaign-activity-tab.tsx). The page's own "Search campaigns" input
+     below stays exactly as it was — this only feeds the table when that
+     local box is empty, so typing locally still wins without either input
+     needing to know about the other. */
+  globalSearch?: string;
+}) => {
   const navigate = useNavigate();
   const queryClient: any = useQueryClient();
   const { features } = useCompanyFeatures();
@@ -82,7 +93,8 @@ const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
   const [search, setSearch] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [modeFilter, setModeFilter] = useState<string>('ALL');
-  const debouncedSearch = useDebounce(search, 1000);
+  const effectiveSearch = search || globalSearch || '';
+  const debouncedSearch = useDebounce(effectiveSearch, 1000);
 
   const [modalState, setModalState] = useState<ModalState>({ open: false, type: null, data: [] });
   const [drawerState, setDrawerState] = useState<{ isModalOpen: boolean; selectedCampaign: any }>({
@@ -646,13 +658,16 @@ const Campaign = ({ embedded = false }: { embedded?: boolean }) => {
                  tables (Agents, Queues, Interactions) already use. */
               splitStickyHeader: true,
               // TableManager sizes itself to fill the rest of the viewport,
-              // which floors out at a 260px minimum — for this row's ~60px
-              // height that clips the 4th row by ~18px. Embedded (this
-              // panel sits mid-page rather than filling the screen) gets a
-              // fixed height sized for exactly 4 rows instead, so all 4
-              // show in full and a 5th scrolls. Standalone keeps the
+              // which floors out at a 260px minimum — for this row's actual
+              // ~78-79px height (name + meta stack, plus the outcome bar's
+              // two-line "X% dialled / Y left" footer) that clipped the 4th
+              // row roughly a third of the way down. Embedded (this panel
+              // sits mid-page rather than filling the screen) gets a fixed
+              // height sized for exactly 4 full rows instead (4 * ~79px +
+              // a small margin), so all 4 show in full with no scrollbar
+              // and only a 5th+ row scrolls. Standalone keeps the
               // viewport-fill sizing, which suits a full-page table.
-              ...(embedded ? { tableMaxHeight: '284px' } : {}),
+              ...(embedded ? { tableMaxHeight: '320px' } : {}),
             }}
           />
 

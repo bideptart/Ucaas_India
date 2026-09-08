@@ -45,7 +45,7 @@ const DialpadDTMFPanel = ({ session, onBack, onSendDtmf }: DialpadDTMFPanelProps
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#2d466b] transition max-[380px]:px-1.5 max-[380px]:py-0.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1.5 sm:text-xs md:text-[13px] hover:bg-[#edf3ff]"
+          className="flex items-center gap-1 rounded-full bg-white dark:bg-mcm-surface px-2 py-1 text-[11px] font-semibold text-[#2d466b] dark:text-mcm-ink transition max-[380px]:px-1.5 max-[380px]:py-0.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1.5 sm:text-xs md:text-[13px] hover:bg-[#edf3ff] dark:hover:bg-mcm-surface-3"
         >
           <ChevronLeft className="h-3.5 w-3.5 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
           Back
@@ -53,7 +53,7 @@ const DialpadDTMFPanel = ({ session, onBack, onSendDtmf }: DialpadDTMFPanelProps
       </div>
 
       <div className="mt-2 sm:mt-2.5">
-        <div className="relative min-h-[36px] w-full rounded-lg border border-[#d2ddef] bg-white px-2.5 py-2 pr-[84px] text-[11px] font-semibold tracking-[0.06em] text-[#1f2f47] max-[380px]:min-h-[32px] max-[380px]:px-2 max-[380px]:py-1.5 max-[380px]:pr-[72px] max-[380px]:text-[10px] sm:min-h-[38px] sm:px-3 sm:pr-[92px] sm:text-[12px] md:text-[13px]">
+        <div className="relative min-h-[36px] w-full rounded-lg border border-[#d2ddef] dark:border-mcm-line bg-white dark:bg-mcm-surface px-2.5 py-2 pr-[84px] text-[11px] font-semibold tracking-[0.06em] text-[#1f2f47] dark:text-mcm-ink max-[380px]:min-h-[32px] max-[380px]:px-2 max-[380px]:py-1.5 max-[380px]:pr-[72px] max-[380px]:text-[10px] sm:min-h-[38px] sm:px-3 sm:pr-[92px] sm:text-[12px] md:text-[13px]">
           {maskedDtmfValue || 'Tap to send tones'}
           <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-1">
             <button

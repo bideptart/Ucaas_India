@@ -39,19 +39,19 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({
             Automatic & On Demand Call Recording
             <div
               onClick={handlecancel}
-              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col border border-gray-200 rounded-xl">
+        <div className="flex flex-col border border-gray-200 dark:border-mcm-line rounded-xl">
           <div
             className={`flex justify-between p-3 cursor-pointer ${watch('settings.recording.automatic.enabled') ? 'items-start' : 'items-center'}`}
           >
             <div className="flex flex-col gap-3">
-              <p className="font-semibold text-md text-gray-900">Automatic Call Recording</p>
+              <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">Automatic Call Recording</p>
               <div className="flex flex-col gap-4">
                 <div className="flex gap-2">
                   <Label>Enable Automatic Call Recording</Label>
@@ -80,7 +80,7 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({
                   />
                 )}
               </div>
-              <p className="text-gray-900 text-sm">
+              <p className="text-gray-900 dark:text-mcm-ink-2 text-sm">
                 Turn on this feature to automatically record all calls made to a particular user or
                 group extension.The recording will be accessible in your call log.{' '}
               </p>
@@ -95,13 +95,13 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({
             </div>
           </div>
 
-          <hr className="text-gray-200 w-full" />
+          <hr className="text-gray-200 dark:text-mcm-line w-full" />
 
           <div
             className={`flex justify-between p-3 cursor-pointer ${watch('settings.recording.on_demand.enabled') ? 'items-start' : 'items-center'}`}
           >
             <div className="flex flex-col gap-3 w-full">
-              <p className="font-semibold text-md text-gray-900">On-demand Call Recording</p>
+              <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">On-demand Call Recording</p>
               <div className="flex items-center gap-2">
                 <Switch
                   onCheckedChange={(checked) => {
@@ -115,7 +115,7 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({
                   checked={watch('settings.recording.on_demand.enabled')}
                 />
               </div>
-              <p className="text-gray-900 text-sm">
+              <p className="text-gray-900 dark:text-mcm-ink-2 text-sm">
                 Enable your users to record call at any time on a phone dial pad.
               </p>
               <div className="flex flex-col gap-1.5 w-full">

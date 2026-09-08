@@ -146,7 +146,7 @@ const stateBelow = (value: number, ok: number, warn: number): MetricState =>
 /* Only warn and breach paint. A board that colours every healthy figure too
    has spent the signal before anything has gone wrong. */
 const metricStateClasses: Record<MetricState, { value: string; edge: string; cell: string }> = {
-  ok: { value: 'text-[#1A1A1A]', edge: '', cell: '' },
+  ok: { value: 'text-[#1A1A1A] dark:text-mcm-ink', edge: '', cell: '' },
   warn: {
     value: 'text-[#C2670A]',
     edge: 'bg-[#E8A33D]',
@@ -165,7 +165,7 @@ const statusPillClass: Record<AgentStatus, string> = {
   RINGING: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
   'WRAP UP': 'bg-amber-100 text-amber-700 border border-amber-200',
   'ON HOLD': 'bg-red-100 text-red-700 border border-red-200',
-  OFFLINE: 'bg-[#FBE2C8]/40 text-[#6b6459] border border-[#EEE7DD]',
+  OFFLINE: 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#6b6459] dark:text-mcm-ink-3 border border-[#EEE7DD] dark:border-mcm-line',
 };
 
 const getCallbackTaskContactPhone = (task: any) =>
@@ -240,7 +240,7 @@ const ActionButtons = ({
     hasAnyActiveCallSession ||
     isMonitoringActionLocked;
 
-  if (isButtonDisabled) return <span className="text-xs text-[#6b6459]">---</span>;
+  if (isButtonDisabled) return <span className="text-xs text-[#6b6459] dark:text-mcm-ink-3">---</span>;
 
   /* These five escalate in how far they reach into a live call: listening is
      passive, whisper is audible to the agent, barge is audible to both
@@ -256,7 +256,7 @@ const ActionButtons = ({
   const listenButtonClass = `${actionButtonBase} bg-[#EAF2F9] border-[#CBDDEC] text-[#2E6FA7] hover:bg-[#2E6FA7] hover:border-[#2E6FA7] hover:text-white`;
   const whisperButtonClass = `${actionButtonBase} bg-[#EEEDFB] border-[#D5D2F3] text-[#5A54C9] hover:bg-[#5A54C9] hover:border-[#5A54C9] hover:text-white`;
   const bargeButtonClass = `${actionButtonBase} bg-[#FDF3E1] border-[#F0DCB8] text-[#B8791B] hover:bg-[#B8791B] hover:border-[#B8791B] hover:text-white`;
-  const interceptButtonClass = `${actionButtonBase} bg-[#FBE2C8]/50 border-[#EEE7DD] text-[#C96F1F] hover:bg-[#C96F1F] hover:border-[#C96F1F] hover:text-white`;
+  const interceptButtonClass = `${actionButtonBase} bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 border-[#EEE7DD] dark:border-mcm-line text-[#C96F1F] hover:bg-[#C96F1F] hover:border-[#C96F1F] hover:text-white`;
   const hangupButtonClass = `${actionButtonBase} bg-[#FDECEA] border-[#F5C6C2] text-[#DC5049] hover:bg-[#DC5049] hover:border-[#DC5049] hover:text-white`;
 
   return (
@@ -675,7 +675,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               <span className="text-xs text-slate-600">
                 {moment(createdAt).format('MMM DD, YYYY')}
               </span>
-              <span className="text-[11px] uppercase text-[#475569]">
+              <span className="text-[11px] uppercase text-[#475569] dark:text-mcm-ink-2">
                 {moment(createdAt).format('hh:mm A')}
               </span>
             </div>
@@ -704,7 +704,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               <span className="text-xs font-medium text-slate-700">
                 {moment(startTime).format('MMM DD, YYYY')}
               </span>
-              <span className="text-[11px] uppercase text-[#475569]">
+              <span className="text-[11px] uppercase text-[#475569] dark:text-mcm-ink-2">
                 {moment(startTime).format('hh:mm A')}
               </span>
             </div>
@@ -1033,7 +1033,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     {
       label: 'Logged In',
       value: String(usersOnlineStatus?.filter((u: any) => u.online).length || 0),
-      hoverText: 'group-hover:text-[#2E2D35]',
+      hoverText: 'group-hover:text-[#2E2D35] dark:group-hover:text-mcm-ink',
       hoverBar: 'group-hover:bg-[#2E2D35]',
       icon: LogIn,
     },
@@ -1095,7 +1095,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     // {
     //   label: 'Aux Break',
     //   value: '0',
-    //   tone: 'text-[#6b6459]',
+    //   tone: 'text-[#6b6459] dark:text-mcm-ink-3',
     // },
     {
       label: 'Offline',
@@ -1105,7 +1105,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           (agents?.length || 0) - (usersOnlineStatus?.filter((u: any) => u.online).length || 0),
         ),
       ),
-      hoverText: 'group-hover:text-[#6b6459]',
+      hoverText: 'group-hover:text-[#6b6459] dark:group-hover:text-mcm-ink-3',
       hoverBar: 'group-hover:bg-[#6b6459]',
       icon: WifiOff,
     },
@@ -1238,11 +1238,11 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             : `${floorIssues.length} ${floorIssues.length === 1 ? 'metric needs' : 'metrics need'} attention`}
         </span>
         {floorIssues.length ? (
-          <span className="text-xs text-[#475569]">
+          <span className="text-xs text-[#475569] dark:text-mcm-ink-2">
             {floorIssues.map((item) => `${item.label} ${item.value}`).join('  ·  ')}
           </span>
         ) : (
-          <span className="text-xs text-[#475569]">
+          <span className="text-xs text-[#475569] dark:text-mcm-ink-2">
             Every tracked metric is inside target.
           </span>
         )}
@@ -1290,7 +1290,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               className={`relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)] ${
                 heroState
                   ? `${heroState.cell} border-[rgba(249,115,22,0.14)]`
-                  : 'border-[rgba(225,200,165,0.55)] bg-[#fffdfb] backdrop-blur-[20px] backdrop-saturate-[190%]'
+                  : 'border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%]'
               }`}
             >
               {heroState ? (
@@ -1302,17 +1302,17 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               <div>
                 <p
                   className={`num text-[28px] font-bold leading-none tracking-tight ${
-                    heroState ? heroState.value : 'text-[#1A1A1A]'
+                    heroState ? heroState.value : 'text-[#1A1A1A] dark:text-mcm-ink'
                   }`}
                 >
                   {item.value}
                 </p>
-                <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
+                <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#475569] dark:text-mcm-ink-2">
                   {item.label}
                 </p>
               </div>
               {HeroIcon ? (
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                   <HeroIcon
                     className={`h-4.5 w-4.5 ${heroState ? heroState.value : 'text-primary'}`}
                   />
@@ -1321,23 +1321,23 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             </div>
           );
         })}
-        <div className="relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] bg-[#fffdfb] backdrop-blur-[20px] backdrop-saturate-[190%] px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+        <div className="relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
           <div>
-            <p className="num text-[28px] font-bold leading-none tracking-tight text-[#1A1A1A]">
+            <p className="num text-[28px] font-bold leading-none tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
               {agentsAvailableNow}
             </p>
-            <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
+            <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#475569] dark:text-mcm-ink-2">
               Agents Available
             </p>
           </div>
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
             <UsersIcon className="h-4.5 w-4.5 text-primary" />
           </div>
         </div>
       </div>
 
       <div className="mb-3 mt-5">
-        <h3 className="text-base font-semibold text-[#1A1A1A]">Today so far</h3>
+        <h3 className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">Today so far</h3>
       </div>
 
       {(() => {
@@ -1349,7 +1349,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           fill: boolean,
         ) => (
           <div key={section.group} className={fill ? 'flex-1 min-w-0' : undefined}>
-            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#475569]">
+            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#475569] dark:text-mcm-ink-2">
               {section.group}
             </p>
             {/* One panel per group, not one card per metric. Border, fill,
@@ -1406,7 +1406,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                  (`--surface` housing `--surface-2` compartments), applied
                  here instead of literally cloning the floating-pill shape. */
               <div
-                className="grid w-full gap-1.5 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] bg-[#fffdfb] p-1.5 backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]"
+                className="grid w-full gap-1.5 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface p-1.5 backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]"
                 style={{
                   gridTemplateColumns: `repeat(${Math.max(1, Math.ceil(section.items.length / 2))}, minmax(140px, 1fr))`,
                 }}
@@ -1452,7 +1452,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         />
                       ) : null}
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                           {item.label}
                         </p>
                         {/* Plain white, not the usual peach `#FFF1E0` badge:
@@ -1477,7 +1477,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       <div className="flex items-end gap-1.5">
                         <span
                           className={`v num text-[24px] font-bold leading-none tracking-tight ${
-                            stateStyle ? stateStyle.value : 'text-[#1A1A1A]'
+                            stateStyle ? stateStyle.value : 'text-[#1A1A1A] dark:text-mcm-ink'
                           }`}
                         >
                           {item.value}
@@ -1501,7 +1501,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                  object, the seven readings are its cells. Same fill, radius,
                  hairline and shadow as those panels, so the three groups now
                  look like one family instead of two plus a loose row. */
-              <div className="w-full overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+              <div className="w-full overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
                   {section.items.map((item) => {
                     const IconComp = item.icon;
@@ -1546,7 +1546,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         ) : null}
                         <div
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                            stateStyle ? 'bg-white/60' : 'bg-[#FFF1E0]'
+                            stateStyle ? 'bg-white/60' : 'bg-[#FFF1E0] dark:bg-mcm-accent-wash'
                           }`}
                         >
                           <IconComp
@@ -1556,12 +1556,12 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         <div className="min-w-0">
                           <span
                             className={`v num text-[15px] font-bold leading-none tracking-tight ${
-                              stateStyle ? stateStyle.value : 'text-[#1A1A1A]'
+                              stateStyle ? stateStyle.value : 'text-[#1A1A1A] dark:text-mcm-ink'
                             }`}
                           >
                             {item.value}
                           </span>
-                          <p className="mt-0.5 truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                          <p className="mt-0.5 truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                             {item.label}
                           </p>
                         </div>
@@ -1600,20 +1600,20 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               stacked cards each carrying its own border and shadow. Each band
               opens with a rule, an eyebrow and a sentence saying what it is
               for, so the panel reads before its numbers do. */}
-          <div className="w-full rounded-[20px] border border-[rgba(225,200,165,0.55)] bg-[#fffdfb] backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+          <div className="w-full rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
             <div className="grid grid-cols-1 divide-y divide-[rgba(225,200,165,0.4)] md:grid-cols-3 md:divide-x md:divide-y-0">
 
               <section className="p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="h-[2px] w-6 rounded-full bg-[#ea580c]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569] dark:text-mcm-ink-2">
                     Call Flow Funnel
                   </span>
                 </div>
-                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
+                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
                   From calls to conversations
                 </h4>
-                <p className="mt-1 text-xs text-[#475569]">
+                <p className="mt-1 text-xs text-[#475569] dark:text-mcm-ink-2">
                   How calls move through the contact centre, live.
                 </p>
 
@@ -1630,16 +1630,16 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       className="group relative -mx-5 flex gap-3 rounded-xl px-5 py-1 transition-colors duration-150 hover:bg-[rgba(249,115,22,0.05)]"
                     >
                       {index < funnelData.length - 1 && (
-                        <span className="absolute left-[13px] top-7 h-[calc(100%+1rem-14px)] w-px bg-[rgba(225,200,165,0.6)]" />
+                        <span className="absolute left-[13px] top-7 h-[calc(100%+1rem-14px)] w-px bg-[rgba(225,200,165,0.6)] dark:bg-mcm-surface-3/60" />
                       )}
                       {/* `#ea580c` measured 3.21:1 against this badge's own
                           `#FFF1E0` fill at 11px. */}
-                      <span className="relative z-10 mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] text-[11px] font-bold text-[#a8460f] transition-transform duration-150 group-hover:scale-110">
+                      <span className="relative z-10 mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash text-[11px] font-bold text-[#a8460f] dark:text-mcm-accent-ink transition-transform duration-150 group-hover:scale-110">
                         {index + 1 < 10 ? `0${index + 1}` : index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline justify-between gap-2">
-                          <span className="truncate text-sm font-semibold text-[#1A1A1A]">
+                          <span className="truncate text-sm font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                             {item.label}
                           </span>
                           <span className="flex shrink-0 items-baseline gap-2">
@@ -1657,13 +1657,13 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   −{Number(funnelData[index - 1].count) - Number(item.count)}
                                 </span>
                               )}
-                            <span className="num text-sm font-bold text-[#1A1A1A]">
+                            <span className="num text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                               {item.value}%
                             </span>
-                            <span className="num text-xs text-[#475569]">{item.count}</span>
+                            <span className="num text-xs text-[#475569] dark:text-mcm-ink-2">{item.count}</span>
                           </span>
                         </div>
-                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(225,200,165,0.35)]">
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[rgba(225,200,165,0.35)] dark:bg-mcm-surface-3/35">
                           <span
                             className={`block h-full rounded-full ${item.color}`}
                             style={{ width: `${Math.min(Math.max(item.value, 0), 100)}%` }}
@@ -1678,14 +1678,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               <section className="p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="h-[2px] w-6 rounded-full bg-[#ea580c]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569] dark:text-mcm-ink-2">
                     Queue Status
                   </span>
                 </div>
-                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
+                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
                   Keep every queue moving
                 </h4>
-                <p className="mt-1 text-xs text-[#475569]">
+                <p className="mt-1 text-xs text-[#475569] dark:text-mcm-ink-2">
                   Live queue performance and agent availability.
                 </p>
 
@@ -1693,11 +1693,11 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   /* Scrolls in place once the list outgrows the column, so ten
                      queues do not stretch the funnel and campaigns beside it. */
                   <div className="perf-thin-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-auto">
-                    {/* `!text-[#475569]` on every header cell below is not
+                    {/* `!text-[#475569] dark:text-mcm-ink-2` on every header cell below is not
                         decorative: `.mcm-page th` (mcm-page.css) is an
                         unlayered base rule setting `color: var(--ink-4)`
                         (`#93a0b8`, a cool blue-grey), which beats a plain
-                        Tailwind `text-[#475569]` on these `<th>` regardless
+                        Tailwind `text-[#475569] dark:text-mcm-ink-2` on these `<th>` regardless
                         of specificity — the labels rendered in that cool
                         grey at a 2.5:1 contrast ratio against the warm cream
                         header, well under the 4.5:1 small text needs, while
@@ -1707,20 +1707,20 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     <table className="w-full min-w-[330px]">
                       <thead>
                         <tr>
-                          <th className="pb-2 text-left text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569]">
+                          <th className="pb-2 text-left text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
                             Queue
                           </th>
                           {/* Durations right, counts centre - the handoff
                               guide's alignment rule. Right-aligned digits also
                               line up their units, so 8s and 34s compare down
                               the column instead of drifting. */}
-                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569]">
+                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
                             Avg wait
                           </th>
-                          <th className="pb-2 text-center text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569]">
+                          <th className="pb-2 text-center text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
                             Available
                           </th>
-                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569]">
+                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
                             SLA
                           </th>
                         </tr>
@@ -1745,15 +1745,15 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               <td className="py-3 text-left">
                                 <span className="flex items-center gap-2.5">
                                   <span className={`h-8 w-[3px] shrink-0 rounded-full ${edge}`} />
-                                  <span className="truncate text-sm font-semibold text-[#1A1A1A]">
+                                  <span className="truncate text-sm font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                                     {queue.queue}
                                   </span>
                                 </span>
                               </td>
-                              <td className="num py-3 text-right text-sm text-[#1A1A1A]">
+                              <td className="num py-3 text-right text-sm text-[#1A1A1A] dark:text-mcm-ink">
                                 {queue.avgWait}s
                               </td>
-                              <td className="num py-3 text-center text-sm font-semibold text-[#1A1A1A]">
+                              <td className="num py-3 text-center text-sm font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                                 {queue.available}
                               </td>
                               {/* The percentage alone has to be read one row
@@ -1765,7 +1765,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 <span className={`num text-sm font-bold ${slaClass}`}>
                                   {queue.sla}%
                                 </span>
-                                <span className="mt-1 ml-auto block h-[3px] w-12 overflow-hidden rounded-full bg-[rgba(225,200,165,0.45)]">
+                                <span className="mt-1 ml-auto block h-[3px] w-12 overflow-hidden rounded-full bg-[rgba(225,200,165,0.45)] dark:bg-mcm-surface-3/45">
                                   <span
                                     className={`block h-full rounded-full ${edge}`}
                                     style={{
@@ -1781,7 +1781,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     </table>
                   </div>
                 ) : (
-                  <p className="mt-5 rounded-xl border border-dashed border-[rgba(225,200,165,0.6)] py-6 text-center text-xs text-[#64748b]">
+                  <p className="mt-5 rounded-xl border border-dashed border-[rgba(225,200,165,0.6)] dark:border-mcm-line/60 py-6 text-center text-xs text-[#64748b] dark:text-mcm-ink-3">
                     No active queues
                   </p>
                 )}
@@ -1791,22 +1791,22 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
                     <span className="h-[2px] w-6 rounded-full bg-[#ea580c]" />
-                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569]">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#475569] dark:text-mcm-ink-2">
                       Active Campaigns
                     </span>
                   </div>
                   {/* `#ea580c` measured 3.23:1 against this pill's own
                       `#FFF1EB` fill at 11px. */}
                   {activeCampaignsData.length > 0 && (
-                    <span className="rounded-full bg-[#FFF1EB] px-2.5 py-1 text-[11px] font-bold text-[#a8460f]">
+                    <span className="rounded-full bg-[#FFF1EB] px-2.5 py-1 text-[11px] font-bold text-[#a8460f] dark:text-mcm-accent-ink">
                       {activeCampaignsData.length} Live
                     </span>
                   )}
                 </div>
-                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
+                <h4 className="mt-2 text-xl font-bold tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
                   Drive more conversations
                 </h4>
-                <p className="mt-1 text-xs text-[#475569]">
+                <p className="mt-1 text-xs text-[#475569] dark:text-mcm-ink-2">
                   Outbound campaign progress, live.
                 </p>
 
@@ -1856,16 +1856,16 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   it off, so it read as half a dot on hover.
                                   Growing from the left keeps it inside. */}
                               <span className="h-2 w-2 shrink-0 origin-left rounded-full bg-[#ea580c] transition-transform duration-150 group-hover:scale-125" />
-                              <span className="truncate text-sm font-semibold text-[#1A1A1A]">
+                              <span className="truncate text-sm font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                                 {campaign.name}
                               </span>
                             </span>
                             <span className="flex shrink-0 items-start gap-5 text-right">
                               <span className="flex flex-col">
-                                <span className="num text-sm font-bold text-[#1A1A1A]">
+                                <span className="num text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                                   {campaign.connected}
                                 </span>
-                                <span className="text-[11px] uppercase tracking-wide text-[#475569]">
+                                <span className="text-[11px] uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                                   Connected
                                 </span>
                               </span>
@@ -1873,7 +1873,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 <span className="num text-sm font-bold text-[#ea580c]">
                                   {campaign.answerRate}%
                                 </span>
-                                <span className="text-[11px] uppercase tracking-wide text-[#475569]">
+                                <span className="text-[11px] uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                                   Connect rate
                                 </span>
                               </span>
@@ -1884,20 +1884,20 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               card the reader had to guess at. Naming it costs a
                               line and makes the fill mean something. */}
                           <div className="mt-2.5 flex items-center gap-2">
-                            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.35)]">
+                            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.35)] dark:bg-mcm-surface-3/35">
                               <span
                                 className="block h-full rounded-full bg-[#ea580c] transition-[width] duration-500"
                                 style={{ width: `${reached}%` }}
                               />
                             </span>
-                            <span className="num shrink-0 text-[11px] font-bold text-[#475569]">
+                            <span className="num shrink-0 text-[11px] font-bold text-[#475569] dark:text-mcm-ink-2">
                               {reached}% reached
                             </span>
                           </div>
                           {/* Figures bold, captions plain: the row is scanned
                               for the numbers, not the words between them. */}
-                          <p className="mt-2 text-[11px] text-[#475569]">
-                            Dialed <span className="num font-bold text-[#1A1A1A]">
+                          <p className="mt-2 text-[11px] text-[#475569] dark:text-mcm-ink-2">
+                            Dialed <span className="num font-bold text-[#1A1A1A] dark:text-mcm-ink">
                               {campaign.dialed}
                             </span>
                             &nbsp;&middot;&nbsp; Conversions{' '}
@@ -1912,7 +1912,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     })}
                   </div>
                 ) : (
-                  <p className="mt-5 rounded-xl border border-dashed border-[rgba(225,200,165,0.6)] py-6 text-center text-xs text-[#64748b]">
+                  <p className="mt-5 rounded-xl border border-dashed border-[rgba(225,200,165,0.6)] dark:border-mcm-line/60 py-6 text-center text-xs text-[#64748b] dark:text-mcm-ink-3">
                     No active campaigns
                   </p>
                 )}
@@ -1924,9 +1924,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         <div className="mt-3 flex w-full  gap-4 xl:flex-row flex-col">
 
           <div className="flex w-full flex-col gap-3 xl:min-h-[1400px]">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] p-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface/97 backdrop-blur-[12px] p-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
               <div className="mb-2.5 flex items-center justify-between px-0.5">
-                <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459]">
+                <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459] dark:text-mcm-ink-3">
                   <UsersIcon className="h-4 w-4 text-primary" />
                   Live Agent Status
                 </h4>
@@ -1952,7 +1952,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   return (
                     <div
                       key={stat.label}
-                      className="group relative flex items-center gap-2.5 overflow-hidden rounded-[16px] border border-[rgba(225,200,165,0.55)] bg-[#fffdfb] px-3 py-2.5 shadow-[0_6px_18px_rgba(160,95,30,0.1)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[rgba(214,163,90,0.7)] hover:shadow-[0_12px_26px_-6px_rgba(154,78,30,0.28)]"
+                      className="group relative flex items-center gap-2.5 overflow-hidden rounded-[16px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface px-3 py-2.5 shadow-[0_6px_18px_rgba(160,95,30,0.1)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[rgba(214,163,90,0.7)] hover:shadow-[0_12px_26px_-6px_rgba(154,78,30,0.28)]"
                     >
                       {/* Icon badge (#FFF1E0/#ea580c) and card hairline
                           (rgba(249,115,22,.14)) are the design system's own
@@ -1975,7 +1975,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         className={`absolute inset-y-0 left-0 w-[3px] bg-[#f97316]/25 transition-colors duration-200 ${stat.hoverBar}`}
                       />
                       {StatIcon ? (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] transition-transform duration-200 group-hover:scale-105">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash transition-transform duration-200 group-hover:scale-105">
                           <StatIcon className="h-4 w-4 text-[#ea580c]" />
                         </div>
                       ) : null}
@@ -1987,7 +1987,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                             short value ("47%") it costs nothing, and it is
                             explaining that number anyway. */}
                         <p
-                          className={`num flex items-center gap-1 text-lg font-bold leading-none tracking-tight text-[#2E2D35] transition-colors duration-200 ${stat.hoverText}`}
+                          className={`num flex items-center gap-1 text-lg font-bold leading-none tracking-tight text-[#2E2D35] dark:text-mcm-ink transition-colors duration-200 ${stat.hoverText}`}
                         >
                           {stat.value}
                           {stat.label === 'Occupancy' && (
@@ -1995,11 +1995,11 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               text="Calculated based on total agent and number of agents on the call"
                               side="top"
                             >
-                              <Info className="h-3.5 w-3.5 shrink-0 text-[#6b6459] cursor-pointer" />
+                              <Info className="h-3.5 w-3.5 shrink-0 text-[#6b6459] dark:text-mcm-ink-3 cursor-pointer" />
                             </CustomTooltip>
                           )}
                         </p>
-                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                           {stat.label}
                         </p>
                       </div>
@@ -2010,14 +2010,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             </div>
 
             {canViewAgentRosterAndControls ? (
-              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-xl overflow-hidden  border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset]">
-                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-[#EEE7DD] bg-[#FBE2C8]/45 px-3 py-2.5">
-                  <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459]">
+              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-xl overflow-hidden  border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface/97 backdrop-blur-[12px] shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset]">
+                <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 px-3 py-2.5">
+                  <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459] dark:text-mcm-ink-3">
                     <Headset className="h-4 w-4 text-primary" />
                     Agent Real-time Roster and Controls
                   </h4>
-                  <div className="rounded-md border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] backdrop-blur-[12px] px-3 py-1.5 max-sm:w-full">
-                    <p className="text-[11px] font-medium text-[#6b6459]">
+                  <div className="rounded-md border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface/97 backdrop-blur-[12px] px-3 py-1.5 max-sm:w-full">
+                    <p className="text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
                       Top: {topCallsText} &nbsp; | &nbsp; Bottom: {bottomCallsText}
                     </p>
                   </div>
@@ -2027,16 +2027,16 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   {agents?.map((agent: any) => (
                     <div
                       key={`${agent?.extension}-mobile`}
-                      className="rounded-lg border border-[#EEE7DD] bg-[#FBE2C8]/45 p-2.5"
+                      className="rounded-lg border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 p-2.5"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7DD] bg-[#FBE2C8]/40 text-[12px] font-semibold text-[#2E2D35]">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[12px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                             {getInitials(agent.name)}
                           </div>
                           <div className="flex flex-col">
-                            <p className="text-[13px] font-semibold text-[#2E2D35]">{agent.name}</p>
-                            <p className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459]">
+                            <p className="text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">{agent.name}</p>
+                            <p className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
                               <span className="h-2 w-2 rounded-full bg-green-500" />
                               Ext: {agent.ext}
                             </p>
@@ -2049,16 +2049,16 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         </span>
                       </div>
 
-                      <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-[#6b6459]">
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-[#6b6459] dark:text-mcm-ink-3">
                         <p className="flex items-center gap-1.5">
-                          <Timer className="h-3.5 w-3.5 text-[#6b6459]" />
+                          <Timer className="h-3.5 w-3.5 text-[#6b6459] dark:text-mcm-ink-3" />
                           {agent.timeInState}
                         </p>
                         <p className="truncate">{agent.queue}</p>
                         <p className="truncate">{agent.callerId}</p>
                         <p>
-                          Calls: <span className="font-semibold text-[#2E2D35]">{agent.calls}</span> |
-                          AHT: <span className="font-semibold text-[#2E2D35]">{agent.aht}</span>
+                          Calls: <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{agent.calls}</span> |
+                          AHT: <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">{agent.aht}</span>
                         </p>
                       </div>
 
@@ -2069,7 +2069,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                             style={{ width: `${agent.utilization}%` }}
                           />
                         </div>
-                        <p className="text-[11px] font-semibold text-[#6b6459]">
+                        <p className="text-[11px] font-semibold text-[#6b6459] dark:text-mcm-ink-3">
                           {agent.utilization}%
                         </p>
                       </div>
@@ -2119,7 +2119,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       <TableBody>
                         <TableRow>
                           <TableCell colSpan={8} className="h-40">
-                            <div className="flex items-center justify-center gap-2 text-sm text-[#6b6459]">
+                            <div className="flex items-center justify-center gap-2 text-sm text-[#6b6459] dark:text-mcm-ink-3">
                               <Loader2 className="h-5 w-5 animate-spin text-primary" />
                               <span>Loading agents...</span>
                             </div>
@@ -2131,7 +2131,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         {agents?.map((agent: any, agentIndex: number) => (
                           <TableRow
                             key={agent?.extension}
-                            className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/50 hover:bg-[#FBE2C8]/60 ${
+                            className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/50 hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60 ${
                               agentIndex % 2 === 1 ? 'bg-[#FBF6EE]/40' : ''
                             }`}
                           >
@@ -2141,10 +2141,10 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   {getInitials(`${agent?.first_name} ${agent?.last_name}`)}
                                 </div>
                                 <div className="flex flex-col">
-                                  <p className="text-[13px] font-semibold text-[#2E2D35]">
+                                  <p className="text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                     {agent?.first_name || ''} {agent?.last_name || ''}
                                   </p>
-                                  <p className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459]">
+                                  <p className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
                                     <span className="inline-flex items-center justify-center">
                                       {statusImageLookup[getAgentPresenceStatus(agent)] ||
                                         statusImageLookup.offline}
@@ -2168,8 +2168,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               })()}
                             </TableCell>
                             <TableCell className="lt-align-right px-3 py-2.5">
-                              <p className="flex items-center justify-end gap-1.5 text-xs font-medium text-[#2E2D35]">
-                                <Timer className="h-3.5 w-3.5 text-[#6b6459]" />
+                              <p className="flex items-center justify-end gap-1.5 text-xs font-medium text-[#2E2D35] dark:text-mcm-ink">
+                                <Timer className="h-3.5 w-3.5 text-[#6b6459] dark:text-mcm-ink-3" />
                                 {(() => {
                                   const liveCall = getLiveCallForAgent(agent);
                                   const timestamp = getMonitoringCallTimestamp(liveCall, agent);
@@ -2177,7 +2177,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 })()}
                               </p>
                             </TableCell>
-                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#2E2D35]">
+                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#2E2D35] dark:text-mcm-ink">
                               {(() => {
                                 const liveCall = getLiveCallForAgent(agent);
                                 if (!liveCall) return '--';
@@ -2192,7 +2192,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 );
                               })()}
                             </TableCell>
-                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#6b6459]">
+                            <TableCell className="px-3 py-2.5 text-xs font-medium text-[#6b6459] dark:text-mcm-ink-3">
                               {(() => {
                                 const liveCall = getLiveCallForAgent(agent);
                                 const direction = String(liveCall?.direction || '')
@@ -2213,9 +2213,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                       color={getBarColor(utilizationPercent)}
                                       outOfValue={100}
                                       taskDoneValue={utilizationPercent}
-                                      className="bg-[#F0DFC5]"
+                                      className="bg-[#F0DFC5] dark:bg-mcm-surface-3"
                                     />
-                                    <p className="text-[11px] font-bold text-[#2E2D35]">
+                                    <p className="text-[11px] font-bold text-[#2E2D35] dark:text-mcm-ink">
                                       {formatUtilizationPercent(utilizationPercent)}
                                     </p>
                                   </div>
@@ -2223,7 +2223,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               })()}
                             </TableCell>
                             <TableCell className="px-3 py-2.5">
-                              <div className="flex flex-col text-[11px] leading-5 text-[#6b6459]">
+                              <div className="flex flex-col text-[11px] leading-5 text-[#6b6459] dark:text-mcm-ink-3">
                                 {(() => {
                                   const agentStats = getCampaignAgentStats(
                                     String(agent?.extension || ''),
@@ -2232,13 +2232,13 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                     <>
                                       <span>
                                         Calls:{' '}
-                                        <span className="font-semibold text-[#2E2D35]">
+                                        <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                           {agentStats?.total_calls ?? '--'}
                                         </span>
                                       </span>
                                       <span>
                                         AHT:{' '}
-                                        <span className="font-semibold text-[#2E2D35]">
+                                        <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                           {formatAht(agentStats?.avg_handle_time)}
                                         </span>
                                       </span>
@@ -2308,12 +2308,12 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         }}
       >
         <DialogContent className="md:max-w-[1260px] xl:max-w-[1366px] gap-0 overflow-hidden p-0">
-          <DialogHeader className="border-b border-[#EEE7DD] px-5 py-4">
-            <DialogTitle className="text-base font-semibold text-[#2E2D35]">
+          <DialogHeader className="border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
+            <DialogTitle className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">
               {selectedCallListMetric?.label || 'Call'}{' '}
               {isSelectedCallbackTaskMetric ? 'tasks' : 'records'}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#6b6459]">
+            <DialogDescription className="text-xs text-[#6b6459] dark:text-mcm-ink-3">
               {isSelectedCallbackTaskMetric
                 ? 'Showing callback tasks from the calendar task list.'
                 : 'Showing records from today using the phone call list report.'}

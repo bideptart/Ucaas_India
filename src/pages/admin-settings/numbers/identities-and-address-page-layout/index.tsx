@@ -60,7 +60,7 @@ const IdentitiesAndAddressesPageLayout = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700" />}
+            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-3" />}
           />
         }
       >

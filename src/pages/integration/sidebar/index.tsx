@@ -88,7 +88,7 @@ const Sidebar = () => {
 
   return (
     <div className="flex md:flex-col w-full md:h-[calc(100vh-8.5rem)] overflow-auto">
-      <div className="divide-y divide-gray-200 h-full flex flex-row md:flex-col">
+      <div className="divide-y divide-gray-200 dark:divide-mcm-line h-full flex flex-row md:flex-col">
         {menuItems?.map(
           ({ type, icon = '', children, path, title, value, enabled }, index: number) => {
             const isActive = value === activeItem;
@@ -111,7 +111,7 @@ const Sidebar = () => {
                         className="w-full"
                       />
                     </AccordionTrigger>
-                    <AccordionContent className="border md:border-0  md:bg-ucass-primary-200/20 bg-white z-10 relative">
+                    <AccordionContent className="border md:border-0  md:bg-ucass-primary-200/20 bg-white dark:bg-mcm-surface z-10 relative">
                       {children?.map(({ title, path, icon, enabled }, index: number) => {
                         return (
                           <Tile
@@ -159,7 +159,7 @@ const Tile = ({
 
   return (
     <div
-      className={`flex items-center w-full px-3 min-h-14 h-14 gap-2 cursor-pointer whitespace-nowrap ${isActive ? (isChildrenExist ? 'text-primary' : 'text-primary bg-ucass-primary-200/50 border-r-primary border-r-2') : 'text-gray-900/80'} ${child ? 'border-t border-gray-200 p-0 pl-10' : ''} ${!isEnabled ? 'text-gray-400 opacity-60' : ''}`}
+      className={`flex items-center w-full px-3 min-h-14 h-14 gap-2 cursor-pointer whitespace-nowrap ${isActive ? (isChildrenExist ? 'text-primary' : 'text-primary bg-ucass-primary-200/50 border-r-primary border-r-2') : 'text-gray-900/80 dark:text-mcm-ink-2'} ${child ? 'border-t border-gray-200 dark:border-mcm-line p-0 pl-10' : ''} ${!isEnabled ? 'text-gray-400 opacity-60' : ''}`}
       {...getRoutePrefetchHandlers(path)}
       onClick={handleClick}
     >

@@ -17,7 +17,7 @@ import moment from 'moment';
 import { useRecordingAccess } from '@/hooks/use-recording-access';
 import './callbacks-theme.css';
 
-const CallbacksTab = () => {
+const CallbacksTab = ({ globalSearch }: { globalSearch?: string } = {}) => {
   const { user } = useUser();
   /* Whether this person may play this particular recording, on top of the
      plan permission above. */
@@ -249,6 +249,15 @@ const CallbacksTab = () => {
           fetcherFn={calendarMeetingList}
           select={(data: any) => data?.data?.data?.result?.rows || []}
           extraParams={{ filters: [{ key: 'category', value: 'TASK' }] }}
+          search={globalSearch}
+          /* `calendarMeetingList`'s generic `search` param isn't confirmed
+             to match against task name server-side — `clientSideSearch`
+             filters the fetched page itself instead, so this stays correct
+             either way. Scheduled tasks are a bounded, small list (unlike
+             voicemail below, which can run to real call-record volumes and
+             relies on `callList`'s own `search`, already proven via Call
+             History's identical wiring). */
+          clientSideSearch
           emptyTablePlaceholder="No scheduled tasks"
           descriptionEmptyTable="Callback and follow-up tasks you schedule show up here."
           splitStickyHeader
@@ -264,6 +273,7 @@ const CallbacksTab = () => {
           fetcherKey="performanceVoicemailList"
           fetcherFn={callList}
           extraParams={{ type: 'voicemail' }}
+          search={globalSearch}
           emptyTablePlaceholder="No voicemail records found"
           descriptionEmptyTable="Voicemails left on queues and extensions show up here."
           // isHeightSet only governs the legacy non-split height calc

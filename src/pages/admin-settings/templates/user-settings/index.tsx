@@ -92,7 +92,7 @@ const TemplateInfoCard = ({
   return (
     <div className="flex flex-col gap-2 text-xs">
       <div className="flex items-start justify-between gap-2">
-        <span className="text-sm font-semibold text-gray-900">{template?.name}</span>
+        <span className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">{template?.name}</span>
         <span
           className="shrink-0 rounded-full px-2 py-0.5 font-semibold"
           style={{ backgroundColor: statusColours.bg, color: statusColours.text }}
@@ -118,7 +118,7 @@ const TemplateInfoCard = ({
         </div>
       )}
 
-      <div className="flex items-center gap-2 text-gray-600">
+      <div className="flex items-center gap-2 text-gray-600 dark:text-mcm-ink-3">
         <span
           className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
           style={{ backgroundColor: meta.author.colour }}
@@ -128,21 +128,21 @@ const TemplateInfoCard = ({
         {meta.author.name}
       </div>
 
-      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-gray-500">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-gray-500 dark:text-mcm-ink-3">
         <span>Access</span>
         <span className="justify-self-end font-medium" style={{ color: accessColours.text }}>
           {meta.access}
         </span>
         <span>Used in</span>
-        <span className="justify-self-end font-medium text-gray-700">
+        <span className="justify-self-end font-medium text-gray-700 dark:text-mcm-ink-2">
           {meta.profileCount} user profiles
         </span>
         <span>Created</span>
-        <span className="justify-self-end font-medium text-gray-700">
+        <span className="justify-self-end font-medium text-gray-700 dark:text-mcm-ink-2">
           {formatDate(template?.created_at)}
         </span>
         <span>Updated</span>
-        <span className="justify-self-end font-medium text-gray-700">
+        <span className="justify-self-end font-medium text-gray-700 dark:text-mcm-ink-2">
           {formatDate(template?.updated_at)}
         </span>
       </div>
@@ -424,6 +424,12 @@ const UserSettings: FC = () => {
     {
       header: 'Name',
       accessorKey: 'name',
+      /* This is the column that should grow or shrink with the table —
+         everything else here (Status, By, Updated) is a fixed-format
+         short value that never needs more than its own content asks for.
+         See table-manager.tsx's splitStickyHeader column-width comment
+         for what this actually changes. */
+      meta: { flexWidth: true },
       cell: ({ row }) => {
         /* The company record is stored as a reserved template row because there
            is no company-settings table. It is not a template — nobody applies it
@@ -465,7 +471,7 @@ const UserSettings: FC = () => {
                   tempDetails: row?.original,
                 }))
               }
-              className="block w-full truncate text-left text-[11px] text-primary hover:text-primary/80 underline-offset-4 cursor-pointer"
+              className="block w-full truncate text-left text-[15.5px] text-primary hover:text-primary/80 underline-offset-4 cursor-pointer"
             >
               {row?.original?.name}
             </span>
@@ -496,14 +502,14 @@ const UserSettings: FC = () => {
                 <div className="flex flex-nowrap items-center gap-1">
                   {firstTag && (
                     <span
-                      className="whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                      className="whitespace-nowrap rounded-full px-2 py-0.5 text-[12.5px] font-semibold"
                       style={{ backgroundColor: firstColours!.bg, color: firstColours!.text }}
                     >
                       {firstTag}
                     </span>
                   )}
                   {restTags.length > 0 && (
-                    <span className="whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-500">
+                    <span className="whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 text-[12.5px] font-semibold text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
                       +{restTags.length}
                     </span>
                   )}
@@ -587,7 +593,7 @@ const UserSettings: FC = () => {
                 isApply: true,
                 tempDetails: data,
               })),
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
             tooltipText: 'Apply to people',
           },
           {
@@ -598,7 +604,7 @@ const UserSettings: FC = () => {
                 isAddEdit: true,
                 tempDetails: data,
               })),
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
             tooltipText: 'Edit',
           },
           {
@@ -685,7 +691,7 @@ const UserSettings: FC = () => {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 max-h-[75vh] overflow-y-auto">
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Date Range
                   </div>
                   <div className="flex items-center gap-1.5 px-2 py-1">
@@ -695,22 +701,22 @@ const UserSettings: FC = () => {
                       onChange={(e) =>
                         setDummyFilters((prev) => ({ ...prev, createdFrom: e.target.value }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs"
+                      className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
                       aria-label="Created from"
                     />
-                    <span className="text-[11px] text-gray-400">to</span>
+                    <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3">to</span>
                     <input
                       type="date"
                       value={dummyFilters.createdTo}
                       onChange={(e) =>
                         setDummyFilters((prev) => ({ ...prev, createdTo: e.target.value }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs"
+                      className="w-full rounded-md border border-gray-200 px-1.5 py-1 text-xs dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink"
                       aria-label="Created to"
                     />
                   </div>
 
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Last Modified
                   </div>
                   <DropdownMenuCheckboxItem
@@ -723,7 +729,7 @@ const UserSettings: FC = () => {
                     Updated in last 5 days
                   </DropdownMenuCheckboxItem>
 
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Tag
                   </div>
                   {DUMMY_FILTER_TAGS.map((tag) => (
@@ -738,7 +744,7 @@ const UserSettings: FC = () => {
                       {tag}
                     </DropdownMenuItem>
                   ))}
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Author
                   </div>
                   {DUMMY_FILTER_AUTHORS.map((author) => (
@@ -757,7 +763,7 @@ const UserSettings: FC = () => {
                     </DropdownMenuItem>
                   ))}
 
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Access
                   </div>
                   {DUMMY_FILTER_ACCESS.map((access) => (
@@ -778,7 +784,7 @@ const UserSettings: FC = () => {
                     </DropdownMenuCheckboxItem>
                   ))}
 
-                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase text-gray-400 dark:text-mcm-ink-3">
                     By Status
                   </div>
                   {DUMMY_FILTER_STATUSES.map((status) => (
@@ -814,7 +820,7 @@ const UserSettings: FC = () => {
         }
       >
         <div className="w-full flex flex-row gap-6 min-h-0 flex-1">
-          <div className="min-w-0 flex-1 templates-table">
+          <div className="min-w-0 flex-1 templates-table user-settings-table">
             {demo ? (
               <TableManager
                 {...{
@@ -824,7 +830,8 @@ const UserSettings: FC = () => {
                   loading: loadingTemplates,
                   emptyTablePlaceholder: 'No user settings templates found',
                   splitStickyHeader: true,
-                  visibleRowCount: 5,
+                  visibleRowCount: 4,
+                  rowHeight: 60,
                   defaultPageSize: 8,
                   perPageOptions: [8, 25, 50, 100, 200],
                   getRowClassName: getTemplateRowClassName,
@@ -839,7 +846,8 @@ const UserSettings: FC = () => {
                   extraParams: { filter: [{ key: 'name', value: debouncedSearch }] },
                   emptyTablePlaceholder: 'No user settings templates found',
                   splitStickyHeader: true,
-                  visibleRowCount: 5,
+                  visibleRowCount: 4,
+                  rowHeight: 60,
                   defaultPageSize: 8,
                   perPageOptions: [8, 25, 50, 100, 200],
                   getRowClassName: getTemplateRowClassName,

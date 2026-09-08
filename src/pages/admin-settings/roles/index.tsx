@@ -98,13 +98,13 @@ const UserRoles = () => {
     {
       header: 'Description',
       accessorKey: 'description',
-      cell: ({ row }: any) => <p className="text-gray-800">{row?.original?.description || '--'}</p>,
+      cell: ({ row }: any) => <p className="text-gray-800 dark:text-mcm-ink-2">{row?.original?.description || '--'}</p>,
     },
     {
       header: 'Type',
       accessorKey: 'company_uuid',
       cell: ({ getValue }: any) => (
-        <p className="font-semibold text-gray-900">
+        <p className="font-semibold text-gray-900 dark:text-mcm-ink">
           {getValue() === 'PREDEFINED' ? 'System' : 'Custom'}
         </p>
       ),
@@ -122,7 +122,7 @@ const UserRoles = () => {
               className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-semibold min-w-14 justify-center border ${
                 isActiveUsersCount
                   ? 'border-ucass-active-bg bg-ucass-active-bg text-primary'
-                  : 'border-gray-200 bg-gray-100 text-gray-500'
+                  : 'border-gray-200 bg-gray-100 text-gray-500 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
               }`}
             >
               <Icon name="UsersGroupLine" className="w-4 h-4" />
@@ -146,7 +146,7 @@ const UserRoles = () => {
           {
             icon: 'UserPlusLine',
             className: isAdminRole
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
               : 'bg-emerald-100 text-emerald-500 hover:bg-emerald-500 hover:text-white',
             tooltipText: 'Assign Users',
             cb: () => {
@@ -158,8 +158,8 @@ const UserRoles = () => {
           {
             icon: 'EditStrokIcon',
             className: isSystemRole
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
+              : 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
             tooltipText: 'Edit',
             cb: () => {
               setRoleData(data);
@@ -170,7 +170,7 @@ const UserRoles = () => {
           {
             icon: 'TrashBin',
             className: isSystemRole
-              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+              ? 'bg-gray-100 text-gray-300 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
               : 'bg-red-100 text-red-400 hover:bg-red-500 hover:text-white',
             tooltipText: 'Delete',
             cb: () => {
@@ -207,11 +207,11 @@ const UserRoles = () => {
 
   return (
     <>
-      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden ">
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden ">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white dark:border-mcm-line dark:bg-mcm-surface">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1 dark:text-mcm-ink">
             Users
-            <div className="-rotate-90 text-gray-800">
+            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Role</span>
@@ -250,7 +250,7 @@ const UserRoles = () => {
         </div>
 
         <div className="w-full p-3 flex flex-col gap-2">
-          <p className="text-gray-900 text-sm">
+          <p className="text-gray-900 text-sm dark:text-mcm-ink">
             Create a custom role to control what your team members can see and do. Select a starting
             point (like Manager or Agent) to automatically pre-fill recommended permissions, then
             fine-tune their access below.

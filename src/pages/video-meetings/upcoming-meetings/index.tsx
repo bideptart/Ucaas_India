@@ -241,17 +241,19 @@ const UpcomingMeetings = () => {
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           <div className="flex justify-between items-center">
             <h4
-              className="font-semibold text-lg flex items-center gap-1"
+              className="font-semibold text-lg flex items-center gap-1 vm-sunset-title"
               style={{ color: '#8A3F1C' }}
             >
               Upcoming Meetings <InfoIcon className="w-3 h-3 text-[#9A948F]" />
             </h4>
             <Button
               variant="outline"
-              className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F]"
+              className="justify-center shadow-none sm:w-auto hover:bg-gray-50 hover:text-[#9A948F] border-gray-200 bg-white/80 h-9 min-h-9 text-xs text-[#9A948F] dark:border-mcm-line dark:bg-mcm-surface/80 dark:hover:bg-mcm-surface-3"
               type="button"
             >
-              <span style={{ color: '#B5642F' }}>{upcomingMeetingList?.length || 0}</span>
+              <span className="vm-sunset-ink" style={{ color: '#B5642F' }}>
+                {upcomingMeetingList?.length || 0}
+              </span>
               meeting(s)
             </Button>
           </div>
@@ -301,12 +303,12 @@ const UpcomingMeetings = () => {
                   return (
                     <div
                       key={meeting?.meetingId}
-                      className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between "
+                      className="flex flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] dark:border-[rgba(100,116,139,0.25)] dark:bg-[rgba(30,41,59,0.7)] backdrop-blur-[12px] p-5 shadow-[1px_1px_5px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between "
                     >
                       <div className="flex w-full min-w-0 items-start">
                         <div className="flex gap-4 items-center">
                           <div
-                            className="rounded-xl min-h-13 min-w-13 max-w-13 max-h-13 flex flex-col justify-center items-center border"
+                            className="vm-sunset-badge rounded-xl min-h-13 min-w-13 max-w-13 max-h-13 flex flex-col justify-center items-center border"
                             style={{
                               color: '#B5642F',
                               background: 'rgba(231,139,80,0.1)',
@@ -322,7 +324,7 @@ const UpcomingMeetings = () => {
                           </div>
                           <div className="flex min-w-0 flex-col gap-1.5">
                             <div className="flex items-center flex-wrap gap-2">
-                              <h4 className="min-w-0 text-[15px] font-semibold text-gray-900 break-words">
+                              <h4 className="min-w-0 text-[15px] font-semibold text-gray-900 dark:text-mcm-ink break-words">
                                 {meeting?.name || 'Meeting Name'}
                               </h4>
                             </div>
@@ -351,7 +353,10 @@ const UpcomingMeetings = () => {
                             </div> */}
                             <div className="flex flex-wrap gap-2 w-full items-center text-[#9A948F]">
                               <div className="flex items-center gap-1 text-[11px]">
-                                <Clock4Icon className="w-3 h-3" style={{ color: '#B5642F' }} />
+                                <Clock4Icon
+                                  className="w-3 h-3 vm-sunset-ink"
+                                  style={{ color: '#B5642F' }}
+                                />
                                 <div className="flex">
                                   {getAbbreviationByTimeZone(meeting?.timezone)}{' '}
                                   {formatTime(meeting?.startTimeLocal)} -{' '}
@@ -399,7 +404,7 @@ const UpcomingMeetings = () => {
                               <div className="flex items-center gap-1 text-[11px] ml-4">
                                 <div className="flex text-[#9A948F]">Host :</div>
                                 <div
-                                  className="min-w-6 min-h-6  max-h-6 flex justify-center items-center rounded-sm font-medium text-[10px] px-2"
+                                  className="vm-sunset-badge min-w-6 min-h-6  max-h-6 flex justify-center items-center rounded-sm font-medium text-[10px] px-2"
                                   style={{
                                     color: '#B5642F',
                                     background: 'rgba(231,139,80,0.12)',
@@ -466,7 +471,7 @@ const UpcomingMeetings = () => {
                           <Button
                             size={'sm'}
                             variant={'primary'}
-                            className="justify-center shadow-none sm:w-auto min-w-14 border-none bg-[#E78B50] hover:bg-[#D9652E]"
+                            className="justify-center shadow-none sm:w-auto min-w-14 border-none bg-[#E78B50] hover:bg-[#D9652E] dark:bg-[#f97316] dark:hover:bg-[#ff8a2a]"
                             type="button"
                             onClick={() => {
                               window.open(`/video-meet?meetCode=${meeting?.meetingId}`);
@@ -481,7 +486,7 @@ const UpcomingMeetings = () => {
                               <Button
                                 size={'sm'}
                                 variant={'primary'}
-                                className="justify-center shadow-none sm:w-auto min-w-14 cursor-not-allowed opacity-60 pointer-events-none border-none bg-[#E78B50]"
+                                className="justify-center shadow-none sm:w-auto min-w-14 cursor-not-allowed opacity-60 pointer-events-none border-none bg-[#E78B50] dark:bg-[#f97316]"
                                 type="button"
                                 disabled
                               >
@@ -492,7 +497,7 @@ const UpcomingMeetings = () => {
                         )}
 
                         <DropdownMenu>
-                          <DropdownMenuTrigger className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-md w-8 h-8 bg-white-100 text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F]">
+                          <DropdownMenuTrigger className="focus:outline-0 border border-gray-200 cursor-pointer flex items-center justify-center rounded-md w-8 h-8 bg-white-100 text-[#2E2D35]/80 hover:bg-gray-100 hover:text-[#9A948F] dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink dark:hover:bg-mcm-surface">
                             <Icon name="MenuDots" className="w-5 h-5 " />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="mtg-menu">

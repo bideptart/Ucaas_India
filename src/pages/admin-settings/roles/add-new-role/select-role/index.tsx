@@ -50,16 +50,16 @@ const SelectRole: FC<any> = ({
   return (
     <div className="flex w-full flex-col gap-4">
       {viewPermission ? (
-        <div className="flex flex-col gap-2 rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4">
+        <div className="flex flex-col gap-2 rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4 dark:border-mcm-line dark:bg-mcm-surface-3">
           <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-start">
-            <span className="font-medium text-[#2E2D35]">Description:</span>
-            <div className="font-normal text-[#2E2D35] break-words">
+            <span className="font-medium text-[#2E2D35] dark:text-mcm-ink-2">Description:</span>
+            <div className="font-normal text-[#2E2D35] break-words dark:text-mcm-ink-2">
               {sanitizePlainTextInput(selectedRole?.description, ROLE_DESCRIPTION_MAX_LENGTH)}
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 p-4 sm:p-5 dark:border-mcm-line dark:bg-mcm-surface-3">
           {/* <div className="flex flex-col gap-1">
           <h5 className="font-semibold text-gray-900 text-md">Describe User Role</h5>
           <p className="text-gray-800 text-sm">Describe your user role here.</p>
@@ -85,7 +85,7 @@ const SelectRole: FC<any> = ({
                   <div className="flex items-center justify-between">
                     <Label required>Description</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-medium text-[#9A948F]">
+                      <span className="text-[11px] font-medium text-[#9A948F] dark:text-mcm-ink-3">
                         {descriptionLength}/{ROLE_DESCRIPTION_MAX_LENGTH}
                       </span>
                       {errors?.description?.message && (
@@ -100,13 +100,13 @@ const SelectRole: FC<any> = ({
                     <div className="flex">
                       <textarea
                         className={`border normal-case focus:outline-none
-  disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none
-  text-[#2E2D35] placeholder:text-[#2E2D35] bg-white text-sm
+  disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none dark:disabled:bg-mcm-surface-3 dark:disabled:border-mcm-line
+  text-[#2E2D35] placeholder:text-[#2E2D35] bg-white text-sm dark:text-mcm-ink dark:placeholder:text-mcm-ink-3 dark:bg-mcm-surface
   rounded-xl w-full p-3 min-h-10 resize-none
   ${
     errors?.description
       ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-      : 'border-gray-300 focus:border-primary hover:border-primary'
+      : 'border-gray-300 focus:border-primary hover:border-primary dark:border-mcm-line'
   }
 `}
                         placeholder="Enter description"
@@ -123,9 +123,9 @@ const SelectRole: FC<any> = ({
         </div>
       )}
       {!viewPermission && (
-        <div className="flex w-full flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 sm:p-5">
+        <div className="flex w-full flex-col gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 sm:p-5 dark:border-mcm-line dark:bg-mcm-surface">
           <div className="flex w-full flex-col gap-3">
-            <h5 className="font-semibold text-[#2E2D35] text-md">
+            <h5 className="font-semibold text-[#2E2D35] text-md dark:text-mcm-ink">
               Select a role to use as a starting point.
             </h5>
             <RadioGroup
@@ -152,7 +152,7 @@ const SelectRole: FC<any> = ({
           </div>
         </div>
       )}
-      <div className="flex w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-white">
+      <div className="flex w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-white dark:border-mcm-line dark:bg-mcm-surface">
         <div className="flex w-full flex-col gap-4 p-3 sm:p-4">
           {selectedRole?.permission && (
             // <RolePsermisions

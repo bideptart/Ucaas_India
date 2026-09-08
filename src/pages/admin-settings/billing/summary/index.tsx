@@ -189,21 +189,25 @@ const BillingSummary = () => {
             role="status"
             className={`mb-3 flex flex-wrap items-start gap-3 rounded-lg border p-3.5 ${
               alert.tone === 'danger'
-                ? 'border-red-200 bg-red-50'
-                : 'border-amber-200 bg-amber-50'
+                ? 'border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/30'
+                : 'border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/30'
             }`}
           >
             <div className="min-w-[16rem] flex-1">
               <p
                 className={`text-sm font-semibold ${
-                  alert.tone === 'danger' ? 'text-red-800' : 'text-amber-900'
+                  alert.tone === 'danger'
+                    ? 'text-red-800 dark:text-red-400'
+                    : 'text-amber-900 dark:text-amber-400'
                 }`}
               >
                 {alert.title}
               </p>
               <p
                 className={`mt-0.5 text-xs ${
-                  alert.tone === 'danger' ? 'text-red-700' : 'text-amber-800'
+                  alert.tone === 'danger'
+                    ? 'text-red-700 dark:text-red-300/80'
+                    : 'text-amber-800 dark:text-amber-300/80'
                 }`}
               >
                 {alert.detail}

@@ -144,7 +144,7 @@ export const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) 
   if (leaf.italic) children = <em>{children}</em>;
   if (leaf.underline) children = <u>{children}</u>;
   if (leaf.code) {
-    children = <code className="bg-gray-100 px-1 py-0.5 font-mono rounded">{children}</code>;
+    children = <code className="bg-gray-100 dark:bg-mcm-surface-3 px-1 py-0.5 font-mono rounded">{children}</code>;
   }
 
   return (
@@ -221,7 +221,9 @@ export const Button = React.forwardRef<
     {...props}
     ref={ref}
     className={`${className || ''} cursor-pointer rounded ${
-      active ? 'bg-gray-300 text-gray-900' : 'text-gray-500 hover:bg-gray-200'
+      active
+        ? 'bg-gray-300 text-gray-900 dark:bg-mcm-surface-3 dark:text-mcm-ink'
+        : 'text-gray-500 hover:bg-gray-200 dark:text-mcm-ink-3 dark:hover:bg-mcm-surface-3'
     }`}
   />
 ));
@@ -288,7 +290,7 @@ export const Toolbar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <Menu
         {...props}
         ref={ref}
-        className={`flex items-center gap-2 p-2 pl-3 bg-gray-100 rounded-t-md transition-all duration-500 ease-out ${
+        className={`flex items-center gap-2 p-2 pl-3 bg-gray-100 dark:bg-mcm-surface-3 rounded-t-md transition-all duration-500 ease-out ${
           isVisible ? 'opacity-100' : 'opacity-0'
         } ${className}`}
         style={{

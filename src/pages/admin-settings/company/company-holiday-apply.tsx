@@ -175,7 +175,7 @@ const toStoredHolidays = (toAppend: any[]) =>
 
 const outcomeStyle: Record<Outcome, string> = {
   added: 'text-emerald-700',
-  unchanged: 'text-gray-500',
+  unchanged: 'text-gray-500 dark:text-mcm-ink-3',
   skipped: 'text-amber-700',
   failed: 'text-red-600',
 };

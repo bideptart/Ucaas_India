@@ -473,6 +473,9 @@
 input.gp-field-v:focus {
   border-color: #f2994a;
 }
+.dark input.gp-field-v:focus {
+  border-color: var(--mcm-accent, #f97316);
+}
 input.gp-field-v:disabled {
   color: var(--mcm-ink-2, #3d4a63);
   cursor: not-allowed;
@@ -537,6 +540,22 @@ input.gp-field-v:disabled {
 .gp-person-dialog .btn.primary:hover {
   background: #c96f1f;
 }
+.dark .gp-person-dialog .btn.ghost {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: rgba(249, 115, 22, 0.3);
+  color: var(--mcm-ink-2, #aab6c1);
+}
+.dark .gp-person-dialog .btn.ghost:hover {
+  border-color: var(--mcm-accent, #f97316);
+}
+.dark .gp-person-dialog .btn.primary {
+  background: var(--mcm-accent, #f97316);
+  color: #f8fafc;
+}
+.dark .gp-person-dialog .btn.primary:hover {
+  background: var(--mcm-accent-ink, #ff8a2a);
+  color: #111c26;
+}
 .gp-person-dialog .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -571,4 +590,125 @@ input.gp-field-v:disabled {
 .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
   background: #fff1e0;
   color: #c96f1f;
+}
+
+/* ====================================================================
+   Dark theme — this whole file is a bespoke "glass" look (warm cream
+   surfaces, orange-tinted glow) built entirely from literal hex/rgba, so
+   none of it was reachable through the shared --mcm-* tokens the rest of
+   the app repaints from. Redefining every rule above under `.dark` (same
+   selectors, dark-appropriate values) keeps the same warm, glassy DESIGN
+   rather than flattening it to plain slate — reusing the app's own dark
+   accent/surface tokens (--mcm-accent-wash, --mcm-surface, --mcm-ink-*)
+   wherever the light version reused a token, and translating the file's
+   own one-off literals (the browns, the whites-at-low-opacity) into their
+   dark equivalents everywhere it didn't. ==================================================================== */
+/* Flat canonical deep-navy, not the warm-orange ember glow — same
+   "orange never washes a full surface" correction as `.dark body` in
+   index.css, applied here since this page redeclares its own background
+   rather than inheriting body's. */
+.dark .gp-people {
+  background: var(--mcm-ground, #080d12);
+}
+.dark .gp-people .page-head,
+.dark .gp-people .tbar .fchip {
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-people .page-head {
+  background: var(--mcm-surface, #111c26);
+}
+.dark .gp-people .tbar .fchip {
+  background: var(--mcm-accent-wash, #1a2733);
+}
+.dark .gp-people .panel-card {
+  background: #111c26;
+  border: 1px solid #1b2934;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+.dark .gp-people .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-people .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-people .tbar {
+  background: rgba(14, 24, 33, 0.75);
+  border: 1px solid #1b2934;
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-people .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-people .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-people .tbar .fchip > span:first-child {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+/* The "Search people" field sits on `text-[#1a1a1a] placeholder:text-[#8a6f57]/70
+   dark:text-mcm-ink` (SearchChip in page-shell.tsx) — but the app-wide compat
+   safety net in index.css (`.dark [class*="#8a6f57"] { color: ... !important }`)
+   matches on the raw class ATTRIBUTE STRING, not the parsed utility, so it
+   fires on the `placeholder:text-[#8a6f57]/70` substring too and repaints
+   the field's real typed-text colour — not just the placeholder that literal
+   was actually meant for — to a dim slate tone, `!important`, beating
+   `dark:text-mcm-ink` outright (confirmed via getComputedStyle: the utility
+   class never won). Only `!important` at equal-or-higher specificity can
+   out-rank another `!important` rule, so this needs it too. */
+.dark .gp-people .tbar .fchip input {
+  color: var(--mcm-ink, #f3f6f9) !important;
+}
+.dark .gp-people th {
+  background: #16222c;
+  color: var(--mcm-ink-3, #aab6c1);
+  border-bottom: 2px solid #1b2934;
+}
+.dark .gp-people td {
+  border-bottom-color: #1b2934;
+}
+.dark .gp-people tbody tr:hover {
+  background: rgba(17, 29, 39, 0.6);
+}
+.dark .gp-people .mini {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-people .btn.ghost {
+  background: rgba(17, 29, 39, 0.6);
+}
+.dark .gp-people .btn.ghost:disabled {
+  background: rgba(14, 24, 33, 0.6);
+  border: 1px solid #1b2934;
+}
+.dark .gp-people .role-manager {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-people .role-agent {
+  color: var(--mcm-ink-3, #aab6c1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+.dark .gp-person-dialog {
+  --mcm-accent-wash: #1a2733;
+  --mcm-accent-edge: rgba(249, 115, 22, 0.4);
+  --mcm-ink: #f3f6f9;
+  --mcm-ink-2: #aab6c1;
+  background: #111c26;
+  border-color: rgba(249, 115, 22, 0.3);
+}
+.dark .gp-person-dialog .btn.ghost {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+.dark .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
+.dark .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
+  background: var(--mcm-accent-wash, #1a2733);
+  color: var(--mcm-accent-ink, #ff8a2a);
 }

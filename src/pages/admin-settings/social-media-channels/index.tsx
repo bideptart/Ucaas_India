@@ -9,13 +9,13 @@ const SocialMediaChannels = () => {
   const { features } = useCompanyFeatures();
   const ominiChannelAccess = features?.plan_features?.omni_channel?.access || {};
   return (
-    <section className="w-full flex flex-col bg-gray-200/15">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+    <section className="w-full flex flex-col bg-muted/40">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white dark:border-mcm-line dark:bg-mcm-surface">
         <div>
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1 dark:text-mcm-ink">
             Social Media Channels
           </p>
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-500 text-xs dark:text-mcm-ink-3">
             The WhatsApp, Instagram, Facebook and Telegram accounts connected to this workspace.
           </p>
         </div>
@@ -31,11 +31,11 @@ const SocialMediaChannels = () => {
         </div> */}
       </div>
       <div className="w-full p-3 flex flex-col gap-3 overflow-y-auto">
-        <div className="flex sm:items-center gap-2 bg-white rounded-lg p-3 shadow-[1px_1px_2px_rgba(0,0,0,0.05)]">
+        <div className="flex sm:items-center gap-2 bg-white rounded-lg p-3 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] dark:bg-mcm-surface">
           <div className="w-9 h-9 flex items-center justify-center p-2 rounded-full bg-indigo-50 text-indigo-500">
             <InfoIcon />
           </div>
-          <p className="text-gray-700 font-medium text-sm">
+          <p className="text-gray-700 font-medium text-sm dark:text-mcm-ink-2">
             Connect your business accounts to engage with customers across multiple platforms.
             Manage all your conversations in one place. Chat with social media users in UCAAS Chat!
             Make sure no fans or customers are lost.

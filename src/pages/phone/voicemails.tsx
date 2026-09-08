@@ -43,10 +43,10 @@ const Voicemails = ({
             if (value.startsWith(' ')) return;
             setSearch(e.target.value);
           }}
-          Icon={<SearchLine className=" text-gray-700" />}
+          Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
         />
         <Button
-          className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white border border-gray-300 text-gray-400 hover:bg-primary hover:text-white"
+          className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white dark:bg-mcm-surface border border-gray-300 dark:border-mcm-line text-gray-400 dark:text-mcm-ink-3 hover:bg-primary hover:text-white"
           type="button"
           variant={'ghost'}
           onClick={handleRefresh}

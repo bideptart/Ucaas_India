@@ -15,7 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import CustomSelect from '@/components/custom/custom-select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -68,6 +69,7 @@ const SendWhatsappMessage = ({
   bodyClassName?: string;
 }) => {
   console.log('initialNumber', initialNumber);
+  const theme = useTheme();
   const emojiContainerRef = useRef(null);
   const [receiverNumber, setReceiverNumber] = useState(() =>
     initialNumber ? initialNumber.replace(/^\+/, '') : '',
@@ -171,7 +173,7 @@ const SendWhatsappMessage = ({
 
   useClickOutside({ current: [emojiContainerRef.current] }, () => setEmojiOpen(false));
   return (
-    <div className="flex flex-col bg-white ">
+    <div className="flex flex-col bg-white dark:bg-mcm-surface ">
       {/* <div className="flex flex-col gap-4 xxl:h-[calc(100vh_-_7.5rem)] xl:h-[calc(100vh_-_7.6rem)] lg:h-[calc(100vh_-_7.1rem)] md:h-[calc(100vh_-_6.9rem)] sm:h-[calc(100vh_-_6.9rem)] xs:h-[calc(100vh_-_6.9rem)] overflow-auto"> */}
       <div className={`flex flex-col gap-4 overflow-y-auto ${bodyClassName}`}>
         <div className="flex flex-col gap-4">
@@ -186,7 +188,7 @@ const SendWhatsappMessage = ({
           </div>
           <div className="flex flex-col gap-2">
             <RadioGroup
-              className="border border-gray-200 rounded-xl flex gap-4 p-3 min-h-10"
+              className="border border-gray-200 dark:border-mcm-line rounded-xl flex gap-4 p-3 min-h-10"
               value={radioOption}
               onValueChange={(value) => {
                 setRadioOption(value);
@@ -209,7 +211,7 @@ const SendWhatsappMessage = ({
               </div>
             </RadioGroup>
             {radioOption === 'custom_msg' ? (
-              <div className={`flex items-center w-full rounded-xl border border-gray-300`}>
+              <div className={`flex items-center w-full rounded-xl border border-gray-300 dark:border-mcm-line`}>
                 <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">
                   <textarea
                     name="sms"
@@ -220,7 +222,7 @@ const SendWhatsappMessage = ({
                     }}
                     maxLength={700}
                     placeholder="Write a message..."
-                    className="border-none outline-0 text-sm resize-none placeholder:text-gray-700"
+                    className="border-none outline-0 text-sm resize-none placeholder:text-gray-700 dark:text-mcm-ink dark:placeholder:text-mcm-ink-3"
                   />
                   <div className="flex items-center gap-4">
                     <div className="relative cursor-pointer">
@@ -229,6 +231,7 @@ const SendWhatsappMessage = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
+                          theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                           lazyLoadEmojis
                           className="z-[99999]"
                           open={emojiOpen}
@@ -246,7 +249,7 @@ const SendWhatsappMessage = ({
                         }}
                         className="relative cursor-pointer"
                       >
-                        <EmojiICon className="text-gray-900 w-5 h-5" />
+                        <EmojiICon className="text-gray-900 dark:text-mcm-ink w-5 h-5" />
                       </button>
                     </div>
                   </div>

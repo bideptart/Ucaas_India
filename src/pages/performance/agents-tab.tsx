@@ -40,12 +40,18 @@ const AgentsTab = ({
   activeQueueCalls,
   queues,
   isLoading,
+  globalSearch,
 }: {
   agentRows: any[];
   usersOnlineStatus: any[];
   activeQueueCalls: any[];
   queues: QueueMembership[];
   isLoading: boolean;
+  /* The Performance toolbar's centralized global search (index.tsx) — see
+     the matching comment in queues-activity-tab.tsx for why this table
+     takes it via TableManager's own `search` + `clientSideSearch` rather
+     than a bespoke filter. */
+  globalSearch?: string;
 }) => {
   /* The warm ambient backdrop renders one level up, in the Performance page
      shell (index.tsx) — flagging the document while this tab is open is
@@ -223,6 +229,8 @@ const AgentsTab = ({
         staticData={rows}
         loading={isLoading}
         showPagination={false}
+        search={globalSearch}
+        clientSideSearch
         emptyTablePlaceholder="No agent activity yet"
         descriptionEmptyTable="Agent stats appear once calls are handled today."
         splitStickyHeader

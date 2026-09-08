@@ -176,17 +176,17 @@ const PaymentModal = ({
           <div className="flex flex-col gap-4 w-full">
             <div className="flex flex-col">
               <div className="flex justify-between items-center">
-                <div className="text-gray-900 font-semibold text-lg">Checkout</div>
+                <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg">Checkout</div>
                 <div
                   onClick={() => {
                     if (!isApiLoad) setModalState(false);
                   }}
-                  className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                  className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
                 >
                   <CloseIcon className="w-3 h-3" />
                 </div>
               </div>
-              <div className="text-gray-800 text-sm">Select and add your payment information</div>
+              <div className="text-gray-800 dark:text-mcm-ink-2 text-sm">Select and add your payment information</div>
             </div>
             <PaymentScreen
               ref={paymentRef}

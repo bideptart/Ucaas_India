@@ -39,28 +39,33 @@
     #e0a967 100%
   ) !important;
 }
+/* Dark mode intentionally does NOT carry the light theme's warm/brown cast
+   forward. The gradient above reads fine in light mode against white page
+   chrome, but its dark equivalent (near-black browns) still read as a
+   distinct "brown app" next to the rest of the console's cool dark-navy
+   --mcm-* palette (Inbox, Settings, every other page) — inconsistent rather
+   than glassy. These variables now point at the same --mcm-* tokens the
+   rest of the app's Dark Mode already uses, so Chat/Agent Chat match
+   instead of standing out. --cg-accent is orange again per the 2026-09-05
+   re-theme, but --cg-accent-wash stays a neutral surface tint (not an
+   orange/brown fill) — the accent shows through --cg-accent-ink text and
+   --cg-accent-edge borders instead, same "no large orange areas" rule as
+   the rest of the dark theme. */
 .dark .mcm-warm-glass {
-  --cg-ink: #f7ecdd;
-  --cg-ink-2: #dcc7ad;
-  --cg-ink-3: #b39a7d;
-  --cg-ink-4: #8a7258;
-  --cg-line: rgba(255, 255, 255, 0.08);
-  --cg-surface: rgba(46, 34, 21, 0.8);
-  --cg-surface-2: rgba(38, 28, 17, 0.72);
-  --cg-surface-3: rgba(58, 42, 24, 0.75);
-  --cg-accent: #f0913a;
-  --cg-accent-ink: #ffb066;
-  --cg-accent-wash: rgba(58, 39, 18, 0.75);
-  --cg-accent-edge: #6b4a20;
+  --cg-ink: var(--mcm-ink, #f3f6f9);
+  --cg-ink-2: var(--mcm-ink-2, #aab6c1);
+  --cg-ink-3: var(--mcm-ink-3, #aab6c1);
+  --cg-ink-4: var(--mcm-ink-4, #7c8894);
+  --cg-line: #1b2934;
+  --cg-surface: rgba(11, 20, 28, 0.85);
+  --cg-surface-2: rgba(14, 24, 33, 0.75);
+  --cg-surface-3: rgba(17, 29, 39, 0.8);
+  --cg-accent: #f97316;
+  --cg-accent-ink: #ff8a2a;
+  --cg-accent-wash: var(--mcm-surface-3, #1a2733);
+  --cg-accent-edge: rgba(249, 115, 22, 0.35);
 
-  background: radial-gradient(
-    140% 160% at 50% -20%,
-    #3a2712 0%,
-    #2c1e10 32%,
-    #221a0f 58%,
-    #1a130b 78%,
-    #120d07 100%
-  ) !important;
+  background: var(--mcm-ground, #080d12) !important;
 }
 
 /* Panels: every opaque white surface becomes a translucent, blurred pane
@@ -145,6 +150,9 @@
 .mcm-warm-glass .text-ucass-orange {
   color: var(--cg-accent-ink) !important;
 }
+.mcm-warm-glass .border-t-ucass-orange {
+  border-top-color: var(--cg-accent) !important;
+}
 .mcm-warm-glass .border-primary,
 .mcm-warm-glass .hover\:border-primary:hover,
 .mcm-warm-glass .border-ucass-active,
@@ -204,6 +212,9 @@
   isolation: isolate;
   will-change: transform;
   contain: paint;
+}
+.dark .mcm-warm-glass .contact-table-glass thead {
+  background-color: var(--mcm-surface, #111c26) !important;
 }
 
 /* Contact view's "N contacts selected" bulk-action bar used flat

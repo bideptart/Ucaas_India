@@ -131,15 +131,15 @@ const CampaignSidebar: FC = () => {
                     <AccordionTrigger
                       className="p-0 items-center"
                       isActive={isActive}
-                      activeHeaderClassName="[&>button[data-state=open]]:bg-[#E78B50]/10 [&>button[data-state=open]]:text-[#B5642F]"
-                      activeIconClassName="text-[#B5642F]"
+                      activeHeaderClassName="[&>button[data-state=open]]:bg-[#E78B50]/10 [&>button[data-state=open]]:text-[#B5642F] dark:[&>button[data-state=open]]:bg-[#f97316]/15 dark:[&>button[data-state=open]]:text-[#ff8a2a]"
+                      activeIconClassName="text-[#B5642F] dark:text-[#ff8a2a]"
                     >
                       <div className="flex h-12 min-w-max items-center gap-2 px-3 font-medium lg:h-14 lg:w-full lg:min-w-0">
                         <Icon name={icon as IconType} className="w-6 h-6 p-0.5" />
                         {label}
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="bg-[#E78B50]/[0.05]">
+                    <AccordionContent className="bg-[#E78B50]/[0.05] dark:bg-[#f97316]/10">
                       {children?.map(({ label, path, icon, enabled }: any, index: number) => {
                         return <Tile key={index} {...{ label, path, icon, children, enabled }} />;
                       })}
@@ -172,9 +172,9 @@ const Tile = ({ label, path, icon, children, extraPaths = [], enabled }: any) =>
       className={`flex h-12 min-w-max items-center gap-2 px-3 cursor-pointer lg:h-14 lg:w-full lg:min-w-0 ${
         isActive
           ? isChildrenExist
-            ? 'text-[#B5642F]'
-            : 'text-[#B5642F] bg-[#E78B50]/10 border-b-2 border-b-[#E78B50] lg:border-b-0 lg:border-r-2 lg:border-r-[#E78B50]'
-          : 'text-gray-900/80'
+            ? 'text-[#B5642F] dark:text-[#ff8a2a]'
+            : 'text-[#B5642F] bg-[#E78B50]/10 border-b-2 border-b-[#E78B50] lg:border-b-0 lg:border-r-2 lg:border-r-[#E78B50] dark:text-[#ff8a2a] dark:bg-[#f97316]/15 dark:border-b-[#f97316] dark:lg:border-r-[#f97316]'
+          : 'text-gray-900/80 dark:text-mcm-ink-3'
       } ${isChildrenExist ? 'pl-10 lg:pl-10' : ''} ${!isEnabled ? 'text-gray-400 opacity-60' : ''}`}
       {...getRoutePrefetchHandlers(path)}
       onClick={() => {

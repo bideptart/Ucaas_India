@@ -141,7 +141,7 @@ const OmniChannelConnect: React.FC = () => {
         return {
           text: 'Connect Messenger',
           className:
-            'bg-gradient-to-r from-primary to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-[0_4px_20px_rgba(242,153,74,0.15)] hover:shadow-[0_4px_24px_rgba(242,153,74,0.3)]',
+            'bg-gradient-to-r from-primary to-orange-600 dark:to-slate-600 hover:from-orange-600 dark:hover:from-slate-600 hover:to-orange-700 dark:hover:to-slate-700 text-white shadow-[0_4px_20px_rgba(242,153,74,0.15)] dark:shadow-[0_4px_20px_rgba(100,116,139,0.15)] hover:shadow-[0_4px_24px_rgba(242,153,74,0.3)] dark:hover:shadow-[0_4px_24px_rgba(100,116,139,0.3)]',
           icon: <MessageSquare className="h-5 w-5" />,
         };
       default:
@@ -158,17 +158,17 @@ const OmniChannelConnect: React.FC = () => {
   // const buttonConfig = getButtonConfig(activeChannel);
 
   return (
-    <div className="relative min-h-screen w-screen bg-white overflow-hidden flex items-center justify-center p-4 sm:p-6">
+    <div className="relative min-h-screen w-screen bg-white dark:bg-mcm-ground overflow-hidden flex items-center justify-center p-4 sm:p-6">
       {/* Background decoration with soft, premium light hues */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-orange-50/60 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-orange-50/60 dark:bg-slate-600/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-50/60 blur-[130px] pointer-events-none" />
       <div className="absolute top-[30%] right-[20%] w-[35vw] h-[35vw] rounded-full bg-purple-50/40 blur-[100px] pointer-events-none" />
 
       {/* Main premium Container */}
-      <div className="relative w-full max-w-[520px] bg-white border border-slate-100/90 shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-3xl p-6 sm:p-10 transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.09)]">
+      <div className="relative w-full max-w-[520px] bg-white dark:bg-mcm-surface border border-slate-100/90 dark:border-mcm-line shadow-[0_20px_50px_rgba(0,0,0,0.06)] rounded-3xl p-6 sm:p-10 transition-all duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.09)]">
         {/* Decorative Header Badge */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 uppercase shadow-sm">
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-50 dark:bg-mcm-surface-3 border border-slate-200/80 dark:border-mcm-line text-[11px] font-bold tracking-wider text-slate-600 dark:text-mcm-ink-2 uppercase shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
             Meta Integration Suite
           </div>
@@ -176,10 +176,10 @@ const OmniChannelConnect: React.FC = () => {
 
         {/* Branding & Titles */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-mcm-ink">
             Meta Account Connect
           </h1>
-          <p className="mt-2 text-sm text-slate-500 font-medium">Channel Onboarding</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-mcm-ink-3 font-medium">Channel Onboarding</p>
         </div>
 
         {/* Form Inputs */}
@@ -217,12 +217,12 @@ const OmniChannelConnect: React.FC = () => {
 
         {/* Callback Processing State */}
         {isCallbackProcessing && (
-          <div className="mt-6 flex flex-col items-center justify-center p-8 rounded-2xl bg-orange-50 border border-orange-100 text-orange-600">
-            <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-orange-600 mb-4" />
-            <p className="font-bold text-sm text-slate-700 text-center animate-pulse">
+          <div className="mt-6 flex flex-col items-center justify-center p-8 rounded-2xl bg-orange-50 dark:bg-mcm-surface-3 border border-orange-100 dark:border-mcm-line text-orange-600 dark:text-slate-400">
+            <div className="animate-spin rounded-full h-9 w-9 border-b-2 border-orange-600 dark:border-slate-400 mb-4" />
+            <p className="font-bold text-sm text-slate-700 dark:text-mcm-ink-2 text-center animate-pulse">
               Finalizing Meta Integration...
             </p>
-            <p className="text-xs text-slate-500 text-center mt-1">Please keep this page open.</p>
+            <p className="text-xs text-slate-500 dark:text-mcm-ink-3 text-center mt-1">Please keep this page open.</p>
           </div>
         )}
 
@@ -287,7 +287,7 @@ const OmniChannelConnect: React.FC = () => {
                 </div>
 
                 {displayMessage && (
-                  <div className="text-xs text-red-700/80 bg-white/80 p-3 rounded-xl border border-red-200/20 shadow-sm mt-1">
+                  <div className="text-xs text-red-700/80 dark:text-red-300/80 bg-white/80 dark:bg-slate-900/40 p-3 rounded-xl border border-red-200/20 shadow-sm mt-1">
                     {displayMessage}
                   </div>
                 )}

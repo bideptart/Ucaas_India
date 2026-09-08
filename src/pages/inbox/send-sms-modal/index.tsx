@@ -10,7 +10,8 @@ import useDebounce from '@/hooks/use-debounce';
 import { mediaUploadUrl, sendSms, userSMSInfo } from '@/services/api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useTheme } from '@/hooks/use-theme';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -105,6 +106,7 @@ const trimToSmsCountLimit = (value: string, maxMessages = SMS_COUNT_LIMIT) => {
 
 const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: any) => {
   const { user } = useUser();
+  const theme = useTheme();
   const emojiContainerRef = useRef(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   // const { setParam } = useSearchParamManager();
@@ -348,7 +350,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
 
   return (
     <>
-      <div className="flex flex-col text-gray-900">
+      <div className="flex flex-col text-gray-900 dark:text-mcm-ink">
         <div className="font-semibold truncate text-md flex items-center justify-between  min-h-11 ">
           New Message
         </div>
@@ -448,6 +450,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
+                          theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                           lazyLoadEmojis
                           className="z-[99999] max-h-86 max-w-76"
                           open={emojiOpen}
@@ -468,7 +471,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
                         }}
                         className="relative cursor-pointer w-6 h-6 flex items-center justify-center"
                       >
-                        <EmojiICon className="text-gray-900 w-5 h-5" />
+                        <EmojiICon className="text-gray-900 dark:text-mcm-ink-2 w-5 h-5" />
                       </button>
                     </div>
                     <div className="flex items-center gap-2">
@@ -499,10 +502,10 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
                         onClick={() => fileInputRef.current?.click()}
                         className="relative cursor-pointer w-6 h-6 flex items-center justify-center shrink-0"
                       >
-                        <Paperclip className="text-gray-900 w-5 h-5" />
+                        <Paperclip className="text-gray-900 dark:text-mcm-ink-2 w-5 h-5" />
                       </button>
                       {!mmsFile ? (
-                        <p className="max-w-full text-xs leading-none text-gray-600 sm:max-w-[200px]">
+                        <p className="max-w-full text-xs leading-none text-gray-600 dark:text-mcm-ink-3 sm:max-w-[200px]">
                           Attach media file (optional)
                         </p>
                       ) : null}
@@ -512,7 +515,7 @@ const SendSMSModal = ({ handleClose = () => null, defaultNumber, selectedDID }: 
               </div>
               {mmsFile ? (
                 <div className="w-full flex items-center pt-1">
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-mcm-line shadow-sm bg-white dark:bg-mcm-surface-3">
                     {mmsPreviewUrl ? (
                       <img
                         src={mmsPreviewUrl}

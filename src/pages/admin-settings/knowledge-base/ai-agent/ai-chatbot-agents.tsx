@@ -103,7 +103,7 @@ const sentimentBadgeClass = (sentiment: string) => {
   if (sentiment === 'positive') return 'bg-emerald-100 text-emerald-700';
   if (sentiment === 'negative') return 'bg-red-100 text-red-700';
   if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700';
-  return 'bg-[#FBE2C8]/40 text-[#9A948F]';
+  return 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3';
 };
 
 const sentimentEmoji = (sentiment: string) => {
@@ -777,18 +777,18 @@ function AiChatbotAgents() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[140px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-lg rounded-xl p-1 z-50 animate-none"
+                className="w-[140px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 shadow-lg rounded-xl p-1 z-50 animate-none"
               >
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('live')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span>Live</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('inactive')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
                 >
                   <span className="h-2 w-2 rounded-full bg-slate-400" />
                   <span>Paused</span>
@@ -839,7 +839,7 @@ function AiChatbotAgents() {
 
           if (!chats || !score) {
             return (
-              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 px-2 py-1 text-xs font-semibold text-[#9A948F]">
+              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 px-2 py-1 text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">
                 Not analyzed
               </span>
             );
@@ -1025,10 +1025,10 @@ function AiChatbotAgents() {
             >
               AI Agents
             </button>
-            <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">
+            <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">
               AI Chatbot Agents
             </h1>
-            <p className="mt-0.5 text-[13px] text-[#6b5c4d]">
+            <p className="mt-0.5 text-[13px] text-[#6b5c4d] dark:text-mcm-ink-3">
               Agents that answer chats on your behalf, the knowledge they draw on, and how each one
               is performing.
             </p>
@@ -1090,16 +1090,16 @@ function AiChatbotAgents() {
               onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
               placeholder="Search agents by name..."
               maxLength={50}
-              className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/45 pl-9 pr-3 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[#e8c9a0] focus:border-primary focus:bg-[rgba(251,249,246,0.88)] focus:ring-[3px] focus:ring-primary/12"
+              className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 pl-9 pr-3 text-sm text-[#2E2D35] dark:text-mcm-ink outline-none transition-colors placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 hover:border-[#e8c9a0] dark:hover:border-mcm-line focus:border-primary focus:bg-[rgba(251,249,246,0.88)] dark:focus:bg-mcm-surface/88 focus:ring-[3px] focus:ring-primary/12"
             />
           </div>
-          <div className="h-5 w-px shrink-0 bg-[#EEE7DD]" />
-          <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] bg-white/70 p-1 shadow-sm">
+          <div className="h-5 w-px shrink-0 bg-[#EEE7DD] dark:bg-mcm-surface-3" />
+          <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] dark:border-mcm-line bg-white/70 p-1 shadow-sm">
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
               className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-                statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+                statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
               }`}
               /* `.mcm-page button:not([data-slot='tabs-trigger'])`
                  (mcm-page.css) forces a plain button's own background/color/
@@ -1114,7 +1114,7 @@ function AiChatbotAgents() {
               All
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+                  statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
                 }`}
               >
                 {totalAgentsCount}
@@ -1124,7 +1124,7 @@ function AiChatbotAgents() {
               type="button"
               onClick={() => setStatusFilter('live')}
               className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-                statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+                statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
               }`}
               style={
                 statusFilter === 'live'
@@ -1140,7 +1140,7 @@ function AiChatbotAgents() {
               Live
               <span
                 className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+                  statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
                 }`}
               >
                 {liveAgentsCount}
@@ -1154,7 +1154,7 @@ function AiChatbotAgents() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-colors hover:border-primary"
+                className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-colors hover:border-primary"
               >
                 {(isStatsFetching || isMetricsFetching) && <StatCardLoader />}
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
@@ -1185,9 +1185,9 @@ function AiChatbotAgents() {
               extraParams={{ filters: tableFilters, date_filters: selectedDateFilters }}
               select={selectTableAgents}
               clientSideSearch={false}
-              customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:whitespace-nowrap [&_th]:px-2 [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] [&_th:first-child]:w-[24%] [&_td:first-child]:w-[24%] [&_th:last-child]:w-[204px] [&_td]:h-[62px] [&_td]:px-2 [&_td]:py-[10px] [&_td:last-child]:w-[204px]"
+              customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:whitespace-nowrap [&_th]:px-2 [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] dark:text-mcm-ink-3 [&_th:first-child]:w-[24%] [&_td:first-child]:w-[24%] [&_th:last-child]:w-[204px] [&_td]:h-[62px] [&_td]:px-2 [&_td]:py-[10px] [&_td:last-child]:w-[204px]"
               loaderTableClass="min-h-[320px]"
-              getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60'}
+              getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'}
               emptyTablePlaceholder="No chat agents found"
               descriptionEmptyTable="Try a different search or create a new chat agent."
             />

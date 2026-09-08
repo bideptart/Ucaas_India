@@ -145,7 +145,7 @@ function UploadPdfModal({
               Upload PDF File
               <div
                 onClick={() => setModalState(false)}
-                className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
               >
                 <CloseIcon className="w-3 h-3" />
               </div>
@@ -171,7 +171,7 @@ function UploadPdfModal({
                   {existingFiles?.map((file, index) => (
                     <div
                       key={file}
-                      className="flex items-center justify-between gap-2 p-2 border rounded-md bg-gray-50"
+                      className="flex items-center justify-between gap-2 p-2 border rounded-md bg-gray-50 dark:bg-mcm-surface-3"
                     >
                       <div className="flex items-center gap-2">
                         {iconObj['pdf']}
@@ -180,7 +180,7 @@ function UploadPdfModal({
                       <button
                         type="button"
                         onClick={() => removeExistingFile(index)}
-                        className="text-gray-500 hover:text-red-500 cursor-pointer"
+                        className="text-gray-500 dark:text-mcm-ink-3 hover:text-red-500 cursor-pointer"
                       >
                         <CloseIcon className="w-3 h-3" />
                       </button>
@@ -189,7 +189,7 @@ function UploadPdfModal({
                 </div>
               )}
               <div className="flex gap-1 justify-end absolute bottom-[-20px] right-0">
-                <div className="text-xs text-gray-500 flex">
+                <div className="text-xs text-gray-500 dark:text-mcm-ink-3 flex">
                   {fileList?.length + existingFiles?.length}/5
                 </div>
                 {errors?.file && <ErrorTooltip text={errors?.file?.message} />}
@@ -201,15 +201,15 @@ function UploadPdfModal({
                   htmlFor={isMaxReached ? undefined : 'file-upload'}
                   className={`flex flex-col items-center justify-center w-full h-44 border border-dashed rounded-xl
     ${isMaxReached ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}
-    ${errors?.file ? 'border-red-500' : 'border-gray-300'}
+    ${errors?.file ? 'border-red-500' : 'border-gray-300 dark:border-mcm-line'}
   `}
                 >
-                  <div className="flex flex-col items-center text-gray-500">
-                    <div className="p-3 bg-gray-100 text-gray-700 rounded-md">
+                  <div className="flex flex-col items-center text-gray-500 dark:text-mcm-ink-3">
+                    <div className="p-3 bg-gray-100 dark:bg-mcm-surface-3 text-gray-700 dark:text-mcm-ink-2 rounded-md">
                       <UploadLineIcon className="w-5 h-5" />
                     </div>
-                    <p className="text-xs text-gray-500">Accepted formats: PDF</p>
-                    <p className="mt-2 text-xs text-gray-500">Max: 10MB</p>
+                    <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Accepted formats: PDF</p>
+                    <p className="mt-2 text-xs text-gray-500 dark:text-mcm-ink-3">Max: 10MB</p>
                   </div>
 
                   <input
@@ -246,12 +246,12 @@ function UploadPdfModal({
                 {fileList?.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between gap-2 p-2 border rounded-md bg-gray-50 w-full"
+                    className="flex items-center justify-between gap-2 p-2 border rounded-md bg-gray-50 dark:bg-mcm-surface-3 w-full"
                   >
                     <div className="flex items-center gap-2 w-full">
                       {iconObj['pdf']}
                       <p className="text-sm truncate max-w-[280px] ">{file?.name}</p>
-                      <div className="text-xs text-gray-500">({formatFileSize(file?.size)})</div>
+                      <div className="text-xs text-gray-500 dark:text-mcm-ink-3">({formatFileSize(file?.size)})</div>
                       {isEdit && existingFiles && (
                         <div className="text-xs py-1 px-2 border border-green-300 bg-green-50 text-green-600 rounded-sm">
                           New
@@ -261,7 +261,7 @@ function UploadPdfModal({
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="text-gray-500 hover:text-red-500 cursor-pointer"
+                      className="text-gray-500 dark:text-mcm-ink-3 hover:text-red-500 cursor-pointer"
                     >
                       <CloseIcon className="w-3 h-3" />
                     </button>

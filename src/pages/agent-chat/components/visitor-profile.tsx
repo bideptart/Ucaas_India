@@ -303,10 +303,10 @@ const VisitorProfile = ({
 
   if (!activeChatId || !chat) {
     if (asDrawerContent) {
-      return <div className="h-full bg-white">{emptyState}</div>;
+      return <div className="h-full bg-white dark:bg-mcm-surface">{emptyState}</div>;
     }
     return (
-      <aside className="hidden h-full min-w-[21rem] max-w-[21rem] border-l border-border bg-white lg:block">
+      <aside className="hidden h-full min-w-[21rem] max-w-[21rem] border-l border-border bg-white dark:bg-mcm-surface lg:block">
         {emptyState}
       </aside>
     );
@@ -435,7 +435,7 @@ const VisitorProfile = ({
                 profileData.pastTickets.map((ticket, index) => (
                   <div
                     key={`${ticket.label}-${ticket.date}-${index}`}
-                    className="rounded-2xl border border-border bg-white p-4 shadow-sm hover:border-ucass-active/30 transition-colors"
+                    className="rounded-2xl border border-border bg-white dark:bg-mcm-surface p-4 shadow-sm hover:border-ucass-active/30 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="text-sm font-semibold text-foreground">
@@ -465,10 +465,10 @@ const VisitorProfile = ({
   );
 
   if (asDrawerContent) {
-    return <div className="h-full bg-white">{profileContent}</div>;
+    return <div className="h-full bg-white dark:bg-mcm-surface">{profileContent}</div>;
   }
   return (
-    <aside className="hidden h-full min-w-[21rem] max-w-[21rem] border-l border-border bg-white lg:block">
+    <aside className="hidden h-full min-w-[21rem] max-w-[21rem] border-l border-border bg-white dark:bg-mcm-surface lg:block">
       {profileContent}
     </aside>
   );

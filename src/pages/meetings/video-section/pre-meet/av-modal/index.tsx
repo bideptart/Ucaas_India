@@ -302,7 +302,7 @@ const AVModal = ({ meetState, setMeetState }: { meetState: any; setMeetState: an
           <header className="bg-primary px-3 py-2 flex items-center h-full">
             <nav className="flex items-center w-full" aria-label="Global">
               <div className="gap-2 flex items-center">
-                <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center font-medium text-white">
+                <div className="w-10 h-10 rounded-xl bg-orange-500 dark:bg-slate-500 flex items-center justify-center font-medium text-white">
                   {displayFirstName?.[0]}
                   {displayLastName?.[0]}
                 </div>
@@ -344,7 +344,7 @@ const AVModal = ({ meetState, setMeetState }: { meetState: any; setMeetState: an
 
                 <div className="md:w-2/4 px-6 w-full">
                   <div className="flex flex-col gap-4">
-                    <h3 className="text-gray-900 font-semibold text-lg md:mt-0 mt-2">
+                    <h3 className="text-gray-900 dark:text-mcm-ink font-semibold text-lg md:mt-0 mt-2">
                       Meeting Settings
                     </h3>
 
@@ -473,8 +473,8 @@ const AVModal = ({ meetState, setMeetState }: { meetState: any; setMeetState: an
               </div>
             </>
           ) : (
-            <div className="w-full max-w-md border border-gray-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
-              <h3 className="text-2xl font-semibold text-gray-900">Enter Meeting Password</h3>
+            <div className="w-full max-w-md border border-gray-200 dark:border-mcm-line rounded-xl p-5 flex flex-col gap-4 bg-white dark:bg-mcm-surface">
+              <h3 className="text-2xl font-semibold text-gray-900 dark:text-mcm-ink">Enter Meeting Password</h3>
               <Input
                 label="Password"
                 type="password"

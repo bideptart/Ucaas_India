@@ -37,11 +37,11 @@ const CompanyLayout = () => {
     user?.company_info?.company_name || user?.user_info?.company_name || 'your company';
 
   return (
-    <section className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-gray-200/15">
-      <div className="flex items-start justify-between gap-4 p-3 border-b border-gray-200 min-h-[65px] bg-white">
+    <section className="w-full h-full min-h-0 flex flex-col overflow-hidden bg-muted/40">
+      <div className="flex items-start justify-between gap-4 p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
         <div>
-          <p className="text-gray-900 font-semibold text-lg">Company Phone Preferences</p>
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg">Company Phone Preferences</p>
+          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
             The phone rules for {companyName}, kept in one place.
           </p>
         </div>
@@ -67,17 +67,33 @@ const CompanyLayout = () => {
 
         {/* Links rather than buttons, so each section can be opened in a new tab,
             bookmarked, and sent to someone in a support reply. */}
-        <div className="mb-3 border-b border-gray-200">
+        <div className="mb-3 border-b border-gray-200 dark:border-mcm-line">
           <nav className="flex flex-wrap gap-1" aria-label="Company settings">
             {COMPANY_SECTIONS.map((item) => (
               <NavLink
                 key={item.path}
                 to={`/admin-settings/company/${item.path}`}
+                /* Light mode keeps its original underline-tab look
+                   untouched (`border-b-2` on active, plain text on
+                   inactive) — the `dark:` classes below don't touch that,
+                   they layer a full-chip treatment on top that only
+                   applies under `.dark`, since a `dark:border` with higher
+                   selector specificity than the base `border-b-2` wins
+                   outright there. Inactive tabs had no background/border
+                   at all in dark mode, which is why they read as plain
+                   text rather than tabs; active only had a 2px bottom
+                   line, not the "clearly bordered chip" the design calls
+                   for. Both now get a real 1px --mcm-line border and a
+                   --mcm-surface-2 elevated surface, active additionally
+                   picking up the app's neutral-wash-plus-orange-text
+                   pattern (--mcm-accent-wash background, --mcm-accent-edge
+                   border, --mcm-accent-ink text) rather than a filled
+                   orange block. */
                 className={({ isActive }) =>
-                  `cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${
+                  `cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
                     isActive
-                      ? 'border-b-2 border-primary text-primary'
-                      : 'text-gray-700 hover:text-gray-900'
+                      ? 'border-b-2 border-primary text-primary dark:border dark:border-mcm-accent-edge dark:bg-mcm-accent-wash dark:text-mcm-accent-ink'
+                      : 'text-gray-700 dark:text-mcm-ink-2 hover:text-gray-900 dark:hover:text-mcm-ink dark:border dark:border-mcm-line dark:bg-mcm-surface-2 dark:hover:border-mcm-line-2 dark:hover:bg-mcm-surface-3'
                   }`
                 }
               >

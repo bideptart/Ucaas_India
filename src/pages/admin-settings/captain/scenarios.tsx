@@ -38,9 +38,9 @@ const emptyForm: Form = {
 };
 
 const textAreaClass =
-  'w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition-all placeholder:text-gray-400 hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10';
+  'w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition-all placeholder:text-gray-400 hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink dark:placeholder:text-mcm-ink-3';
 const selectClass =
-  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition-all hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10';
+  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition-all hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink';
 
 /** Triggers are edited as one line each and stored as a list. */
 const parseTriggers = (value: string) =>
@@ -179,29 +179,29 @@ const CaptainScenarios = () => {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto rounded-2xl border border-gray-200 bg-white">
+      <div className="flex-1 overflow-auto rounded-2xl border border-gray-200 bg-white dark:border-mcm-line dark:bg-mcm-surface">
         {isLoading ? (
-          <div className="flex h-40 items-center justify-center text-sm text-gray-500">
+          <div className="flex h-40 items-center justify-center text-sm text-gray-500 dark:text-mcm-ink-3">
             Loading...
           </div>
         ) : scenarios.length === 0 ? (
           <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
-            <GitBranch className="size-6 text-gray-300" />
-            <div className="text-sm font-medium text-gray-700">No scenarios yet</div>
-            <div className="text-xs text-gray-500">
+            <GitBranch className="size-6 text-gray-300 dark:text-mcm-ink-4" />
+            <div className="text-sm font-medium text-gray-700 dark:text-mcm-ink-2">No scenarios yet</div>
+            <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
               Click "Add Scenario" to describe a situation the assistant should handle.
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-mcm-line">
             {scenarios.map((scenario) => (
               <div
                 key={scenario.id}
-                className="flex items-start justify-between gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
+                className="flex items-start justify-between gap-4 px-5 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-mcm-surface-3"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="text-sm font-semibold text-gray-950">{scenario.name}</div>
+                    <div className="text-sm font-semibold text-gray-950 dark:text-mcm-ink">{scenario.name}</div>
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         scenario.status === 'active'
@@ -213,14 +213,14 @@ const CaptainScenarios = () => {
                     </span>
                   </div>
                   {scenario.description && (
-                    <div className="mt-1 text-sm text-gray-600">{scenario.description}</div>
+                    <div className="mt-1 text-sm text-gray-600 dark:text-mcm-ink-2">{scenario.description}</div>
                   )}
                   {(scenario.triggers || []).length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {scenario.triggers.map((trigger) => (
                         <span
                           key={trigger}
-                          className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600"
+                          className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600 dark:bg-mcm-surface-3 dark:text-mcm-ink-3"
                         >
                           {trigger}
                         </span>
@@ -257,7 +257,7 @@ const CaptainScenarios = () => {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="w-full max-w-lg rounded-2xl p-6">
-          <DialogTitle className="text-base font-bold text-gray-950">
+          <DialogTitle className="text-base font-bold text-gray-950 dark:text-mcm-ink">
             {editingId ? 'Edit Scenario' : 'Add Scenario'}
           </DialogTitle>
 
@@ -291,7 +291,7 @@ const CaptainScenarios = () => {
                 className={textAreaClass}
                 placeholder={'One phrase per line\ne.g. I want a refund\ncancel my plan'}
               />
-              <div className="text-xs text-gray-500">One phrase per line.</div>
+              <div className="text-xs text-gray-500 dark:text-mcm-ink-3">One phrase per line.</div>
             </div>
 
             <div className="flex flex-col gap-1.5">

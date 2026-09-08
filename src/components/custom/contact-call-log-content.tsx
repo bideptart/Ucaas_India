@@ -137,7 +137,7 @@ const ContactCallLogContent = ({
   }, [normalizedPhone]);
 
   const renderFallbackPane = (content: ReactNode) => (
-    <div className="w-full h-full min-h-[inherit] bg-white flex items-center justify-center text-gray-700 p-4 text-center">
+    <div className="w-full h-full min-h-[inherit] bg-white dark:bg-mcm-surface flex items-center justify-center text-gray-700 dark:text-mcm-ink-2 p-4 text-center">
       {content}
     </div>
   );

@@ -81,16 +81,16 @@ const PlanComparison = () => (
         <table className="w-full min-w-[40rem] border-collapse text-sm">
           <thead>
             <tr>
-              <th className="border-b border-gray-200 pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <th className="border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3">
                 Per seat
               </th>
               {PLANS.map((plan) => (
                 <th
                   key={plan.id}
-                  className="border-b border-gray-200 pb-2 pr-4 text-left last:pr-0"
+                  className="border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-left last:pr-0"
                 >
-                  <span className="block text-sm font-semibold text-gray-900">{plan.name}</span>
-                  <span className="block text-xs font-normal tabular-nums text-gray-600">
+                  <span className="block text-sm font-semibold text-gray-900 dark:text-mcm-ink">{plan.name}</span>
+                  <span className="block text-xs font-normal tabular-nums text-gray-600 dark:text-mcm-ink-3">
                     {moneyOrUnavailable(plan.monthlyPerSeat)} a month
                   </span>
                   {/* The yearly price beside the monthly one, because paying for
@@ -98,7 +98,7 @@ const PlanComparison = () => (
                       have to find that out on the next screen. The saving is
                       worked out from the two prices rather than written down, so
                       it cannot disagree with them. */}
-                  <span className="block text-xs font-normal tabular-nums text-gray-500">
+                  <span className="block text-xs font-normal tabular-nums text-gray-500 dark:text-mcm-ink-3">
                     {moneyOrUnavailable(plan.yearlyPerSeat)} a year
                     {yearlySavingPercent(plan) ? ` · save ${yearlySavingPercent(plan)}%` : ''}
                   </span>
@@ -110,7 +110,7 @@ const PlanComparison = () => (
             {ROWS.map((row) => (
               <tr key={row.label}>
                 <td className="border-b border-gray-100 py-2.5 pr-4 align-top">
-                  <span className="font-medium text-gray-900">{row.label}</span>
+                  <span className="font-medium text-gray-900 dark:text-mcm-ink">{row.label}</span>
                   {!row.counted ? (
                     <span className="mt-0.5 block text-[11px] text-amber-700">Not counted yet</span>
                   ) : null}
@@ -120,11 +120,11 @@ const PlanComparison = () => (
                   return (
                     <td
                       key={plan.id}
-                      className="border-b border-gray-100 py-2.5 pr-4 align-top tabular-nums text-gray-800 last:pr-0"
+                      className="border-b border-gray-100 py-2.5 pr-4 align-top tabular-nums text-gray-800 dark:text-mcm-ink-2 last:pr-0"
                     >
                       {row.value(plan)}
                       {rate ? (
-                        <span className="mt-0.5 block text-xs text-gray-500">{rate}</span>
+                        <span className="mt-0.5 block text-xs text-gray-500 dark:text-mcm-ink-3">{rate}</span>
                       ) : null}
                     </td>
                   );
@@ -154,7 +154,7 @@ const PlanComparison = () => (
               {['Add-on', 'Price', 'Charged', 'Includes', 'After that'].map((h, i) => (
                 <th
                   key={h}
-                  className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
+                  className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
                     i === 0 ? 'text-left' : 'text-left'
                   }`}
                 >
@@ -166,24 +166,24 @@ const PlanComparison = () => (
           <tbody>
             {PLAN_ADD_ONS.map((addOn) => (
               <tr key={addOn.id}>
-                <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
+                <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
                   {addOn.name}
-                  <span className="mt-0.5 block text-xs font-normal text-gray-600">
+                  <span className="mt-0.5 block text-xs font-normal text-gray-600 dark:text-mcm-ink-3">
                     {addOn.summary}
                   </span>
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800">
+                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800 dark:text-mcm-ink-2">
                   {addOn.monthlyPrice === 0 ? '—' : moneyOrUnavailable(addOn.monthlyPrice)}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 text-gray-600">
+                <td className="border-b border-gray-100 py-2.5 pr-4 text-gray-600 dark:text-mcm-ink-3">
                   per {addOn.per}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800">
+                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800 dark:text-mcm-ink-2">
                   {addOn.included
                     ? `${addOn.included.units.toLocaleString()} ${addOn.included.unit}`
                     : '—'}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 tabular-nums text-gray-600">
+                <td className="border-b border-gray-100 py-2.5 tabular-nums text-gray-600 dark:text-mcm-ink-3">
                   {addOn.overageRate !== undefined
                     ? `₹${(addOn.overageRate * USD_TO_INR_RATE)
                         .toFixed(3)

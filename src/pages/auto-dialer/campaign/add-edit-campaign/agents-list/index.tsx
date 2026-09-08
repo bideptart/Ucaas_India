@@ -240,7 +240,7 @@ const AgentsList: FC<any> = ({ scriptList = [], dialMethod = DIALER_TYPE.PREVIEW
         <div className="w-full flex flex-row items-end gap-6 flex-wrap ">
           {dialMethod === DIALER_TYPE.PREVIEW && (
             <div className="flex items-center gap-3 pb-1">
-              <h3 className="text-gray-900 font-semibold text-sm whitespace-nowrap">
+              <h3 className="text-gray-900 dark:text-mcm-ink font-semibold text-sm whitespace-nowrap">
                 Allow Skipping
               </h3>
               <Switch
@@ -254,7 +254,7 @@ const AgentsList: FC<any> = ({ scriptList = [], dialMethod = DIALER_TYPE.PREVIEW
 
           <div className="flex items-end gap-3 flex-wrap">
             <div className="flex items-center gap-3 pb-1">
-              <h3 className="text-gray-900 font-semibold text-sm whitespace-nowrap">
+              <h3 className="text-gray-900 dark:text-mcm-ink font-semibold text-sm whitespace-nowrap">
                 Agent Scripting
               </h3>
               <Switch

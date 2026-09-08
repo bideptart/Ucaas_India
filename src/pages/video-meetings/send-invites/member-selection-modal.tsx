@@ -420,7 +420,7 @@ const MemberSelectionModal: FC<MemberSelectionModalProps> = ({
         className="h-[92vh] max-h-[860px] w-[96vw] max-w-5xl overflow-hidden p-0"
         showCloseButton={false}
       >
-        <section className="flex h-full min-h-0 flex-col bg-white">
+        <section className="flex h-full min-h-0 flex-col bg-white dark:bg-mcm-surface">
           <header className="shrink-0 border-b border-[#EEE7DD] px-4 py-4 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -497,7 +497,7 @@ const MemberSelectionModal: FC<MemberSelectionModalProps> = ({
               </div>
             </div>
 
-            <aside className="flex min-h-0 flex-col bg-white">
+            <aside className="flex min-h-0 flex-col bg-white dark:bg-mcm-surface">
               <div className="shrink-0 border-b border-[#EEE7DD] px-4 py-4 sm:px-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -541,7 +541,7 @@ const MemberSelectionModal: FC<MemberSelectionModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleRemoveSelected(memberKey)}
-                            className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-[#9A948F] hover:bg-gray-100 hover:text-[#2E2D35]"
+                            className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-[#9A948F] hover:bg-gray-100 dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35]"
                             aria-label={`Remove ${member?.name || member?.email}`}
                           >
                             <X className="h-3.5 w-3.5" />

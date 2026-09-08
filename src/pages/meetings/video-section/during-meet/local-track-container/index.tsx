@@ -187,12 +187,12 @@ const LocalTrackContainer = ({
         <div className="absolute right-3 top-3 flex flex-col gap-2">
           <div className="flex gap-2">
             {isHandRaised && (
-              <div className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center">
+              <div className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 flex items-center justify-center">
                 <Hand className="w-5 h-5" />
               </div>
             )}
             {(isLocalAudioMuted || !localAudioTrack) && (
-              <div className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center">
+              <div className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 flex items-center justify-center">
                 <LucideMicOff className="w-5 h-5" />
               </div>
             )}

@@ -131,7 +131,7 @@ const AccessControlPage = () => {
                 </>
               }
               control={
-                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-600">
+                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-600 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
                   {SCOPE_LABEL[tier.scope]}
                 </span>
               }

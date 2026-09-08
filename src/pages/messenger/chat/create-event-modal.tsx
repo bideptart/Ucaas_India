@@ -478,7 +478,7 @@ const CreateEvent: FC<CreateEventProps> = ({
               {durationOptions?.map((item: any) => (
                 <div
                   onClick={() => setDuration(item.value)}
-                  className={`border border-gray-200 rounded-xl p-2 cursor-pointer text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'bg-primary text-white' : 'bg-white text-gray-900'}`}
+                  className={`border border-gray-200 dark:border-mcm-line rounded-xl p-2 cursor-pointer text-sm hover:bg-primary hover:text-white ${duration === item.value ? 'bg-primary text-white' : 'bg-white dark:bg-mcm-surface text-gray-900 dark:text-mcm-ink-2'}`}
                 >
                   {item.label}
                 </div>

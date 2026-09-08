@@ -149,14 +149,14 @@ const DialpadMergeList = ({ onBack, session }: DialpadMergeListProps) => {
           type="button"
           onClick={onBack}
           disabled={isMerging}
-          className="flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-[#2d466b] transition max-[380px]:px-1.5 max-[380px]:py-0.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1.5 sm:text-xs md:text-[13px] hover:bg-[#edf3ff] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex items-center gap-1 rounded-full bg-white dark:bg-mcm-surface px-2 py-1 text-[11px] font-semibold text-[#2d466b] dark:text-mcm-ink transition max-[380px]:px-1.5 max-[380px]:py-0.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1.5 sm:text-xs md:text-[13px] hover:bg-[#edf3ff] dark:hover:bg-mcm-surface-3 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <ChevronLeft className="h-4 w-4" />
           Back
         </button>
       </div>
 
-      <div className=" bg-white">
+      <div className=" bg-white dark:bg-mcm-surface">
         {otherLiveSessions.length === 0 ? (
           <div className="py-3 text-center text-[12px] text-[#6f809a] sm:py-4 sm:text-sm">
             No other sessions found

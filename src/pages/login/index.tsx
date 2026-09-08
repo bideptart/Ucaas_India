@@ -399,8 +399,8 @@ const Login = () => {
 
   return (
     <>
-      <div className="w-full h-full p-4 md:p-15 md:py-6 bg-gray-200/15 flex items-center justify-center">
-        <div className="w-full lg:max-w-[60%] xxl:max-w-[70%] flex sm:flex-row flex-col xs:h-full sm:h-auto md:h-full rounded-xl bg-white shadow-sm overflow-auto">
+      <div className="w-full h-full p-4 md:p-15 md:py-6 bg-muted/40 flex items-center justify-center">
+        <div className="w-full lg:max-w-[60%] xxl:max-w-[70%] flex sm:flex-row flex-col xs:h-full sm:h-auto md:h-full rounded-xl bg-white dark:bg-mcm-surface shadow-sm overflow-auto">
           <section className="w-full sm:w-1/2 h-full">
             <div className="mx-auto p-5 xl:p-8 h-full flex flex-col gap-3">
               <div className="h-8">
@@ -417,10 +417,10 @@ const Login = () => {
               <div className="flex flex-col justify-center items-center m-auto">
                 <div className="w-full flex flex-col gap-2 xl:gap-8">
                   <div className="flex flex-col gap-1 xl:gap-3">
-                    <h1 className="text-base xl:text-2xl  text-gray-900 font-bold">
+                    <h1 className="text-base xl:text-2xl  text-gray-900 dark:text-mcm-ink font-bold">
                       Log in to your account
                     </h1>
-                    <h6 className="text-sm xl:text-base text-gray-500 font-normal">
+                    <h6 className="text-sm xl:text-base text-gray-500 dark:text-mcm-ink-3 font-normal">
                       Welcome back! Please enter your details.
                     </h6>
                   </div>
@@ -507,7 +507,7 @@ const Login = () => {
                     </form>
                   </div>
 
-                  <p className="text-xs xl:text-sm text-gray-800 font-normal">
+                  <p className="text-xs xl:text-sm text-gray-800 dark:text-mcm-ink-2 font-normal">
                     By creating new account, you automatically agree to our
                     <a
                       target="_blank"
@@ -526,7 +526,7 @@ const Login = () => {
                     </a>
                   </p>
 
-                  <p className="text-xs xl:text-sm text-gray-800 font-normal text-center">
+                  <p className="text-xs xl:text-sm text-gray-800 dark:text-mcm-ink-2 font-normal text-center">
                     Don’t have an account?
                     <span
                       className="text-primary hover:text-primary/80 font-semibold cursor-pointer"
@@ -544,11 +544,11 @@ const Login = () => {
           <section className="w-full sm:w-1/2 bg-ucass-login-bg sm:overflow-hidden">
             <div className="mx-auto pt-8 h-full flex flex-col gap-10 justify-between">
               <div className="flex flex-col gap-3 px-8">
-                <h2 className="text-gray-900 font-bold text-base xl:text-2xl ">
+                <h2 className="text-gray-900 dark:text-mcm-ink font-bold text-base xl:text-2xl ">
                   Enterprise Communication Solutions
                 </h2>
 
-                <p className="text-gray-700 text-sm">
+                <p className="text-gray-700 dark:text-mcm-ink-2 text-sm">
                   Connect with your customers through our reliable and scalable communication
                   platform.
                 </p>
@@ -557,7 +557,7 @@ const Login = () => {
                     <span className="bg-green-500 text-white w-5 h-5 rounded-full p-1 flex items-center justify-center">
                       <Check />
                     </span>
-                    <p className="text-gray-900 text-xs xxl:text-sm font-semibold">
+                    <p className="text-gray-900 dark:text-mcm-ink text-xs xxl:text-sm font-semibold">
                       Secure Communication
                     </p>
                   </div>
@@ -565,13 +565,13 @@ const Login = () => {
                     <span className="bg-green-500 text-white w-5 h-5 rounded-full p-1 flex items-center justify-center">
                       <Check />
                     </span>
-                    <p className="text-gray-900 text-xs xxl:text-sm font-semibold">Global Reach</p>
+                    <p className="text-gray-900 dark:text-mcm-ink text-xs xxl:text-sm font-semibold">Global Reach</p>
                   </div>
                   <div className="flex gap-2 items-center">
                     <span className="bg-green-500 text-white w-5 h-5 rounded-full p-1 flex items-center justify-center">
                       <Check />
                     </span>
-                    <p className="text-gray-900 text-xs xxl:text-sm font-semibold">
+                    <p className="text-gray-900 dark:text-mcm-ink text-xs xxl:text-sm font-semibold">
                       Scalable Solutions
                     </p>
                   </div>
@@ -579,7 +579,7 @@ const Login = () => {
                     <span className="bg-green-500 text-white w-5 h-5 rounded-full p-1 flex items-center justify-center">
                       <Check />
                     </span>
-                    <p className="text-gray-900 text-xs xxl:text-sm font-semibold">24/7 Support</p>
+                    <p className="text-gray-900 dark:text-mcm-ink text-xs xxl:text-sm font-semibold">24/7 Support</p>
                   </div>
                 </div>
               </div>

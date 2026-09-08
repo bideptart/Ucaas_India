@@ -174,7 +174,7 @@ const InvoiceDetails = ({ info, drawerState, setDrawerState }: any) => {
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <div className="flex flex-col gap-3 sm:gap-10 p-4 overflow-auto bg-white" ref={hiddenRef}>
+        <div className="flex flex-col gap-3 sm:gap-10 p-4 overflow-auto bg-white dark:bg-mcm-surface" ref={hiddenRef}>
           <div className="flex sm:flex-row flex-col gap-4 sm:gap-6">
             <div className="flex flex-col w-1/2 gap-4">
               <img
@@ -187,29 +187,29 @@ const InvoiceDetails = ({ info, drawerState, setDrawerState }: any) => {
                 className="w-40"
               />
               {mainSiteAddress ? (
-                <h6 className="leading-5 text-gray-700 text-sm">{mainSiteAddress}</h6>
+                <h6 className="leading-5 text-gray-700 dark:text-mcm-ink-2 text-sm">{mainSiteAddress}</h6>
               ) : null}
-              <p className="text-gray-700 text-sm">Email: {mainSiteInvoiceEmail || 'NA'}</p>
+              <p className="text-gray-700 dark:text-mcm-ink-2 text-sm">Email: {mainSiteInvoiceEmail || 'NA'}</p>
             </div>
             <div className="flex flex-col sm:w-1/2 sm:pl-16">
-              <h5 className=" text-gray-900 text-md sm:pb-5 font-bold">Tax Invoice / Receipt</h5>
+              <h5 className=" text-gray-900 dark:text-mcm-ink text-md sm:pb-5 font-bold">Tax Invoice / Receipt</h5>
               <div className="flex flex-col gap-1">
                 <div className="flex gap-5">
-                  <p className=" text-gray-700 text-sm min-w-[85px]">Invoice #</p>
-                  <p className="font-semibold text-gray-900 text-sm">{info?.bill_no || 'NA'}</p>
+                  <p className=" text-gray-700 dark:text-mcm-ink-2 text-sm min-w-[85px]">Invoice #</p>
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink text-sm">{info?.bill_no || 'NA'}</p>
                 </div>
                 <div className="flex gap-5">
-                  <p className=" text-gray-700 text-sm pb-5 min-w-[85px]">Invoice Date</p>
-                  <p className="font-semibold text-gray-900 text-sm">
+                  <p className=" text-gray-700 dark:text-mcm-ink-2 text-sm pb-5 min-w-[85px]">Invoice Date</p>
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink text-sm">
                     {getFullFormateDate(info?.created_at)}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-col border border-gray-200 sm:w-1/2 rounded-xl overflow-hidden">
-            <h5 className="bg-gray-100 p-2 font-semibold text-gray-900 text-md">Billing Address</h5>
-            <p className="px-2 py-3 text-gray-800 text-sm">{company_info?.address || 'NA'}</p>
+          <div className="flex flex-col border border-gray-200 dark:border-mcm-line sm:w-1/2 rounded-xl overflow-hidden">
+            <h5 className="bg-gray-100 dark:bg-mcm-surface-3 p-2 font-semibold text-gray-900 dark:text-mcm-ink text-md">Billing Address</h5>
+            <p className="px-2 py-3 text-gray-800 dark:text-mcm-ink-2 text-sm">{company_info?.address || 'NA'}</p>
           </div>
 
           <TableManager

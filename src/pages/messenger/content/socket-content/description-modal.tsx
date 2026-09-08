@@ -826,13 +826,13 @@ const DescriptionModal = ({
           }}
         />
       ) : null}
-      <div className="h-full w-full overflow-y-auto bg-white">
+      <div className="h-full w-full overflow-y-auto bg-white dark:bg-mcm-surface">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as InfoTab)}
           className="min-h-full w-full gap-0"
         >
-          <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.5)]">
+          <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.5)] dark:bg-mcm-surface/50">
             <input
               ref={fileInputRef}
               type="file"
@@ -843,7 +843,7 @@ const DescriptionModal = ({
             <div className="relative px-4 pb-5 pt-4">
               <button
                 type="button"
-                className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+                className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-mcm-ink-3 transition-colors hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-slate-800 dark:hover:text-mcm-ink"
                 onClick={() => setActiveState(null)}
                 aria-label="Back to messages"
               >
@@ -856,7 +856,7 @@ const DescriptionModal = ({
                   language, adapted to a contact card. */}
               <div className="flex flex-col items-center pb-5 pt-8 text-center">
                 <div className="relative rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-violet-500 p-[3px]">
-                  <div className="rounded-full bg-white p-[3px]">
+                  <div className="rounded-full bg-white dark:bg-mcm-surface p-[3px]">
                     <CustomAvatar
                       name={teamDisplayName || 'Team'}
                       size="84"
@@ -869,7 +869,7 @@ const DescriptionModal = ({
                   {selectedChat?.isGroupChat && canEditTeam ? (
                     <button
                       type="button"
-                      className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white text-slate-400 shadow-sm transition-colors hover:bg-slate-50 hover:text-primary"
+                      className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white dark:bg-mcm-surface text-slate-400 dark:text-mcm-ink-3 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3 hover:text-primary"
                       onClick={() => {
                         startEditingTeamInfo();
                         fileInputRef.current?.click();
@@ -879,7 +879,7 @@ const DescriptionModal = ({
                       <Camera className="h-3.5 w-3.5" />
                     </button>
                   ) : (
-                    <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white text-slate-400 shadow-sm">
+                    <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white dark:bg-mcm-surface text-slate-400 dark:text-mcm-ink-3 shadow-sm">
                       <Camera className="h-3.5 w-3.5" />
                     </span>
                   )}
@@ -891,19 +891,19 @@ const DescriptionModal = ({
                       value={teamNameDraft}
                       onChange={(event) => setTeamNameDraft(event.target.value)}
                       maxLength={50}
-                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-center text-lg font-semibold text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                      className="h-10 w-full rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-center text-lg font-semibold text-slate-900 dark:text-mcm-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                       placeholder="Team name"
                     />
                   </div>
                 ) : (
                   <div className="mt-4 flex max-w-full items-center justify-center gap-1.5 px-6">
-                    <h2 className="truncate text-lg font-bold tracking-tight text-slate-900">
+                    <h2 className="truncate text-lg font-bold tracking-tight text-slate-900 dark:text-mcm-ink">
                       {teamDisplayName || 'Team'}
                     </h2>
                     {canEditTeam ? (
                       <button
                         type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-primary"
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 dark:text-mcm-ink-3 hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-primary"
                         onClick={startEditingTeamInfo}
                         aria-label="Edit team info"
                       >
@@ -942,7 +942,7 @@ const DescriptionModal = ({
                     </button>
                     <button
                       type="button"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
                       onClick={handleCancelTeamInfoEdit}
                       disabled={isSavingInfo}
                     >
@@ -978,8 +978,8 @@ const DescriptionModal = ({
             </div>
 
             <div className="px-4 pb-5">
-              <div className="relative rounded-xl border border-slate-100 bg-white px-4 py-4 text-left shadow-sm shadow-slate-900/[0.03]">
-                <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+              <div className="relative rounded-xl border border-slate-100 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-4 text-left shadow-sm shadow-slate-900/[0.03]">
+                <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400 dark:text-mcm-ink-3">
                   Description
                 </div>
                 {isEditingInfo && canEditTeam ? (
@@ -988,18 +988,18 @@ const DescriptionModal = ({
                     onChange={(event) => setDescriptionDraft(event.target.value)}
                     maxLength={255}
                     rows={3}
-                    className="w-full resize-none rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium leading-6 text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    className="w-full resize-none rounded-md border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-2 text-sm font-medium leading-6 text-slate-700 dark:text-mcm-ink-2 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                     placeholder="Add a team description"
                   />
                 ) : (
-                  <p className="pr-6 text-sm font-medium leading-6 text-slate-600">
+                  <p className="pr-6 text-sm font-medium leading-6 text-slate-600 dark:text-mcm-ink-2">
                     {descriptionDisplay || 'No description added.'}
                   </p>
                 )}
                 {canEditTeam && !isEditingInfo ? (
                   <button
                     type="button"
-                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-primary"
+                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 dark:text-mcm-ink-3 hover:bg-white dark:hover:bg-mcm-surface hover:text-primary"
                     onClick={startEditingTeamInfo}
                     aria-label="Edit description"
                   >
@@ -1009,7 +1009,7 @@ const DescriptionModal = ({
               </div>
             </div>
 
-            <TabsList className="flex h-13 w-full gap-5 rounded-none border-t border-slate-100 bg-white px-4">
+            <TabsList className="flex h-13 w-full gap-5 rounded-none border-t border-slate-100 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4">
               {selectedChat?.isGroupChat ? (
                 <InfoTabTrigger value="members" icon={<UsersRound className="h-4 w-4" />}>
                   Members
@@ -1100,7 +1100,7 @@ const HeaderActionButton = ({
 }) => (
   <button
     type="button"
-    className="group flex w-14 flex-col items-center gap-1.5 text-[11px] font-semibold text-slate-600"
+    className="group flex w-14 flex-col items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-mcm-ink-2"
     onClick={onClick}
   >
     <span
@@ -1126,7 +1126,7 @@ const InfoTabTrigger = ({
 }) => (
   <TabsTrigger
     value={value}
-    className="flex h-full shrink-0 items-center gap-1.5 rounded-none border-0 border-b-[3px] border-transparent px-1 text-sm font-semibold text-slate-500 shadow-none transition-colors duration-150 hover:text-slate-700 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
+    className="flex h-full shrink-0 items-center gap-1.5 rounded-none border-0 border-b-[3px] border-transparent px-1 text-sm font-semibold text-slate-500 dark:text-mcm-ink-3 shadow-none transition-colors duration-150 hover:text-slate-700 dark:hover:text-mcm-ink-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
   >
     {icon}
     {children}
@@ -1143,19 +1143,19 @@ const SearchBar = ({
   onChange: (value: string) => void;
 }) => (
   <div className="relative">
-    <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+    <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-mcm-ink-3" />
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-medium text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary/50 focus:bg-white focus:shadow-sm"
+      className="h-11 w-full rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 pl-10 pr-3 text-sm font-medium text-slate-700 dark:text-mcm-ink-2 outline-none transition-colors placeholder:text-slate-400 dark:placeholder:text-mcm-ink-3 focus:border-primary/50 focus:bg-white dark:focus:bg-mcm-surface focus:shadow-sm"
     />
   </div>
 );
 
 const EmptyState = ({ label }: { label: string }) => (
-  <div className="mx-3 mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-14 text-center">
-    <p className="text-base font-medium text-slate-500">{label}</p>
+  <div className="mx-3 mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-mcm-line bg-slate-50/70 dark:bg-mcm-surface-3/70 px-4 py-14 text-center">
+    <p className="text-base font-medium text-slate-500 dark:text-mcm-ink-3">{label}</p>
   </div>
 );
 
@@ -1207,7 +1207,7 @@ const MediaTab = ({
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-mcm-surface">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search media by name, type, size or date"
@@ -1217,7 +1217,7 @@ const MediaTab = ({
       </div>
       <div className="pb-4">
         <div className="flex items-center justify-between px-3 pb-3 pt-1">
-          <p className="text-sm font-semibold text-slate-500">Sort: recent</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-mcm-ink-3">Sort: recent</p>
           <ViewToggle value={viewMode} onChange={setViewMode} />
         </div>
 
@@ -1267,7 +1267,7 @@ const ViewToggle = ({
           aria-label={option.label}
           onClick={() => onChange(option.value)}
           className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-orange-50 hover:text-primary',
+            'flex h-8 w-8 items-center justify-center rounded-md text-slate-400 dark:text-mcm-ink-3 transition-colors hover:bg-orange-50 hover:text-primary',
             value === option.value && 'bg-orange-50 text-primary ring-1 ring-orange-100',
           )}
         >
@@ -1320,13 +1320,13 @@ const MediaList = ({
             <button
               key={item.id}
               type="button"
-              className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-slate-50"
+              className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
               onClick={() => onPreview(item.serverFileName)}
             >
               <MediaThumb item={item} className="h-12 w-12 rounded-lg" onPreview={onPreview} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-slate-700">{item.fileName}</p>
-                <p className="mt-0.5 truncate text-sm font-medium text-slate-400">
+                <p className="truncate text-sm font-semibold text-slate-700 dark:text-mcm-ink-2">{item.fileName}</p>
+                <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
                   {item.fileType} - {item.fileSizeLabel} - {formatCompactDate(item.createdAt)}
                 </p>
               </div>
@@ -1348,7 +1348,7 @@ const MediaTable = ({
   <div className="overflow-x-auto pb-4">
     <table className="w-full min-w-[620px] border-collapse text-left">
       <thead>
-        <tr className="border-b border-slate-200 text-xs font-bold uppercase text-slate-400">
+        <tr className="border-b border-slate-200 dark:border-mcm-line text-xs font-bold uppercase text-slate-400 dark:text-mcm-ink-3">
           <th className="px-3 py-2.5">Name</th>
           <th className="px-3 py-2.5">Type</th>
           <th className="px-3 py-2.5">Size</th>
@@ -1360,7 +1360,7 @@ const MediaTable = ({
           group.items.map((item) => (
             <tr
               key={item.id}
-              className="cursor-pointer border-b border-slate-100 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="cursor-pointer border-b border-slate-100 dark:border-mcm-line text-sm font-medium text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
               onClick={() => onPreview(item.serverFileName)}
             >
               <td className="px-3 py-2.5">
@@ -1477,7 +1477,7 @@ const FilesTab = ({
   const groups = useMemo(() => groupByMonth(filteredItems), [filteredItems]);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-mcm-surface">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search files by name, type, sender or date"
@@ -1496,14 +1496,14 @@ const FilesTab = ({
                 {group.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2.5 transition-colors hover:bg-slate-50"
+                    className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
                   >
                     <FileIconBadge item={item} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-700">
+                      <p className="truncate text-sm font-semibold text-slate-700 dark:text-mcm-ink-2">
                         {item.fileName}
                       </p>
-                      <p className="mt-0.5 truncate text-sm font-medium text-slate-400">
+                      <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
                         {item.fileType} - {item.fileSizeLabel} - {item.senderName} -{' '}
                         {formatCompactDate(item.createdAt)}
                       </p>
@@ -1513,7 +1513,7 @@ const FilesTab = ({
                       file_name={item.serverFileName}
                       company_uuid={item.company_uuid}
                       type="chat"
-                      className="text-slate-300 hover:text-primary"
+                      className="text-slate-300 dark:text-mcm-ink-4 hover:text-primary"
                       size="h-4.5 w-4.5"
                     />
                   </div>
@@ -1550,7 +1550,7 @@ const LinksTab = ({
   const groups = useMemo(() => groupByMonth(filteredLinks), [filteredLinks]);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-mcm-surface">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search links by URL or domain"
@@ -1575,7 +1575,7 @@ const LinksTab = ({
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2.5 transition-colors hover:bg-slate-50"
+                      className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
                     >
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
                         <Link2 className="h-4.5 w-4.5" />
@@ -1584,11 +1584,11 @@ const LinksTab = ({
                         <span className="block truncate text-sm font-semibold text-orange-500">
                           {item.url}
                         </span>
-                        <span className="mt-0.5 block truncate text-sm font-medium text-slate-400">
+                        <span className="mt-0.5 block truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
                           {item.domain}
                         </span>
                       </span>
-                      <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
+                      <ExternalLink className="h-4 w-4 shrink-0 text-slate-300 dark:text-mcm-ink-4" />
                     </a>
                   );
                 })}
@@ -1617,7 +1617,7 @@ const CallsTab = ({
   }, [callsList, searchQuery]);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-mcm-surface">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search calls by type, status or date"
@@ -1635,7 +1635,7 @@ const CallsTab = ({
             return (
               <div
                 key={item.id}
-                className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2 transition-colors hover:bg-slate-50"
+                className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
               >
                 <span
                   className={cn(
@@ -1653,21 +1653,21 @@ const CallsTab = ({
                   <p
                     className={cn(
                       'truncate text-sm font-semibold',
-                      isMissed ? 'text-red-500' : 'text-slate-700',
+                      isMissed ? 'text-red-500' : 'text-slate-700 dark:text-mcm-ink-2',
                     )}
                   >
                     {item.title}
                   </p>
-                  <p className="mt-0.5 truncate text-sm font-medium text-slate-400">
+                  <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
                     {item.subtitle}
                   </p>
                 </div>
                 {item.durationLabel ? (
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-sm font-semibold text-slate-500">
+                  <span className="rounded-full bg-slate-100 dark:bg-mcm-surface-3 px-2.5 py-1 text-sm font-semibold text-slate-500 dark:text-mcm-ink-3">
                     {item.durationLabel}
                   </span>
                 ) : null}
-                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 dark:text-mcm-ink-4" />
               </div>
             );
           })
@@ -1714,7 +1714,7 @@ const MembersTab = ({
   }, [members, searchQuery]);
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-mcm-surface">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search members by name, email or ext..."
@@ -1723,7 +1723,7 @@ const MembersTab = ({
         />
       </div>
       <div className="flex items-center justify-between px-3 pb-2.5 text-sm font-semibold">
-        <span className="text-slate-400">
+        <span className="text-slate-400 dark:text-mcm-ink-3">
           {members.length} {members.length === 1 ? 'participant' : 'participants'}
         </span>
         <span className="text-emerald-500">{onlineCount} online</span>
@@ -1753,7 +1753,7 @@ const MembersTab = ({
             return (
               <div
                 key={member?.uuid}
-                className="flex min-h-16 items-center gap-3 px-3 py-2.5 transition-colors hover:bg-slate-50"
+                className="flex min-h-16 items-center gap-3 px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
               >
                 <div className="relative shrink-0">
                   <CustomAvatar
@@ -1773,12 +1773,12 @@ const MembersTab = ({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-base font-semibold text-slate-700">{displayName}</p>
+                  <p className="truncate text-base font-semibold text-slate-700 dark:text-mcm-ink-2">{displayName}</p>
                   {member?.email ? (
-                    <p className="truncate text-sm font-medium text-slate-400">{member.email}</p>
+                    <p className="truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">{member.email}</p>
                   ) : null}
                   {member?.extension ? (
-                    <div className="mt-0.5 flex items-center gap-2 text-sm font-medium text-slate-400">
+                    <div className="mt-0.5 flex items-center gap-2 text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
                       <span>Ext: {member.extension}</span>
                       {!isMe ? (
                         <button
@@ -1787,7 +1787,7 @@ const MembersTab = ({
                             'flex h-5 w-5 items-center justify-center rounded-full',
                             canCall
                               ? 'bg-emerald-50 text-emerald-500'
-                              : 'bg-slate-100 text-slate-300',
+                              : 'bg-slate-100 dark:bg-mcm-surface-3 text-slate-300 dark:text-mcm-ink-4',
                           )}
                           disabled={!canCall}
                           onClick={() => onCall(member)}
@@ -1816,7 +1816,7 @@ const MembersTab = ({
                 {!isMe ? (
                   <button
                     type="button"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-orange-500 transition-colors hover:bg-orange-50"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-mcm-surface-3 text-orange-500 transition-colors hover:bg-orange-50"
                     onClick={() => onDirectChat(member)}
                     title="Direct message"
                   >
@@ -1833,7 +1833,7 @@ const MembersTab = ({
 };
 
 const MonthLabel = ({ children }: { children: ReactNode }) => (
-  <div className="px-3 pb-2.5 pt-1 text-xs font-bold uppercase tracking-wide text-slate-500">
+  <div className="px-3 pb-2.5 pt-1 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-mcm-ink-3">
     {children}
   </div>
 );

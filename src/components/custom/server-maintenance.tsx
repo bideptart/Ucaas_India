@@ -22,25 +22,25 @@ export default function ServerMaintenance({ onRefresh }: ServerMaintenanceProps)
   };
 
   return (
-    <div className="w-screen min-h-screen bg-white flex flex-col items-center justify-center p-6">
+    <div className="w-screen min-h-screen bg-white dark:bg-mcm-surface flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md flex flex-col items-center text-center gap-6">
         {/* Brand Aligned Icon Cluster */}
         <div className="relative flex items-center justify-center w-24 h-24 mb-2">
           {/* Subtle background pulse */}
-          <div className="absolute inset-0 bg-gray-100 rounded-full animate-pulse" />
+          <div className="absolute inset-0 bg-gray-100 dark:bg-mcm-surface-3 rounded-full animate-pulse" />
 
-          <Server className="w-12 h-12 text-gray-800 relative z-10" />
+          <Server className="w-12 h-12 text-gray-800 dark:text-mcm-ink-2 relative z-10" />
 
           {/* Accent wrench overlay */}
-          <div className="absolute -bottom-1 -right-1 bg-black text-white p-2 rounded-xl border-4 border-white shadow-sm z-20">
+          <div className="absolute -bottom-1 -right-1 bg-black text-white p-2 rounded-xl border-4 border-white dark:border-mcm-surface shadow-sm z-20">
             <Wrench className="w-4 h-4" />
           </div>
         </div>
 
         {/* Title and Description */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">System Maintenance</h1>
-          <p className="text-gray-500 text-sm max-w-sm leading-relaxed">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-mcm-ink tracking-tight">System Maintenance</h1>
+          <p className="text-gray-500 dark:text-mcm-ink-3 text-sm max-w-sm leading-relaxed">
             We are currently performing maintenance or updating our systems to serve you better.
             We&apos;ll be back online shortly. Thank you for your patience!
           </p>
@@ -57,7 +57,7 @@ export default function ServerMaintenance({ onRefresh }: ServerMaintenanceProps)
         </button>
 
         {/* Footer Support Info */}
-        <p className="text-xs text-gray-400 mt-4">
+        <p className="text-xs text-gray-400 dark:text-mcm-ink-3 mt-4">
           If the issue persists, please check your internet connection or contact support.
         </p>
       </div>

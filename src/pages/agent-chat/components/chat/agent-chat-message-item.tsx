@@ -273,7 +273,7 @@ const AgentChatMessageItem = ({ msgObj, currentChat }: { msgObj: any; currentCha
                 </div>
                 {!isMessageExpanded && isMessageOverflowing ? (
                   <div
-                    className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t ${isMine ? 'from-ucass-active to-transparent' : isBotMessage ? 'from-muted to-transparent' : 'from-white to-transparent'}`}
+                    className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t ${isMine ? 'from-ucass-active to-transparent' : isBotMessage ? 'from-muted to-transparent' : 'from-white dark:from-mcm-surface to-transparent'}`}
                   />
                 ) : null}
               </div>

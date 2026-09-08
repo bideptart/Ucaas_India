@@ -325,10 +325,10 @@ const DefaultPermissionsPage = () => {
                     {isOpen ? (
                       <div className="flex flex-col gap-4 text-sm">
                         <div className="flex flex-col gap-2">
-                          <p className="font-semibold text-gray-900">What they are given</p>
+                          <p className="font-semibold text-gray-900 dark:text-mcm-ink">What they are given</p>
                           {result.allowed.map((rule) => (
-                            <p key={rule.id} className="text-gray-700">
-                              <span className="font-medium text-gray-900">{rule.title}.</span>{' '}
+                            <p key={rule.id} className="text-gray-700 dark:text-mcm-ink-2">
+                              <span className="font-medium text-gray-900 dark:text-mcm-ink">{rule.title}.</span>{' '}
                               {rule.why}
                             </p>
                           ))}
@@ -336,12 +336,12 @@ const DefaultPermissionsPage = () => {
 
                         {result.withheld.length > 0 ? (
                           <div className="flex flex-col gap-2">
-                            <p className="font-semibold text-gray-900">
+                            <p className="font-semibold text-gray-900 dark:text-mcm-ink">
                               What is held back, and why
                             </p>
                             {result.withheld.map((rule) => (
-                              <p key={rule.id} className="text-gray-700">
-                                <span className="font-medium text-gray-900">{rule.title}.</span>{' '}
+                              <p key={rule.id} className="text-gray-700 dark:text-mcm-ink-2">
+                                <span className="font-medium text-gray-900 dark:text-mcm-ink">{rule.title}.</span>{' '}
                                 {rule.why}
                               </p>
                             ))}
@@ -350,8 +350,8 @@ const DefaultPermissionsPage = () => {
 
                         {result.undecided.length > 0 ? (
                           <div className="flex flex-col gap-2">
-                            <p className="font-semibold text-gray-900">Not decided here</p>
-                            <p className="text-gray-700">
+                            <p className="font-semibold text-gray-900 dark:text-mcm-ink">Not decided here</p>
+                            <p className="text-gray-700 dark:text-mcm-ink-2">
                               Your plan includes {result.undecided.length} thing
                               {result.undecided.length === 1 ? '' : 's'} these rules do not
                               recognise, so {result.undecided.length === 1 ? 'it is' : 'they are'}{' '}

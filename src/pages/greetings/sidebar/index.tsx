@@ -37,7 +37,7 @@ const Sidebar = () => {
   const base = resolveBase();
   return (
     <div className="flex flex-col w-full">
-      <div className="divide-y divide-gray-200 h-full">
+      <div className="divide-y divide-gray-200 dark:divide-mcm-line h-full">
         {greetingSidebarArr?.map(({ type, icon = '', suffix, title, value }) => {
           const path = `${base}${suffix}`;
           if (type === 'accordion') {
@@ -81,7 +81,7 @@ const Tile = ({ title, path, icon, isAccordionTrigger = false }: any) => {
 
   return (
     <div
-      className={`flex items-center w-full px-3 h-14 gap-2 cursor-pointer ${isActive ? 'text-primary bg-ucass-primary-200/50 border-r-2 border-r-primary' : 'text-gray-900/80'}`}
+      className={`flex items-center w-full px-3 h-14 gap-2 cursor-pointer ${isActive ? 'text-primary bg-ucass-primary-200/50 border-r-2 border-r-primary' : 'text-gray-900/80 dark:text-mcm-ink-2'}`}
       onClick={handleClick}
     >
       <Icon name={icon as IconType} className="w-5 h-5 p-0.5" />

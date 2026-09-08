@@ -148,7 +148,7 @@ const CallQueues: FC = () => {
         const type = readQueueSettings(row?.original)?.operational_hours?.type;
         if (type === '24_hours') return <span>Open 24 hours</span>;
         if (type === 'weekly') return <span>Set per weekday</span>;
-        return <span className="text-gray-500">Not set</span>;
+        return <span className="text-muted-foreground">Not set</span>;
       },
     },
     {
@@ -184,7 +184,7 @@ const CallQueues: FC = () => {
                           loading="lazy"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
+                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-muted text-muted-foreground text-xs capitalize">
                           {getInitials(username)}
                         </div>
                       )}
@@ -229,7 +229,7 @@ const CallQueues: FC = () => {
             queueActions?.edit && {
               icon: 'EditStrokIcon',
               onClick: () => openQueue(data),
-              className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit',
             },
           hasQueueAccess &&
@@ -322,7 +322,7 @@ const CallQueues: FC = () => {
         }
       >
         <div className="flex flex-col gap-2">
-          <p className="text-gray-900 text-sm">
+          <p className="text-foreground text-sm">
             Set up call queues at the Company level or for Individual Site locations. This allows
             you to organize incoming traffic for specific branches, ensuring callers are held
             professionally until a user from that site is ready to answer.

@@ -169,13 +169,13 @@ const TextToSpeech: FC<UploadGreetingProps> = ({ handleTextToSpeech, isPendingTe
               setValue('textFile', null);
             }}
             placeholder={selectedLocale ? 'Type your text here...' : 'Select language first'}
-            className=" border border-gray-300 rounded-xl text-sm min-h-[86px]  p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+            className=" border border-gray-300 dark:border-mcm-line rounded-xl text-sm min-h-[86px]  p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none disabled:bg-gray-50 dark:disabled:bg-mcm-surface-3 disabled:cursor-not-allowed"
             maxLength={500}
             disabled={!selectedLocale}
           />
         )}
       />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500 dark:text-mcm-ink-3">
         {selectedLocale
           ? 'You can type only characters from the selected language script.'
           : 'Choose a language to enable typing.'}

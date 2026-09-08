@@ -52,15 +52,15 @@ import { useUsersDirectory } from '@/hooks/use-users-directory';
 
 const DeletedMessage = ({ isOutbound }: { isOutbound: boolean }) => {
   return (
-    <div className="italic text-xs text-gray-500 px-3 py-2 rounded-md bg-white border border-gray-200 shadow-sm">
+    <div className="italic text-xs text-gray-500 dark:text-mcm-ink-3 px-3 py-2 rounded-md bg-white dark:bg-mcm-surface border border-gray-200 dark:border-mcm-line shadow-sm">
       {isOutbound ? (
         <div className="flex items-center gap-1.5">
           You deleted this message
-          <Ban size={14} className="text-gray-400" />
+          <Ban size={14} className="text-gray-400 dark:text-mcm-ink-3" />
         </div>
       ) : (
         <div className="flex items-center gap-1.5">
-          <Ban size={14} className="text-gray-400" />
+          <Ban size={14} className="text-gray-400 dark:text-mcm-ink-3" />
           This message was deleted
         </div>
       )}
@@ -623,7 +623,7 @@ const MessageItem = ({
               </span>
               <span className="text-muted-foreground">{formattedTime}</span>
             </div>
-            <div className="rounded-2xl border border-border bg-white px-4 py-2 text-[14px] italic text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-white dark:bg-mcm-surface px-4 py-2 text-[14px] italic text-muted-foreground">
               {isMine ? 'You deleted this message' : 'This message was deleted'}
             </div>
           </div>
@@ -636,11 +636,11 @@ const MessageItem = ({
         id={msgObj?.messageId || msgObj?._id}
         className={cn(
           `w-full flex ${messageDirection} relative rounded-md transition-colors duration-200`,
-          'hover:bg-[#FBE2C8]/40',
+          'hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3',
         )}
       >
         <div className="flex gap-1 items-start px-2 max-w-full w-full">
-          <div className="flex flex-col text-black text-xs w-full">
+          <div className="flex flex-col text-black dark:text-mcm-ink text-xs w-full">
             <div
               className={cn(
                 'flex items-center gap-1 text-[#9A948F] text-xs mb-1',
@@ -718,7 +718,7 @@ const MessageItem = ({
     if (isAgentChat) {
       return (
         <div className="my-3 flex w-full justify-center px-2 text-xs sm:px-0">
-          <div className="inline-flex max-w-[96%] flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-2xl border border-border bg-white px-3 py-1.5 text-[12px] leading-5 text-muted-foreground shadow-sm sm:max-w-[85%] sm:rounded-full sm:px-4 sm:text-[14px]">
+          <div className="inline-flex max-w-[96%] flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-2xl border border-border bg-white dark:bg-mcm-surface px-3 py-1.5 text-[12px] leading-5 text-muted-foreground shadow-sm sm:max-w-[85%] sm:rounded-full sm:px-4 sm:text-[14px]">
             <CircleAlert size={14} className="shrink-0 text-muted-foreground" />
             <span className="min-w-0 break-words text-center font-medium text-ucass-active">
               {content}
@@ -754,7 +754,7 @@ const MessageItem = ({
             alertContent?.callStatus === 'missed' ? (
               <PhoneMissed size={14} className="text-red-500" />
             ) : alertContent?.callStatus === 'reject' ? (
-              <PhoneOff size={14} className="text-orange-500" />
+              <PhoneOff size={14} className="text-orange-500 dark:text-slate-500" />
             ) : (
               <PhoneCall size={14} className="text-ucass-active" />
             )
@@ -811,7 +811,7 @@ const MessageItem = ({
                 ? 'rounded-t-[16px] rounded-bl-[16px] rounded-br-[10px] border border-ucass-active bg-ucass-active text-white'
                 : isBotMessage
                   ? 'rounded-t-[16px] rounded-bl-[10px] rounded-br-[16px] border border-border bg-muted text-foreground'
-                  : 'rounded-t-[16px] rounded-bl-[10px] rounded-br-[16px] border border-border bg-white text-foreground',
+                  : 'rounded-t-[16px] rounded-bl-[10px] rounded-br-[16px] border border-border bg-white dark:bg-mcm-surface text-foreground',
             )}
           >
             {msgObj?.messageType === 'poll' && msgObj?.poll ? (
@@ -899,7 +899,7 @@ const MessageItem = ({
                         <button
                           type="button"
                           onClick={() => handleDeleteIndividualAttachment(item)}
-                          className="absolute -top-2 -right-2 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-white border border-gray-200 shadow-md text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer z-30"
+                          className="absolute -top-2 -right-2 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-white dark:bg-mcm-surface border border-gray-200 dark:border-mcm-line shadow-md text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer z-30"
                         >
                           <Trash2 size={12} />
                         </button>
@@ -938,7 +938,7 @@ const MessageItem = ({
                   type="button"
                   className={cn(
                     'w-full rounded-md border px-2 py-1.5 text-left',
-                    isMine ? 'border-white/30 bg-white/20' : 'border-gray-200 bg-muted',
+                    isMine ? 'border-white/30 bg-white/20' : 'border-gray-200 dark:border-mcm-line bg-muted',
                   )}
                   onClick={() => {
                     try {
@@ -960,7 +960,7 @@ const MessageItem = ({
                     <span
                       className={cn(
                         'block min-w-0 max-w-full text-xs break-words',
-                        isMine ? 'text-white' : 'text-gray-700',
+                        isMine ? 'text-white' : 'text-gray-700 dark:text-mcm-ink-2',
                       )}
                     >
                       {insertSoftBreaksIntoLongWords(getMessagePreviewText(msgObj?.replyOf)) ||
@@ -1003,7 +1003,7 @@ const MessageItem = ({
                           ? 'from-primary to-transparent'
                           : isBotMessage
                             ? 'from-muted to-transparent'
-                            : 'from-white to-transparent',
+                            : 'from-white dark:from-mcm-surface to-transparent',
                       )}
                     />
                   ) : null}
@@ -1017,7 +1017,7 @@ const MessageItem = ({
                         'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer',
                         isMine && !isBotMessage
                           ? 'border-white/40 bg-white/15 text-white hover:bg-white/25'
-                          : 'border-border bg-white text-ucass-active hover:bg-muted',
+                          : 'border-border bg-white dark:bg-mcm-surface text-ucass-active hover:bg-muted',
                       )}
                       onClick={() => setIsMessageExpanded((prev) => !prev)}
                     >
@@ -1057,11 +1057,11 @@ const MessageItem = ({
       className={cn(
         `w-full flex ${messageDirection} relative rounded-md transition-all duration-200 pt-1`,
         msgObj?.isPinned ? 'bg-amber-50/50 border border-amber-200/50 py-2 my-2' : '',
-        isAgentChat ? '' : 'hover:bg-[#FBE2C8]/40',
+        isAgentChat ? '' : 'hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3',
       )}
     >
       <div className="flex gap-1 items-start px-2 max-w-full w-full">
-        <div className="flex flex-col text-black text-xs w-full">
+        <div className="flex flex-col text-black dark:text-mcm-ink text-xs w-full">
           <div
             className={cn(
               'flex items-center gap-1 text-[#9A948F] text-xs mb-1',
@@ -1167,10 +1167,10 @@ const MessageItem = ({
                         ? 'rounded-2xl border border-ucass-active bg-ucass-active px-3 py-2 text-white shadow-sm'
                         : isBotMessage
                           ? 'rounded-2xl border border-border bg-muted px-3 py-2 text-foreground shadow-sm'
-                          : 'rounded-2xl border border-border bg-white px-3 py-2 text-foreground shadow-sm'
+                          : 'rounded-2xl border border-border bg-white dark:bg-mcm-surface px-3 py-2 text-foreground shadow-sm'
                       : isMine
-                        ? 'bg-ucass-primary-200 text-black '
-                        : 'bg-white text-black',
+                        ? 'bg-ucass-primary-200 text-black dark:text-mcm-ink '
+                        : 'bg-white dark:bg-mcm-surface text-black dark:text-mcm-ink',
                   )}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
@@ -1268,7 +1268,7 @@ const MessageItem = ({
                       <div
                         className={cn(
                           ' w-full rounded-xl grid gap-2  ',
-                          isMine ? 'bg-white/10 ' : 'bg-white ',
+                          isMine ? 'bg-white/10 ' : 'bg-white dark:bg-mcm-surface-3 ',
                           fromMeetChat
                             ? 'grid-cols-1'
                             : attachments.length === 1
@@ -1279,7 +1279,7 @@ const MessageItem = ({
                         {attachments?.map((item: any, index: number) => (
                           <div
                             key={`${item?.serverFileName || index}`}
-                            className={`relative group border rounded-xl ${isMine ? 'bg-ucass-active-bg border-ucass-active-bg' : 'bg-white border-gray-200'} max-w-60`}
+                            className={`relative group border rounded-xl ${isMine ? 'bg-ucass-active-bg border-ucass-active-bg' : 'bg-white dark:bg-mcm-surface border-gray-200 dark:border-mcm-line'} max-w-60`}
                           >
                             <AttachmentItem
                               item={item}
@@ -1291,7 +1291,7 @@ const MessageItem = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteIndividualAttachment(item)}
-                                className="absolute -top-2 -right-2 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-white border border-gray-200 shadow-md text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer z-30"
+                                className="absolute -top-2 -right-2 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-white dark:bg-mcm-surface border border-gray-200 dark:border-mcm-line shadow-md text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer z-30"
                               >
                                 <Trash2 size={12} />
                               </button>
@@ -1351,8 +1351,8 @@ const MessageItem = ({
                         className={cn(
                           'w-full text-left rounded-md px-2 py-1.5 border relative ',
                           isMine
-                            ? ' bg-white/70 border border-ucass-active/30'
-                            : 'bg-white border-gray-200 bg-gray-100',
+                            ? ' bg-white/70 dark:bg-mcm-surface-3 border border-ucass-active/30'
+                            : 'bg-white dark:bg-mcm-surface-3 border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3',
                         )}
                         onClick={() => {
                           try {
@@ -1392,7 +1392,7 @@ const MessageItem = ({
                           <span
                             className={cn(
                               'block min-w-0 max-w-full text-xs break-words',
-                              isMine ? 'text-black' : 'text-gray-700',
+                              isMine ? 'text-black dark:text-mcm-ink' : 'text-gray-700 dark:text-mcm-ink-2',
                             )}
                           >
                             {insertSoftBreaksIntoLongWords(
@@ -1440,7 +1440,7 @@ const MessageItem = ({
                                 'pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t',
                                 isMine
                                   ? 'from-ucass-primary-200 to-transparent'
-                                  : 'from-white to-transparent',
+                                  : 'from-white dark:from-mcm-surface to-transparent',
                               )}
                             />
                           ) : null}
@@ -1454,7 +1454,7 @@ const MessageItem = ({
                                 'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer',
                                 isMine
                                   ? 'border-black/20 bg-black/5 text-black hover:bg-black/10'
-                                  : 'border-border bg-white text-ucass-active hover:bg-muted',
+                                  : 'border-border bg-white dark:bg-mcm-surface text-ucass-active hover:bg-muted',
                               )}
                               onClick={() => setIsMessageExpanded((prev) => !prev)}
                             >
@@ -1537,7 +1537,7 @@ const MessageItem = ({
                           key={item}
                           className={`${
                             isEmojiYours ? 'border-[var(--color-border-ucass-active-bg)]' : ''
-                          } min-h-6 min-w-6 max-h-6 px-1 pr-2 gap-1 text-base bg-[var(--color-bg-gray-100)] rounded-2xl shadow-2xs border border-gray-300 bg-white flex items-center justify-center cursor-pointer hover:bg-[var(--color-bg-gray-200)] transition-colors`}
+                          } min-h-6 min-w-6 max-h-6 px-1 pr-2 gap-1 text-base bg-[var(--color-bg-gray-100)] rounded-2xl shadow-2xs border border-gray-300 dark:border-mcm-line bg-white dark:bg-mcm-surface-3 flex items-center justify-center cursor-pointer hover:bg-[var(--color-bg-gray-200)] transition-colors`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEmojiClick(item);

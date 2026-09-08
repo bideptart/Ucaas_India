@@ -62,7 +62,7 @@ const DialpadMicroFrame = ({
   return (
     <div
       className={cn(
-        'w-full rounded-[24px] border border-white/80 bg-white p-2.5  max-[380px]:p-2 sm:rounded-[26px]  sm:p-3 md:p-4',
+        'w-full rounded-[24px] border border-white/80 dark:border-mcm-line bg-white dark:bg-mcm-surface p-2.5  max-[380px]:p-2 sm:rounded-[26px]  sm:p-3 md:p-4',
         'max-w-[min(100vw-1.25rem,348px)] max-[380px]:max-w-[min(100vw-0.5rem,312px)]',
         className,
       )}
@@ -106,7 +106,7 @@ const DialpadMicroFrame = ({
               type="button"
               onClick={onCloseEndedSession}
               aria-label="Close ended session"
-              className="flex h-9 items-center justify-center gap-1 rounded-xl border border-[#d4e1f6] bg-white px-2 text-[11px] font-semibold text-[#2f4f79] transition max-[380px]:h-8 max-[380px]:text-[10px] sm:h-10 sm:gap-1.5 sm:px-2.5 sm:text-xs md:h-11 md:px-3 hover:bg-ucass-active-bg"
+              className="flex h-9 items-center justify-center gap-1 rounded-xl border border-[#d4e1f6] dark:border-mcm-line bg-white dark:bg-mcm-surface px-2 text-[11px] font-semibold text-[#2f4f79] dark:text-mcm-ink transition max-[380px]:h-8 max-[380px]:text-[10px] sm:h-10 sm:gap-1.5 sm:px-2.5 sm:text-xs md:h-11 md:px-3 hover:bg-ucass-active-bg"
             >
               <X className="h-3.5 w-3.5 max-[380px]:h-3 max-[380px]:w-3 sm:h-4 sm:w-4" />
               Close

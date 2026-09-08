@@ -1,0 +1,27 @@
+/* Storage page uses inline styles throughout (legacy pattern), so it can't
+   rely on Tailwind's `dark:` variants. These CSS custom properties give the
+   inline `style={{ color: 'var(--storage-ink)' }}` values a dark-mode-aware
+   source of truth instead of hardcoded light-only hex literals. */
+.storage-page {
+  --storage-ink: #111111;
+  --storage-ink-2: #374151;
+  --storage-ink-3: #6b7280;
+  --storage-surface: #ffffff;
+  --storage-surface-2: #f9fafb;
+  --storage-border: #e5e7eb;
+  --storage-border-2: #d1d5db;
+  --storage-track: #eeeeee;
+  --storage-hover: #f3f4f6;
+}
+
+.dark .storage-page {
+  --storage-ink: #f3f6f9;
+  --storage-ink-2: #aab6c1;
+  --storage-ink-3: #7c8894;
+  --storage-surface: #111c26;
+  --storage-surface-2: #16222c;
+  --storage-border: #1b2934;
+  --storage-border-2: #263642;
+  --storage-track: #1a2733;
+  --storage-hover: #1a2733;
+}

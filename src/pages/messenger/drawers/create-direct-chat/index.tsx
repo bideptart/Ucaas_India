@@ -103,7 +103,7 @@ const CreateDirectChat = ({
 
   return (
     <>
-      <div className="flex flex-col gap-1.5 text-gray-900">
+      <div className="flex flex-col gap-1.5 text-gray-900 dark:text-mcm-ink">
         <div className="font-semibold truncate text-md flex items-center justify-between min-h-11">
           New Message
         </div>
@@ -148,12 +148,12 @@ const CreateDirectChat = ({
                 </div>
               </div>
               <div
-                className={`flex items-center w-full rounded-xl ${messageErrorMessage ? 'border border-red-500' : 'border border-gray-300'}`}
+                className={`flex items-center w-full rounded-xl ${messageErrorMessage ? 'border border-red-500' : 'border border-gray-300 dark:border-mcm-line'}`}
               >
                 <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">
                   <textarea
                     rows={4}
-                    className="border-none outline-0 text-sm resize-none placeholder:text-gray-700"
+                    className="border-none outline-0 text-sm resize-none placeholder:text-gray-700 dark:text-mcm-ink dark:placeholder:text-mcm-ink-3"
                     placeholder="Write a message..."
                     value={watch('message')}
                     onChange={(e) =>
@@ -177,7 +177,7 @@ const CreateDirectChat = ({
             </div>
 
             <div>
-              <p className="text-gray-900 text-sm">
+              <p className="text-gray-900 dark:text-mcm-ink text-sm">
                 Conversation with one or more specific people is great for informal chat. For
                 projects, team, or topic-based discussion, consider&nbsp;
                 <span className="text-primary cursor-pointer">sending message to team.</span>

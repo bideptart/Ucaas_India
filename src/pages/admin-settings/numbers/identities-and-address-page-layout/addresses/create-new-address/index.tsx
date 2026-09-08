@@ -312,7 +312,7 @@ const CreateNewAddress = ({
                 render={({ field }) => (
                   <textarea
                     {...field}
-                    className="w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none border border-gray-200"
+                    className="w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 dark:text-mcm-ink shadow-none resize-none border border-gray-200 dark:border-mcm-line"
                     rows={3}
                     placeholder="Type Here..."
                   />

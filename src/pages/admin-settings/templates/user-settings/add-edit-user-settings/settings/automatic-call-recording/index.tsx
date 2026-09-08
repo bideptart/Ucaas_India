@@ -34,12 +34,12 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({ modalState, setModalState
           </div>
         </div>
 
-        <div className="flex flex-col border border-gray-200 rounded-xl max-h-[calc(100vh-250px)] overflow-auto">
+        <div className="flex flex-col border border-gray-200 rounded-xl max-h-[calc(100vh-250px)] overflow-auto dark:border-mcm-line">
           <div
             className={`flex justify-between p-3 cursor-pointer ${watch('settings.recording.automatic.enabled') ? 'items-start' : 'items-center'}`}
           >
             <div className="flex flex-col gap-3">
-              <p className="font-semibold text-md text-gray-900">Automatic Call Recording</p>
+              <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">Automatic Call Recording</p>
               <div className="flex flex-col gap-4">
                 <Label>Enable Automatic Call Recording</Label>
                 <Switch
@@ -67,7 +67,7 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({ modalState, setModalState
                   />
                 )}
               </div>
-              <p className="text-gray-900 text-sm">
+              <p className="text-gray-900 text-sm dark:text-mcm-ink">
                 Turn on this feature to automatically record all calls made to a particular user or
                 group extension.The recording will be accessible in your call log.{' '}
               </p>
@@ -83,13 +83,13 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({ modalState, setModalState
             </div>
           </div>
 
-          <hr className="text-gray-200 w-full" />
+          <hr className="text-gray-200 w-full dark:text-mcm-line" />
 
           <div
             className={`flex justify-between p-3 cursor-pointer ${watch('settings.recording.on_demand.enabled') ? 'items-start' : 'items-center'}`}
           >
             <div className="flex flex-col gap-3 w-full">
-              <p className="font-semibold text-md text-gray-900">On-demand Call Recording</p>
+              <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">On-demand Call Recording</p>
               <div className="flex items-center gap-2">
                 <Switch
                   onCheckedChange={(checked) => {
@@ -103,7 +103,7 @@ const AutomaticCallRecordingModal: FC<ModalProps> = ({ modalState, setModalState
                   checked={watch('settings.recording.on_demand.enabled')}
                 />
               </div>
-              <p className="text-gray-900 text-sm">
+              <p className="text-gray-900 text-sm dark:text-mcm-ink">
                 Enable your users to record call at any time on a phone dial pad.
               </p>
               <div className="flex flex-col gap-3">

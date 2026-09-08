@@ -50,7 +50,7 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
         <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-5">
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center justify-between w-full min-h-[20px]">
-              <span className="text-sm font-semibold text-gray-900">Wrap-up time</span>
+              <span className="text-sm font-semibold text-foreground">Wrap-up time</span>
             </div>
             <CustomSelect
               placeholder="Select Option"
@@ -80,7 +80,7 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
               anyone. Stored but not yet enforced. */}
           <div className="flex flex-col gap-1.5 w-full lg:col-span-2">
             <div className="flex items-center justify-between w-full min-h-[20px]">
-              <span className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+              <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 Wrap-up rule
                 {/* Said on screen, not only in a comment above. The choice is
                     saved, but no call acts on it yet, and a supervisor picking
@@ -110,9 +110,9 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
 
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center justify-between w-full min-h-[20px]">
-              <span className="text-sm font-semibold text-gray-900">Call Script</span>
+              <span className="text-sm font-semibold text-foreground">Call Script</span>
               <div className="flex items-center gap-2">
-                {/* <span className="text-xs text-gray-500 font-medium">Required</span> */}
+                {/* <span className="text-xs text-muted-foreground font-medium">Required</span> */}
                 <Switch
                   id="script_enabled"
                   checked={watch('script_enabled')}
@@ -152,7 +152,7 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
             <div className="w-full flex items-center gap-2 mb-2">
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-1">
-                  <h3 className="text-gray-900 font-semibold text-md">Agent Disposition</h3>
+                  <h3 className="text-foreground font-semibold text-md">Agent Disposition</h3>
                   {(errors as any)?.agentDisposition?.message && (
                     <ErrorTooltip text={(errors as any)?.agentDisposition?.message} />
                   )}
@@ -179,7 +179,7 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
                         className="w-full  flex items-center justify-between gap-3"
                         key={`${item?.disposition?.name}`}
                       >
-                        <div className="w-full p-2 border border-gray-200 rounded-lg flex items-center justify-between gap-2  min-h-[62px]">
+                        <div className="w-full p-2 border border-border rounded-lg flex items-center justify-between gap-2  min-h-[62px]">
                           <div className="flex items-center gap-3">
                             <Switch
                               id={item?._id}
@@ -190,7 +190,7 @@ const QueueSettings: FC<any> = ({ scriptList, setModalState }) => {
                             />
                             <label
                               htmlFor={item?._id}
-                              className="text-gray-900/80 font-semibold text-sm"
+                              className="text-foreground/80 font-semibold text-sm"
                             >
                               {item?.disposition?.name}
                             </label>

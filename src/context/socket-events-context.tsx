@@ -5487,18 +5487,18 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
       {/* Storage Limit Modal */}
       <Dialog open={isStorageModalOpen} onOpenChange={setIsStorageModalOpen}>
-        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden rounded-2xl border border-gray-100 shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden rounded-2xl border border-gray-100 dark:border-mcm-line shadow-2xl bg-white dark:bg-mcm-surface">
           {/* Header with warm/warning premium background */}
-          <div className="relative p-6 pb-4 bg-gradient-to-br from-amber-50 to-orange-50/50 border-b border-amber-100/60">
+          <div className="relative p-6 pb-4 bg-gradient-to-br from-amber-50 to-orange-50/50 border-b border-amber-100/60 dark:from-amber-950/30 dark:to-amber-950/10 dark:border-amber-900/40">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
                 <HardDrive className="h-6 w-6 animate-pulse" />
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-mcm-ink leading-tight">
                   Storage Limit Exceeded
                 </h3>
-                <p className="text-xs font-medium text-amber-700/80">
+                <p className="text-xs font-medium text-amber-700/80 dark:text-amber-400">
                   Your organization's storage is nearly full or has run out of space.
                 </p>
               </div>
@@ -5507,13 +5507,13 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
           {/* Details / Usage Progress */}
           <div className="p-6 flex flex-col gap-5">
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-sm text-gray-700 dark:text-mcm-ink-2 leading-relaxed">
               Your organization has used{' '}
-              <strong className="font-semibold text-gray-900">
+              <strong className="font-semibold text-gray-900 dark:text-mcm-ink">
                 {storageLimitData?.used_storage || 0} GB
               </strong>{' '}
               of its total{' '}
-              <strong className="font-semibold text-gray-900">
+              <strong className="font-semibold text-gray-900 dark:text-mcm-ink">
                 {storageLimitData?.total_storage || 0} GB
               </strong>{' '}
               storage limit.
@@ -5522,7 +5522,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
             {/* Circular/horizontal progress visual */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-gray-500">Storage Consumption</span>
+                <span className="text-gray-500 dark:text-mcm-ink-3">Storage Consumption</span>
                 <span
                   className={`${(storageLimitData?.storage_used_percentage || 0) >= 90 ? 'text-red-500' : 'text-primary'}`}
                 >
@@ -5530,7 +5530,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 </span>
               </div>
 
-              <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="relative w-full h-3 bg-gray-100 dark:bg-mcm-surface-3 rounded-full overflow-hidden">
                 <div
                   className={`absolute top-0 left-0 h-full transition-all duration-500 rounded-full ${
                     (storageLimitData?.storage_used_percentage || 0) >= 90
@@ -5543,16 +5543,16 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-gray-500">
+              <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-mcm-ink-3">
                 <span>0 GB</span>
                 <span>{storageLimitData?.total_storage || 0} GB</span>
               </div>
             </div>
 
             {/* Info Message Box */}
-            <div className="flex items-start gap-2.5 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
+            <div className="flex items-start gap-2.5 p-3.5 bg-gray-50 dark:bg-mcm-surface-3 rounded-xl border border-gray-100 dark:border-mcm-line">
               <AlertTriangle className="h-4.5 w-4.5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-gray-600 leading-normal">
+              <p className="text-xs text-gray-600 dark:text-mcm-ink-3 leading-normal">
                 To continue uploading files, attachments, transcription and call recordings, please
                 purchase extra storage space.
               </p>
@@ -5560,12 +5560,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
           </div>
 
           {/* Footer Actions */}
-          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-gray-50/50 dark:bg-mcm-surface-3/50 border-t border-gray-100 dark:border-mcm-line flex items-center justify-end gap-3">
             <Button
               type="button"
               variant="ghost"
               onClick={() => setIsStorageModalOpen(false)}
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl h-11 px-5 transition-colors cursor-pointer"
+              className="text-gray-600 dark:text-mcm-ink-3 hover:text-gray-900 dark:hover:text-mcm-ink hover:bg-gray-100/80 dark:hover:bg-mcm-surface rounded-xl h-11 px-5 transition-colors cursor-pointer"
             >
               Cancel
             </Button>

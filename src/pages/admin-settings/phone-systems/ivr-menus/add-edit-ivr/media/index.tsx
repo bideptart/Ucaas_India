@@ -16,7 +16,7 @@ const Media = () => {
       placeholder: 'Menu IVR',
       label: 'Menu IVR',
       icon: 'HoldMusicIcon',
-      iconClass: 'h-5 w-5 text-orange-500',
+      iconClass: 'h-5 w-5 text-orange-500 dark:text-slate-500',
       disabled: true,
     },
     {

@@ -514,7 +514,7 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
     <>
       <div className="flex h-full min-h-0 w-full flex-col justify-between gap-3 pt-2 sm:pt-3">
         {!isEdit && (
-          <span className="text-sm leading-5 text-gray-700">
+          <span className="text-sm leading-5 text-muted-foreground">
             Create a department to organize your company’s workflow. This allows you to route calls
             to specific teams (e.g., Support or Billing) and assign multiple users to a single
             extension so they can handle incoming calls together.
@@ -525,11 +525,11 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
           onValueChange={handleTabChange}
           className="flex w-full flex-col overflow-x-hidden overflow-y-hidden"
         >
-          <div className="w-full overflow-x-auto overflow-y-hidden border-b border-gray-200">
+          <div className="w-full overflow-x-auto overflow-y-hidden border-b border-border">
             <TabsList className="flex min-w-max min-h-12 items-stretch overflow-y-hidden rounded-none bg-transparent p-0 text-center text-sm font-semibold">
               {Object.entries(DEPARTMENT_TAB_CONSTANT).map(([key, value]) => (
                 <TabsTrigger
-                  className="relative flex h-full shrink-0 items-center gap-1 rounded-none border-b-2 bg-transparent px-4 py-3 text-sm font-semibold text-gray-700 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6 focus-visible:outline-0 focus-visible:ring-0 focus-visible:border-0 "
+                  className="relative flex h-full shrink-0 items-center gap-1 rounded-none border-b-2 bg-transparent px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6 focus-visible:outline-0 focus-visible:ring-0 focus-visible:border-0 "
                   key={key}
                   value={value}
                 >
@@ -550,7 +550,7 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
             className="flex h-full min-h-0 w-full flex-col justify-between gap-4"
           >
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">{stepLookUp?.[currentStep]}</div>
-            <div className="border-t border-gray-200 pt-2 sm:pt-3">
+            <div className="border-t border-border pt-2 sm:pt-3">
               <div className="hidden items-center justify-between gap-2 lg:flex">
                 <Button variant={'transparent'} type="button" onClick={() => setDrawerState(false)}>
                   Cancel

@@ -79,7 +79,7 @@ const Record: FC = () => {
 
   return (
     <div className="flex flex-col gap-4 pt-2">
-      <div className="border border-gray-300 gap-12 flex flex-col w-full h-44 justify-center rounded-xl">
+      <div className="border border-gray-300 dark:border-mcm-line gap-12 flex flex-col w-full h-44 justify-center rounded-xl">
         <div className="gap-4 flex flex-col p-3 justify-center">
           <div className="flex flex-col gap-2 justify-center w-full items-center">
             {!recording && !WatchUploadFile && (
@@ -93,8 +93,8 @@ const Record: FC = () => {
                 <img src={RecordingGif} alt="gif" height={50} width={50} />
                 <Recorder getAudioBlob={getAudioBlob} />
                 <div className="flex flex-col items-center gap-1">
-                  <p className="font-semibold text-gray-900 truncate text-md">{'Listening'}</p>
-                  <small className="text-gray-800 truncate text-sm">
+                  <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-md">{'Listening'}</p>
+                  <small className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
                     {formatDuration(duration)}
                   </small>
                 </div>

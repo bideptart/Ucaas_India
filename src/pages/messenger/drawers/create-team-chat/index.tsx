@@ -336,7 +336,7 @@ const CreateTeamChat = ({
 
   return (
     <>
-      <div className="flex flex-col gap-1.5 text-gray-900">
+      <div className="flex flex-col gap-1.5 text-gray-900 dark:text-mcm-ink">
         <div className="font-semibold truncate text-md flex items-center justify-between min-h-11">
           <div className="flex items-center gap-2">
             {currentChat ? 'Edit Team' : 'Create New Team'}
@@ -362,9 +362,9 @@ const CreateTeamChat = ({
               control={control}
               render={({ field }) => (
                 <>
-                  <div className="flex items-center justify-center w-full bg-gray-100 p-2 relative min-h-[72px] rounded-t-xl">
+                  <div className="flex items-center justify-center w-full bg-gray-100 dark:bg-mcm-surface-3 p-2 relative min-h-[72px] rounded-t-xl">
                     <div
-                      className="flex items-center justify-center w-28 h-28 rounded-full overflow-hidden cursor-pointer absolute -bottom-15 bg-white shadow-md border-2 border-white"
+                      className="flex items-center justify-center w-28 h-28 rounded-full overflow-hidden cursor-pointer absolute -bottom-15 bg-white dark:bg-mcm-surface-3 shadow-md border-2 border-white"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       {field?.value ? (
@@ -483,7 +483,7 @@ const CreateTeamChat = ({
                   className={`flex items-center w-full rounded-xl ${
                     errors?.description?.message
                       ? 'border border-red-500'
-                      : 'border border-gray-300'
+                      : 'border border-gray-300 dark:border-mcm-line'
                   }`}
                 >
                   <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">
@@ -653,7 +653,7 @@ const CreateTeamChat = ({
 
                 <div
                   className={`flex items-center w-full rounded-xl ${
-                    errors?.message?.message ? 'border border-red-500' : 'border border-gray-300'
+                    errors?.message?.message ? 'border border-red-500' : 'border border-gray-300 dark:border-mcm-line'
                   }`}
                 >
                   <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">

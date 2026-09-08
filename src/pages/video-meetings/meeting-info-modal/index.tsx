@@ -65,7 +65,7 @@ const MeetingInfo: FC<MeetingInfoProps> = ({ modalState, setModalState, meetingI
               <div className="sm:w-[calc(100%_-_9rem)] flex items-start justify-between gap-4">
                 <p className="break-all max-w-[350px]">{`${window.location.origin}/video-meet?meetCode=${meetingID}`}</p>
                 <span
-                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white"
                   onClick={() =>
                     copyToClipboard(`${window.location.origin}/video-meet?meetCode=${meetingID}`)
                   }
@@ -81,7 +81,7 @@ const MeetingInfo: FC<MeetingInfoProps> = ({ modalState, setModalState, meetingI
                 <p className="break-all">{meetingID || ''}</p>
                 <span
                   onClick={() => copyToClipboard(meetingID)}
-                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white"
                 >
                   <Icon name="CopyLine" className="w-4 h-4" />
                 </span>
@@ -98,7 +98,7 @@ const MeetingInfo: FC<MeetingInfoProps> = ({ modalState, setModalState, meetingI
                   </p>
                   <span
                     onClick={() => setRevealPassword(!revealPassword)}
-                    className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
+                    className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 min-w-8 max-h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white"
                   >
                     <Icon name={revealPassword ? 'EyeLineOff' : 'EyeLine'} className="w-4 h-4" />
                   </span>

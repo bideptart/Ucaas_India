@@ -93,8 +93,8 @@ const CaptainChats = ({
             <CustomAvatar name={label} size="36" showPresence={false} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-900 truncate">{label}</p>
-                <span className="text-[11px] text-gray-400 shrink-0">{moment(c.last_message_at).fromNow()}</span>
+                <p className="text-sm font-medium text-gray-900 dark:text-mcm-ink truncate">{label}</p>
+                <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 shrink-0">{moment(c.last_message_at).fromNow()}</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
@@ -104,7 +104,7 @@ const CaptainChats = ({
                 >
                   {c.owner === 'human' ? 'You' : 'AI'}
                 </span>
-                <span className="text-xs text-gray-400 truncate">{c.assistant_name}</span>
+                <span className="text-xs text-gray-400 dark:text-mcm-ink-3 truncate">{c.assistant_name}</span>
               </div>
             </div>
           </button>

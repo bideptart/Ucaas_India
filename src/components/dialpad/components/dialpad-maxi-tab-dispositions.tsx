@@ -366,7 +366,7 @@ const DialpadMaxiTabDispositions = ({ activeSession }: DialpadMaxiTabDisposition
 
   if (!activeSession) {
     return (
-      <div className="h-full rounded-2xl border border-ucass-active-bg bg-white px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
+      <div className="h-full rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5a7396] max-[380px]:text-[10px] sm:text-xs">
           Dispositions
         </p>
@@ -378,13 +378,13 @@ const DialpadMaxiTabDispositions = ({ activeSession }: DialpadMaxiTabDisposition
   }
 
   return (
-    <div className="h-full rounded-2xl border border-ucass-active-bg bg-white px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
+    <div className="h-full rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5a7396] max-[380px]:text-[10px] sm:text-xs">
         Dispositions
       </p>
 
       {dispositionList.length === 0 ? (
-        <div className="mt-3 rounded-xl border border-dashed border-[#d7e3f6] bg-white px-2.5 py-3 text-[13px] text-[#5f7392] max-[380px]:px-2 max-[380px]:text-xs sm:px-3 sm:text-sm">
+        <div className="mt-3 rounded-xl border border-dashed border-[#d7e3f6] dark:border-mcm-line bg-white dark:bg-mcm-surface px-2.5 py-3 text-[13px] text-[#5f7392] max-[380px]:px-2 max-[380px]:text-xs sm:px-3 sm:text-sm">
           No dispositions found for this session.
         </div>
       ) : (
@@ -401,8 +401,8 @@ const DialpadMaxiTabDispositions = ({ activeSession }: DialpadMaxiTabDisposition
                   htmlFor={dispositionId}
                   className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-2.5 transition max-[380px]:px-2 max-[380px]:py-2 sm:px-3 sm:py-3 ${
                     isSelected
-                      ? 'border-[#9fc3ff] bg-[#eef5ff]'
-                      : 'border-[#dce7f7] bg-white hover:border-[#c9dcf8] hover:bg-[#f7fbff]'
+                      ? 'border-[#9fc3ff] bg-[#eef5ff] dark:bg-mcm-surface-3'
+                      : 'border-[#dce7f7] dark:border-mcm-line bg-white dark:bg-mcm-surface hover:border-[#c9dcf8] hover:bg-[#f7fbff] dark:hover:bg-mcm-surface-3'
                   }`}
                 >
                   <input

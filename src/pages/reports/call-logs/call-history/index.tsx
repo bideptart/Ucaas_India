@@ -987,7 +987,15 @@ const CallHistory = ({
               className={`cursor-pointer flex min-h-10 min-w-[10.75rem] flex-col items-center justify-center gap-1 rounded-lg border p-3 py-2 text-center transition-all duration-200 sm:min-w-0  ${
                 activeTab === tab.label
                   ? 'border-ucass-primary-200 bg-ucass-primary-200/40 '
-                  : 'border-gray-200 hover:bg-gray-50 bg-white'
+                  : // Tailwind's default `gray` scale leans cool/blue (its
+                    // 200 shade sits at ~264° hue), which read as a stray
+                    // bluish tint against every other warm-orange surface on
+                    // this card. `orange-100` turned out too pale to read as
+                    // clearly on-palette either — arbitrary values matching
+                    // Directory's own visible-but-not-loud accent border
+                    // (rgba(249,115,22,0.4), used everywhere else this
+                    // session) instead of a Tailwind step.
+                    'border-[rgba(249,115,22,0.4)] hover:bg-[rgba(255,241,235,0.65)] bg-white'
               }`}
             >
               <div

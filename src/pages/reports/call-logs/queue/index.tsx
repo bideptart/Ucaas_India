@@ -156,9 +156,15 @@ const QueueCallLogs = () => {
                         <TableManager
                           {...{
                             tableRef,
+                            splitStickyHeader: true,
                             fetcherKey: 'callLogQueueReportList',
                             fetcherFn: callLogQueueReportList,
-                            tableMaxHeight: 'h-auto',
+                            // 'h-auto' isn't a valid inline CSS height value
+                            // (that's a Tailwind class name, not a style
+                            // value) — it silently did nothing, leaving the
+                            // table to grow unbounded either way. A real
+                            // value now, matching every other report table.
+                            tableMaxHeight: '55vh',
                             columns,
                             extraParams: {
                               queue_uuid: item?.uuid,

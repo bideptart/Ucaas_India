@@ -868,6 +868,35 @@
     color: #ea580c !important;
   }
 
+  /* Standalone date-preset select (`.rp-date-standalone` — Reports ▸ Call
+     Analytics, and anywhere else this select renders alone rather than as
+     the first segment of Performance's fused Today+Division+Media pill).
+     Has to sit here, inside this same `@layer base` block, for the same
+     reason documented above the base `.mcm-date-preset.custom-react-
+     select__control` rule: for `!important` declarations the cascade
+     reverses layer order, so an unlayered override (in date-picker-
+     theme.css) can never beat a layered one no matter how specific —
+     restoring symmetric corners had to happen in the one place that can
+     actually outrank the fused-pill default. Directory's orange outline-
+     button treatment (border + text, no fill) instead of round-left/
+     square-right on a transparent background. */
+  .rp-date-standalone .mcm-date-preset.custom-react-select__control {
+    border-radius: 999px !important;
+    background-color: #fff !important;
+    border: 1px solid rgba(242, 153, 74, 0.6) !important;
+  }
+  .rp-date-standalone .mcm-date-preset.custom-react-select__control:hover {
+    border-color: #f2994a !important;
+  }
+  .rp-date-standalone .mcm-date-preset .custom-react-select__single-value,
+  .rp-date-standalone .mcm-date-preset .custom-react-select__placeholder {
+    color: #f2994a !important;
+    font-weight: 600;
+  }
+  .rp-date-standalone .mcm-date-preset .custom-react-select__dropdown-indicator svg {
+    color: #f2994a !important;
+  }
+
   .chart-container {
     position: relative;
     width: 100%;

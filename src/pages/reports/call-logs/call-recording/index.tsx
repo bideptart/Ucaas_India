@@ -463,6 +463,8 @@ const CallRecording = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'callListingRecording',
             fetcherFn: callList,
             columns,

@@ -38,15 +38,62 @@ const LINKED_REPORTS: { group: string; reports: LinkedReport[] }[] = [
     reports: [
       {
         title: 'Call History',
-        Component: lazy(() => import('@/pages/reports/call-logs/call-history')),
+        // `CallHistory` defaults `splitStickyHeader` to false (it's also
+        // used embedded in a Home dashboard drawer, which keeps the old
+        // header) — this modal wants the same Directory-matching header
+        // every other report link here already gets, so it's pinned on
+        // via a thin wrapper rather than changing the shared default.
+        // `detailsAsModal` is what makes a "To" queue/IVR link (Billing,
+        // Onboarding, Callback Offer, ...) open in CallHistory's own
+        // centered Dialog instead of a `<SideDrawer isTab>` — without it,
+        // that click opened the drawer UNDERNEATH this already-open
+        // Dialog (both portal to document.body, and the drawer's own
+        // z-index sits below a Radix Dialog's), so it was technically
+        // "open" but invisible. interactions-tab.tsx (Performance ▸
+        // Calls) already passes this for the exact same reason.
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/call-history').then((mod) => ({
+            default: () => (
+              <mod.default splitStickyHeader tableMaxHeight="55vh" detailsAsModal />
+            ),
+          })),
+        ),
       },
       {
+        // Local Call List/Inbound/Outbound/Voicemail didn't have a
+        // `detailsAsModal` escape hatch at all until now — same fix as
+        // Call History above, just newly added rather than already there.
         title: 'Local Call List',
-        Component: lazy(() => import('@/pages/reports/call-logs/local-call-list')),
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/local-call-list').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
       },
-      { title: 'Inbound', Component: lazy(() => import('@/pages/reports/call-logs/inbound')) },
-      { title: 'Outbound', Component: lazy(() => import('@/pages/reports/call-logs/outbound')) },
-      { title: 'Voicemail', Component: lazy(() => import('@/pages/reports/call-logs/voicemail')) },
+      {
+        title: 'Inbound',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/inbound').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
+      {
+        title: 'Outbound',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/outbound').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
+      {
+        title: 'Voicemail',
+        Component: lazy(() =>
+          import('@/pages/reports/call-logs/voicemail').then((mod) => ({
+            default: () => <mod.default detailsAsModal />,
+          })),
+        ),
+      },
       { title: 'SMS Log', Component: lazy(() => import('@/pages/reports/sms-logs')) },
     ],
   },
@@ -112,7 +159,20 @@ const alignForColumn = (heading: string, index: number): 'left' | 'center' | 'ri
   return 'center';
 };
 
-const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: string } }) => {
+const ReportsTab = ({
+  selectedRange,
+  dropdownVal,
+  setDropdownVal,
+}: {
+  selectedRange: { from: string; to: string };
+  // Performance's own Today/Division/Media picker state — threaded through
+  // (not just its resolved `selectedRange`) so Call Volume can render the
+  // actual control beside its own "Performance" heading, two-way bound to
+  // the same state the toolbar above this dialog already shows, rather
+  // than a second independent picker.
+  dropdownVal?: any;
+  setDropdownVal?: any;
+}) => {
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedId, setSelectedId] = useState('queue-summary');
   const [openReport, setOpenReport] = useState<LinkedReport | null>(null);
@@ -556,10 +616,17 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                             className={cellIndex === 0 ? undefined : 'num'}
                             style={{
                               whiteSpace: 'nowrap',
-                              padding: '8px 12px',
+                              /* 11px/12px, 400 and `#0d1526` are Directory ▸
+                                 People's own body-cell values (people-glass.
+                                 css), read off its computed styles — this
+                                 table already matched its header exactly and
+                                 only the rows were still diverging. `#334155`
+                                 was Tailwind's slate-700: a cool grey sitting
+                                 in an otherwise entirely warm palette. */
+                              padding: '11px 12px',
                               textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
-                              fontWeight: cellIndex === 0 ? 700 : 500,
-                              color: cellIndex === 0 ? 'var(--rp-ink)' : '#334155',
+                              fontWeight: cellIndex === 0 ? 700 : 400,
+                              color: cellIndex === 0 ? 'var(--rp-ink)' : '#0d1526',
                             }}
                           >
                             {cell}
@@ -589,7 +656,7 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                           className={cellIndex === 0 ? undefined : 'num'}
                           style={{
                             whiteSpace: 'nowrap',
-                            padding: '8px 12px',
+                            padding: '11px 12px',
                             textAlign: alignForColumn(report?.head[cellIndex] || '', cellIndex),
                           }}
                         >
@@ -634,12 +701,45 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
       </div>
 
       <Dialog open={Boolean(openReport)} onOpenChange={(open) => !open && setOpenReport(null)}>
-        <DialogContent className="flex h-[85vh] max-w-6xl flex-col overflow-hidden p-0">
-          <DialogHeader className="px-4 py-3" style={{ borderBottom: '1px solid var(--line)' }}>
-            <DialogTitle>{openReport?.title}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-auto">
-            {openReport && (
+        {/* `rp-report-dialog` (reports-theme.css) — Radix portals DialogContent
+            to document.body, outside `.perf-reports`'s own DOM subtree, so an
+            ancestor-based selector like `.perf-reports thead th` can never
+            reach the table inside it. A class on the dialog's own element
+            survives the portal (only its *position* in the DOM moves, not
+            its own className), so the theme is scoped to that instead. */}
+        {/* `max-w-6xl` (1152px) wasn't enough room for a table with this many
+            columns (Date/From/DID/To/Status/Duration/Wait Time/Charge/
+            Action) once each carries a country-flag + full phone number —
+            table-manager.tsx's own column-width measurement is correct (it
+            proportionally shares out whatever width it's given), so the
+            columns were genuinely being squeezed below their real content
+            need rather than just under-padded, reading as no gap between
+            them at all. More viewport width, not more column padding, is
+            the actual fix. */}
+        {/* `overflow-hidden` used to sit directly on `DialogContent` — the
+            same element Radix's focus trap treats as "inside" the dialog.
+            The date picker's calendar now portals into that same element
+            (getPopperContainer, date-dropdown/index.tsx) to stay inside
+            that trap rather than escaping to `document.body`, but an
+            `overflow-hidden` box clips an absolutely-positioned descendant
+            regardless of where in its subtree that descendant lives — so
+            the clipping moves one level down, onto a plain wrapper div
+            that isn't where the calendar portals to, while `DialogContent`
+            itself stays unclipped. */}
+        <DialogContent className="flex h-[85vh] max-w-[95vw] flex-col p-0 rp-report-dialog">
+          <div className="flex h-full flex-col overflow-hidden rounded-xl">
+            {/* No bottom border/extra padding here — `ReportsPageLayout`
+                immediately below (every report's own shared header, which
+                shows "Performance" for pages reached through this dialog)
+                already draws its own border-bottom right under this title,
+                so a second bordered, padded box back to back with it read
+                as a much bigger gap between "Call Volume" and "Performance"
+                than either title actually needed on its own. */}
+            <DialogHeader className="rp-report-dialog-head px-4 pt-4 pb-0">
+              <DialogTitle>{openReport?.title}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-auto">
+              {openReport && (
               <Suspense
                 fallback={
                   <div className="flex h-full items-center justify-center">
@@ -647,9 +747,24 @@ const ReportsTab = ({ selectedRange }: { selectedRange: { from: string; to: stri
                   </div>
                 }
               >
-                <openReport.Component />
+                {/* Call Volume's own date picker (beside its "Performance"
+                    heading) is bound to this same `dropdownVal`/
+                    `setDropdownVal` state, not a local copy — picking a
+                    date there moves Performance's own toolbar above this
+                    dialog too, and vice versa, rather than drifting apart
+                    as two independent pickers would. */}
+                {openReport?.title === 'Call Volume' ? (
+                  <openReport.Component
+                    selectedRange={selectedRange}
+                    dropdownVal={dropdownVal}
+                    setDropdownVal={setDropdownVal}
+                  />
+                ) : (
+                  <openReport.Component />
+                )}
               </Suspense>
-            )}
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

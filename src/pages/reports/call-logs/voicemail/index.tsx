@@ -27,10 +27,18 @@ import SideDrawer from '@/components/custom/side-drawer';
 import IVRDetailsView from '@/components/activity-list/side-drawers/ivr-details-view';
 import DepartmentDetailsView from '@/components/activity-list/side-drawers/department-details-view';
 import QueueDetailsView from '@/components/activity-list/side-drawers/queue-details-view';
+import DetailsModal from '@/components/activity-list/side-drawers/details-modal';
 import TableManager from '@/components/custom/table-manager';
 import { useRecordingAccess } from '@/hooks/use-recording-access';
 
-const Voicemail = () => {
+const Voicemail = ({
+  // Only true when this report renders inside another already-open modal
+  // (the "Open a full report page" dialog, reports-tab.tsx) — a "To"
+  // queue/IVR link's `<SideDrawer>` there is a second portal stacking
+  // underneath that dialog's own Radix z-index, technically open but
+  // invisible.
+  detailsAsModal = false,
+}: { detailsAsModal?: boolean } = {}) => {
   const tableRef = useRef<any>(null);
   const { user } = useUser();
   const { makeCall } = useDialpad();
@@ -464,6 +472,8 @@ const Voicemail = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'callListingVoicemail',
             fetcherFn: callList,
             columns,
@@ -499,14 +509,22 @@ const Voicemail = () => {
           srcUrl={recordingUrl}
           serRecordingUrl={serRecordingUrl}
         />
-        {drawerState?.IVR && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.IVR}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
-            content={<IVRDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.IVR &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.IVR}
+              onClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+            >
+              <IVRDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.IVR}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+              content={<IVRDetailsView rowData={rowData} />}
+            />
+          ))}
         {drawerState?.department && (
           <SideDrawer
             isTab
@@ -521,14 +539,22 @@ const Voicemail = () => {
             }
           />
         )}
-        {drawerState?.QUEUE && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.QUEUE}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
-            content={<QueueDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.QUEUE &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.QUEUE}
+              onClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+            >
+              <QueueDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.QUEUE}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+              content={<QueueDetailsView rowData={rowData} />}
+            />
+          ))}
       </div>
     </ReportsPageLayout>
   );

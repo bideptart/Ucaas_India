@@ -459,6 +459,21 @@ function TableManager({
          fixed column never grows to fit a cell that turns out to need
          more than whichever row happened to be measured. */
       const widths = Array.from(headerRow.children).map((headerCell, index) => {
+        /* The hasSubRows expand-toggle column (index 0 whenever hasSubRows
+           is on) is near-permanently empty — the +/- toggle only renders
+           for a multi-leg row — so its scrollWidth is almost always just
+           this cell's own padding, not real content. That's fine on the
+           very first, colgroup-free measure pass, but every measure after
+           that runs on a table already pinned to `table-layout: fixed`: an
+           empty cell never overflows its assigned width, so scrollWidth
+           just echoes back whatever width it was last given — the same
+           stale-echo failure this function's own comment above describes
+           for the Actions column, just in the opposite (too-wide, not
+           too-narrow) direction, and with no real content ever forcing a
+           correction. A fixed width sized for the one thing it ever
+           actually shows (the `w-5 h-5` toggle icon) sidesteps the loop
+           entirely instead of trying to out-measure it. */
+        if (hasSubRows && index === 0) return 24;
         const headerWidth = (headerCell as HTMLElement).scrollWidth;
         const maxBodyWidth = bodyRows.reduce((max, row) => {
           const cell = row.children[index] as HTMLElement | undefined;
@@ -501,7 +516,7 @@ function TableManager({
       resizeObserver.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [splitStickyHeader, columns, fixedPageRows, visibleRowCount, pageIndex]);
+  }, [splitStickyHeader, columns, fixedPageRows, visibleRowCount, pageIndex, hasSubRows]);
 
   const splitColGroup =
     splitStickyHeader && splitColumnWidths.length ? (

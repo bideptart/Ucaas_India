@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
 import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import { ReportsPageLayout } from '../../reports-content-layout';
-import { convertDateFormateApis, formatSecondsToMMSS, handleAlert } from '@/lib/utils';
+import { convertDateFormateApis, formatSecondsToMMSS, handleAlert, MEDIA_URL } from '@/lib/utils';
 import { SearchLine } from '@/assets/icons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,19 +19,31 @@ import SideDrawer from '@/components/custom/side-drawer';
 import IVRDetailsView from '@/components/activity-list/side-drawers/ivr-details-view';
 import DepartmentDetailsView from '@/components/activity-list/side-drawers/department-details-view';
 import QueueDetailsView from '@/components/activity-list/side-drawers/queue-details-view';
+import DetailsModal from '@/components/activity-list/side-drawers/details-modal';
 import { getUserNameByExtension, findUserByExtension } from '@/lib/extension-utility';
 import { useUsersDirectory } from '@/hooks/use-users-directory';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useNavigate } from 'react-router-dom';
+import { useRecordingAccess } from '@/hooks/use-recording-access';
+import { useCompanyFeatures } from '@/hooks/rbac';
 
-const LocalCallList = () => {
+const LocalCallList = ({
+  // Only true when this report renders inside another already-open modal
+  // (the "Open a full report page" dialog, reports-tab.tsx) — a "To" queue/
+  // IVR link's `<SideDrawer>` there is a second portal stacking underneath
+  // that dialog's own Radix z-index, technically open but invisible.
+  detailsAsModal = false,
+}: { detailsAsModal?: boolean } = {}) => {
   const tableRef = useRef<any>(null);
   const navigate = useNavigate();
   const { user } = useUser();
   const { makeCall, sessions } = useDialpad();
   const { createNewChat, createPrivateChatId, usersOnlineStatus } = useSocketEvents();
+  const { canPlayRecording } = useRecordingAccess();
+  const { features } = useCompanyFeatures();
+  const callLogActionAccess = features?.plan_features?.reports?.action || {};
 
   const extension = user?.user_info?.extension;
   const isMeOnCall = usersOnlineStatus?.find((u) => u?.userId == extension)?.onCall;
@@ -66,6 +78,11 @@ const LocalCallList = () => {
       return;
     }
     makeCall(String(resolvedNumber));
+  };
+
+  const handleOpenAudio = (src: string) => {
+    serRecordingUrl(src);
+    setModalState(true);
   };
 
   const handleChat = (data: any) => {
@@ -328,14 +345,36 @@ const LocalCallList = () => {
           chatDisabled = true;
         }
 
+        const hasRecording = data?.recording_file || null;
+        const recordingSrcUrl = data?.recording_file
+          ? `${MEDIA_URL}/${user?.company_info?.uuid}/recording/${data.recording_file}`
+          : '';
+
         return (
           <span className="flex text-center gap-2 items-center">
+            {callLogActionAccess?.call_recording_listen && canPlayRecording(data).allowed && (
+              <CustomTooltip text={hasRecording ? 'Play' : 'No recording available'} side="top">
+                <div
+                  className={`${
+                    hasRecording
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'
+                      : 'cursor-not-allowed bg-gray-100 text-gray-300'
+                  } flex items-center justify-center rounded-full w-8 h-8`}
+                  onClick={() => {
+                    if (!hasRecording) return;
+                    handleOpenAudio(recordingSrcUrl);
+                  }}
+                >
+                  <Icon name="PlayLine" className="w-4.5 h-4.5" />
+                </div>
+              </CustomTooltip>
+            )}
             <CustomTooltip text={callTooltipText} side="top">
               <span
                 className={`${
                   callDisabled
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-green-100 text-green-500 hover:bg-green-400 hover:text-white cursor-pointer'
+                    ? 'cursor-not-allowed bg-gray-100 text-gray-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'
                 } flex items-center justify-center rounded-full w-8 h-8`}
                 onClick={() => !callDisabled && handleMakeCall(data)}
               >
@@ -417,6 +456,8 @@ const LocalCallList = () => {
         <TableManager
           {...{
             tableRef,
+            splitStickyHeader: true,
+            tableMaxHeight: '55vh',
             fetcherKey: 'localCallListingLog',
             fetcherFn: localCallList,
             // onSuccess: (data: any) => {
@@ -441,14 +482,22 @@ const LocalCallList = () => {
           srcUrl={recordingUrl}
           serRecordingUrl={serRecordingUrl}
         />
-        {drawerState?.IVR && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.IVR}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
-            content={<IVRDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.IVR &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.IVR}
+              onClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+            >
+              <IVRDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.IVR}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, IVR: false }))}
+              content={<IVRDetailsView rowData={rowData} />}
+            />
+          ))}
         {drawerState?.department && (
           <SideDrawer
             isTab
@@ -463,14 +512,22 @@ const LocalCallList = () => {
             }
           />
         )}
-        {drawerState?.QUEUE && (
-          <SideDrawer
-            isTab
-            isOpen={drawerState?.QUEUE}
-            handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
-            content={<QueueDetailsView rowData={rowData} />}
-          />
-        )}
+        {drawerState?.QUEUE &&
+          (detailsAsModal ? (
+            <DetailsModal
+              isOpen={drawerState.QUEUE}
+              onClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+            >
+              <QueueDetailsView rowData={rowData} variant="modal" />
+            </DetailsModal>
+          ) : (
+            <SideDrawer
+              isTab
+              isOpen={drawerState?.QUEUE}
+              handleClose={() => setDrawerState((prev) => ({ ...prev, QUEUE: false }))}
+              content={<QueueDetailsView rowData={rowData} />}
+            />
+          ))}
       </div>
     </ReportsPageLayout>
   );

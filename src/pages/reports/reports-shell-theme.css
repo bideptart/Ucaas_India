@@ -1,0 +1,99 @@
+/* ============================================================
+   Reports (standalone /reports/* section) — brought to the same
+   Directory-benchmark table parity every Performance table already has
+   (queues-theme.css, agents-theme.css, interactions-theme.css, ...):
+   20px→18px frosted card corners, a bold 3px accent header line, Directory's
+   exact scrollbar recipe, left accent-bar row hover.
+
+   Scoped to `.rp-shell` (reports/index.tsx's own root wrapper) so nothing
+   outside this section is reachable from here — Performance's own
+   "Reports" tab (perf-reports, reports-theme.css) is a different component
+   entirely and already has its own theme.
+
+   Every table below renders through TableManager with `splitStickyHeader`
+   (added alongside this file), which puts the header in its own
+   non-scrolling box, a *sibling* of `.table-scroll`, not a descendant of
+   it — so header rules are scoped to plain `.rp-shell thead`, never
+   `.rp-shell .table-scroll thead` (that gotcha already hit and fixed
+   throughout Performance this session).
+   ============================================================ */
+
+.rp-shell div:has(> .table-scroll) {
+  border-radius: 18px;
+  overflow: hidden;
+}
+/* Bottom corners only — `.table-scroll` sits below the header's own
+   separate, already-rounded-on-top box, so its own top edge has to stay a
+   flat line to meet the header's flat bottom edge. Rounding all four
+   corners here would carve a curved notch where the two boxes meet, and a
+   second one where the vertical scrollbar starts on the right. */
+.rp-shell .table-scroll {
+  border-radius: 0 0 18px 18px;
+}
+.rp-shell .table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.rp-shell .table-scroll::-webkit-scrollbar-track {
+  margin-bottom: 8px;
+}
+.rp-shell .table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.rp-shell .table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 111, 31, 0.55);
+  background-clip: padding-box;
+}
+
+/* Sticky header — pixel-matched to Directory ▸ People's own `.gp-people th`
+   (people-glass.css): solid `#fffdfb`, `#8a6f57` text, 9.5px/800/0.09em,
+   9px 12px padding, a 3px warm-orange hairline.
+   `.rp-shell.mcm-page` (both classes on the same root element,
+   reports/index.tsx), not plain `.rp-shell` — `.mcm-admin table thead th`
+   (mcm-page.css) is one type-selector more specific than a single-class
+   `.rp-shell thead th` and was winning the cascade, keeping the header on
+   its 1px `--line` divider instead of this 3px accent one. Stacking both
+   classes on the selector adds a second class to outrank it, the same
+   fix already used for this exact conflict elsewhere (`.mcm-console
+   .mcm-console-table thead th`, mcm-page.css). */
+.rp-shell.mcm-page thead {
+  background: #fffdfb;
+  box-shadow: none;
+}
+.dark .rp-shell.mcm-page thead {
+  background: rgba(23, 15, 10, 0.97);
+}
+.rp-shell.mcm-page thead th {
+  color: #8a6f57;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 9px 12px !important;
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
+  background: transparent;
+}
+.rp-shell.mcm-page thead th:first-child {
+  border-top-left-radius: 18px;
+}
+.rp-shell.mcm-page thead th:last-child {
+  border-top-right-radius: 18px;
+}
+
+/* Directory's signature left accent-bar row hover. */
+.rp-shell .table-scroll tbody tr:hover {
+  background: rgba(255, 241, 235, 0.55);
+  box-shadow: inset 3px 0 0 #f2994a;
+}
+/* The last column (an Action icon row on most of these tables) sat flush
+   against the scrollbar the moment a table actually needed one to scroll
+   — the shared component's own default right padding wasn't enough once
+   a scrollbar occupied that same space (same bug found and fixed on
+   Performance ▸ Live and the "Open a full report page" dialog). */
+.rp-shell.mcm-page thead th:last-child,
+.rp-shell .table-scroll tbody td:last-child {
+  padding-right: 22px !important;
+}

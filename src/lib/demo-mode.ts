@@ -34,6 +34,7 @@ import {
   demoCallHandlingTemplateRows,
   demoCallStats,
   demoCalls,
+  mulberry32,
   demoCalendarTaskRows,
   demoCallQueueInvolvements,
   demoCampaignRows,
@@ -994,15 +995,22 @@ const matchDemoPayload = (url: string, data: unknown) => {
   /* The contact centre the Performance views read. Empty lists would leave
      Queues, Agents, Calls, Flows and Boards as five empty states. */
   if (url.includes('/api/tenant/report/call-list')) {
-    /* The phone console's History pane (history-pane.tsx) is the only
-       caller that filters this endpoint by `phone` — everyone else (Reports,
-       Callbacks) filters by `direction` or not at all. Answer it from the
-       console's own PHONE_CALL_SEED instead of the shared demoCalls() log,
-       so it can actually find repeat calls for e.g. Sam Sub's number. */
-    const phoneFilterValue = (asObject(data)?.filter || []).find(
-      (row: any) => row?.key === 'phone',
-    )?.value;
-    if (phoneFilterValue) {
+    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
+    const filterList = (asObject(data)?.filter || []) as Array<{ key?: string; value?: unknown }>;
+    const findFilter = (key: string) => filterList.find((row) => row?.key === key)?.value;
+
+    /* The phone console's History pane (history-pane.tsx) sends the exact
+       same `filter: [{key:'phone', ...}]` shape Call History's own
+       "Contact Phone Number" field does, with one difference: it never
+       sends a `filter_date` (it wants a phone's whole history, not one
+       day's report). That's the only reliable way to tell the two callers
+       apart — keying on `phone` alone routed Call History's own phone
+       filter into this console-only branch too, replacing its ranged rows
+       outright instead of narrowing them. History pane still gets its
+       richer PHONE_CALL_SEED; Call History's phone filter falls through to
+       the normal ranged path below instead. */
+    const phoneFilterValue = findFilter('phone');
+    if (phoneFilterValue && !dateRange) {
       const digitsOnly = (value: unknown) => String(value || '').replace(/\D/g, '');
       const target = digitsOnly(phoneFilterValue);
       const rows = PHONE_CALL_SEED.filter(
@@ -1012,24 +1020,278 @@ const matchDemoPayload = (url: string, data: unknown) => {
       return ok(listPayload(rows, {}, data));
     }
 
-    const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     // Callbacks ▸ "Queue voicemail" calls this same endpoint with
     // `type: 'voicemail'` — a distinct, smaller set of rows, not the whole
     // day's call log filtered down.
     if (asObject(data)?.type === 'voicemail') {
-      const voicemailRows = filterCallsByDateRange(demoVoicemailRows(), dateRange);
+      let voicemailRows = filterCallsByDateRange(demoVoicemailRows(), dateRange);
+      const voicemailSearch = String(asObject(data)?.search || '')
+        .trim()
+        .toLowerCase();
+      if (voicemailSearch) {
+        voicemailRows = voicemailRows.filter((row) =>
+          [row.caller_id_number, row.display_caller_number, row.contact_name, row.status]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(voicemailSearch)),
+        );
+      }
       return ok(listPayload(voicemailRows, {}, data));
     }
     let rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
     // Reports ▸ Outbound sends `filter: [{key:'direction', value:'Outbound'}, ...]` —
     // without honoring it the page would list inbound calls under "Outbound".
-    const directionFilter = (asObject(data)?.filter || []).find(
-      (row: any) => row?.key === 'direction',
-    );
-    if (directionFilter?.value) {
-      rangedCalls = rangedCalls.filter((row) => row.direction === directionFilter.value);
+    // Call History's own Call Type filter also offers "Missed", which isn't a
+    // `direction` value at all (a missed call is an Inbound row that never
+    // got answered) — matched the same way the summary cards above count it.
+    const directionFilter = findFilter('direction');
+    if (directionFilter === 'Missed') {
+      rangedCalls = rangedCalls.filter(
+        (row) => row.direction === 'Inbound' && Number(row.billsectotal) === 0,
+      );
+    } else if (directionFilter) {
+      rangedCalls = rangedCalls.filter((row) => row.direction === directionFilter);
+    }
+    // Contact Name / Contact Phone Number — Call History's own advanced
+    // filter panel, distinct from the phone-console lookup above (that one
+    // only ever sends `phone`, never alongside a `filter_date`).
+    const contactNameFilter = String(findFilter('contact_name') || '')
+      .trim()
+      .toLowerCase();
+    if (contactNameFilter) {
+      rangedCalls = rangedCalls.filter((row) =>
+        [row.contact_name, row.from_display_name, row.to_display_name]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(contactNameFilter)),
+      );
+    }
+    const phoneFilterDigits = String(findFilter('phone') || '').replace(/\D/g, '');
+    if (phoneFilterDigits) {
+      const digitsOnly = (value: unknown) => String(value || '').replace(/\D/g, '');
+      rangedCalls = rangedCalls.filter(
+        (row) =>
+          digitsOnly(row.caller_id_number).includes(phoneFilterDigits) ||
+          digitsOnly(row.destination_number).includes(phoneFilterDigits) ||
+          digitsOnly(row.display_caller_number).includes(phoneFilterDigits),
+      );
+    }
+    /* Status — the filter's "Answered" option sends `SUCCESS` (the real
+       backend's status enum), but the demo rows only ever carry `ANSWERED`
+       or `NO ANSWER` (buildCalls, above); without this mapping the single
+       most commonly picked status option matched nothing. Every other
+       option (CANCEL, VOICEMAIL, ...) has no demo rows to match either way
+       — a real limitation of the seed data, not this filter. */
+    const statusFilter = findFilter('status');
+    if (statusFilter) {
+      const targetStatus = statusFilter === 'SUCCESS' ? 'ANSWERED' : statusFilter;
+      rangedCalls = rangedCalls.filter((row) => row.status === targetStatus);
+    }
+    /* Every call-list-backed report (Call History, Inbound, Outbound, ...)
+       shares this one search box, sending `search` on every keystroke —
+       matched here the same way `/api/contact/list`'s does above, against
+       every field the table actually shows a person could type ("bill" for
+       the Billing queue, a number, an agent name), so the box narrows the
+       list instead of doing nothing. */
+    const search = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (search) {
+      rangedCalls = rangedCalls.filter((row) =>
+        [
+          row.caller_id_number,
+          row.destination_number,
+          row.display_caller_number,
+          row.via_did,
+          row.contact_name,
+          row.from_display_name,
+          row.to_display_name,
+          row.forward_name,
+          row.status,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(search)),
+      );
     }
     return ok(listPayload(rangedCalls, { call_stats: demoCallStats(rangedCalls) }, data));
+  }
+  /* Reports ▸ Analytics ▸ Call Volume — a 7-day × 24-hour heatmap
+     (call-volumn/index.tsx reads `result.headers.days` for the column
+     labels and `result.rows[].{time, [dayLabel]}` for each cell). Had no
+     handler at all before this, so every cell rendered "-" and the whole
+     grid looked broken rather than merely unstyled. Deterministic
+     (mulberry32, not Math.random) for the same reason buildCalls() is —
+     a refetch shouldn't reshuffle every cell's shade. */
+  if (url.includes('/api/tenant/report/call-volume')) {
+    // Anchored on the date picker's own end date (Filters, call-volumn/
+    // index.tsx sends `filter_date: {from, to}` same as every other
+    // call-list report) rather than always "today" — otherwise the picker
+    // would relabel the columns without changing anything they show,
+    // which reads as broken rather than merely simple. The seed is
+    // derived from the anchor too, so picking a different range actually
+    // shows a different (still deterministic-per-pick) pattern instead of
+    // the same shape sliding under new labels.
+    const anchorRaw = (asObject(data)?.filter_date as { to?: string } | undefined)?.to;
+    const anchor = anchorRaw ? new Date(`${anchorRaw}T00:00:00`) : new Date();
+    const today = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const random = mulberry32(20260901 + Math.floor(today.getTime() / 86400000));
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (6 - index));
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const mmdd = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+      // Bare "MM/DD", not "(MM/DD)" — the caller (call-volumn/index.tsx)
+      // wraps this half of the split label in its own parens already;
+      // adding a second pair here rendered as "((09/02))".
+      return `${dayName} ${mmdd}`;
+    });
+    const rows = Array.from({ length: 24 }, (_, hour) => {
+      const row: Record<string, string> = { time: `${String(hour).padStart(2, '0')}:00` };
+      // Business hours (9am-7pm) run busy; outside that, calls are sparse
+      // or nonexistent — the same shape a real contact centre's volume
+      // heatmap has, rather than uniform noise across all 24 hours.
+      const isBusinessHour = hour >= 9 && hour < 19;
+      days.forEach((day) => {
+        const isWeekend = day.startsWith('Saturday') || day.startsWith('Sunday');
+        const activityChance = isWeekend ? 0.15 : isBusinessHour ? 0.9 : 0.2;
+        if (random() > activityChance) {
+          row[day] = '-';
+          return;
+        }
+        const minutes = Math.floor(random() * (isBusinessHour ? 45 : 12));
+        const seconds = Math.floor(random() * 60);
+        row[day] = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+      });
+      return row;
+    });
+    return ok({ headers: { days }, rows });
+  }
+  /* Reports ▸ Analytics ▸ Call Analytics — the service-level dial, the four
+     summary tiles and the Incoming/Outgoing/Missed line chart
+     (analytics/index.tsx reads `result.summary.{serviceLevel, incomingACD,
+     outgoingACD, avgProcessingTime}` and `result.chartData[].{name,
+     Incoming, Outgoing, Missed}`). Had no handler at all before this, so
+     every tile read 0 and the chart drew nothing.
+
+     Derived from the same `demoCalls()` log every other report reads
+     rather than invented separately — the point of this screen is to
+     summarise those calls, so a Call History showing 133 answered calls
+     and an Analytics dial disagreeing about them would be worse than no
+     data at all. The page sends its own coarse `type` (day/week/month/
+     custom) rather than a date range, so that's resolved back into one
+     here before filtering. */
+  if (url.includes('/api/tenant/report/call-analytics')) {
+    const params = asObject(data);
+    const type = String(params?.type || 'week');
+    const toIso = (date: Date) => date.toISOString().slice(0, 10);
+    const shiftDays = (days: number) => {
+      const date = new Date();
+      date.setDate(date.getDate() - days);
+      return date;
+    };
+
+    let range: { from: string; to: string };
+    let bucket: 'hour' | 'day';
+    if (type === 'day') {
+      const day = String(params?.date || toIso(new Date()));
+      range = { from: day, to: day };
+      bucket = 'hour';
+    } else if (type === 'month') {
+      range = { from: toIso(shiftDays(29)), to: toIso(new Date()) };
+      bucket = 'day';
+    } else if (type === 'custom') {
+      range = {
+        from: String(params?.from || toIso(shiftDays(6))),
+        to: String(params?.to || toIso(new Date())),
+      };
+      bucket = range.from === range.to ? 'hour' : 'day';
+    } else {
+      range = { from: toIso(shiftDays(6)), to: toIso(new Date()) };
+      bucket = 'day';
+    }
+
+    const rangedCalls = filterCallsByDateRange(demoCalls(), range);
+    const isMissedCall = (row: any) =>
+      row.direction === 'Inbound' && Number(row.billsectotal) === 0;
+
+    /* "4 min 12 s" / "2 hr 12 min 55 s" — matching the format of the
+       hardcoded "Max:" chips these tiles already sit beside, so the
+       measured value and the ceiling next to it read as one pair rather
+       than two different notations. */
+    const formatDuration = (seconds: number) => {
+      const whole = Math.max(0, Math.round(seconds));
+      const hours = Math.floor(whole / 3600);
+      const minutes = Math.floor((whole % 3600) / 60);
+      const rest = whole % 60;
+      return [hours ? `${hours} hr` : '', minutes ? `${minutes} min` : '', `${rest} s`]
+        .filter(Boolean)
+        .join(' ');
+    };
+    const averageTalk = (rows: any[]) =>
+      rows.length ? rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0) / rows.length : 0;
+    const maxTalk = (rows: any[]) =>
+      rows.reduce((max, row) => Math.max(max, Number(row.billsectotal) || 0), 0);
+    /* Wait = the part of a call before it was answered, the same
+       `duration - billsec` split every call-log report's own "Wait Time"
+       column uses, so this tile agrees with them. */
+    const waitSeconds = (row: any) =>
+      Math.max(0, (Number(row.duration) || 0) - (Number(row.billsectotal) || 0));
+    const averageWait = (rows: any[]) =>
+      rows.length ? rows.reduce((sum, row) => sum + waitSeconds(row), 0) / rows.length : 0;
+    const maxWait = (rows: any[]) => rows.reduce((max, row) => Math.max(max, waitSeconds(row)), 0);
+
+    const inbound = rangedCalls.filter((row) => row.direction === 'Inbound');
+    const outbound = rangedCalls.filter((row) => row.direction === 'Outbound');
+    const answeredInbound = inbound.filter((row) => !isMissedCall(row));
+    const serviceLevel = inbound.length
+      ? Math.round((answeredInbound.length / inbound.length) * 100)
+      : 0;
+
+    const buckets = new Map<string, { name: string; Incoming: number; Outgoing: number; Missed: number }>();
+    if (bucket === 'hour') {
+      for (let hour = 0; hour < 24; hour += 1) {
+        const suffix = hour < 12 ? 'AM' : 'PM';
+        const display = hour % 12 === 0 ? 12 : hour % 12;
+        buckets.set(String(hour), { name: `${display} ${suffix}`, Incoming: 0, Outgoing: 0, Missed: 0 });
+      }
+    } else {
+      const cursor = new Date(`${range.from}T00:00:00`);
+      const end = new Date(`${range.to}T00:00:00`);
+      while (cursor <= end) {
+        const key = toIso(cursor);
+        const name = `${String(cursor.getMonth() + 1).padStart(2, '0')}/${String(cursor.getDate()).padStart(2, '0')}`;
+        buckets.set(key, { name, Incoming: 0, Outgoing: 0, Missed: 0 });
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    }
+
+    rangedCalls.forEach((row) => {
+      const started = new Date(row.start_stamp);
+      const key = bucket === 'hour' ? String(started.getHours()) : toIso(started);
+      const slot = buckets.get(key);
+      if (!slot) return;
+      if (isMissedCall(row)) slot.Missed += 1;
+      else if (row.direction === 'Outbound') slot.Outgoing += 1;
+      else slot.Incoming += 1;
+    });
+
+    return ok({
+      summary: {
+        serviceLevel,
+        incomingACD: formatDuration(averageTalk(answeredInbound)),
+        outgoingACD: formatDuration(averageTalk(outbound)),
+        waitTime: formatDuration(averageWait(rangedCalls)),
+        avgProcessingTime: formatDuration(averageTalk(rangedCalls)),
+        /* The "Max:" chip beside each tile was hardcoded prose ("2 hr 12
+           min 55 s") that never moved with the data — the real ceiling
+           for the same range is what makes the average beside it mean
+           anything. */
+        maxIncomingACD: formatDuration(maxTalk(answeredInbound)),
+        maxOutgoingACD: formatDuration(maxTalk(outbound)),
+        maxWaitTime: formatDuration(maxWait(rangedCalls)),
+        maxProcessingTime: formatDuration(maxTalk(rangedCalls)),
+        totalCalls: rangedCalls.length,
+      },
+      chartData: [...buckets.values()],
+    });
   }
   if (url.includes('/api/tenant/report/agents')) {
     const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
@@ -1192,7 +1454,29 @@ const matchDemoPayload = (url: string, data: unknown) => {
        every other call-list-backed report. */
     const dateRange = asObject(data)?.filter_date as { from?: string; to?: string } | undefined;
     const rangedCalls = filterCallsByDateRange(demoCalls(), dateRange);
-    const rows = demoInboundCallRows(rangedCalls);
+    let rows = demoInboundCallRows(rangedCalls);
+    // This page's own search box (same shared pattern as
+    // `/api/tenant/report/call-list` above) — narrows the already-Inbound
+    // rows rather than re-deriving the direction filter.
+    const inboundSearch = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (inboundSearch) {
+      rows = rows.filter((row) =>
+        [
+          row.caller_id_number,
+          row.destination_number,
+          row.display_caller_number,
+          row.via_did,
+          row.contact_name,
+          row.from_display_name,
+          row.forward_name,
+          row.status,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(inboundSearch)),
+      );
+    }
     const totalDuration = rows.reduce((sum, row) => sum + (Number(row.billsectotal) || 0), 0);
     return ok({
       data: {
@@ -1202,7 +1486,18 @@ const matchDemoPayload = (url: string, data: unknown) => {
     });
   }
   if (url.includes('/api/tenant/local-call-list')) {
-    return ok(listPayload(demoLocalCallRows(), {}, data));
+    let localCallRows = demoLocalCallRows();
+    const localCallSearch = String(asObject(data)?.search || '')
+      .trim()
+      .toLowerCase();
+    if (localCallSearch) {
+      localCallRows = localCallRows.filter((row) =>
+        [row.caller_id_number, row.destination_number, row.from_name, row.to_name, row.status]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(localCallSearch)),
+      );
+    }
+    return ok(listPayload(localCallRows, {}, data));
   }
   if (url.includes('/api/campaign/dnc/list')) return ok(listPayload(demoDncRows(), {}, data));
   if (url.includes('/api/tenant/user/template/list')) {

@@ -18,7 +18,7 @@ export const ReportsPageLayout = ({
 
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 py-3">
+      <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] bg-white px-3 py-3">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <p className="flex min-w-0 shrink-0 items-center gap-1 text-lg font-semibold text-[#2E2D35]">
             <span className="text-primary text-md">{formatTitle(activePage || '')}</span>

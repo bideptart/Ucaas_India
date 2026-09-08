@@ -546,7 +546,13 @@ const Performance = () => {
         {activeTab === 'live-interactions' && <LiveInteractionsTab />}
         {activeTab === 'callbacks' && <CallbacksTab />}
         {activeTab === 'speech-text' && <SpeechTextTab />}
-        {activeTab === 'reports' && <ReportsTab selectedRange={selectedRange} />}
+        {activeTab === 'reports' && (
+          <ReportsTab
+            selectedRange={selectedRange}
+            dropdownVal={dropdownVal}
+            setDropdownVal={setDropdownVal}
+          />
+        )}
 
         {/* The wallboards predate the console language and bring their own
             layout, so they get a plain scroll container. */}

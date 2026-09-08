@@ -20,7 +20,7 @@
 const DAY_START_HOUR = 9;
 
 /* Deterministic, so a refresh does not reshuffle every number on screen. */
-const mulberry32 = (seed: number) => {
+export const mulberry32 = (seed: number) => {
   let a = seed;
   return () => {
     a |= 0;

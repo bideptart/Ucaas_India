@@ -582,7 +582,7 @@ function TableManager({
       <TableRow key={headerGroup.id} ref={splitStickyHeader ? headerRowRef : undefined}>
         {hasSubRows && (
           <TableHead
-            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black ${extraThClass}`}
           ></TableHead>
         )}
         {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -610,7 +610,7 @@ function TableManager({
           return (
             <TableHead
               key={`${header.id}_${headerIndex}`}
-              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] last-of-type:border-r-0 text-black ${extraThClass}`}
+              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black ${extraThClass}`}
             >
               {header.isPlaceholder
                 ? null
@@ -635,27 +635,27 @@ function TableManager({
       )}
 
       <Table
-        className="w-full text-xs xxl:text-sm text-[#2E2D35] h-full "
+        className="w-full text-xs xxl:text-sm text-[#2E2D35] dark:text-mcm-ink h-full "
         style={splitColGroup ? { tableLayout: 'fixed' } : undefined}
       >
         {splitColGroup}
         {!splitStickyHeader && (
           <TableHeader
-            className={`bg-[#FBE2C8] text-black ${stickyHeader ? 'sticky top-0 left-0 z-10 isolate' : ''}`}
+            className={`bg-[#FBE2C8] dark:bg-mcm-surface-3 text-black ${stickyHeader ? 'sticky top-0 left-0 z-10 isolate' : ''}`}
             style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
           >
-            {/* bg-[#FBE2C8] + first/last:rounded-*-xl on each cell (not just
+            {/* bg-[#FBE2C8] dark:bg-mcm-surface-3 + first/last:rounded-*-xl on each cell (not just
                 the shared TableHeader row above) — this header sits inside
                 the same clipped-corner wrapper the non-split scroll box
                 got below, and a sticky descendant can't inherit an
                 ancestor's corner clip in Chromium (position:sticky +
                 overflow + border-radius), so the corner cells round
                 themselves to match instead. */}
-            {renderHeaderRow('bg-[#FBE2C8] first:rounded-tl-xl last:rounded-tr-xl')}
+            {renderHeaderRow('bg-[#FBE2C8] dark:bg-mcm-surface-3 first:rounded-tl-xl last:rounded-tr-xl')}
           </TableHeader>
         )}
 
-        <TableBody className="divide-y divide-[#EEE7DD] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] h-full w-full font-normal">
+        <TableBody className="divide-y divide-[#EEE7DD] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] h-full w-full font-normal">
           {hasRows
               ? table.getRowModel().rows.map((row) => {
                   const isSummaryRow = row.original?.isSummary;
@@ -665,11 +665,11 @@ function TableManager({
                       <TableRow key={row.id}>
                         <TableCell
                           colSpan={columns.length - 1}
-                          className="px-2 xl:px-4 py-2 border-b  border-[#EEE7DD] text-right font-normal"
+                          className="px-2 xl:px-4 py-2 border-b  border-[#EEE7DD] dark:border-mcm-line text-right font-normal"
                         >
                           {row.original.desc}
                         </TableCell>
-                        <TableCell className="px-4 py-2 border-b  border-[#EEE7DD] font-normal">
+                        <TableCell className="px-4 py-2 border-b  border-[#EEE7DD] dark:border-mcm-line font-normal">
                           {row.original.total_price}
                         </TableCell>
                       </TableRow>
@@ -733,18 +733,18 @@ function TableManager({
             <img src={NotFound} alt="" className={imageSize} />
             {String(search || '').trim() ? (
               <>
-                <p className="text-md font-medium text-[#2E2D35]">
+                <p className="text-md font-medium text-[#2E2D35] dark:text-mcm-ink">
                   Nothing matches &ldquo;{String(search).trim()}&rdquo;
                 </p>
-                <p className="max-w-md text-sm text-[#2E2D35]">
+                <p className="max-w-md text-sm text-[#2E2D35] dark:text-mcm-ink">
                   Check the spelling, or clear the search to see everything.
                 </p>
               </>
             ) : (
               <>
-                <p className="text-md font-medium text-[#2E2D35]">{emptyTablePlaceholder}</p>
+                <p className="text-md font-medium text-[#2E2D35] dark:text-mcm-ink">{emptyTablePlaceholder}</p>
                 {descriptionEmptyTable ? (
-                  <p className="max-w-md text-sm text-[#2E2D35]">{descriptionEmptyTable}</p>
+                  <p className="max-w-md text-sm text-[#2E2D35] dark:text-mcm-ink">{descriptionEmptyTable}</p>
                 ) : null}
                 {emptyAction ? <div className="pt-2">{emptyAction}</div> : null}
               </>
@@ -809,7 +809,7 @@ function TableManager({
         >
           <div className="shrink-0 bg-[#faf5ee]">
             <Table
-              className="w-full text-xs xxl:text-sm text-[#2E2D35]"
+              className="w-full text-xs xxl:text-sm text-[#2E2D35] dark:text-mcm-ink"
               style={splitColGroup ? { tableLayout: 'fixed' } : undefined}
             >
               {splitColGroup}
@@ -874,7 +874,7 @@ function TableManager({
            showing through at the top corners. A sticky descendant can't
            escape an ancestor that isn't also the scroll container, so this
            clips reliably. */
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] overflow-hidden">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 overflow-hidden">
           {/* `rounded-xl` repeated here, matching the outer wrapper — a
               second, distinct Chromium quirk from the sticky-header one
               above: this div's own `overflow-auto` promotes it to a
@@ -885,7 +885,7 @@ function TableManager({
               content directly instead of relying on the parent to do it. */}
           <div
             ref={tableScrollRef}
-            className={`overflow-auto table-scroll rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+            className={`overflow-auto table-scroll rounded-xl bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] ${customClass}`}
             style={
               isHeightSet && showPagination ? { height: tableMaxHeight || `${tableHeight}px` } : {}
             }
@@ -900,7 +900,7 @@ function TableManager({
         // inner wrapper below is kept: it hugged its contents, so
         // `justify-between` had no slack and both groups bunched at the
         // left instead of the pager sitting out at the right corner.
-        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="z-10 flex w-full flex-col gap-2 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-2 py-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex w-full flex-col gap-2 sm:w-full sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2 font-semibold sm:gap-3">
               <div className="flex flex-wrap items-center gap-3 sm:divide-x sm:divide-[#EEE7DD]">
@@ -925,10 +925,10 @@ function TableManager({
                         menuPlacement="top"
                       />
                     </div>
-                    <Label className="text-[#2E2D35]/80 sm:pr-3">per page</Label>
+                    <Label className="text-[#2E2D35]/80 dark:text-mcm-ink/80 sm:pr-3">per page</Label>
                   </div>
                 )}
-                <Label className="text-[#2E2D35]/80 sm:pl-3">
+                <Label className="text-[#2E2D35]/80 dark:text-mcm-ink/80 sm:pl-3">
                   {/* Static mode has no fetch response to read a total off of —
                       tableData is already the caller's full (filtered) list in
                       that case, so its length IS the total. */}
@@ -940,7 +940,7 @@ function TableManager({
                 </Label>
               </div>
               <Button
-                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 hover:text-white rounded-full border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+                className="table-refresh-btn cursor-pointer text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:text-white rounded-full border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]"
                 type="button"
                 variant={'ghost'}
                 onClick={() => handleManualRefetch()}

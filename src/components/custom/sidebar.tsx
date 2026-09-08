@@ -227,8 +227,7 @@ const Sidebar = () => {
         id="mobile-sidebar-nav"
         className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 transition-transform duration-200 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0`}
-        style={{ background: '#fffaf4' }}
+        } md:translate-x-0 bg-[#fffaf4] dark:bg-mcm-surface dark:border-mcm-line`}
       >
         {/* This wrapper had no height, so the scroller's `h-full` below
             resolved against auto and never constrained anything — the views
@@ -267,7 +266,7 @@ const Sidebar = () => {
                 return (
                   <Fragment key={`${id}${index}`}>
                     {sep ? (
-                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200" />
+                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200 dark:bg-mcm-surface-3" />
                     ) : null}
                     <NavLink
                       to={isEnabled ? link || '#' : '#'}
@@ -298,15 +297,15 @@ const Sidebar = () => {
                         return `mcm-rail-item ${lit ? 'is-active' : ''} min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
                           lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
                         } hover:bg-ucass-active-bg hover:text-ucass-active ${
-                          !isEnabled ? 'text-gray-400' : 'text-gray-700'
+                          !isEnabled ? 'text-gray-400 dark:text-mcm-ink-3' : 'text-gray-700 dark:text-mcm-ink-2'
                         } ${!isEnabled ? 'cursor-not-allowed' : ''}`;
                       }}
                       // className={({ isActive }) =>
                       //   `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200 relative ${
                       //     activeLink || isActive
                       //       ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                      //       : 'bg-white text-gray-700'
-                      //   } hover:${activeLink || isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
+                      //       : 'bg-white dark:bg-mcm-surface text-gray-700 dark:text-mcm-ink-2'
+                      //   } hover:${activeLink || isActive ? 'text-gray-700 dark:text-mcm-ink-2 bg-primary' : 'text-primary'}`
                       // }
                     >
                       <div
@@ -363,8 +362,8 @@ const Sidebar = () => {
                       `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200  ${
                         link && isActive
                           ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                          : 'bg-white text-gray-700'
-                      } hover:${link && isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
+                          : 'bg-white dark:bg-mcm-surface text-gray-700 dark:text-mcm-ink-2'
+                      } hover:${link && isActive ? 'text-gray-700 dark:text-mcm-ink-2 bg-primary' : 'text-primary'}`
                     }
                   >
                     <div className="flex flex-col items-center justify-center gap-1">

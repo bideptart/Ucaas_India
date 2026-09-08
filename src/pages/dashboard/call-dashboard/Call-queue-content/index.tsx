@@ -108,7 +108,7 @@ const CallQueueContent = () => {
         <div className="relative w-full sm:max-w-sm">
           <Input
             placeholder="Search queues"
-            className="queue-search pl-10 w-full rounded-full border-[rgba(255,255,255,0.9)] bg-[#fffdfb] shadow-[0_2px_10px_rgba(80,105,155,0.1)] text-[#1A1A1A] placeholder:text-[#94a3b8] hover:border-primary/40 focus:border-primary/60"
+            className="queue-search pl-10 w-full rounded-full border-[rgba(255,255,255,0.9)] dark:border-mcm-line/90 bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_2px_10px_rgba(80,105,155,0.1)] text-[#1A1A1A] dark:text-mcm-ink placeholder:text-[#94a3b8] hover:border-primary/40 focus:border-primary/60"
             IconPosition="left-0 pl-3 inset-y-0"
             value={search}
             onChange={(e) => {
@@ -116,7 +116,7 @@ const CallQueueContent = () => {
               if (value.startsWith(' ')) return;
               setSearch(value);
             }}
-            Icon={<SearchLine className="text-[#64748b]" />}
+            Icon={<SearchLine className="text-[#64748b] dark:text-mcm-ink-3" />}
           />
           {isLoading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -134,15 +134,15 @@ const CallQueueContent = () => {
               leftover from a different design pass. */}
           {!isLoading && !isError && displayQueues?.length > 0 && (
             <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(249,115,22,0.18)] bg-[#FFF6EB] py-1.5 pl-1.5 pr-3.5 shadow-[0_2px_8px_rgba(160,95,30,0.08)]">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                 <Icon name="CallQueue" className="h-3.5 w-3.5 text-[#ea580c]" />
               </span>
-              <span className="text-xs font-semibold text-[#475569]">
+              <span className="text-xs font-semibold text-[#475569] dark:text-mcm-ink-2">
                 {/* `#ea580c` measured 3.33:1 here against the pill's cream
                     fill — short of the 4.5:1 small text needs; `#C2670A`, one
                     step darker, still only reached 3.6:1 at this weight and
                     size. `#a8460f` clears it (~5.3:1). */}
-                <span className="num font-bold text-[#a8460f]">{displayQueues.length}</span>{' '}
+                <span className="num font-bold text-[#a8460f] dark:text-mcm-accent-ink">{displayQueues.length}</span>{' '}
                 {displayQueues.length === 1 ? 'queue' : 'queues'}
               </span>
             </span>
@@ -168,7 +168,7 @@ const CallQueueContent = () => {
 
       <div className="w-full overflow-y-auto h-[calc(100vh-12.55rem)] pr-1">
         {isError ? (
-          <div className="w-full flex justify-center items-center py-10 text-[#6b6459]">
+          <div className="w-full flex justify-center items-center py-10 text-[#6b6459] dark:text-mcm-ink-3">
             Failed to load call queue data.
           </div>
         ) : isLoading ? null : displayQueues?.length ? (
@@ -178,10 +178,10 @@ const CallQueueContent = () => {
             ))}
           </div>
         ) : (
-          <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#6b6459]">
+          <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#6b6459] dark:text-mcm-ink-3">
             <img src={NotFound} alt="BusyImage" className="min-w-36  max-w-36" />
-            <p className="flex items-center justify-center text-[#2E2D35]">No call queue found.</p>
-            <p className="text-sm text-[#2E2D35]">Call queues assigned to you will appear here.</p>
+            <p className="flex items-center justify-center text-[#2E2D35] dark:text-mcm-ink">No call queue found.</p>
+            <p className="text-sm text-[#2E2D35] dark:text-mcm-ink">Call queues assigned to you will appear here.</p>
           </div>
         )}
       </div>

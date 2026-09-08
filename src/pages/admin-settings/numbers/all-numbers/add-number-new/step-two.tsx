@@ -58,55 +58,55 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
     <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto">
       <section className="flex w-full min-h-0 flex-col gap-4 overflow-y-auto pr-1 sm:pr-2">
         <div className="flex flex-col">
-          <h1 className="text-gray-900 font-semibold text-lg">Bill Details</h1>
-          <h6 className="text-gray-800 text-sm">Billing Details for Number Purchase</h6>
+          <h1 className="text-gray-900 dark:text-mcm-ink font-semibold text-lg">Bill Details</h1>
+          <h6 className="text-gray-800 dark:text-mcm-ink-2 text-sm">Billing Details for Number Purchase</h6>
         </div>
-        <div className="flex flex-col gap-4 border-b border-gray-200">
+        <div className="flex flex-col gap-4 border-b border-gray-200 dark:border-mcm-line">
           <div className="overflow-auto table-scroll">
-            <Table className="w-full text-sm text-gray-700 h-full border border-gray-200">
-              <TableHeader className="text-gray-900/80">
+            <Table className="w-full text-sm text-gray-700 dark:text-mcm-ink-2 h-full border border-gray-200 dark:border-mcm-line">
+              <TableHeader className="text-gray-900/80 dark:text-mcm-ink/80">
                 <TableRow>
                   <TableHead
-                    className={`px-4 py-2 border-b border-r border-gray-200 last-of-type:border-r-0 text-gray-900/80 font-semibold`}
+                    className={`px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line last-of-type:border-r-0 text-gray-900/80 dark:text-mcm-ink/80 font-semibold`}
                   >
                     Billing Period
                   </TableHead>
                   <TableHead
-                    className={`px-4 py-2 border-b border-r border-gray-200 last-of-type:border-r-0 text-gray-900/80 font-semibold`}
+                    className={`px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line last-of-type:border-r-0 text-gray-900/80 dark:text-mcm-ink/80 font-semibold`}
                   >
                     Number
                   </TableHead>
                   <TableHead
-                    className={`px-4 py-2 border-b border-r border-gray-200 last-of-type:border-r-0 text-gray-900/80 font-semibold`}
+                    className={`px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line last-of-type:border-r-0 text-gray-900/80 dark:text-mcm-ink/80 font-semibold`}
                   >
                     Type
                   </TableHead>
                   <TableHead
-                    className={`px-4 py-2 border-b border-r border-gray-200 last-of-type:border-r-0 text-gray-900/80 font-semibold`}
+                    className={`px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line last-of-type:border-r-0 text-gray-900/80 dark:text-mcm-ink/80 font-semibold`}
                   >
                     Amount
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="divide-y divide-gray-200 bg-white h-full w-full font-normal">
+              <TableBody className="divide-y divide-gray-200 bg-white dark:bg-mcm-surface h-full w-full font-normal">
                 {data?.virtualNumbers?.length > 0 ? (
                   data?.virtualNumbers?.map((item: any) => {
                     const { name, value } = item;
                     return (
                       <TableRow key={`${name}-${value}`}>
-                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                          <p className="font-medium text-gray-800">
+                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                          <p className="font-medium text-gray-800 dark:text-mcm-ink-2">
                             {moment().format('YYYY-MM-DD')} - {billingDetails?.plan_expiration_date}
                           </p>
                         </TableCell>
-                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                          <p className="font-medium text-gray-800">{name}</p>
+                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                          <p className="font-medium text-gray-800 dark:text-mcm-ink-2">{name}</p>
                         </TableCell>
-                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                          <p className="font-medium text-gray-800">{data?.numberType?.label}</p>
+                        <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                          <p className="font-medium text-gray-800 dark:text-mcm-ink-2">{data?.numberType?.label}</p>
                         </TableCell>
-                        <td className="bg-gray-100/10 border-b border-gray font-medium px-4 py-3 text-gray-900 text-left">
-                          <p className="font-medium text-gray-800">
+                        <td className="bg-gray-100/10 dark:bg-mcm-surface-3/10 border-b border-gray font-medium px-4 py-3 text-gray-900 dark:text-mcm-ink text-left">
+                          <p className="font-medium text-gray-800 dark:text-mcm-ink-2">
                             {formatMoney(billingDetails?.prorated_cost)}
                           </p>
                         </td>
@@ -115,21 +115,21 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                      <p className="font-medium text-gray-800">
+                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                      <p className="font-medium text-gray-800 dark:text-mcm-ink-2">
                         {moment().format('YYYY-MM-DD')} - {billingDetails?.plan_expiration_date}
                       </p>
                     </TableCell>
-                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                      <p className="font-medium text-gray-800">
+                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                      <p className="font-medium text-gray-800 dark:text-mcm-ink-2">
                         {data?.location?.label} ({data?.quantity?.value})
                       </p>
                     </TableCell>
-                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 text-left font-normal">
-                      <p className="font-medium text-gray-800">{data?.numberType?.label}</p>
+                    <TableCell className="px-4 py-2 border-b border-r border-gray-200 dark:border-mcm-line text-left font-normal">
+                      <p className="font-medium text-gray-800 dark:text-mcm-ink-2">{data?.numberType?.label}</p>
                     </TableCell>
-                    <td className="bg-gray-100/10 border-b border-gray font-medium px-4 py-3 text-gray-900 text-left">
-                      <p className="font-medium text-gray-800">
+                    <td className="bg-gray-100/10 dark:bg-mcm-surface-3/10 border-b border-gray font-medium px-4 py-3 text-gray-900 dark:text-mcm-ink text-left">
+                      <p className="font-medium text-gray-800 dark:text-mcm-ink-2">
                         {formatMoney(billingDetails?.prorated_cost)}
                       </p>
                     </td>
@@ -141,10 +141,10 @@ const StepTwo = ({ formInstance, billingDetails, setAmount }: any) => {
         </div>
         <div className="flex w-full justify-end gap-4 lg:w-1/2">
           <div className="w-full rounded-xl border border-grey-200 p-3">
-            <h5 className="font-semibold text-gray-900 truncate text-md border-b border-gray-200 pb-3">
+            <h5 className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-md border-b border-gray-200 dark:border-mcm-line pb-3">
               Order Summary
             </h5>
-            <ul className="flex flex-col gap-2 pt-3 text-sm text-gray-800">
+            <ul className="flex flex-col gap-2 pt-3 text-sm text-gray-800 dark:text-mcm-ink-2">
               <li className="flex items-center justify-between gap-2">
                 <span className="font-semibold">Monthly DID Cost:</span>{' '}
                 {formatMoney(

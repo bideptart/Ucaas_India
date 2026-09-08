@@ -130,26 +130,26 @@ const GreetingContent: FC = () => {
     {
       header: 'Size',
       accessorKey: 'size',
-      cell: ({ getValue }: any) => <div className="text-gray-600">{formatSize(getValue())}</div>,
+      cell: ({ getValue }: any) => <div className="text-gray-600 dark:text-mcm-ink-3">{formatSize(getValue())}</div>,
     },
     {
       header: 'Type',
       accessorKey: 'type',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600">{capitalizeFirstLetter(getValue())}</div>
+        <div className="text-gray-600 dark:text-mcm-ink-3">{capitalizeFirstLetter(getValue())}</div>
       ),
     },
     {
       header: 'Duration',
       accessorKey: 'duration',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600">{formatDuration(getValue())}</div>
+        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDuration(getValue())}</div>
       ),
     },
     {
       header: 'Created At',
       accessorKey: 'created_at',
-      cell: ({ getValue }: any) => <div className="text-gray-600">{formatDate(getValue())}</div>,
+      cell: ({ getValue }: any) => <div className="text-gray-600 dark:text-mcm-ink-3">{formatDate(getValue())}</div>,
     },
     {
       header: 'Action',
@@ -165,7 +165,7 @@ const GreetingContent: FC = () => {
             onClick: () => {
               handleOpenAudio(srcUrl);
             },
-            className: ' bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: ' bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
             tooltipText: 'Play',
             access: true,
           },
@@ -175,7 +175,7 @@ const GreetingContent: FC = () => {
               setGreetingData(data);
               setModalState({ isEdit: true });
             },
-            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
             tooltipText: 'Edit',
             access: !data?.is_default,
           },
@@ -199,7 +199,7 @@ const GreetingContent: FC = () => {
             {actions?.map((action, index) => (
               <CustomTooltip key={index} text={action.tooltipText} side="top">
                 <div
-                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 text-gray-900/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
+                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
                   onClick={() => {
                     if (action?.access) {
                       action.onClick();
@@ -208,7 +208,7 @@ const GreetingContent: FC = () => {
                 >
                   <Icon
                     name={action.icon as IconName}
-                    className={`w-5 h-5 ${action?.access ? '' : 'text-gray-400'}`}
+                    className={`w-5 h-5 ${action?.access ? '' : 'text-gray-400 dark:text-mcm-ink-3'}`}
                   />
                 </div>
               </CustomTooltip>
@@ -239,7 +239,7 @@ const GreetingContent: FC = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700" />}
+            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
           />
           {greetingAccess?.add && !drawerState && (
             <Button

@@ -15,36 +15,36 @@ const PaymentAndConfirmation = ({ formInstance }: { formInstance: UseFormReturn<
         <h3 className="text-shadow-gray-900 flex items-center gap-1.5 font-medium ">
           Payment and Confirmation
         </h3>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 dark:text-mcm-ink-3 text-sm">
           All campaigns have a 3 month minimum commitment. This means that we bill monthly, for a
           minimum of 3 months. At the end of the initial 3 month period, campaigns renew on a
           month-to-month basis.
         </p>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 dark:text-mcm-ink-3 text-sm">
           You will initially be charged up to {formatMoney(20)} once you've submitted your
           application. This is non-refundable.
         </p>
       </div>
       <div className="w-full flex flex-col gap-3 mb-4 mt-2">
         <div className="grid w-full gap-2 sm:grid-cols-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Item</div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Price</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">Item</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">Price</div>
         </div>
         <div className="grid w-full gap-2 sm:grid-cols-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">
             Application fee
           </div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">
             {formatMoney(20)} upfront one-off
           </div>
         </div>
         {/* <div className="w-full flex  gap-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Campaign - first 3 months once</div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">$30.00 upfront one-off</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">Campaign - first 3 months once</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">$30.00 upfront one-off</div>
         </div>
         <div className="w-full flex  gap-2">
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">Campaign - recurring fee after first 3 months</div>
-          <div className="w-full pb-2 border-b border-gray-200 text-sm text-gray-900">$10.00 per month</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">Campaign - recurring fee after first 3 months</div>
+          <div className="w-full pb-2 border-b border-gray-200 dark:border-mcm-line text-sm text-gray-900 dark:text-mcm-ink">$10.00 per month</div>
         </div> */}
       </div>
       <div className="flex items-start gap-2 sm:items-center">

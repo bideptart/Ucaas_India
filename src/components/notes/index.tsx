@@ -309,8 +309,8 @@ const NotesWidget = ({
 
   if (!readOnly && isLoading) {
     return (
-      <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl overflow-hidden flex-1 flex min-h-0">
-        <div className="w-full h-full bg-ucass-active-bg flex items-center justify-center text-[#2E2D35] p-4 text-center">
+      <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-xl overflow-hidden flex-1 flex min-h-0">
+        <div className="w-full h-full bg-ucass-active-bg flex items-center justify-center text-[#2E2D35] dark:text-mcm-ink p-4 text-center">
           <Loader variant="blue" size="sm" />
         </div>
       </div>
@@ -319,25 +319,25 @@ const NotesWidget = ({
 
   return (
     <section
-      className={`w-full flex flex-col overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] ${customClass}`}
+      className={`w-full flex flex-col overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] ${customClass}`}
     >
       {!hideHeader && (
-        <header className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] bg-ucass-active-bg px-4 py-3">
+        <header className="flex items-center justify-between gap-3 border-b border-[#EEE7DD] dark:border-mcm-line bg-ucass-active-bg px-4 py-3">
           <div className="flex flex-col">
-            <h3 className="text-sm font-semibold text-[#2E2D35]">Notes</h3>
+            <h3 className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Notes</h3>
           </div>
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-[#2E2D35]">
+          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-[#2E2D35] dark:text-mcm-ink">
             {renderedNotes?.length || 0} {renderedNotes?.length === 1 ? 'note' : 'notes'}
           </span>
         </header>
       )}
 
-      <div className="w-full min-h-0 flex-1 overflow-y-auto bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3" ref={scrollNoteRef}>
+      <div className="w-full min-h-0 flex-1 overflow-y-auto bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-3" ref={scrollNoteRef}>
         {renderedNotes && renderedNotes?.length ? (
           <ul className="w-full flex flex-col gap-3">
             {renderedNotes?.map((item: any, index: number) => (
               <li
-                className="w-full rounded-xl border border-[#EEE7DD] bg-ucass-active-bg p-3"
+                className="w-full rounded-xl border border-[#EEE7DD] dark:border-mcm-line bg-ucass-active-bg p-3"
                 key={item?._id || item?.createdAt || `${index}-${item?.name || 'note'}`}
               >
                 <div className="flex w-full items-start justify-between gap-3">
@@ -351,10 +351,10 @@ const NotesWidget = ({
                         .join('')}
                     </span>
                     <div className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-[#2E2D35]">
+                      <span className="block truncate text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">
                         {item?.name || 'Unknown User'}
                       </span>
-                      <small className="text-xs font-medium text-[#9A948F]">
+                      <small className="text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3">
                         {convertDateFormateApis(item?.createdAt, 'MMM DD, hh:mm A')}
                       </small>
                     </div>
@@ -365,17 +365,17 @@ const NotesWidget = ({
                     </span>
                   )}
                 </div>
-                <p className="mt-2 whitespace-pre-wrap break-words border-l-2 border-primary/40 pl-2 text-sm leading-6 text-[#2E2D35]">
+                <p className="mt-2 whitespace-pre-wrap break-words border-l-2 border-primary/40 pl-2 text-sm leading-6 text-[#2E2D35] dark:text-mcm-ink">
                   {item?.note}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[#EEE7DD] bg-ucass-active-bg px-4">
+          <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[#EEE7DD] dark:border-mcm-line bg-ucass-active-bg px-4">
             <div className="text-center">
-              <p className="text-sm font-semibold text-[#2E2D35]">No notes yet</p>
-              <p className="mt-1 text-xs text-[#9A948F]">
+              <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">No notes yet</p>
+              <p className="mt-1 text-xs text-[#9A948F] dark:text-mcm-ink-3">
                 Capture call highlights and follow-ups here.
               </p>
             </div>
@@ -384,11 +384,11 @@ const NotesWidget = ({
       </div>
 
       {!readOnly && (
-        <footer className="border-t border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-3">
+        <footer className="border-t border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-3">
           <div className="flex items-center gap-2">
-            <div className="w-full rounded-xl border border-[#EEE7DD] bg-ucass-active-bg px-3 py-2">
+            <div className="w-full rounded-xl border border-[#EEE7DD] dark:border-mcm-line bg-ucass-active-bg px-3 py-2">
               <textarea
-                className="w-full min-h-[36px] max-h-[96px] resize-none border-0 bg-transparent text-sm leading-6 text-[#2E2D35] placeholder:text-[#9A948F] focus:outline-none"
+                className="w-full min-h-[36px] max-h-[96px] resize-none border-0 bg-transparent text-sm leading-6 text-[#2E2D35] dark:text-mcm-ink placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 focus:outline-none"
                 value={note}
                 placeholder="Write a note..."
                 onChange={(e) => setNote(e.target.value)}
@@ -398,7 +398,7 @@ const NotesWidget = ({
               type="button"
               disabled={!canSubmit}
               onClick={handleNoteSave}
-              className={`${canSubmit ? 'cursor-pointer bg-primary text-white' : 'cursor-not-allowed bg-[#F0DFC5] text-[#9A948F]'} inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-transparent`}
+              className={`${canSubmit ? 'cursor-pointer bg-primary text-white' : 'cursor-not-allowed bg-[#F0DFC5] dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3'} inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-transparent`}
             >
               <Send className="h-4 w-4" />
             </button>

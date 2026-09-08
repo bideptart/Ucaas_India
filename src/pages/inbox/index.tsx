@@ -388,7 +388,7 @@ const MMSAttachmentPreview = ({
             disabled={isLoadingAudio || !audioUrl}
             className={cn(
               'min-w-9 max-h-9 max-w-9 min-h-9 rounded-full flex justify-center items-center transition-colors shrink-0 hover:opacity-90',
-              isMine ? 'bg-white text-[var(--mcm-accent)]' : 'bg-[var(--mcm-accent)] text-white',
+              isMine ? 'bg-white dark:bg-mcm-surface text-[var(--mcm-accent)]' : 'bg-[var(--mcm-accent)] text-white',
               isLoadingAudio || !audioUrl ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
             )}
           >
@@ -452,7 +452,7 @@ const MMSAttachmentPreview = ({
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                isMine ? 'bg-white' : 'bg-primary',
+                isMine ? 'bg-white dark:bg-mcm-surface' : 'bg-primary',
               )}
               style={{ width: `${progressPercent}%` }}
             />
@@ -489,11 +489,11 @@ const MMSAttachmentPreview = ({
       >
         <div className="w-64 max-w-full h-40 rounded-lg overflow-hidden flex items-center justify-center bg-black/5 relative">
           {isLoadingImage ? (
-            <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+            <Loader2 className="w-4 h-4 animate-spin text-gray-500 dark:text-mcm-ink-3" />
           ) : imageUrl ? (
             <img src={imageUrl} alt={fileName} className="w-full h-full object-contain" />
           ) : (
-            <div className="w-full h-full bg-gray-100 text-gray-500 flex items-center justify-center rounded-lg text-xs">
+            <div className="w-full h-full bg-gray-100 dark:bg-mcm-surface-3 text-gray-500 dark:text-mcm-ink-3 flex items-center justify-center rounded-lg text-xs">
               Unable to load image
             </div>
           )}
@@ -557,7 +557,7 @@ const MMSAttachmentPreview = ({
       >
         <div className="w-64 max-w-full h-40 rounded-lg overflow-hidden flex items-center justify-center bg-black/5 relative">
           {isLoadingVideo ? (
-            <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+            <Loader2 className="w-4 h-4 animate-spin text-gray-500 dark:text-mcm-ink-3" />
           ) : videoUrl ? (
             <video
               src={videoUrl}
@@ -568,7 +568,7 @@ const MMSAttachmentPreview = ({
               preload="metadata"
             />
           ) : (
-            <div className="w-full h-full bg-gray-100 text-gray-500 flex items-center justify-center rounded-lg text-xs">
+            <div className="w-full h-full bg-gray-100 dark:bg-mcm-surface-3 text-gray-500 dark:text-mcm-ink-3 flex items-center justify-center rounded-lg text-xs">
               Unable to load video
             </div>
           )}
@@ -635,7 +635,7 @@ const MMSAttachmentPreview = ({
       <div
         className={cn(
           'min-w-9 max-h-9 max-w-9 min-h-9 rounded-[9px] flex justify-center items-center overflow-hidden',
-          isMine ? 'bg-white/20 text-white' : 'bg-[var(--mcm-surface-3)] text-[var(--mcm-ink-3)]',
+          isMine ? 'bg-white/20 dark:bg-mcm-surface/20 text-white' : 'bg-[var(--mcm-surface-3)] text-[var(--mcm-ink-3)]',
         )}
       >
         <FileText className="size-4" />
@@ -1544,7 +1544,7 @@ const InboxContent = ({
                         ref={emojiContainerRef}
                       >
                         <EmojiPicker
-                          className="border-gray-200"
+                          className="border-gray-200 dark:border-mcm-line"
                           lazyLoadEmojis
                           open={emojiOpen}
                           onEmojiClick={(data) => {
@@ -1869,10 +1869,10 @@ const Inbox = () => {
   };
 
   return (
-    <div className="mcm-inbox w-full h-full min-h-0 flex overflow-hidden bg-white">
+    <div className="mcm-inbox w-full h-full min-h-0 flex overflow-hidden bg-white dark:bg-mcm-surface">
       <section
         className={cn(
-          'h-full min-h-0 bg-white',
+          'h-full min-h-0 bg-white dark:bg-mcm-surface',
           isCompactLayout
             ? hasActiveConversation
               ? 'hidden'
@@ -1912,7 +1912,7 @@ const Inbox = () => {
                             openSendModal();
                           }}
                         >
-                          <PlainLine className="text-gray-900 w-8 h-8" /> Send New Message
+                          <PlainLine className="text-gray-900 dark:text-mcm-ink w-8 h-8" /> Send New Message
                         </DropdownMenuItem>
                       ) : null}
                       {messagesAccess?.send_fax ? (
@@ -1924,7 +1924,7 @@ const Inbox = () => {
                             setShowSendFaxModal(true);
                           }}
                         >
-                          <FileText className="ml-1 mr-2 h-6 w-6 text-gray-900" /> Send New Fax
+                          <FileText className="ml-1 mr-2 h-6 w-6 text-gray-900 dark:text-mcm-ink" /> Send New Fax
                         </DropdownMenuItem>
                       ) : null}
                     </DropdownMenuContent>
@@ -1957,7 +1957,7 @@ const Inbox = () => {
       </section>
       <section
         className={cn(
-          'h-full min-h-0 w-full min-w-0 flex-1 bg-white',
+          'h-full min-h-0 w-full min-w-0 flex-1 bg-white dark:bg-mcm-surface',
           isCompactLayout ? (hasActiveConversation ? 'block' : 'hidden') : 'block',
         )}
       >

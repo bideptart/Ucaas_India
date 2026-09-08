@@ -382,14 +382,14 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
             // two-line card.
             <div
               ref={rangePanelRef}
-              className="mcm-date-range-bar absolute right-0 top-full z-50 mt-2 flex w-fit flex-row flex-nowrap items-center gap-2 whitespace-nowrap rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[#fdfbf8] px-2.5 py-2 shadow-lg"
+              className="mcm-date-range-bar absolute right-0 top-full z-50 mt-2 flex w-fit flex-row flex-nowrap items-center gap-2 whitespace-nowrap rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fdfbf8] px-2.5 py-2 shadow-lg"
             >
               <div className="mcm-date-field w-[120px] flex-none">{fromPicker}</div>
               <div className="mcm-date-field w-[120px] flex-none">{toPicker}</div>
               <button
                 type="button"
                 title="Clear"
-                className="mcm-date-clear-btn flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary"
+                className="mcm-date-clear-btn flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white text-[#9A948F] dark:text-mcm-ink-3 transition-colors hover:border-primary hover:text-primary"
                 onClick={() => setDateRange((prev: any) => ({ ...prev, from: '', to: '' }))}
               >
                 <Icon name="CloseIcon" className="h-3.5 w-3.5" />
@@ -420,7 +420,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                 <button
                   type="button"
                   title="Clear"
-                  className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary"
+                  className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white text-[#9A948F] dark:text-mcm-ink-3 transition-colors hover:border-primary hover:text-primary"
                   onClick={() => setDateRange((prev: any) => ({ ...prev, from: '', to: '' }))}
                 >
                   <Icon name="CloseIcon" className="h-3.5 w-3.5" />
@@ -449,7 +449,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: date,
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showMonthDropdown
                 showYearDropdown
                 peekNextMonth
@@ -473,7 +473,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: newEndTime,
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showTimeSelect
                 showTimeSelectOnly
                 timeFormat="HH:mm"
@@ -490,7 +490,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: moment(time).format('HH:mm'),
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showTimeSelect
                 showTimeSelectOnly
                 timeFormat="HH:mm"

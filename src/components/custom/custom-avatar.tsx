@@ -238,9 +238,8 @@ const CustomAvatar = ({
           width: `${size}px`,
           minWidth: `${size}px`,
           height: `${size}px`,
-          background: '#FFFFFF',
         }}
-        className={`rounded-full border border-white relative cursor-pointer`}
+        className={`rounded-full border border-white dark:border-mcm-line bg-white dark:bg-mcm-surface-3 relative cursor-pointer`}
         onClick={(e) => {
           if (image && mediaUrl && !hasImageError) {
             e.stopPropagation();

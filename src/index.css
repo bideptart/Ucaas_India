@@ -413,6 +413,31 @@
     overflow: auto !important;
   }
 
+  /* The control's white fill and grey border above are `!important`, so every
+     custom react-select kept a bright white input box in dark mode -- the
+     value text was already being fixed further down, but the box behind it
+     stayed lit. Menu and option surfaces get the same treatment so the
+     dropdown that opens from it matches. */
+  .dark .custom-react-select__control {
+    background-color: var(--mcm-surface-2) !important;
+    border-color: var(--mcm-line) !important;
+  }
+
+  .dark .custom-react-select__menu,
+  .dark .custom-react-select__menu-list {
+    background-color: var(--mcm-surface-2) !important;
+    border-color: var(--mcm-line) !important;
+  }
+
+  .dark .custom-react-select__option {
+    background-color: transparent !important;
+    color: var(--mcm-ink) !important;
+  }
+
+  .dark .custom-react-select__option--is-focused {
+    background-color: var(--mcm-surface-3) !important;
+  }
+
   .filters .custom-react-select__control {
     height: 36px !important;
     border-radius: 10px !important;
@@ -661,6 +686,12 @@
     color: var(--color-gray-900) !important;
   }
 
+  .dark .select-group__indicator,
+  .dark .select-group__single-value,
+  .dark .select-group__multi-value__label {
+    color: var(--mcm-ink) !important;
+  }
+
   .select-group__placeholder {
     color: var(--color-gray-700) !important;
     margin: 0 !important;
@@ -786,6 +817,21 @@
   .custom-react-select__placeholder {
     color: var(--color-gray-700) !important;
     margin: 0 !important;
+  }
+
+  /* The two rules above pin every custom react-select's text to a near-black
+     grey with `!important`, so in dark mode the chosen value ("Today" on the
+     Performance toolbar, and the same control everywhere else it is used)
+     rendered black-on-dark and read as an empty box. Matching `!important` is
+     what it takes to override them. */
+  .dark .custom-react-select__indicator,
+  .dark .custom-react-select__single-value,
+  .dark .custom-react-select__multi-value__label {
+    color: var(--mcm-ink) !important;
+  }
+
+  .dark .custom-react-select__placeholder {
+    color: var(--mcm-ink-3) !important;
   }
 
   .custom-react-select__multi-value {
@@ -1012,6 +1058,10 @@
     font-variant-numeric: tabular-nums !important;
     font-size: 15px !important;
     color: var(--color-gray-900) !important;
+  }
+
+  .dark .mcm-time-select.custom-react-select__single-value {
+    color: var(--mcm-ink) !important;
   }
 
   .epr-search-container input {

@@ -106,7 +106,7 @@ const PanelMessage = ({
   <div className="mx-auto flex h-full w-full flex-col items-center justify-center gap-1.5 px-4 py-5">
     <img src={NotFound} alt="" aria-hidden className="w-20 min-w-20 opacity-90" />
     <p className="text-center text-sm font-semibold text-mcm-ink">{title}</p>
-    <p className="max-w-[18rem] text-center text-xs text-[#64748b]">{description}</p>
+    <p className="max-w-[18rem] text-center text-xs text-[#64748b] dark:text-mcm-ink-3">{description}</p>
     {action}
   </div>
 );
@@ -127,7 +127,7 @@ const PillButton = ({
     type="button"
     data-slot="button"
     onClick={onClick}
-    className="cursor-pointer mt-1 inline-flex items-center gap-1.5 rounded-full border border-mcm-accent-edge bg-mcm-accent-wash px-3 py-1.5 text-xs font-semibold text-[#a8460f] transition-colors hover:bg-mcm-accent hover:text-white"
+    className="cursor-pointer mt-1 inline-flex items-center gap-1.5 rounded-full border border-mcm-accent-edge bg-mcm-accent-wash px-3 py-1.5 text-xs font-semibold text-[#a8460f] dark:text-mcm-accent-ink transition-colors hover:bg-mcm-accent hover:text-white"
   >
     {icon}
     {children}
@@ -304,7 +304,7 @@ const StatTile = ({
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-mcm-live" />
           </span>
         )}
-        <p className="truncate text-[11px] font-medium uppercase tracking-wide text-[#64748b]">
+        <p className="truncate text-[11px] font-medium uppercase tracking-wide text-[#64748b] dark:text-mcm-ink-3">
           {label}
         </p>
       </div>
@@ -314,7 +314,7 @@ const StatTile = ({
           ("Nothing in progress") rather than a decorative glyph. Locally
           scoped so the many icon/placeholder uses of `text-mcm-ink-4`
           elsewhere on this same page are untouched. */}
-      <p className="truncate text-[11px] text-[#475569]" title={hint || ''}>
+      <p className="truncate text-[11px] text-[#475569] dark:text-mcm-ink-2" title={hint || ''}>
         {hint || ' '}
       </p>
     </div>
@@ -741,7 +741,7 @@ const VideoDashboard = ({
               <p className="text-sm font-semibold leading-none">{formattedDate?.day || ''}</p>
               {/* `#64748b` measured 4.1:1 here — just under the 4.5:1 small
                   text needs against this chip's own fill. One step darker. */}
-              <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#475569]">
+              <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                 {formattedDate?.month || ''}
               </p>
             </div>
@@ -765,12 +765,12 @@ const VideoDashboard = ({
                 </span>
                 {listType === 'invited' && (
                   <CustomTooltip text={`Invited by: ${meeting?.hostName || 'Person'}`} side="top">
-                    <UserPlus className="h-3.5 w-3.5 shrink-0 text-[#64748b]" />
+                    <UserPlus className="h-3.5 w-3.5 shrink-0 text-[#64748b] dark:text-mcm-ink-3" />
                   </CustomTooltip>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <p className="flex items-center gap-1 text-xs text-[#64748b]">
+                <p className="flex items-center gap-1 text-xs text-[#64748b] dark:text-mcm-ink-3">
                   <Icon name="TimerIcon" className="h-3.5 w-3.5" />
                   <span>{getAbbreviationByTimeZone(meeting?.timezone)}</span>
                   {formatTime(meeting?.startTimeLocal)} - {formatTime(meeting?.endTimeLocal) || ''}
@@ -784,7 +784,7 @@ const VideoDashboard = ({
                     data-slot="button"
                     disabled={!inviteeTotal}
                     aria-label={`${inviteeTotal} invitees`}
-                    className="cursor-pointer flex items-center gap-1 rounded-md px-1 text-xs text-[#64748b] transition-colors enabled:hover:text-mcm-accent-ink disabled:cursor-default"
+                    className="cursor-pointer flex items-center gap-1 rounded-md px-1 text-xs text-[#64748b] dark:text-mcm-ink-3 transition-colors enabled:hover:text-mcm-accent-ink disabled:cursor-default"
                     onClick={() => {
                       if (!inviteeTotal) return;
                       setModalState((prev) => ({ ...prev, meetingInvites: true }));
@@ -802,7 +802,7 @@ const VideoDashboard = ({
                       data-slot="button"
                       disabled={!attendeeTotal}
                       aria-label={`${attendeeTotal} attendees joined`}
-                      className="cursor-pointer flex items-center gap-1 rounded-md px-1 text-xs text-[#64748b] transition-colors enabled:hover:text-mcm-accent-ink disabled:cursor-default"
+                      className="cursor-pointer flex items-center gap-1 rounded-md px-1 text-xs text-[#64748b] dark:text-mcm-ink-3 transition-colors enabled:hover:text-mcm-accent-ink disabled:cursor-default"
                       onClick={() => {
                         if (!attendeeTotal) return;
                         setModalState((prev) => ({ ...prev, meetingAttendee: true }));
@@ -874,7 +874,7 @@ const VideoDashboard = ({
                   type="button"
                   data-slot="button"
                   aria-label="Meeting details"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-mcm-surface-3 text-[#64748b] transition-colors hover:bg-mcm-accent-wash hover:text-mcm-accent-ink"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-mcm-surface-3 text-[#64748b] dark:text-mcm-ink-3 transition-colors hover:bg-mcm-accent-wash hover:text-mcm-accent-ink"
                   onClick={() => {
                     setModalState((prev) => ({
                       ...prev,
@@ -987,7 +987,7 @@ const VideoDashboard = ({
                     : totalCount}
               </span>
             </div>
-            <p className="truncate text-xs text-[#64748b]">{description}</p>
+            <p className="truncate text-xs text-[#64748b] dark:text-mcm-ink-3">{description}</p>
           </div>
           {/* `text-mcm-accent-ink` (#c96f1f) measured 3.64:1 for this link's
               text — under the 4.5:1 small text needs even against a plain
@@ -995,7 +995,7 @@ const VideoDashboard = ({
               the shared token. */}
           <Link
             to={viewAllTo}
-            className="shrink-0 rounded-full px-2 py-1 text-xs font-semibold text-[#a8460f] transition-colors hover:bg-mcm-accent-wash"
+            className="shrink-0 rounded-full px-2 py-1 text-xs font-semibold text-[#a8460f] dark:text-mcm-accent-ink transition-colors hover:bg-mcm-accent-wash"
           >
             View all
           </Link>
@@ -1093,7 +1093,7 @@ const VideoDashboard = ({
                 <span className="truncate text-xs font-semibold text-mcm-ink sm:text-sm">
                   {tile.title}
                 </span>
-                <span className="hidden truncate text-xs text-[#64748b] sm:block">
+                <span className="hidden truncate text-xs text-[#64748b] dark:text-mcm-ink-3 sm:block">
                   {tile.description}
                 </span>
               </span>
@@ -1143,7 +1143,7 @@ const VideoDashboard = ({
           <div className="flex items-center gap-2">
             {/* Same fix as the KPI hint above: `text-mcm-ink-4` measured
                 2.64:1 for this timestamp sentence. */}
-            <span className="hidden text-[11px] text-[#475569] sm:block">
+            <span className="hidden text-[11px] text-[#475569] dark:text-mcm-ink-2 sm:block">
               {lastUpdatedAt ? `Updated ${moment(lastUpdatedAt).format('HH:mm')}` : 'Not loaded yet'}
             </span>
             <button
@@ -1194,7 +1194,7 @@ const VideoDashboard = ({
                       >
                         {meeting?.name || 'Meeting'}
                       </p>
-                      <p className="truncate text-[11px] text-[#64748b]">
+                      <p className="truncate text-[11px] text-[#64748b] dark:text-mcm-ink-3">
                         Started {moment(meeting?.startTimeLocal).from(moment(now))} ·{' '}
                         {joined} joined
                       </p>
@@ -1233,13 +1233,13 @@ const VideoDashboard = ({
             <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="text-base font-semibold text-mcm-ink">Meeting volume</h2>
-                <p className="text-xs text-[#64748b]">
+                <p className="text-xs text-[#64748b] dark:text-mcm-ink-3">
                   Summary returned for the date range selected above
                 </p>
               </div>
               {/* `text-mcm-accent-ink` measured 3.27:1 against this badge's
                   own `bg-mcm-accent-wash` fill. */}
-              <span className="rounded-full border border-mcm-accent-edge bg-mcm-accent-wash px-3 py-1 text-xs font-semibold text-[#a8460f]">
+              <span className="rounded-full border border-mcm-accent-edge bg-mcm-accent-wash px-3 py-1 text-xs font-semibold text-[#a8460f] dark:text-mcm-accent-ink">
                 {rangeLabel}
               </span>
             </div>
@@ -1355,10 +1355,10 @@ const VideoDashboard = ({
       >
         <DialogContent className="flex w-[96vw] flex-col gap-0 rounded-2xl p-0 sm:max-w-[650px] max-h-[85vh] overflow-y-auto">
           <DialogHeader className="px-6 pt-6 pb-1 text-left">
-            <DialogTitle className="text-xl font-extrabold text-[#2E2D35]">
+            <DialogTitle className="text-xl font-extrabold text-[#2E2D35] dark:text-mcm-ink">
               {selectedMeeting ? 'Update Meeting' : 'Schedule New Meeting'}
             </DialogTitle>
-            <DialogDescription className="mt-1 text-xs text-[#6b6459]">
+            <DialogDescription className="mt-1 text-xs text-[#6b6459] dark:text-mcm-ink-3">
               Set up a video call with your team or clients
             </DialogDescription>
           </DialogHeader>

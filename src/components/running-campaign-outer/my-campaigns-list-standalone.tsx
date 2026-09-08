@@ -602,10 +602,10 @@ const MyCampaignListStandalone = () => {
           matter because without them none of the console's shared rules
           reach this route at all. */}
       <section className="mcm-page mcm-admin w-full flex flex-col overflow-x-auto overflow-y-hidden h-full">
-        <div className="flex items-center justify-between p-4 border-b border-[rgba(225,200,165,0.9)] min-h-[68px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
+        <div className="flex items-center justify-between p-4 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 min-h-[68px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]">
           <div className="flex flex-col">
-            <p className="text-[#2E2D35] font-semibold text-lg leading-tight">Campaign Workspace</p>
-            <p className="text-xs text-[#9A948F]">
+            <p className="text-[#2E2D35] dark:text-mcm-ink font-semibold text-lg leading-tight">Campaign Workspace</p>
+            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
               Running campaigns with quick join and assigned queues.
             </p>
           </div>
@@ -619,7 +619,7 @@ const MyCampaignListStandalone = () => {
               Those classes shade each nested layer from the page's own
               backdrop instead, and the tab buttons below already depend on
               them. */}
-          <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] w-full rounded-2xl border border-[rgba(225,200,165,0.9)] h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
+          <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] w-full rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
             <div className="mcm-tabstrip w-full">
               <div className="sm:px-3 sm:pt-3 sm:pb-2 flex-col sm:flex items-center justify-between gap-3 w-full ">
                 <div className="mcm-tabstrip-rail inline-flex items-center sm:rounded-xl p-1 gap-1 w-full">
@@ -952,9 +952,9 @@ const MyCampaignListStandalone = () => {
                       })}
                     </div>
                   ) : (
-                    <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F]">
+                    <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
                       <img src={NotFound} alt="BusyImage" className="min-w-36 max-w-36" />
-                      <p className="text-[#2E2D35] text-sm whitespace-normal text-center">
+                      <p className="text-[#2E2D35] dark:text-mcm-ink text-sm whitespace-normal text-center">
                         No campaigns found
                       </p>
                     </div>
@@ -973,7 +973,7 @@ const MyCampaignListStandalone = () => {
                         if (value.startsWith(' ')) return;
                         setQueueSearch(value);
                       }}
-                      Icon={<SearchLine className="text-[#2E2D35]" />}
+                      Icon={<SearchLine className="text-[#2E2D35] dark:text-mcm-ink" />}
                     />
                     {isQueueLoading && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -984,12 +984,12 @@ const MyCampaignListStandalone = () => {
 
                   <div className="w-full flex-1 overflow-y-auto pr-1">
                     {isQueueError ? (
-                      <div className="w-full flex justify-center items-center py-10 text-[#9A948F]">
+                      <div className="w-full flex justify-center items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
                         Failed to load call queue data.
                       </div>
                     ) : isQueueLoading ? null : callQueueData?.length ? (
                       <>
-                        <p className="text-xs font-medium text-[#9A948F] mb-2">
+                        <p className="text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 mb-2">
                           {callQueueData.length} {callQueueData.length === 1 ? 'queue' : 'queues'}{' '}
                           assigned to you
                         </p>
@@ -1002,12 +1002,12 @@ const MyCampaignListStandalone = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F]">
+                      <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
                         <img src={NotFound} alt="BusyImage" className="min-w-36 max-w-36" />
-                        <p className="flex items-center justify-center text-[#2E2D35]">
+                        <p className="flex items-center justify-center text-[#2E2D35] dark:text-mcm-ink">
                           No call queue found.
                         </p>
-                        <p className="text-sm text-[#2E2D35]">
+                        <p className="text-sm text-[#2E2D35] dark:text-mcm-ink">
                           Call queues assigned to you will appear here.
                         </p>
                       </div>
@@ -1028,18 +1028,18 @@ const MyCampaignListStandalone = () => {
         }}
       >
         <DialogContent
-          className="w-[calc(100vw-2rem)] max-w-[520px] gap-0 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-0 shadow-2xl"
+          className="w-[calc(100vw-2rem)] max-w-[520px] gap-0 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-0 shadow-2xl"
           showCloseButton={false}
         >
           <div className="w-full px-5 py-4 sm:px-7 sm:py-6">
-            <div className="flex items-center justify-between gap-4 border-b border-[#EEE7DD] pb-4">
-              <h3 className="text-lg font-semibold text-[#2E2D35] sm:text-xl">
+            <div className="flex items-center justify-between gap-4 border-b border-[#EEE7DD] dark:border-mcm-line pb-4">
+              <h3 className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink sm:text-xl">
                 Microphone Permission Required
               </h3>
               <button
                 type="button"
                 aria-label="Close microphone permission dialog"
-                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#9A948F] transition hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35]"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#9A948F] dark:text-mcm-ink-3 transition hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
                 onClick={() => {
                   setMicPermissionDialogOpen(false);
                   setPendingCampaign(null);
@@ -1054,7 +1054,7 @@ const MyCampaignListStandalone = () => {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ucass-active-bg text-primary">
                   <Mic className="h-5 w-5" />
                 </span>
-                <p className="text-sm font-semibold leading-6 text-[#2E2D35] sm:text-base">
+                <p className="text-sm font-semibold leading-6 text-[#2E2D35] dark:text-mcm-ink sm:text-base">
                   Campaign calling needs microphone access before it can start.
                 </p>
               </div>
@@ -1063,7 +1063,7 @@ const MyCampaignListStandalone = () => {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                   <Info className="h-5 w-5" />
                 </span>
-                <p className="text-sm font-semibold leading-6 text-[#2E2D35] sm:text-base">
+                <p className="text-sm font-semibold leading-6 text-[#2E2D35] dark:text-mcm-ink sm:text-base">
                   {micPermissionState === 'denied'
                     ? 'Microphone permission is blocked in browser site settings. Please allow microphone for this site, then continue.'
                     : 'Click Allow Microphone and accept the browser permission prompt to continue.'}

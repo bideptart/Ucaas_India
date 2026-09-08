@@ -262,3 +262,57 @@
   border-radius: 4px;
   border: 1px solid rgba(225, 200, 165, 0.6);
 }
+
+/* ---- dark mode ----
+   The rules above hardcode the warm light palette, so nothing here reacted to
+   the `.dark` class and the Call Volume report stayed light while the rest of
+   the app went dark. These overrides re-point the shells, text and hairlines
+   at the same dark token values `index.css` defines (--mcm-surface / -ink /
+   -line), and leave the orange heat levels alone: those encode the data, so
+   they must keep reading as one continuous ramp in both themes. Only level 0
+   ("no calls") changes, since a near-white cell is the one step that would
+   glare against a dark grid. */
+.dark .cv-insight {
+  border-color: var(--mcm-accent-edge, #4a341c);
+  background: var(--mcm-accent-wash, #2b1f12);
+  color: var(--mcm-ink-2, #c3cddf);
+}
+.dark .cv-insight strong { color: var(--mcm-accent-ink, #ffc98a); }
+.dark .cv-grid-scroll { border-color: var(--mcm-line, #26314a); }
+.dark .cv-grid-scroll::-webkit-scrollbar-thumb { background: rgba(255, 171, 94, 0.35); }
+.dark .cv-grid-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 171, 94, 0.55); }
+.dark .cv-grid { background: var(--mcm-surface, #111827); }
+.dark .cv-corner,
+.dark .cv-day-head {
+  background: var(--mcm-surface-2, #161f31);
+  border-bottom-color: rgba(255, 171, 94, 0.4);
+  border-left-color: var(--mcm-line, #26314a);
+}
+.dark .cv-corner { color: var(--mcm-ink-3, #93a1ba); }
+.dark .cv-day-name { color: var(--mcm-ink, #eef2f9); }
+.dark .cv-day-date { color: var(--mcm-ink-3, #93a1ba); }
+.dark .cv-day-head.is-weekend { background: var(--mcm-surface-3, #1e293e); }
+.dark .cv-day-head.is-today { border-bottom-color: var(--mcm-accent, #ffab5e); }
+.dark .cv-day-head.is-today .cv-day-name { color: var(--mcm-accent-ink, #ffc98a); }
+.dark .cv-time-cell {
+  background: var(--mcm-surface-2, #161f31);
+  border-left-color: var(--mcm-line, #26314a);
+  border-top-color: var(--mcm-line, #26314a);
+  color: var(--mcm-ink-3, #93a1ba);
+}
+.dark .cv-cell {
+  border-left-color: var(--mcm-line, #26314a);
+  border-top-color: var(--mcm-line, #26314a);
+  color: var(--mcm-ink-2, #c3cddf);
+}
+.dark .cv-cell.is-empty { color: var(--mcm-ink-4, #6b7a96); }
+.dark .cv-cell[data-level='0'],
+.dark .cv-legend-swatch[data-level='0'] { background: var(--mcm-surface, #111827); }
+.dark .cv-cell[data-level='3'] { color: var(--mcm-ink, #eef2f9); }
+.dark .cv-legend {
+  border-color: var(--mcm-line, #26314a);
+  background: var(--mcm-surface-2, #161f31);
+}
+.dark .cv-legend-label { color: var(--mcm-ink-3, #93a1ba); }
+.dark .cv-legend-step-label { color: var(--mcm-ink-2, #c3cddf); }
+.dark .cv-legend-swatch { border-color: var(--mcm-line, #26314a); }

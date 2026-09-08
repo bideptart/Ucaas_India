@@ -147,6 +147,15 @@ body.perf-warm-toolbar .mcm-page .page-bar {
   border-bottom-color: var(--pl-hairline);
 }
 
+/* The warm tint above is a flat light colour, so in dark mode the toolbar
+   stayed a bright band across the top of every Performance tab. Dark mode
+   takes the same surface the rail beside it uses, keeping the two reading
+   as one continuous chrome rather than a lit strip over a dark page. */
+body.perf-warm-toolbar.dark .mcm-page .page-bar,
+.dark body.perf-warm-toolbar .mcm-page .page-bar {
+  background: var(--mcm-surface, #111827);
+}
+
 body.perf-warm-toolbar .mcm-page .perf-tbar .fchip,
 body.perf-warm-toolbar .mcm-page .perf-tbar .btn.sm {
   height: 36px;

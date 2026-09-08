@@ -551,7 +551,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         {!isDisable && (
           <label
             htmlFor="file-upload"
-            className="rounded-full border border-gray-200 relative w-14 h-14 cursor-pointer"
+            className="rounded-full border border-gray-200 dark:border-mcm-line relative w-14 h-14 cursor-pointer"
           >
             {watch('avatar') || imagePreview || avatar ? (
               <div className="h-full w-full rounded-full relative group">
@@ -803,7 +803,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           </div>
 
           <div className="flex flex-col w-full gap-4">
-            <p className="gp-form-section-h font-semibold text-gray-900">Address Information</p>
+            <p className="gp-form-section-h font-semibold text-gray-900 dark:text-mcm-ink">Address Information</p>
             <div className="flex gap-4 flex-wrap">
               <Input
                 placeholder="Enter street"
@@ -933,7 +933,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
             )}
           </div>
           {/* <div className="flex flex-col w-full gap-4">
-            <p className="gp-form-section-h font-semibold text-gray-900">Notes Information</p>
+            <p className="gp-form-section-h font-semibold text-gray-900 dark:text-mcm-ink">Notes Information</p>
             <div className="flex gap-4 relative">
               <div className="flex flex-col gap-1.5 w-full">
                 <div className="flex items-center justify-between">
@@ -942,7 +942,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
                 <div className="relative w-full">
                   <div className="flex">
                     <textarea
-                      className="border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm rounded-xl w-full p-3 min-h-10 border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary resize-none"
+                      className="border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 dark:disabled:text-mcm-ink-3 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink-2 placeholder:text-gray-700 dark:placeholder:text-mcm-ink-2 bg-white dark:bg-mcm-surface shadow-sm text-sm rounded-xl w-full p-3 min-h-10 border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary resize-none"
                       placeholder="Enter notes"
                       rows={4}
                       {...register(`notes`)}
@@ -956,7 +956,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         </div>
       </div>
       {!isDisable && (
-        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 bg-white">
+        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface">
           {!hideCancelButton ? (
             <Button
               type="button"

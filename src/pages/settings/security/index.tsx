@@ -245,7 +245,7 @@ const Security = () => {
                   if (value.startsWith(' ')) return;
                   setSearch(e.target.value);
                 }}
-                Icon={<SearchLine className="text-[#2E2D35]" />}
+                Icon={<SearchLine className="text-[#2E2D35] dark:text-mcm-ink" />}
               />
             </header>
 

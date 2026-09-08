@@ -399,7 +399,7 @@ const metricToneClasses = {
   blue: { icon: 'text-primary', value: 'text-primary' },
   red: { icon: 'text-[#DC5049]', value: 'text-[#DC5049]' },
   orange: { icon: 'text-amber-600', value: 'text-amber-600' },
-  gray: { icon: 'text-[#2E2D35]', value: 'text-[#2E2D35]' },
+  gray: { icon: 'text-[#2E2D35] dark:text-mcm-ink', value: 'text-[#2E2D35] dark:text-mcm-ink' },
 };
 
 // const moodBadgeClasses: Record<AgentMood, string> = {
@@ -428,7 +428,7 @@ const sentimentLabelBadgeClass = (value?: string) => {
 
 const scoreToneClass = (value: string) =>
   value === 'N/A'
-    ? 'text-[#6b6459]'
+    ? 'text-[#6b6459] dark:text-mcm-ink-3'
     : value.trim().startsWith('-')
       ? 'text-[#DC5049]'
       : 'text-[#4EAE6E]';
@@ -938,14 +938,14 @@ const AiWallboard = () => {
             badge (the same one every card on this page uses), the LIVE tag
             gets a pulsing dot so "live" is shown rather than just asserted,
             and the whole bar picks up the frosted-glass treatment. */}
-        <div className="rounded-[20px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+        <div className="rounded-[20px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fbf9f6] dark:bg-mcm-surface p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] shadow-[0_2px_8px_rgba(194,98,46,0.18)]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash shadow-[0_2px_8px_rgba(194,98,46,0.18)]">
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
+                <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
                   Live AI Wallboard
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-bold tracking-wide text-[#DC5049]">
                     <span className="relative flex h-1.5 w-1.5">
@@ -955,7 +955,7 @@ const AiWallboard = () => {
                     LIVE
                   </span>
                 </h3>
-                <p className="mt-0.5 text-xs font-medium text-[#6b6459]">
+                <p className="mt-0.5 text-xs font-medium text-[#6b6459] dark:text-mcm-ink-3">
                   Real-time sentiment, AI reception, and agent monitoring
                 </p>
               </div>
@@ -996,7 +996,7 @@ const AiWallboard = () => {
             return (
               <div
                 key={metric.label}
-                className="relative flex items-center justify-between gap-2 rounded-[20px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-3.5 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-transform hover:-translate-y-0.5"
+                className="relative flex items-center justify-between gap-2 rounded-[20px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fbf9f6] dark:bg-mcm-surface px-3.5 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-transform hover:-translate-y-0.5"
               >
                 {showAlertDot && (
                   <div className="absolute right-2 top-2">
@@ -1007,7 +1007,7 @@ const AiWallboard = () => {
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                     {metric.label}
                   </p>
                   <p className={`mt-0.5 text-[26px] font-bold leading-tight ${metricToneClasses[metric.tone].value}`}>
@@ -1017,7 +1017,7 @@ const AiWallboard = () => {
                     )}
                   </p>
                 </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                   <IconComp className={`h-4.5 w-4.5 ${metricToneClasses[metric.tone].icon}`} />
                 </div>
               </div>
@@ -1034,12 +1034,12 @@ const AiWallboard = () => {
               reading the bar -- the same sentence structure three times
               reads as one system, not three unrelated widgets bolted
               together. */}
-          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
-            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] dark:border-mcm-line/40 px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                 <TrendingUp className="h-4 w-4 text-[#4EAE6E]" />
               </div>
-              <h4 className="text-base font-semibold text-[#1A1A1A]">Sentiment</h4>
+              <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">Sentiment</h4>
             </div>
             <div className="flex flex-col gap-3.5 p-4">
               {dynamicSentimentBars.map((bar) => {
@@ -1064,10 +1064,10 @@ const AiWallboard = () => {
 
                 return (
                   <div key={bar.label} className="flex items-center gap-3">
-                    <span className="w-16 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b]">
+                    <span className="w-16 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b] dark:text-mcm-ink-3">
                       {mappedLabel}
                     </span>
-                    <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                    <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)] dark:bg-mcm-surface-3/30">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -1076,10 +1076,10 @@ const AiWallboard = () => {
                         }}
                       />
                     </div>
-                    <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                    <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                       {bar.value}%
                       {bar.count !== undefined && (
-                        <span className="ml-1 font-normal text-[#6b6459]">({bar.count})</span>
+                        <span className="ml-1 font-normal text-[#6b6459] dark:text-mcm-ink-3">({bar.count})</span>
                       )}
                     </span>
                   </div>
@@ -1088,12 +1088,12 @@ const AiWallboard = () => {
             </div>
           </div>
 
-          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
-            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] dark:border-mcm-line/40 px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                 <Headphones className="h-4 w-4 text-primary" />
               </div>
-              <h4 className="text-base font-semibold text-[#1A1A1A]">AI AHT</h4>
+              <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">AI AHT</h4>
             </div>
             <div className="p-4">
               {ahtBuckets.some((bucket) => Number(bucket?.count || 0) > 0) ? (
@@ -1105,19 +1105,19 @@ const AiWallboard = () => {
 
                     return (
                       <div key={`${bucket?.label}-${index}`} className="flex items-center gap-3">
-                        <span className="w-14 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b]">
+                        <span className="w-14 shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[#64748b] dark:text-mcm-ink-3">
                           {bucket?.label || 'N/A'}
                         </span>
-                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)] dark:bg-mcm-surface-3/30">
                           <div
                             className="h-full rounded-full bg-primary transition-all duration-500"
                             style={{ width: `${Math.max(widthPercent, count > 0 ? 4 : 0)}%` }}
                           />
                         </div>
-                        <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                        <span className="w-16 shrink-0 text-right text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                           {count}
                           {bucket?.percent !== undefined && (
-                            <span className="ml-1 font-normal text-[#6b6459]">
+                            <span className="ml-1 font-normal text-[#6b6459] dark:text-mcm-ink-3">
                               ({bucket.percent}%)
                             </span>
                           )}
@@ -1129,20 +1129,20 @@ const AiWallboard = () => {
               ) : (
                 <div className="flex h-40 items-center justify-center">
                   <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-1.5 shadow-xs">
-                    <Headphones className="h-3.5 w-3.5 text-[#6b6459]" />
-                    <span className="text-xs font-semibold text-[#6b6459]">No data found</span>
+                    <Headphones className="h-3.5 w-3.5 text-[#6b6459] dark:text-mcm-ink-3" />
+                    <span className="text-xs font-semibold text-[#6b6459] dark:text-mcm-ink-3">No data found</span>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
-            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+          <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+            <div className="flex items-center gap-2.5 border-b border-[rgba(225,200,165,0.4)] dark:border-mcm-line/40 px-4 py-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                 <Bot className="h-4 w-4 text-primary" />
               </div>
-              <h4 className="text-base font-semibold text-[#1A1A1A]">Most Common AI Intents</h4>
+              <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">Most Common AI Intents</h4>
             </div>
             <div className="p-4">
               {aiIntentBuckets.length > 0 ? (
@@ -1159,16 +1159,16 @@ const AiWallboard = () => {
                             this badge's own `#FFF1E0` fill at 11px — the
                             same darker accent used elsewhere on this board
                             for small text on a light fill. */}
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] text-[11px] font-bold text-[#a8460f]">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash text-[11px] font-bold text-[#a8460f] dark:text-mcm-accent-ink">
                           {index + 1}
                         </span>
                         <span
-                          className="w-20 shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-[#64748b]"
+                          className="w-20 shrink-0 truncate text-[11px] font-semibold uppercase tracking-wide text-[#64748b] dark:text-mcm-ink-3"
                           title={bar.label}
                         >
                           {bar.label}
                         </span>
-                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)]">
+                        <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-[rgba(225,200,165,0.3)] dark:bg-mcm-surface-3/30">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -1177,7 +1177,7 @@ const AiWallboard = () => {
                             }}
                           />
                         </div>
-                        <span className="w-8 shrink-0 text-right text-sm font-bold text-[#1A1A1A]">
+                        <span className="w-8 shrink-0 text-right text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                           {bar.count || 0}
                         </span>
                       </div>
@@ -1187,8 +1187,8 @@ const AiWallboard = () => {
               ) : (
                 <div className="flex h-40 items-center justify-center">
                   <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-1.5 shadow-xs">
-                    <Bot className="h-3.5 w-3.5 text-[#6b6459]" />
-                    <span className="text-xs font-semibold text-[#6b6459]">No data found</span>
+                    <Bot className="h-3.5 w-3.5 text-[#6b6459] dark:text-mcm-ink-3" />
+                    <span className="text-xs font-semibold text-[#6b6459] dark:text-mcm-ink-3">No data found</span>
                   </div>
                 </div>
               )}
@@ -1200,9 +1200,9 @@ const AiWallboard = () => {
             read as one run. It is a separate subject, so it gets space rather
             than a rule -- another hairline next to the card edges above would
             have been a fourth line in the same 20px. */}
-        <div className="mt-6 rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-4 py-3 rounded-t-xl">
-            <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+        <div className="mt-6 rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] dark:bg-mcm-surface shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fbf9f6] dark:bg-mcm-surface px-4 py-3 rounded-t-xl">
+            <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
               <Bot className="h-4 w-4 text-primary" />
               AI Receptionist Performance
             </h4>
@@ -1219,7 +1219,7 @@ const AiWallboard = () => {
                   />
                 </div>
               </div>
-              <span className="whitespace-nowrap text-[11px] font-semibold text-[#475569]">
+              <span className="whitespace-nowrap text-[11px] font-semibold text-[#475569] dark:text-mcm-ink-2">
                 Voice {voicePercent.toFixed(0)}% / Text {textPercent.toFixed(0)}%
               </span>
             </div>
@@ -1234,15 +1234,15 @@ const AiWallboard = () => {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex items-center justify-between gap-2 rounded-[16px] border border-[rgba(225,200,165,0.9)] bg-[#fbf9f6] px-3 py-2.5"
+                className="flex items-center justify-between gap-2 rounded-[16px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fbf9f6] dark:bg-mcm-surface px-3 py-2.5"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                     {stat.label}
                   </p>
-                  <p className="mt-0.5 text-xl font-bold text-[#2E2D35]">{stat.value}</p>
+                  <p className="mt-0.5 text-xl font-bold text-[#2E2D35] dark:text-mcm-ink">{stat.value}</p>
                 </div>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                   <stat.icon className="h-4 w-4 text-primary" />
                 </div>
               </div>
@@ -1305,20 +1305,20 @@ const AiWallboard = () => {
               Matching the margins would have left 48px here against 36px
               there -- the measured gaps are what match, not the classes. */}
           <div className="mt-3 space-y-3 col-span-12">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] shadow-xs">
-              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] px-4 py-3 bg-[#fbf9f6] rounded-t-xl">
-                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35]">
+            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[#fffdfb] dark:bg-mcm-surface shadow-xs">
+              <div className="flex flex-wrap items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 px-4 py-3 bg-[#fbf9f6] dark:bg-mcm-surface rounded-t-xl">
+                <h4 className="flex items-center gap-2 text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
                   <Headphones className="h-4 w-4 text-primary" />
                   Agent Sentiment Status
                 </h4>
-                <div className="rounded-md border border-[#EEE7DD] bg-[#FBE2C8] px-3 py-1">
-                  <p className="text-[11px] font-medium text-[#6b6459]">
+                <div className="rounded-md border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8] dark:bg-mcm-surface-3 px-3 py-1">
+                  <p className="text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
                     Top: {aiWallboardSummary?.agent_sentiment_top?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_top?.avg_sentiment || '0'}) &nbsp; | &nbsp;
                     Bottom: {aiWallboardSummary?.agent_sentiment_bottom?.agent_name || 'N/A'} (
                     {aiWallboardSummary?.agent_sentiment_bottom?.avg_sentiment || '0'}) &nbsp; |
                     &nbsp;
-                    <span className="font-semibold text-[#6b6459]">
+                    <span className="font-semibold text-[#6b6459] dark:text-mcm-ink-3">
                       Idle {'>'}5m: {aiWallboardSummary?.idle_over_5_minutes?.length || 0}
                     </span>
                   </p>
@@ -1332,7 +1332,7 @@ const AiWallboard = () => {
                   return (
                     <div
                       key={`${agent.name}-${index}`}
-                      className={`rounded-[20px] border bg-[#fffdfb] p-4 shadow-[0_10px_34px_rgba(160,95,30,0.14)] transition-transform hover:-translate-y-0.5 ${
+                      className={`rounded-[20px] border bg-[#fffdfb] dark:bg-mcm-surface p-4 shadow-[0_10px_34px_rgba(160,95,30,0.14)] transition-transform hover:-translate-y-0.5 ${
                         isHighRisk ? 'border-red-200' : 'border-[rgba(249,115,22,0.14)]'
                       }`}
                     >
@@ -1344,7 +1344,7 @@ const AiWallboard = () => {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="relative shrink-0">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF1E0] text-sm font-bold text-primary">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash text-sm font-bold text-primary">
                               {agent.initials}
                             </div>
                             <span
@@ -1361,14 +1361,14 @@ const AiWallboard = () => {
                             />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-base leading-5 font-semibold text-[#1A1A1A]">
+                            <p className="truncate text-base leading-5 font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                               {agent.name}
                             </p>
                             {/* `#94a3b8` (Tailwind slate-400) measured
                                 2.56:1 here — under the 4.5:1 small text
                                 needs. `#475569`, the muted-label colour this
                                 board uses everywhere else. */}
-                            <p className="mt-0.5 truncate text-[11px] font-medium text-[#475569]">
+                            <p className="mt-0.5 truncate text-[11px] font-medium text-[#475569] dark:text-mcm-ink-2">
                               {statusNow}
                               {agent?.ext && agent.ext !== 'N/A'
                                 ? ` · ${agent.ext.length > 4 ? 'DID' : 'EXT'} ${agent.ext}`
@@ -1397,7 +1397,7 @@ const AiWallboard = () => {
                               {agent.sentimentLabel}
                             </span>
                           ) : (
-                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#475569] dark:text-mcm-ink-2">
                               Avg sentiment
                             </p>
                           )}
@@ -1412,16 +1412,16 @@ const AiWallboard = () => {
                           of three tiles -- the score they support is the
                           headline above, so repeating it here made the card
                           say the same number twice. */}
-                      <div className="mt-3 flex items-center gap-4 text-[11px] text-[#64748b]">
+                      <div className="mt-3 flex items-center gap-4 text-[11px] text-[#64748b] dark:text-mcm-ink-3">
                         <span className="flex items-baseline gap-1.5">
-                          <span className="num text-sm font-bold text-[#1A1A1A]">
+                          <span className="num text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                             {agent.liveScore}
                           </span>
                           calls today
                         </span>
-                        <span className="h-3 w-px bg-[rgba(225,200,165,0.7)]" />
+                        <span className="h-3 w-px bg-[rgba(225,200,165,0.7)] dark:bg-mcm-surface-3/70" />
                         <span className="flex items-baseline gap-1.5">
-                          <span className="num text-sm font-bold text-[#1A1A1A]">
+                          <span className="num text-sm font-bold text-[#1A1A1A] dark:text-mcm-ink">
                             {agent?.today_sentiment_calls ?? 0}
                           </span>
                           monitored
@@ -1440,7 +1440,7 @@ const AiWallboard = () => {
                             card, not its alarm -- the score above is what the
                             eye should land on first. */}
                         {agent.pos + agent.neu + agent.neg > 0 ? (
-                          <div className="flex h-2 w-full overflow-hidden rounded-full bg-[rgba(225,200,165,0.28)]">
+                          <div className="flex h-2 w-full overflow-hidden rounded-full bg-[rgba(225,200,165,0.28)] dark:bg-mcm-surface-3/28">
                             {(
                               [
                                 ['#7FBE97', agent.pos],
@@ -1459,11 +1459,11 @@ const AiWallboard = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="rounded-full bg-[rgba(225,200,165,0.22)] py-1 text-center text-[11px] font-medium text-[#475569]">
+                          <p className="rounded-full bg-[rgba(225,200,165,0.22)] dark:bg-mcm-surface-3/22 py-1 text-center text-[11px] font-medium text-[#475569] dark:text-mcm-ink-2">
                             No sentiment scored yet
                           </p>
                         )}
-                        <div className="mt-1.5 flex items-center justify-between text-[11px] font-medium text-[#475569]">
+                        <div className="mt-1.5 flex items-center justify-between text-[11px] font-medium text-[#475569] dark:text-mcm-ink-2">
                           <span className="flex items-center gap-1">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#7FBE97]" />
                             POS {agent.pos}%
@@ -1547,13 +1547,13 @@ const AiWallboard = () => {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                         Most Stressed
                       </p>
                       <p className="text-base font-semibold text-red-500">Michael Chen</p>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569]">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                         Best Performer
                       </p>
                       <p className="text-base font-semibold text-green-600">Jessica Alba</p>
@@ -1574,17 +1574,17 @@ const AiWallboard = () => {
                 styled here: it inherits from `.dash-legacy`, the same rule
                 Calls' own table is measured against. */}
             {highRiskCalls.length > 0 && (
-              <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.4)] px-4 py-3">
+              <div className="rounded-[20px] border border-[rgba(249,115,22,0.14)] bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.4)] dark:border-mcm-line/40 px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF1E0] dark:bg-mcm-accent-wash">
                       <ShieldAlert className="h-4 w-4 text-[#DC5049]" />
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-[#1A1A1A]">
+                      <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">
                         Agents Needing Attention
                       </h4>
-                      <p className="text-xs font-medium text-[#64748b]">
+                      <p className="text-xs font-medium text-[#64748b] dark:text-mcm-ink-3">
                         Elevated negative sentiment today, worst first.
                       </p>
                     </div>

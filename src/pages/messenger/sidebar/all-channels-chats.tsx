@@ -116,7 +116,7 @@ const AllChannelsChats = ({
           <MessagesSquare className="h-6 w-6" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-[#2E2D35]">No conversations yet</p>
+          <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">No conversations yet</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Conversations from every channel will show up here.
           </p>
@@ -151,7 +151,7 @@ const AllChannelsChats = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="truncate text-[13.5px] font-semibold text-[#2E2D35]">{row.name}</p>
+                <p className="truncate text-[13.5px] font-semibold text-[#2E2D35] dark:text-mcm-ink">{row.name}</p>
                 <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
                   {row.timestamp ? moment(row.timestamp).fromNow() : ''}
                 </span>

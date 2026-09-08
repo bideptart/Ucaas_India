@@ -939,13 +939,13 @@ const CallHistory = ({
     >
       <DialogContent
         showCloseButton={false}
-        className="qdv-modal max-w-5xl w-full max-h-[88vh] overflow-y-auto rounded-[20px] bg-[#fffdfb] backdrop-blur-[20px] border border-[rgba(249,115,22,0.18)] shadow-[0_20px_50px_rgba(160,95,30,0.22)] p-0 gap-0"
+        className="qdv-modal max-w-5xl w-full max-h-[88vh] overflow-y-auto rounded-[20px] bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] border border-[rgba(249,115,22,0.18)] shadow-[0_20px_50px_rgba(160,95,30,0.22)] p-0 gap-0"
         overlayClassName="bg-black/30 backdrop-blur-sm"
       >
         <DialogTitle className="sr-only">Details</DialogTitle>
         <DialogClose
           aria-label="Close"
-          className="absolute top-[18px] right-6 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[rgba(249,115,22,0.2)] bg-[#fff7ed] text-[#8a6f57] transition-all hover:bg-[#ffedd5] hover:text-[#1a1a1a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="absolute top-[18px] right-6 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[rgba(249,115,22,0.2)] bg-[#fff7ed] text-[#8a6f57] transition-all hover:bg-[#ffedd5] hover:text-[#1a1a1a] dark:hover:text-mcm-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <X className="h-4 w-4" />
         </DialogClose>
@@ -995,7 +995,7 @@ const CallHistory = ({
                     // Directory's own visible-but-not-loud accent border
                     // (rgba(249,115,22,0.4), used everywhere else this
                     // session) instead of a Tailwind step.
-                    'border-[rgba(249,115,22,0.4)] hover:bg-[rgba(255,241,235,0.65)] bg-white'
+                    'border-[rgba(249,115,22,0.4)] hover:bg-[rgba(255,241,235,0.65)] dark:hover:bg-mcm-accent-wash/65 bg-white'
               }`}
             >
               <div

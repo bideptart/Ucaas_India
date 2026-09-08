@@ -4,6 +4,7 @@ import { useDialpad } from '@/hooks/use-dialpad';
 import { useDialpadCallerIdOptions } from '@/hooks/use-dialpad-caller-id-options';
 import { isExtensionDialTarget } from '@/lib/extension-utility';
 import type { DialpadMakeCallOptions } from '@/context/dialpad-context';
+import { isDemoMode } from '@/lib/demo-mode';
 import { Ic } from './icons';
 
 /**
@@ -21,6 +22,14 @@ export const useConsoleDialer = () => {
     (raw: unknown, options?: DialpadMakeCallOptions) => {
       const target = String(raw ?? '').trim();
       if (!target) return false;
+
+      /* Demo mode has no real SIP line to register — the "not registered"
+         error is technically correct but reads as the app being broken.
+         There's nothing to fix on this account; say so plainly instead. */
+      if (isDemoMode()) {
+        toast.info('This is a demo account — calling is not available here.');
+        return false;
+      }
 
       if (!dialpad.isRegistered) {
         toast.error('Your phone is not registered yet — check the station status on the dialer.');

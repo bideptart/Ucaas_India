@@ -63,7 +63,20 @@ export const statusImageLookup: any = {
   dnd: <img src={DNDImage} alt="DNDImage" className="w-2.5 h-2.5" />,
   online: <div className="w-2 h-2 rounded-full bg-green-500" />,
   offline: <div className="w-2 h-2 rounded-full bg-gray-500" />,
+  /* Unspecified on-call state (no `activeCallTone` passed) — every other
+     caller of `showPresence` (messenger, header, directory, dialpad lists,
+     ~59 files) relies on this red dot for "on a call" with no further
+     nuance, so it stays the default rather than being repurposed. */
   call: <div className="w-2 h-2 rounded-full bg-red-500" />,
+  /* Opt-in variants, driven by `activeCallTone` — only Performance ▸ Live
+     Interactions (all-users/index.tsx) passes this today, since it already
+     knows the matched call's real status per row. A green dot for a
+     healthy bridged/answered call and an amber one for ringing/on-hold
+     reads correctly next to that row's own green/yellow tint, instead of
+     every on-call agent showing the same red dot regardless of whether the
+     call is actually connected. */
+  'call-connected': <div className="w-2 h-2 rounded-full bg-emerald-500" />,
+  'call-ringing': <div className="w-2 h-2 rounded-full bg-amber-500" />,
 };
 
 interface AvatarProps {
@@ -84,6 +97,12 @@ interface AvatarProps {
      to hook into here without this. Any other avatar (someone else's, in
      a list) should leave this unset and keep reading the live feed. */
   presenceOverride?: 'online' | 'busy' | 'dnd' | 'offline' | 'call';
+  /* Only meaningful while this avatar is actively on a call (`isOnCall`
+     below). Lets a caller that already knows the specific call's status
+     (e.g. Live Interactions, matching this extension's row) pick a
+     'connected' (green) or 'ringing' (amber) dot instead of the generic
+     red 'call' dot every other caller gets by default. */
+  activeCallTone?: 'connected' | 'ringing';
 }
 const CustomAvatar = ({
   name = '',
@@ -96,6 +115,7 @@ const CustomAvatar = ({
   isActivityInfo = true,
   textClass,
   presenceOverride,
+  activeCallTone,
 }: AvatarProps) => {
   const { usersOnlineStatus, liveCalls, eventLiveCallsData } = useSocketEvents();
   const liveCallsData = getMonitoringLiveCalls(liveCalls, eventLiveCallsData);
@@ -188,7 +208,9 @@ const CustomAvatar = ({
   const isOnline = Boolean(activeUser?.online);
   const userStatus = String(activeUser?.status || '').toLowerCase();
   const status = isOnCall
-    ? 'call'
+    ? activeCallTone
+      ? `call-${activeCallTone}`
+      : 'call'
     : presenceOverride || (isOnline ? userStatus || 'online' : 'offline');
 
   const NAME = name;
@@ -241,7 +263,13 @@ const CustomAvatar = ({
             <CustomTooltip
               text={
                 <div className={status === 'dnd' ? '' : 'capitalize'}>
-                  {status === 'dnd' ? 'DND' : status}
+                  {status === 'dnd'
+                    ? 'DND'
+                    : status === 'call-connected'
+                      ? 'On call — connected'
+                      : status === 'call-ringing'
+                        ? 'On call — ringing'
+                        : status}
                 </div>
               }
             >

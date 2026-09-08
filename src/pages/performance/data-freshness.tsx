@@ -39,7 +39,13 @@ const DataFreshness = ({ updatedAt }: { updatedAt: number | null }) => {
   if (!updatedAt) {
     return (
       <span className="fchip" title="No successful fetch yet">
-        <span className="dot" />
+        {/* `.dot` alone (mcm-page.css) sets no colour of its own — every
+            other state here (`live`/`stale`) pairs it with a `green`/`amber`
+            modifier that actually paints it; this one was the one state
+            left without one, rendering as an invisible dot. `amber` reuses
+            the same "still settling, not yet live" colour `stale` already
+            uses elsewhere in this component. */}
+        <span className="dot amber" />
         Waiting for data
       </span>
     );

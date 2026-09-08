@@ -472,7 +472,14 @@ const MemberSelectionModal: FC<MemberSelectionModalProps> = ({
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
+              {/* No `overflow-auto` here: TableManager already scrolls its
+                  own body against `tableMaxHeight` below, so wrapping it in
+                  a second scroll container just nested one scrollbar inside
+                  another for the same content. `space-y-2` still earns its
+                  keep though — TableManager returns the table box and the
+                  pagination bar as fragment siblings, so this is the gap
+                  between them, not a scroll concern. */}
+              <div className="min-h-0 flex-1 space-y-2 p-3">
                 <TableManager
                   columns={columns}
                   fetcherKey="inviteMembersUserList"

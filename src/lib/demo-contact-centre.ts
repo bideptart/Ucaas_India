@@ -2114,6 +2114,108 @@ export const demoMeetingRows = () => {
   });
 };
 
+/** `/api/v1/meeting/recording-list` — Video ▸ "All Recordings". A handful of
+ *  past meetings with real-looking metadata (size, duration, members) so the
+ *  table, its filters/sort and the Share/Chat actions all have something to
+ *  work against. `all-recording.tsx` reads `record.meeting.members` as a flat
+ *  array (not the `user_detail`-wrapped shape `getFlatMeetingMembers` also
+ *  tolerates), so that is the shape used here. Actual playback still needs a
+ *  real media file — these rows exist for the list, not for a working video
+ *  player, since the play/download paths fetch `/api/media/...` directly with
+ *  `fetch()` rather than through the axios instance demo mode intercepts. */
+export const demoRecordingRows = () => {
+  const now = Date.now();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const priya = DEMO_AGENTS.find((row) => row.extension === '1004') as DemoAgent;
+  const meera = DEMO_AGENTS.find((row) => row.extension === '1003') as DemoAgent;
+  const ananya = DEMO_AGENTS.find((row) => row.extension === '1006') as DemoAgent;
+  const vikram = DEMO_AGENTS.find((row) => row.extension === '1007') as DemoAgent;
+  const karan = DEMO_AGENTS.find((row) => row.extension === '1005') as DemoAgent;
+
+  const asMember = (agentRow: DemoAgent, type = 'MEMBER') => ({
+    userId: agentRow.uuid,
+    name: `${agentRow.first_name} ${agentRow.last_name}`,
+    email: `${agentRow.first_name.toLowerCase()}.${agentRow.last_name.toLowerCase()}@example.com`,
+    type,
+  });
+  /* You, the signed-in demo user — included as a meeting member (not just
+     the session owner) so Share/Chat, which check for your uuid inside
+     `meeting.members`, have at least one row to actually turn on for. */
+  const you = (type: string) => ({
+    userId: DEMO_USER_UUID,
+    name: 'Arjun Mehta',
+    email: 'arjun.mehta@example.com',
+    type,
+  });
+
+  const seed: Array<{
+    meetingName: string;
+    daysAgo: number;
+    durationSec: number;
+    sizeMb: number;
+    members: Array<{ userId: string; name: string; email: string; type: string }>;
+    videoSharedBy?: { firstName: string; lastName: string; email: string };
+  }> = [
+    {
+      meetingName: 'Q3 Renewals — Sync',
+      daysAgo: 2,
+      durationSec: 2130,
+      sizeMb: 148,
+      // You hosted this one — Share and Chat both light up.
+      members: [you('ADMIN'), asMember(priya), asMember(karan), asMember(ananya)],
+    },
+    {
+      meetingName: 'Support Escalation Review',
+      daysAgo: 5,
+      durationSec: 1860,
+      sizeMb: 96,
+      // Meera shared this with you — you can open the chat, not re-share it.
+      members: [asMember(meera, 'ADMIN'), you('MEMBER'), asMember(vikram)],
+      videoSharedBy: { firstName: 'Meera', lastName: 'Nair', email: 'meera.nair@example.com' },
+    },
+    {
+      meetingName: 'Bengaluru Team Standup',
+      daysAgo: 9,
+      durationSec: 900,
+      sizeMb: 41,
+      // You are not on this one — Play/Download only, no Share or Chat.
+      members: [asMember(ananya, 'ADMIN'), asMember(vikram)],
+    },
+    {
+      meetingName: 'Monthly Performance Review',
+      daysAgo: 16,
+      durationSec: 3120,
+      sizeMb: 210,
+      // Large enough to show up under the "Large files (> 100 MB)" filter.
+      members: [you('ADMIN'), asMember(meera), asMember(priya)],
+    },
+  ];
+
+  return seed.map((row, index) => {
+    const createdAt = new Date(now - row.daysAgo * DAY_MS).toISOString();
+    const meetingId = `demo-recording-meeting-${index + 1}`;
+    const safeName = row.meetingName.replace(/[^a-zA-Z0-9]+/g, '-');
+    const admin = row.members.find((member) => member.type === 'ADMIN');
+    return {
+      _id: `demo-recording-${index + 1}`,
+      name: `${safeName}-${meetingId}.mp4`,
+      meetName: row.meetingName,
+      meetingId,
+      createdById: admin?.userId || DEMO_USER_UUID,
+      createdAt,
+      recordingSize: row.sizeMb * 1024 * 1024,
+      recordingDuration: row.durationSec,
+      ...(row.videoSharedBy
+        ? { videoSharedBy: row.videoSharedBy, sharedVideoReceiverIds: [DEMO_USER_UUID] }
+        : {}),
+      meeting: {
+        name: row.meetingName,
+        members: row.members,
+      },
+    };
+  });
+};
+
 export const demoCampaignRows = () => {
   const now = Date.now();
   const DAY_MS = 24 * 60 * 60 * 1000;
@@ -2449,35 +2551,51 @@ export const demoCampaignAgents = () => {
    same reasoning as the live-call data above.
 --------------------------------------------------------------------------- */
 
-export const demoCampaignAiLiveCallData = () => ({
-  data: {
-    result: {
-      avg_sentiment: 18.4,
-      total_ai_calls: 46,
-      ai_containment_percent: 64,
-      total_ai_chats: 58,
-      transferred_calls: 17,
-      ai_receptionist_performance: {
-        handled_ai_only: 29,
-        avg_duration_sec: 96,
-        lead_captured_counts: 14,
-      },
-      voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
-      sentiment_buckets: [
-        { label: 'Positive', count: 31, percent: 55 },
-        { label: 'Neutral', count: 18, percent: 32 },
-        { label: 'Negative', count: 7, percent: 13 },
-      ],
-      intent_count: {
-        billing: 19,
-        support: 24,
-        sales: 13,
-        onboarding: 8,
-        retention: 5,
+/* Wobbles a base figure by up to `amplitude` on a smooth curve tied to the
+   real clock, so two calls a few seconds apart return visibly different
+   numbers instead of the exact same fixture — the same "reads the live
+   clock" trick demoCallStats/demoCampaignLiveCallsData use, needed here so
+   the AI Wall's Refresh button visibly moves something instead of quietly
+   re-setting state to numbers that look unchanged. */
+const wobble = (base: number, amplitude: number, phase = 0) =>
+  Math.round(base + amplitude * Math.sin(Date.now() / 1500 + phase));
+
+export const demoCampaignAiLiveCallData = () => {
+  const totalAiCalls = Math.max(0, wobble(46, 4, 0.4));
+  const totalAiChats = Math.max(0, wobble(58, 5, 1.1));
+  const transferredCalls = Math.max(0, wobble(17, 3, 1.8));
+  const handledAiOnly = Math.max(0, wobble(29, 3, 2.5));
+
+  return {
+    data: {
+      result: {
+        avg_sentiment: Number(wobble(184, 15, 0) / 10),
+        total_ai_calls: totalAiCalls,
+        ai_containment_percent: Math.min(100, Math.max(0, wobble(64, 3, 0.7))),
+        total_ai_chats: totalAiChats,
+        transferred_calls: transferredCalls,
+        ai_receptionist_performance: {
+          handled_ai_only: handledAiOnly,
+          avg_duration_sec: Math.max(0, wobble(96, 8, 3.2)),
+          lead_captured_counts: Math.max(0, wobble(14, 2, 4)),
+        },
+        voice_vs_text_interactions: { voice_percent: 62, text_percent: 38 },
+        sentiment_buckets: [
+          { label: 'Positive', count: 31, percent: 55 },
+          { label: 'Neutral', count: 18, percent: 32 },
+          { label: 'Negative', count: 7, percent: 13 },
+        ],
+        intent_count: {
+          billing: 19,
+          support: 24,
+          sales: 13,
+          onboarding: 8,
+          retention: 5,
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const demoAiLiveWallboardData = () => ({
   data: {
@@ -2616,6 +2734,11 @@ export const demoCalendarTaskRows = () => {
     else if (hour < 7) startsAt.setHours(9, 0, 0, 0);
     const startAt = startsAt.getTime();
     return {
+      /* Calendar's `transformEventTaskToSchedule` reads `_id`, not `uuid` —
+         without it every row here defaulted to the same empty schedule id,
+         which is what was throwing React's "two children with the same
+         key" warning for the whole Today Events list and month grid. */
+      _id: `demo-task-${index + 1}`,
       uuid: `demo-task-${index + 1}`,
       name: task.name,
       source: task.source,

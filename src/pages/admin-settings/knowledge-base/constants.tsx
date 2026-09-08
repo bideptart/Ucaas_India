@@ -84,7 +84,16 @@ export const timezoneOptions = [
 export const languageOptions = [
   { label: 'English', value: 'english' },
   { label: 'Spanish', value: 'spanish' },
+  { label: 'Marathi', value: 'marathi' },
   { label: 'Hindi', value: 'hindi' },
+  { label: 'Tamil', value: 'tamil' },
+  { label: 'Telugu', value: 'telugu' },
+  { label: 'Kannada', value: 'kannada' },
+  { label: 'Bengali', value: 'bengali' },
+  { label: 'Gujarati', value: 'gujarati' },
+  { label: 'Punjabi', value: 'punjabi' },
+  { label: 'Malayalam', value: 'malayalam' },
+  { label: 'Odia', value: 'odia' },
 ];
 export const temperatureOptions = [
   { label: 'Low', value: 'low' },

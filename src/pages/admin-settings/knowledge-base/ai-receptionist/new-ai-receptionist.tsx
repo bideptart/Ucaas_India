@@ -75,12 +75,7 @@ import { useUser } from '@/hooks/use-user';
 import useDebounce from '@/hooks/use-debounce';
 import { usePaginatedUsers } from '@/hooks/use-paginated-users';
 import { getAi360WidgetKey } from '../ai-agent/chat-agent-configure-modal';
-import {
-  hindiVoiceOptions,
-  languageOptions,
-  spanishVoiceOptions,
-  voiceOptions,
-} from '../constants';
+import { hindiVoiceOptions, languageOptions, voiceOptions } from '../constants';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FormProvider, useForm, type SetValueConfig } from 'react-hook-form';
 import { Room } from 'livekit-client';
@@ -113,7 +108,16 @@ import {
   Clock3,
 } from 'lucide-react';
 import { Grid } from '@/assets/icons';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { useBlocker, useNavigate } from 'react-router-dom';
 import WebsiteScanProgressModal, {
   type WebsiteScanProgressStatus,
@@ -675,13 +679,20 @@ const LOCALE_ACCENT_MAP: Record<string, string> = {
   'en-AU': 'Australian English',
   'en-IN': 'Indian English',
   'en-CA': 'Canadian English',
-  'es-ES': 'Spanish (Spain)',
-  'es-MX': 'Spanish (Mexico)',
   'fr-FR': 'French',
   'de-DE': 'German',
   'it-IT': 'Italian',
   'pt-BR': 'Portuguese (Brazil)',
   'hi-IN': 'Hindi',
+  'mr-IN': 'Marathi',
+  'pa-IN': 'Punjabi',
+  'te-IN': 'Telugu',
+  'kn-IN': 'Kannada',
+  'bn-IN': 'Bengali',
+  'gu-IN': 'Gujarati',
+  'ta-IN': 'Tamil',
+  'ml-IN': 'Malayalam',
+  'or-IN': 'Odia',
   'ar-SA': 'Arabic',
   'zh-CN': 'Chinese (Mandarin)',
   'ja-JP': 'Japanese',
@@ -764,10 +775,48 @@ const isVoiceValueMatch = (selectedValue: unknown, voice: any) => {
   );
 };
 type VoiceGenderFilter = 'all' | 'female' | 'male';
-type VoiceLocaleFilter = 'all' | 'en-US' | 'hi-IN' | 'es-ES';
+type VoiceLocaleFilter =
+  | 'all'
+  | 'en-US'
+  | 'mr-IN'
+  | 'hi-IN'
+  | 'pa-IN'
+  | 'te-IN'
+  | 'kn-IN'
+  | 'bn-IN'
+  | 'gu-IN'
+  | 'ta-IN'
+  | 'ml-IN'
+  | 'or-IN';
 type VoiceLanguageMode = 'fixed' | 'multilingual';
 
-const MULTILINGUAL_ALLOWED_LANGUAGES: VoiceLocaleFilter[] = ['en-US', 'hi-IN', 'es-ES'];
+const VOICE_LOCALE_FILTER_OPTIONS: Array<{ label: string; value: VoiceLocaleFilter }> = [
+  { label: 'Multilingual', value: 'all' },
+  { label: 'English (US)', value: 'en-US' },
+  { label: 'Marathi', value: 'mr-IN' },
+  { label: 'Hindi', value: 'hi-IN' },
+  { label: 'Punjabi', value: 'pa-IN' },
+  { label: 'Telugu', value: 'te-IN' },
+  { label: 'Kannada', value: 'kn-IN' },
+  { label: 'Bengali', value: 'bn-IN' },
+  { label: 'Gujarati', value: 'gu-IN' },
+  { label: 'Tamil', value: 'ta-IN' },
+  { label: 'Malayalam', value: 'ml-IN' },
+  { label: 'Odia', value: 'or-IN' },
+];
+const MULTILINGUAL_ALLOWED_LANGUAGES: VoiceLocaleFilter[] = [
+  'en-US',
+  'mr-IN',
+  'hi-IN',
+  'pa-IN',
+  'te-IN',
+  'kn-IN',
+  'bn-IN',
+  'gu-IN',
+  'ta-IN',
+  'ml-IN',
+  'or-IN',
+];
 const DEFAULT_MULTILINGUAL_LANGUAGE: VoiceLocaleFilter = 'en-US';
 const getVoiceLanguageMode = (localeFilter: VoiceLocaleFilter): VoiceLanguageMode =>
   localeFilter === 'all' ? 'multilingual' : 'fixed';
@@ -780,8 +829,16 @@ const normalizeVoiceLocaleFilterValue = (value: unknown): VoiceLocaleFilter => {
     .trim()
     .toLowerCase();
   if (normalized === 'all' || normalized === 'multilingual') return 'all';
+  if (normalized === 'marathi' || normalized.startsWith('mr')) return 'mr-IN';
   if (normalized === 'hindi' || normalized.startsWith('hi')) return 'hi-IN';
-  if (normalized === 'spanish' || normalized.startsWith('es')) return 'es-ES';
+  if (normalized === 'punjabi' || normalized.startsWith('pa')) return 'pa-IN';
+  if (normalized === 'telugu' || normalized.startsWith('te')) return 'te-IN';
+  if (normalized === 'kannada' || normalized.startsWith('kn')) return 'kn-IN';
+  if (normalized === 'bengali' || normalized.startsWith('bn')) return 'bn-IN';
+  if (normalized === 'gujarati' || normalized.startsWith('gu')) return 'gu-IN';
+  if (normalized === 'tamil' || normalized.startsWith('ta')) return 'ta-IN';
+  if (normalized === 'malayalam' || normalized.startsWith('ml')) return 'ml-IN';
+  if (normalized === 'odia' || normalized.startsWith('or')) return 'or-IN';
   if (normalized === 'english' || normalized.startsWith('en')) return 'en-US';
   return 'all';
 };
@@ -833,8 +890,16 @@ const getVoiceLocaleFilter = (voice: any): VoiceLocaleFilter => {
   if (isMultilingualVoice(voice)) return 'all';
 
   const locale = String(voice?.locale || '').toLowerCase();
+  if (locale.startsWith('mr')) return 'mr-IN';
   if (locale.startsWith('hi')) return 'hi-IN';
-  if (locale.startsWith('es')) return 'es-ES';
+  if (locale.startsWith('pa')) return 'pa-IN';
+  if (locale.startsWith('te')) return 'te-IN';
+  if (locale.startsWith('kn')) return 'kn-IN';
+  if (locale.startsWith('bn')) return 'bn-IN';
+  if (locale.startsWith('gu')) return 'gu-IN';
+  if (locale.startsWith('ta')) return 'ta-IN';
+  if (locale.startsWith('ml')) return 'ml-IN';
+  if (locale.startsWith('or')) return 'or-IN';
   if (locale.startsWith('en')) return 'en-US';
   return 'all';
 };
@@ -845,13 +910,7 @@ const voiceMatchesRuntimeLanguage = (voice: any, localeFilter: VoiceLocaleFilter
     ? isMultilingualVoice(voice)
     : !isMultilingualVoice(voice) && voiceMatchesLocaleFilter(voice, localeFilter);
 const getAvailableReceptionistVoices = (apiVoices: any[], language: string) =>
-  apiVoices.length > 0
-    ? apiVoices
-    : language === 'spanish'
-      ? spanishVoiceOptions
-      : language === 'hindi'
-        ? hindiVoiceOptions
-        : voiceOptions;
+  apiVoices.length > 0 ? apiVoices : language === 'hindi' ? hindiVoiceOptions : voiceOptions;
 const getVoicePayloadValue = (voice: any, fallback = '') =>
   String(
     voice?.short_name ||
@@ -1738,7 +1797,7 @@ const normalizeStoredVoiceValue = (voiceValue: unknown) => {
     .toLowerCase();
   if (!normalized) return '';
   if (isRealtimePreviewVoice(normalized)) return normalized;
-  const matchedVoice = [...voiceOptions, ...spanishVoiceOptions, ...hindiVoiceOptions].find(
+  const matchedVoice = [...voiceOptions, ...hindiVoiceOptions].find(
     (voice) => voice.value.toLowerCase() === normalized || voice.label.toLowerCase() === normalized,
   );
   if (matchedVoice) return matchedVoice.value;
@@ -1818,6 +1877,138 @@ const mergeReceptionistMetrics = (agent: any, metricsByAgentId: Map<string, any>
     ...(metricsByAgentId.get(getReceptionistId(agent)) || {}),
   };
 };
+
+/* Sample rows shown only while the account has no real AI receptionists yet,
+   so the list's design can be seen populated instead of only as an empty
+   state. Real data always wins — see `tableSelect` below, which only falls
+   back to these when `receptionistRows` (the account's actual list) is
+   empty. The stat cards above the table stay on the real, honest counts
+   (0) rather than being padded to match; only the row list itself is
+   demonstrative. `_demo: true` marks them so every interactive cell (status
+   dropdown, caller-id assignment, edit/delete/test-call actions) can render
+   inert instead of calling a real API with a fake agent id. */
+/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
+   the floating white header card actually reads as "floating" — without a
+   saturated backdrop behind it, a white card on the AdminHub shell's own
+   near-white background has almost no contrast to float against. */
+const AI_TOOLS_PAGE_GRADIENT = [
+  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
+  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
+  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
+  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
+  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
+].join(', ');
+
+const DEMO_RECEPTIONIST_TEMPLATES: Array<{
+  name: string;
+  company: string;
+  status: 'active' | 'inactive';
+  did?: string;
+  calls?: number;
+  score?: number;
+  label?: 'positive' | 'neutral' | 'negative';
+  hoursAgo: number;
+}> = [
+  { name: 'Front Desk Ava', company: 'Nimbus Retail Pvt Ltd', status: 'active', did: '+14155550132', calls: 128, score: 82, label: 'positive', hoursAgo: 2 },
+  { name: 'Clinic Assistant Maya', company: 'Vertex Logistics', status: 'active', did: '+919876543210', calls: 54, score: 58, label: 'neutral', hoursAgo: 24 },
+  { name: 'Support Bot Leo', company: 'Shree Enterprises', status: 'inactive', hoursAgo: 144 },
+  { name: 'Reception Bot Nora', company: 'Coral Bay Hospitality', status: 'active', did: '+18005550172', calls: 210, score: 91, label: 'positive', hoursAgo: 1 },
+  { name: 'Booking Agent Zoe', company: 'Aster Healthcare', status: 'active', did: '+919988776655', calls: 76, score: 64, label: 'neutral', hoursAgo: 5 },
+  { name: 'Helpdesk Rio', company: 'Pinnacle Realty', status: 'inactive', hoursAgo: 96 },
+  { name: 'Front Office Kai', company: 'Bluewave Textiles', status: 'active', did: '+912223345566', calls: 39, score: 47, label: 'negative', hoursAgo: 8 },
+  { name: 'Concierge Iris', company: 'Orion Fintech', status: 'active', did: '+14085550199', calls: 163, score: 88, label: 'positive', hoursAgo: 3 },
+  { name: 'Dispatch Bot Finn', company: 'Sunrise Freight Co', status: 'inactive', hoursAgo: 240 },
+  { name: 'Intake Assistant Priya', company: 'GreenLeaf Diagnostics', status: 'active', did: '+919845123456', calls: 98, score: 70, label: 'positive', hoursAgo: 6 },
+  { name: 'Scheduling Bot Omar', company: 'Skyline Dental Care', status: 'active', did: '+13105550188', calls: 52, score: 61, label: 'neutral', hoursAgo: 12 },
+  { name: 'Reception Bot Wren', company: 'Harborview Law Group', status: 'inactive', hoursAgo: 72 },
+  { name: 'Sales Assistant Theo', company: 'Meridian Auto Group', status: 'active', did: '+919922334455', calls: 141, score: 79, label: 'positive', hoursAgo: 4 },
+  { name: 'Support Agent Luna', company: 'BrightPath Insurance', status: 'active', did: '+442071838750', calls: 67, score: 55, label: 'neutral', hoursAgo: 18 },
+  { name: 'Front Desk Milo', company: 'Cascade Fitness Studios', status: 'inactive', hoursAgo: 168 },
+  { name: 'Booking Bot Sana', company: 'Willow Creek Salon', status: 'active', did: '+919871234567', calls: 84, score: 73, label: 'positive', hoursAgo: 9 },
+  { name: 'Order Desk Remy', company: 'Falcon Electronics', status: 'active', did: '+16465550143', calls: 45, score: 42, label: 'negative', hoursAgo: 14 },
+  { name: 'Helpdesk Ivy', company: 'Cobalt Networks', status: 'inactive', hoursAgo: 120 },
+  { name: 'Reception Bot Arlo', company: 'Everline Furniture', status: 'active', did: '+919812345670', calls: 112, score: 85, label: 'positive', hoursAgo: 7 },
+  { name: 'Support Bot Nova', company: 'Pinehill Veterinary', status: 'active', did: '+15125550166', calls: 59, score: 60, label: 'neutral', hoursAgo: 20 },
+  { name: 'Front Desk Elio', company: 'Stratus Cloud Services', status: 'inactive', hoursAgo: 200 },
+  { name: 'Concierge Nadia', company: 'Amberly Hotels Group', status: 'active', did: '+971501234567', calls: 176, score: 89, label: 'positive', hoursAgo: 2 },
+  { name: 'Booking Assistant Yusuf', company: 'Windsor Property Mgmt', status: 'active', did: '+919090909090', calls: 63, score: 57, label: 'neutral', hoursAgo: 16 },
+  { name: 'Support Bot Cleo', company: 'Ridgeline Outdoors', status: 'inactive', hoursAgo: 48 },
+  { name: 'Intake Bot Farah', company: 'Northgate Medical Center', status: 'active', did: '+971509876543', calls: 132, score: 76, label: 'positive', hoursAgo: 3 },
+  { name: 'Dispatch Assistant Owen', company: 'Redwood Courier Services', status: 'active', did: '+14255550177', calls: 41, score: 44, label: 'negative', hoursAgo: 22 },
+  { name: 'Front Desk Sienna', company: 'Lakeshore Wellness Spa', status: 'inactive', hoursAgo: 264 },
+  { name: 'Reception Bot Diego', company: 'Copperline Manufacturing', status: 'active', did: '+919723456789', calls: 87, score: 68, label: 'neutral', hoursAgo: 10 },
+  { name: 'Support Agent Maren', company: 'Sable Tech Solutions', status: 'active', did: '+13235550122', calls: 154, score: 84, label: 'positive', hoursAgo: 5 },
+  { name: 'Booking Bot Tariq', company: 'Palmgrove Resorts', status: 'inactive', hoursAgo: 312 },
+];
+
+const sentimentCountsForScore = (calls: number, label: 'positive' | 'neutral' | 'negative') => {
+  if (label === 'positive') {
+    return { positive: Math.round(calls * 0.72), neutral: Math.round(calls * 0.2), negative: Math.round(calls * 0.08) };
+  }
+  if (label === 'negative') {
+    return { positive: Math.round(calls * 0.15), neutral: Math.round(calls * 0.25), negative: Math.round(calls * 0.6) };
+  }
+  return { positive: Math.round(calls * 0.35), neutral: Math.round(calls * 0.45), negative: Math.round(calls * 0.2) };
+};
+
+/* Sample rows shown only while the account has no real AI receptionists yet,
+   so the list's design can be seen populated instead of only as an empty
+   state. Real data always wins — see `tableSelect` below, which only falls
+   back to these when `receptionistRows` (the account's actual list) is
+   empty. The stat cards above the table stay on the real, honest counts
+   (0) rather than being padded to match; only the row list itself is
+   demonstrative. `_demo: true` marks them so every interactive cell (status
+   dropdown, caller-id assignment, edit/delete/test-call actions) can render
+   inert instead of calling a real API with a fake agent id. */
+const DEMO_AI_RECEPTIONISTS: any[] = DEMO_RECEPTIONIST_TEMPLATES.map((template, index) => ({
+  _demo: true,
+  agent_uuid: `demo-receptionist-${index + 1}`,
+  agentName: template.name,
+  companyName: template.company,
+  status: template.status,
+  did_uuid: template.did ? [{ did_number: template.did }] : [],
+  sentiment_calls: template.calls || 0,
+  avg_sentiment: template.score || 0,
+  sentiment_label: template.label,
+  sentiment_counts: template.calls && template.label
+    ? sentimentCountsForScore(template.calls, template.label)
+    : undefined,
+  updatedAt: moment().subtract(template.hoursAgo, 'hours').toISOString(),
+}));
+
+/* A page-scoped stat tile for the receptionists list — deliberately not the
+   shared `StatCard` (also used by `ReceptionistOverview`), so refining this
+   list's cards can't ripple into that other screen. Same footprint as
+   `StatCard` (min-h, border, shadow) so nothing shifts, with a touch more
+   typographic polish: a slim primary-colored accent bar and a bolder value. */
+function ReceptionistListStatCard({
+  label,
+  value,
+  helper,
+  loading = false,
+}: {
+  label: string;
+  value: string;
+  helper?: string;
+  loading?: boolean;
+}) {
+  return (
+    <div className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-shadow hover:shadow-[0_6px_16px_-4px_rgba(194,98,46,0.24)]">
+      <span
+        className="absolute inset-x-0 top-0 h-[3px]"
+        style={{ backgroundColor: 'var(--primary)', opacity: 0.55 }}
+      />
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        </div>
+      )}
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-0.5 text-[19px] font-extrabold leading-6 text-[#2E2D35]">{value}</p>
+      {helper ? <p className="mt-0.5 text-[10px] font-medium text-emerald-600">{helper}</p> : null}
+    </div>
+  );
+}
 
 function NewAiReceptionistPage() {
   const navigate = useNavigate();
@@ -1958,14 +2149,18 @@ function NewAiReceptionistPage() {
       const rowsWithMetrics = rows.map((agent: any) =>
         mergeReceptionistMetrics(agent, receptionistMetricsById),
       );
-      if (statusFilter === 'all') return rowsWithMetrics;
-      return rowsWithMetrics.filter((row: any) => {
+      /* Real data always wins: the moment an actual receptionist exists,
+         these never show, regardless of what this particular filtered/paged
+         fetch happens to return. */
+      const sourceRows = receptionistRows.length ? rowsWithMetrics : DEMO_AI_RECEPTIONISTS;
+      if (statusFilter === 'all') return sourceRows;
+      return sourceRows.filter((row: any) => {
         if (row?.deletedAt || row?.deleted_at) return false;
         const status = String(row?.status || row?.agentStatus || 'inactive').toLowerCase();
         return status === 'active' || status === 'live';
       });
     },
-    [receptionistMetricsById, statusFilter],
+    [receptionistMetricsById, statusFilter, receptionistRows.length],
   );
   const liveReceptionists = useMemo(
     () =>
@@ -2203,6 +2398,7 @@ function NewAiReceptionistPage() {
             'AI Receptionist';
           const rawStatus = String(data.status || data.agentStatus || 'inactive').toLowerCase();
           const isLive = rawStatus === 'active' || rawStatus === 'live';
+          const isDemo = Boolean(data?._demo);
           return (
             <div className="flex min-w-0 items-center gap-[11px]">
               <div className="relative shrink-0">
@@ -2222,17 +2418,33 @@ function NewAiReceptionistPage() {
                 />
               </div>
               <div className="min-w-0">
-                <button
-                  type="button"
-                  title={name}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    openReceptionistForm(data, 'view', 'overview');
-                  }}
-                  className="block max-w-[200px] truncate text-left font-semibold text-primary transition-colors hover:text-primary/80 cursor-pointer"
-                >
-                  {name}
-                </button>
+                <div className="flex min-w-0 items-center gap-1.5">
+                  {isDemo ? (
+                    <span
+                      title={name}
+                      className="block max-w-[160px] truncate font-semibold text-[#2E2D35]"
+                    >
+                      {name}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      title={name}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openReceptionistForm(data, 'view', 'overview');
+                      }}
+                      className="block max-w-[200px] truncate text-left font-semibold text-primary transition-colors hover:text-primary/80 cursor-pointer"
+                    >
+                      {name}
+                    </button>
+                  )}
+                  {isDemo ? (
+                    <span className="shrink-0 rounded-full bg-[#FBE2C8]/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A948F]">
+                      Demo
+                    </span>
+                  ) : null}
+                </div>
                 <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-slate-500">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                   <span className="truncate">{companyName} · 24/7 voice assistant</span>
@@ -2249,6 +2461,24 @@ function NewAiReceptionistPage() {
           const data = row.original || {};
           const rawStatus = String(data.status || data.agentStatus || 'inactive').toLowerCase();
           const isLive = rawStatus === 'active' || rawStatus === 'live';
+          const isDemo = Boolean(data?._demo);
+
+          if (isDemo) {
+            return (
+              <span
+                title="Sample data — not a real receptionist"
+                className={cx(
+                  'inline-flex h-7 min-w-[74px] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-extrabold',
+                  isLive
+                    ? 'border-emerald-200 bg-emerald-100 text-emerald-800'
+                    : 'border-slate-200 bg-slate-100 text-slate-600',
+                )}
+              >
+                <span className={cx('h-2 w-2 rounded-full', isLive ? 'bg-emerald-500' : 'bg-slate-400')} />
+                <span>{isLive ? 'Live' : 'Paused'}</span>
+              </span>
+            );
+          }
 
           const handleStatusChange = (newStatus: string) => {
             const currentStatus = isLive ? 'live' : 'inactive';
@@ -2307,6 +2537,18 @@ function NewAiReceptionistPage() {
         cell: ({ row }: any) => {
           const data = row?.original || {};
           const assignedDID = data?.did_uuid?.[0]?.did_number || '';
+          const isDemo = Boolean(data?._demo);
+
+          if (isDemo) {
+            return assignedDID ? (
+              <span title="Sample data — not a real receptionist">
+                <NumberWithFlag number={assignedDID} />
+              </span>
+            ) : (
+              <span className="text-[13px] font-semibold text-[#9A948F]">Not assigned</span>
+            );
+          }
+
           return assignedDID ? (
             <button type="button" className="text-left" onClick={() => setAssignCallerAgent(data)}>
               <NumberWithFlag number={assignedDID} />
@@ -2401,33 +2643,87 @@ function NewAiReceptionistPage() {
             );
           }
 
+          const isDemo = Boolean(data?._demo);
+          if (isDemo) {
+            /* Same four buttons as a real row, so the list still reads as a
+               finished design rather than a placeholder — just inert:
+               `pointer-events-none` and no `onClick`, since these agent ids
+               aren't real and would 404/error against the live API. */
+            const demoActions = [
+              {
+                tooltipText: 'Test call (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full opacity-60 pointer-events-none',
+                style: { backgroundColor: '#000000' },
+                icon: <Play className="h-4 w-4 text-white" />,
+              },
+              {
+                tooltipText: 'Edit Prompt (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                icon: <MessageSquare className="h-4 w-4" />,
+              },
+              {
+                tooltipText: 'Edit (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] opacity-60 pointer-events-none',
+                icon: <PenLine className="h-4 w-4" />,
+              },
+              {
+                tooltipText: 'Delete (sample data)',
+                className: 'flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-500 opacity-60 pointer-events-none',
+                icon: <Trash2 className="h-4 w-4" />,
+              },
+            ];
+            return (
+              <div className="flex w-full min-w-[152px] items-center justify-end gap-2">
+                {demoActions.map((action) => (
+                  <CustomTooltip key={action.tooltipText} text={action.tooltipText} side="top">
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      className={action.className}
+                      style={(action as any).style}
+                    >
+                      {action.icon}
+                    </button>
+                  </CustomTooltip>
+                ))}
+              </div>
+            );
+          }
+
           const actions = [
             {
               tooltipText: 'Test call',
               onClick: () => handleTestTalkClick(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-shadow hover:shadow-sm',
+              /* An inline style rather than `bg-black`: inside this table
+                 that utility resolves to a fully transparent background
+                 (verified via computed style — some ancestor rule in this
+                 table's cascade wins over it), leaving just the white play
+                 icon floating with no visible button behind it. The inline
+                 style always wins regardless of that conflict. */
+              style: { backgroundColor: '#000000' },
               icon: <Play className="h-4 w-4 text-white" />,
             },
             {
               tooltipText: 'Edit Prompt',
               onClick: () => setPromptAgent(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] hover:border-primary hover:text-primary',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <MessageSquare className="h-4 w-4" />,
             },
             {
               tooltipText: 'Edit',
               onClick: () => openReceptionistForm(data, 'edit'),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] hover:border-primary hover:text-primary',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FBE2C8]/40 text-[#9A948F] transition-shadow hover:border-primary hover:text-primary hover:shadow-sm',
               icon: <PenLine className="h-4 w-4" />,
             },
             {
               tooltipText: 'Delete',
               onClick: () => setDeleteAgent(data),
               className:
-                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-100',
+                'flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-red-100 text-red-500 transition-shadow hover:bg-red-100 hover:shadow-sm',
               icon: <Trash2 className="h-4 w-4" />,
             },
           ];
@@ -2436,7 +2732,12 @@ function NewAiReceptionistPage() {
             <div className="flex w-full min-w-[152px] items-center justify-end gap-2">
               {actions.map((action) => (
                 <CustomTooltip key={action.tooltipText} text={action.tooltipText} side="top">
-                  <button type="button" onClick={action.onClick} className={action.className}>
+                  <button
+                    type="button"
+                    onClick={action.onClick}
+                    className={action.className}
+                    style={(action as any).style}
+                  >
                     {action.icon}
                   </button>
                 </CustomTooltip>
@@ -2492,32 +2793,63 @@ function NewAiReceptionistPage() {
   }
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
-      <div className="flex min-h-[72px] items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-7">
-        <div>
-          <div className="flex items-center gap-2 text-base font-semibold text-slate-500">
-            <button
-              type="button"
-              onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-              className="transition-colors hover:text-primary"
-            >
-              AI Agents
-            </button>
-            <span>/</span>
-            <span className="text-[#2E2D35]">AI Receptionists</span>
-          </div>
-          <p className="mt-0.5 text-[13px] font-normal text-slate-500">
+    <section
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] p-3"
+      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
+    >
+      <div
+        className="mb-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-4"
+        /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
+           app-wide, unlayered "glass pass" that deliberately turns any
+           `rounded-*` + `bg-white` card translucent — it beats the Tailwind
+           class regardless of specificity, the same way the button reset
+           above does. Inline style is what actually renders solid white. */
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 4px 14px rgba(160,95,30,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+        }}
+      >
+        <div className="min-w-0">
+          <button
+            type="button"
+            onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
+            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
+          >
+            AI Agents
+          </button>
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a]">
+            AI Receptionists
+          </h1>
+          <p className="mt-1 max-w-xl text-[13px] leading-5 text-[#6b5c4d]">
             An AI that answers calls, works out what the caller needs, and routes them or handles it
             outright.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             variant={'outline'}
             onClick={() => {
               setView('analytics');
             }}
-            className="gap-1 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]"
+            className="gap-1.5 text-xs font-semibold backdrop-blur-[12px] transition-shadow hover:shadow-sm"
+            /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+               is an unlayered reset that forces every plain button's
+               background/color/border to none/inherit/0 — deliberately, so
+               it beats Tailwind utilities regardless of specificity (see that
+               rule's own comment). It has no exception for the shared
+               `Button` component, so its `bg-*`/`text-*`/`border-*` classes
+               were silently losing here. Only an inline style beats an
+               unlayered rule, so the intended look is restored that way
+               rather than by touching the shared reset (which ~70 other
+               pages rely on). */
+            style={{
+              backgroundColor: 'rgba(251,249,246,0.88)',
+              borderWidth: 1,
+              borderStyle: 'solid',
+              borderColor: 'rgba(225,200,165,0.9)',
+              color: '#334155',
+            }}
           >
             <TrendingUp className="h-4 w-4" />
             Analytics
@@ -2527,6 +2859,8 @@ function NewAiReceptionistPage() {
             onClick={() => {
               openReceptionistForm(null, 'create');
             }}
+            className="shadow-sm transition-shadow hover:shadow-md"
+            style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--primary)', color: '#ffffff' }}
           >
             <Plus className="h-4 w-4" />
             Create New Receptionist
@@ -2534,45 +2868,97 @@ function NewAiReceptionistPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-7 py-4">
-        <div className="relative max-w-full flex-1 sm:max-w-[340px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9A948F]" />
+      <div
+        className="mb-2 flex w-fit max-w-full items-center gap-2.5 rounded-xl px-3.5 py-1.5"
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid rgba(255,255,255,0.9)',
+          boxShadow: '0 3px 10px rgba(160,95,30,0.08)',
+        }}
+      >
+        <div className="group relative max-w-full sm:w-[300px]">
+          <Search
+            strokeWidth={2.5}
+            className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-[18px] w-[18px] -translate-y-1/2 text-[#6B5B4D] transition-colors group-focus-within:text-primary"
+          />
           <input
             value={search}
             onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
             placeholder="Search receptionists by name..."
             maxLength={50}
-            className="h-9 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/45 pl-9 pr-3 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[rgba(225,200,165,0.9)] focus:border-primary focus:bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
+            className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/45 pl-9 pr-8 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[#e8c9a0] focus:border-primary focus:bg-[rgba(251,249,246,0.88)] focus:ring-[3px] focus:ring-primary/12"
           />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-[#FBE2C8]/70"
+              style={{ color: '#9A948F' }}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => setStatusFilter('all')}
-          className={`h-8 rounded-full border px-3 text-xs font-semibold transition-colors ${
-            statusFilter === 'all'
-              ? 'border-primary bg-primary text-white'
-              : 'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
-          }`}
-        >
-          All <span>{totalReceptionistsCount}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setStatusFilter('live')}
-          className={`h-8 rounded-full border px-3 text-xs font-semibold transition-colors ${
-            statusFilter === 'live'
-              ? 'border-primary bg-primary text-white'
-              : 'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
-          }`}
-        >
-          Live <span>{liveReceptionistsCount}</span>
-        </button>
+        <div className="h-5 w-px shrink-0 bg-[#EEE7DD]" />
+        <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] bg-white/70 p-1 shadow-sm">
+          <button
+            type="button"
+            onClick={() => setStatusFilter('all')}
+            className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
+              statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+            }`}
+            /* Same unlayered-reset issue as the header buttons above — a
+               plain `<button>`'s own background/color always loses to
+               `.mcm-page button {...}` unless set inline. */
+            style={
+              statusFilter === 'all'
+                ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                : { color: '#6B5B4D' }
+            }
+          >
+            All
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+              }`}
+            >
+              {totalReceptionistsCount}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter('live')}
+            className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
+              statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60'
+            }`}
+            style={
+              statusFilter === 'live'
+                ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                : { color: '#6B5B4D' }
+            }
+          >
+            <span
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                statusFilter === 'live' ? 'bg-white' : 'bg-emerald-500'
+              }`}
+            />
+            Live
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70'
+              }`}
+            >
+              {liveReceptionistsCount}
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-[22px] overflow-auto px-7 py-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
           {listStats.map((stat) => (
-            <StatCard
+            <ReceptionistListStatCard
               key={stat.label}
               label={stat.label}
               value={stat.value}
@@ -2582,19 +2968,40 @@ function NewAiReceptionistPage() {
           ))}
         </div>
 
-        <TableManager
-          fetcherKey={['getAIReceptionistList', 'new-ai-receptionist-table', statusFilter]}
-          fetcherFn={getAIReceptionistList}
-          columns={columns}
-          search={search}
-          extraParams={{ filters: tableFilters }}
-          clientSideSearch={false}
-          select={tableSelect}
-          customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[#f8fafc] [&_th]:px-[18px] [&_th]:py-[13px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-slate-500 [&_td]:h-[66px] [&_td]:px-[18px] [&_td]:py-[14px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
-          loaderTableClass="min-h-[320px]"
-          getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70'}
-          emptyTablePlaceholder="No receptionists found."
-        />
+        {/* `TableManager` sizes its own scroll box off `getBoundingClientRect().top`
+            and pins its header with `position: sticky` inside that box — both
+            assume the box's top offset stays put while the box itself scrolls.
+            Nesting it directly in the stat-cards row's own `overflow-auto` broke
+            that: scrolling moved the whole table (sticky header included) as
+            part of the outer scroll, since the table was carried along inside
+            it rather than being the thing that scrolls. Giving it this own
+            `min-h-0 flex-1` wrapper — with the stat-cards row no longer
+            scrollable — makes `TableManager`'s internal scroll box the only
+            one, so its header now stays fixed the way it does everywhere else
+            this component is used. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden rounded-xl">
+          {/* `TableManager`'s own scroll box combines `overflow-auto`,
+              `rounded-xl`, and `backdrop-blur` on one element — a
+              combination Chromium sometimes fails to clip correctly, letting
+              the native scrollbar render past the rounded corner instead of
+              following its curve. Wrapping it in a matching `overflow-hidden`
+              + `rounded-xl` box here (page-scoped, not touching the shared
+              component) clips that overflow without altering how the table
+              itself scrolls. */}
+          <TableManager
+            fetcherKey={['getAIReceptionistList', 'new-ai-receptionist-table', statusFilter]}
+            fetcherFn={getAIReceptionistList}
+            columns={columns}
+            search={search}
+            extraParams={{ filters: tableFilters }}
+            clientSideSearch={false}
+            select={tableSelect}
+            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:px-[18px] [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] [&_td]:h-[62px] [&_td]:px-[18px] [&_td]:py-[10px] [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[174px] [&_td:last-child]:w-[174px]"
+            loaderTableClass="min-h-[320px]"
+            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/70'}
+            emptyTablePlaceholder="No receptionists found."
+          />
+        </div>
       </div>
 
       <Dialog open={Boolean(deleteAgent)} onOpenChange={(open) => !open && setDeleteAgent(null)}>
@@ -5075,7 +5482,6 @@ function NewAiReceptionistBuilder({
         selectedPersonaObj,
         ...apiVoices,
         ...voiceOptions,
-        ...spanishVoiceOptions,
         ...hindiVoiceOptions,
       ].filter(Boolean);
       const matchedVoice = voiceCandidates.find((voice: any) =>
@@ -5433,12 +5839,27 @@ function NewAiReceptionistBuilder({
           variant="outline"
           disabled={isKnowledgeSummaryNavigationLocked}
           onClick={activeStep === 1 ? requestWizardLeave : handleBack}
+          /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+             is an unlayered reset that forces every plain button's
+             background/color/border to none/inherit/0 — deliberately, so
+             it beats Tailwind utilities regardless of specificity. It has
+             no exception for the shared `Button` component, so its own
+             variant classes were silently losing here across all 7 wizard
+             steps (this footer is shared). Only an inline style beats an
+             unlayered rule. */
+          style={{
+            backgroundColor: '#ffffff',
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderColor: 'var(--primary)',
+            color: 'var(--primary)',
+          }}
         >
           <ArrowLeft className="h-4 w-4" />
           {activeStep === 1 ? 'Cancel' : 'Back'}
         </Button>
         <Button
-          className="bg-primary text-white hover:bg-primary/90 hover:text-white"
+          className="hover:bg-primary/90 hover:text-white"
           disabled={
             isSubmitting ||
             isPendingToken ||
@@ -5447,6 +5868,11 @@ function NewAiReceptionistBuilder({
             isKnowledgeSummaryNavigationLocked
           }
           onClick={handleContinue}
+          style={{
+            backgroundColor: 'var(--primary)',
+            borderColor: 'var(--primary)',
+            color: '#ffffff',
+          }}
         >
           {activeStep === 6
             ? isCreatingKnowledgeSources
@@ -5526,12 +5952,14 @@ function NewAiReceptionistBuilder({
           </Field>
         </div>
         <Field label="Use case" className="mt-4">
-          <select
-            value={roleUseCase}
-            onChange={(event) => {
-              const nextUseCase = event.target.value;
+          <CustomSelect
+            isDisabled={isReadOnly || isLoadingUseCaseTemplates}
+            isLoading={isLoadingUseCaseTemplates}
+            value={roleUseCase ? { label: roleUseCase, value: roleUseCase } : null}
+            handleChange={(option: any) => {
+              const nextUseCase = option?.value || '';
               const selectedTemplate = useCaseTemplateOptions.find(
-                (option) => option.name === nextUseCase,
+                (option: any) => option.name === nextUseCase,
               );
               setRoleUseCase(nextUseCase);
               if (selectedTemplate?.welcomeGreeting) {
@@ -5546,18 +5974,12 @@ function NewAiReceptionistBuilder({
               );
               setStepErrors((prev) => ({ ...prev, systemPrompt: '' }));
             }}
-            disabled={isReadOnly || isLoadingUseCaseTemplates}
-            className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45 disabled:text-slate-600"
-          >
-            <option value="">
-              {isLoadingUseCaseTemplates ? 'Loading templates...' : 'Select a template'}
-            </option>
-            {useCaseTemplateOptions.map((option) => (
-              <option key={option.id} value={option.name}>
-                {option.name}
-              </option>
-            ))}
-          </select>
+            options={useCaseTemplateOptions.map((option: any) => ({
+              label: option.name,
+              value: option.name,
+            }))}
+            placeholder={isLoadingUseCaseTemplates ? 'Loading templates...' : 'Select a template'}
+          />
         </Field>
         <Field label="Short description (internal only)" className="mt-4">
           <input
@@ -5615,13 +6037,16 @@ function NewAiReceptionistBuilder({
       />
 
       {/* Top Banner (Choose Your AI Voice Persona) */}
-      <div className="rounded-2xl bg-[#2434A1] text-white p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-start gap-4">
-          <div className="bg-white/10 p-3 rounded-xl flex items-center justify-center shrink-0">
+          <div
+            className="h-12 w-12 rounded-full flex items-center justify-center shrink-0"
+            style={{ backgroundColor: 'var(--primary)' }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -5636,10 +6061,10 @@ function NewAiReceptionistBuilder({
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white leading-tight">
+            <h3 className="text-base font-bold text-[#2E2D35] leading-tight">
               Choose Your AI Voice Persona
             </h3>
-            <p className="mt-1 text-sm text-[#c3cbf9] leading-relaxed max-w-[500px]">
+            <p className="mt-1 text-sm text-slate-500 leading-relaxed max-w-[440px]">
               Every voice automatically responds in the caller’s language. Just pick an accent and
               personality — no language setup needed.
             </p>
@@ -5647,42 +6072,56 @@ function NewAiReceptionistBuilder({
         </div>
 
         {/* Right side stats */}
-        <div className="flex items-center gap-6 self-end md:self-auto shrink-0">
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">
-              {availableVoices?.length || 0}
-            </div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              AI Voices
-            </div>
-          </div>
-          <div className="h-10 w-px bg-white/20" />
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">50+</div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              Languages
+        <div className="flex items-center gap-3 self-stretch md:self-auto shrink-0">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Headphones className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">
+                {availableVoices?.length || 0}
+              </div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                AI Voices
+              </div>
             </div>
           </div>
-          <div className="h-10 w-px bg-white/20" />
-          <div className="text-center px-4">
-            <div className="text-2xl font-bold tracking-tight text-white">Auto</div>
-            <div className="text-[10px] font-semibold text-[#8b9bf3] uppercase tracking-wider mt-0.5">
-              Detected
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Globe2 className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">50+</div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                Languages
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-2.5">
+            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+            <div>
+              <div className="text-lg font-bold leading-5 text-[#2E2D35]">Auto</div>
+              <div className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                Detected
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Purple Auto-Multilingual Alert Callout */}
-      <div className="flex items-center justify-between bg-[#F4F2FF] border border-[#EBE6FF] rounded-xl p-4 text-sm text-[#4E3FB4]">
+      {/* Auto-Multilingual Alert Callout */}
+      <div className="flex items-center justify-between bg-[#FBE2C8]/40 border border-[rgba(225,200,165,0.9)] rounded-xl p-4 text-sm text-[#8a5a25]">
         <div className="flex items-center gap-2.5 font-medium">
-          <Globe2 className="h-4 w-4 text-[#7C5CFF] shrink-0" />
+          <span
+            className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/30 bg-white shrink-0"
+          >
+            <Globe2 className="h-3.5 w-3.5 text-primary" />
+          </span>
           <span>
             Every voice automatically detects and responds in the caller’s language — no
             configuration needed.
           </span>
         </div>
-        <span className="bg-[#7C5CFF] text-white font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider shrink-0">
+        <span
+          className="text-white font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider shrink-0"
+          style={{ backgroundColor: 'var(--primary)' }}
+        >
           Auto-Multilingual
         </span>
       </div>
@@ -5704,82 +6143,76 @@ function NewAiReceptionistBuilder({
           {/* Filters stacked vertically on the right */}
           <div className="flex flex-col gap-2 items-end">
             {/* Gender Buttons */}
-            <div className="flex items-center border border-[#EEE7DD] rounded-lg p-1 bg-[#FBE2C8]/50">
+            <div className="flex items-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white p-1 shadow-[0_1px_3px_rgba(194,98,46,0.08)]">
               <button
                 type="button"
                 onClick={() => setGenderFilter('all')}
-                className={cx(
-                  'px-4 py-1.5 rounded-md text-xs font-semibold transition-all',
+                className="px-4 py-1.5 rounded-md text-xs font-semibold transition-all"
+                /* `.mcm-page button` (mcm-page.css) unlayered reset forces
+                   background/color to none/inherit ahead of any Tailwind
+                   utility — inline style is what actually wins. */
+                style={
                   genderFilter === 'all'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] hover:text-slate-900',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 All
               </button>
               <button
                 type="button"
                 onClick={() => setGenderFilter('female')}
-                className={cx(
-                  'px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1',
+                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1"
+                style={
                   genderFilter === 'female'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] hover:text-slate-900',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 <span className="text-sm">♀</span> Female
               </button>
               <button
                 type="button"
                 onClick={() => setGenderFilter('male')}
-                className={cx(
-                  'px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1',
+                className="px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1"
+                style={
                   genderFilter === 'male'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-[#9A948F] hover:text-slate-900',
-                )}
+                    ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                    : { color: '#9A948F' }
+                }
               >
                 <span className="text-sm">♂</span> Male
               </button>
             </div>
 
-            {/* Locale Buttons */}
-            <div className="flex items-center border border-[#EEE7DD] rounded-lg p-1 bg-[#FBE2C8]/50">
-              {(
-                [
-                  { key: 'all', label: 'Multilingual' },
-                  { key: 'en-US', label: 'English (US)' },
-                  { key: 'hi-IN', label: 'Hindi (IN)' },
-                  { key: 'es-ES', label: 'Spanish (ES)' },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => setLocaleFilter(opt.key)}
-                  className={cx(
-                    'px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap',
-                    localeFilter === opt.key
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'text-[#9A948F] hover:text-slate-900',
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            {/* Locale Dropdown */}
+            <div className="w-[168px]">
+              <CustomSelect
+                value={
+                  VOICE_LOCALE_FILTER_OPTIONS.find((opt) => opt.value === localeFilter) ||
+                  VOICE_LOCALE_FILTER_OPTIONS[0]
+                }
+                handleChange={(option: any) =>
+                  setLocaleFilter((option?.value || 'all') as VoiceLocaleFilter)
+                }
+                options={VOICE_LOCALE_FILTER_OPTIONS}
+                isClearable={false}
+              />
             </div>
           </div>
         </div>
 
         {/* Search Input Bar */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9A948F]" />
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 h-4 w-4 text-[#9A948F]"
+          />
           <input
             type="text"
             value={voiceSearchQuery}
             onChange={(e) => setVoiceSearchQuery(sanitizeAiSearchText(e.target.value))}
             placeholder="Search by name, accent, or style..."
-            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-[#7C5CFF] focus:ring-2 focus:ring-[#7C5CFF]/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+            className="w-full h-11 pl-10 pr-4 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl text-sm placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
           />
         </div>
       </div>
@@ -5846,11 +6279,33 @@ function NewAiReceptionistBuilder({
                     }
                   }}
                   className={cx(
-                    'relative rounded-2xl border bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-5 text-left transition-all duration-200 cursor-pointer shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col justify-between min-h-[190px]',
-                    selected
-                      ? 'border-[#7C5CFF] ring-1 ring-[#7C5CFF]'
-                      : 'border-[rgba(225,200,165,0.9)] hover:border-[rgba(225,200,165,0.9)] hover:shadow-md',
+                    'relative rounded-2xl backdrop-blur-[12px] p-5 text-left transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[190px]',
+                    !selected && 'hover:shadow-md',
                   )}
+                  /* Tailwind's `border`/`ring-1` utilities were rendering at a
+                     sub-pixel width in this environment (measured ~0.67px),
+                     making the selected state nearly invisible. A literal
+                     2px inline border plus an orange glow survives any DPI
+                     scaling and reads as unmistakably "selected". */
+                  style={
+                    selected
+                      ? {
+                          backgroundColor: 'rgba(251,249,246,0.88)',
+                          borderWidth: 2,
+                          borderStyle: 'solid',
+                          borderColor: 'var(--primary)',
+                          boxShadow:
+                            '0 0 0 3px rgba(224,121,31,0.18), 0 12px 28px -6px rgba(194,98,46,0.22), 0 2px 8px rgba(194,98,46,0.12)',
+                        }
+                      : {
+                          backgroundColor: 'rgba(251,249,246,0.88)',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                          borderColor: 'rgba(225,200,165,0.9)',
+                          boxShadow:
+                            '0 12px 28px -6px rgba(194,98,46,0.22), 0 2px 8px rgba(194,98,46,0.12)',
+                        }
+                  }
                 >
                   <div>
                     {/* Header Row: Title & Gender Tag */}
@@ -5870,7 +6325,10 @@ function NewAiReceptionistBuilder({
                           {voice.gender}
                         </span>
                         {selected && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#7C5CFF] text-white">
+                          <span
+                            className="flex h-5 w-5 items-center justify-center rounded-full text-white"
+                            style={{ backgroundColor: 'var(--primary)' }}
+                          >
                             <Check className="h-3 w-3 stroke-[3]" />
                           </span>
                         )}
@@ -5925,10 +6383,12 @@ function NewAiReceptionistBuilder({
                         event.stopPropagation();
                         handleSelectVoice(voice);
                       }}
-                      className={cx(
-                        'h-8 px-3 text-xs font-semibold',
-                        selected ? 'bg-[#7C5CFF] text-white hover:bg-[#6d4df0]' : '',
-                      )}
+                      className="h-8 px-3 text-xs font-semibold hover:opacity-90"
+                      style={
+                        selected
+                          ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                          : undefined
+                      }
                     >
                       {selected ? (
                         <>
@@ -6260,25 +6720,108 @@ function NewAiReceptionistBuilder({
       if (knowledgeWebsiteMode === 'picker') {
         return (
           <div className="mx-auto flex w-full max-w-[880px] flex-col gap-5">
-            <div>
-              <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">
-                Knowledge — your website
-              </h1>
-              <p className="mt-1 max-w-[760px] text-sm leading-5 text-slate-500">
-                Pick an existing knowledge base, or create a new one by scanning your website. AI
-                turns pages and documents into Documents & FAQs.
-              </p>
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0">
+                <h1 className="text-[22px] font-bold leading-7 text-[#2E2D35]">
+                  Knowledge — your website
+                </h1>
+                <p className="mt-1 max-w-[540px] text-sm leading-5 text-slate-500">
+                  Choose an existing knowledge base or create a new one by scanning your website.
+                  AI turns pages and documents into easy to understand answers.
+                </p>
+              </div>
+              <svg
+                className="hidden shrink-0 sm:block"
+                width="140"
+                height="104"
+                viewBox="0 0 140 104"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <rect x="18" y="10" width="92" height="72" rx="12" fill="#FFFFFF" />
+                <rect
+                  x="18"
+                  y="10"
+                  width="92"
+                  height="72"
+                  rx="12"
+                  stroke="#F0DFC5"
+                  strokeWidth="1.5"
+                />
+                <rect x="18" y="10" width="92" height="18" rx="12" fill="var(--primary)" />
+                <rect x="18" y="20" width="92" height="8" fill="var(--primary)" />
+                <circle cx="29" cy="19" r="2.5" fill="#FFFFFF" opacity="0.85" />
+                <circle cx="37" cy="19" r="2.5" fill="#FFFFFF" opacity="0.65" />
+                <circle cx="45" cy="19" r="2.5" fill="#FFFFFF" opacity="0.45" />
+                <circle cx="64" cy="55" r="15" stroke="var(--primary)" strokeWidth="2.5" />
+                <ellipse
+                  cx="64"
+                  cy="55"
+                  rx="6.5"
+                  ry="15"
+                  stroke="var(--primary)"
+                  strokeWidth="2.5"
+                />
+                <line x1="49" y1="55" x2="79" y2="55" stroke="var(--primary)" strokeWidth="2.5" />
+                <rect x="30" y="68" width="68" height="4" rx="2" fill="#FBE2C8" />
+                <g>
+                  <rect
+                    x="86"
+                    y="52"
+                    width="30"
+                    height="38"
+                    rx="6"
+                    fill="#FFFFFF"
+                    stroke="#F0DFC5"
+                    strokeWidth="1.5"
+                  />
+                  <rect x="92" y="60" width="18" height="3" rx="1.5" fill="#E5794D" />
+                  <rect x="92" y="67" width="18" height="3" rx="1.5" fill="#FBE2C8" />
+                  <rect x="92" y="74" width="12" height="3" rx="1.5" fill="#FBE2C8" />
+                </g>
+                <rect
+                  x="4"
+                  y="58"
+                  width="26"
+                  height="22"
+                  rx="5"
+                  fill="var(--primary)"
+                  transform="rotate(-8 4 58)"
+                />
+                <text
+                  x="9"
+                  y="76"
+                  fontSize="9"
+                  fontWeight="700"
+                  fill="#FFFFFF"
+                  transform="rotate(-8 9 76)"
+                >
+                  PDF
+                </text>
+                <path
+                  d="M118 20l2.4 5.1L126 27.5l-5.6 2.4L118 35l-2.4-5.1-5.6-2.4 5.6-2.4L118 20Z"
+                  fill="#FBE2C8"
+                />
+                <path
+                  d="M22 88l1.6 3.4L27 93l-3.4 1.6L22 98l-1.6-3.4L17 93l3.4-1.6L22 88Z"
+                  fill="#FBE2C8"
+                />
+              </svg>
             </div>
 
-            <div className="flex items-center justify-between gap-4 rounded-[14px] bg-gradient-to-r from-[#2947c9] to-[#2f7df2] px-6 py-5 text-white shadow-sm">
+            <div
+              className="flex items-center justify-between gap-4 rounded-[14px] px-6 py-5 text-white shadow-sm"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
               <div className="flex min-w-0 items-center gap-4">
-                <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-xl bg-white/15">
-                  <FileText className="h-7 w-7" />
+                <div className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-white">
+                  <FileText className="h-6 w-6 text-primary" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-lg font-bold">Create new knowledge base</h3>
                   <p className="mt-1 text-sm leading-5 text-white/85">
-                    Scan a website, pick pages, upload docs — AI does the rest.
+                    Scan a website, pick pages, upload documents — AI does the rest.
                   </p>
                 </div>
               </div>
@@ -6302,7 +6845,12 @@ function NewAiReceptionistBuilder({
                     setStepErrors((prev) => ({ ...prev, knowledgeBase: '' }));
                     setKnowledgeWebsiteMode('scan');
                   }}
-                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-primary shadow-sm transition hover:bg-white/95"
+                  className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg px-5 text-sm font-bold shadow-sm transition hover:opacity-90"
+                  /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                     (mcm-page.css) unlayered reset forces background/color
+                     to none/inherit ahead of any Tailwind utility — inline
+                     style is what actually wins. */
+                  style={{ backgroundColor: '#ffffff', color: 'var(--primary)' }}
                 >
                   Start
                   <ArrowRight className="h-4 w-4" />
@@ -6323,7 +6871,7 @@ function NewAiReceptionistBuilder({
                   Search your existing knowledge bases or create a new one from a website.
                 </p>
                 <div className="relative mt-4">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-[#9A948F]" />
                   <input
                     value={knowledgeBaseSearch}
                     onChange={(event) =>
@@ -6511,10 +7059,10 @@ function NewAiReceptionistBuilder({
 
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-[14px]">
-        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm font-medium text-primary">
+        <div className="flex w-fit max-w-full items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
           {discoveredLinks.length > 0 ? (
             <>
-              <Check className="h-4 w-4 shrink-0 stroke-[3]" />
+              <Check className="h-3.5 w-3.5 shrink-0 stroke-[3]" />
               <span>
                 Found {discoveredLinks.length.toLocaleString()} pages on {scannedDomain}. Picked the
                 most useful ones below.
@@ -6522,7 +7070,7 @@ function NewAiReceptionistBuilder({
             </>
           ) : (
             <>
-              <Info className="h-4 w-4 shrink-0" />
+              <Info className="h-3.5 w-3.5 shrink-0" />
               <span>
                 Manual mode — add content and documents below. The receptionist will use these as
                 its only knowledge base.
@@ -6579,21 +7127,35 @@ function NewAiReceptionistBuilder({
                     <div id={contentId} className="max-h-[320px] overflow-y-auto bg-white">
                       {category.links.map((link) => {
                         const selected = selectedLinks.includes(link);
+                        const checkboxId = `pick-page-${category.id}-${link}`;
                         return (
                           <label
                             key={link}
+                            htmlFor={checkboxId}
                             className={cx(
                               'flex min-h-[34px] items-center gap-2.5 border-b border-[#EEE7DD] px-3.5 py-2 transition-colors last:border-b-0',
                               selected ? 'bg-primary/[0.04]' : 'bg-white',
                               isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-slate-50',
                             )}
                           >
-                            <input
-                              type="checkbox"
+                            <Checkbox
+                              id={checkboxId}
                               checked={selected}
                               disabled={isReadOnly}
-                              onChange={(event) => togglePickPageLink(link, event.target.checked)}
-                              className="h-[15px] w-[15px] rounded border-[#EEE7DD] text-primary focus:ring-primary disabled:cursor-not-allowed"
+                              onCheckedChange={(checked) =>
+                                togglePickPageLink(link, checked === true)
+                              }
+                              /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                                 (mcm-page.css) unlayered reset strips this Radix
+                                 checkbox's border/background before any Tailwind
+                                 utility can apply — inline style is what survives. */
+                              style={{
+                                borderWidth: 1.5,
+                                borderStyle: 'solid',
+                                borderColor: selected ? 'var(--primary)' : '#B9AFA0',
+                                backgroundColor: selected ? 'var(--primary)' : '#ffffff',
+                                color: '#ffffff',
+                              }}
                             />
                             <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#2E2D35]">
                               {getPickPageRowLabel(link, category.stripLeadingSegments)}
@@ -6829,66 +7391,19 @@ function NewAiReceptionistBuilder({
     if (isReadOnly) return null;
 
     const menuKey = `${type}-${item.id}`;
-    const isOpen = openReviewKnowledgeMenu === menuKey;
 
     return (
-      <div className="relative shrink-0">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            setOpenReviewKnowledgeMenu(isOpen ? '' : menuKey);
-          }}
-          className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35]"
-          aria-label="Knowledge card actions"
-        >
-          ⋮
-        </button>
-        {isOpen && (
-          <div className="absolute right-0 top-7 z-30 min-w-[170px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.08)]">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleOpenReviewKnowledgeSource(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
-            >
-              📄 View Source Document
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleOpenReviewKnowledgeEdit(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
-            >
-              ✎ Edit
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleDuplicateReviewKnowledgeItem(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50"
-            >
-              ⎘ Duplicate
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleDeleteReviewKnowledgeItem(type, item);
-              }}
-              className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-red-600 hover:bg-red-50"
-            >
-              🗑 Delete
-            </button>
-          </div>
-        )}
-      </div>
+      <ReviewKnowledgeMenu
+        isOpen={openReviewKnowledgeMenu === menuKey}
+        onToggle={() =>
+          setOpenReviewKnowledgeMenu(openReviewKnowledgeMenu === menuKey ? '' : menuKey)
+        }
+        onClose={() => setOpenReviewKnowledgeMenu('')}
+        onViewSource={() => handleOpenReviewKnowledgeSource(type, item)}
+        onEdit={() => handleOpenReviewKnowledgeEdit(type, item)}
+        onDuplicate={() => handleDuplicateReviewKnowledgeItem(type, item)}
+        onDelete={() => handleDeleteReviewKnowledgeItem(type, item)}
+      />
     );
   };
 
@@ -6905,7 +7420,14 @@ function NewAiReceptionistBuilder({
       <>
         {reviewKnowledgeSourceModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl bg-white shadow-2xl">
+            <div
+              className="max-h-[calc(100vh-48px)] w-full max-w-[620px] overflow-y-auto rounded-xl shadow-2xl"
+              /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css)
+                 unlayered glass-pass would turn a literal `bg-white` class
+                 translucent here — inline style keeps this modal solidly
+                 opaque instead of letting the page behind bleed through. */
+              style={{ backgroundColor: '#ffffff' }}
+            >
               <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
                 <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeSourceModal.type === 'faq'
@@ -6970,7 +7492,10 @@ function NewAiReceptionistBuilder({
 
         {reviewKnowledgeEditModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white shadow-2xl">
+            <div
+              className="w-full max-w-[540px] rounded-xl shadow-2xl"
+              style={{ backgroundColor: '#ffffff' }}
+            >
               <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
                 <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeEditModal.type === 'faq' ? 'Edit FAQ' : 'Edit document'}
@@ -7023,7 +7548,10 @@ function NewAiReceptionistBuilder({
 
         {reviewKnowledgeAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 px-3 py-6">
-            <div className="w-full max-w-[540px] rounded-xl bg-white shadow-2xl">
+            <div
+              className="w-full max-w-[540px] rounded-xl shadow-2xl"
+              style={{ backgroundColor: '#ffffff' }}
+            >
               <div className="flex items-center justify-between border-b border-[#EEE7DD] px-5 py-4">
                 <h3 className="text-base font-bold text-[#2E2D35]">
                   {reviewKnowledgeAddModal.type === 'faq' ? 'Add FAQ' : 'Add document'}
@@ -7050,12 +7578,16 @@ function NewAiReceptionistBuilder({
                           prev ? { ...prev, mode: mode.value } : prev,
                         )
                       }
-                      className={cx(
-                        'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors',
+                      className="flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors"
+                      /* `.mcm-page button:not([data-slot='tabs-trigger'])`
+                         (mcm-page.css) unlayered reset forces background/
+                         color/border to none/inherit/0 ahead of any
+                         Tailwind utility — inline style is what wins. */
+                      style={
                         reviewKnowledgeAddModal.mode === mode.value
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-[#EEE7DD] bg-slate-50 text-slate-700 hover:border-primary hover:text-primary',
-                      )}
+                          ? { borderColor: 'var(--primary)', backgroundColor: 'var(--primary)', color: '#ffffff' }
+                          : { borderColor: '#EEE7DD', backgroundColor: '#f8fafc', color: '#334155' }
+                      }
                     >
                       {mode.label}
                     </button>
@@ -7199,7 +7731,7 @@ function NewAiReceptionistBuilder({
           </p>
         </div>
 
-        <div className="rounded-[14px] border border-[#BFDBFE] bg-gradient-to-br from-blue-50 to-emerald-50 px-[22px] py-[22px] text-center">
+        <div className="rounded-[14px] border border-[rgba(225,200,165,0.9)] bg-gradient-to-br from-[#FFF6EA] to-[#FBE2C8]/60 px-[22px] py-[22px] text-center">
           <div className="mx-auto mb-2.5 grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white">
             <Check className="h-[26px] w-[26px] stroke-[3]" />
           </div>
@@ -7241,7 +7773,7 @@ function NewAiReceptionistBuilder({
           </p>
         </div>
 
-        <div className="inline-flex w-fit gap-[3px] rounded-lg bg-slate-100 p-1">
+        <div className="inline-flex w-fit gap-[3px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[#FBE2C8]/50 p-1">
           {[
             {
               key: 'documents' as const,
@@ -7265,16 +7797,27 @@ function NewAiReceptionistBuilder({
                   setReviewKnowledgeTab(tab.key);
                   setReviewKnowledgeSearch('');
                 }}
-                className={cx(
-                  'inline-flex items-center gap-1.5 rounded-md border border-transparent px-3.5 py-1.5 text-xs font-semibold transition-colors',
+                className="inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-semibold transition-colors"
+                style={
                   isSelected
-                    ? 'bg-white text-[#2E2D35] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                    : 'bg-transparent text-slate-600 hover:bg-white hover:text-[#2E2D35]',
-                )}
+                    ? {
+                        backgroundColor: '#ffffff',
+                        color: '#2E2D35',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      }
+                    : { backgroundColor: 'transparent', color: '#8a5a25' }
+                }
               >
                 {tab.icon}
                 {tab.label}
-                <span className="ml-1 rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-slate-600">
+                <span
+                  className="ml-1 rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none"
+                  style={
+                    isSelected
+                      ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                      : { backgroundColor: 'rgba(255,255,255,0.7)', color: '#8a5a25' }
+                  }
+                >
                   {tab.count}
                 </span>
               </button>
@@ -7284,7 +7827,7 @@ function NewAiReceptionistBuilder({
 
         <div className="mb-0.5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#9A948F]" />
             <input
               value={reviewKnowledgeSearch}
               onChange={(event) =>
@@ -7541,6 +8084,13 @@ function NewAiReceptionistBuilder({
                       toggleSingleDetail(key, checked === true);
                     }}
                     className="shrink-0"
+                    style={{
+                      borderWidth: 1.5,
+                      borderStyle: 'solid',
+                      borderColor: isChecked ? 'var(--primary)' : '#B9AFA0',
+                      backgroundColor: isChecked ? 'var(--primary)' : '#ffffff',
+                      color: '#ffffff',
+                    }}
                   />
 
                   {/* Label */}
@@ -7647,31 +8197,28 @@ function NewAiReceptionistBuilder({
             </p>
           )}
           {isDataCollectionEnabled && enableCrmPush && (
-            <select
-              value={selectedCrmPipeline}
-              onChange={(event) => setSelectedCrmPipeline(event.target.value)}
-              disabled={isReadOnly || isFetchingConnectedCrms || connectedCrmOptions.length === 0}
-              className="mt-3 h-10 w-full rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm font-medium text-[#2E2D35] outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-[#FBE2C8]/45"
-            >
-              <option value="" disabled>
-                {isFetchingConnectedCrms
-                  ? 'Checking connected CRMs...'
-                  : connectedCrmOptions.length > 0
-                    ? 'Select CRM...'
-                    : 'No connected CRM available'}
-              </option>
-              {connectedCrmOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-              <optgroup hidden label="Legacy CRM options">
-                <option value="hubspot-sales">HubSpot — Sales pipeline</option>
-                <option value="hubspot-marketing">HubSpot — Marketing pipeline</option>
-                <option value="salesforce">Salesforce — Leads</option>
-                <option value="zoho">Zoho CRM — Contacts</option>
-              </optgroup>
-            </select>
+            <div className="mt-3">
+              <CustomSelect
+                isDisabled={isReadOnly || isFetchingConnectedCrms || connectedCrmOptions.length === 0}
+                isLoading={isFetchingConnectedCrms}
+                value={
+                  selectedCrmPipeline
+                    ? connectedCrmOptions.find(
+                        (option: any) => option.value === selectedCrmPipeline,
+                      ) || null
+                    : null
+                }
+                handleChange={(option: any) => setSelectedCrmPipeline(option?.value || '')}
+                options={connectedCrmOptions}
+                placeholder={
+                  isFetchingConnectedCrms
+                    ? 'Checking connected CRMs...'
+                    : connectedCrmOptions.length > 0
+                      ? 'Select CRM...'
+                      : 'No connected CRM available'
+                }
+              />
+            </div>
           )}
         </div>
       </div>
@@ -7712,21 +8259,15 @@ function NewAiReceptionistBuilder({
             </div>
             <label className="block">
               <span className="mb-1.5 block text-sm font-semibold text-[#2E2D35]">Manager</span>
-              <select
-                value={selectedManagerId}
-                onChange={(event) => {
-                  setSelectedManagerId(event.target.value);
+              <CustomSelect
+                value={selectedManagerOption}
+                handleChange={(option: any) => {
+                  setSelectedManagerId(option?.value || '');
                   setStepErrors((prev) => ({ ...prev, manager: '' }));
                 }}
-                className="h-10 w-full rounded-md border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm outline-none focus:border-primary"
-              >
-                <option value="">Select a manager</option>
-                {managerExtensions.map((ext: any) => (
-                  <option key={ext.uuid || ext.id} value={ext.uuid || ext.id}>
-                    {`${ext.first_name || ''} ${ext.last_name || ''}`.trim()} ({ext.extension})
-                  </option>
-                ))}
-              </select>
+                options={managerOptions}
+                placeholder="Select a manager"
+              />
             </label>
             {stepErrors.forwardCall && (
               <p className="text-sm text-red-500">{stepErrors.forwardCall}</p>
@@ -8791,6 +9332,163 @@ function StatCard({
   );
 }
 
+/* The card-actions "⋮" menu on Review's knowledge cards used a plain
+   `absolute right-0 top-7` popover, which had no idea how close its trigger
+   was to the bottom of the viewport — the last one or two items (Duplicate,
+   Delete) simply rendered past the fold with nothing to scroll them into
+   view. Portalled + viewport-aware, the same way `FieldSelect` (Directory ▸
+   Blocked) solves the identical problem: measure the trigger, open above it
+   instead of below when there isn't room, and portal to the nearest
+   `.mcm-page` so the design system's CSS variables still apply. */
+function ReviewKnowledgeMenu({
+  isOpen,
+  onToggle,
+  onClose,
+  onViewSource,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onViewSource: () => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const [portalTarget, setPortalTarget] = useState<Element | null>(null);
+  const MENU_WIDTH = 178;
+  const MENU_HEIGHT_ESTIMATE = 184;
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    setPortalTarget(triggerRef.current?.closest('.mcm-page') || document.body);
+    const place = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < MENU_HEIGHT_ESTIMATE + 12;
+      const top = openUp
+        ? Math.max(8, rect.top - MENU_HEIGHT_ESTIMATE - 6)
+        : rect.bottom + 6;
+      const left = Math.min(
+        Math.max(8, rect.right - MENU_WIDTH),
+        window.innerWidth - MENU_WIDTH - 8,
+      );
+      setMenuPos({ top, left });
+    };
+    place();
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeIfOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      onClose();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('mousedown', closeIfOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeIfOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isOpen, onClose]);
+
+  const menuItemClass =
+    'flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-slate-800 hover:bg-slate-50';
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggle();
+        }}
+        className="inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-lg leading-none text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#2E2D35]"
+        aria-label="Knowledge card actions"
+      >
+        ⋮
+      </button>
+      {isOpen && menuPos && portalTarget
+        ? createPortal(
+            <div
+              ref={menuRef}
+              className="fixed z-[200] w-[178px] rounded-lg border border-[rgba(225,200,165,0.9)] p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.14)]"
+              /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css)
+                 unlayered glass-pass would turn a literal `bg-white` class
+                 translucent here — inline style keeps this menu solidly
+                 opaque and legible over page content. */
+              style={{ top: menuPos.top, left: menuPos.left, backgroundColor: '#ffffff' }}
+            >
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onViewSource();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                📄 View Source Document
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                ✎ Edit
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDuplicate();
+                  onClose();
+                }}
+                className={menuItemClass}
+              >
+                ⎘ Duplicate
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete();
+                  onClose();
+                }}
+                className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-red-600 hover:bg-red-50"
+              >
+                🗑 Delete
+              </button>
+            </div>,
+            portalTarget,
+          )
+        : null}
+    </div>
+  );
+}
+
 function PrimaryButton({
   children,
   onClick,
@@ -8806,9 +9504,15 @@ function PrimaryButton({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        'inline-flex h-10 items-center justify-center whitespace-nowrap gap-1.5 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-colors hover:bg-primary/90',
-        disabled && 'cursor-not-allowed opacity-60 hover:bg-primary',
+        'inline-flex h-10 items-center justify-center whitespace-nowrap gap-1.5 rounded-lg px-4 text-sm font-bold transition-opacity hover:opacity-90',
+        disabled && 'cursor-not-allowed opacity-60 hover:opacity-60',
       )}
+      /* `.mcm-page button:not([data-slot='tabs-trigger'])` (mcm-page.css)
+         is an unlayered reset that forces every plain button's background/
+         color/border to none/inherit/0 ahead of any Tailwind utility — used
+         by 13 call sites across this wizard, so fixed once here with inline
+         style rather than at each one. */
+      style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
     >
       {children}
     </button>
@@ -8830,9 +9534,16 @@ function SecondaryButton({
       onClick={onClick}
       disabled={disabled}
       className={cx(
-        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 text-sm font-bold text-slate-700 transition-colors hover:border-gray-400',
-        disabled && 'cursor-not-allowed opacity-60 hover:border-[#EEE7DD]',
+        'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-bold transition-colors',
+        disabled && 'cursor-not-allowed opacity-60',
       )}
+      style={{
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: 'rgba(225,200,165,0.9)',
+        backgroundColor: 'rgba(251,249,246,0.88)',
+        color: '#334155',
+      }}
     >
       {children}
     </button>

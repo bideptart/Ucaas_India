@@ -399,16 +399,6 @@ const Performance = () => {
             .mcm-page .stat-trend.bad { color:var(--crit); }
             .mcm-page .stat-trend.good { color:var(--live); }
 
-            /* Reinforces "live" beyond the word itself — a soft glow that
-               breathes with the pulsing dot, not just a static badge. */
-            .mcm-page .fchip.live {
-              box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.12);
-              animation: fchip-live-glow 2.4s ease-in-out infinite;
-            }
-            @keyframes fchip-live-glow {
-              0%, 100% { box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.12); }
-              50% { box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.06); }
-            }
           `}</style>
             {/* A feed that failed used to be invisible: every query defaults to
                 an empty list, so an unreachable API produced Waiting 0,

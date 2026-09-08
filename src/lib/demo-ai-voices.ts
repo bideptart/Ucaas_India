@@ -41,9 +41,10 @@ const MULTILINGUAL: DemoVoiceSeed[] = [
   { name: 'Brian', gender: 'male', locale: 'en-US', multilingual: true },
 ];
 
-/* Fixed-language voices, one set per tab the step offers. Without these the
-   three locale tabs would be empty even once Multilingual works, because the
-   step deliberately shows fixed and multilingual voices in different tabs. */
+/* Fixed-language voices, one set per locale the step's dropdown offers.
+   Without these the fixed-language options would be empty even once
+   Multilingual works, because the step deliberately shows fixed and
+   multilingual voices separately. */
 const FIXED: DemoVoiceSeed[] = [
   { name: 'Jenny', gender: 'female', locale: 'en-US', multilingual: false },
   { name: 'Guy', gender: 'male', locale: 'en-US', multilingual: false },
@@ -55,10 +56,32 @@ const FIXED: DemoVoiceSeed[] = [
   { name: 'Swara', gender: 'female', locale: 'hi-IN', multilingual: false },
   { name: 'Madhur', gender: 'male', locale: 'hi-IN', multilingual: false },
 
-  { name: 'Abril', gender: 'female', locale: 'es-ES', multilingual: false },
-  { name: 'Alvaro', gender: 'male', locale: 'es-ES', multilingual: false },
-  { name: 'Elvira', gender: 'female', locale: 'es-ES', multilingual: false },
-  { name: 'Dario', gender: 'male', locale: 'es-ES', multilingual: false },
+  { name: 'Sanika', gender: 'female', locale: 'mr-IN', multilingual: false },
+  { name: 'Om', gender: 'male', locale: 'mr-IN', multilingual: false },
+
+  { name: 'Simran', gender: 'female', locale: 'pa-IN', multilingual: false },
+  { name: 'Harman', gender: 'male', locale: 'pa-IN', multilingual: false },
+
+  { name: 'Sirisha', gender: 'female', locale: 'te-IN', multilingual: false },
+  { name: 'Charan', gender: 'male', locale: 'te-IN', multilingual: false },
+
+  { name: 'Chaitra', gender: 'female', locale: 'kn-IN', multilingual: false },
+  { name: 'Nikhil', gender: 'male', locale: 'kn-IN', multilingual: false },
+
+  { name: 'Ritu', gender: 'female', locale: 'bn-IN', multilingual: false },
+  { name: 'Debjit', gender: 'male', locale: 'bn-IN', multilingual: false },
+
+  { name: 'Zara', gender: 'female', locale: 'gu-IN', multilingual: false },
+  { name: 'Meet', gender: 'male', locale: 'gu-IN', multilingual: false },
+
+  { name: 'Meena', gender: 'female', locale: 'ta-IN', multilingual: false },
+  { name: 'Karthik', gender: 'male', locale: 'ta-IN', multilingual: false },
+
+  { name: 'Anjali', gender: 'female', locale: 'ml-IN', multilingual: false },
+  { name: 'Arun', gender: 'male', locale: 'ml-IN', multilingual: false },
+
+  { name: 'Swagatika', gender: 'female', locale: 'or-IN', multilingual: false },
+  { name: 'Biswajit', gender: 'male', locale: 'or-IN', multilingual: false },
 ];
 
 const toRow = (seed: DemoVoiceSeed, index: number) => {

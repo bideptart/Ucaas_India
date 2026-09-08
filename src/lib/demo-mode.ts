@@ -49,6 +49,7 @@ import {
   demoInboundCallRows,
   demoLocalCallRows,
   demoMeetingRows,
+  demoRecordingRows,
   demoSiteRows,
   demoTemplateRows,
   demoQueueReportRows,
@@ -413,17 +414,14 @@ type Store = {
   sites?: any[];
   templates?: any[];
   callHandlingTemplates?: any[];
-  /* Created/edited Calendar events and tasks only — never the seed rows
-     `demoCalendarTaskRows()` generates. That seed is deliberately
-     recomputed fresh on every read (its times are all "N hours from
-     now", not fixed dates) so a demo calendar always looks current
-     instead of drifting into the past as real time passes; storing it
-     here once would freeze it at whatever moment this was first
-     written. The two are merged back together only at the list
-     endpoint, below. */
-  calendarTasks?: any[];
   numbers?: any[];
   contacts?: any[];
+  /* Video meetings and calendar events/tasks created in-session — see the
+     "Video meetings & calendar" block below `applyWrite`. One record can back
+     both a `/api/v1/meeting/listing` row and a `/api/calendar/event-task/list`
+     row at once (a scheduled meeting is both), which is why it carries fields
+     for each rather than living in two separate arrays that could disagree. */
+  meetings?: any[];
 };
 
 const readStore = (): Store => {
@@ -459,7 +457,6 @@ const readStore = (): Store => {
           demoCallHandlingTemplateRows(),
         ),
         numbers: mergeSeed(parsed.numbers, demoAssignedDidRows()),
-        calendarTasks: parsed.calendarTasks ?? [],
         /* Contacts key off `_id`, not `uuid` like the rows `mergeSeed` above
            was written for, so a dedicated merge keeps a stored contact from
            being duplicated against the seed on every read. */
@@ -470,6 +467,7 @@ const readStore = (): Store => {
             ...demoContactBookRows().filter((row) => !present.has(row._id)),
           ];
         })(),
+        meetings: parsed.meetings ?? [],
       };
     }
   } catch {
@@ -486,7 +484,7 @@ const readStore = (): Store => {
     callHandlingTemplates: demoCallHandlingTemplateRows(),
     numbers: demoAssignedDidRows(),
     contacts: demoContactBookRows(),
-    calendarTasks: [],
+    meetings: [],
   };
 };
 
@@ -529,6 +527,118 @@ const asObject = (data: unknown): Record<string, any> => {
   return data && typeof data === 'object' ? (data as Record<string, any>) : {};
 };
 
+/* ---------------------------------------------------------------------------
+   Video meetings & calendar — one record backs both `/api/v1/meeting/*` and
+   `/api/calendar/event-task/*`, since a scheduled video meeting is both a
+   meeting and a calendar entry and the real app creates it as one action
+   (`ScheduleMeeting`'s submit calls `createMeeting`, then `createEventAndTask`
+   with the meetingId it got back). A plain calendar TASK never gets a
+   `meetingId` and only ever answers the calendar endpoints.
+--------------------------------------------------------------------------- */
+
+/** A short, Zoom-style room code — good enough to key a Jitsi room by, and
+ *  distinct from the seed's hyphenated `demo-meeting-N` ids. */
+const buildMeetingCode = () => {
+  const segment = (length: number) =>
+    Math.random().toString(36).replace(/[^a-z0-9]/g, '').padEnd(length, '0').slice(0, length);
+  return `${segment(3)}-${segment(4)}-${segment(3)}`;
+};
+
+/** `startTime` arrives as `YYYY-MM-DD HH:mm:ss` (space-separated, not
+ *  ISO) from both `ScheduleMeeting` and the dashboard's instant-meeting
+ *  payload — swapping in a `T` is enough to make `Date` parse it reliably
+ *  across browsers instead of relying on the non-standard space form. */
+const parseMeetingStart = (value: unknown): Date => {
+  if (!value) return new Date();
+  const date = new Date(typeof value === 'string' ? value.replace(' ', 'T') : (value as any));
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+};
+
+const addMinutesIso = (date: Date, minutes: number) =>
+  new Date(date.getTime() + minutes * 60_000).toISOString();
+
+/** Normalises whatever member shape a form posted (`user_uuid` from the
+ *  member picker, `userId` from an edit reload) into one shape carrying both
+ *  keys, since different readers downstream reach for different ones. */
+const mapMeetingPeople = (members: any[] = []) =>
+  members.map((member) => {
+    const id = member?.user_uuid || member?.userId || '';
+    return {
+      user_uuid: id,
+      userId: id,
+      email: member?.email || '',
+      name: member?.name || '',
+      type: member?.type || 'MEMBER',
+      joinStatus: member?.joinStatus || 'NO',
+    };
+  });
+
+/** Shape for `/api/v1/meeting/listing` rows — what the video dashboard, the
+ *  dedicated Upcoming/Invited/Ongoing/Past pages and the video console's own
+ *  `meetings-adapter` all read. */
+const toMeetingListRow = (record: any) => ({
+  meetingId: record.meetingId,
+  name: record.name,
+  hostName: record.hostName,
+  createdById: record.createdById,
+  mode: 'scheduled',
+  timezone: record.timezone,
+  startTimeLocal: record.startTimeLocal,
+  endTimeLocal: record.endTimeLocal,
+  members: record.members,
+});
+
+/** Shape for `/api/calendar/event-task/list` rows — what the Calendar page's
+ *  `transformEventTaskToSchedule` reads. */
+const toCalendarRow = (record: any) => ({
+  _id: record._id,
+  uuid: record._id,
+  name: record.name,
+  category: record.category,
+  source: record.source,
+  status: record.status,
+  mode: record.mode,
+  referenceId: record.referenceId,
+  meetings: record.meetingId ? [{ meetingId: record.meetingId }] : [],
+  assignTo: record.assignTo,
+  timezone: record.timezone,
+  startTime: record.startTime,
+  endTime: record.endTime,
+  startTimeLocal: record.startTimeLocal,
+  endTimeLocal: record.endTimeLocal,
+  createdById: record.createdById,
+  createdAt: record.createdAt,
+});
+
+/** Shape for `GET /api/calendar/event-task/<id>` — the edit-prefill call
+ *  `ScheduleEventModal` makes, read as `result[0]`. */
+const toEventTaskDetail = (record: any) => ({
+  _id: record._id,
+  name: record.name,
+  startTime: record.startTime,
+  duration: record.duration,
+  timezone: record.timezone,
+  assignTo: record.assignTo,
+  meetingDetail: { allowHost: record.allowHost, password: record.password },
+  reminder: record.reminder,
+  description: record.description,
+  reminderMode: record.reminderMode,
+});
+
+/** Shape for `/api/v1/meeting/detail` — the edit-prefill call
+ *  `ScheduleMeeting` (the dashboard's own dialog) makes, read as
+ *  `result[0]`. */
+const toMeetingDetail = (record: any) => ({
+  _id: record._id,
+  name: record.name,
+  startUtc: record.startTime,
+  timezone: record.timezone,
+  allowHost: record.allowHost,
+  password: record.password,
+  duration: record.duration,
+  members: [{ user_detail: record.assignTo }],
+});
+
 /** Writes that the management screens make; returns null when none applies. */
 /**
  * One row for an AI screen's table, from whatever its wizard posted.
@@ -565,60 +675,153 @@ const buildDemoAgentRecord = (body: Record<string, any>, kind: 'receptionist' | 
 const applyWrite = (url: string, body: Record<string, any>) => {
   const store = readStore();
 
-  /* Schedule Meeting (Event) is a two-step save: the modal first creates
-     the meeting itself, then — in that call's own `onSuccess` — creates
-     the calendar record below carrying the returned `meetingId`. Neither
-     step had a handler here before, so both silently fell through to the
-     generic `ok(listPayload())` fallback at the very end of this file:
-     an empty-but-successful response, which is exactly why the modal's
-     "scheduled successfully" toast fired while the calendar never
-     gained anything to show — nothing was ever created because nothing
-     was ever handled. This step just needs to hand back a `meetingId`
-     for the second step to attach. */
+  /* Instant meeting, Schedule meeting, and the same dialog's edit path — all
+     three post here. An incoming `meetingId` means "update", matching how the
+     real endpoint distinguishes create from edit. */
   if (url.includes('/api/v1/meeting/save')) {
-    return ok({ meetingId: newUuid() });
+    const meetings = store.meetings ?? [];
+    const index = body.meetingId ? meetings.findIndex((row) => row.meetingId === body.meetingId) : -1;
+    const existing = index >= 0 ? meetings[index] : null;
+
+    const meetingId = existing?.meetingId || body.meetingId || buildMeetingCode();
+    const meetingType = body.meetingType || existing?.meetingType || 'SCHEDULED';
+    /* An instant meeting posts `duration: 0` — there is no real end time to
+       carry over, so it is given a generous open-ended window instead of
+       looking like it ended the instant it started. */
+    const duration =
+      Number(body.duration) || existing?.duration || (meetingType === 'INSTANT' ? 60 : 30);
+    const start = body.startTime ? parseMeetingStart(body.startTime) : new Date(existing?.startTime || Date.now());
+    const startIso = start.toISOString();
+    const endIso = addMinutesIso(start, duration);
+    const people = body.members ? mapMeetingPeople(body.members) : existing?.assignTo || [];
+
+    const record = {
+      ...existing,
+      _id: existing?._id || meetingId,
+      uuid: existing?._id || meetingId,
+      meetingId,
+      referenceId: meetingId,
+      name: body.name || existing?.name || '',
+      category: body.category || existing?.category || 'EVENT',
+      meetingType,
+      mode: body.mode || existing?.mode || 'VIDEO',
+      status: 'PENDING',
+      startTime: startIso,
+      endTime: endIso,
+      startTimeLocal: startIso,
+      endTimeLocal: endIso,
+      timezone: body.timezone || existing?.timezone || 'Asia/Kolkata',
+      allowHost: body.allowHost || existing?.allowHost || 'Y',
+      ...(body.password ? { password: body.password } : existing?.password ? { password: existing.password } : {}),
+      duration,
+      description: body.description ?? existing?.description ?? '',
+      reminder: body.reminder ?? existing?.reminder ?? false,
+      reminderMode: body.reminderMode ?? existing?.reminderMode ?? [],
+      source: body.source || existing?.source || 'CALENDAR',
+      createdById: existing?.createdById || DEMO_USER.uuid,
+      hostName: existing?.hostName || DEMO_USER.user_info.name,
+      assignTo: people,
+      members: people,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+    };
+
+    store.meetings = index >= 0 ? meetings.map((row, i) => (i === index ? record : row)) : [...meetings, record];
+    writeStore(store);
+    return ok({ ...record, meetingId });
   }
 
-  /* Both Schedule Meeting (Event) and Create Task converge on this one
-     endpoint — `category` (from the modal's own tab) is what tells them
-     apart on the calendar afterwards, same field the seed rows already
-     use to colour themselves (findColors in Calender/index.tsx: EVENT
-     blue, TASK green, MEETING violet). */
+  /* Follows a meeting's own save, carrying the same fields plus the
+     `meetingId`/`referenceId` it got back — or, for a plain calendar TASK
+     with no video meeting at all, the only save call that happens. */
   if (url.includes('/api/calendar/event-task/save')) {
-    const now = new Date();
-    const startTime = body.startTime ? new Date(body.startTime) : now;
-    /* Only the Event tab sends `duration` (minutes); a Task has no
-       duration field in the form at all. Same one-hour fallback the
-       seed rows use below it, so a created task previews as a span
-       rather than a zero-length entry. */
-    const durationMs = (Number(body.duration) || 60) * 60 * 1000;
-    const existingId = body.eventTaskId;
-    const created = {
-      _id: existingId || newUuid(),
-      uuid: existingId || newUuid(),
-      name: body.name || 'Untitled',
-      source: body.source || 'Manual',
-      status: 'PENDING',
-      category: String(body.category || 'TASK').toUpperCase(),
-      createdAt: now.toISOString(),
-      startTime: startTime.toISOString(),
-      endTime: new Date(startTime.getTime() + durationMs).toISOString(),
-      timezone: body.timezone,
-      description: body.description,
-      reminder: body.reminder,
-      reminderMode: body.reminderMode,
-      assignTo: Array.isArray(body.members) ? body.members : [],
-      ...(body.meetingId ? { meetings: [{ meetingId: body.meetingId }] } : {}),
+    const meetings = store.meetings ?? [];
+    const meetingId = body.meetingId || body.referenceId;
+    const index = meetingId
+      ? meetings.findIndex((row) => row.meetingId === meetingId)
+      : body.eventTaskId
+        ? meetings.findIndex((row) => row._id === body.eventTaskId)
+        : -1;
+    const existing = index >= 0 ? meetings[index] : null;
+
+    const start = body.startTime ? parseMeetingStart(body.startTime) : new Date(existing?.startTime || Date.now());
+    const startIso = existing?.startTime || start.toISOString();
+    const endIso = existing?.endTime || addMinutesIso(start, 60);
+    const people = body.members ? mapMeetingPeople(body.members) : existing?.assignTo || [];
+    const id = existing?._id || meetingId || newUuid();
+
+    const record = {
+      ...existing,
+      _id: id,
+      uuid: id,
+      ...(meetingId && { meetingId, referenceId: meetingId }),
+      name: body.name || existing?.name || '',
+      category: String(body.category || existing?.category || 'TASK').toUpperCase(),
+      mode: body.mode || existing?.mode,
+      timezone: body.timezone || existing?.timezone || 'Asia/Kolkata',
+      startTime: startIso,
+      endTime: endIso,
+      startTimeLocal: startIso,
+      endTimeLocal: endIso,
+      description: body.description ?? existing?.description ?? '',
+      reminder: body.reminder ?? existing?.reminder ?? false,
+      reminderMode: body.reminderMode ?? existing?.reminderMode ?? [],
+      source: body.source || existing?.source || 'CALENDAR',
+      assignTo: people,
+      members: existing?.members || people,
+      status: existing?.status || 'PENDING',
+      createdById: existing?.createdById || DEMO_USER.uuid,
+      createdAt: existing?.createdAt || new Date().toISOString(),
     };
-    if (existingId) {
-      store.calendarTasks = (store.calendarTasks ?? []).map((row) =>
-        String(row._id) === String(existingId) ? { ...row, ...created } : row,
-      );
-    } else {
-      store.calendarTasks = [...(store.calendarTasks ?? []), created];
-    }
+
+    store.meetings = index >= 0 ? meetings.map((row, i) => (i === index ? record : row)) : [...meetings, record];
     writeStore(store);
-    return ok(created);
+    return ok(record);
+  }
+
+  if (url.includes('/api/calendar/event-task/remove')) {
+    const meetings = store.meetings ?? [];
+    const target = meetings.find((row) => row._id === body.eventTaskId);
+    store.meetings = meetings.filter((row) => row._id !== body.eventTaskId);
+    writeStore(store);
+    return ok({ category: (target?.category || 'event').toLowerCase() });
+  }
+
+  if (url.includes('/api/calendar/event-task/update-status')) {
+    store.meetings = (store.meetings ?? []).map((row) =>
+      row._id === body.eventTaskId ? { ...row, status: body.status } : row,
+    );
+    writeStore(store);
+    return ok({ updated: true });
+  }
+
+  if (url.includes('/api/calendar/event-task/assign-members')) {
+    const people = mapMeetingPeople(body.members || []);
+    store.meetings = (store.meetings ?? []).map((row) =>
+      row._id === body.eventTaskId ? { ...row, assignTo: people, members: people } : row,
+    );
+    writeStore(store);
+    return ok({ updated: true });
+  }
+
+  /* Adds invitees to a meeting that already exists — merged in rather than
+     replacing, so invitees added earlier (or the host) are not dropped. */
+  if (url.includes('/api/v1/meeting/send-invite')) {
+    const meetings = store.meetings ?? [];
+    const index = meetings.findIndex((row) => row.meetingId === body.meetingId);
+    if (index >= 0) {
+      const existingKeys = new Set(
+        (meetings[index].members || []).map((member: any) => member.user_uuid || member.email),
+      );
+      const incoming = mapMeetingPeople(body.members || []).filter(
+        (member) => !existingKeys.has(member.user_uuid || member.email),
+      );
+      const merged = [...(meetings[index].members || []), ...incoming];
+      store.meetings = meetings.map((row, i) =>
+        i === index ? { ...row, members: merged, assignTo: merged } : row,
+      );
+      writeStore(store);
+    }
+    return ok({ sent: true });
   }
 
   /* The AI builders create through these. Without somewhere to put the record
@@ -1206,10 +1409,12 @@ const matchDemoPayload = (url: string, data: unknown) => {
     return ok(rows);
   }
   if (url.includes('/api/calendar/event-task/list')) {
-    /* Newest first, ahead of the seed — a just-created item reads as
-       "the thing you just did", not buried among a dozen seeded rows. */
-    const created = [...(readStore().calendarTasks ?? [])].reverse();
-    return ok(listPayload([...created, ...demoCalendarTaskRows()], {}, data));
+    /* The seed stays untouched (it's the always-there content this page was
+       designed to be judged against); anything scheduled or created in this
+       session — from either the Calendar page itself or the video
+       dashboard's own Schedule/Instant tiles — is appended alongside it. */
+    const storeRows = (readStore().meetings ?? []).map(toCalendarRow);
+    return ok(listPayload([...demoCalendarTaskRows(), ...storeRows], {}, data));
   }
   if (url.includes('/api/v1/sms/logs')) return ok(listPayload(demoSmsLogRows(), {}, data));
   if (url.includes('/api/contact/group/list')) {
@@ -1284,7 +1489,61 @@ const matchDemoPayload = (url: string, data: unknown) => {
       listPayload(readStore().callHandlingTemplates ?? demoCallHandlingTemplateRows(), {}, data),
     );
   }
-  if (url.includes('/api/v1/meeting/listing')) return ok(listPayload(demoMeetingRows(), {}, data));
+  if (url.includes('/api/v1/meeting/listing')) {
+    /* `listType` is how the video dashboard, the dedicated Upcoming/Invited/
+       Ongoing/Past pages and the video console all ask "which book" —
+       'upcoming_owned' (you host it), 'invited' (you don't), 'ongoing' and
+       'past'. The seed (`demoMeetingRows()`) is hosted by demo *agents*, not
+       the signed-in demo user, and always shown regardless of book — same
+       as before this endpoint told create/schedule apart from list, so nothing
+       already on screen disappears. A meeting made in this session is real
+       enough to sort properly: it lands under 'upcoming_owned' for its
+       creator (there is only ever one signed-in user in demo mode, so
+       nothing of yours will ever show as 'invited') and drops out of
+       'upcoming_owned'/'invited' once its end time has passed. */
+    const requestedListType = asObject(data)?.listType;
+    const seedRows = demoMeetingRows();
+    const createdRows = (readStore().meetings ?? [])
+      .filter((row) => Boolean(row.meetingId))
+      .map(toMeetingListRow);
+    const hasEnded = (row: any) => new Date(row.endTimeLocal).getTime() < Date.now();
+    const isYours = (row: any) => row.createdById === DEMO_USER.uuid;
+
+    let rows;
+    if (requestedListType === 'past') {
+      rows = [...seedRows.filter(hasEnded), ...createdRows.filter(hasEnded)];
+    } else if (requestedListType === 'upcoming_owned') {
+      rows = [...seedRows, ...createdRows.filter((row) => isYours(row) && !hasEnded(row))];
+    } else if (requestedListType === 'invited') {
+      rows = [...seedRows, ...createdRows.filter((row) => !isYours(row) && !hasEnded(row))];
+    } else {
+      // 'ongoing' and anything else: a broad, undated pool — real 'ongoing'
+      // behaves the same way (see the note on the dashboard's own liveness
+      // check), and callers narrow it themselves against the clock.
+      rows = [...seedRows, ...createdRows];
+    }
+    return ok(listPayload(rows, {}, data));
+  }
+  /* "Join a meeting" — always resolves rather than rejecting an unrecognised
+     code, so the flow can actually be exercised without first hunting down
+     one of the generated meeting codes. A code that matches something real
+     (the seed or a meeting made this session) resolves to its real name. */
+  if (url.endsWith('/api/v1/meeting/validate')) {
+    const typedId = String(asObject(data)?.meetingId || '').trim();
+    const match =
+      (readStore().meetings ?? []).find((row) => row.meetingId === typedId) ||
+      demoMeetingRows().find((row) => row.meetingId === typedId);
+    return ok({ meetingId: match?.meetingId || typedId, name: match?.name || '' });
+  }
+  /* Edit-prefill for the dashboard's own Schedule dialog. */
+  if (url.includes('/api/v1/meeting/detail')) {
+    const meetingId = asObject(data)?.meetingId;
+    const record = (readStore().meetings ?? []).find((row) => row.meetingId === meetingId);
+    return ok(record ? [toMeetingDetail(record)] : []);
+  }
+  if (url.includes('/api/v1/meeting/recording-list')) {
+    return ok(listPayload(demoRecordingRows(), {}, data));
+  }
 
   /* Inbox and the admin Numbers list both read the same handful of company
      numbers — one function, three callers. */
@@ -1398,6 +1657,38 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
   if (url.includes('/api/tenant/greeting/create') || url.includes('/api/tenant/greeting/update')) {
     return ok({ uuid: `demo-greeting-${Date.now()}` });
+  }
+
+  /* Both of these carry their id as the last URL segment rather than in the
+     body, so they have to be matched last — after every other `/api/v1/
+     meeting/...` and `/api/calendar/event-task/...` route above has had a
+     chance to claim the more specific path it actually is. */
+  if (/\/api\/calendar\/event-task\/[^/?]+$/.test(url)) {
+    const id = url.split('/api/calendar/event-task/')[1]?.split(/[/?]/)[0];
+    const record = (readStore().meetings ?? []).find((row) => row._id === id);
+    return ok(record ? [toEventTaskDetail(record)] : []);
+  }
+  /* `/api/v1/meeting` has several single-segment sibling routes this file
+     doesn't answer specially (feature links, recording start/stop, leave) —
+     none of them carry a real meeting's id, so they have to be named here
+     rather than assumed to be one, or e.g. "leave-meeting" would be read as
+     a request to delete the meeting literally named "leave-meeting". */
+  const OTHER_MEETING_SUBROUTES = new Set([
+    'get-access-token',
+    'end',
+    'generate-private-link',
+    'permanent-link',
+    'record',
+    'leave-meeting',
+  ]);
+  if (/\/api\/v1\/meeting\/[^/?]+$/.test(url)) {
+    const id = url.split('/api/v1/meeting/')[1]?.split(/[/?]/)[0];
+    if (id && !OTHER_MEETING_SUBROUTES.has(id)) {
+      const store = readStore();
+      store.meetings = (store.meetings ?? []).filter((row) => row.meetingId !== id && row._id !== id);
+      writeStore(store);
+      return ok({ deleted: true });
+    }
   }
 
   return ok(listPayload());

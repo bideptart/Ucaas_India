@@ -417,18 +417,23 @@
 
 /* ---- Dark theme — same treatment as people-glass.css's own .dark block,
    extended to this file's own portaled location-detail dialog. ---- */
+/* Same warm ground as People/Groups/Roles -- the light theme's own corner
+   glow at a fifth of its alpha. */
 .dark .gp-locations {
-  background: var(--mcm-ground, #080d12);
+  background:
+    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
+    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    var(--mcm-ground, #080d12);
 }
 .dark .gp-locations .page-head,
 .dark .gp-locations .tbar .fchip {
-  border: 1px solid #1b2934;
+  border: 1px solid rgba(255, 171, 94, 0.14);
   box-shadow:
     0 10px 34px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .dark .gp-locations .page-head {
-  background: var(--mcm-surface, #111c26);
+  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
 }
 .dark .gp-locations .tbar .fchip {
   background: var(--mcm-accent-wash, #1a2733);
@@ -440,8 +445,8 @@
   color: var(--mcm-ink-3, #aab6c1);
 }
 .dark .gp-locations .tbar {
-  background: rgba(14, 24, 33, 0.75);
-  border: 1px solid #1b2934;
+  background: rgba(20, 29, 40, 0.75);
+  border: 1px solid rgba(255, 171, 94, 0.12);
   box-shadow:
     0 6px 22px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -455,14 +460,15 @@
   border-color: var(--mcm-accent-edge);
 }
 .dark .gp-locations .panel-card {
-  background: #111c26;
-  border: 1px solid #1b2934;
+  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
+  border: 1px solid rgba(255, 171, 94, 0.14);
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
 }
+/* Orange labels over the light theme's own 3px orange underline. */
 .dark .gp-locations th {
-  background: #16222c;
-  color: var(--mcm-ink-3, #aab6c1);
-  border-bottom: 2px solid #1b2934;
+  background: #1a232f;
+  color: var(--mcm-accent, #ffab5e);
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
 }
 @media (max-width: 640px) {
   .dark .gp-locations .gp-loc-actions-head {
@@ -475,14 +481,29 @@
   }
 }
 .dark .gp-locations td {
-  border-bottom-color: #1b2934;
+  border-bottom-color: rgba(255, 171, 94, 0.1);
 }
 .dark .gp-locations tbody tr:hover {
-  background: rgba(17, 29, 39, 0.6);
+  background: rgba(255, 171, 94, 0.06);
 }
+/* No chrome at rest, orange disc on hover -- as People and Roles. */
 .dark .gp-locations .gp-loc-actions .mini {
-  background: rgba(17, 29, 39, 0.6);
-  border-color: #293746;
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+.dark .gp-locations .gp-loc-actions .mini:hover:not(:disabled) {
+  background: #f2994a;
+  border-color: #f2994a;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.28);
+}
+.dark .gp-locations .gp-loc-actions .mini:disabled,
+.dark .gp-locations .gp-loc-actions .mini:disabled:hover {
+  background: transparent;
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
 }
 /* The "x of y" result-count chip's light rule above (`.gp-locations
    .fchip.live`) hardcodes a light mint fill with `!important` — every
@@ -525,4 +546,79 @@
 .dark .gp-loc-dialog-edit:hover {
   background: var(--mcm-accent-ink, #ff8a2a);
   color: #111c26;
+}
+
+/* ---- Location form dialog, dark ---------------------------------------
+   `.gp-location-form-dialog` had no dark layer at all, so Create/Update
+   location opened as a white sheet with a cream summary card inside a dark
+   app -- the same gap Favourites and External Contacts had. Values follow
+   the Roles form dialog (roles-glass.css), which already solved this.
+   ------------------------------------------------------------------- */
+.dark .gp-location-form-dialog {
+  background: var(--mcm-surface, #111c26) !important;
+}
+.dark .gp-location-form-dialog .gp-create-group-head {
+  background: var(--mcm-surface, #111c26);
+}
+/* The intro card carries a cream `#fff6e9` fill in the markup. Warm wash
+   over the dialog's own surface instead, so it still reads as a raised
+   panel rather than a light patch. */
+.dark .gp-location-form-dialog .mcm-site-summary {
+  background: rgba(255, 171, 94, 0.07) !important;
+  border-color: rgba(255, 171, 94, 0.18) !important;
+}
+/* Inputs and the note blocks inside them hardcode near-white fills
+   (#fffdfb, #fff1e0) with no dark counterpart. */
+/* Matching the light rule's own shape (`.gp-location-form-dialog
+   .mcm-site-form [data-slot='input']`, three classes): it is `!important`
+   too, so a shorter selector loses on specificity no matter the flag --
+   which is why `.dark … input` alone left these fields white. */
+.dark .gp-location-form-dialog .mcm-site-form [data-slot='input'],
+.dark .gp-location-form-dialog .mcm-site-form textarea,
+.dark .gp-location-form-dialog .mcm-site-form .custom-react-select__control,
+.dark .gp-location-form-dialog input,
+.dark .gp-location-form-dialog textarea,
+.dark .gp-location-form-dialog select,
+.dark .gp-location-form-dialog [class*='rounded-md'][class*='border-gray-200'] {
+  background: var(--mcm-surface-2, #161f31) !important;
+  background-color: var(--mcm-surface-2, #161f31) !important;
+  background-image: none !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+  border-color: rgba(255, 171, 94, 0.18) !important;
+}
+/* The card's own heading is `text-[#2E2D35]`, a near-black with no dark
+   counterpart -- invisible on the wash behind it. Same class-attribute
+   idiom index.css already uses for #8a6f57. */
+.dark .gp-location-form-dialog [class*='#2E2D35'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-location-form-dialog input::placeholder,
+.dark .gp-location-form-dialog textarea::placeholder {
+  color: var(--mcm-ink-3, #93a1ba) !important;
+}
+/* Country is rendered disabled (it is fixed per account), and shadcn's
+   `disabled:bg-muted` is a near-white in dark -- the one field in this form
+   still reading as a light chip. */
+.dark .gp-location-form-dialog input:disabled,
+.dark .gp-location-form-dialog .mcm-site-form [data-slot='input']:disabled {
+  background: var(--mcm-surface-3, #1e293e) !important;
+  color: var(--mcm-ink-2, #c3cddf) !important;
+  border-color: rgba(255, 171, 94, 0.12) !important;
+  opacity: 1;
+}
+
+/* Typed text in the search field on the same white People and Favourites
+   use -- these three sat on `--mcm-ink-2`, which read dimmer than the
+   others for no reason. Placeholder stays muted on all five. `!important`
+   because index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints the real ink. */
+.dark .gp-locations .tbar .fchip input {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+
+/* White placeholder, matching the other Directory toolbars. `!important`
+   because index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
+.dark .gp-locations .tbar .fchip input::placeholder {
+  color: var(--mcm-ink, #eef2f9) !important;
 }

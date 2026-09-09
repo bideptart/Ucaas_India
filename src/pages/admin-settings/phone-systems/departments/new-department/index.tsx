@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useEffect, useRef, useState } from 'react';
+import { Check } from 'lucide-react';
+import CustomTooltip from '@/components/custom/custom-tooltip';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import DepartmentInfo from './department-info';
@@ -206,8 +208,47 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
     watch,
     trigger,
     setValue,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = formInstance;
+
+  /* Which tabs are finished, for the tick in the strip. Each tab already
+     owns a schema (`validationSchema`), and `handleTabChange` validates
+     against exactly these when moving forward -- so "complete" here means
+     the same thing as "you would be allowed past this tab", rather than a
+     second, drifting definition of done.
+
+     `watch()` with no argument re-renders on every keystroke, which is what
+     keeps the ticks live; five small sync schemas per keystroke is
+     affordable on a form this size. A schema with an async test would make
+     validateSync throw, and the catch simply leaves that tab unticked
+     rather than breaking the strip. */
+  const watchedValues = watch();
+  const completedTabs = useMemo(() => {
+    const done: Record<string, boolean> = {};
+    TABS_ORDER.forEach((tab) => {
+      /* Schema-valid alone isn't "done": Ring Strategy and Media pass with
+         the form's own defaults, so they ticked before the user had opened
+         them. The tab also has to hold something the user actually entered.
+         Which fields belong to a tab comes from that tab's schema rather
+         than a hand-kept list, so the two can't drift apart. */
+      const tabFields = Object.keys(validationSchema[tab]?.fields || {});
+      const hasInput = tabFields.some((field) => (dirtyFields as any)?.[field]);
+      if (!hasInput) {
+        done[tab] = false;
+        return;
+      }
+      try {
+        validationSchema[tab].validateSync(watchedValues, {
+          abortEarly: true,
+          context: { activeTab: tab, schemaContext },
+        });
+        done[tab] = true;
+      } catch {
+        done[tab] = false;
+      }
+    });
+    return done;
+  }, [watchedValues, schemaContext, dirtyFields]);
 
   const handleTabChange = async (nextTab: string) => {
     const currentIndex = TABS_ORDER.indexOf(currentStep);
@@ -534,11 +575,17 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
                   value={value}
                 >
                   {value}{' '}
-                  {(errors as any)[ERROR_TYPES[value]] && (
+                  {(errors as any)[ERROR_TYPES[value]] ? (
                     <div className="flex justify-end">
                       <ErrorTooltip text={DEPARTMENT_ERROR_TYPES_MESSAGES[value]} />
                     </div>
-                  )}
+                  ) : completedTabs[value] ? (
+                    <CustomTooltip text="This section is complete" side="top">
+                      <span className="flex items-center justify-center rounded-full bg-primary/15 p-0.5 text-primary">
+                        <Check className="h-3 w-3" strokeWidth={3} />
+                      </span>
+                    </CustomTooltip>
+                  ) : null}
                 </TabsTrigger>
               ))}
             </TabsList>

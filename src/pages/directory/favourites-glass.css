@@ -240,3 +240,138 @@
   width: 18px;
   height: 18px;
 }
+
+/* ====================================================================
+   DARK
+   This file had no `.dark` layer at all, so the whole page rendered in its
+   light peach palette inside a dark shell — not a specificity accident
+   like People's action buttons, simply never written. Ported from
+   people-glass.css's own dark block: the two pages share the same
+   structural vocabulary (`.page-head`, `.tbar .fchip`, `.panel-card`,
+   `th`/`td`, the action-column `.mini`), so the values port directly and
+   the two tables stay visually identical in both themes.
+   ==================================================================== */
+/* Flat canonical deep-navy, not the warm-orange ember glow — the light
+   rule paints four orange radial gradients over a peach base; carrying any
+   of that into dark reads as a bruise rather than a theme. Same "orange
+   never washes a full surface" correction as `.dark body` in index.css. */
+.dark .gp-favourites {
+  background:
+    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
+    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    radial-gradient(900px 640px at 50% 118%, rgba(255, 160, 80, 0.06), transparent 60%),
+    var(--mcm-ground, #080d12);
+}
+.dark .gp-favourites .page-head,
+.dark .gp-favourites .tbar .fchip {
+  border: 1px solid rgba(255, 171, 94, 0.14);
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-favourites .page-head {
+  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
+}
+.dark .gp-favourites .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-favourites .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-favourites .panel-card {
+  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
+  border: 1px solid rgba(255, 171, 94, 0.14);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
+}
+.dark .gp-favourites .tbar {
+  background: rgba(20, 29, 40, 0.75);
+  border: 1px solid rgba(255, 171, 94, 0.12);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-favourites .tbar .fchip {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+.dark .gp-favourites .tbar .fchip:hover {
+  background: var(--mcm-surface-3, #1a2733);
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-favourites .tbar .fchip > span:first-child {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+/* The search field's typed text: same `!important` requirement documented
+   at length on People's equivalent rule — index.css's compat net matches
+   the raw class string `placeholder:text-[#8a6f57]/70` and repaints the
+   real text colour, beating `dark:text-mcm-ink` outright. */
+.dark .gp-favourites .tbar .fchip input {
+  color: var(--mcm-ink, #f3f6f9) !important;
+}
+.dark .gp-favourites th {
+  background: #1a232f;
+  color: var(--mcm-accent, #ffab5e);
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
+}
+.dark .gp-favourites td {
+  border-bottom-color: rgba(255, 171, 94, 0.1);
+}
+.dark .gp-favourites tbody tr:hover {
+  background: rgba(255, 171, 94, 0.06);
+}
+.dark .gp-favourites .mini {
+  background: rgba(17, 29, 39, 0.6);
+  border-color: #293746;
+}
+/* Matching the action-column rule's own specificity (four classes and a
+   type) — the general `.mini` line above loses to it, which is exactly the
+   bug People had. */
+/* Same as People's row actions: no chrome at rest, just the white glyph;
+   the orange disc appears only under the cursor, so the hovered action is
+   the one thing ringed on the row. */
+.dark .gp-favourites td:last-child .mini:not(.mcm-fav-on) {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: none;
+}
+.dark .gp-favourites td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
+  background: #f2994a;
+  border-color: #f2994a;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.28);
+}
+/* Glyphs carry an inline 16px from the component, so the bump needs the
+   flag -- same as People's. */
+.gp-favourites td:last-child .mini .ic,
+.gp-favourites td:last-child .mini svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+/* The count chip keeps its teal ink, but its pale-mint fill above is
+   `!important`, so only an equally-flagged rule at this specificity can
+   move it — left alone it renders as near-white text on near-white glass.
+   Dark wash, same teal, so the pill still reads as the live/status colour
+   rather than another neutral chip. */
+.dark .gp-favourites .fchip.live {
+  /* Same treatment Roles settled on (roles-glass.css): a solid muted-teal
+     fill rather than the faint `--live-wash` tint, which nearly disappears
+     against a dark toolbar. `!important` because the light rule sets these
+     with the flag on some pages -- carried on all three for consistency. */
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+/* The "Show: All" chip's label is a bare text node inside `.fchip`, so the
+   colour has to sit on the chip itself and inherit -- same shape as the
+   People toolbar's chips, which already read white. */
+.dark .gp-favourites .tbar .fchip {
+  color: var(--mcm-ink, #f3f6f9);
+}
+
+/* White placeholder, matching the other Directory toolbars. `!important`
+   because index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
+.dark .gp-favourites .tbar .fchip input::placeholder {
+  color: var(--mcm-ink, #eef2f9) !important;
+}

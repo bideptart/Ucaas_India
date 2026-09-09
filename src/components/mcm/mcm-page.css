@@ -248,6 +248,20 @@
     border-color 0.16s ease,
     box-shadow 0.16s ease;
 }
+/* Dark counterpart, kept beside its light twin: the rule above is the
+   authoritative definition and sets fill, border and ink `!important`, so
+   overrides written from page stylesheets lost to it and the button stayed
+   a white disc carrying a near-white icon. */
+.dark .mcm-page .table-refresh-btn {
+  background: var(--mcm-surface-2, #161f31) !important;
+  border: 1px solid rgba(255, 171, 94, 0.35) !important;
+  color: var(--mcm-accent, #ffab5e) !important;
+}
+.dark .mcm-page .table-refresh-btn:hover {
+  background: #f2994a !important;
+  border-color: #f2994a !important;
+  color: #fff !important;
+}
 .mcm-page .table-refresh-btn svg {
   color: inherit !important;
   stroke: currentColor;

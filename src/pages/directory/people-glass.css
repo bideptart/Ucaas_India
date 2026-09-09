@@ -144,13 +144,44 @@
   table-layout: fixed;
   width: 100%;
 }
+/* Person is the only auto-width column, so it absorbs whatever the fixed
+   columns leave -- often narrower than the email it holds. Padding alone
+   does nothing here: the name/email spans sit in nested flex boxes whose
+   default `min-width: auto` refuses to shrink below their content, so the
+   email simply overflowed the cell (measured 72px past its own right edge)
+   and ran under the Role badge. `min-width: 0` down the flex chain is what
+   lets them shrink; the ellipsis is what they do once they can. */
 .gp-people th:nth-child(1),
 .gp-people td:nth-child(1) {
   width: auto;
+  padding-right: 18px;
 }
+/* Header only -- the rows keep their left-aligned avatar+name block, which
+   is what makes the column scannable. This just stops "PERSON" sitting hard
+   against the card's left edge while every other heading sits over the
+   middle of its own column. */
+.gp-people th:nth-child(1) {
+  text-align: center;
+}
+.gp-people td:nth-child(1) > span,
+.gp-people td:nth-child(1) > span > span:last-child {
+  min-width: 0;
+}
+.gp-people td:nth-child(1) > span > span:last-child {
+  overflow: hidden;
+}
+.gp-people td:nth-child(1) > span > span:last-child > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Person is `auto`, so it only gets what these fixed columns leave. Role,
+   Numbers and Action all carried more width than their content needs -- 75px
+   between them, handed to Person so the email fits instead of truncating. */
 .gp-people th:nth-child(2),
 .gp-people td:nth-child(2) {
-  width: 110px;
+  width: 100px;
 }
 .gp-people th:nth-child(3),
 .gp-people td:nth-child(3) {
@@ -162,7 +193,7 @@
 }
 .gp-people th:nth-child(5),
 .gp-people td:nth-child(5) {
-  width: 100px;
+  width: 80px;
 }
 .gp-people th:nth-child(6),
 .gp-people td:nth-child(6) {
@@ -172,9 +203,13 @@
 .gp-people td:nth-child(7) {
   width: 130px;
 }
+/* Five 36px icon buttons with 6px gaps measure 204px, plus the cell's own
+   12px side padding = 228 minimum. 236 leaves a little slack; anything
+   under 228 wraps the last button onto a second line and doubles the row
+   height, which is what 215 did. */
 .gp-people th:nth-child(8),
 .gp-people td:nth-child(8) {
-  width: 260px;
+  width: 236px;
 }
 /* This is the scrollbar that now actually starts where the rows do — same
    slim styling already used for External Contacts' table. */
@@ -288,9 +323,16 @@
      horizontal centering the base rule never needed before. */
   justify-content: center;
 }
-.gp-people td:last-child .mini .ic {
-  width: 32px;
-  height: 32px;
+/* These icons carry an INLINE `width: 16px; height: 16px` from the
+   component that renders them, so no plain stylesheet rule can touch them
+   -- the 32px rule that used to sit here had never had any effect for that
+   reason. `!important` is the only lever short of editing the shared
+   component. 20px in a 36px button is a ~55% fill: a real action, without
+   crowding the circle that appears on hover. */
+.gp-people td:last-child .mini .ic,
+.gp-people td:last-child .mini svg {
+  width: 20px !important;
+  height: 20px !important;
 }
 /* An inset box-shadow draws the accent bar without `position`, which is what
    broke the row's layout: a positioned `<tr>` with an absolutely-placed
@@ -540,21 +582,34 @@ input.gp-field-v:disabled {
 .gp-person-dialog .btn.primary:hover {
   background: #c96f1f;
 }
+/* "Assign Number", "Cancel" -- outline at rest, filled on hover, the same
+   idiom as Groups/Export and the invite dialog's own Cancel. They used to
+   be a slate-filled chip with a faint orange edge and grey label, which
+   read as three disabled controls in a row. */
 .dark .gp-person-dialog .btn.ghost {
-  background: var(--mcm-surface-3, #1a2733);
-  border-color: rgba(249, 115, 22, 0.3);
-  color: var(--mcm-ink-2, #aab6c1);
+  background: transparent;
+  border: 1px solid #f2994a;
+  color: #f2994a;
 }
-.dark .gp-person-dialog .btn.ghost:hover {
-  border-color: var(--mcm-accent, #f97316);
+.dark .gp-person-dialog .btn.ghost:hover:not(:disabled) {
+  background: #f2994a;
+  border-color: #f2994a;
+  color: #fff !important;
 }
 .dark .gp-person-dialog .btn.primary {
   background: var(--mcm-accent, #f97316);
   color: #f8fafc;
 }
+/* Save is inert on hover: fill, ink and every decoration restated from its
+   rest state. The background already matched -- it was the label flipping
+   to a dark #111c26 that made the button look like it was reacting. */
 .dark .gp-person-dialog .btn.primary:hover {
-  background: var(--mcm-accent-ink, #ff8a2a);
-  color: #111c26;
+  background: var(--mcm-accent, #f97316);
+  color: #f8fafc;
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
 }
 .gp-person-dialog .btn:disabled {
   opacity: 0.6;
@@ -608,25 +663,29 @@ input.gp-field-v:disabled {
    index.css, applied here since this page redeclares its own background
    rather than inheriting body's. */
 .dark .gp-people {
-  background: var(--mcm-ground, #080d12);
+  background:
+    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
+    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    radial-gradient(900px 640px at 50% 118%, rgba(255, 160, 80, 0.06), transparent 60%),
+    var(--mcm-ground, #080d12);
 }
 .dark .gp-people .page-head,
 .dark .gp-people .tbar .fchip {
-  border: 1px solid #1b2934;
+  border: 1px solid rgba(255, 171, 94, 0.14);
   box-shadow:
     0 10px 34px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .dark .gp-people .page-head {
-  background: var(--mcm-surface, #111c26);
+  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
 }
 .dark .gp-people .tbar .fchip {
   background: var(--mcm-accent-wash, #1a2733);
 }
 .dark .gp-people .panel-card {
-  background: #111c26;
-  border: 1px solid #1b2934;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
+  border: 1px solid rgba(255, 171, 94, 0.14);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
 }
 .dark .gp-people .page-head h1 {
   color: var(--mcm-ink, #f8fafc);
@@ -635,8 +694,8 @@ input.gp-field-v:disabled {
   color: var(--mcm-ink-3, #aab6c1);
 }
 .dark .gp-people .tbar {
-  background: rgba(14, 24, 33, 0.75);
-  border: 1px solid #1b2934;
+  background: rgba(20, 29, 40, 0.75);
+  border: 1px solid rgba(255, 171, 94, 0.12);
   box-shadow:
     0 6px 22px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -649,8 +708,27 @@ input.gp-field-v:disabled {
   background: var(--mcm-surface-3, #1a2733);
   border-color: var(--mcm-accent-edge);
 }
-.dark .gp-people .tbar .fchip > span:first-child {
-  color: var(--mcm-ink-3, #aab6c1);
+/* The chip label ("Groups:", "Location:", "Presence:") is a bare TEXT NODE
+   inside `.fchip`, not an element -- `> span:first-child` matches nothing
+   here, so the colour has to be set on the chip itself and inherited by
+   both the label and its `<strong>` value. Was `--mcm-ink-2`
+   (rgb(195,205,223)), a dim slate that read as disabled. */
+.dark .gp-people .tbar .fchip {
+  color: var(--mcm-ink, #f3f6f9);
+}
+/* The search placeholder deliberately does NOT get the white the chip
+   labels above have -- Roles, Locations, Favourites and Blocked all leave
+   it on the shared muted tone, and a bright placeholder here made People's
+   search look like a filled field next to theirs. `!important` still
+   required: index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
+.dark .gp-people .tbar .fchip input::placeholder {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+/* The count chip's number sat on #0d9488 -- a dark teal on a teal fill,
+   the one unreadable thing left in the bar. */
+.dark .gp-people .fchip.live .num {
+  color: #fff;
 }
 /* The "Search people" field sits on `text-[#1a1a1a] placeholder:text-[#8a6f57]/70
    dark:text-mcm-ink` (SearchChip in page-shell.tsx) — but the app-wide compat
@@ -666,22 +744,80 @@ input.gp-field-v:disabled {
   color: var(--mcm-ink, #f3f6f9) !important;
 }
 .dark .gp-people th {
-  background: #16222c;
-  color: var(--mcm-ink-3, #aab6c1);
-  border-bottom: 2px solid #1b2934;
+  background: #1a232f;
+  color: var(--mcm-accent, #ffab5e);
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
 }
 .dark .gp-people td {
-  border-bottom-color: #1b2934;
+  border-bottom-color: rgba(255, 171, 94, 0.1);
 }
 .dark .gp-people tbody tr:hover {
-  background: rgba(17, 29, 39, 0.6);
+  background: rgba(255, 171, 94, 0.06);
 }
 .dark .gp-people .mini {
   background: rgba(17, 29, 39, 0.6);
   border-color: #293746;
 }
+/* The action column's own rest-state rule above
+   (`.gp-people td:last-child .mini:not(.mcm-fav-on)`) is four classes and a
+   type — more specific than the `.dark .gp-people .mini` line right above,
+   so in dark mode those circles kept their white glass and slate icon and
+   read as five disabled buttons on a dark table. Same idiom restated at
+   matching specificity with dark values. Hover needs no counterpart: it
+   paints `linear-gradient(--accent, --accent-ink)`, and this page's locals
+   already flip to #ffab5e/#ffc98a under `.dark`. */
+/* No chrome at rest -- just the white glyph on the row. The circle only
+   appears on hover (below), which is what makes the hovered action read as
+   the active one instead of five identical outlined discs competing with
+   the row's own content. */
+.dark .gp-people td:last-child .mini:not(.mcm-fav-on) {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: none;
+}
+/* Filled brand orange on hover, white glyph. `#f2994a` rather than dark's
+   own `--accent` (#ffab5e) for the same reason as the Groups/Export
+   buttons: white needs the deeper orange under it to stay readable. The
+   light theme's gradient hover is replaced outright here -- in dark it
+   ran #ffab5e -> #ffc98a, which is pale enough to lose the glyph. */
+.dark .gp-people td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
+  background: #f2994a;
+  border-color: #f2994a;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.28);
+}
+/* Same pale-mint fill as Favourites' count chip — legible in light, near
+   invisible on a dark table. Teal ink kept; only the wash moves. */
+.dark .gp-people .tbar .fchip.live {
+  /* Same treatment Roles settled on (roles-glass.css): a solid muted-teal
+     fill rather than the faint `--live-wash` tint, which nearly disappears
+     against a dark toolbar. `!important` because the light rule sets these
+     with the flag on some pages -- carried on all three for consistency. */
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
 .dark .gp-people .btn.ghost {
   background: rgba(17, 29, 39, 0.6);
+}
+/* Without this the dark rest rule above (`.dark .gp-people .btn.ghost`)
+   kept its flat surface fill on hover too, so Groups/Export just went a
+   shade lighter instead of filling. `#f2994a` rather than dark's own
+   `--accent` (#ffab5e): white text needs the deeper brand orange under it
+   to stay readable, and it matches what the same buttons do in light. */
+.dark .gp-people .btn.ghost:hover:not(:disabled) {
+  background: #f2994a;
+  border: 1px solid #f2994a;
+  color: #fff;
+}
+/* "Invite person" holds its fill on hover. The app-wide
+   `.mcm-page .btn.primary:hover` lightens to `--accent-ink`, which in dark
+   is #ffc98a -- the button went paler on hover, reading as a disabled
+   state rather than an active one. Restating the rest colour is enough to
+   cancel it; no `!important` needed, this selector is more specific. */
+.dark .gp-people .btn.primary:hover {
+  background: var(--accent);
 }
 .dark .gp-people .btn.ghost:disabled {
   background: rgba(14, 24, 33, 0.6);
@@ -703,12 +839,79 @@ input.gp-field-v:disabled {
   background: #111c26;
   border-color: rgba(249, 115, 22, 0.3);
 }
-.dark .gp-person-dialog .btn.ghost {
-  background: var(--mcm-surface-3, #1a2733);
-  border-color: rgba(249, 115, 22, 0.3);
-}
+/* (A second `.dark .gp-person-dialog .btn.ghost` used to sit here, setting
+   the slate fill and a faint orange edge. It came later in the file than
+   the outline treatment above and silently won, which is why these buttons
+   stayed slate. Removed rather than retuned -- one rule per state.) */
 .dark .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
 .dark .gp-person-menu [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
   background: var(--mcm-accent-wash, #1a2733);
   color: var(--mcm-accent-ink, #ff8a2a);
+}
+/* ---- Row avatars, dark ------------------------------------------------
+   The ink and wash are now decided by CustomAvatar itself (it reads the
+   theme), so the colour override that used to live here is gone -- only
+   the ring and lift remain, which are this table's own. */
+.dark .gp-people td:nth-child(1) > span > div {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* Avatar size is inline too (`width/min-width/height: 30px`), so the bump
+   needs `!important` for the same reason the colours did. 38px still fits
+   the row's 61px height with its 11px cell padding. */
+.gp-people td:nth-child(1) > span > div {
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 38px !important;
+}
+.gp-people td:nth-child(1) > span > div > div {
+  font-size: 15px;
+}
+
+/* (The invite dialog's step numeral used to be corrected here. That was the
+   shared stepper's bug -- an orange numeral on an orange fill in dark -- and
+   it is fixed in stepper.tsx itself now, for every wizard rather than this
+   one dialog.) */
+/* Cancel fills orange with white text on hover, matching Groups/Export on
+   the page behind it. Save & Continue holds its fill instead of lightening
+   to `--accent-ink` (#ffc98a in dark), which read as the button going
+   disabled at the moment you reach for it -- same correction as the
+   "Invite person" button that opens this dialog. */
+.dark .gp-invite-dialog .btn.ghost:hover:not(:disabled) {
+  background: #f2994a;
+  border-color: #f2994a;
+  color: #fff !important;
+}
+/* Save & Continue holds everything on hover, not just its fill -- the
+   shared `.btn` styles also move shadow/transform, and any of them reads as
+   the button reacting when it shouldn't. */
+/* Restates this dialog's own rest fill exactly (`.dark .gp-invite-dialog
+   .btn.primary` sets #f97316), so hover is a no-op. Two other rules were
+   competing for it: the shared `.mcm-page .btn.primary:hover` lightening to
+   `--accent-ink`, and an existing slate `rgb(71,85,105)` hover. `--accent`
+   is NOT the value to use here -- it is #ffab5e in dark, lighter than the
+   rest state, which is what made the button pale on hover. */
+.dark .gp-invite-dialog .btn.primary:hover {
+  background: #f97316;
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+/* "+ Add Users" is a shadcn Button carrying `bg-white border-primary
+   text-primary hover:bg-primary/90 hover:text-white`. Those two hover
+   utilities don't reliably both land: `hover:text-white` turns the label
+   white while `bg-white` holds the fill, so the button goes blank on hover
+   in light. (In dark the fill that did apply was #ffab5e at 90% -- white on
+   pale orange, barely legible.) Stated explicitly for BOTH themes so the
+   pair can't come apart: solid #f2994a, white label and glyph, matching
+   Cancel and the page's other outline buttons. */
+.gp-invite-dialog button[class*='border-primary']:hover:not(:disabled) {
+  background-color: #f2994a !important;
+  border-color: #f2994a !important;
+  color: #fff !important;
+}
+.gp-invite-dialog button[class*='border-primary']:hover:not(:disabled) svg {
+  color: #fff !important;
 }

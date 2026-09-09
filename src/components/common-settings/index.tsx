@@ -292,7 +292,7 @@ const CommonSettingPermission: FC<any> = ({
                      shared component rendered as bare text because of it.
                      `!` forces these to win regardless of where this
                      component is used. */
-                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                   onClick={() => openModal('roleModal')}
                 >
                   Select
@@ -324,7 +324,7 @@ const CommonSettingPermission: FC<any> = ({
             </div>
             <Button
               type="button"
-              className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+              className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
               variant={'outline'}
               disabled={!canEditField('regional')}
               onClick={() => {
@@ -364,7 +364,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('voicemail')) return;
@@ -414,7 +414,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('business_hours')) return;
@@ -450,7 +450,7 @@ const CommonSettingPermission: FC<any> = ({
                      shared component rendered as bare text because of it.
                      `!` forces these to win regardless of where this
                      component is used. */
-                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                   variant={'outline'}
                   onClick={() => {
                     if (!canEditField('recording')) return;
@@ -536,7 +536,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('display_number')) return;

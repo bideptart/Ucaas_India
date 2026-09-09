@@ -38,9 +38,18 @@ const Stepper: FC<IStepperProps> = ({
                   className={`flex items-center justify-center rounded-full border text-primary shrink-0 ${mobileHorizontal ? 'h-7 w-7 text-sm lg:h-8 lg:w-8' : 'w-8 h-8'} ${customStep} ${(currentStep ?? 0) >= step.number || step.number === 1 ? 'bg-ucass-primary-200 border-primary ' : 'bg-gray-100 dark:bg-mcm-surface-3 border-gray-200 dark:border-mcm-line '}`}
                 >
                   <p
-                    className={` ${(currentStep ?? 0) >= step.number || step.number === 1 ? 'bg-transparent text-primary' : ' text-gray-900/80 dark:text-mcm-ink-2'} cursor-pointer text-md font-semibold`}
+                    /* `dark:text-[#2b1f12]`: the active circle is filled
+                       `bg-ucass-primary-200`, and in dark that token and
+                       `--primary` are both #ffab5e -- so an orange numeral sat
+                       on an identical orange fill and vanished. Light is
+                       unaffected: its fill is a pale peach behind #f2994a. */
+                    className={` ${(currentStep ?? 0) >= step.number || step.number === 1 ? 'bg-transparent text-primary dark:text-[#2b1f12]' : ' text-gray-900/80 dark:text-mcm-ink-2'} cursor-pointer text-md font-semibold`}
                   >
-                    {currentStep > index + 1 ? <DoneIcon className="text-primary" /> : step.number}
+                    {currentStep > index + 1 ? (
+                      <DoneIcon className="text-primary dark:text-[#2b1f12]" />
+                    ) : (
+                      step.number
+                    )}
                   </p>
                 </div>
                 <p

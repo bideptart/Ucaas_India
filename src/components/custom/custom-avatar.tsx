@@ -1,4 +1,5 @@
 import { useSocketEvents } from '@/hooks/use-socket-events';
+import { useTheme } from '@/hooks/use-theme';
 import { darkenColor, getEnv, lightenColorWithAlpha, stringToColour } from '@/lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/hooks/use-user';
@@ -215,8 +216,21 @@ const CustomAvatar = ({
 
   const NAME = name;
   const nameColour = stringToColour(NAME);
-  const lightColor = darkenColor(`${nameColour}`, 90);
-  const darkColor = lightenColorWithAlpha(`${nameColour}`, 5);
+  /* The initials were always drawn as this person's hue darkened 90% on a
+     5%-alpha wash of the same hue -- a pairing built for a white row. On a
+     dark surface both sides collapse into the background: measured #000060
+     on rgba(54,6,191,0.2) for "ST", and one seeded colour comes out pure
+     black, so those avatars rendered as empty circles.
+
+     Dark keeps the same per-person hue -- it is what makes people
+     recognisable at a glance -- and only flips the contrast: white ink on a
+     stronger wash of the hue, which reads on a dark row the way the
+     original pairing reads on a light one. */
+  const isDark = useTheme() === 'dark';
+  const lightColor = isDark ? '#ffffff' : darkenColor(`${nameColour}`, 90);
+  const darkColor = isDark
+    ? lightenColorWithAlpha(`${nameColour}`, 20, 0.45)
+    : lightenColorWithAlpha(`${nameColour}`, 5);
 
   const handleAvatarImageError = () => {
     setHasImageError(true);

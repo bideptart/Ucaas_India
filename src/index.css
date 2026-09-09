@@ -420,13 +420,32 @@
      dropdown that opens from it matches. */
   .dark .custom-react-select__control {
     background-color: var(--mcm-surface-2) !important;
-    border-color: var(--mcm-line) !important;
+    /* Orange edge rather than the cold `--mcm-line`, so a select reads as
+       the same control as the app's other inputs and buttons in dark. */
+    border-color: rgba(255, 171, 94, 0.28) !important;
+  }
+  .dark .custom-react-select__control:hover,
+  .dark .custom-react-select__control--is-focused {
+    border-color: var(--mcm-accent, #ffab5e) !important;
+  }
+  .dark .custom-react-select__single-value,
+  .dark .custom-react-select__input-container {
+    color: var(--mcm-ink, #eef2f9) !important;
   }
 
-  .dark .custom-react-select__menu,
+  /* Same edge the app's other dropdowns use (`.mtg-menu`): a solid accent
+     border at 12px radius, `#ffab5e` in dark. The border goes on `__menu`
+     alone -- react-select nests `__menu-list` inside it, and bordering both
+     draws two lines a pixel apart. */
+  .dark .custom-react-select__menu {
+    background-color: var(--mcm-surface-2) !important;
+    border: 1px solid var(--mcm-accent, #ffab5e) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
   .dark .custom-react-select__menu-list {
     background-color: var(--mcm-surface-2) !important;
-    border-color: var(--mcm-line) !important;
+    border: 0 !important;
   }
 
   .dark .custom-react-select__option {
@@ -434,8 +453,17 @@
     color: var(--mcm-ink) !important;
   }
 
-  .dark .custom-react-select__option--is-focused {
-    background-color: var(--mcm-surface-3) !important;
+  /* Warm hover, matching the menu idiom used elsewhere (#fff1e0/#c96f1f in
+     light). `--mcm-surface-3` was just a lighter slate -- readable, but it
+     didn't say "this is the app's accent" the way every other hover does. */
+  .dark .custom-react-select__option--is-focused,
+  .dark .custom-react-select__option:hover {
+    background-color: rgba(255, 171, 94, 0.16) !important;
+    color: var(--mcm-accent-ink, #ffc98a) !important;
+  }
+  .dark .custom-react-select__option--is-selected {
+    background-color: rgba(255, 171, 94, 0.26) !important;
+    color: var(--mcm-ink, #eef2f9) !important;
   }
 
   .filters .custom-react-select__control {
@@ -604,6 +632,27 @@
     border-color: var(--primary) !important;
   }
 
+  /* Dark counterpart, in this layer beside its light twin: the rule above
+     sets the white fill `!important` inside `@layer base`, and a layered
+     important outranks an unlayered one however specific -- so the group
+     picker stayed a white pill against the generic react-select overrides
+     written further down this file. */
+  .dark .select-group__control {
+    background-color: var(--mcm-surface-2, #161f31) !important;
+    border-color: rgba(255, 171, 94, 0.28) !important;
+  }
+  .dark .select-group__menu,
+  .dark .select-group__menu-list {
+    background-color: var(--mcm-surface-2, #161f31) !important;
+  }
+  .dark .select-group__single-value,
+  .dark .select-group__input-container {
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+  .dark .select-group__placeholder {
+    color: var(--mcm-ink-3, #93a1ba) !important;
+  }
+
   .select-group-control-error .select-group__control {
     border-color: var(--color-red-500) !important;
   }
@@ -678,6 +727,24 @@
   .select-group__option--is-selected {
     background-color: var(--primary) !important;
     color: var(--color-white) !important;
+  }
+
+  /* Dark counterparts for the three option states above -- all `!important`
+     inside this layer, so they can only be beaten from inside it. Matches
+     what the Country picker does: white options, warm hover with orange
+     ink, stronger wash for the selected one. */
+  .dark .select-group__option {
+    background-color: transparent !important;
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+  .dark .select-group__option:hover,
+  .dark .select-group__option--is-focused {
+    background-color: rgba(255, 171, 94, 0.16) !important;
+    color: var(--mcm-accent-ink, #ffc98a) !important;
+  }
+  .dark .select-group__option--is-selected {
+    background-color: rgba(255, 171, 94, 0.26) !important;
+    color: var(--mcm-ink, #eef2f9) !important;
   }
 
   .select-group__indicator,
@@ -1019,6 +1086,22 @@
   .contact-toolbar-select.custom-react-select__control--is-focused {
     border-color: var(--primary) !important;
   }
+  /* Dark counterpart, and it has to sit in this layer beside its light
+     twin: the rule above is `!important` inside `@layer base`, which beats
+     an unlayered `!important` however specific -- so the Group/Tag selects
+     kept their white 0.7 fill against every override written from the page
+     stylesheet. */
+  .dark .contact-toolbar-select.custom-react-select__control {
+    background-color: #111a24 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+  .dark .contact-toolbar-select .custom-react-select__placeholder,
+  .dark .contact-toolbar-select .custom-react-select__single-value,
+  .dark .contact-toolbar-select .custom-react-select__input-container,
+  .dark .contact-toolbar-select .custom-react-select__indicator {
+    color: #fff !important;
+    opacity: 1 !important;
+  }
 
   /* Contact view's "Send WhatsApp Message" drawer (`SendWhatsappMessage`,
      opted in via its own `selectClassName`/wrapper class only from this
@@ -1287,6 +1370,24 @@
     color: var(--color-gray-500) !important;
     cursor: not-allowed !important;
     opacity: 50 !important;
+  }
+
+  /* The dark counterpart, and it has to live HERE rather than in a page
+     stylesheet: the rule above is `!important` inside `@layer base`, and a
+     layered important beats an unlayered one whatever its specificity --
+     exactly the trap its own comment describes. Without this, every
+     disabled field in dark (Country on the location form, a disabled Prev
+     on a wizard) rendered as a light grey chip. */
+  .dark button:disabled:not(.mini):not(.btn),
+  .dark input:disabled,
+  .dark select:disabled,
+  .dark textarea:disabled,
+  .dark .custom-react-select__option--is-disabled,
+  .dark .custom-react-select__control--is-disabled,
+  .dark input:disabled ~ .flag-dropdown {
+    background-color: var(--mcm-surface-3, #1e293e) !important;
+    border: 1px solid rgba(255, 171, 94, 0.12) !important;
+    color: var(--mcm-ink-3, #93a1ba) !important;
   }
 
   /* Calendar day cells are buttons, but they are not form controls. The
@@ -3010,4 +3111,220 @@
   background: linear-gradient(135deg, #f2794f, #ea5c34);
   color: #fff;
   border-color: transparent;
+}
+
+/* =====================================================================
+   Dialog buttons, dark. Lives here rather than in a page stylesheet: these
+   rules have to reach every dialog in the app, and a page's CSS only loads
+   with that route's chunk.
+   ===================================================================== */
+
+/* =====================================================================
+   Dialog buttons, dark. Lives here rather than in a page stylesheet:
+   these rules have to reach every dialog in the app, and a page's CSS
+   only loads with that route's own chunk.
+   ===================================================================== */
+/* Every button in every dialog, normalised. Scoped per-dialog first, which
+   meant each new dialog reintroduced the same white pills and grey labels;
+   `[role='dialog']` covers them in one place instead. Dark only -- light
+   already gets these variants right. The shadcn variants both carry
+   `border-primary`, so they have to be told apart by their fill:
+     outline  -> `bg-white border border-primary text-primary`
+     primary  -> `bg-primary border border-primary text-white`
+   Matching on `border-primary` alone caught the primary too and flattened
+   Submit into another outline, leaving the form with no main action.
+
+   outline (Prev / Next / Select / the extension re-roll icon): the white
+   fill is hardcoded with no dark counterpart, so they sat as white pills on
+   a dark dialog. Transparent with an orange edge at rest, filled on hover.
+   `hover:bg-primary/90 hover:text-white` is restated rather than relied on:
+   those two utilities don't reliably both land, which is what left
+   "+ Add Users" showing white text on a white fill. */
+.dark [role='dialog'] button[class*='bg-white'][class*='border-primary'] {
+  background-color: transparent !important;
+  border-color: #f2994a !important;
+  color: #f2994a !important;
+}
+.dark [role='dialog'] button[class*='bg-white'][class*='border-primary']:hover:not(:disabled),
+.dark [role='dialog']
+  button[class*='bg-white'][class*='border-primary']:hover:not(:disabled)
+  svg {
+  background-color: #f2994a !important;
+  border-color: #f2994a !important;
+  color: #fff !important;
+}
+.dark [role='dialog']
+  button[class*='bg-white'][class*='border-primary']:hover:not(:disabled)
+  svg {
+  background-color: transparent !important;
+}
+/* Disabled outline (Prev on the first step) kept its near-white fill.
+   Same outline, dimmed, so it reads as the same control rather than a
+   different one. */
+.dark [role='dialog'] button:disabled {
+  background-color: transparent !important;
+  border-color: rgba(242, 153, 74, 0.35) !important;
+  color: rgba(242, 153, 74, 0.45) !important;
+}
+/* primary (Submit): stays the one filled button, and holds its fill on
+   hover rather than lightening to `bg-primary/90`.
+   `bg-white` is the discriminator, not `bg-primary` -- the outline variant's
+   own `hover:bg-primary/90` contains that substring, so matching on it
+   filled Next as well. */
+.dark [role='dialog'] button[class*='border-primary']:not([class*='bg-white']),
+.dark
+  [role='dialog']
+  button[class*='border-primary']:not([class*='bg-white']):hover:not(:disabled) {
+  background-color: #f2994a !important;
+  border-color: #f2994a !important;
+  color: #fff !important;
+}
+
+/* Cancel is a bare `text-gray-700 hover:text-primary` button with `border: 0`
+   -- in dark that grey (oklch(0.373 …)) sits nearly invisible on the footer
+   and the button reads as static label text rather than a control. Given the
+   same orange outline as every other Cancel in Directory, with the label
+   matching the border, and the usual fill on hover. */
+.dark [role='dialog'] button[class*='text-gray-700'] {
+  border: 1px solid #f2994a !important;
+  color: #f2994a !important;
+  background-color: transparent !important;
+}
+.dark [role='dialog'] button[class*='text-gray-700']:hover:not(:disabled) {
+  background-color: #f2994a !important;
+  color: #fff !important;
+}
+
+/* The table toolbar's refresh button (table-manager.tsx) ships
+   `hover:text-white` with no hover background, so the glyph turned white
+   against its own unchanged surface and disappeared. The fill it was
+   evidently meant to have, in both themes. */
+/* Rest state: the button ships `dark:bg-mcm-surface/88` but renders
+   `rgba(255,255,255,0.88)` -- a white disc carrying a near-white icon, so
+   it read as a blank blob at the end of the pager. */
+.dark .mcm-page .table-refresh-btn,
+.dark .table-refresh-btn {
+  /* `.mcm-page .table-refresh-btn` sets the white fill `!important` at the
+     same specificity as `.dark .table-refresh-btn` and sits later in the
+     sheet, so it won on order -- hence the `.mcm-page` variant here. */
+  background: var(--mcm-surface-2, #161f31) !important;
+  border-color: rgba(255, 171, 94, 0.28) !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.table-refresh-btn:hover:not(:disabled) {
+  background: #f2994a !important;
+  border-color: #f2994a !important;
+  color: #fff !important;
+}
+.table-refresh-btn:hover:not(:disabled) svg {
+  color: #fff !important;
+}
+
+/* Popovers that hardcode the light cream glass (`bg-[rgba(251,249,246,0.88)]`)
+   with no dark counterpart -- the "Assign Groups" picker on External Contacts
+   is one. Matching on that literal rather than on `[data-slot='popover-content']`
+   generally, so only the popovers actually painted cream are touched. They
+   portal to `document.body`, which is why a page-scoped rule can't reach them
+   and this lives in the global sheet. */
+.dark [data-slot='popover-content'][class*='rgba(251,249,246'] {
+  background-color: var(--mcm-surface-2, #161f31) !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+/* Their item labels carry the same near-black literal the External table
+   uses, and the popover sits outside that page's own scope. */
+.dark [data-slot='popover-content'] [class*='#2E2D35'],
+.dark [data-slot='popover-content'] [class*='#9A948F'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+
+/* Dropdown menus, dark. Plain shadcn menus ship a neutral `bg-popover`
+   panel with no border and a dull `bg-accent` hover -- the olive block that
+   made items look disabled. This gives every one of them the idiom the
+   app's own menus already use (`.mtg-menu`, Directory's person menu):
+   accent border, warm hover, orange ink. Destructive items keep their red. */
+.dark [data-slot='dropdown-menu-content'] {
+  background-color: var(--mcm-surface-2, #161f31) !important;
+  border: 1px solid var(--mcm-accent, #ffab5e) !important;
+  border-radius: 12px !important;
+}
+.dark [data-slot='dropdown-menu-content'] [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
+.dark [data-slot='dropdown-menu-content'] [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted],
+.dark [data-slot='dropdown-menu-content'] [role='menuitem']:not([data-variant='destructive']):hover,
+.dark [data-slot='dropdown-menu-content'] [role='menuitem']:not([data-variant='destructive'])[data-highlighted] {
+  background-color: rgba(255, 171, 94, 0.16) !important;
+  color: var(--mcm-accent-ink, #ffc98a) !important;
+}
+
+/* =====================================================================
+   Directory's portaled form dialogs, dark.
+   Invite, Edit person, Location, Create group and Add contact all carry the
+   `gp-create-group-dialog` wrapper and all hardcode a white sheet, because
+   portaling to `document.body` puts them outside the `.mcm-page` scope
+   where the tokens live. Each one was being darkened separately as it was
+   noticed; this covers the set, so a dialog nobody has opened yet is dark
+   too. Page stylesheets still add their own accents on top.
+   ===================================================================== */
+.dark .gp-create-group-dialog {
+  background: var(--mcm-surface, #111c26) !important;
+  border-color: rgba(255, 171, 94, 0.14) !important;
+}
+.dark .gp-create-group-dialog .gp-create-group-head {
+  background: #17212d;
+  border-bottom: 1px solid rgba(255, 171, 94, 0.18);
+}
+.dark .gp-create-group-dialog .gp-create-group-head h2,
+.dark .gp-create-group-dialog [data-slot='dialog-title'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-create-group-dialog input:not([type='checkbox']):not([type='radio']),
+.dark .gp-create-group-dialog textarea {
+  background: var(--mcm-surface-2, #161f31) !important;
+  border-color: rgba(255, 171, 94, 0.18) !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-create-group-dialog input::placeholder,
+.dark .gp-create-group-dialog textarea::placeholder {
+  color: var(--mcm-ink-3, #93a1ba) !important;
+}
+
+/* =====================================================================
+   react-select, dark -- any classNamePrefix.
+   The rules further up target `custom-react-select__*`, but selects are
+   instantiated with other prefixes too (`select-group__` on Add Contact's
+   group picker), and those rendered as a white menu with black options.
+   These suffixes are react-select's own structure, so matching on them
+   covers every instance regardless of the prefix it was given.
+   ===================================================================== */
+.dark [class*='__menu-list'],
+.dark [class*='__menu']:not([class*='__menu-portal']) {
+  background-color: var(--mcm-surface-2, #161f31) !important;
+}
+.dark [class*='__menu']:not([class*='__menu-portal']) {
+  border: 1px solid var(--mcm-accent, #ffab5e) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+.dark [class*='__option'] {
+  background-color: transparent !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark [class*='__option--is-focused'],
+.dark [class*='__option']:hover {
+  background-color: rgba(255, 171, 94, 0.16) !important;
+  color: var(--mcm-accent-ink, #ffc98a) !important;
+}
+.dark [class*='__option--is-selected'] {
+  background-color: rgba(255, 171, 94, 0.26) !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark [class*='__control'] {
+  background-color: var(--mcm-surface-2, #161f31) !important;
+  border-color: rgba(255, 171, 94, 0.28) !important;
+}
+.dark [class*='__single-value'],
+.dark [class*='__input-container'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark [class*='__placeholder'] {
+  color: var(--mcm-ink-3, #93a1ba) !important;
 }

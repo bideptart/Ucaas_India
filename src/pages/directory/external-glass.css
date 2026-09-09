@@ -516,3 +516,244 @@
   background: #f2994a !important;
   box-shadow: 0 2px 6px rgba(242, 153, 74, 0.4) !important;
 }
+
+/* ====================================================================
+   DARK
+   Like Favourites, this file carried no `.dark` layer. The table itself
+   came out dark anyway (its markup brings its own `dark:` utilities), which
+   is why the gap read as "half themed" rather than obviously broken: the
+   page head, toolbar and pager stayed light around a dark table. Same
+   values as people-glass.css's dark block, since the pages share the
+   structural vocabulary.
+   ==================================================================== */
+/* Flat deep-navy in place of the four orange radial gradients the light
+   rule paints — same "orange never washes a full surface" correction as
+   `.dark body` in index.css. */
+.dark .gp-external {
+  background:
+    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
+    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    radial-gradient(900px 640px at 50% 118%, rgba(255, 160, 80, 0.06), transparent 60%),
+    var(--mcm-ground, #080d12);
+}
+.dark .gp-external .page-head,
+.dark .gp-external .tbar .fchip {
+  border: 1px solid rgba(255, 171, 94, 0.14);
+  box-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-external .page-head {
+  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
+}
+.dark .gp-external .page-head h1 {
+  color: var(--mcm-ink, #f8fafc);
+}
+.dark .gp-external .page-head p {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external .panel-card {
+  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
+  border: 1px solid rgba(255, 171, 94, 0.14);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
+}
+/* Opaque, not translucent: at 0.75 this bar composited with the page
+   behind it and read as a flat light grey panel rather than a dark one. */
+.dark .gp-external .tbar {
+  background: #141d28;
+  border: 1px solid rgba(255, 171, 94, 0.12);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.dark .gp-external .tbar .fchip {
+  background: #111a24;
+  border-color: #293746;
+}
+.dark .gp-external .tbar .fchip:hover {
+  background: #1e293e;
+  border-color: var(--mcm-accent-edge);
+}
+.dark .gp-external .tbar .fchip > span:first-child {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .gp-external .tbar .fchip input {
+  color: var(--mcm-ink, #f3f6f9) !important;
+}
+/* Pale-mint fill is `!important` in the light rule, so this needs the flag
+   too; the teal ink is kept and only the wash moves. */
+.dark .gp-external .fchip.live {
+  /* Same treatment Roles settled on (roles-glass.css): a solid muted-teal
+     fill rather than the faint `--live-wash` tint, which nearly disappears
+     against a dark toolbar. `!important` because the light rule sets these
+     with the flag on some pages -- carried on all three for consistency. */
+  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
+  border-color: transparent !important;
+  color: #f3f6f9;
+}
+.dark .gp-external th {
+  background: #1a232f;
+  color: var(--mcm-accent, #ffab5e);
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
+}
+.dark .gp-external td {
+  border-bottom-color: rgba(255, 171, 94, 0.1);
+}
+.dark .gp-external tbody tr:hover {
+  background: rgba(255, 171, 94, 0.06);
+}
+/* The pager's own hover/current rules are `!important` (they have to beat
+   the shared `.mcm-pager` base), so the dark counterparts carry it too.
+   The current-page pill keeps its orange fill — it reads as the accent in
+   both themes; only the neutral hover wash needs a dark value. */
+.dark .gp-external .mcm-pager {
+  background: rgba(14, 24, 33, 0.75);
+  border-color: #293746;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.dark .gp-external .mcm-pager-btn:not(:disabled):hover,
+.dark .gp-external .mcm-pager-page:not(.is-current):hover {
+  background: var(--mcm-surface-3, #1a2733) !important;
+  color: var(--mcm-accent-ink, #ffc98a) !important;
+}
+/* The table body is rendered by the shared `all-contacts-list` component,
+   whose cells hardcode the light palette as Tailwind arbitrary values
+   (`text-[#2E2D35]` for names, `bg-[#FBE2C8]/40 text-[#2E2D35]/80` for the
+   row action button) with no `dark:` counterparts. Two reasons this is
+   corrected here rather than by adding `dark:` utilities to that file:
+   the component is shared with other pages that may not want this page's
+   treatment, and long className lines are exactly what merges silently
+   revert (see the dark: layer lost twice already). Matching on the class
+   ATTRIBUTE is the same compat idiom index.css already uses for #8a6f57. */
+.dark .gp-external [class*='#2E2D35'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-external [class*='#FBE2C8'] {
+  background: rgba(30, 41, 62, 0.75) !important;
+  border: 1px solid rgba(255, 171, 94, 0.35);
+  color: var(--mcm-accent-ink, #ffc98a) !important;
+}
+.dark .gp-external [class*='#FBE2C8']:hover {
+  background: linear-gradient(135deg, var(--accent, #ffab5e) 0%, var(--accent-ink, #ffc98a) 100%) !important;
+  border-color: transparent;
+  color: #1a1204 !important;
+}
+/* The Contact view / Contact Group strip is a shadcn TabsList carrying a
+   hardcoded `bg-[rgba(255,255,255,0.55)]` with a cream border and no dark
+   counterpart -- the one light bar left on this page in dark. Matched on
+   that literal, scoped to this page, so no other TabsList is touched. */
+.dark .gp-external [class*='rgba(255,255,255,0.55)'] {
+  /* Opaque, not the 0.75 alpha it started as: translucent, it composites
+     with whatever sits behind, which is what left it reading grey. */
+  background-color: #141d28 !important;
+  border-color: rgba(255, 171, 94, 0.14) !important;
+}
+/* The inactive tab's label rides on `text-muted-foreground` from the list
+   itself -- a mid grey that looked like part of the bar rather than a
+   control next to the orange active pill. */
+.dark .gp-external [class*='rgba(255,255,255,0.55)'] [data-slot='tabs-trigger'] {
+  color: var(--mcm-ink-2, #c3cddf) !important;
+}
+.dark .gp-external [class*='rgba(255,255,255,0.55)'] [data-slot='tabs-trigger'][data-state='active'] {
+  color: #fff !important;
+}
+/* The row hover that actually applies here is `.gp-contact-table tbody
+   tr:hover`, set `!important` on the inner table -- not the `.gp-external`
+   rule above it, which is why the hovered row stayed a light peach wash in
+   dark. Same warm tint the other Directory tables use. */
+.dark .gp-contact-table tbody tr:hover,
+.dark .gp-contact-table tbody tr[data-state='selected'] {
+  /* 0.08 over this table's near-black composited to about #1d2229 -- warm
+     in theory, plain grey to the eye. 0.18 is unmistakably the accent. */
+  background: rgba(255, 171, 94, 0.18) !important;
+}
+
+/* ---- The toolbar strip, for real this time ----------------------------
+   Every dark rule above targets `.tbar` -- a class this page does not use.
+   The strip is `.gp-contact-toolbar`, painted a cream `rgba(251,249,246,
+   0.88)` in the markup, with white pills and a `bg-[#faf5ee]` thead band
+   beside it. That is the light section; the `.tbar` rules were dead code
+   against it. All opaque, since translucent surfaces over this page read
+   as flat grey. */
+.dark .gp-external .gp-contact-toolbar {
+  background: #141d28 !important;
+  border-bottom-color: rgba(255, 171, 94, 0.14) !important;
+}
+/* Search / Group / Tag match the Groups page's own search field rather than
+   carrying the orange edge the rest of this toolbar uses: a soft
+   translucent white fill with a faint white hairline (measured there:
+   `oklch(1 0 0 / 0.15)` on a `oklch(1 0 0 / 0.1)` border). Orange is left
+   for the actions -- Sync With Google, the tabs -- so the inputs read as
+   fields rather than buttons. */
+/* Group / Tag keep the dark toolbar fill -- the translucent white the
+   Search field uses read as a light grey chip at this width. Their labels
+   go white so they stay legible on it. */
+/* NOTE the compound selectors: `contact-toolbar-select` is applied to the
+   very elements react-select classes land on, not to a wrapper around them,
+   so `.contact-toolbar-select .custom-react-select__control` (descendant)
+   matches nothing -- which is why these kept their `rgba(255,255,255,0.7)`
+   markup fill through two attempts. Targeting inside `.gp-contact-toolbar`
+   instead sidesteps it entirely. */
+.dark .gp-external .gp-contact-toolbar .custom-react-select__control {
+  background: #111a24 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.dark .gp-external .gp-contact-toolbar .custom-react-select__placeholder,
+.dark .gp-external .gp-contact-toolbar .custom-react-select__single-value,
+.dark .gp-external .gp-contact-toolbar .custom-react-select__input-container,
+.dark .gp-external .gp-contact-toolbar .custom-react-select__indicator {
+  color: #fff !important;
+  opacity: 1 !important;
+}
+.dark .gp-external .gp-contact-toolbar input:not([type='checkbox']) {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.dark .gp-external .gp-contact-toolbar button[class*='bg-white'] {
+  background: #111a24 !important;
+  border-color: #f2994a !important;
+  color: #f2994a !important;
+}
+.dark .gp-external .gp-contact-toolbar button[class*='bg-white']:hover {
+  background: #f2994a !important;
+  color: #fff !important;
+}
+/* The table's own header band and any other `#faf5ee` surface on the page. */
+.dark .gp-external [class*='#faf5ee'] {
+  background: #16202c !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+/* Search / Group / Tag placeholders: they sat on a dim slate that all but
+   disappeared once the strip behind them went opaque dark. */
+/* `contact-toolbar-select` and `custom-react-select__placeholder` sit on
+   the SAME element, so the descendant form of this selector matched
+   nothing -- Group and Tag stayed dim while the Search field went white. */
+/* Placeholders on the reference field's own muted tone, not pure white --
+   white reads as a filled value rather than a prompt. */
+.dark .gp-external .gp-contact-toolbar input::placeholder,
+.dark .gp-external .gp-contact-toolbar .custom-react-select__placeholder {
+  color: var(--mcm-ink-3, #93a1ba) !important;
+  opacity: 1 !important;
+}
+.dark .gp-external .gp-contact-toolbar input,
+.dark .gp-external .contact-toolbar-select .custom-react-select__single-value {
+  color: #fff !important;
+}
+.dark .gp-external .gp-contact-toolbar svg {
+  color: #fff !important;
+}
+/* The inactive tab's hover was a near-white fill (its light-theme value),
+   which flashed a cream chip next to the orange active pill. */
+.dark .gp-external [class*='rgba(255,255,255,0.55)'] [data-slot='tabs-trigger']:hover:not([data-state='active']) {
+  background-color: rgba(255, 171, 94, 0.18) !important;
+  color: #fff !important;
+}
+/* The header ink here comes from `.gp-contact-table th` (the inner table,
+   set `!important`), not from the `.gp-external th` rule above -- same
+   split that hid the row hover. Orange labels on the orange underline, as
+   People's table. */
+.dark .gp-contact-table th {
+  background: #1a232f !important;
+  color: var(--mcm-accent, #ffab5e) !important;
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35) !important;
+}

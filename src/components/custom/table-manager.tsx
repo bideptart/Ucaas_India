@@ -582,7 +582,7 @@ function TableManager({
       <TableRow key={headerGroup.id} ref={splitStickyHeader ? headerRowRef : undefined}>
         {hasSubRows && (
           <TableHead
-            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black ${extraThClass}`}
+            className={`px-2 xl:px-4 py-2 font-bold border-b border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black dark:text-mcm-ink ${extraThClass}`}
           ></TableHead>
         )}
         {headerGroup.headers.map((header: any, headerIndex: number) => {
@@ -610,7 +610,7 @@ function TableManager({
           return (
             <TableHead
               key={`${header.id}_${headerIndex}`}
-              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black ${extraThClass}`}
+              className={`px-2 xl:px-4 py-2 font-bold ${alignClass} border-b  border-[#EEE7DD] dark:border-mcm-line last-of-type:border-r-0 text-black dark:text-mcm-ink ${extraThClass}`}
             >
               {header.isPlaceholder
                 ? null

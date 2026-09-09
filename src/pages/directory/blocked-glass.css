@@ -353,18 +353,22 @@
 }
 
 /* ---- Dark theme — same treatment as people-glass.css's own .dark block. ---- */
+/* Same warm ground as the other Directory pages. */
 .dark .gp-blocked {
-  background: var(--mcm-ground, #080d12);
+  background:
+    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
+    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    var(--mcm-ground, #080d12);
 }
 .dark .gp-blocked .page-head,
 .dark .gp-blocked .tbar .fchip {
-  border: 1px solid #1b2934;
+  border: 1px solid rgba(255, 171, 94, 0.14);
   box-shadow:
     0 10px 34px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .dark .gp-blocked .page-head {
-  background: var(--mcm-surface, #111c26);
+  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
 }
 .dark .gp-blocked .tbar .fchip {
   background: var(--mcm-accent-wash, #1a2733);
@@ -391,8 +395,8 @@
   border-color: var(--mcm-accent-edge);
 }
 .dark .gp-blocked .panel-card {
-  background: #111c26;
-  border: 1px solid #1b2934;
+  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
+  border: 1px solid rgba(255, 171, 94, 0.14);
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
 }
 /* The "N blocked" result-count chip's light rule above (`.gp-blocked
@@ -412,8 +416,28 @@
    Scoped here (extra `.gp-blocked` ancestor out-specifies the plain
    `.mcm-page .blocked-compact thead th` rule) rather than editing the
    shared file, which also defines this same layout for no other page. */
+/* Orange labels on the orange underline, as People's table. */
 .dark .gp-blocked .blocked-compact thead th {
-  background: var(--mcm-surface-2, #16222c);
+  background: #1a232f;
+  color: var(--mcm-accent, #ffab5e) !important;
+  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
+}
+.dark .gp-blocked tbody tr:hover {
+  background: rgba(255, 171, 94, 0.08);
+}
+.dark .gp-blocked td {
+  border-bottom-color: rgba(255, 171, 94, 0.1);
+}
+/* "Unblock" was a slate chip; same orange outline-until-filled idiom every
+   other action in Directory uses. */
+.dark .gp-blocked td:last-child .mini {
+  background: transparent !important;
+  border: 1px solid #f2994a !important;
+  color: #f2994a !important;
+}
+.dark .gp-blocked td:last-child .mini:hover:not(:disabled) {
+  background: #f2994a !important;
+  color: #fff !important;
 }
 /* `.blocked-note-text` (the "Coming soon..." explanation paragraph) sets
    `color: var(--warn)` — in dark mode that is the same amber used for the
@@ -425,4 +449,74 @@
    page's explanatory text uses. */
 .dark .gp-blocked .blocked-compact .blocked-note-text {
   color: var(--mcm-ink-3, #8b98a6);
+}
+
+/* Typed text in the search field on the same white People and Favourites
+   use -- these three sat on `--mcm-ink-2`, which read dimmer than the
+   others for no reason. Placeholder stays muted on all five. `!important`
+   because index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints the real ink. */
+.dark .gp-blocked .tbar .fchip input {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+
+/* White placeholder, matching the other Directory toolbars. `!important`
+   because index.css's compat net matches the raw
+   `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
+.dark .gp-blocked .tbar .fchip input::placeholder {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+
+/* ---- "Block a number" dialog, dark ------------------------------------
+   The dialog hardcodes `background: #ffffff !important` with a cream head
+   (both above), because it portals to `document.body` and can't reach the
+   `.mcm-page`-scoped tokens. Neither had a dark counterpart, so it opened
+   as a white sheet with an invisible title.
+   ------------------------------------------------------------------- */
+.dark .gp-block-dialog {
+  background: var(--mcm-surface, #111c26) !important;
+}
+.dark .gp-block-dialog .gp-create-group-head {
+  background: #17212d;
+  border-bottom: 1px solid rgba(255, 171, 94, 0.18);
+}
+.dark .gp-block-dialog .gp-create-group-head h2,
+.dark .gp-block-dialog .gp-create-group-head [data-slot='dialog-title'] {
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-block-dialog .gp-block-intro,
+.dark .gp-block-dialog .gp-block-hint,
+.dark .gp-block-dialog small,
+.dark .gp-block-dialog p {
+  color: var(--mcm-ink-3, #93a1ba);
+}
+/* The field captions are `.gp-block-label`, not `<label>` elements, which
+   is what my first pass missed -- they sat on the light `#2a2733`. */
+.dark .gp-block-dialog label,
+.dark .gp-block-dialog .gp-field-l,
+.dark .gp-block-dialog .gp-block-label {
+  color: var(--mcm-ink, #eef2f9);
+}
+/* Cancel: outline at rest, filled on hover -- it carried a solid white fill
+   in its resting state, which read as the primary action. */
+.dark .gp-block-dialog .gp-block-cancel,
+.dark .gp-block-dialog .gp-block-secondary {
+  background: transparent;
+  border-color: #f2994a;
+  color: #f2994a;
+}
+.dark .gp-block-dialog .gp-block-cancel:hover,
+.dark .gp-block-dialog .gp-block-secondary:hover {
+  background: #f2994a;
+  color: #fff;
+}
+.dark .gp-block-dialog input,
+.dark .gp-block-dialog textarea,
+.dark .gp-block-dialog select {
+  background: var(--mcm-surface-2, #161f31) !important;
+  border-color: rgba(255, 171, 94, 0.18) !important;
+  color: var(--mcm-ink, #eef2f9) !important;
+}
+.dark .gp-block-dialog input::placeholder {
+  color: var(--mcm-ink-3, #93a1ba) !important;
 }

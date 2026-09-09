@@ -44,9 +44,14 @@
    ============================================================ */
 
 .dash-legacy {
-  --lt-accent: #f97316;
+  /* `#ea580c`/`rgba(254,215,170,0.22)` — the exact row-hover pair Queue
+     Status (this same board, its own raw `<table>`) and Directory both use,
+     not the lighter `#f97316`/`rgba(255,241,235,0.55)` this file picked on
+     its own — so the two tables on this board read as one hover system
+     instead of two similar-but-not-quite-matching oranges. */
+  --lt-accent: #ea580c;
   --lt-hairline: rgba(249, 115, 22, 0.08);
-  --lt-row-hover: rgba(255, 241, 235, 0.55);
+  --lt-row-hover: rgba(254, 215, 170, 0.22);
   --lt-head-bg: #fffdfb;
   --lt-head-ink: #8a6f57;
   --lt-head-rule: rgba(242, 153, 74, 0.25);
@@ -66,24 +71,35 @@
 /* ---- header ---------------------------------------------------------- */
 /* Pixel values are Calls', not approximations of it: 9.5px/800/0.09em in
    `#8a6f57` on `#fffdfb`, 9px 12px padding, over a 2px warm hairline.
-   `!important` on the padding only, matching interactions-theme.css — the
-   shared `TableHead` ships its own `px-*`/`py-*` utilities and each of
-   these boards had added more on top. */
+   `!important` throughout — not just padding — because this file sat
+   completely inert for a while (imported nowhere, see the header banner's
+   history note) and, once that import gap was fixed, the header still had
+   to win outright against `.mcm-page th` (mcm-page.css unlayered rule,
+   `color: var(--ink-4)`, a cool blue-grey) reaching in from the page shell
+   every one of these boards renders inside — the same unlayered-vs-
+   unlayered tie every other Performance table header already needed
+   `!important` to settle, this was just the one board that hadn't hit it
+   yet because the rule wasn't loading at all. Explicit `height`/`vertical-
+   align` guarantee the header keeps its own 40px row regardless of
+   font-size or padding changes elsewhere. */
 .dash-legacy table[data-slot='table'] thead {
-  background: var(--lt-head-bg);
+  background: var(--lt-head-bg) !important;
 }
 .dash-legacy table[data-slot='table'] thead tr {
-  background: transparent;
-  border: 0;
+  background: transparent !important;
+  border: 0 !important;
+  height: 40px !important;
 }
 .dash-legacy table[data-slot='table'] thead th {
-  color: var(--lt-head-ink);
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  color: var(--lt-head-ink) !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
   white-space: nowrap;
   text-align: left;
+  vertical-align: middle !important;
+  height: 40px !important;
   padding: 9px 12px !important;
   /* Near-opaque, not transparent. The header row is `sticky top-0`
      (live-dashboard), so with a see-through background the rows scrolling
@@ -91,11 +107,11 @@
      the Directory/Reports tables avoid with a solid sticky header. The
      bottom hairline shadow keeps the header edge readable once a row is
      tucked right under it. */
-  background: rgba(255, 250, 244, 0.97);
+  background: rgba(255, 250, 244, 0.97) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 1px 0 var(--lt-hairline);
-  border-bottom: 2px solid var(--lt-head-rule);
+  border-bottom: 2px solid var(--lt-head-rule) !important;
 }
 /* This file is deliberately unlayered (see the file banner), which is what
    lets `text-align: left` above beat Tailwind's own `text-align` utilities
@@ -120,14 +136,14 @@
 /* The left accent bar is an inset box-shadow rather than a border so the
    row does not shift 3px sideways on hover. */
 .dash-legacy table[data-slot='table'] tbody tr {
-  background: transparent;
+  background: transparent !important;
   transition:
     background-color 0.16s ease,
     box-shadow 0.16s ease;
 }
 .dash-legacy table[data-slot='table'] tbody tr:hover {
-  background: var(--lt-row-hover);
-  box-shadow: inset 3px 0 0 var(--lt-accent);
+  background: var(--lt-row-hover) !important;
+  box-shadow: inset 3px 0 0 var(--lt-accent) !important;
 }
 .dash-legacy table[data-slot='table'] tbody td {
   padding-top: 10px;

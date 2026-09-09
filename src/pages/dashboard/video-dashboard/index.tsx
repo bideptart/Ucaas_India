@@ -52,6 +52,7 @@ import InviteOthersModal from '@/pages/video-meetings/send-invites/invite-others
 import { useForm } from 'react-hook-form';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { Link } from 'react-router-dom';
+import './video-theme.css';
 
 // Helper function to check if current time is within meeting time range.
 // `nowMs` is threaded through so the whole board judges "is this live?" against
@@ -735,7 +736,7 @@ const VideoDashboard = ({
             <div
               className={cn(
                 'flex min-w-[46px] flex-col items-center rounded-xl px-1.5 py-1.5',
-                isActive ? 'bg-mcm-live/15 text-mcm-live' : 'bg-mcm-surface-3 text-mcm-ink',
+                isActive ? 'bg-mcm-live/15 text-mcm-live' : 'bg-[#f5e6d3] dark:bg-[rgba(251,146,60,0.14)] text-mcm-ink',
               )}
             >
               <p className="text-sm font-semibold leading-none">{formattedDate?.day || ''}</p>
@@ -874,7 +875,7 @@ const VideoDashboard = ({
                   type="button"
                   data-slot="button"
                   aria-label="Meeting details"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-mcm-surface-3 text-[#64748b] dark:text-mcm-ink-3 transition-colors hover:bg-mcm-accent-wash hover:text-mcm-accent-ink"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#f5e6d3] dark:bg-[rgba(251,146,60,0.14)] text-[#64748b] dark:text-mcm-ink-3 transition-colors hover:bg-mcm-accent-wash hover:text-mcm-accent-ink"
                   onClick={() => {
                     setModalState((prev) => ({
                       ...prev,
@@ -892,7 +893,7 @@ const VideoDashboard = ({
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="More actions"
-                className="flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full bg-mcm-surface-3 text-mcm-ink-2 transition-colors focus:outline-0 hover:bg-mcm-accent hover:text-white"
+                className="flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-full bg-[#f5e6d3] dark:bg-[rgba(251,146,60,0.14)] text-mcm-ink-2 transition-colors focus:outline-0 hover:bg-mcm-accent hover:text-white"
               >
                 <Icon name="MenuDots" className="h-5 w-5" />
               </DropdownMenuTrigger>
@@ -979,7 +980,7 @@ const VideoDashboard = ({
               <h3 className="text-sm font-semibold text-mcm-ink">{title}</h3>
               {/* The count belongs in the header: it says how much is in a
                   scrolling list without scrolling it. */}
-              <span className="rounded-full bg-mcm-surface-3 px-1.5 py-0.5 text-[11px] font-semibold text-mcm-ink-2">
+              <span className="rounded-full bg-[#f5e6d3] dark:bg-[rgba(251,146,60,0.14)] px-1.5 py-0.5 text-[11px] font-semibold text-mcm-ink-2">
                 {isPendingList || isErrorList
                   ? '·'
                   : isFiltered
@@ -1053,7 +1054,7 @@ const VideoDashboard = ({
   };
 
   return (
-    <section className="flex xxl:h-full w-full overflow-auto pb-4">
+    <section className="perf-video flex xxl:h-full w-full overflow-auto pb-4">
       {/* `pt-7` (was `pt-3`) so this tab's content starts on the same 28px
           line as every other Performance tab. */}
       <div className="mx-auto flex h-full w-full flex-col gap-3 px-3 pt-7">
@@ -1128,7 +1129,7 @@ const VideoDashboard = ({
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search meetings by name, host or code"
               aria-label="Search meetings"
-              className="h-9 w-full rounded-full border border-mcm-line bg-mcm-surface pl-8.5 pr-8 text-xs text-mcm-ink placeholder:text-mcm-ink-4 focus:border-mcm-accent focus:outline-none"
+              className="video-search h-9 w-full rounded-full border border-mcm-line bg-mcm-surface pl-8.5 pr-8 text-xs text-mcm-ink placeholder:text-mcm-ink-4 focus:border-mcm-accent focus:outline-none"
             />
             {search && (
               <button
@@ -1136,7 +1137,7 @@ const VideoDashboard = ({
                 data-slot="button"
                 aria-label="Clear search"
                 onClick={() => setSearch('')}
-                className="cursor-pointer absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-mcm-ink-4 transition-colors hover:bg-mcm-surface-3 hover:text-mcm-ink-2"
+                className="cursor-pointer absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-mcm-ink-4 transition-colors hover:bg-[#f5e6d3] dark:hover:bg-[rgba(251,146,60,0.14)] hover:text-mcm-ink-2"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -1208,7 +1209,7 @@ const VideoDashboard = ({
                           data-slot="button"
                           aria-label="Copy meeting link"
                           onClick={() => copyMeetingLink(meeting?.meetingId)}
-                          className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full bg-mcm-surface-3 text-mcm-ink-2 transition-colors hover:bg-mcm-accent hover:text-white"
+                          className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full bg-[#f5e6d3] dark:bg-[rgba(251,146,60,0.14)] text-mcm-ink-2 transition-colors hover:bg-mcm-accent hover:text-white"
                         >
                           <Icon name="LinkLine" className="h-4 w-4" />
                         </button>
@@ -1247,7 +1248,15 @@ const VideoDashboard = ({
             </div>
             {/* A hard 400px of chart height (`.chart-container`) meant the two
                 meeting lists never shared a screen with it. */}
-            <div className="relative min-h-[16rem] w-full flex-1 rounded-2xl border border-mcm-line-2 bg-mcm-surface-2 p-2 sm:p-3">
+            {/* `border-mcm-line-2`/`bg-mcm-surface-2` are the console's cool
+                blue-gray tokens (`#dfe5f0`/`#f6f8fc`) — everywhere else on
+                this warm-orange board reads as cream/white, so this one panel
+                stood out as a pale blue box. Swapped for the same warm cream
+                `mcm-page.css` itself defines for `--surface-2`, which the
+                bare `bg-mcm-surface-2` utility never actually reads (that
+                utility resolves the *global* `--mcm-surface-2` in index.css,
+                a different token that only shares the name). */}
+            <div className="relative min-h-[16rem] w-full flex-1 rounded-2xl border border-[rgba(225,200,165,0.5)] dark:border-[rgba(251,146,60,0.15)] bg-[#fbf3e8] dark:bg-[rgba(23,15,10,0.85)] p-2 sm:p-3">
               <BarChart
                 data={graphData}
                 isPendingStatsData={statsQuery.isPending}

@@ -160,7 +160,10 @@ interface JitsiContextType extends InitialStateType {
   createConnection: () => void;
   setWaitingScreen: (val: boolean) => void;
   setLobbyRequestNotification: (data: any) => void;
-  joinMeetHandler: (subject: string, options?: { withVideo?: boolean }) => Promise<void>;
+  joinMeetHandler: (
+    subject: string,
+    options?: { withVideo?: boolean; withAudio?: boolean },
+  ) => Promise<void>;
   handleTestMic: () => void;
   updateLocalVideoTrack: () => void;
   muteAVVideoTrack: (options?: { forceMuted?: boolean }) => Promise<void>;
@@ -2841,13 +2844,18 @@ export const JitsiContextProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const initConference = useCallback(
-    async (subject: string, options?: { withVideo?: boolean }) => {
+    async (subject: string, options?: { withVideo?: boolean; withAudio?: boolean }) => {
       let room: any;
       const mediaGeneration = mediaGenerationRef.current;
       try {
         if (typeof options?.withVideo === 'boolean') {
           const shouldMuteVideo = !options.withVideo;
-          const shouldMuteAudio = false;
+          // Defaults to false (audio always on) when the caller doesn't pass
+          // `withAudio` — every existing caller before this option existed,
+          // preserved exactly. Only a caller that explicitly tracks its own
+          // pre-join mute toggle (the AV modal) opts into respecting it.
+          const shouldMuteAudio =
+            typeof options?.withAudio === 'boolean' ? !options.withAudio : false;
           initialVideoTrackEnabledRef.current = options.withVideo;
           preJoinVideoMutedRef.current = shouldMuteVideo;
           preJoinAudioMutedRef.current = shouldMuteAudio;
@@ -3276,7 +3284,10 @@ export const JitsiContextProvider = ({ children }: { children: ReactNode }) => {
     ],
   );
 
-  async function joinMeetHandler(subject: string, options?: { withVideo?: boolean }) {
+  async function joinMeetHandler(
+    subject: string,
+    options?: { withVideo?: boolean; withAudio?: boolean },
+  ) {
     await initConference(subject, options);
   }
 

@@ -1175,22 +1175,10 @@
 /* A deeper, slightly bluer ground, with a soft warm pool behind the
    thread so the column is not one flat fill top to bottom. */
 .mcm-inbox .mcm-thread {
-  background:
-    radial-gradient(
-      120% 60% at 50% 0%,
-      color-mix(in srgb, var(--mcm-accent) 7%, transparent) 0%,
-      transparent 60%
-    ),
-    #e6ebf5;
+  background-color: #e6ebf5;
 }
 .dark .mcm-inbox .mcm-thread {
-  background:
-    radial-gradient(
-      120% 60% at 50% 0%,
-      color-mix(in srgb, var(--mcm-accent) 10%, transparent) 0%,
-      transparent 60%
-    ),
-    var(--mcm-ground);
+  background-color: var(--mcm-ground);
 }
 
 /* Incoming bubbles keep white, which now reads as raised against a ground

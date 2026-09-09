@@ -322,30 +322,18 @@
     height: 100%;
     font-family: var(--mcm-sans);
     @apply text-foreground;
-    /* Warm gradient backdrop for the glassmorphism pass — the blurred
-       panels need something with color behind them or the blur has
-       nothing to show. Fixed so it doesn't scroll away under long pages. */
-    background:
-      radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
-      radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
-      radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
-      radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
-      linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+    /* Flat, single-color backdrop (no gradient) for the glassmorphism pass —
+       the blurred panels need something with color behind them or the blur
+       has nothing to show. Fixed so it doesn't scroll away under long pages. */
+    background-color: #fdf1e2;
     background-attachment: fixed;
   }
 
-  /* The same backdrop for dark mode. Without it the light warm gradient
+  /* The same flat backdrop for dark mode. Without it the light background
      stayed put under dark-mode surfaces and light body text, which left
-     whole screens unreadable. Same four warm pools, dropped to embers
-     over a near-black base so the frosted panels still have something to
-     pick up. */
+     whole screens unreadable. */
   .dark body {
-    background:
-      radial-gradient(1000px 750px at 4% -6%, rgba(255, 138, 46, 0.2), transparent 58%),
-      radial-gradient(900px 700px at 102% -4%, rgba(255, 105, 30, 0.16), transparent 55%),
-      radial-gradient(950px 700px at 50% 118%, rgba(255, 160, 90, 0.14), transparent 60%),
-      radial-gradient(650px 500px at 100% 100%, rgba(255, 130, 60, 0.12), transparent 55%),
-      linear-gradient(160deg, #0b1018 0%, #171019 100%);
+    background-color: #0b1018;
     background-attachment: fixed;
   }
 

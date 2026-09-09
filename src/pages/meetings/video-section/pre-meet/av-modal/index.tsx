@@ -309,17 +309,11 @@ const AVModal = ({ meetState, setMeetState }: { meetState: any; setMeetState: an
           rather than switching to the console's cool blue-gray dark tokens. */}
       <div
         className="absolute inset-0 -z-10 dark:hidden"
-        style={{
-          background:
-            'radial-gradient(1000px 750px at 4% -6%, rgba(255,154,66,0.35), transparent 58%), radial-gradient(900px 700px at 102% -4%, rgba(255,120,40,0.28), transparent 55%), radial-gradient(950px 700px at 50% 118%, rgba(255,190,120,0.3), transparent 60%), linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
-        }}
+        style={{ background: '#fdf1e2' }}
       />
       <div
         className="absolute inset-0 -z-10 hidden dark:block"
-        style={{
-          background:
-            'radial-gradient(1000px 750px at 4% -6%, rgba(255,140,60,0.12), transparent 58%), radial-gradient(900px 700px at 102% -4%, rgba(255,110,40,0.1), transparent 55%), radial-gradient(950px 700px at 50% 118%, rgba(255,170,100,0.08), transparent 60%), linear-gradient(160deg, #12100d 0%, #1c140c 100%)',
-        }}
+        style={{ background: '#1c140c' }}
       />
       <div className="fixed w-full h-16 z-1">
         {meetState?.isPortalUser && (

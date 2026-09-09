@@ -10,11 +10,7 @@
      gradient pass made it so, to show through by default) — this page
      paints its own copy of that same gradient rather than inheriting it,
      so it stays consistent even if an ancestor's background changes. */
-  background:
-    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.35), transparent 58%),
-    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.28), transparent 55%),
-    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.3), transparent 60%),
-    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  background-color: linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
 }
 
 .gp-groups .gp-groups-refresh {
@@ -267,10 +263,7 @@
    alpha, so Groups reads as the same warm product as People rather than a
    flat slate panel. Same treatment as people-glass.css. */
 .dark .gp-groups {
-  background:
-    radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
-    radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
-    var(--mcm-ground, #080d12);
+  background-color: var(--mcm-ground, #080d12);
 }
 .dark .gp-groups .gp-groups-refresh {
   border-color: var(--mcm-accent, #f97316);

@@ -162,7 +162,7 @@ const metricStateClasses: Record<MetricState, { value: string; edge: string; cel
 const statusPillClass: Record<AgentStatus, string> = {
   AVAILABLE: 'bg-green-100 text-green-700 border border-green-200',
   'ON CALL': 'bg-ucass-active-bg text-ucass-active border border-ucass-active-bg',
-  RINGING: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+  RINGING: 'bg-amber-50 text-amber-800 border border-amber-200',
   'WRAP UP': 'bg-amber-100 text-amber-700 border border-amber-200',
   'ON HOLD': 'bg-red-100 text-red-700 border border-red-200',
   OFFLINE: 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#6b6459] dark:text-mcm-ink-3 border border-[#EEE7DD] dark:border-mcm-line',
@@ -188,10 +188,21 @@ const getCallbackTaskContactName = (task: any) =>
       '',
   ).trim();
 
+/* Utilization is not a "higher is always better" metric the way SLA is — an
+   agent sitting low is normal, not a problem, and only genuine overload (a
+   sustained near-100% load) is the actual alert condition. The old
+   thresholds borrowed SLA's own green/amber/red ladder wholesale, which
+   painted every merely-quiet agent (12%, 21%, 33%) in the same bright red
+   `#DC5049` used for a real breach elsewhere on this board — a normal,
+   healthy roster read as a wall of alerts. Low/normal now gets a soft,
+   non-alarming warm wash instead of a colour that means "problem"
+   everywhere else on this page; the target band (75-85%, the same range
+   Service Level's own tile targets) is the brand's own sunset orange, not
+   a colour reserved for danger; only genuine overload turns red. */
 const getBarColor = (value: number) => {
-  if (value >= 80) return 'bg-[#4EAE6E]';
-  if (value >= 60) return 'bg-amber-500';
-  return 'bg-[#DC5049]';
+  if (value > 85) return 'bg-[#ef4444]';
+  if (value >= 75) return 'bg-[#ea580c]';
+  return 'bg-[#EA8A3F]/50';
 };
 
 const getInitials = (name: string) =>
@@ -202,15 +213,20 @@ const getInitials = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
-const normalizePresenceStatus = (status?: string) => {
-  const normalizedStatus = String(status || '')
-    .trim()
-    .toLowerCase();
-
-  if (normalizedStatus === 'busy') return 'busy';
-  if (['dnd', 'do_not_disturb', 'do-not-disturb'].includes(normalizedStatus)) return 'dnd';
-  if (['online', 'available', 'ready', 'idle'].includes(normalizedStatus)) return 'online';
-  return 'offline';
+/* `+91 88990 13744`, not the raw `+918899013744` the API returns — a
+   10-digit Indian mobile/landline number splits 5+5 after the country
+   code, the same spacing `NumberWithFlag` renders everywhere else a phone
+   number appears on this board. Only reshapes a genuine 10-digit Indian
+   number (with or without a leading `91`/`+91`); anything else (a short
+   extension, an already-odd-length number) is handed back unchanged rather
+   than mis-split. */
+const formatIndianPhone = (raw: string) => {
+  const value = String(raw || '').trim();
+  if (!value) return value;
+  const digits = value.replace(/\D/g, '');
+  const national = digits.length > 10 && digits.startsWith('91') ? digits.slice(2) : digits;
+  if (national.length !== 10) return value;
+  return `+91 ${national.slice(0, 5)} ${national.slice(5)}`;
 };
 
 const ActionButtons = ({
@@ -253,11 +269,18 @@ const ActionButtons = ({
      parts: Tailwind only emits a utility it can actually see in the source. */
   const actionButtonBase =
     'cursor-pointer flex items-center justify-center min-h-8 min-w-8 max-w-8 max-h-8 rounded-full w-8 h-8 border shadow-sm transition-colors';
-  const listenButtonClass = `${actionButtonBase} bg-[#EAF2F9] border-[#CBDDEC] text-[#2E6FA7] hover:bg-[#2E6FA7] hover:border-[#2E6FA7] hover:text-white`;
-  const whisperButtonClass = `${actionButtonBase} bg-[#EEEDFB] border-[#D5D2F3] text-[#5A54C9] hover:bg-[#5A54C9] hover:border-[#5A54C9] hover:text-white`;
-  const bargeButtonClass = `${actionButtonBase} bg-[#FDF3E1] border-[#F0DCB8] text-[#B8791B] hover:bg-[#B8791B] hover:border-[#B8791B] hover:text-white`;
-  const interceptButtonClass = `${actionButtonBase} bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 border-[#EEE7DD] dark:border-mcm-line text-[#C96F1F] hover:bg-[#C96F1F] hover:border-[#C96F1F] hover:text-white`;
-  const hangupButtonClass = `${actionButtonBase} bg-[#FDECEA] border-[#F5C6C2] text-[#DC5049] hover:bg-[#DC5049] hover:border-[#DC5049] hover:text-white`;
+  /* Pixel-matched to Performance ▸ Live Interactions' own 5-button ladder
+     (`.ma-action-listen/whisper/barge/transfer/hangup` in live-theme.css) —
+     same soft pastel washes at rest, same colour-family glow on hover
+     (never a solid-fill/white-icon invert, which is what these five used to
+     do), so a supervisor sees the identical five colours on both boards.
+     `intercept` here maps to Live's `transfer` rung — same 4th-position
+     orange, this board's own name for the same action. */
+  const listenButtonClass = `${actionButtonBase} bg-[rgba(239,246,255,0.9)] border-[rgba(186,230,253,0.7)] text-[#0284c7] hover:bg-[rgba(224,242,254,0.95)] hover:border-[#7dd3fc] hover:shadow-[0_6px_14px_rgba(2,132,199,0.22)]`;
+  const whisperButtonClass = `${actionButtonBase} bg-[rgba(245,243,255,0.9)] border-[rgba(221,214,254,0.7)] text-[#7c3aed] hover:bg-[rgba(237,233,254,0.95)] hover:border-[#c4b5fd] hover:shadow-[0_6px_14px_rgba(124,58,237,0.22)]`;
+  const bargeButtonClass = `${actionButtonBase} bg-[rgba(254,252,232,0.9)] border-[rgba(254,240,138,0.7)] text-[#d97706] hover:bg-[rgba(254,249,195,0.95)] hover:border-[#fde047] hover:shadow-[0_6px_14px_rgba(217,119,6,0.22)]`;
+  const interceptButtonClass = `${actionButtonBase} bg-[rgba(255,247,237,0.9)] border-[rgba(254,215,170,0.7)] text-[#ea580c] hover:bg-[rgba(254,237,213,0.95)] hover:border-[#fdba74] hover:shadow-[0_6px_14px_rgba(234,88,12,0.22)]`;
+  const hangupButtonClass = `${actionButtonBase} bg-[rgba(254,242,242,0.9)] border-[rgba(254,202,202,0.7)] text-[#ef4444] hover:bg-[rgba(254,226,226,0.95)] hover:border-[#fca5a5] hover:shadow-[0_6px_14px_rgba(239,68,68,0.22)]`;
 
   return (
     <div className="flex items-center gap-2">
@@ -598,21 +621,28 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     (agent: any) => getAgentStatus(agent) === 'ON CALL',
   ).length;
 
+  /* The avatar's presence dot used to derive its state independently of the
+     roster's own Live Status pill (`getAgentStatus`, above) — two separate
+     reads of `usersOnlineStatus` that could, and did, disagree: an agent
+     the pill correctly called AVAILABLE could still show the raw
+     `presence.status` string here (e.g. "busy"), painting an odd amber/
+     yellow busy icon next to an "AVAILABLE" name. Every on-call agent also
+     collapsed to the same plain red `call` dot regardless of whether the
+     call was actually connected or just ringing/on hold — the same
+     "one colour for every on-call state" problem `getActiveCallTone`
+     (monitoring/all-users/index.tsx) already fixed for Live Interactions'
+     own presence dots. Deriving the dot from `getAgentStatus` instead — the
+     one function the pill itself reads — makes the dot and the pill
+     structurally unable to disagree, and reuses the same
+     `call-connected`/`call-ringing` tone keys `statusImageLookup` already
+     defines for exactly this. */
   const getAgentPresenceStatus = (agent: any) => {
-    const agentExt = String(agent?.extension || agent?.ext || '');
-    if (!agentExt) return 'offline';
-
-    const liveCallForAgent = getLiveCallForAgent(agent);
-    const isOnCall =
-      Boolean(liveCallForAgent) ||
-      Boolean(usersOnlineStatus?.find((u: any) => String(u?.userId) === agentExt)?.onCall);
-
-    if (isOnCall) return 'call';
-
-    const presence = usersOnlineStatus?.find((u: any) => String(u?.userId) === agentExt);
-    if (!presence?.online) return 'offline';
-
-    return normalizePresenceStatus(presence?.status);
+    const status = getAgentStatus(agent);
+    if (status === 'AVAILABLE') return 'online';
+    if (status === 'ON CALL') return 'call-connected';
+    if (status === 'RINGING' || status === 'ON HOLD') return 'call-ringing';
+    if (status === 'WRAP UP') return 'busy';
+    return 'offline';
   };
 
   // const getQueueOrCampaignName = (forwardValue: any) => {
@@ -657,9 +687,17 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
     return `${m}m ${rs}s`;
   };
 
+  /* Standard telephony `mm:ss`, not raw decimal seconds — `198.50s` read as
+     a stopwatch value nobody on a wallboard actually parses at a glance;
+     every other duration on this board (Time In State, the funnel, the
+     campaign timers) already reads as a clock face, this was the one
+     column still in raw seconds. */
   const formatAht = (val: any) => {
-    const n = Number(val);
-    return Number.isFinite(n) ? `${n.toFixed(2)}s` : '--';
+    const sec = Number(val);
+    if (!sec || Number.isNaN(sec)) return '--';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const dashboardCallbackTaskColumns = useMemo(
@@ -672,7 +710,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
 
           return createdAt ? (
             <div className="flex flex-col">
-              <span className="text-xs text-slate-600">
+              <span className="text-xs text-[#475569] dark:text-mcm-ink-2">
                 {moment(createdAt).format('MMM DD, YYYY')}
               </span>
               <span className="text-[11px] uppercase text-[#475569] dark:text-mcm-ink-2">
@@ -688,7 +726,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         header: 'Title',
         accessorKey: 'name',
         cell: ({ row }: any) => (
-          <span className="inline-block max-w-52 truncate text-xs font-medium text-slate-900">
+          <span className="inline-block max-w-52 truncate text-xs font-medium text-[#1A1A1A] dark:text-mcm-ink">
             {row.original?.name || row.original?.title || '--'}
           </span>
         ),
@@ -701,7 +739,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
 
           return startTime ? (
             <div className="flex flex-col">
-              <span className="text-xs font-medium text-slate-700">
+              <span className="text-xs font-medium text-[#475569] dark:text-mcm-ink-2">
                 {moment(startTime).format('MMM DD, YYYY')}
               </span>
               <span className="text-[11px] uppercase text-[#475569] dark:text-mcm-ink-2">
@@ -717,7 +755,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         header: 'Source',
         accessorKey: 'source',
         cell: ({ row }: any) => (
-          <span className="text-xs capitalize text-slate-600">
+          <span className="text-xs capitalize text-[#475569] dark:text-mcm-ink-2">
             {String(row.original?.source || '--').toLowerCase()}
           </span>
         ),
@@ -727,7 +765,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         accessorKey: 'details.contactPhone',
         cell: ({ row }: any) => {
           const contactPhone = getCallbackTaskContactPhone(row.original);
-          if (!contactPhone) return <span className="text-xs text-slate-400">--</span>;
+          if (!contactPhone)
+            return <span className="text-xs text-[#64748b] dark:text-mcm-ink-3">--</span>;
 
           return <NumberWithFlag number={contactPhone} />;
         },
@@ -791,7 +830,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 }}
                 className={`inline-flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition-all ${
                   isDisabled
-                    ? 'cursor-not-allowed bg-slate-100 text-slate-400 opacity-60'
+                    ? 'cursor-not-allowed bg-[rgba(100,116,139,0.12)] text-[#64748b] opacity-70 dark:bg-mcm-surface-3/40 dark:text-mcm-ink-3'
                     : 'cursor-pointer bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20 active:scale-90'
                 }`}
               >
@@ -1070,8 +1109,8 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           callLogSummary?.ringing_calls ||
           0,
       ),
-      hoverText: 'group-hover:text-indigo-600',
-      hoverBar: 'group-hover:bg-indigo-600',
+      hoverText: 'group-hover:text-amber-700',
+      hoverBar: 'group-hover:bg-amber-700',
       icon: Bell,
     },
     {
@@ -1212,7 +1251,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             ? 'border-[rgba(216,69,60,0.3)] bg-[#FDECEB]'
             : floorState === 'warn'
               ? 'border-[rgba(232,163,61,0.32)] bg-[#FDF1DE]'
-              : 'border-[rgba(13,148,136,0.22)] bg-[#E0F6F3]'
+              : 'border-[rgba(78,174,110,0.28)] bg-[#EAF7EE]'
         }`}
       >
         <span
@@ -1221,7 +1260,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               ? 'bg-[#D8453C]'
               : floorState === 'warn'
                 ? 'bg-[#E8A33D]'
-                : 'bg-[#0D9488]'
+                : 'bg-[#4EAE6E]'
           }`}
         />
         <span
@@ -1230,7 +1269,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               ? 'text-[#C0261F]'
               : floorState === 'warn'
                 ? 'text-[#C2670A]'
-                : 'text-[#0F766E]'
+                : 'text-emerald-700'
           }`}
         >
           {floorState === 'ok'
@@ -1265,7 +1304,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           disabled={isRefreshing}
           title="Refresh live figures"
           aria-label="Refresh live figures"
-          className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(214,163,90,0.6)] bg-white px-4 py-2 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(214,163,90,0.6)] bg-[#fffdfb] px-4 py-2 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
           {isRefreshing ? 'Refreshing' : 'Refresh'}
@@ -1455,16 +1494,19 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                           {item.label}
                         </p>
-                        {/* Plain white, not the usual peach `#FFF1E0` badge:
-                            on the cell's own cream fill that peach nearly
-                            disappeared into it -- barely more than a shade
-                            apart. White is what actually lifts off a cream
+                        {/* Not the usual peach `#FFF1E0` badge: on the cell's
+                            own cream fill that peach nearly disappeared into
+                            it -- barely more than a shade apart. A near-white
+                            frosted fill is what actually lifts off a cream
                             surface, the same reason the queue cards' avatars
                             sit on `--surface` rather than another
-                            `--surface-2` tint. */}
+                            `--surface-2` tint -- translucent (`/90`) rather
+                            than a flat opaque white, so it reads as glass
+                            like every other surface on this board instead of
+                            a stark solid fill. */}
                         <div
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-105 ${
-                            stateStyle ? 'bg-white/70' : 'bg-white'
+                            stateStyle ? 'bg-white/70' : 'bg-white/90'
                           }`}
                         >
                           <IconComp
@@ -1693,34 +1735,40 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   /* Scrolls in place once the list outgrows the column, so ten
                      queues do not stretch the funnel and campaigns beside it. */
                   <div className="perf-thin-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-auto">
-                    {/* `!text-[#475569] dark:text-mcm-ink-2` on every header cell below is not
-                        decorative: `.mcm-page th` (mcm-page.css) is an
+                    {/* Header pixel-matched to the Directory People benchmark
+                        (legacy-table-theme.css/live-theme.css): `#fffdfb`
+                        background, `#8a6f57` text at 9.5px/800/0.09em
+                        uppercase, a 2px warm-orange hairline rule. This is a
+                        raw `<table>`, not the shared `<Table>` component
+                        `legacy-table-theme.css` targets, so the tokens are
+                        applied directly rather than inherited.
+                        `!important` on color/size/weight/letter-spacing/
+                        border because `.mcm-page th` (mcm-page.css) is an
                         unlayered base rule setting `color: var(--ink-4)`
-                        (`#93a0b8`, a cool blue-grey), which beats a plain
-                        Tailwind `text-[#475569] dark:text-mcm-ink-2` on these `<th>` regardless
-                        of specificity — the labels rendered in that cool
+                        (`#93a0b8`, a cool blue-grey) that beats a plain
+                        Tailwind class on these `<th>` regardless of
+                        specificity — the labels used to render in that cool
                         grey at a 2.5:1 contrast ratio against the warm cream
-                        header, well under the 4.5:1 small text needs, while
-                        the class name insisted they were `#475569`. Same
-                        trap as `.mcm-page button`'s reset, different
-                        property, first found on this table. */}
+                        header, well under the 4.5:1 small-text minimum, the
+                        same trap `.mcm-page button`'s reset sets for plain
+                        buttons elsewhere in this file. */}
                     <table className="w-full min-w-[330px]">
                       <thead>
-                        <tr>
-                          <th className="pb-2 text-left text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
+                        <tr className="bg-[#fffdfb] dark:bg-mcm-surface">
+                          <th className="py-2 pl-2 text-left text-[9.5px] font-extrabold uppercase tracking-[0.09em] !text-[#8a6f57] dark:!text-mcm-ink-2 !border-b-2 !border-b-[rgba(242,153,74,0.25)]">
                             Queue
                           </th>
                           {/* Durations right, counts centre - the handoff
                               guide's alignment rule. Right-aligned digits also
                               line up their units, so 8s and 34s compare down
                               the column instead of drifting. */}
-                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
+                          <th className="py-2 text-right text-[9.5px] font-extrabold uppercase tracking-[0.09em] !text-[#8a6f57] dark:!text-mcm-ink-2 !border-b-2 !border-b-[rgba(242,153,74,0.25)]">
                             Avg wait
                           </th>
-                          <th className="pb-2 text-center text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
+                          <th className="py-2 text-center text-[9.5px] font-extrabold uppercase tracking-[0.09em] !text-[#8a6f57] dark:!text-mcm-ink-2 !border-b-2 !border-b-[rgba(242,153,74,0.25)]">
                             Available
                           </th>
-                          <th className="pb-2 text-right text-[11px] font-bold uppercase tracking-[0.1em] !text-[#475569] dark:text-mcm-ink-2">
+                          <th className="py-2 pr-2 text-right text-[9.5px] font-extrabold uppercase tracking-[0.09em] !text-[#8a6f57] dark:!text-mcm-ink-2 !border-b-2 !border-b-[rgba(242,153,74,0.25)]">
                             SLA
                           </th>
                         </tr>
@@ -1733,16 +1781,32 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               ? 'text-[#C0261F]'
                               : slaState === 'warn'
                                 ? 'text-[#C2670A]'
-                                : 'text-[#0F766E]';
+                                : 'text-emerald-700';
                           const edge =
                             slaState === 'breach'
                               ? 'bg-[#D8453C]'
                               : slaState === 'warn'
                                 ? 'bg-[#E8A33D]'
-                                : 'bg-[#0D9488]';
+                                : 'bg-[#4EAE6E]';
                           return (
-                            <tr key={queue.queue}>
-                              <td className="py-3 text-left">
+                            /* Directory's signature row-hover: a 3px inset
+                               left accent bar plus a warm peach wash
+                               (`box-shadow: inset 3px 0 0 var(--accent)` +
+                               `rgba(254,215,170,0.22)` in live-theme.css/
+                               legacy-table-theme.css) — this table's rows had
+                               no hover treatment at all before. The
+                               permanent per-row SLA-health bar (`edge`, in
+                               the first cell) stays exactly as it was; this
+                               is a second, separate signal that only shows
+                               on hover, same as every other Performance
+                               table. `bg-transparent` keeps the row clean at
+                               rest so the hover wash is the only thing that
+                               ever paints it. */
+                            <tr
+                              key={queue.queue}
+                              className="bg-transparent transition-colors duration-150 hover:bg-[rgba(254,215,170,0.22)] hover:shadow-[inset_3px_0_0_#ea580c]"
+                            >
+                              <td className="py-3 pl-2 text-left">
                                 <span className="flex items-center gap-2.5">
                                   <span className={`h-8 w-[3px] shrink-0 rounded-full ${edge}`} />
                                   <span className="truncate text-sm font-semibold text-[#1A1A1A] dark:text-mcm-ink">
@@ -1761,7 +1825,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   down the column at a glance, which is how a
                                   wallboard is actually scanned. Same colour
                                   as the row's edge, so the two agree. */}
-                              <td className="py-3 text-right align-middle">
+                              <td className="py-3 pr-2 text-right align-middle">
                                 <span className={`num text-sm font-bold ${slaClass}`}>
                                   {queue.sla}%
                                 </span>
@@ -1901,7 +1965,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                               {campaign.dialed}
                             </span>
                             &nbsp;&middot;&nbsp; Conversions{' '}
-                            <span className="num font-bold text-[#0F766E]">
+                            <span className="num font-bold text-emerald-700">
                               {campaign.conversions}
                             </span>
                             &nbsp;&middot;&nbsp; Failed{' '}
@@ -1924,7 +1988,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         <div className="mt-3 flex w-full  gap-4 xl:flex-row flex-col">
 
           <div className="flex w-full flex-col gap-3 xl:min-h-[1400px]">
-            <div className="rounded-xl border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface/97 backdrop-blur-[12px] p-2.5 shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset] w-full">
+            {/* 20px frosted-glass card standard (queues-theme.css/live-theme.css):
+                #fffdfb, blur(20px), a 1px warm hairline border and the same
+                single-layer rgba(160,95,30,0.14) shadow every Performance
+                card uses — this and the roster card below it were still on
+                an older 12px/rounded-xl recipe with a heavier three-layer
+                shadow, the one structural gap left after the color-token
+                pass. */}
+            <div className="rounded-[20px] border border-[rgba(249,115,22,0.16)] bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] p-2.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)] w-full">
               <div className="mb-2.5 flex items-center justify-between px-0.5">
                 <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459] dark:text-mcm-ink-3">
                   <UsersIcon className="h-4 w-4 text-primary" />
@@ -2010,7 +2081,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             </div>
 
             {canViewAgentRosterAndControls ? (
-              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-xl overflow-hidden  border border-[rgba(214,163,90,0.55)] bg-[rgba(255,252,248,0.97)] dark:bg-mcm-surface/97 backdrop-blur-[12px] shadow-[0_16px_36px_-8px_rgba(154,78,30,0.35),0_4px_12px_rgba(154,78,30,0.18),0_1px_0_rgba(255,255,255,0.6)_inset]">
+              <div className="sticky top-0 z-10 flex max-h-[calc(100vh-4rem)] flex-col rounded-[20px] overflow-hidden  border border-[rgba(249,115,22,0.16)] bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
                 <div className="shrink-0 flex flex-wrap items-center justify-between border-b border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 px-3 py-2.5">
                   <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#6b6459] dark:text-mcm-ink-3">
                     <Headset className="h-4 w-4 text-primary" />
@@ -2199,7 +2270,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   .trim()
                                   .toLowerCase();
                                 if (direction === 'local') return '--';
-                                return liveCall?.caller_number || '--';
+                                return liveCall?.caller_number
+                                  ? formatIndianPhone(liveCall.caller_number)
+                                  : '--';
                               })()}
                             </TableCell>
                             <TableCell className="lt-align-center px-3 py-2.5">
@@ -2307,13 +2380,23 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           if (!open) setSelectedCallListMetric(null);
         }}
       >
-        <DialogContent className="md:max-w-[1260px] xl:max-w-[1366px] gap-0 overflow-hidden p-0">
-          <DialogHeader className="border-b border-[#EEE7DD] dark:border-mcm-line px-5 py-4">
-            <DialogTitle className="text-base font-semibold text-[#2E2D35] dark:text-mcm-ink">
+        {/* 20px frosted-glass card standard (queues-theme.css/live-theme.css),
+            same as every other card on this board — the drill-in dialog was
+            the one surface still on the shared component's plain default
+            (`bg-background`, `rounded-xl`, generic border). The close
+            button is baked into the shared `DialogContent` (`dialog.tsx`),
+            not something this file owns, so it's restyled per-instance via
+            its stable `data-slot="dialog-close"` hook rather than editing
+            the shared component (which every other dialog in the app also
+            renders through) — a clean 32px warm circular pill instead of
+            the default's small square glyph. */}
+        <DialogContent className="md:max-w-[1260px] xl:max-w-[1366px] gap-0 overflow-hidden rounded-[20px] border-[rgba(249,115,22,0.16)] bg-[#fffdfb] p-0 shadow-[0_10px_34px_rgba(160,95,30,0.14)] dark:bg-mcm-surface [&_[data-slot=dialog-close]]:top-4 [&_[data-slot=dialog-close]]:right-4 [&_[data-slot=dialog-close]]:flex [&_[data-slot=dialog-close]]:h-8 [&_[data-slot=dialog-close]]:w-8 [&_[data-slot=dialog-close]]:items-center [&_[data-slot=dialog-close]]:justify-center [&_[data-slot=dialog-close]]:rounded-full [&_[data-slot=dialog-close]]:border [&_[data-slot=dialog-close]]:border-[rgba(249,115,22,0.25)] [&_[data-slot=dialog-close]]:bg-[#fff7ed] [&_[data-slot=dialog-close]]:text-[#ea580c] [&_[data-slot=dialog-close]]:opacity-100 [&_[data-slot=dialog-close]]:shadow-sm [&_[data-slot=dialog-close]]:transition-colors [&_[data-slot=dialog-close]]:hover:bg-[#fed7aa]">
+          <DialogHeader className="border-b border-[rgba(242,153,74,0.2)] px-5 py-4">
+            <DialogTitle className="text-base font-semibold text-[#1A1A1A] dark:text-mcm-ink">
               {selectedCallListMetric?.label || 'Call'}{' '}
               {isSelectedCallbackTaskMetric ? 'tasks' : 'records'}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#6b6459] dark:text-mcm-ink-3">
+            <DialogDescription className="text-xs text-[#64748b] dark:text-mcm-ink-3">
               {isSelectedCallbackTaskMetric
                 ? 'Showing callback tasks from the calendar task list.'
                 : 'Showing records from today using the phone call list report.'}
@@ -2356,7 +2439,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                     if (isNotCompleted) {
                       return 'bg-ucass-active-bg/50 hover:bg-ucass-active-bg/50 transition-colors';
                     }
-                    return 'hover:bg-slate-50/80 transition-colors';
+                    return 'hover:bg-[rgba(254,215,170,0.22)] transition-colors';
                   }}
                   tableMaxHeight="52vh"
                   customClass="rounded-lg"

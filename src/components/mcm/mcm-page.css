@@ -2794,8 +2794,7 @@
   /* One quiet wash, off to a side — not the mirrored twin-blob glow that
      makes a page read as a template. Barely perceptible; it just gives the
      glass panels below something to catch. */
-  background: radial-gradient(900px 480px at 78% -10%, var(--accent-wash) 0%, transparent 65%),
-    var(--ground);
+  background-color: var(--ground);
 }
 
 .mcm-adminhome-head {

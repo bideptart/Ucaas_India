@@ -1891,13 +1891,7 @@ const mergeReceptionistMetrics = (agent: any, metricsByAgentId: Map<string, any>
    the floating white header card actually reads as "floating" — without a
    saturated backdrop behind it, a white card on the AdminHub shell's own
    near-white background has almost no contrast to float against. */
-const AI_TOOLS_PAGE_GRADIENT = [
-  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
-  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
-  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
-  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
-  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
-].join(', ');
+const AI_TOOLS_PAGE_GRADIENT = '#fdf1e2';
 
 const DEMO_RECEPTIONIST_TEMPLATES: Array<{
   name: string;

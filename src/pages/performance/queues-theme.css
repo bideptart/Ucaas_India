@@ -128,7 +128,22 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach .d {
    shrinking too. */
 body.perf-warm-backdrop:has(.perf-queues) .mcm-page .hero-row {
   gap: 8px;
-  padding-top: 8px;
+  padding-top: 4px;
+  margin-bottom: 0 !important;
+}
+/* The shared 14px bottom padding used to combine with this tab's own top
+  padding, creating a hidden second contributor to the hero-row→KPI-strip
+  gap. The queue-specific 12px below is now the single spacing owner,
+  while `.perf-queues` has its top padding removed. The `:has()` guard keeps
+  Campaigns/Dashboards (same shared band) untouched. */
+body.perf-warm-backdrop:has(.perf-queues) .mcm-page .page-band {
+  padding-bottom: 16px;
+}
+/* The shared hero band ends immediately before this tab's KPI strip. Keep
+   the transition owned by the page band above, so the queue root cannot add
+   a second 20px top gap. */
+.mcm-page .perf-queues {
+  padding-top: 0 !important;
 }
 body.perf-warm-backdrop:has(.perf-queues) .mcm-page .hero-row .hero-stat,
 body.perf-warm-backdrop:has(.perf-queues) .mcm-page .hero-row .stat {
@@ -242,6 +257,14 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   font-size: 12px;
   font-weight: 600;
   color: var(--qa-muted);
+}
+/* Tight anchor gap between the section header and the table below it —
+   the header reads as belonging to the table immediately beneath it,
+   not a separate block with its own breathing room. */
+.mcm-page .perf-queues .qa-queue-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* ------------------------------------------------------------

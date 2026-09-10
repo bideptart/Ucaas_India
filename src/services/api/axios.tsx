@@ -1,4 +1,5 @@
 import { getEnv, handleAlert, SESSION_NAME } from '@/lib/utils';
+import { buildDemoPayload, isDemoMode } from '@/lib/demo-mode';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -72,6 +73,20 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json; charset=utf-8',
   },
 });
+
+/* Demo mode answers every request locally, so the app needs no backend and no
+   database at all: nothing can 401 and tear the session down, and no screen
+   waits on a server that is not there. The organisation lookup is answered
+   from a fixture too, so a demo build is fully offline. */
+if (isDemoMode()) {
+  apiClient.defaults.adapter = async (config) => ({
+    data: buildDemoPayload(config.url || '', config.data),
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config,
+  });
+}
 
 apiClient.interceptors.request.use(
   (config) => {

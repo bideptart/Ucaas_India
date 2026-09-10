@@ -204,16 +204,28 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     error,
   };
 
-  if (!stripePublishableKey) {
-    return <FullPageLoader />;
-  }
+  /* Stripe only matters to the billing screens, and <Elements> throws when it
+     is handed no key. Rendering without the provider keeps that failure on the
+     screens that actually use Stripe.
+
+     This used to be a `!stripePublishableKey -> <FullPageLoader />` guard above
+     the checks below, which made a missing key indistinguishable from a page
+     still loading: whenever the organisation lookup failed there was never
+     going to be a key, so the app sat on that spinner forever and the error
+     branch underneath was unreachable. */
+  const withStripe = (content: ReactNode) =>
+    stripePromise ? (
+      <Elements stripe={stripePromise} options={options}>
+        {content}
+      </Elements>
+    ) : (
+      content
+    );
 
   if (isNoOrgPage) {
     return (
       <OrganizationContext.Provider value={{ ...value, isLoading: false }}>
-        <Elements stripe={stripePromise} options={options}>
-          {children}
-        </Elements>
+        {withStripe(children)}
       </OrganizationContext.Provider>
     );
   }
@@ -227,10 +239,6 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <OrganizationContext.Provider value={value}>
-      <Elements stripe={stripePromise} options={options}>
-        {children}
-      </Elements>
-    </OrganizationContext.Provider>
+    <OrganizationContext.Provider value={value}>{withStripe(children)}</OrganizationContext.Provider>
   );
 };

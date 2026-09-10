@@ -3,8 +3,17 @@ import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 import './index.css';
 import 'react-phone-input-2/lib/style.css';
 import App from './App.tsx';
+import { installCaptainDemoFetch, seedDemoSession } from './lib/demo-mode';
+import { SESSION_NAME } from './lib/utils';
 
 polyfillCountryFlagEmojis();
+
+/* Before React mounts, so the first render already sees a session and the
+   route guards send `/` to the dashboard instead of the login screen. The
+   fetch patch covers the Captain screens, which call their own service
+   directly rather than through the axios client. */
+seedDemoSession(SESSION_NAME);
+installCaptainDemoFetch();
 
 const DYNAMIC_IMPORT_RELOAD_KEY = 'dynamic_import_reload_at';
 const DYNAMIC_IMPORT_ERROR_PATTERNS = [

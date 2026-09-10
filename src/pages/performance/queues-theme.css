@@ -266,6 +266,9 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   flex-direction: column;
   gap: 4px;
 }
+.mcm-page .perf-queues .qa-queue-section > div:first-child {
+  padding: 0 8px;
+}
 
 /* ------------------------------------------------------------
    3. Six-metric snapshot strip (Busiest queue / Longest waiting / Lowest

@@ -64,7 +64,7 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
 
   if (!alpha2Codes.length) {
     return (
-      <div className="rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-4 py-6 text-center text-sm text-gray-600 dark:text-mcm-ink-3">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
         No countries are available for this service.
       </div>
     );
@@ -72,7 +72,7 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
 
   if (!requestTypes.length) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-6 text-center text-sm text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-300/80">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-6 text-center text-sm text-amber-700">
         Rate card details are not available for this plan.
       </div>
     );
@@ -80,7 +80,7 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
 
   if (isPending) {
     return (
-      <div className="rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-4 py-8 text-center text-sm text-gray-600 dark:text-mcm-ink-3">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-600">
         Checking rates...
       </div>
     );
@@ -88,7 +88,7 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
 
   if (isError) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300/80">
+      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700">
         Unable to load rates.
       </div>
     );
@@ -96,7 +96,7 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
 
   if (!detailsData.length) {
     return (
-      <div className="rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-4 py-6 text-center text-sm text-gray-600 dark:text-mcm-ink-3">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
         No rate data available.
       </div>
     );
@@ -129,28 +129,28 @@ const RateDetails = ({ countries, credits, rateTypes, rateCardIds }: RateDetails
         return (
           <div
             key={`${serviceType}-${item?.ratecard_uuid || 'rate'}-${item?.alpha2code || 'country'}-${item?.type || 'type'}-${index}`}
-            className="flex min-h-16 items-center justify-between gap-4 rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-4 py-3 transition-colors hover:border-primary hover:bg-white dark:hover:bg-mcm-surface"
+            className="flex min-h-16 items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 transition-colors hover:border-primary hover:bg-white"
           >
             <div className="min-w-0">
-              <p className="truncate font-medium text-gray-900 dark:text-mcm-ink">
+              <p className="truncate font-medium text-gray-900">
                 {item?.country_name || item?.alpha2code || 'Unknown country'}
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 {item?.type ? (
-                  <span className="inline-flex rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
+                  <span className="inline-flex rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
                     {item.type}
                   </span>
                 ) : null}
                 {item?.rate != null ? (
-                  <span className="text-xs text-gray-600 dark:text-mcm-ink-3">
-                    Rate: <span className="font-semibold text-gray-900 dark:text-mcm-ink">${item.rate}</span>
+                  <span className="text-xs text-gray-600">
+                    Rate: <span className="font-semibold text-gray-900">${item.rate}</span>
                   </span>
                 ) : null}
               </div>
             </div>
             <div className="flex shrink-0 items-baseline gap-1 text-right">
               <span className="text-lg font-semibold text-primary">{perUnit}</span>
-              <span className="text-sm text-gray-600 dark:text-mcm-ink-3">{unit}</span>
+              <span className="text-sm text-gray-600">{unit}</span>
             </div>
           </div>
         );

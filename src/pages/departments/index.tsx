@@ -179,7 +179,7 @@ const LeftContent = ({
                 setDepartmentSearch(value);
               }
             }}
-            Icon={<Icon name="SearchLine" className=" text-[#2E2D35] dark:text-mcm-ink" />}
+            Icon={<Icon name="SearchLine" className=" text-[#2E2D35]" />}
           />
           <Button
             className="btn ghost shrink-0"
@@ -366,7 +366,7 @@ const Departments = () => {
                 canAddUser || canCreateDepartment ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger>
-                      <div className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white">
+                      <div className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white">
                         <AddCircle className="w-6 h-6" />
                       </div>
                     </DropdownMenuTrigger>
@@ -374,7 +374,7 @@ const Departments = () => {
                     <DropdownMenuContent>
                       {canAddUser && (
                         <DropdownMenuItem className="cursor-pointer" onClick={handleAddUsers}>
-                          <Icon name="UserPlusLine" className="text-[#2E2D35] dark:text-mcm-ink w-8 h-8" />
+                          <Icon name="UserPlusLine" className="text-[#2E2D35] w-8 h-8" />
                           Add New User
                         </DropdownMenuItem>
                       )}
@@ -384,7 +384,7 @@ const Departments = () => {
                           className="cursor-pointer"
                           onClick={() => setDrawerState({ createDepartment: true })}
                         >
-                          <Icon name="UsersGroupLine" className="text-[#2E2D35] dark:text-mcm-ink w-8 h-8" />
+                          <Icon name="UsersGroupLine" className="text-[#2E2D35] w-8 h-8" />
                           Create Department
                         </DropdownMenuItem>
                       )}
@@ -428,11 +428,11 @@ const Departments = () => {
             className={`${showDetailOnMobile ? 'flex' : 'hidden lg:flex'} min-h-0 flex-1 flex-col overflow-hidden`}
           >
             {showDetailOnMobile && (
-              <div className="flex min-h-[52px] items-center border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] px-3 lg:hidden">
+              <div className="flex min-h-[52px] items-center border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 lg:hidden">
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-9 px-2 text-[#2E2D35] dark:text-mcm-ink hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3 hover:text-foreground"
+                  className="h-9 px-2 text-[#2E2D35] hover:bg-[#FBE2C8]/40 hover:text-black"
                   onClick={() => setShowDetailOnMobile(false)}
                 >
                   <Icon name="ChevronIcon" className="h-4 w-4 rotate-90" />
@@ -446,12 +446,12 @@ const Departments = () => {
               userListData?.length === 0 &&
               canViewUsers &&
               (features?.plan_features?.account_setting?.access?.USER?.action?.add ? (
-                <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
+                <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
                   <div className="flex flex-col justify-center items-center gap-2">
                     <Icon name="NotFound" />
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <p className="text-[#2E2D35] dark:text-mcm-ink text-sm whitespace-normal">
+                    <p className="text-[#2E2D35] text-sm whitespace-normal">
                       There is nothing to show here yet. Start by adding some users.
                     </p>
                     <Button type="submit" className="w-fit mt-3" onClick={handleAddUsers}>
@@ -466,7 +466,7 @@ const Departments = () => {
                     <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <p className="text-[#2E2D35] dark:text-mcm-ink text-sm text-center font-medium">No data found</p>
+                    <p className="text-[#2E2D35] text-sm text-center font-medium">No data found</p>
                   </div>
                 </div>
               ))}
@@ -477,13 +477,13 @@ const Departments = () => {
               departmentData?.length === 0 &&
               canViewDepartments &&
               (features?.plan_features?.phone_system_action?.action?.add ? (
-                <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
+                <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
                   <div className="flex flex-col justify-center items-center gap-2">
                     {/* <Icon name="NotFound" /> */}
                     <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <p className="text-[#2E2D35] dark:text-mcm-ink text-sm text-center ">
+                    <p className="text-[#2E2D35] text-sm text-center ">
                       There is nothing to show here yet. Start by adding some departments.
                     </p>
                     <Button
@@ -504,7 +504,7 @@ const Departments = () => {
                       <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
                     </div>
                     <div className="flex flex-col items-center gap-2">
-                      <p className="text-[#2E2D35] dark:text-mcm-ink text-sm text-center font-medium">No data found</p>
+                      <p className="text-[#2E2D35] text-sm text-center font-medium">No data found</p>
                     </div>
                   </div>
                 )

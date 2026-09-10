@@ -55,13 +55,13 @@ function LeadContactLogs({
   };
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-muted/40">
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-gray-200/15">
       {!embedded && (
-        <div className="flex min-h-[65px] w-full items-center justify-between border-b dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 sm:px-4">
+        <div className="flex min-h-[65px] w-full items-center justify-between border-b bg-white px-3 sm:px-4">
           <div className="cursor-pointer" onClick={handleBack}>
             <div className="flex items-center gap-2">
               <ArrowLeft className="h-5 w-5 shrink-0" />
-              <h3 className="font-semibold text-gray-900 dark:text-mcm-ink break-words">
+              <h3 className="font-semibold text-gray-900 break-words">
                 {isLeadList ? 'Leads' : 'Contact'} - ({groupName})
               </h3>
             </div>

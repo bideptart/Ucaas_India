@@ -20,7 +20,17 @@ import BasicInformation from './basic-info';
 import AddMembers from './add-members';
 import GreetingNotification from './greetings';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { callQueueInfo, getCallScript, upsertCallQueue } from '@/services/api';
+import {
+  allNumbersList,
+  callForwarding,
+  callQueueInfo,
+  callQueueList,
+  getCallScript,
+  upsertCallQueue,
+} from '@/services/api';
+import { fetchAllPages } from '@/lib/fetch-all-pages';
+import { invalidateNumberLists } from '@/lib/number-list-cache';
+import { buildQueueAttachPatch } from '@/lib/queue-numbers';
 import {
   generateRandomExtension,
   getHolidaysFormVal,
@@ -243,9 +253,60 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
     return () => subscription.unsubscribe();
   }, [watch]);
 
+  /**
+   * Point the numbers chosen during create at the queue that has just been made.
+   *
+   * It has to happen here rather than on the numbers card, because a number
+   * stores the queue's id and a queue being created has none. The save endpoint
+   * returns only a message, so the new queue is found by its extension - which
+   * this form generated, and which is unique within a company.
+   *
+   * Failure is reported but never blocks the queue itself: the queue exists and
+   * is correct, and an admin told "saved" while the numbers were silently
+   * dropped would have no way to know which half worked.
+   */
+  const attachPendingNumbers = async (pendingUuids: string[], extension: string) => {
+    try {
+      const queues = await callQueueList({ page: 1, limit: 1000 });
+      const rows = queues?.data?.data?.result?.rows || [];
+      const saved = rows.find((row: any) => String(row?.extension) === String(extension));
+      if (!saved?._id) {
+        handleAlert({
+          text: 'The queue was saved, but its numbers were not attached. Open it and add them.',
+          type: 'error',
+        });
+        return;
+      }
+
+      const numbers = await fetchAllPages(allNumbersList);
+      const chosen = (numbers as any[]).filter((did) =>
+        pendingUuids.includes(String(did?.uuid)),
+      );
+      const patches = chosen
+        .map((did) =>
+          buildQueueAttachPatch(did, {
+            id: String(saved._id),
+            name: String(saved.name || ''),
+            extension: String(saved.extension || ''),
+          }),
+        )
+        .filter(Boolean) as any[];
+
+      for (const patch of patches) {
+        await callForwarding(patch);
+      }
+      invalidateNumberLists(queryClient);
+    } catch {
+      handleAlert({
+        text: 'The queue was saved, but its numbers were not attached. Open it and add them.',
+        type: 'error',
+      });
+    }
+  };
+
   const { mutate: callQueueCampaignMutate, isPending } = useMutation({
     mutationFn: upsertCallQueue,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.status === 200) {
         if (queueDetails?.uuid) {
           socketEventsManager?.emit('update-queue', {
@@ -262,6 +323,13 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
           text: data?.data?.message || 'Call queue saved successfully!',
           type: 'success',
         });
+        /* Only on create: an existing queue's numbers are written straight
+           away from the card, so there is nothing held back to apply. */
+        const pending: string[] = watch('pending_did_uuids') || [];
+        if (!queueDetails?._id && pending.length) {
+          await attachPendingNumbers(pending, String(watch('extension') || ''));
+        }
+
         queryClient.invalidateQueries(['callQueueListQueryFn'], { exact: true });
         setDrawerState(false);
       }
@@ -596,6 +664,7 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
     const ringStrategyLabel = CALL_DISTRIBUTION_DATA.find(
       (item: any) => item?.value === ring_strategy?.value,
     )?.label;
+    console.log(ringStrategyLabel, 'ringStrategyLabelringStrategyLabel', queueInfo?.settings);
 
     const scriptLabel = scriptList?.find((item: any) => item._id === queueInfo?.script)?.name;
     setValue('script', { label: scriptLabel || '', value: queueInfo?.script || '' });
@@ -747,13 +816,13 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
             onValueChange={handleTabChange}
             className="flex min-h-0 w-full flex-1 flex-col gap-3"
           >
-            <div className="w-full overflow-x-auto overflow-y-hidden border-b border-border">
+            <div className="w-full overflow-x-auto overflow-y-hidden border-b border-gray-200">
               <TabsList className="flex min-h-11 w-max min-w-full rounded-none p-0 text-center text-sm font-semibold">
                 {Object.entries(TAB_CONSTANT).map(([key, value]) => (
                   <TabsTrigger
                     key={key}
                     value={value}
-                    className="relative flex h-full shrink-0 cursor-pointer gap-1 rounded-none border-b-2 px-4 py-3 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6"
+                    className="relative flex h-full shrink-0 cursor-pointer gap-1 rounded-none border-b-2 px-4 py-3 font-semibold whitespace-nowrap text-gray-700 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6"
                   >
                     {value}
                   </TabsTrigger>
@@ -786,7 +855,7 @@ const AddCallQueue: FC<AddCallQueueProps> = ({ setDrawerState, queueDetails, tab
             </TabsContent>
           </Tabs>
 
-          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-border pt-3 sm:justify-end sm:pt-4">
+          <div className="flex flex-nowrap items-center justify-between gap-2 border-t border-gray-200 pt-3 sm:justify-end sm:pt-4">
             <Button
               type="button"
               variant={'transparent'}

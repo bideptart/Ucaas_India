@@ -103,12 +103,12 @@ const AssignDIDNumber: FC<IAsiignDIDProps> = ({ modalState, setModalState, selec
                     {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
                   </small>
                 </div>
-                <div className="flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
+                <div className="flex items-center gap-1 text-gray-500">
                   <Icon name="Grid" className="w-4 h-4 " />
                   <div>{data?.extension}</div>
                 </div>
               </div>
-              <p className="text-gray-500 dark:text-mcm-ink-3 flex justify-between">
+              <p className="text-gray-500 flex justify-between">
                 <div>{data?.email}</div>
               </p>
             </div>
@@ -199,7 +199,7 @@ const AssignDIDNumber: FC<IAsiignDIDProps> = ({ modalState, setModalState, selec
                   if (value.startsWith(' ')) return;
                   setSearch(e.target.value);
                 }}
-                Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-3" />}
+                Icon={<SearchLine className=" text-gray-700" />}
               />{' '}
             </div>
           </div>

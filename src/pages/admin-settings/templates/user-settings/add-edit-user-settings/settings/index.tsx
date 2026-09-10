@@ -12,6 +12,7 @@ import { Weekday, WEEKLY_ORDER, WEEKLY_SCHEDULE_MAP } from '@/pages/admin-settin
 import { SettingCard, SettingRow } from '@/components/mcm/setting-card';
 import { Input } from '@/components/ui/input';
 import RegionalModal from '@/components/common-settings/regional-dialog';
+import { describeRecording } from '@/lib/recording-description';
 
 interface DaySchedule {
   open: boolean;
@@ -24,7 +25,12 @@ const getWeeklyScheduleName = (obj: WeeklySchedule = {}): string =>
     .map((day) => WEEKLY_SCHEDULE_MAP[day])
     .join(', ');
 
-const SettingPermission: FC<any> = ({ data }) => {
+/* `footer` renders inside this screen's own scrolling box, which is
+   the only place content can sit and still scroll with the settings. Anything
+   passed as a sibling of this component lands outside that box and stays put
+   while the settings move under it. Optional, and unused by the other screens
+   that render this. */
+const SettingPermission: FC<any> = ({ data, footer, containerClass }) => {
   const { features } = useCompanyFeatures();
   const [bussinessHourError, setBussinessHourEror] = useState<string | null>('');
   const [initialRegionalSettings, setInitialRegionalSettings] = useState<any>(null);
@@ -88,7 +94,17 @@ const SettingPermission: FC<any> = ({ data }) => {
 
   return (
     <>
-      <div className="user-settings-template-settings flex h-[calc(100vh_-_15rem)] flex-col gap-4 overflow-auto">
+      <div
+        className={
+          /* The default is a box of its own fixed height that scrolls inside
+             itself. A caller whose page already scrolls passes its own layout
+             instead, so the settings scroll with that page rather than in a
+             second scrollbar within it. The identifying class stays either way,
+             because this screen's other styles are keyed to it. */
+          containerClass ??
+          'user-settings-template-settings flex h-[calc(100vh_-_15rem)] flex-col gap-4 overflow-auto'
+        }
+      >
         <div className="user-settings-template-settings-name-wrap mt-2 w-full max-w-sm">
           <Input
             label="Name"
@@ -100,8 +116,8 @@ const SettingPermission: FC<any> = ({ data }) => {
 
         <SettingCard
           title="Where this company works"
-          status="coming-soon"
-          note="Saved, but no call uses it yet. The country and time zone here are what opening hours will be judged against once that is switched on."
+          status="active"
+          note="The time zone here is what opening hours are judged against on every incoming call."
           description="The country and clock everything else is measured against - opening hours, holidays, and the times shown in reports."
           aside={
             <Button type="button" variant="outline" onClick={() => openModal('regionalModal')}>
@@ -131,8 +147,8 @@ const SettingPermission: FC<any> = ({ data }) => {
 
         <SettingCard
           title="When you are open"
-          status="coming-soon"
-          note="Saved, but calls are not routed by it yet — a call at 2am is treated exactly like one at 2pm. Nothing here changes what a caller hears until the switch reads it."
+          status="active"
+          note="Outside these hours, a number that rings a person goes to their voicemail instead of ringing an empty desk. Numbers pointed at a menu or a queue are not diverted yet — those still ring through at any hour."
           description="Calls outside these hours are handled differently - that is what the closed-hours action on your numbers and queues points at."
           aside={
             <Button
@@ -159,8 +175,8 @@ const SettingPermission: FC<any> = ({ data }) => {
 
         <SettingCard
           title="Call recording"
-          status="coming-soon"
-          note="Saved, but nothing is being recorded. Recording worked until 22 August and stopped when the call router was rebuilt; restoring it is separate from this setting."
+          status="app-only"
+          note="Recording is live for calls to a person, in whichever direction you choose above, and each one appears against its call in your call logs. Still missing, and worth knowing before you switch this on for real customers: the announcement is NOT played, so nobody is told the call is being recorded, and calls arriving at a menu or a queue are not recorded. Most countries require the caller to be told, so this is ready to test rather than ready to use."
           description="Whether calls are recorded automatically, or only when somebody chooses to start recording."
           aside={
             <Button
@@ -174,11 +190,11 @@ const SettingPermission: FC<any> = ({ data }) => {
         >
           <SettingRow
             label="What gets recorded"
-            description={
-              recording?.automatic?.enabled || recording?.on_demand?.enabled
-                ? `${recording?.automatic?.enabled ? 'Every call is recorded automatically.' : ''} ${recording?.on_demand?.enabled ? 'People can start a recording during a call.' : ''}`.trim()
-                : 'Nothing is recorded.'
-            }
+            description={describeRecording({
+              automaticEnabled: recording?.automatic?.enabled,
+              onDemandEnabled: recording?.on_demand?.enabled,
+              direction: recording?.automatic?.value,
+            })}
           />
           <OverrideRow path="settings.recording.override" what="recording setting" />
         </SettingCard>
@@ -264,6 +280,8 @@ const SettingPermission: FC<any> = ({ data }) => {
           />
           <OverrideRow path="settings.display_number.override" what="caller ID" />
         </SettingCard>
+
+        {footer}
       </div>
 
       {modalState?.regionalModal && (

@@ -71,7 +71,7 @@ const Settings: FC<ICondtionProps> = ({ initialType, state = {}, setState, featu
               <Label>Allow Caller ID</Label>
             </div>
             <div className="flex flex-col gap-3 pl-6">
-              <p className="text-gray-900 dark:text-mcm-ink text-sm">
+              <p className="text-gray-900 text-sm">
                 A call that comes from country code or area code
               </p>
               {callerId?.enabled && (

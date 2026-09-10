@@ -1,6 +1,5 @@
 import { EmojiICon, Send } from '@/assets/icons';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
-import { useTheme } from '@/hooks/use-theme';
+import EmojiPicker from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -90,7 +89,7 @@ const ExpandableMessageBody = ({
         </div>
         {!isExpanded && isOverflowing ? (
           <div
-            className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t ${isOutbound ? 'from-ucass-primary-200 to-transparent' : 'from-white dark:from-mcm-surface-3 to-transparent'}`}
+            className={`pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t ${isOutbound ? 'from-ucass-primary-200 to-transparent' : 'from-white to-transparent'}`}
           />
         ) : null}
       </div>
@@ -99,7 +98,7 @@ const ExpandableMessageBody = ({
         <div className="mt-1 flex justify-center">
           <button
             type="button"
-            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer ${isOutbound ? 'border-black/20 bg-black/5 text-black hover:bg-black/10 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20' : 'border-[#D8E2F0] bg-white text-[#315A8F] hover:bg-[#F4F8FE] dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-2 dark:hover:bg-mcm-surface'}`}
+            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors cursor-pointer ${isOutbound ? 'border-black/20 bg-black/5 text-black hover:bg-black/10' : 'border-[#D8E2F0] bg-white text-[#315A8F] hover:bg-[#F4F8FE]'}`}
             onClick={() => setIsExpanded((prev) => !prev)}
           >
             {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -121,7 +120,6 @@ const WhatsappContent = ({
   onBackToList?: () => void;
 }) => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-  const theme = useTheme();
   // const [searchParams] = useSearchParams();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [lineHeight, setLineHeight] = useState('leading-7');
@@ -314,11 +312,11 @@ const WhatsappContent = ({
 
   return (
     <div className="w-full flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="w-full px-3 bg-[rgba(251,249,246,0.88)] dark:bg-[rgba(15,23,42,0.88)] backdrop-blur-[12px] gap-2 flex items-center rounded-none border-b border-[rgba(225,200,165,0.9)] dark:border-b-mcm-line min-h-[65px]">
+      <div className="w-full px-3 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] gap-2 flex items-center rounded-none border-b border-[rgba(225,200,165,0.9)] min-h-[65px]">
         {onBackToList ? (
           <button
             type="button"
-            className="xl:hidden w-9 h-9 rounded-full flex items-center justify-center bg-[#FBE2C8]/40 text-[#2E2D35] hover:bg-[#F0DFC5] dark:bg-mcm-surface-3 dark:text-mcm-ink-2 dark:hover:bg-mcm-surface shrink-0"
+            className="xl:hidden w-9 h-9 rounded-full flex items-center justify-center bg-[#FBE2C8]/40 text-[#2E2D35] hover:bg-[#F0DFC5] shrink-0"
             onClick={onBackToList}
             aria-label="Back to conversations"
           >
@@ -330,10 +328,10 @@ const WhatsappContent = ({
         </div>
         <div className="flex items-center justify-between min-w-0 flex-1">
           <div className="flex flex-col min-w-0">
-            <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink-2 truncate text-md">
+            <p className="font-semibold text-[#2E2D35] truncate text-md">
               {selectedChat?.toName || 'Unknown Contact'}
             </p>
-            <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink-2 truncate text-xs">
+            <p className="font-semibold text-[#2E2D35] truncate text-xs">
               {/* {selectedChat?.to || 't'} */}
             </p>
           </div>
@@ -351,7 +349,7 @@ const WhatsappContent = ({
               groupedMessage.map((item: any) => (
                 <>
                   <div className="flex items-center justify-center my-4 mx-auto w-[25%]">
-                    <p className="bg-[#F0DFC5] dark:bg-mcm-surface-3 dark:text-mcm-ink-2 rounded-full px-4 text-sm py-1">
+                    <p className="bg-[#F0DFC5] rounded-full px-4 text-sm py-1">
                       {moment(item?.date).format('DD MMM')}
                     </p>
                   </div>
@@ -365,7 +363,7 @@ const WhatsappContent = ({
                             <div className="flex justify-between items-center gap-1">
                               <div className="flex items-center gap-1 min-h-[20px]">
                                 {!message?.aiGenerated ? (
-                                  <p className="text-[#2E2D35] dark:text-mcm-ink-2 text-xs font-medium">
+                                  <p className="text-[#2E2D35] text-xs font-medium">
                                     {direction === ACTIVITYLIST.Outbound
                                       ? 'You'
                                       : selectedChat?.toName || 'Unknown Contact'}
@@ -373,12 +371,12 @@ const WhatsappContent = ({
                                 ) : (
                                   <CustomTooltip text="This message is from AI" side="top">
                                     <span className="inline-flex items-center cursor-pointer">
-                                      <Sparkles className="text-[#9A948F] dark:text-mcm-ink-3 w-5 h-5" />
+                                      <Sparkles className="text-[#9A948F] w-5 h-5" />
                                     </span>
                                   </CustomTooltip>
                                 )}
                               </div>
-                              <small className="text-[#9A948F] dark:text-mcm-ink-3 text-xs">
+                              <small className="text-[#9A948F] text-xs">
                                 {moment(message?.updatedAt).format('hh:mm a')}
                               </small>
                             </div>
@@ -399,7 +397,7 @@ const WhatsappContent = ({
                                 </div>
                               )}
                               <div
-                                className={`${direction === ACTIVITYLIST.Outbound ? 'bg-ucass-primary-200 text-black dark:text-white p-2 rounded flex flex-row gap-2 w-fit py-2 px-3 rounded-tl-lg rounded-bl-lg rounded-br-lg max-w-[82%] sm:max-w-[70%] xl:max-w-[50%] text-sm' : 'flex flex-row gap-2 bg-white dark:bg-mcm-surface-3 shadow-sm shadow-black/10 w-fit py-2 px-3 rounded-tr-lg rounded-br-lg rounded-bl-lg max-w-[82%] sm:max-w-[70%] xl:max-w-[50%] text-sm'}`}
+                                className={`${direction === ACTIVITYLIST.Outbound ? 'bg-ucass-primary-200 text-black p-2 rounded flex flex-row gap-2 w-fit py-2 px-3 rounded-tl-lg rounded-bl-lg rounded-br-lg max-w-[82%] sm:max-w-[70%] xl:max-w-[50%] text-sm' : 'flex flex-row gap-2 bg-white shadow-sm shadow-black/10 w-fit py-2 px-3 rounded-tr-lg rounded-br-lg rounded-bl-lg max-w-[82%] sm:max-w-[70%] xl:max-w-[50%] text-sm'}`}
                               >
                                 <ExpandableMessageBody
                                   contentKey={`${message?.id || message?._id || message?.updatedAt || ''}-${typeof message?.message === 'string' ? message?.message : JSON.stringify(message?.message || '')}`}
@@ -429,11 +427,11 @@ const WhatsappContent = ({
                 </>
               ))
             ) : (
-              <div className="w-full bg-white dark:bg-mcm-surface p-3 flex items-center justify-center h-full">
+              <div className="w-full bg-white p-3 flex items-center justify-center h-full">
                 <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
                   <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-                  <p className="text-md font-medium text-[#2E2D35] dark:text-mcm-ink-2"> No conversations yet</p>
-                  <p className="text-md  text-[#2E2D35] dark:text-mcm-ink-2">
+                  <p className="text-md font-medium text-[#2E2D35]"> No conversations yet</p>
+                  <p className="text-md  text-[#2E2D35]">
                     Please add a user first to begin chatting.
                   </p>
                 </div>
@@ -441,14 +439,14 @@ const WhatsappContent = ({
             )}
           </div>
 
-          <div className="flex flex-col relative justify-between w-full  gap-2.5 p-3 bg-white dark:bg-mcm-surface">
+          <div className="flex flex-col relative justify-between w-full  gap-2.5 p-3 bg-white">
             <div className="relative w-full h-full flex gap-2 sm:gap-3 justify-between items-center">
               <div className="flex items-center gap-3">
                 <div
                   className="cursor-pointer relative flex items-center"
                   onClick={handleEmojiOpen}
                 >
-                  <EmojiICon className="text-[#2E2D35]/80 dark:text-mcm-ink-2/80 w-4 h-4" />
+                  <EmojiICon className="text-[#2E2D35]/80 w-4 h-4" />
                   <div
                     className="absolute bottom-[40px] left-[-.8rem] emoji-container"
                     ref={emojiPickerRef}
@@ -456,8 +454,7 @@ const WhatsappContent = ({
                     onClick={(e) => e.stopPropagation()}
                   >
                     <EmojiPicker
-                      theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
-                      className="border-[#EEE7DD] dark:border-mcm-line"
+                      className="border-[#EEE7DD]"
                       open={emojiOpen}
                       lazyLoadEmojis
                       onEmojiClick={(data) => {
@@ -474,7 +471,7 @@ const WhatsappContent = ({
                     className="cursor-pointer"
                     onClick={() => setIsAiAssistOpen((prev) => !prev)}
                   >
-                    <Sparkles className="text-[#2E2D35]/80 dark:text-mcm-ink-2/80 w-4 h-4" />
+                    <Sparkles className="text-[#2E2D35]/80 w-4 h-4" />
                   </span>
                 ) : (
                   <Popover>
@@ -484,30 +481,30 @@ const WhatsappContent = ({
                         className="cursor-pointer inline-flex items-center"
                         aria-label="Set up AI assist agent"
                       >
-                        <Sparkles className="text-[#2E2D35]/80 dark:text-mcm-ink-2/80 w-4 h-4" />
+                        <Sparkles className="text-[#2E2D35]/80 w-4 h-4" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.85)] dark:border-mcm-line shadow-xl"
+                      className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.85)] shadow-xl"
                       side="top"
                     >
-                      <div className="border-b border-gray-100 dark:border-mcm-line bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-mcm-surface-3 dark:to-mcm-surface-3 px-3 py-2.5">
+                      <div className="border-b border-gray-100 bg-gradient-to-br from-sky-50 to-indigo-50 px-3 py-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white dark:border-mcm-line bg-white/80 dark:bg-mcm-surface/80 shadow-sm">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white bg-white/80 shadow-sm">
                             <Sparkles className="h-4 w-4 text-primary" />
                           </span>
-                          <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink-2">AI Assist Setup</p>
+                          <p className="text-sm font-semibold text-[#2E2D35]">AI Assist Setup</p>
                         </div>
                       </div>
                       <div className="space-y-3 p-3">
-                        <p className="text-xs leading-5 text-[#9A948F] dark:text-mcm-ink-3">
+                        <p className="text-xs leading-5 text-[#9A948F]">
                           Set up an agent in AI Settings to start using AI-generated assistance.
                         </p>
                         <div className="flex justify-end">
                           <Button
                             type="button"
                             size={'sm'}
-                            className="rounded-md bg-[#f2994a] dark:bg-mcm-accent px-2.5 max-h- text-[11px] font-medium text-white hover:bg-[#f2994a] dark:hover:bg-mcm-accent focus:bg-[#f2994a] dark:focus:bg-mcm-accent active:bg-[#f2994a] dark:active:bg-mcm-accent"
+                            className="rounded-md bg-[#f2994a] px-2.5 max-h- text-[11px] font-medium text-white hover:bg-[#f2994a] focus:bg-[#f2994a] active:bg-[#f2994a]"
                             onClick={() => navigate('/admin-settings/knowledge/ai-settings')}
                           >
                             Open AI Settings
@@ -519,7 +516,7 @@ const WhatsappContent = ({
                 )
               ) : null}
               <textarea
-                className={`w-full h-full max-h-[46px]  ${lineHeight} p-2 rounded-full text-sm overflow-y-auto placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-[#2E2D35] dark:text-mcm-ink-2 shadow-none resize-none border border-[#EEE7DD] dark:border-mcm-line`}
+                className={`w-full h-full max-h-[46px]  ${lineHeight} p-2 rounded-full text-sm overflow-y-auto placeholder:text-[#9A948F] focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-[#2E2D35] shadow-none resize-none border border-[#EEE7DD]`}
                 value={message}
                 ref={textareaRef}
                 disabled={!hasRecentInboundMessage || isPendingWhatsAppMessage}
@@ -557,7 +554,7 @@ const WhatsappContent = ({
                   }
                 }}
               />
-              <div className="cursor-pointer flex items-center justify-center rounded-full w-[40px] min-w-[40px] h-[40px]  bg-primary text-white hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35]/80 dark:hover:text-mcm-ink-2/80">
+              <div className="cursor-pointer flex items-center justify-center rounded-full w-[40px] min-w-[40px] h-[40px]  bg-primary text-white hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35]/80">
                 {isPendingWhatsAppMessage ? (
                   <Loader variant="blue" />
                 ) : (
@@ -582,7 +579,7 @@ const WhatsappContent = ({
           </div>
         </div>
         {isAiAssistOpen && hasAiAssistAgent && isDesktopAiLayout ? (
-          <div className="w-full h-[420px] border-t border-[#EEE7DD] dark:border-t-mcm-line lg:h-full lg:w-[360px] lg:min-w-[360px] lg:border-t-0">
+          <div className="w-full h-[420px] border-t border-[#EEE7DD] lg:h-full lg:w-[360px] lg:min-w-[360px] lg:border-t-0">
             <AiAssist
               lineHeight={lineHeight}
               onClose={() => setIsAiAssistOpen(false)}

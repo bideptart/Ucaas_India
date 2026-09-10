@@ -86,7 +86,7 @@ export const getWeeklyScheduleName = (obj: WeeklySchedule = {}): string =>
    one, and the person has no way to tell which of the two they are looking at. */
 const CompanyLockNote: FC<{ show: boolean }> = ({ show }) =>
   show ? (
-    <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Set by your company, so you cannot change it here.</p>
+    <p className="text-xs text-gray-500">Set by your company, so you cannot change it here.</p>
   ) : null;
 
 const CommonSettingPermission: FC<any> = ({
@@ -255,7 +255,7 @@ const CommonSettingPermission: FC<any> = ({
             locked it and where it is changed, so the answer is on the page rather
             than in a support ticket. Shown only when something is actually locked. */}
         {isOwnSettingsPage && companyPolicy.isActive && hasCompanyLockedFields && (
-          <div className="rounded-md border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-3 text-xs text-gray-700 dark:text-mcm-ink-2">
+          <div className="rounded-md border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
             Some settings below are greyed out because they are set for everyone by your company. An
             administrator can change them under <strong>Phone System → Preferences</strong>.
           </div>
@@ -263,11 +263,11 @@ const CommonSettingPermission: FC<any> = ({
         <div className="grid grid-cols-1 gap-3">
           {/* {IS_ADMIN ? ( */}
           {isShowRole && (
-            <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+            <div className="flex bg-white justify-between gap-3.5 w-full border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1">
                   <p
-                    className={`font-semibold truncate text-md text-gray-900 dark:text-mcm-ink ${(errors.settings as any)?.role?.value?.message ? 'text-red' : 'text-gray-900 dark:text-mcm-ink'}`}
+                    className={`font-semibold truncate text-md text-gray-900 ${(errors.settings as any)?.role?.value?.message ? 'text-red' : 'text-gray-900'}`}
                   >
                     Role
                   </p>
@@ -275,7 +275,7 @@ const CommonSettingPermission: FC<any> = ({
                     <ErrorTooltip text={(errors.settings as any)?.role?.value?.message} />
                   )}
                 </div>
-                <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+                <p className="text-gray-800 truncate text-sm">
                   {isUpdatingAdmin
                     ? data?.role_data?.name || data?.role
                     : watch('settings.role.label')}
@@ -285,14 +285,7 @@ const CommonSettingPermission: FC<any> = ({
                 <Button
                   type="button"
                   variant={'outline'}
-                  /* `.mcm-page button` (a reset meant for icon-only ghost
-                     buttons elsewhere) strips this button's border/background/
-                     text-color since it has higher specificity than a plain
-                     Tailwind utility class — every "Select" button in this
-                     shared component rendered as bare text because of it.
-                     `!` forces these to win regardless of where this
-                     component is used. */
-                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                  className="w-16"
                   onClick={() => openModal('roleModal')}
                 >
                   Select
@@ -300,11 +293,11 @@ const CommonSettingPermission: FC<any> = ({
               ) : null}
             </div>
           )}
-          <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+          <div className="flex bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-1">
                 <p
-                  className={`font-semibold truncate text-md ${(errors.settings as any)?.operational_hours?.regional ? 'text-red' : 'text-gray-900 dark:text-mcm-ink'}`}
+                  className={`font-semibold truncate text-md ${(errors.settings as any)?.operational_hours?.regional ? 'text-red' : 'text-gray-900'}`}
                 >
                   Regional Settings
                 </p>
@@ -312,7 +305,7 @@ const CommonSettingPermission: FC<any> = ({
                   <ErrorTooltip text="Regional settings are required" />
                 )}
               </div>
-              <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+              <p className="text-gray-800 truncate text-sm">
                 {' '}
                 {operational_hours?.regional?.country?.value &&
                 operational_hours?.regional?.timezone?.value
@@ -324,21 +317,14 @@ const CommonSettingPermission: FC<any> = ({
             </div>
             <Button
               type="button"
-              className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+              className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
               variant={'outline'}
               disabled={!canEditField('regional')}
               onClick={() => {
                 if (!canEditField('regional')) return;
-                /* `JSON.stringify(undefined)` returns the *value* `undefined`,
-                   not a string — `JSON.parse` then coerces that to the text
-                   "undefined", which throws as invalid JSON. A department
-                   with no regional settings saved yet watches as exactly
-                   `undefined` here, so opening the picker on a fresh
-                   department crashed before this guard. */
-                const watchedRegional = watch('settings.operational_hours.regional');
-                const currentValues = watchedRegional
-                  ? JSON.parse(JSON.stringify(watchedRegional))
-                  : {};
+                const currentValues = JSON.parse(
+                  JSON.stringify(watch('settings.operational_hours.regional')),
+                );
                 setInitialRegionalSettings(currentValues);
                 openModal('regionalModal');
               }}
@@ -347,10 +333,10 @@ const CommonSettingPermission: FC<any> = ({
             </Button>
           </div>
           {isShowVoicemail && (
-            <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+            <div className="flex bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
               <div className="flex flex-col gap-1.5">
                 <p className="font-semibold truncate text-md">Voicemail Settings</p>
-                <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+                <p className="text-gray-800 truncate text-sm">
                   {voicemail_pin?.users?.length
                     ? voicemail_pin.users
                         .map((item: ISELECTVALUE) => {
@@ -364,7 +350,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('voicemail')) return;
@@ -377,7 +363,7 @@ const CommonSettingPermission: FC<any> = ({
             </div>
           )}
           {isBussinessHours ? (
-            <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+            <div className="flex bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1">
                   <p className="font-semibold truncate text-md">
@@ -414,7 +400,7 @@ const CommonSettingPermission: FC<any> = ({
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('business_hours')) return;
@@ -429,12 +415,12 @@ const CommonSettingPermission: FC<any> = ({
 
           {features?.plan_features?.advance_call_management?.access?.RECORDING &&
             !isCampaignHours && (
-              <div className="flex flex-col sm:flex-row bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+              <div className="flex flex-col sm:flex-row bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
                 <div className="flex flex-col gap-1.5">
                   <p className="font-semibold truncate text-md">
                     Automatic & On Demand Call Recording
                   </p>
-                  <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+                  <p className="text-gray-800 truncate text-sm">
                     {recording?.automatic?.enabled || recording?.on_demand?.enabled
                       ? `${recording?.automatic?.enabled ? 'Automatic' : ''} ${recording?.automatic?.enabled && recording?.on_demand?.enabled ? '&' : ''} ${recording?.on_demand?.enabled ? 'On Demand' : ''} call recording is enabled.`
                       : 'Automatic & on demand call recording is disabled.'}
@@ -443,14 +429,7 @@ const CommonSettingPermission: FC<any> = ({
                 </div>
                 <Button
                   type="button"
-                  /* `.mcm-page button` (a reset meant for icon-only ghost
-                     buttons elsewhere) strips this button's border/background/
-                     text-color since it has higher specificity than a plain
-                     Tailwind utility class — every "Select" button in this
-                     shared component rendered as bare text because of it.
-                     `!` forces these to win regardless of where this
-                     component is used. */
-                  className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                  className="w-16"
                   variant={'outline'}
                   onClick={() => {
                     if (!canEditField('recording')) return;
@@ -464,10 +443,10 @@ const CommonSettingPermission: FC<any> = ({
             )}
           {features?.plan_features?.advance_call_management?.access?.TRANSCRIPTION && (
             <>
-              <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+              <div className="flex bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
                 <div className="flex flex-col gap-1.5">
                   <p className="font-semibold truncate text-md">Automatic Transcription</p>
-                  <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+                  <p className="text-gray-800 truncate text-sm">
                     Automatic transcription is{' '}
                     {readToggle('settings.transcription') ? 'enabled' : 'disabled'}.
                   </p>
@@ -487,10 +466,10 @@ const CommonSettingPermission: FC<any> = ({
                   }}
                 />
               </div>
-              <div className="flex flex-col sm:flex-row bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+              <div className="flex flex-col sm:flex-row bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
                 <div className="flex flex-col gap-1.5">
                   <p className="font-semibold truncate text-md">AI Call Monitoring</p>
-                  <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
+                  <p className="text-gray-800 truncate text-sm">
                     When enabled transcripts will be automatically triggered.
                     {/* AI Call Monitoring is{' '}
                     {watch('settings.ai_call_monitoring') ? 'enabled' : 'disabled'}. */}
@@ -514,7 +493,7 @@ const CommonSettingPermission: FC<any> = ({
             </>
           )}
           {!isCampaignHours && (
-            <div className="flex bg-white dark:bg-mcm-surface justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
+            <div className="flex bg-white justify-between gap-3.5 w-full  border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] p-4 rounded-xl">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1">
                   <p className="font-semibold truncate text-md">Display Number</p>
@@ -525,18 +504,16 @@ const CommonSettingPermission: FC<any> = ({
                   )}
                 </div>
 
-                <p className="text-gray-800 dark:text-mcm-ink-2 truncate text-sm">
-                  {display_number?.masking?.type?.value &&
-                  display_number?.masking?.type?.value !== 'N' &&
-                  display_number?.masking?.value
-                    ? `Masking is ${display_number.masking.type.label?.toLowerCase()} with ${display_number.masking.value}`
-                    : 'Display number is not configured'}
+                <p className="text-gray-800 truncate text-sm">
+                  {display_number?.masking?.type?.value === 'N'
+                    ? 'Display number is not configured'
+                    : `Masking is ${display_number?.masking?.type?.label?.toLowerCase()} with ${display_number?.masking?.value} `}
                 </p>
                 <CompanyLockNote show={isCompanyLocked('display_number')} />
               </div>
               <Button
                 type="button"
-                className="!bg-white dark:!bg-mcm-surface !border !border-primary !text-primary hover:!bg-primary dark:hover:!bg-primary hover:!text-white shrink-0 min-w-16"
+                className="!bg-white !border !border-primary !text-primary hover:!bg-primary hover:!text-white shrink-0 min-w-16"
                 variant={'outline'}
                 onClick={() => {
                   if (!canEditField('display_number')) return;
@@ -596,7 +573,7 @@ const CommonSettingPermission: FC<any> = ({
         {operational_hours?.holidays?.length && !isCampaignHours ? (
           <div className="flex flex-col justify-between gap-1.5">
             <div className="flex items-center justify-between gap-1.5">
-              <h5 className="font-semibold text-gray-900 dark:text-mcm-ink text-md my-2">Custom Days</h5>
+              <h5 className="font-semibold text-gray-900 text-md my-2">Custom Days</h5>
               {(errors?.settings as any)?.operational_hours?.holidays?.length && (
                 <div className="flex justify-end">
                   <ErrorTooltip text={'Please fill all fields'} />

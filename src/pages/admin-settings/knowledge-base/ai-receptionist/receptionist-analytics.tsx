@@ -2,21 +2,12 @@ import { useState, useMemo, useRef, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReceptionistAnalytics } from '@/services/api';
 import moment from 'moment';
-import { ArrowLeft, ChevronRight, Download, FileText, Info } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronRight, Download, FileText, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import CustomSelect from '@/components/custom/custom-select';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { downloadAnalyticsSectionAsPdf } from '@/lib/analytics-export';
 import { handleAlert } from '@/lib/utils';
-
-const DATE_RANGE_OPTIONS = [
-  { label: 'Today', value: 'today' },
-  { label: 'Yesterday', value: 'yesterday' },
-  { label: 'Last 7 days', value: '7d' },
-  { label: 'Last 30 days', value: '30d' },
-  { label: 'Last 90 days', value: '90d' },
-];
 
 interface ReceptionistAnalyticsProps {
   onClose: () => void;
@@ -142,11 +133,11 @@ function InfoTip({ text }: { text: string }) {
       <button
         type="button"
         aria-label="What is this?"
-        className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-slate-500 transition-colors hover:border-primary hover:bg-[#FBE2C8]/70 dark:hover:bg-mcm-surface-3/70 hover:text-primary"
+        className="grid h-4 w-4 place-items-center rounded-full border border-slate-300 text-[10px] font-bold text-slate-500"
       >
-        <Info className="h-[11px] w-[11px]" strokeWidth={2.5} />
+        i
       </button>
-      <span className="pointer-events-none absolute left-1/2 top-6 z-20 hidden w-56 -translate-x-1/2 rounded-md bg-slate-900 px-2.5 py-2 text-[11px] font-medium leading-4 text-white shadow-lg group-hover:block">
+      <span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-56 -translate-x-1/2 rounded-md bg-slate-900 px-2.5 py-2 text-[11px] font-medium leading-4 text-white shadow-lg group-hover:block">
         {text}
       </span>
     </span>
@@ -172,21 +163,19 @@ function AnalyticsPanel({
 }) {
   return (
     <div
-      className={`relative rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ${className}`}
+      className={`relative rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] ${className}`}
     >
       {isLoading && <CardLoader dark={dark} />}
-      <div className="flex items-start justify-between gap-3 border-b border-[#EEE7DD] dark:border-mcm-line pb-3">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-1.5">
-            <h3
-              className={`text-[15px] font-bold tracking-tight ${dark ? 'text-white' : 'text-[#2E2D35] dark:text-mcm-ink'}`}
-            >
+            <h3 className={`text-[14px] font-bold ${dark ? 'text-white' : 'text-[#2E2D35]'}`}>
               {title}
             </h3>
             {tip ? <InfoTip text={tip} /> : null}
           </div>
           {subtitle ? (
-            <p className={`mt-1 text-xs leading-4 ${dark ? 'text-white/60' : 'text-slate-500'}`}>
+            <p className={`mt-1 text-xs ${dark ? 'text-white/60' : 'text-slate-500'}`}>
               {subtitle}
             </p>
           ) : null}
@@ -211,11 +200,10 @@ function KpiCard({
   isLoading?: boolean;
 }) {
   return (
-    <div className="relative min-h-[88px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-3.5 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-shadow hover:shadow-[0_14px_32px_-6px_rgba(194,98,46,0.28),0_2px_8px_rgba(194,98,46,0.14)]">
-      <span className="absolute inset-x-0 top-0 h-[3px]" style={{ backgroundColor: 'var(--primary)', opacity: 0.55 }} />
+    <div className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
       {isLoading && <CardLoader />}
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1.5 text-[25px] font-black leading-8 text-[#2E2D35] dark:text-mcm-ink">{value}</div>
+      <div className="text-[12px] font-medium leading-4 text-slate-500">{label}</div>
+      <div className="mt-2 text-[25px] font-black leading-8 text-[#2E2D35]">{value}</div>
       <div className={`mt-1 text-[12px] font-medium ${bad ? 'text-[#DC5049]' : 'text-emerald-500'}`}>
         {delta}
       </div>
@@ -225,7 +213,7 @@ function KpiCard({
 
 function TopicProgressRow({ name, value }: { name: string; value: number }) {
   return (
-    <div className="flex items-center gap-3 border-b border-[#EEE7DD] dark:border-mcm-line py-2.5 last:border-b-0">
+    <div className="flex items-center gap-3 border-b border-[#EEE7DD] py-2.5 last:border-b-0">
       <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-700">{name}</span>
       <span className="h-2 w-32 overflow-hidden rounded-full bg-slate-100">
         <span
@@ -775,8 +763,8 @@ export default function ReceptionistAnalytics({
   if (ANALYTICS_COMING_SOON) {
     // Existing analytics implementation is preserved below; temporarily show a simple placeholder.
     return (
-      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
-        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-4 py-3 sm:px-6">
+      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
+        <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
             <button
               type="button"
@@ -794,7 +782,7 @@ export default function ReceptionistAnalytics({
               AI Receptionists
             </button>
             <span>/</span>
-            <span className="font-semibold text-[#2E2D35] dark:text-mcm-ink">Analytics</span>
+            <span className="font-semibold text-[#2E2D35]">Analytics</span>
           </div>
           <Button type="button" variant="outline" onClick={onClose}>
             <ArrowLeft className="h-4 w-4" />
@@ -809,8 +797,8 @@ export default function ReceptionistAnalytics({
   }
 
   return (
-    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f] dark:text-mcm-ink">
-      <div className="flex min-h-[76px] shrink-0 flex-col gap-3.5 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-7 py-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden text-[#07142f]">
+      <div className="flex min-h-[72px] shrink-0 flex-col gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
           <button
             type="button"
@@ -819,41 +807,51 @@ export default function ReceptionistAnalytics({
           >
             AI Agents
           </button>
-          <span className="text-slate-300">/</span>
+          <span>/</span>
           <button type="button" onClick={onClose} className="transition-colors hover:text-primary">
             AI Receptionists
           </button>
-          <span className="text-slate-300">/</span>
-          <span className="font-bold text-[#2E2D35] dark:text-mcm-ink">Analytics &amp; Reports</span>
+          <span>/</span>
+          <span className="font-semibold text-[#2E2D35]">Analytics & Reports</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 lg:justify-end">
-          <div className="w-[150px]">
-            <CustomSelect
-              options={DATE_RANGE_OPTIONS}
+        <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+          <div className="relative">
+            <select
               value={dateRange}
-              handleChange={(option: any) => setDateRange((option?.value || '7d') as any)}
-              isClearable={false}
-            />
+              onChange={(e) => setDateRange(e.target.value as any)}
+              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
+            >
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
           </div>
 
-          <div className="w-[190px]">
-            <CustomSelect
-              options={[
-                { label: 'All receptionists', value: 'all' },
-                ...activeReceptionists.map((rep) => ({ label: rep.name, value: rep.id })),
-              ]}
+          <div className="relative">
+            <select
               value={selectedRepId}
-              handleChange={(option: any) => setSelectedRepId(option?.value || 'all')}
-              isClearable={false}
-            />
+              onChange={(e) => setSelectedRepId(e.target.value)}
+              className="h-[34px] cursor-pointer appearance-none rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-800 outline-none transition-colors hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
+            >
+              <option value="all">All receptionists</option>
+              {activeReceptionists.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9A948F] pointer-events-none" />
           </div>
 
           <Button
             type="button"
             variant="outline"
             onClick={exportAnalyticsCsv}
-            className="h-10 gap-1.5 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90"
+            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]"
           >
             <Download className="h-3.5 w-3.5" />
             Export CSV
@@ -864,7 +862,7 @@ export default function ReceptionistAnalytics({
             variant="outline"
             onClick={() => void exportAnalyticsPdf()}
             disabled={isExportingPdf}
-            className="h-10 gap-1.5 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90"
+            className="h-[34px] gap-1 text-xs font-semibold text-slate-700 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)]"
           >
             <FileText className="h-3.5 w-3.5" />
             {isExportingPdf ? 'Generating PDF...' : 'PDF Report'}
@@ -873,7 +871,7 @@ export default function ReceptionistAnalytics({
           <Button
             variant="primary"
             onClick={onClose}
-            className="h-10 gap-1.5 bg-primary text-xs font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+            className="h-[34px] gap-1.5 bg-primary text-xs font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to list
@@ -883,17 +881,17 @@ export default function ReceptionistAnalytics({
 
       <div
         ref={analyticsContentRef}
-        className="w-full flex-1 space-y-4 overflow-y-auto px-7 py-6"
+        className="w-full flex-1 space-y-3.5 overflow-y-auto px-7 py-6"
       >
-        <div className="flex items-center gap-3 rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 px-4 py-3 text-sm font-medium text-[#8a5a25]">
-          <Info className="h-4 w-4 shrink-0 text-primary" />
+        <div className="flex items-center gap-3 rounded-[10px] border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700">
+          <Info className="h-4 w-4 shrink-0" />
           <span>
             <strong>{periodLabel}</strong> · {periodCompare}. Voice-specific KPIs below — sentiment,
             talk-to-listen ratio, call outcomes, peak hours.
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {kpiCards.map((card) => (
             <KpiCard
               key={card.label}
@@ -912,7 +910,7 @@ export default function ReceptionistAnalytics({
             isLoading={isLoading}
           >
             <div className="mt-4 flex items-center justify-end">
-              <span className="rounded-full border border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-full border border-[#EEE7DD] bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
                 All receptionists
               </span>
             </div>
@@ -931,7 +929,7 @@ export default function ReceptionistAnalytics({
                       {rep.initials}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="truncate text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">{rep.name}</h4>
+                      <h4 className="truncate text-sm font-bold text-[#2E2D35]">{rep.name}</h4>
                       <p className="text-xs text-slate-500 truncate">{rep.subtitle}</p>
                     </div>
                   </div>
@@ -975,7 +973,7 @@ export default function ReceptionistAnalytics({
           </AnalyticsPanel>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-[2fr_1fr]">
           <AnalyticsPanel
             title={`Call volume - ${dateRange === 'today' ? 'today' : 'last 7 days'}`}
             subtitle="Daily bars showing inbound call distribution. Click a day for a per-hour breakdown."
@@ -1015,7 +1013,7 @@ export default function ReceptionistAnalytics({
               <div className="relative h-[150px] w-[150px] shrink-0">
                 <div className="absolute inset-0 z-10 grid place-items-center text-center pointer-events-none">
                   <div>
-                    <div className="text-[22px] font-black leading-6 text-[#2E2D35] dark:text-mcm-ink">
+                    <div className="text-[22px] font-black leading-6 text-[#2E2D35]">
                       {metrics.totalCalls}
                     </div>
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
@@ -1057,7 +1055,7 @@ export default function ReceptionistAnalytics({
           </AnalyticsPanel>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
           <AnalyticsPanel
             title="Sentiment trend - last 7 days"
             subtitle="Caller sentiment score (0-100) at end of call"
@@ -1092,7 +1090,7 @@ export default function ReceptionistAnalytics({
               <div className="relative h-[150px] w-[150px] shrink-0">
                 <div className="absolute inset-0 z-10 grid place-items-center text-center pointer-events-none">
                   <div>
-                    <div className="text-[22px] font-black leading-6 text-[#2E2D35] dark:text-mcm-ink">
+                    <div className="text-[22px] font-black leading-6 text-[#2E2D35]">
                       {talkPercent}%
                     </div>
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
@@ -1139,7 +1137,7 @@ export default function ReceptionistAnalytics({
           </AnalyticsPanel>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">
           <AnalyticsPanel
             title="Top conversation topics"
             subtitle="What callers ask about most"
@@ -1156,7 +1154,7 @@ export default function ReceptionistAnalytics({
                   />
                 ))
               ) : (
-                <div className="rounded-lg border border-dashed border-[#EEE7DD] dark:border-mcm-line bg-slate-50 px-4 py-7 text-center text-xs font-semibold text-slate-500">
+                <div className="rounded-lg border border-dashed border-[#EEE7DD] bg-slate-50 px-4 py-7 text-center text-xs font-semibold text-slate-500">
                   No topic data yet
                 </div>
               )}
@@ -1169,29 +1167,29 @@ export default function ReceptionistAnalytics({
             tip="Side-by-side comparison across receptionists. Click any row to drill into that receptionist's full report."
             isLoading={isLoading}
           >
-            <div className="mt-4 overflow-hidden rounded-lg border border-[#EEE7DD] dark:border-mcm-line">
+            <div className="mt-4 overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-[rgba(251,238,220,0.55)] dark:bg-mcm-accent-wash/55 text-[10px] font-bold uppercase tracking-[0.04em] text-slate-500">
-                    <th className="px-3 py-2.5">Receptionist</th>
-                    <th className="px-3 py-2.5 text-right">Calls</th>
-                    <th className="px-3 py-2.5 text-right">Res%</th>
-                    <th className="px-3 py-2.5 text-right">Sent</th>
+                  <tr className="border-b border-[#EEE7DD] text-[10px] font-bold uppercase tracking-[0.04em] text-slate-400">
+                    <th className="py-2.5">Receptionist</th>
+                    <th className="py-2.5 text-right">Calls</th>
+                    <th className="py-2.5 text-right">Res%</th>
+                    <th className="py-2.5 text-right">Sent</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EEE7DD]">
                   {activeReceptionists.slice(0, 5).map((rep) => (
                     <tr
                       key={rep.id}
-                      className="cursor-pointer transition-colors hover:bg-[#FBE2C8]/30 dark:hover:bg-mcm-surface-3/30"
+                      className="cursor-pointer transition-colors hover:bg-slate-50/70"
                       onClick={() => setSelectedRepId(rep.id)}
                     >
-                      <td className="px-3 py-3 font-semibold text-slate-800">{rep.name}</td>
-                      <td className="px-3 py-3 text-right font-bold text-slate-800">{rep.calls}</td>
-                      <td className="px-3 py-3 text-right font-bold text-emerald-600">
+                      <td className="py-3 font-semibold text-slate-800">{rep.name}</td>
+                      <td className="py-3 text-right font-bold text-slate-800">{rep.calls}</td>
+                      <td className="py-3 text-right font-bold text-emerald-600">
                         {rep.resolution}%
                       </td>
-                      <td className="px-3 py-3 text-right font-semibold text-slate-800">
+                      <td className="py-3 text-right font-semibold text-slate-800">
                         {rep.sentiment !== null
                           ? `😐 ${Math.round(rep.sentiment)}`
                           : 'Not analyzed'}
@@ -1204,7 +1202,7 @@ export default function ReceptionistAnalytics({
           </AnalyticsPanel>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3.5">
           <AnalyticsPanel
             title="Peak call hours - last 7 days"
             subtitle="Hour-of-day distribution. Darker bars = more calls."
@@ -1238,7 +1236,7 @@ export default function ReceptionistAnalytics({
           </AnalyticsPanel>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3.5">
           <AnalyticsPanel
             title="Unanswered caller questions"
             subtitle="Pick a receptionist to see their unanswered questions, then answer each one."
@@ -1249,7 +1247,7 @@ export default function ReceptionistAnalytics({
               {activeReceptionists.slice(0, 4).map((rep) => (
                 <div
                   key={rep.id}
-                  className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#EEE7DD] dark:border-mcm-line p-3 transition-colors hover:bg-slate-50"
+                  className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[#EEE7DD] p-3 transition-colors hover:bg-slate-50"
                 >
                   <div className="flex items-center gap-3">
                     <div

@@ -1,15 +1,4 @@
 import { Bell } from '@/assets/icons';
-import { USD_TO_INR_RATE } from '@/lib/billing-money';
-
-// The header's wallet pill is a fixed-height, flex-nowrap slot next to the
-// profile name and admin badge — `formatMoney`'s decimals ("₹20,376.50")
-// were enough extra width to push those past the right edge on narrower
-// desktop windows. A whole-rupee figure is all this glanceable pill needs.
-const formatWalletAmount = (value: unknown): string => {
-  const n = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(n)) return '₹0';
-  return `₹${Math.round(n * USD_TO_INR_RATE).toLocaleString('en-IN')}`;
-};
 import ucaasLogo from '@/assets/images/ucaas-logo.png';
 import { useUser } from '@/hooks/use-user';
 import { useDialpad } from '@/hooks/use-dialpad';
@@ -31,7 +20,7 @@ import ThemeToggle from '@/components/custom/theme-toggle';
 import PendingChatRequestsDrawer from './PendingChatRequestsDrawer';
 import { ChevronDown, Menu, Wallet, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { cn, SESSION_NAME } from '@/lib/utils';
+import { clearStorageKeepingDeviceIdentity, cn, SESSION_NAME } from '@/lib/utils';
 import { DASHBOARDCONST } from '@/pages/dashboard/constant';
 import AlertConfirm from '../alert-confirm';
 import { toast } from 'react-toastify';
@@ -65,14 +54,19 @@ const Header = () => {
   const [walletUpdatedAmount, setWalletUpdatedAmount] = useState<number | null>(null);
   const navigate = useNavigate();
   const { pathname = '' } = useLocation();
+  /* The icon rail (Phone/Chat/Agent Chat/Video/Inbox/Campaign) sits flush
+     against the header's bottom edge on these routes, so the header's
+     border-b reads as a stray line cutting across the rail's corner. Hidden
+     only here — every other page keeps the visible border. */
+  const hidesHeaderBorderForRail = ['/phone', '/messenger', '/agent-chat', '/video', '/inbox', '/campaign'].some(
+    (path) => pathname === path || pathname?.startsWith(`${path}/`),
+  );
   const companyAmount = user?.company_info?.amount;
   const totalFunds =
-    companyAmount !== null && companyAmount !== undefined
-      ? formatWalletAmount(companyAmount)
-      : '₹0';
+    companyAmount !== null && companyAmount !== undefined ? `$${companyAmount}` : '00.00';
   const resolvedFundsDisplay =
     walletUpdatedAmount !== null && walletUpdatedAmount !== undefined
-      ? formatWalletAmount(walletUpdatedAmount)
+      ? `$${walletUpdatedAmount}`
       : totalFunds;
   const role =
     user?.user_info?.custom_role_data?.name ||
@@ -294,10 +288,8 @@ const Header = () => {
 
   return (
     <>
-      <div
-        className={`fixed left-0 top-0 z-30 w-full ${isMobileMenuOpen ? 'h-auto' : 'h-16'}`}
-      >
-        {/* `border-gray-200 dark:border-mcm-line`, not `border-white/50`: the old rule was white
+      <div className="fixed left-0 top-0 z-30 h-16 w-full">
+        {/* `border-gray-200`, not `border-white/50`: the old rule was white
             on a white bar sitting above white page content, so the header had
             no visible bottom edge and merged into whatever was beneath it.
 
@@ -305,34 +297,17 @@ const Header = () => {
             64px and page content is offset by `pt-16` (64px) — `min-h-16`
             plus this 1px border made the bar 65px, so it painted over the
             first row of the content below. Border-box keeps the border
-            inside the 64px.
-
-            With the mobile menu open, the nav's extra rows (actions, then
-            wallet/profile) made it taller than this fixed 64px box, and
-            since the box clips nothing (`overflow` was never set) that
-            extra content rendered outside it, over the semi-transparent
-            backdrop, letting page text bleed through underneath it. Letting
-            both this wrapper and the header grow to fit while open — and
-            switching the backdrop to solid white instead of translucent —
-            turns it into a proper opaque dropdown panel instead of a
-            64px window with overflow spilling past its own background. */}
+            inside the 64px. */}
         <header
           /* Upstream's px-4/py-2.5 padding, but keeping `h-16` over
-             `min-h-16` and a visible `border-gray-200 dark:border-mcm-line` over
+             `min-h-16` and a visible `border-gray-200` over
              `border-white/50` — see the note above the tag. */
-          /* The two backdrops are classes, not inline style: an inline
-             `background` wins over every stylesheet rule, so while these
-             lived in `style` the bar stayed white in dark mode no matter
-             what `.dark` declared. */
-          className={`${isMobileMenuOpen ? 'h-auto bg-white dark:bg-mcm-surface' : 'h-16 bg-[rgba(255,255,255,0.78)] dark:bg-[rgba(30,41,59,0.85)]'} text-gray-900/80 dark:text-mcm-ink/80 border-b border-gray-200 dark:border-mcm-line px-4 py-2.5`}
-          style={
-            isMobileMenuOpen
-              ? undefined
-              : {
-                  backdropFilter: 'blur(12px) saturate(160%)',
-                  WebkitBackdropFilter: 'blur(12px) saturate(160%)',
-                }
-          }
+          className={`h-16 text-gray-900/80 border-b px-4 py-2.5 ${hidesHeaderBorderForRail ? 'border-transparent' : 'border-gray-200'}`}
+          style={{
+            background: 'rgba(255, 255, 255, 0.78)',
+            backdropFilter: 'blur(12px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(12px) saturate(160%)',
+          }}
         >
           <nav
             className="flex w-full flex-col gap-3 md:flex-row md:items-center md:gap-2"
@@ -357,7 +332,7 @@ const Header = () => {
               </a>
               <AreaNav />
             </div>
-            <div className="flex w-full items-center gap-2 text-gray-900/80 dark:text-mcm-ink/80 md:order-2 md:w-auto relative">
+            <div className="flex w-full items-center gap-2 text-gray-900/80 md:order-2 md:min-w-0 md:w-auto md:flex-1 relative">
               {hasActiveCampaign && (
                 <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5">
                   <span className="relative flex h-2.5 w-2.5">
@@ -367,7 +342,7 @@ const Header = () => {
                   <span className="max-w-[180px] truncate text-xs font-semibold text-emerald-700">
                     {activeCampaignName}
                   </span>
-                  <span className="rounded-md bg-white dark:bg-mcm-surface px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                  <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-medium text-emerald-700">
                     Running
                   </span>
                 </div>
@@ -385,7 +360,7 @@ const Header = () => {
               </div>
               <button
                 type="button"
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-mcm-surface-3 text-gray-700 dark:text-mcm-ink-2 transition-colors hover:bg-ucass-primary-200 hover:text-primary md:hidden"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-700 transition-colors hover:bg-ucass-primary-100 hover:text-ucass-active md:hidden"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                 aria-label={isMobileMenuOpen ? 'Close header menu' : 'Open header menu'}
                 aria-expanded={isMobileMenuOpen}
@@ -400,7 +375,7 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-actions"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-2 items-center border-t border-gray-200 dark:border-mcm-line pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap gap-2 items-center border-t border-gray-200 pt-3 md:order-3 md:flex md:w-auto md:flex-nowrap md:shrink-0 md:border-t-0 md:pt-0`}
             >
               {/* Tasks, Calendar, My Campaigns, Activity and Monitoring moved
                   into the Performance area rail — the bar keeps only
@@ -414,7 +389,7 @@ const Header = () => {
               <div className="inline-flex items-center justify-center font-medium">
                 <CustomTooltip text={'Notification'} side="bottom">
                   <span
-                    className="cursor-pointer relative bg-white/70 dark:bg-mcm-surface/70 border border-white/70 shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-200 hover:border-ucass-primary-100 hover:text-primary"
+                    className="cursor-pointer relative bg-white/70 border border-white/70 shadow-sm flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg hover:bg-ucass-primary-100 hover:border-ucass-primary-200 hover:text-ucass-active"
                     onClick={() => {
                       setNotificationState(true);
                       setIsMobileMenuOpen(false);
@@ -438,14 +413,14 @@ const Header = () => {
             </div>
             <div
               id="mobile-header-wallet-profile"
-              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 dark:border-mcm-line pt-3 md:order-5 md:ml-auto md:flex md:w-auto md:flex-nowrap md:justify-end md:border-t-0 md:pt-0`}
+              className={`${isMobileMenuOpen ? 'flex' : 'hidden'} w-full flex-wrap items-center gap-3 border-t border-gray-200 pt-3 md:order-5 md:flex md:w-auto md:flex-nowrap md:shrink-0 md:justify-end md:border-t-0 md:pt-0`}
             >
               {/* Wallet / Add Funds */}
               {features?.plan_features?.billing?.action?.view ? (
                 <div className="flex items-center">
                   <CustomTooltip text={'Add Funds'} side="bottom">
                     <div
-                      className="flex items-center gap-2 px-3 h-9 bg-gray-100 dark:bg-mcm-surface-3 hover:bg-ucass-primary-200  rounded-lg cursor-pointer"
+                      className="flex items-center gap-2 px-3 h-9 bg-gray-100 hover:bg-ucass-primary-100  rounded-lg cursor-pointer"
                       {...getHeaderRouteHandlers(addFundsRoute)}
                     >
                       <Wallet className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
@@ -466,7 +441,7 @@ const Header = () => {
                   <PopoverTrigger
                     className={cn(
                       'cursor-pointer flex items-center gap-2 h-10 pl-1 pr-2 rounded-xl border transition-colors',
-                      'bg-white/70 dark:bg-mcm-surface/70 border-white/70 shadow-sm hover:bg-ucass-primary-200 hover:border-ucass-primary-100',
+                      'bg-white/70 border-white/70 shadow-sm hover:bg-ucass-primary-100 hover:border-ucass-primary-200',
                       profileState === 'profile' && 'bg-ucass-primary-200 border-ucass-primary-100',
                     )}
                   >
@@ -480,7 +455,7 @@ const Header = () => {
                       presenceOverride={myPresenceStatus}
                     />
                     <div className="hidden lg:flex flex-col items-start text-left min-w-0 max-w-[110px]">
-                      <h4 className="w-full truncate text-[12px] font-bold text-gray-900 dark:text-mcm-ink leading-tight">
+                      <h4 className="w-full truncate text-[12px] font-bold text-gray-900 leading-tight">
                         {`Hi, ${user?.user_info?.first_name} ${user?.user_info?.last_name || ''}`}
                       </h4>
                       <div className="w-full truncate text-[10px] text-primary font-semibold uppercase tracking-widest">
@@ -489,7 +464,7 @@ const Header = () => {
                     </div>
                     <ChevronDown
                       className={cn(
-                        'w-3.5 h-3.5 text-gray-400 dark:text-mcm-ink-3 shrink-0 transition-transform duration-200',
+                        'w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200',
                         profileState === 'profile' && 'rotate-180',
                       )}
                     />
@@ -550,11 +525,14 @@ const Header = () => {
           singleButtonText="Okay"
           singleButtonHandler={() => {
             sessionStorage.clear();
-            localStorage.clear();
+            /* Keeps the device id, so a terminated session does not also cost
+               this browser its 30-day trust and force a code on the way back
+               in. Everything else is still cleared. */
+            clearStorageKeepingDeviceIdentity();
             handleRemoveUser();
           }}
           descriptionTextComp={
-            <div className="text-md py-2 text-gray-700 dark:text-mcm-ink-2">
+            <div className="text-md py-2 text-gray-700">
               Your session has been terminated or has expired. Please click Okay to log in again.
             </div>
           }

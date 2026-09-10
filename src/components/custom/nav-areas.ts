@@ -144,16 +144,6 @@ export type AreaView = {
    * had left Directory entirely.
    */
   altPaths?: string[];
-  /**
-   * Other `?view=` values on this same `href` that still count as "on" this
-   * rail item, for entries whose target page has its own internal views the
-   * rail doesn't otherwise know about. Calendar's Task Listing is one of
-   * these: it lives at `/calendar?view=task-list`, a query value this entry
-   * doesn't own (`href` points at `?view=calendar`), so without listing it
-   * here the rail read every view the page has other than its own default as
-   * "nothing selected" the moment you opened it.
-   */
-  altViews?: string[];
 };
 
 /**
@@ -176,7 +166,14 @@ export const DIRECTORY_VIEWS: AreaView[] = [
   { key: 'groups', label: 'Groups', icon: 'DepartmentIcon' },
   { key: 'roles', label: 'Roles', icon: 'AdminIcon' },
   { key: 'locations', label: 'Locations', icon: 'IntegrationIcon' },
-  { key: 'external', label: 'External Contacts', icon: 'InboxIcon', altPaths: ['/contact'] },
+  {
+    key: 'external',
+    label: 'External Contacts',
+    icon: 'InboxIcon',
+    /* Both open from a row on this list — "New contact" and the clock icon's
+       contact Activity — so both stay inside Directory with the rail up. */
+    altPaths: ['/contact', '/contact-activity'],
+  },
   { key: 'favourites', label: 'Favourites', icon: 'Star' },
   { key: 'blocked', label: 'Blocked', icon: 'AdminIcon' },
 ];
@@ -191,6 +188,9 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   // everything the platform has that the console does not
   { key: 'live-interactions', label: 'Live', icon: 'RadioIcon', sep: true },
   { key: 'callbacks', label: 'Callbacks', icon: 'PhoneForwardingIcon' },
+  /* `Megaphone` read as tilted/asymmetrical and too close to a consumer
+     advertising bullhorn — `Target` is the more enterprise, symmetrical fit
+     for outbound campaigns/lead targeting. */
   { key: 'campaign-activity', label: 'Campaigns', icon: 'TargetIcon' },
   { key: 'speech-text', label: 'Speech', icon: 'MessageIcon' },
   { key: 'reports', label: 'Reports', icon: 'FileBarChartIcon' },
@@ -199,19 +199,11 @@ export const PERFORMANCE_VIEWS: AreaView[] = [
   { key: 'call-queue', label: 'Queue', icon: 'ListOrderedIcon', feature: 'queue' },
   { key: 'video-dashboard', label: 'Video', icon: 'VideoIcon', feature: 'video' },
   // The top-bar shortcuts, moved down here so the bar itself stays lean.
-  // Tasks used to be its own rail entry here, but it was never a separate
-  // page — it's the same `/calendar` route with `?view=task-list`, reached
-  // today via the "Tasks List View" button inside Calendar itself. Keeping
-  // both just duplicated one destination under two labels.
-  {
-    key: 'ext-calendar',
-    label: 'Calendar',
-    icon: 'CalendarLine',
-    href: '/calendar?view=calendar',
-    altViews: ['task-list'],
-    sep: true,
-  },
-  { key: 'ext-campaigns', label: 'Dialer', icon: 'DialerIcon', href: '/my-campaigns' },
+  { key: 'ext-calendar', label: 'Calendar', icon: 'CalendarLine', href: '/calendar?view=calendar', sep: true },
+  /* "Dialer" named the tool; this tile opens /my-campaigns, which is the
+     agent's own campaign list. The rail label wraps to two lines, so the
+     longer name costs nothing. */
+  { key: 'ext-campaigns', label: 'My Campaign', icon: 'DialerIcon', href: '/my-campaigns' },
   // Activity and Monitoring depend on the signed-in user (their uuid, their
   // role/plan access) so their real href is resolved in useAreaNav — this
   // placeholder just claims the slot and the icon.
@@ -240,27 +232,17 @@ const externalViewPrefixes = (): { prefix: string; area: AreaId }[] =>
   (Object.keys(AREA_VIEWS) as AreaId[]).flatMap((area) =>
     (AREA_VIEWS[area]?.views ?? []).flatMap((view) => {
       const prefix = view.match || (view.href ? view.href.split('?')[0] : '');
-      return prefix ? [{ prefix, area }] : [];
+      /* `altPaths` claims the area too, not just the rail highlight.
+         Without this a view's alternate path matched no nav item and no area
+         base, fell through to the segment guess, and landed on Home — so
+         opening a contact's Activity from External Contacts dropped the whole
+         Directory rail and the screen read as somewhere else entirely. The
+         rail already lit the right item for these paths (see sidebar.tsx's
+         altPathViewKey); this makes the area agree with it. */
+      return [...(prefix ? [{ prefix, area }] : []), ...(view.altPaths ?? []).map((alt) => ({ prefix: alt, area }))];
     }),
   );
 
-/**
- * Whether the signed-in company's plan admits a view.
- *
- * This lived only in `useAreaNav`, which decides what the rail renders — so a
- * plan without AI got no "AI Wall" rail item, and that was the whole of the
- * enforcement. The page behind the rail rendered whatever `?view=` asked for,
- * so a pasted or bookmarked URL reached a wallboard the plan does not include.
- *
- * Both the rail and the page now ask this one function, which is the only way
- * they cannot drift apart again. It reads the COMPANY plan rather than the
- * role-scoped one, which is what the rail has always used — a view is part of
- * what the company bought, not part of what this person may do.
- *
- * This is a commercial entitlement gate, not a security boundary: it decides
- * what the console offers, and the server remains responsible for refusing
- * data the plan does not cover.
- */
 export const isViewAllowedByPlan = (
   view: Pick<AreaView, 'feature'>,
   companyPlanFeatures: any,

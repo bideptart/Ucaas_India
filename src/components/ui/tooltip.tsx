@@ -55,14 +55,7 @@ function TooltipContent({
            completing, so a tooltip can never outlive its trigger and the
            name changes the instant the pointer does. */
         className={cn(
-          /* Fixed black + white, not text-primary-foreground: that token
-             pairs with --primary (the orange it's meant to sit on top of),
-             not this tooltip's own always-black background — in dark mode
-             --primary-foreground is a dark navy (for contrast against
-             orange buttons), which made tooltip text unreadable against
-             black. A high-contrast tooltip that stays black in both themes
-             needs its own fixed, matching foreground, not a borrowed one. */
-          'bg-black text-white z-[9999] w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
+          'bg-black text-primary-foreground z-[9999] w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
           className,
         )}
         {...props}

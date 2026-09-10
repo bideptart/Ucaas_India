@@ -25,7 +25,7 @@ const MeetingFeedback = ({ feedback = [] }: MeetingMembersProps) => {
                 <CustomAvatar name={item?.name} />
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    <div className="text-gray-900 dark:text-mcm-ink text-sm font-medium">{item?.name}</div>
+                    <div className="text-gray-900 text-sm font-medium">{item?.name}</div>
                     <div className="flex items-center gap-0.5">
                       <span className="bg-gray-600 w-1 h-1 rounded-full"></span>
                       <div className="flex gap-0.5 items-center text-xs">

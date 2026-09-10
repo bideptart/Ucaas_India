@@ -1,7 +1,7 @@
 import TableManager from '@/components/custom/table-manager';
 import { getAgentBillingList } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
-import { UNAVAILABLE, knownNumber, USD_TO_INR_RATE } from '@/lib/billing-money';
+import { UNAVAILABLE, knownNumber } from '@/lib/billing-money';
 
 type AgentBillingApiRow = {
   agent_uuid?: string;
@@ -47,7 +47,7 @@ const columns = [
       return (
         <span className="flex items-center gap-2 max-w-full overflow-hidden">
           <span
-            className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[170px] inline-block"
+            className="font-medium text-gray-900 truncate max-w-[170px] inline-block"
             title={row?.original?.agentName || 'Unknown'}
           >
             {row?.original?.agentName || 'Unknown'}
@@ -67,17 +67,15 @@ const columns = [
     cell: ({ row }: any) => <span className="capitalize">{row?.original?.channel || '--'}</span>,
   },
   {
-    header: 'Total (₹)',
+    header: 'Total USD',
     accessorKey: 'totalCostUSD',
     cell: ({ row }: any) => {
       /* An agent whose cost did not come back has not cost nothing — nobody
-         sent us a figure. Shown as such rather than as ₹0.00000, which reads as
+         sent us a figure. Shown as such rather than as $0.00000, which reads as
          "this agent is free" on a page headed Billing. Five decimal places
          because AI usage is genuinely priced in fractions of a cent. */
       const amount = knownNumber(row?.original?.totalCostUSD);
-      return (
-        <span>{amount === null ? UNAVAILABLE : `₹${(amount * USD_TO_INR_RATE).toFixed(5)}`}</span>
-      );
+      return <span>{amount === null ? UNAVAILABLE : `$${amount.toFixed(5)}`}</span>;
     },
   },
   {

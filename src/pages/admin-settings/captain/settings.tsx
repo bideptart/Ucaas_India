@@ -1,296 +1,395 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronRight, Save, Shield, BookOpenText, Zap, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { AssistantSwitcher, useSelectedAssistant } from './assistant-switcher';
+import { CAPTAIN_API_BASE, captainFetch } from '@/lib/captain-api';
 
-const CAPTAIN_API_BASE = '/captain-api/api/captain';
-
-type Settings = {
-  assistant_id: string;
-  /* Reply behaviour */
-  auto_reply: boolean;
-  reply_delay_seconds: number;
-  language: string;
-  /* Handover to a person */
-  handoff_enabled: boolean;
-  handoff_after_failures: number;
-  handoff_email: string;
-  /* Office hours — outside them the widget collects a message instead */
-  office_hours_enabled: boolean;
-  office_hours_start: string;
-  office_hours_end: string;
-  away_message: string;
-  /* Retention */
-  transcript_retention_days: number;
-  collect_visitor_email: boolean;
+type Assistant = {
+  id: string;
+  name: string;
+  config?: {
+    handoff_message?: string;
+    resolution_message?: string;
+    temperature?: number;
+  };
+  guardrails?: string[];
+  response_guidelines?: string[];
 };
 
-const textAreaClass =
-  'w-full resize-none rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition-all placeholder:text-gray-400 hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink dark:placeholder:text-mcm-ink-3';
-const selectClass =
-  'min-h-10 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none transition-all hover:border-primary focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink';
-
-const Section = ({
+const ControlCard = ({
+  icon: Icon,
+  iconBg,
+  iconColor,
   title,
   description,
-  children,
+  onClick,
 }: {
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
   title: string;
   description: string;
-  children: React.ReactNode;
+  onClick?: () => void;
 }) => (
-  <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-mcm-line dark:bg-mcm-surface">
-    <div className="text-sm font-semibold text-gray-950 dark:text-mcm-ink">{title}</div>
-    <div className="mt-0.5 text-xs text-gray-500 dark:text-mcm-ink-3">{description}</div>
-    <div className="mt-4 flex flex-col gap-4">{children}</div>
-  </div>
-);
-
-const ToggleRow = ({
-  label,
-  hint,
-  checked,
-  onChange,
-}: {
-  label: string;
-  hint: string;
-  checked: boolean;
-  onChange: (value: boolean) => void;
-}) => (
-  <div className="flex items-start justify-between gap-4">
-    <div>
-      <div className="text-sm font-medium text-gray-800 dark:text-mcm-ink-2">{label}</div>
-      <div className="text-xs text-gray-500 dark:text-mcm-ink-3">{hint}</div>
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex w-full items-start justify-between gap-4 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700/60"
+  >
+    <div className="flex items-start gap-3">
+      <div className={`mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full ${iconBg} ${iconColor}`}>
+        <Icon className="size-4" />
+      </div>
+      <div>
+        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</div>
+        <div className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{description}</div>
+      </div>
     </div>
-    <Switch checked={checked} onCheckedChange={onChange} />
-  </div>
+    <ChevronRight className="mt-1 size-4 shrink-0 text-gray-400 dark:text-muted-foreground" />
+  </button>
 );
 
 const CaptainSettings = () => {
-  const { assistants, selectedId, selectAssistant } = useSelectedAssistant();
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [assistants, setAssistants] = useState<Assistant[]>([]);
+  const [activeId, setActiveId] = useState<string>('');
+  const [handoffMessage, setHandoffMessage] = useState('');
+  const [resolutionMessage, setResolutionMessage] = useState('');
+  const [temperature, setTemperature] = useState(0.7);
+
+  // Global engine settings
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [model, setModel] = useState('gpt-5.4');
+
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  const [savedAt, setSavedAt] = useState('');
 
-  const fetchSettings = async (assistantId: string) => {
-    if (!assistantId) return;
-    setIsLoading(true);
+  const [isUpdatingEngine, setIsUpdatingEngine] = useState(false);
+
+  const activeAssistant = assistants.find((a) => a.id === activeId) ?? null;
+
+  useEffect(() => {
+    Promise.all([
+      captainFetch(`${CAPTAIN_API_BASE}/assistants`).then((r) => r.json()),
+      captainFetch(`${CAPTAIN_API_BASE}/settings`).then((r) => r.json()),
+    ])
+      .then(([aJson, sJson]) => {
+        const list: Assistant[] = aJson.data || [];
+        setAssistants(list);
+        if (list.length > 0) {
+          const first = list[0];
+          setActiveId(first.id);
+          setHandoffMessage(first.config?.handoff_message || '');
+          setResolutionMessage(first.config?.resolution_message || '');
+          setTemperature(first.config?.temperature ?? 0.7);
+        } else {
+          setTemperature(sJson.default_temperature ?? 0.3);
+        }
+        const sData = sJson?.data !== undefined ? sJson.data : sJson;
+        if (typeof sData?.is_enabled === 'boolean') {
+          setIsEnabled(sData.is_enabled);
+        } else if (typeof sJson?.is_enabled === 'boolean') {
+          setIsEnabled(sJson.is_enabled);
+        }
+        if (sData?.default_model_name) {
+          setModel(sData.default_model_name);
+        } else if (sJson?.default_model_name) {
+          setModel(sJson.default_model_name);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const handleToggleEnabled = async (checked: boolean) => {
+    setIsEnabled(checked);
+    setIsUpdatingEngine(true);
     setError('');
     try {
-      const res = await fetch(`${CAPTAIN_API_BASE}/settings?assistant_id=${assistantId}`);
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.message || 'Failed to load settings');
-      setSettings(json.data || null);
+      const res = await captainFetch(`${CAPTAIN_API_BASE}/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_enabled: checked }),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to update engine status');
+      }
+      const data = await res.json();
+      const updated = data?.data !== undefined ? data.data : data;
+      if (typeof updated?.is_enabled === 'boolean') {
+        setIsEnabled(updated.is_enabled);
+      }
     } catch (err: any) {
-      setError(err?.message || 'Failed to load settings');
+      setIsEnabled(!checked);
+      setError(err?.message || 'Failed to update engine status');
     } finally {
-      setIsLoading(false);
+      setIsUpdatingEngine(false);
     }
   };
 
-  useEffect(() => {
-    if (!selectedId) return;
-    fetchSettings(selectedId);
-  }, [selectedId]);
-
-  const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
-    setSettings((prev) => (prev ? { ...prev, [key]: value } : prev));
-
-  const handleSave = async () => {
-    if (!settings) return;
-    setIsSaving(true);
+  const handleModelChange = async (newModel: string) => {
+    setModel(newModel);
     setError('');
-    setSavedAt('');
     try {
-      const res = await fetch(`${CAPTAIN_API_BASE}/settings`, {
+      const res = await captainFetch(`${CAPTAIN_API_BASE}/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...settings, assistant_id: selectedId }),
+        body: JSON.stringify({ default_model_name: newModel }),
       });
-      if (!res.ok) throw new Error((await res.json())?.message || 'Failed to save settings');
-      setSavedAt(new Date().toLocaleTimeString());
+      if (!res.ok) {
+        throw new Error('Failed to update default model');
+      }
+      const data = await res.json();
+      const updated = data?.data !== undefined ? data.data : data;
+      if (updated?.default_model_name) {
+        setModel(updated.default_model_name);
+      }
     } catch (err: any) {
-      setError(err?.message || 'Failed to save settings');
+      setError(err?.message || 'Failed to update default model');
+    }
+  };
+
+  const handleAssistantChange = (id: string) => {
+    setActiveId(id);
+    const a = assistants.find((x) => x.id === id);
+    if (!a) return;
+    setHandoffMessage(a.config?.handoff_message || '');
+    setResolutionMessage(a.config?.resolution_message || '');
+    setTemperature(a.config?.temperature ?? 0.7);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setError('');
+    setSaved(false);
+    try {
+      const requests: Promise<Response>[] = [];
+
+      // Save global engine settings
+      requests.push(
+        captainFetch(`${CAPTAIN_API_BASE}/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            is_enabled: isEnabled,
+            default_model_name: model,
+            default_temperature: temperature,
+          }),
+        }),
+      );
+
+      // Save per-assistant fields
+      if (activeId) {
+        requests.push(
+          captainFetch(`${CAPTAIN_API_BASE}/assistants/${activeId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              config: {
+                ...(activeAssistant?.config || {}),
+                handoff_message: handoffMessage,
+                resolution_message: resolutionMessage,
+                temperature,
+              },
+            }),
+          }),
+        );
+      }
+
+      const results = await Promise.all(requests);
+      if (results.some((r) => !r.ok)) throw new Error('Failed to save some settings');
+
+      // Update local assistant list
+      if (activeId) {
+        setAssistants((prev) =>
+          prev.map((a) =>
+            a.id === activeId
+              ? { ...a, config: { ...a.config, handoff_message: handoffMessage, resolution_message: resolutionMessage, temperature } }
+              : a,
+          ),
+        );
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to save');
     } finally {
       setIsSaving(false);
     }
   };
 
+  if (isLoading) {
+    return <div className="flex h-full items-center justify-center text-sm text-gray-500 dark:text-muted-foreground">Loading...</div>;
+  }
+
   return (
-    <div className="flex h-full w-full flex-col gap-5 p-6">
-      <div className="flex items-center justify-between gap-3">
-        <AssistantSwitcher
-          assistants={assistants}
-          selectedId={selectedId}
-          onSelect={selectAssistant}
-          pageTitle="Settings"
-        />
-        <div className="flex items-center gap-3">
-          {savedAt && <span className="text-xs text-gray-500 dark:text-mcm-ink-3">Saved at {savedAt}</span>}
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleSave}
-            disabled={isSaving || isLoading || !settings}
+    <div className="flex h-full w-full flex-col gap-6 overflow-y-auto p-6">
+
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Captain Settings</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Configure the AI engine and assistant behaviour.</div>
+        </div>
+        {assistants.length > 1 && (
+          <select
+            value={activeId}
+            onChange={(e) => handleAssistantChange(e.target.value)}
+            className="h-9 rounded-lg border border-gray-200 bg-white pl-3 text-sm text-gray-900 outline-none focus:border-primary dark:focus:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
           >
-            {isSaving ? 'Saving...' : 'Save changes'}
-          </Button>
+            {assistants.map((a) => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Engine strip — Enable + Model */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex flex-1 items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Zap className="size-4" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Captain AI</div>
+            <div className="text-xs text-gray-500 dark:text-muted-foreground">Enable or disable AI responses across all inboxes</div>
+          </div>
+        </div>
+        <Switch checked={isEnabled} onCheckedChange={handleToggleEnabled} disabled={isUpdatingEngine} />
+        <div className="h-6 w-px bg-gray-200 dark:bg-gray-600" />
+        <div className="flex items-center gap-2">
+          <Bot className="size-4 text-gray-400 dark:text-muted-foreground" />
+          <select
+            value={model}
+            onChange={(e) => handleModelChange(e.target.value)}
+            disabled={isUpdatingEngine}
+            className="h-8 rounded-lg border border-gray-200 bg-gray-50 pl-2.5 pr-6 text-sm text-gray-900 outline-none focus:border-primary dark:focus:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 disabled:opacity-60"
+          >
+            <option value="gpt-5.4">GPT-5.4</option>
+            <option value="gpt-5.4-mini">GPT-5.4 Mini</option>
+            <option value="gpt-4.1">GPT-4.1</option>
+            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+          </select>
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10">
 
-      {isLoading || !settings ? (
-        <div className="flex h-40 items-center justify-center rounded-2xl border border-gray-200 bg-white text-sm text-gray-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink-3">
-          Loading...
-        </div>
-      ) : (
-        <div className="flex-1 overflow-auto">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <Section
-              title="Replies"
-              description="How the assistant answers before anyone is involved."
-            >
-              <ToggleRow
-                label="Answer automatically"
-                hint="Off means every conversation waits for a person."
-                checked={settings.auto_reply}
-                onChange={(v) => set('auto_reply', v)}
-              />
-              <div className="flex flex-col gap-1.5">
-                <Label>Reply delay (seconds)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={settings.reply_delay_seconds}
-                  onChange={(e) => set('reply_delay_seconds', Number(e.target.value))}
-                />
-                <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
-                  A short pause reads as more considered than an instant reply.
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Language</Label>
-                <select
-                  value={settings.language}
-                  onChange={(e) => set('language', e.target.value)}
-                  className={selectClass}
-                >
-                  <option value="en">English</option>
-                  <option value="hi">Hindi</option>
-                  <option value="auto">Match the visitor</option>
-                </select>
-              </div>
-            </Section>
+        {/* Left — System settings */}
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">System settings</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Customize what the assistant says when ending a conversation or transferring to a human.
+            </p>
+          </div>
 
-            <Section
-              title="Handover"
-              description="When the assistant should stop and fetch a person."
-            >
-              <ToggleRow
-                label="Hand over to a person"
-                hint="Off means the assistant never escalates."
-                checked={settings.handoff_enabled}
-                onChange={(v) => set('handoff_enabled', v)}
-              />
-              <div className="flex flex-col gap-1.5">
-                <Label>Hand over after failed answers</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={settings.handoff_after_failures}
-                  onChange={(e) => set('handoff_after_failures', Number(e.target.value))}
-                  disabled={!settings.handoff_enabled}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Notify</Label>
-                <Input
-                  type="text"
-                  value={settings.handoff_email}
-                  onChange={(e) => set('handoff_email', e.target.value)}
-                  placeholder="support@example.com"
-                  disabled={!settings.handoff_enabled}
-                />
-              </div>
-            </Section>
+          {/* Handoff Message */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-900 dark:text-gray-100">Handoff Message</label>
+            <textarea
+              value={handoffMessage}
+              onChange={(e) => setHandoffMessage(e.target.value)}
+              maxLength={200}
+              rows={4}
+              placeholder="Enter handoff message"
+              className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-primary dark:focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+            />
+            <div className="text-right text-xs text-gray-400 dark:text-muted-foreground">{handoffMessage.length} / 200</div>
+          </div>
 
-            <Section
-              title="Office hours"
-              description="Outside these hours the widget takes a message instead of answering."
-            >
-              <ToggleRow
-                label="Use office hours"
-                hint="Off means the assistant answers around the clock."
-                checked={settings.office_hours_enabled}
-                onChange={(v) => set('office_hours_enabled', v)}
-              />
-              <div className="flex gap-3">
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <Label>Opens</Label>
-                  <Input
-                    type="time"
-                    value={settings.office_hours_start}
-                    onChange={(e) => set('office_hours_start', e.target.value)}
-                    disabled={!settings.office_hours_enabled}
-                  />
-                </div>
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <Label>Closes</Label>
-                  <Input
-                    type="time"
-                    value={settings.office_hours_end}
-                    onChange={(e) => set('office_hours_end', e.target.value)}
-                    disabled={!settings.office_hours_enabled}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Away message</Label>
-                <textarea
-                  value={settings.away_message}
-                  onChange={(e) => set('away_message', e.target.value)}
-                  rows={3}
-                  className={textAreaClass}
-                  disabled={!settings.office_hours_enabled}
-                />
-              </div>
-            </Section>
+          {/* Resolution Message */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-900 dark:text-gray-100">Resolution Message</label>
+            <textarea
+              value={resolutionMessage}
+              onChange={(e) => setResolutionMessage(e.target.value)}
+              maxLength={200}
+              rows={4}
+              placeholder="Enter resolution message"
+              className="w-full resize-none rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-primary dark:focus:border-primary focus:ring-4 focus:ring-primary/10 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+            />
+            <div className="text-right text-xs text-gray-400 dark:text-muted-foreground">{resolutionMessage.length} / 200</div>
+          </div>
 
-            <Section
-              title="Visitor data"
-              description="What the widget keeps, and for how long."
-            >
-              <ToggleRow
-                label="Ask for an email address"
-                hint="Needed before the assistant can look anything up about the visitor."
-                checked={settings.collect_visitor_email}
-                onChange={(v) => set('collect_visitor_email', v)}
-              />
-              <div className="flex flex-col gap-1.5">
-                <Label>Keep transcripts for (days)</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={settings.transcript_retention_days}
-                  onChange={(e) => set('transcript_retention_days', Number(e.target.value))}
-                />
-                <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
-                  Transcripts are deleted once they pass this age.
-                </div>
-              </div>
-            </Section>
+          {/* Temperature */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-900 dark:text-gray-100">Response Temperature</label>
+              <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-sm font-semibold text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                {temperature.toFixed(1)}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={temperature}
+              onChange={(e) => setTemperature(parseFloat(e.target.value))}
+              className="w-full accent-primary"
+            />
+            <p className="text-xs italic text-gray-400 dark:text-gray-500">
+              Adjust how creative or restrictive the assistant's responses should be. Lower values are more precise, higher values more creative.
+            </p>
+            <div className="flex justify-between text-xs text-gray-400 dark:text-muted-foreground">
+              <span>0.0 — Precise</span>
+              <span>0.5 — Balanced</span>
+              <span>1.0 — Creative</span>
+            </div>
+          </div>
+
+          {/* Errors / success */}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">{error}</div>
+          )}
+          {saved && (
+            <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-2.5 text-sm text-green-700 dark:border-green-800 dark:bg-green-950/30 dark:text-green-400">
+              Settings saved successfully.
+            </div>
+          )}
+
+          <div>
+            <Button type="button" variant="primary" disabled={isSaving} onClick={handleSave}>
+              <Save className="size-4" />
+              {isSaving ? 'Saving...' : 'Save Settings'}
+            </Button>
           </div>
         </div>
-      )}
+
+        {/* Right — Control items */}
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">The Fun Stuff</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Add more control to the assistant. Query guardrail → scenarios → output. Nudges the assistant to stay on track and reply in the right style.
+            </p>
+          </div>
+
+          <ControlCard
+            icon={Shield}
+            iconBg="bg-violet-100 dark:bg-violet-950"
+            iconColor="text-violet-600 dark:text-violet-400"
+            title="Guardrails"
+            description="Keeps things on track — only the kinds of questions you want your assistant to answer, nothing off-limits or off-topic."
+            onClick={() => navigate('/admin-settings/captain/settings/guardrails')}
+          />
+
+          <ControlCard
+            icon={BookOpenText}
+            iconBg="bg-blue-100 dark:bg-blue-950"
+            iconColor="text-blue-600 dark:text-blue-400"
+            title="Response guidelines"
+            description="The vibe and structure of your assistant's replies — clear and friendly? Short and snappy? Detailed and formal?"
+            onClick={() => navigate('/admin-settings/captain/settings/response-guidelines')}
+          />
+        </div>
+      </div>
     </div>
   );
 };

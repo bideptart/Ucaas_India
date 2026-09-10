@@ -476,7 +476,7 @@ const AddUserInfo = ({
   return (
     <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <div className="mcm-invite-summary flex flex-col gap-1 mt-3">
-        <p className="text-gray-900 text-center mb-2 dark:text-mcm-ink">
+        <p className="text-gray-900 text-center mb-2">
           Licenses available to purchase:{' '}
           {plan_info?.dataValues?.licenses !== 0
             ? plan_info?.dataValues?.licenses - dataGetMyPlanDetails?.license_detail?.total_licenses
@@ -495,7 +495,7 @@ const AddUserInfo = ({
                 onChange={handleUserAddCountChange}
                 maxLength={2}
               />
-              <p className="text-[10px] ps-[2px] pt-1 text-gray-500 dark:text-mcm-ink-3">
+              <p className="text-[10px] ps-[2px] pt-1 text-gray-500">
                 Enter number between 1-{MAX_USERS}
               </p>
             </div>
@@ -526,10 +526,10 @@ const AddUserInfo = ({
           Additional licenses to purchase: {licenseInfo.extraUnits}
         </p>
       )} */}
-        <p className="text-gray-700 text-center text-sm mt-1 flex items-center justify-center gap-1 dark:text-mcm-ink-2">
+        <p className="text-gray-700 text-center text-sm mt-1 flex items-center justify-center gap-1">
           Unused licenses: {licenseInfo?.available || 0}
           <CustomTooltip text="License purchased" side="top">
-            <InfoIcon className="w-4 h-4 text-gray-500 cursor-pointer dark:text-mcm-ink-3" />
+            <InfoIcon className="w-4 h-4 text-gray-500 cursor-pointer" />
           </CustomTooltip>
           <span className="mx-1">·</span>
           New licenses purchased: {licenseInfo?.extraUnits || 0}
@@ -547,7 +547,7 @@ const AddUserInfo = ({
             answer for all of them, and it is a company-wide setting somebody
             can go and change. */}
         {roleDecision.reason ? (
-          <p className="mx-auto mt-1 max-w-3xl text-center text-xs text-gray-600 dark:text-mcm-ink-3">
+          <p className="mx-auto mt-1 max-w-3xl text-center text-xs text-gray-600">
             {roleDecision.reason}
           </p>
         ) : null}
@@ -691,7 +691,7 @@ const AddUserInfo = ({
                 const caution = roleWarning(chosen);
                 return chosen ? (
                   <>
-                    <p className="mt-1 text-[11px] leading-snug text-gray-500 dark:text-mcm-ink-3">
+                    <p className="mt-1 text-[11px] leading-snug text-gray-500">
                       {describeRole(chosen)}
                     </p>
                     {caution ? (

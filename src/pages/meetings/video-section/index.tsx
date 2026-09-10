@@ -372,8 +372,8 @@ const VideoSection = () => {
   // after the host ends the meeting for everyone.
   if (!isMeetingEnded?.value && (!isJitsiLoaded || !isJitsiConnection || !isFetched)) {
     return (
-      <div className="w-screen min-h-screen bg-white dark:bg-mcm-ground ">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white dark:bg-mcm-ground ">
+      <div className="w-screen min-h-screen bg-white ">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white ">
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="lg" />
           </div>

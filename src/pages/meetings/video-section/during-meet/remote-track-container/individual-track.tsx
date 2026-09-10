@@ -192,7 +192,7 @@ const IndividualTrack = ({
           {isHandRaised && (
             <a
               href="javascript:void(0)"
-              className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center"
             >
               <Hand className="w-5 h-5" />
             </a>
@@ -200,7 +200,7 @@ const IndividualTrack = ({
           {isAudioMuted && (
             <a
               href="javascript:void(0)"
-              className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center"
             >
               <LucideMicOff className="w-5 h-5" />
             </a>
@@ -208,14 +208,14 @@ const IndividualTrack = ({
           {isVideoMuted && (
             <a
               href="javascript:void(0)"
-              className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center"
             >
               <LucideVideoOff className="w-5 h-5" />
             </a>
           )}
           {isScreenSharing && (
             <div
-              className="bg-white dark:bg-mcm-surface-3 rounded-xl p-1 w-8 h-8 cursor-pointer flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 cursor-pointer flex items-center justify-center"
               onClick={(e: any) => {
                 e.stopPropagation();
                 const elm: any = document.getElementById(participantId);

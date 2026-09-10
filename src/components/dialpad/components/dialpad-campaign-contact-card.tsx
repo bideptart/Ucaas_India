@@ -97,8 +97,8 @@ const DialpadCampaignContactCard = ({
 
   if (isPredictiveDialMethod) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-[#d6e5ff] dark:border-mcm-line bg-gradient-to-br from-[#f7fbff] via-white to-[#f3f8ff] dark:from-mcm-surface dark:via-mcm-surface dark:to-mcm-surface p-3 shadow-[0_12px_24px_rgba(14,67,145,0.14)]">
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-[#c6d9fb] dark:border-mcm-line bg-white/70 dark:bg-mcm-surface px-3 py-5 text-center">
+      <div className="overflow-hidden rounded-2xl border border-[#d6e5ff] bg-gradient-to-br from-[#f7fbff] via-white to-[#f3f8ff] p-3 shadow-[0_12px_24px_rgba(14,67,145,0.14)]">
+        <div className="flex items-center justify-center rounded-xl border border-dashed border-[#c6d9fb] bg-white/70 px-3 py-5 text-center">
           <p className="text-[12px] font-semibold text-[#1f4f8f] sm:text-[13px]">
             Waiting for call to come in
           </p>
@@ -108,7 +108,7 @@ const DialpadCampaignContactCard = ({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#d6e5ff] dark:border-mcm-line bg-gradient-to-br from-[#f7fbff] via-white to-[#f3f8ff] dark:from-mcm-surface dark:via-mcm-surface dark:to-mcm-surface p-3 shadow-[0_12px_24px_rgba(14,67,145,0.14)]">
+    <div className="overflow-hidden rounded-2xl border border-[#d6e5ff] bg-gradient-to-br from-[#f7fbff] via-white to-[#f3f8ff] p-3 shadow-[0_12px_24px_rgba(14,67,145,0.14)]">
       <div className="flex items-start gap-3">
         <CustomAvatar
           name={contactName}
@@ -161,7 +161,7 @@ const DialpadCampaignContactCard = ({
               type="button"
               onClick={() => onSkip('SKIPPED', { isManual: true })}
               disabled={!canSkip || isSkipLoading}
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#cbdcff] dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-[12px] font-semibold text-[#23456f] dark:text-mcm-ink transition hover:bg-[#f3f7ff] dark:hover:bg-mcm-surface-3 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#cbdcff] bg-white px-3 text-[12px] font-semibold text-[#23456f] transition hover:bg-[#f3f7ff] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSkipLoading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

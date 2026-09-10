@@ -227,7 +227,8 @@ const Sidebar = () => {
         id="mobile-sidebar-nav"
         className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 transition-transform duration-200 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 bg-[#fffaf4] dark:bg-mcm-surface dark:border-mcm-line`}
+        } md:translate-x-0`}
+        style={{ background: '#ffffff' }}
       >
         {/* This wrapper had no height, so the scroller's `h-full` below
             resolved against auto and never constrained anything — the views
@@ -238,35 +239,59 @@ const Sidebar = () => {
           <div className="rail-scroll flex h-full min-h-0 flex-col justify-between gap-1 overflow-y-auto px-2 w-full pt-4 pb-3">
             <div className="flex flex-col gap-1.5 items-center">
               {visibleNavList?.map((navItem: any, index: number) => {
-                const { id, link, icon, name, enabled, viewKey, sep, altPaths, altViews } = navItem;
+                const { id, link, icon, name, enabled, viewKey, sep, altPaths } = navItem;
                 /* A view item shares its path with every sibling, so the
                    `?view=` value decides which is lit — path alone would light
-                   them all. Comparing the whole link against the pathname also
-                   never matched, because the link carries that query and the
-                   pathname does not, so it never lit either. */
+                   them all.
+
+                   The same is true of the rail items that open a route of their
+                   own: Tasks and Calendar are both `/calendar`, separated only
+                   by the query. Comparing the whole link against the pathname
+                   also never matched, because the link carries that query and
+                   the pathname does not, so neither ever lit. */
                 const [linkPath, linkQuery = ''] = String(link).split('?');
                 const linkView = new URLSearchParams(linkQuery).get('view');
                 const onAltPath = Boolean(
                   altPaths?.some((path: string) => pathname === path || pathname?.startsWith(`${path}/`)),
                 );
-                const onLinkPath = Boolean(pathname?.startsWith(linkPath)) || onAltPath;
+                /* Exact segment or a child of it. A bare `startsWith` would
+                   light `/performance/queue` while sitting on
+                   `/performance/queues-activity`, since one string prefixes
+                   the other. */
+                const onLinkPath =
+                  Boolean(pathname === linkPath || pathname?.startsWith(`${linkPath}/`)) ||
+                  onAltPath;
+                /* Does another rail entry claim the `?view=` we are on?
+                   Comparing `linkView` against the current view is there to
+                   separate two entries that share a path — but only when a
+                   second entry actually exists. Calendar is alone on
+                   `/calendar`, so opening its own Tasks list view
+                   (`?view=task-list`) matched no entry at all and the rail went
+                   dark. Path alone decides when nobody else is claiming the
+                   view. */
                 const currentQueryView = new URLSearchParams(search).get('view');
-                /* Calendar's Task Listing is a view inside Calendar's own page,
-                   not a rail item of its own — `?view=task-list` isn't the
-                   value this link's `href` carries, so without `altViews` the
-                   rail read it as "on some other, unlisted page" and nothing
-                   lit up the moment Task Listing opened. */
-                const onAltView = Boolean(currentQueryView && altViews?.includes(currentQueryView));
+                const viewClaimedElsewhere = Boolean(
+                  currentQueryView &&
+                    (visibleNavList as any[])?.some((other: any) => {
+                      if (other === navItem) return false;
+                      const [otherPath, otherQuery = ''] = String(other?.link ?? '').split('?');
+                      if (otherPath !== linkPath) return false;
+                      return (
+                        other?.viewKey === currentQueryView ||
+                        new URLSearchParams(otherQuery).get('view') === currentQueryView
+                      );
+                    }),
+                );
                 const activeLink = viewKey
                   ? onLinkPath && currentView === viewKey
                   : onLinkPath &&
-                    (!linkView || currentQueryView === linkView || onAltView);
+                    (!linkView || currentQueryView === linkView || !viewClaimedElsewhere);
                 const isEnabled = enabled !== false;
 
                 return (
                   <Fragment key={`${id}${index}`}>
                     {sep ? (
-                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200 dark:bg-mcm-surface-3" />
+                      <span aria-hidden className="my-1 h-px w-8 shrink-0 bg-gray-200" />
                     ) : null}
                     <NavLink
                       to={isEnabled ? link || '#' : '#'}
@@ -288,24 +313,22 @@ const Sidebar = () => {
                            separate two items that share one — fall back to it
                            only where the link has no view to compare. */
                         const lit = viewKey || linkView ? activeLink : activeLink || isActive;
-                        /* `mcm-rail-item`/`is-active` are the hook for the
-                           active marker bar in index.css — a class rather
-                           than more utilities here because the bar is a
-                           `::before`, which Tailwind can't express inline
-                           without an arbitrary-variant soup that would be
-                           far harder to read than one named rule. */
-                        return `mcm-rail-item ${lit ? 'is-active' : ''} min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
+                        /* `mcm-rail-item` carries the shared look -- the lit
+                           tile's accent bar and the colour transition -- so the
+                           rail is styled in one stylesheet rather than through
+                           a growing utility string. */
+                        return `mcm-rail-item ${lit ? 'is-lit' : ''} min-h-13 w-16 flex items-center justify-center rounded-lg relative py-1.5 ${
                           lit ? 'bg-ucass-active-bg text-ucass-active' : 'bg-transparent'
                         } hover:bg-ucass-active-bg hover:text-ucass-active ${
-                          !isEnabled ? 'text-gray-400 dark:text-mcm-ink-3' : 'text-gray-700 dark:text-mcm-ink-2'
+                          !isEnabled ? 'text-gray-400' : 'text-gray-700'
                         } ${!isEnabled ? 'cursor-not-allowed' : ''}`;
                       }}
                       // className={({ isActive }) =>
                       //   `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200 relative ${
                       //     activeLink || isActive
                       //       ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                      //       : 'bg-white dark:bg-mcm-surface text-gray-700 dark:text-mcm-ink-2'
-                      //   } hover:${activeLink || isActive ? 'text-gray-700 dark:text-mcm-ink-2 bg-primary' : 'text-primary'}`
+                      //       : 'bg-white text-gray-700'
+                      //   } hover:${activeLink || isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
                       // }
                     >
                       <div
@@ -362,8 +385,8 @@ const Sidebar = () => {
                       `h-14 w-17 flex items-center justify-center rounded-lg hover:bg-ucass-primary-200  ${
                         link && isActive
                           ? 'bg-ucass-primary-200 text-primary hover:text-primary'
-                          : 'bg-white dark:bg-mcm-surface text-gray-700 dark:text-mcm-ink-2'
-                      } hover:${link && isActive ? 'text-gray-700 dark:text-mcm-ink-2 bg-primary' : 'text-primary'}`
+                          : 'bg-white text-gray-700'
+                      } hover:${link && isActive ? 'text-gray-700 bg-primary' : 'text-primary'}`
                     }
                   >
                     <div className="flex flex-col items-center justify-center gap-1">

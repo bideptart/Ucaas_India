@@ -6,11 +6,23 @@
 .gp-groups {
   height: 100%;
   min-height: 0;
+  /* Fills the width of whatever column it is dropped into. Admin renders this
+     screen as Phone System ▸ Departments inside a flex row, where a plain block
+     child is sized by its own CONTENT — so the table, its card and this tint
+     all stopped about half way across and left bare page beside them.
+     `.gp-people` carries the same two lines for the same reason; every other
+     Directory list is wide enough to reach the edge on its own and hid it. */
+  width: 100%;
+  min-width: 0;
   /* `.mcm-page`'s own background is transparent (the site-wide orange
      gradient pass made it so, to show through by default) — this page
      paints its own copy of that same gradient rather than inheriting it,
      so it stays consistent even if an ancestor's background changes. */
-  background-color: linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  background:
+    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.35), transparent 58%),
+    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.28), transparent 55%),
+    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.3), transparent 60%),
+    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
 }
 
 .gp-groups .gp-groups-refresh {
@@ -86,7 +98,7 @@
    JSX — these rules target the dialog's own class instead of an ancestor
    scope it will never actually be inside. */
 .gp-create-group-dialog {
-  background: #ffffff;
+  background: #fffaf3;
   border-color: rgba(242, 153, 74, 0.3);
   padding: 0;
   max-height: 85vh;
@@ -124,32 +136,11 @@
   border-color: #f2994a;
   color: #c96f1f;
 }
-/* The gap under the dialog title was 46px, stacked from three places: the
-   dialog's own 16px flex gap, this padding, and a `pt-3` on the form inside
-   (new-department/index.tsx). This is the only one of the three that isn't
-   shared with something else, so the trim goes here -- 4px, leaving ~32px
-   in total. */
 .gp-create-group-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 20px 18px;
-}
-/* The other half of that gap is the dialog's own `gap-4` (16px) between its
-   two children -- the title bar and this body. Nothing else sits between
-   them, so tightening it here only closes the title-to-description space;
-   the footer's spacing lives inside the body and is untouched. */
-.gp-create-group-dialog {
-  /* `!important`: the dialog carries Tailwind's own `gap-4`, and a plain
-     rule at equal specificity doesn't displace it. */
-  gap: 0 !important;
-}
-/* Last contributor: the department form's own `pt-2 sm:pt-3` (12px). It is
-   overridden from here rather than edited in
-   new-department/index.tsx, so the same form keeps its original spacing
-   wherever else it is rendered. */
-.gp-create-group-body > div[class*='pt-2'] {
-  padding-top: 6px !important;
+  padding: 18px 20px;
 }
 
 /* The step tab strip's base styling (`components/ui/tabs.tsx`) paints a
@@ -256,170 +247,14 @@
   opacity: 0.6 !important;
 }
 
-/* ---- Dark theme — same treatment as people-glass.css's own .dark block,
-   covering both the Groups split-pane page and the shared Create-group
-   dialog shell (reused by Roles' "New role" and Departments' wizard). ---- */
-/* Carries the light theme's own corner-glow structure at a fifth of its
-   alpha, so Groups reads as the same warm product as People rather than a
-   flat slate panel. Same treatment as people-glass.css. */
-.dark .gp-groups {
-  background-color: var(--mcm-ground, #080d12);
+/* Orange-bordered ghost buttons, matching People's header style. */
+.gp-groups .btn.ghost {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--accent);
+  color: var(--accent-ink);
 }
-.dark .gp-groups .gp-groups-refresh {
-  border-color: var(--mcm-accent, #f97316);
-  color: var(--mcm-accent, #f97316);
-}
-/* Was `--mcm-accent-wash` (#2b1f12 in dark) -- a near-black brown that
-   looked identical to the button's rest state, so hovering gave nothing
-   back. Fills instead, matching every other action in Directory: solid
-   #f2994a with a white glyph. */
-.dark .gp-groups .gp-groups-refresh:hover {
-  background: #f2994a;
-  border-color: #f2994a;
+.gp-groups .btn.ghost:hover {
+  background: var(--accent);
+  border: 1px solid var(--accent);
   color: #fff;
-}
-.dark .gp-groups .gp-groups-refresh:hover svg {
-  color: #fff;
-}
-.dark .gp-groups .gp-ug-left {
-  background: var(--mcm-surface, #111c26) !important;
-  border-right-color: #1b2934 !important;
-}
-/* A slate wash at 0.14 was almost indistinguishable from the panel it sits
-   on -- hovering a row gave no feedback. Warm tint instead, the same hue
-   the selected row and the People table's own row hover use, at an alpha
-   that still reads as lighter-than-selected so the two states stay
-   distinct (selected is 0.08 PLUS the inset accent bar). */
-.dark .gp-groups .list-row:hover {
-  background: rgba(255, 171, 94, 0.12);
-}
-/* A solid orange fill across the whole row read as "orange background",
-   not "selected item" — kept to a translucent wash plus the accent-lit
-   left edge/text below, the same "orange signals, never fills" rule the
-   rest of the dark theme follows.
-
-   0.14 alpha, composited over this row's actual surface (`--mcm-surface`
-   #111c26, not the page's darker ground), landed on a muted brown rather
-   than reading as "dark surface with an orange highlight" — the row's own
-   base is already lighter than the ground it's judged against. Dropped to
-   0.08 so the wash stays a genuine tint of the row's surface instead of a
-   distinct brown fill. */
-.dark .gp-groups .list-row.on {
-  background: rgba(249, 115, 22, 0.08);
-  box-shadow: inset 3px 0 0 var(--mcm-accent, #f97316);
-}
-.dark .gp-groups .list-row.on {
-  color: #f3f6f9 !important;
-}
-.dark .gp-groups .list-row.on .list-row-name,
-.dark .gp-groups .list-row.on .list-row-meta,
-.dark .gp-groups .list-row.on p {
-  color: #f3f6f9 !important;
-}
-.dark .gp-groups .gp-ug-detail-head {
-  background: var(--mcm-surface, #111c26) !important;
-  border-bottom-color: #1b2934 !important;
-}
-.dark .gp-groups .gp-ug-right-body {
-  background: rgba(11, 20, 28, 0.6) !important;
-}
-/* Department Manager / Members' own person rows (`.bg-gray-100`, from the
-   shared `PersonRow`) resolve through `var(--accent-wash)` in the
-   unscoped light-mode rule below, which is `--mcm-surface-3` in dark —
-   one tier brighter than the panel surface these rows sit inside
-   (`--mcm-surface`, set above), so each row read as distinctly lighter
-   than its own card rather than "one step up from it". Stepping to
-   `--mcm-surface-2` keeps the row genuinely a step above its panel while
-   landing between it and `--mcm-surface-3`, not past it. */
-.dark .gp-groups .bg-gray-100 {
-  background: var(--mcm-surface-2, #16222c) !important;
-}
-.dark .gp-groups .bg-white.border.border-gray-200 {
-  border-color: #1b2934 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-}
-/* mcm-page.css's own `[class*='rounded-'].bg-white` rule (its shared
-   "glass card" treatment) outranks the plain `.bg-white` -> `--surface`
-   rule right above it — both are unlayered with the same 3-selector
-   specificity tier, but the more specific attribute-selector one wins
-   regardless of source order. That rule paints these three panels
-   (Description/Department Manager/Members) with `--glass-surface`, a
-   design meant to read as translucent glass over the *light* theme's warm
-   gradient backdrop. Dark mode has no gradient behind it, just the flat
-   page ground, so the same 0.6-alpha wash left the panels almost the same
-   shade as the page itself. Same surface tier `.gp-ug-detail-head` above
-   these panels already uses, so the whole right column reads as one
-   consistent elevation instead of two different translucency systems. */
-.dark .gp-groups [class*='rounded-']:not([class*='rounded-full']).bg-white {
-  background: var(--mcm-surface, #111c26) !important;
-  border-color: #1b2934 !important;
-}
-.dark .gp-create-group-dialog {
-  background: #111c26;
-  border-color: #1b2934;
-}
-.dark .gp-create-group-head {
-  border-bottom: 1px solid #1b2934;
-}
-.dark .gp-create-group-head h2 {
-  color: var(--mcm-ink, #f8fafc);
-}
-.dark .gp-create-group-close {
-  background: var(--mcm-surface-3, #1a2733);
-  border: 1px solid rgba(100, 116, 139, 0.25);
-  color: var(--mcm-ink-3, #aab6c1);
-}
-.dark .gp-create-group-close:hover {
-  border-color: var(--mcm-accent, #f97316);
-  color: var(--mcm-accent-ink, #ff8a2a);
-}
-.dark .gp-create-group-body .bg-gray-50 {
-  background: var(--mcm-accent-wash, #1a2733) !important;
-}
-.dark .gp-create-group-body .border-gray-200 {
-  border-color: #1b2934 !important;
-}
-.dark .gp-create-group-body .bg-white:not([data-slot='button']) {
-  background: var(--mcm-surface, #111c26) !important;
-}
-.dark .gp-create-group-body .gp-role-form-footer button[type='button'] {
-  color: var(--mcm-accent, #f97316) !important;
-  border: 1px solid var(--mcm-accent, #f97316) !important;
-}
-.dark .gp-create-group-body .gp-role-form-footer button[type='button']:hover {
-  background: var(--mcm-accent, #f97316) !important;
-  color: #f8fafc !important;
-}
-.dark .gp-create-group-body .gp-role-form-footer button[type='submit'] {
-  background: var(--mcm-accent, #f97316) !important;
-  color: #f8fafc !important;
-  border: 1px solid var(--mcm-accent, #f97316) !important;
-}
-.dark .gp-create-group-body .gp-role-form-footer button[type='submit']:hover {
-  background: var(--mcm-accent-ink, #ff8a2a) !important;
-  color: #111c26 !important;
-}
-
-/* ---- Row / member avatars, dark ---------------------------------------
-   Ink and wash come from CustomAvatar now, which reads the theme; only the
-   ring and lift are this page's. */
-.dark .gp-groups [style*='min-width'][class*='rounded-full'] {
-  border-color: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-}
-
-/* ---- Department dialog tab strip, dark --------------------------------
-   The markup already asks for the right thing --
-   `data-[state=active]:text-primary` with an orange bottom border and no
-   fill (new-department/index.tsx). The shared Tabs component's own
-   `dark:data-[state=active]:text-foreground` lands later in Tailwind's
-   layer and wins, so the active tab came out white with a faint white
-   underline and a boxed edge. Restated here: orange label, orange rule
-   underneath, no box. */
-.dark .gp-create-group-dialog [data-slot='tabs-trigger'][data-state='active'] {
-  background: transparent !important;
-  color: var(--mcm-accent, #ffab5e) !important;
-  border-color: transparent !important;
-  border-bottom-color: var(--mcm-accent, #ffab5e) !important;
-  box-shadow: none !important;
 }

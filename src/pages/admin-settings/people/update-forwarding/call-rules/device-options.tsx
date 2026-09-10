@@ -38,7 +38,7 @@ const SortableItem: FC<any> = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex min-w-[720px] items-center justify-between border-b border-gray-200 p-2 nth-3:border-b-0 dark:border-mcm-line"
+      className="flex min-w-[720px] items-center justify-between border-b border-gray-200 p-2 nth-3:border-b-0"
     >
       <p className="w-1/5 font-medium text-sm flex justify-center cursor-pointer" {...listeners}>
         <DragLineIcon className="w-2 h-2" />

@@ -33,8 +33,9 @@ const GroupedAvatar = ({
         <div
           style={{
             minWidth: '32px',
+            backgroundColor: '#E0E0E0',
           }}
-          className="rounded-full border-2 border-white dark:border-mcm-surface-3 bg-[#E0E0E0] dark:bg-mcm-surface-3 flex items-center justify-center text-[11px] font-semibold text-gray-700 dark:text-mcm-ink-2 cursor-pointer w-8 h-8 z-10"
+          className="rounded-full border-2 border-white flex items-center justify-center text-[11px] font-semibold text-gray-700 cursor-pointer w-8 h-8 z-10"
         >
           +{remainingCount}
         </div>

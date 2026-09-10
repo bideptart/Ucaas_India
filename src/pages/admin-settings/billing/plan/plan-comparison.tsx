@@ -24,12 +24,12 @@ import { SettingCard } from '@/components/mcm/setting-card';
 import {
   PLANS,
   PLAN_ADD_ONS,
-  describeAllowance,
+  describeIncludedAllowance,
   isUnlimited,
   yearlySavingPercent,
   type PlanDefinition,
 } from '@/lib/plan-catalogue';
-import { formatMoney, moneyOrUnavailable, USD_TO_INR_RATE } from '@/lib/billing-money';
+import { formatMoney, moneyOrUnavailable } from '@/lib/billing-money';
 
 interface Row {
   label: string;
@@ -44,7 +44,7 @@ const ROWS: Row[] = [
   {
     label: 'Domestic calling',
     counted: true,
-    value: (p) => describeAllowance(p.includes.domesticMinutes, 'minutes'),
+    value: (p) => describeIncludedAllowance(p.includes.domesticMinutes, 'minutes'),
     /* No rate line where calling is unlimited: there is no "then", because the
        allowance cannot run out. Printing one would imply it could. */
     rate: (p) =>
@@ -55,7 +55,7 @@ const ROWS: Row[] = [
   {
     label: 'Text messages',
     counted: true,
-    value: (p) => describeAllowance(p.includes.sms, 'texts'),
+    value: (p) => describeIncludedAllowance(p.includes.sms, 'texts'),
     rate: (p) =>
       !isUnlimited(p.includes.sms) && p.overage?.smsRate !== undefined
         ? `then ${formatMoney(p.overage.smsRate)} each`
@@ -81,26 +81,31 @@ const PlanComparison = () => (
         <table className="w-full min-w-[40rem] border-collapse text-sm">
           <thead>
             <tr>
-              <th className="border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3">
+              <th className="border-b border-gray-200 pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                 Per seat
               </th>
               {PLANS.map((plan) => (
                 <th
                   key={plan.id}
-                  className="border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-left last:pr-0"
+                  className="border-b border-gray-200 pb-2 pr-4 text-left last:pr-0"
                 >
-                  <span className="block text-sm font-semibold text-gray-900 dark:text-mcm-ink">{plan.name}</span>
-                  <span className="block text-xs font-normal tabular-nums text-gray-600 dark:text-mcm-ink-3">
-                    {moneyOrUnavailable(plan.monthlyPerSeat)} a month
+                  <span className="block text-sm font-semibold text-gray-900">{plan.name}</span>
+                  <span className="block text-xs font-normal tabular-nums text-gray-600">
+                    {plan.monthlyPerSeat === 0
+                      ? 'No monthly fee'
+                      : `${moneyOrUnavailable(plan.monthlyPerSeat)} a month`}
                   </span>
-                  {/* The yearly price beside the monthly one, because paying for
-                      a year is cheaper and somebody comparing plans should not
-                      have to find that out on the next screen. The saving is
-                      worked out from the two prices rather than written down, so
-                      it cannot disagree with them. */}
-                  <span className="block text-xs font-normal tabular-nums text-gray-500 dark:text-mcm-ink-3">
-                    {moneyOrUnavailable(plan.yearlyPerSeat)} a year
-                    {yearlySavingPercent(plan) ? ` · save ${yearlySavingPercent(plan)}%` : ''}
+                  {/* A year is priced individually now, so there is no figure
+                      to show. yearlyPerSeat is null rather than 0 for exactly
+                      this reason - printing "$0 a year" would read as free, and
+                      omitting the line entirely would leave somebody assuming
+                      the monthly price is the only way to buy. */}
+                  <span className="block text-xs font-normal text-gray-500">
+                    {plan.yearlyPerSeat === null
+                      ? 'Annual billing on request'
+                      : `${moneyOrUnavailable(plan.yearlyPerSeat)} a year${
+                          yearlySavingPercent(plan) ? ` · save ${yearlySavingPercent(plan)}%` : ''
+                        }`}
                   </span>
                 </th>
               ))}
@@ -110,7 +115,7 @@ const PlanComparison = () => (
             {ROWS.map((row) => (
               <tr key={row.label}>
                 <td className="border-b border-gray-100 py-2.5 pr-4 align-top">
-                  <span className="font-medium text-gray-900 dark:text-mcm-ink">{row.label}</span>
+                  <span className="font-medium text-gray-900">{row.label}</span>
                   {!row.counted ? (
                     <span className="mt-0.5 block text-[11px] text-amber-700">Not counted yet</span>
                   ) : null}
@@ -120,11 +125,11 @@ const PlanComparison = () => (
                   return (
                     <td
                       key={plan.id}
-                      className="border-b border-gray-100 py-2.5 pr-4 align-top tabular-nums text-gray-800 dark:text-mcm-ink-2 last:pr-0"
+                      className="border-b border-gray-100 py-2.5 pr-4 align-top tabular-nums text-gray-800 last:pr-0"
                     >
                       {row.value(plan)}
                       {rate ? (
-                        <span className="mt-0.5 block text-xs text-gray-500 dark:text-mcm-ink-3">{rate}</span>
+                        <span className="mt-0.5 block text-xs text-gray-500">{rate}</span>
                       ) : null}
                     </td>
                   );
@@ -154,7 +159,7 @@ const PlanComparison = () => (
               {['Add-on', 'Price', 'Charged', 'Includes', 'After that'].map((h, i) => (
                 <th
                   key={h}
-                  className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
+                  className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
                     i === 0 ? 'text-left' : 'text-left'
                   }`}
                 >
@@ -166,29 +171,26 @@ const PlanComparison = () => (
           <tbody>
             {PLAN_ADD_ONS.map((addOn) => (
               <tr key={addOn.id}>
-                <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
+                <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
                   {addOn.name}
-                  <span className="mt-0.5 block text-xs font-normal text-gray-600 dark:text-mcm-ink-3">
+                  <span className="mt-0.5 block text-xs font-normal text-gray-600">
                     {addOn.summary}
                   </span>
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800 dark:text-mcm-ink-2">
+                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800">
                   {addOn.monthlyPrice === 0 ? '—' : moneyOrUnavailable(addOn.monthlyPrice)}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 text-gray-600 dark:text-mcm-ink-3">
+                <td className="border-b border-gray-100 py-2.5 pr-4 text-gray-600">
                   per {addOn.per}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800 dark:text-mcm-ink-2">
+                <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-800">
                   {addOn.included
                     ? `${addOn.included.units.toLocaleString()} ${addOn.included.unit}`
                     : '—'}
                 </td>
-                <td className="border-b border-gray-100 py-2.5 tabular-nums text-gray-600 dark:text-mcm-ink-3">
+                <td className="border-b border-gray-100 py-2.5 tabular-nums text-gray-600">
                   {addOn.overageRate !== undefined
-                    ? `₹${(addOn.overageRate * USD_TO_INR_RATE)
-                        .toFixed(3)
-                        .replace(/0+$/, '')
-                        .replace(/\.$/, '')} each`
+                    ? `$${addOn.overageRate.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')} each`
                     : '—'}
                 </td>
               </tr>

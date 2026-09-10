@@ -4,13 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { getContactList } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import SideDrawer from '@/components/custom/side-drawer';
-import '@/styles/warm-glass.css';
 import SendWhatsappMessage from '@/pages/messenger/drawers/send-whatsapp-message';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { Ic } from '@/components/mcm/icons';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import './list-page-glass.css';
 import { usePeopleRows, type PersonRow } from './people-rows';
 import { useDirectoryFavourites } from './use-directory-favourites';
+import '@/styles/warm-glass.css';
 import './favourites-glass.css';
 
 /**
@@ -142,167 +143,166 @@ const Favourites = () => {
   return (
     <>
       <div className="gp-favourites">
-      <DirectoryPage
-        className="favourites-compact"
-        title="Favourites"
-        description="The people you reach most, colleagues and outside contacts together, one click from here."
-        filters={
-          <>
-            <FilterChip
-              label="Show"
-              value={kind}
-              options={['All', 'Colleagues', 'External']}
-              onChange={setKind}
-            />
-            <SearchChip value={search} onChange={setSearch} placeholder="Search favourites" />
-            <span className="fchip live" style={{ marginLeft: 'auto' }}>
-              <span className="num">{rows.length}</span> favourite{rows.length === 1 ? '' : 's'}
-            </span>
-          </>
-        }
-      >
-        <div className="favourites-table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Team / Company</th>
-              <th>Role</th>
-              <th>Reach on</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Contact via</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <EmptyRow span={8} message="Loading favourites…" />
-            ) : visible.length ? (
-              visible.map((row) => (
-                <tr key={row.key}>
-                  <td>
-                    <span className="flex items-center gap-2.5">
-                      <CustomAvatar
-                        name={row.name}
-                        image={row.image}
-                        type={row.kind === 'contact' ? 'contact' : undefined}
-                        size="30"
-                      />
-                      <span style={{ fontWeight: 700 }}>{row.name}</span>
-                    </span>
-                  </td>
-                  <td>
-                    <span className={row.kind === 'person' ? 'tag acc' : 'tag neu'}>
-                      {row.kind === 'person' ? 'Colleague' : 'External'}
-                    </span>
-                  </td>
-                  <td>{row.org || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
-                  <td>{row.role || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
-                  <td className="num">
-                    <span style={{ display: 'block' }}>{row.reach || '—'}</span>
-                    <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>{row.reachLabel}</span>
-                  </td>
-                  <td>{row.email || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
-                  <td>
-                    {row.presence ? (
-                      <span className={TONE_CLASS[row.tone || 'idle'] || 'tag neu'}>
-                        {row.presence}
+      <div className="gp-dirlist">
+        <DirectoryPage
+          title="Favourites"
+          description="The people you reach most, colleagues and outside contacts together, one click from here."
+          filters={
+            <>
+              <FilterChip
+                label="Show"
+                value={kind}
+                options={['All', 'Colleagues', 'External']}
+                onChange={setKind}
+              />
+              <SearchChip value={search} onChange={setSearch} placeholder="Search favourites" />
+              <span className="fchip live" style={{ marginLeft: 'auto' }}>
+                <span className="num">{rows.length}</span> favourite{rows.length === 1 ? '' : 's'}
+              </span>
+            </>
+          }
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Team / Company</th>
+                <th>Role</th>
+                <th>Reach on</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Contact via</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <EmptyRow span={8} message="Loading favourites…" />
+              ) : visible.length ? (
+                visible.map((row) => (
+                  <tr key={row.key}>
+                    <td>
+                      <span className="flex items-center gap-2.5">
+                        <CustomAvatar
+                          name={row.name}
+                          image={row.image}
+                          type={row.kind === 'contact' ? 'contact' : undefined}
+                          size="30"
+                        />
+                        <span style={{ fontWeight: 700 }}>{row.name}</span>
                       </span>
-                    ) : (
-                      <span style={{ color: 'var(--ink-4)' }}>—</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="mini"
-                        title={`Call ${row.name}`}
-                        aria-label={`Call ${row.name}`}
-                        disabled={!row.dialTarget}
-                        onClick={() =>
-                          row.dialTarget &&
-                          dial(row.dialTarget, { forceRefreshContactInfo: true })
-                        }
-                      >
-                        <Ic n="phone" size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="mini"
-                        title={`Send an SMS to ${row.name}`}
-                        aria-label={`Send an SMS to ${row.name}`}
-                        disabled={!row.phone}
-                        onClick={() => sendSms(row.phone)}
-                      >
-                        <Ic n="chat" size={12} />
-                      </button>
-                      {/* WhatsApp routes off a real number, which colleagues are
-                          not reachable on from here — so it is offered only for
-                          external contacts. */}
-                      {row.kind === 'contact' ? (
+                    </td>
+                    <td>
+                      <span className={row.kind === 'person' ? 'tag acc' : 'tag neu'}>
+                        {row.kind === 'person' ? 'Colleague' : 'External'}
+                      </span>
+                    </td>
+                    <td>{row.org || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td>{row.role || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td className="num">
+                      <span style={{ display: 'block' }}>{row.reach || '—'}</span>
+                      <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>{row.reachLabel}</span>
+                    </td>
+                    <td>{row.email || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td>
+                      {row.presence ? (
+                        <span className={TONE_CLASS[row.tone || 'idle'] || 'tag neu'}>
+                          {row.presence}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--ink-4)' }}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="flex items-center gap-1">
                         <button
                           type="button"
                           className="mini"
-                          title={
-                            row.whatsapp ? `WhatsApp ${row.name}` : `${row.name} has no WhatsApp number`
+                          title={`Call ${row.name}`}
+                          aria-label={`Call ${row.name}`}
+                          disabled={!row.dialTarget}
+                          onClick={() =>
+                            row.dialTarget &&
+                            dial(row.dialTarget, { forceRefreshContactInfo: true })
                           }
-                          aria-label={`WhatsApp ${row.name}`}
-                          disabled={!row.whatsapp}
-                          onClick={() => setWhatsappTo(row.whatsapp)}
                         >
                           <Ic n="send" size={12} />
                         </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        className="mini"
-                        title={`${row.name}'s activity`}
-                        aria-label={`${row.name}'s activity`}
-                        onClick={() =>
-                          row.kind === 'contact'
-                            ? navigate(`/contact-activity?contactId=${row.id}`, {
-                                state: { key: 'phone', value: row.phone },
-                              })
-                            : navigate(`/department/extension/${row.id}`)
-                        }
-                      >
-                        <Ic n="clock" size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="mini mcm-fav-on"
-                        title={`Remove ${row.name} from favourites`}
-                        aria-label={`Remove ${row.name} from favourites`}
-                        onClick={() => toggleFavourite(row.kind, row.id)}
-                      >
-                        <Ic n="star" size={12} fill />
-                      </button>
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <EmptyRow
-                span={8}
-                message={
-                  count
-                    ? 'No favourites match those filters.'
-                    : 'No favourites yet — open People or External Contacts and use the ☆ on a row to pin someone here.'
-                }
-              />
-            )}
-          </tbody>
-        </table>
-        </div>
+                        <button
+                          type="button"
+                          className="mini"
+                          title={`Send an SMS to ${row.name}`}
+                          aria-label={`Send an SMS to ${row.name}`}
+                          disabled={!row.phone}
+                          onClick={() => sendSms(row.phone)}
+                        >
+                          <Ic n="chat" size={12} />
+                        </button>
+                        {/* WhatsApp routes off a real number, which colleagues are
+                            not reachable on from here — so it is offered only for
+                            external contacts. */}
+                        {row.kind === 'contact' ? (
+                          <button
+                            type="button"
+                            className="mini"
+                            title={
+                              row.whatsapp ? `WhatsApp ${row.name}` : `${row.name} has no WhatsApp number`
+                            }
+                            aria-label={`WhatsApp ${row.name}`}
+                            disabled={!row.whatsapp}
+                            onClick={() => setWhatsappTo(row.whatsapp)}
+                          >
+                            <Ic n="send" size={12} />
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="mini"
+                          title={`${row.name}'s activity`}
+                          aria-label={`${row.name}'s activity`}
+                          onClick={() =>
+                            row.kind === 'contact'
+                              ? navigate(`/contact-activity?contactId=${row.id}`, {
+                                  state: { key: 'phone', value: row.phone },
+                                })
+                              : navigate(`/department/extension/${row.id}`)
+                          }
+                        >
+                          <Ic n="clock" size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          className="mini mcm-fav-on"
+                          title={`Remove ${row.name} from favourites`}
+                          aria-label={`Remove ${row.name} from favourites`}
+                          onClick={() => toggleFavourite(row.kind, row.id)}
+                        >
+                          <Ic n="star" size={12} fill />
+                        </button>
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <EmptyRow
+                  span={8}
+                  message={
+                    count
+                      ? 'No favourites match those filters.'
+                      : 'No favourites yet — open People or External Contacts and use the ☆ on a row to pin someone here.'
+                  }
+                />
+              )}
+            </tbody>
+          </table>
 
-        {rows.length ? (
-          <div className="mcm-tblfoot">
-            Showing {visible.length} of {rows.length} favourite{rows.length === 1 ? '' : 's'}
-          </div>
-        ) : null}
-      </DirectoryPage>
+          {rows.length ? (
+            <div className="mcm-tblfoot">
+              Showing {visible.length} of {rows.length} favourite{rows.length === 1 ? '' : 's'}
+            </div>
+          ) : null}
+        </DirectoryPage>
+      </div>
       </div>
 
       {whatsappTo ? (
@@ -311,13 +311,7 @@ const Favourites = () => {
           handleClose={() => setWhatsappTo('')}
           title="Send WhatsApp message"
           content={
-            <div className="mcm-warm-glass whatsapp-drawer-glass flex h-full min-h-0 w-full flex-col">
-              <SendWhatsappMessage
-                handleClose={() => setWhatsappTo('')}
-                initialNumber={whatsappTo}
-                selectClassName="whatsapp-drawer-select"
-              />
-            </div>
+            <SendWhatsappMessage handleClose={() => setWhatsappTo('')} initialNumber={whatsappTo} />
           }
         />
       ) : null}

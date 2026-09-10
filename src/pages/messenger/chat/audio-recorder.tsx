@@ -191,8 +191,8 @@ const AudioRecorder = ({ onCancel, onSend, isLoading = false }: AudioRecorderPro
 
   if (!permissionGranted) {
     return (
-      <div className="w-full h-14   bg-white dark:bg-mcm-surface flex items-center justify-center">
-        <div className="text-gray-500 dark:text-mcm-ink-3 text-xs">Requesting microphone access...</div>
+      <div className="w-full h-14   bg-white flex items-center justify-center">
+        <div className="text-gray-500 text-xs">Requesting microphone access...</div>
       </div>
     );
   }
@@ -215,7 +215,7 @@ const AudioRecorder = ({ onCancel, onSend, isLoading = false }: AudioRecorderPro
           <div
             className={`w-2 h-2 rounded-full bg-red-500 shrink-0 ${isRecording ? 'animate-pulse' : ''}`}
           />
-          <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink whitespace-nowrap font-mono min-w-[4rem] text-right">
+          <div className="text-sm font-semibold text-gray-800 whitespace-nowrap font-mono min-w-[4rem] text-right">
             {formatTime(recordingTime)}
           </div>
           {recordingTime >= 270 && (
@@ -237,13 +237,13 @@ const AudioRecorder = ({ onCancel, onSend, isLoading = false }: AudioRecorderPro
             ))}
             <div
               className={`relative z-10 flex items-center justify-center w-12 h-12 min-h-12 min-w-12 rounded-full transition-all duration-200 ${
-                volumeLevel > 0.015 ? 'bg-red-500 ' : 'bg-gray-300 dark:bg-mcm-surface-3 scale-100'
+                volumeLevel > 0.015 ? 'bg-red-500 ' : 'bg-gray-300 scale-100'
               }`}
             >
               <Mic
                 width={20}
                 height={20}
-                className={volumeLevel > 0.015 ? 'text-white' : 'text-gray-600 dark:text-mcm-ink-3'}
+                className={volumeLevel > 0.015 ? 'text-white' : 'text-gray-600'}
               />
             </div>
           </div>
@@ -255,7 +255,7 @@ const AudioRecorder = ({ onCancel, onSend, isLoading = false }: AudioRecorderPro
             type="button"
             onClick={handleCancel}
             disabled={isLoading}
-            className="flex items-center justify-center w-7 h-7 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-mcm-surface-3 dark:hover:bg-mcm-line dark:text-mcm-ink-2 rounded-full transition-colors disabled:opacity-50"
+            className="flex items-center justify-center w-7 h-7 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full transition-colors disabled:opacity-50"
           >
             <X width={14} height={14} />
           </button>

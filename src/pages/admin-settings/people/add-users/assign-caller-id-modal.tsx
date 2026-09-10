@@ -148,11 +148,11 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
         }
       }}
     >
-      <DialogContent className="w-[680px] p-0 gap-0" showCloseButton={false}>
-        <div className="p-5 border-b border-gray-200 flex items-start justify-between gap-4 dark:border-mcm-line">
+      <DialogContent className="w-[calc(100vw-32px)] sm:max-w-[560px] p-0 gap-0 rounded-2xl overflow-hidden border border-[rgba(225,200,165,0.5)]" showCloseButton={false}>
+        <div className="p-5 border-b border-gray-200 flex items-start justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <h4 className="text-gray-900 font-semibold text-xl dark:text-mcm-ink">Assign Caller ID</h4>
-            <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
+            <h4 className="text-gray-900 font-semibold text-xl">Assign Caller ID</h4>
+            <p className="text-sm text-gray-500">
               Selecting number for <span className="text-primary font-semibold">{fullName}</span>
             </p>
           </div>
@@ -167,7 +167,7 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
               });
               onClose();
             }}
-            className="text-gray-500 hover:text-gray-900 cursor-pointer dark:text-mcm-ink-3 dark:hover:text-mcm-ink"
+            className="text-gray-500 hover:text-gray-900 cursor-pointer"
           >
             <Icon name="XIcon" className="w-4 h-4" />
           </button>
@@ -185,7 +185,7 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
               const numericValue = e.target.value.replace(/\D/g, '');
               setSearch(numericValue);
             }}
-            Icon={<SearchLine className="text-gray-500 dark:text-mcm-ink-3" />}
+            Icon={<SearchLine className="text-gray-500" />}
           />
 
           <div className="flex flex-col gap-3 max-h-[calc(100vh_-_23rem)] overflow-y-auto pr-1 min-h-[240px]">
@@ -205,16 +205,16 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
                 return (
                   <div
                     key={item?.uuid || item?.did_number}
-                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 dark:border-mcm-line"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
                   >
                     <div className="flex flex-col gap-1">
                       <NumberWithFlag number={item?.did_number} />
                       {isAssigned ? (
-                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
+                        <p className="text-xs font-medium flex items-center gap-1 text-gray-500">
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
                           Assigned to User
                           {assignedName ? (
-                            <span className="text-gray-700 dark:text-mcm-ink-2">- {assignedName}</span>
+                            <span className="text-gray-700">- {assignedName}</span>
                           ) : null}
                         </p>
                       ) : isForwarded ? (
@@ -280,13 +280,13 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
                 );
               })
             ) : (
-              <div className="w-full h-full min-h-[200px] flex items-center justify-center text-sm text-gray-500 dark:text-mcm-ink-3">
+              <div className="w-full h-full min-h-[200px] flex items-center justify-center text-sm text-gray-500">
                 No numbers found.
               </div>
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 dark:border-mcm-line">
+        <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3">
           <Button
             type="button"
             variant="outline"
@@ -320,7 +320,7 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
           <Button
             type="button"
             variant="transparent"
-            className="text-gray-700 dark:text-mcm-ink-2"
+            className="text-gray-700"
             onClick={() => {
               setSearch('');
               setReassignData({
@@ -345,19 +345,19 @@ const AssignCallerIdModal: FC<AssignCallerIdModalProps> = ({
           }))
         }
       >
-        <DialogContent className="w-[460px] max-w-[calc(100%-2rem)] p-6" showCloseButton={false}>
+        <DialogContent className="w-[calc(100vw-32px)] sm:max-w-[460px] p-6 rounded-2xl" showCloseButton={false}>
           <div className="flex flex-col items-center text-center gap-4">
             <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500">
               <Icon name="AlertIcon" className="w-8 h-8" />
             </div>
 
-            <h5 className="text-gray-900 text-[34px] leading-none font-semibold dark:text-mcm-ink">
+            <h5 className="text-gray-900 text-[34px] leading-none font-semibold">
               Re-assign Caller ID?
             </h5>
 
-            <p className="text-gray-500 text-sm leading-6 dark:text-mcm-ink-3">
+            <p className="text-gray-500 text-sm leading-6">
               The number{' '}
-              <span className="text-gray-800 font-semibold dark:text-mcm-ink-2">{reassignData.didNumber}</span> is
+              <span className="text-gray-800 font-semibold">{reassignData.didNumber}</span> is
               currently assigned to User{' '}
               <span className="text-primary font-semibold">- {reassignData.assignedTo}</span>.{' '}
               Re-assigning it will remove it from them and assign it to{' '}

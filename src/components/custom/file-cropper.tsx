@@ -39,7 +39,7 @@ const FileCropper = forwardRef(
     return (
       <Dialog open={modalState} onOpenChange={setModalState}>
         <DialogContent className="w-1/4 p-3" showCloseButton={false}>
-          <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200 dark:border-mcm-line">
+          <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200">
             <div className="font-semibold truncate text-md flex items-center justify-between">
               Crop Image
               <div

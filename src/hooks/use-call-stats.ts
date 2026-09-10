@@ -71,15 +71,8 @@ export type QueueCallStats = {
   avgHandleSec: number | null;
 };
 
-export const useCallStats = (
-  selectedRange: { from: string; to: string },
-  options: { enabled?: boolean } = {},
-) => {
-  /* Callers that are not showing these figures pass false. The query key is
-     shared, so a screen that IS showing them keeps the fetch alive for
-     everyone — this only stops a caller being the reason it runs. */
-  const { enabled: callerEnabled = true } = options;
-  const { data, isPending, isError, dataUpdatedAt, refetch } = useQuery({
+export const useCallStats = (selectedRange: { from: string; to: string }) => {
+  const { data, isPending } = useQuery({
     queryKey: ['sharedCallStats', selectedRange?.from, selectedRange?.to],
     queryFn: () => callList({ page: 1, limit: CDR_LIMIT, filter_date: selectedRange }),
     select: (res: any) => {
@@ -91,7 +84,7 @@ export const useCallStats = (
       };
     },
     refetchInterval: REFRESH_MS,
-    enabled: callerEnabled && Boolean(selectedRange?.from && selectedRange?.to),
+    enabled: Boolean(selectedRange?.from && selectedRange?.to),
   });
 
   const rows = data?.rows;
@@ -167,12 +160,6 @@ export const useCallStats = (
 
     return {
       isPending,
-      /* Reported so a caller can tell "no calls in this range" from "we could
-         not read the call log". Defaulting to an empty row set made those two
-         render identically, which is how a failed fetch became a zero. */
-      isError,
-      updatedAt: dataUpdatedAt || null,
-      refetch,
       rows: safeRows,
       callStats: stats,
       totalCalls,
@@ -191,5 +178,5 @@ export const useCallStats = (
       sampledRowCount: safeRows.length,
       totalCount: count,
     };
-  }, [rows, callStats, totalCount, isPending, isError, dataUpdatedAt, refetch]);
+  }, [rows, callStats, totalCount, isPending]);
 };

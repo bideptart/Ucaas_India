@@ -103,13 +103,13 @@ const PowerDialer = () => {
               </div>
             </div> */}
         <Tabs value={tabName} onValueChange={handleTabChange} className="flex w-full">
-          <div className="border-b border-gray-200 dark:border-mcm-line w-full min-h-[65px] bg-white dark:bg-mcm-surface p-3">
+          <div className="border-b border-gray-200 w-full min-h-[65px] bg-white p-3">
             <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none bg-transparent min-h-10 ">
               {tabArray.map((item: any, index: number) => (
                 <TabsTrigger
                   key={index}
                   value={item?.value}
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                 >
                   {item?.label}
                 </TabsTrigger>

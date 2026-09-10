@@ -22,7 +22,6 @@ import { Icon as IconComponent } from '@/assets/icons/icon';
 import { useDialpad } from '@/hooks/use-dialpad';
 import { isDemoMode } from '@/lib/demo-mode';
 import { toast } from 'react-toastify';
-import './notification-content.css';
 
 // Sample data so the notification drawer and its filters can be eyeballed
 // without a backend that actually has notifications queued up. Gated by
@@ -372,7 +371,7 @@ const NotificationContent = ({
       id: 1,
       label: 'All',
       value: ['all'],
-      icon: <Bell className="text-gray-700 dark:text-mcm-ink-2 w-full h-full" />,
+      icon: <Bell className="text-gray-700 w-full h-full" />,
     };
   });
   // The header row scrolls horizontally when it's too narrow for every
@@ -542,7 +541,7 @@ const NotificationContent = ({
     <div
       role="region"
       aria-label="Notifications"
-      className="relative h-[calc(100%+1.25rem)] -ml-4 lg:-ml-5 w-[calc(100%+2rem)] lg:w-[calc(100%+2.5rem)] px-4 lg:px-5 pb-5 flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0] dark:from-mcm-surface dark:via-mcm-surface dark:to-mcm-surface"
+      className="relative h-[calc(100%+1.25rem)] -ml-4 lg:-ml-5 w-[calc(100%+2rem)] lg:w-[calc(100%+2.5rem)] px-4 lg:px-5 pb-5 flex flex-col bg-gradient-to-b from-[#fdf3e7] via-[#fbe9d5] to-[#f7dcc0]"
     >
       {/* Visually hidden — announces count changes to screen readers without
           a visible element, since the badge itself only conveys meaning
@@ -558,13 +557,13 @@ const NotificationContent = ({
         onClick={() => setNotificationState(false)}
         aria-label="Close"
         title="Close"
-        className="absolute right-6 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#f0d6b4] dark:border-mcm-line bg-white/80 dark:bg-mcm-surface-3/80 backdrop-blur-sm text-[#ea6b42] dark:text-mcm-ink-2 shadow-sm transition-colors hover:bg-white dark:hover:bg-mcm-surface-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] dark:focus-visible:outline-[#94a3b8]"
+        className="absolute right-6 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#f0d6b4] bg-white/80 backdrop-blur-sm text-[#ea6b42] shadow-sm transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42]"
       >
         <IconComponent name="CloseIcon" className="h-4 w-4" />
       </button>
-      <div className="flex flex-col gap-3 mt-1 mb-2 py-3 pl-3 pr-12 rounded-2xl bg-white/45 dark:bg-mcm-surface-3/60 backdrop-blur-md border border-white/70 dark:border-mcm-line shadow-sm">
+      <div className="flex flex-col gap-3 mt-1 mb-2 py-3 pl-3 pr-12 rounded-2xl bg-white/45 backdrop-blur-md border border-white/70 shadow-sm">
         <div className="flex items-center">
-          <div className="text-gray-900 dark:text-mcm-ink font-semibold flex flex-nowrap items-center gap-1 w-full">
+          <div className="text-gray-900 font-semibold flex flex-nowrap items-center gap-1 w-full">
             {/* Only this zone (icon + category name) scrolls when it's too
                 long — the action buttons below live outside it entirely, on
                 fixed shrink-0 layout, so they're either fully visible or
@@ -587,10 +586,10 @@ const NotificationContent = ({
                 aria-label={`Unread only${categoryUnreadCount > 0 ? `, ${categoryUnreadCount}` : ''}`}
                 aria-pressed={showUnreadOnly}
                 onClick={() => setShowUnreadOnly((prev) => !prev)}
-                className={`relative flex items-center justify-center w-8 h-8 rounded-full shrink-0 border cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] dark:focus-visible:outline-[#94a3b8] ${
+                className={`relative flex items-center justify-center w-8 h-8 rounded-full shrink-0 border cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${
                   showUnreadOnly
-                    ? 'bg-gradient-to-r from-[#f2794f] to-[#ea5c34] dark:from-[#f97316] dark:to-[#ea580c] text-white border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.08),0_0_0_4px_rgba(234,107,66,0.14)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3),0_0_0_4px_rgba(100,116,139,0.25)]'
-                    : 'bg-white/60 dark:bg-mcm-surface-3/70 text-[#b5502f] dark:text-mcm-ink-2 border-[#f0d6b4] dark:border-mcm-line hover:bg-white/90 dark:hover:bg-mcm-surface-3 hover:-translate-y-px'
+                    ? 'bg-gradient-to-r from-[#f2794f] to-[#ea5c34] text-white border-transparent shadow-[0_1px_2px_rgba(0,0,0,0.08),0_0_0_4px_rgba(234,107,66,0.14)]'
+                    : 'bg-white/60 text-[#b5502f] border-[#f0d6b4] hover:bg-white/90 hover:-translate-y-px'
                 }`}
               >
                 <Bell className="w-4 h-4" />
@@ -601,9 +600,7 @@ const NotificationContent = ({
                       // under the 4.5:1 WCAG AA text minimum. #b5502f clears
                       // ~5.3:1 either way round, so this badge uses that
                       // instead of the lighter accent used everywhere else.
-                      showUnreadOnly
-                        ? 'bg-white dark:bg-mcm-surface text-[#b5502f] dark:text-mcm-ink-2'
-                        : 'bg-[#b5502f] dark:bg-[#f97316] text-white'
+                      showUnreadOnly ? 'bg-white text-[#b5502f]' : 'bg-[#b5502f] text-white'
                     }`}
                   >
                     {categoryUnreadCount > 9 ? '9+' : categoryUnreadCount}
@@ -615,7 +612,7 @@ const NotificationContent = ({
                   type="button"
                   title="Mark all as read"
                   aria-label="Mark all as read"
-                  className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 cursor-pointer text-[#ea6b42] dark:text-mcm-ink-2 bg-white/60 dark:bg-mcm-surface-3/70 border border-[#f0d6b4] dark:border-mcm-line hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] dark:hover:from-[#f97316] dark:hover:to-[#ea580c] hover:text-white hover:border-transparent transition-colors"
+                  className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 cursor-pointer text-[#ea6b42] bg-white/60 border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent transition-colors"
                   onClick={() => {
                     if (isShowingDummy) {
                       // Only offered for the local dev sample data — there's
@@ -667,7 +664,7 @@ const NotificationContent = ({
                 <DropdownMenuTrigger ref={filterTriggerRef}>
                   <div
                     className={
-                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 shrink-0 bg-white/60 dark:bg-mcm-surface-3/70 text-[#b5502f] dark:text-mcm-ink-2 border border-[#f0d6b4] dark:border-mcm-line hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] dark:hover:from-[#f97316] dark:hover:to-[#ea580c] hover:text-white hover:border-transparent'
+                      'cursor-pointer flex items-center justify-center rounded-full w-9 h-9 shrink-0 bg-white/60 text-[#b5502f] border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent'
                     }
                   >
                     <FilterIcon className="w-5 h-5" />
@@ -693,7 +690,7 @@ const NotificationContent = ({
                         className="cursor-pointer"
                         onClick={() => setNotificationFilterValue(filter)}
                       >
-                        <div className="w-6 h-6 p-1 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/70 border-[#EEE7DD] dark:border-mcm-line border rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 p-1 bg-[#FBE2C8]/45 border-[#EEE7DD] border rounded-full flex items-center justify-center">
                           {filter?.icon}
                         </div>
                         {filter?.label}
@@ -706,12 +703,12 @@ const NotificationContent = ({
           </div>
         </div>
       </div>
-      <hr className="border-[#f0d6b4] dark:border-mcm-line p-2 mt-1" />
+      <hr className="border-[#f0d6b4] p-2 mt-1" />
       {isShowingDummy && categorySnoozedCount > 0 && (
         <button
           type="button"
           onClick={() => setShowSnoozed((prev) => !prev)}
-          className="flex items-center gap-1.5 shrink-0 mx-1 mb-2 px-3 py-1.5 rounded-full cursor-pointer text-xs font-medium text-[#b5502f] dark:text-mcm-ink-2 bg-white/50 dark:bg-mcm-surface-3/70 border border-[#f0d6b4] dark:border-mcm-line hover:bg-white/80 dark:hover:bg-mcm-surface-3 transition-colors self-start"
+          className="flex items-center gap-1.5 shrink-0 mx-1 mb-2 px-3 py-1.5 rounded-full cursor-pointer text-xs font-medium text-[#b5502f] bg-white/50 border border-[#f0d6b4] hover:bg-white/80 transition-colors self-start"
         >
           <Clock className="w-3.5 h-3.5" />
           {showSnoozed
@@ -719,7 +716,7 @@ const NotificationContent = ({
             : `${categorySnoozedCount} snoozed — Show`}
         </button>
       )}
-      <div className="w-full overflow-auto flex-1 min-h-0 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] dark:[&::-webkit-scrollbar-thumb]:bg-[#3a4854] [&::-webkit-scrollbar-thumb]:rounded-full [scrollbar-width:thin] [scrollbar-color:#e8b98a_transparent] dark:[scrollbar-color:#3a4854_transparent]">
+      <div className="w-full overflow-auto flex-1 min-h-0 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#e8b98a] [&::-webkit-scrollbar-thumb]:rounded-full [scrollbar-width:thin] [scrollbar-color:#e8b98a_transparent]">
         {notificationLoading && mutatedNotifications?.length == 0 ? (
           <div role="status" aria-label="Loading notifications" className="flex justify-center items-center h-full">
             <Loader variant="blue" />
@@ -748,7 +745,7 @@ const NotificationContent = ({
                 <Fragment key={notification._id}>
                   {showDateGroupHeader && (
                     <div
-                      className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 dark:bg-mcm-surface/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 dark:text-mcm-ink-3 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
+                      className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
                     >
                       {dateGroupLabel}
                     </div>
@@ -757,7 +754,7 @@ const NotificationContent = ({
                     role="button"
                     tabIndex={0}
                     aria-label={`${notification.senderKey}, ${notification.items.length} ${groupLabel}${notification.anyUnread ? ', unread' : ''}`}
-                    className={`mcm-notif-accent-border animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 dark:bg-mcm-surface-3/60 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 dark:border-mcm-line shadow-sm flex items-center cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 dark:hover:bg-mcm-surface-3 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] dark:focus-visible:outline-[#94a3b8] ${notification.anyUnread ? 'opacity-100' : 'opacity-60'}`}
+                    className={`animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 shadow-sm flex items-center cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${notification.anyUnread ? 'opacity-100' : 'opacity-60'}`}
                     style={{ borderLeftColor: getCategoryAccent() }}
                     onClick={() => {
                       notification.items.forEach((item: any) => {
@@ -780,18 +777,18 @@ const NotificationContent = ({
                     <div
                       aria-label="group icon"
                       role="img"
-                      className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] dark:border-mcm-line bg-[#fdeee0] dark:bg-mcm-surface-3 flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f] dark:text-mcm-ink-2"
+                      className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] bg-[#fdeee0] flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f]"
                     >
                       {GroupIcon ? <div className="flex w-5 h-5">{GroupIcon}</div> : null}
-                      <span className="absolute -bottom-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center bg-[#b5502f] dark:bg-[#f97316] text-white ring-2 ring-white dark:ring-mcm-surface-3">
+                      <span className="absolute -bottom-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center bg-[#b5502f] text-white ring-2 ring-white">
                         {notification.items.length}
                       </span>
                     </div>
                     <div className="pl-3 w-full">
-                      <div className="text-sm text-gray-900 dark:text-mcm-ink font-medium">
+                      <div className="text-sm text-gray-900 font-medium">
                         {notification.senderKey}
                       </div>
-                      <p className="text-xs leading-3 pt-1 text-gray-500 dark:text-mcm-ink-3">
+                      <p className="text-xs leading-3 pt-1 text-gray-500">
                         {notification.items.length} {groupLabel}
                       </p>
                     </div>
@@ -902,7 +899,7 @@ const NotificationContent = ({
               actionButton = (
                 <Button
                   variant="outline"
-                  className="min-h-8 h-8 px-3 text-xs text-primary border-primary bg-white dark:bg-mcm-surface hover:bg-primary/10 hover:text-primary"
+                  className="min-h-8 h-8 px-3 text-xs text-primary border-primary bg-white hover:bg-primary/10 hover:text-primary"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (isShowingDummy) {
@@ -972,7 +969,7 @@ const NotificationContent = ({
               <Fragment key={notification?._id}>
                 {showDateGroupHeader && (
                   <div
-                    className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 dark:bg-mcm-surface/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 dark:text-mcm-ink-3 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
+                    className={`sticky top-0 z-[6] -mx-1 px-1 bg-[#fbe9d5]/90 backdrop-blur-sm text-xs font-semibold text-[#b5502f]/80 uppercase tracking-wide pb-1 ${notificationIndex === 0 ? 'pt-2' : 'pt-4'}`}
                   >
                     {dateGroupLabel}
                   </div>
@@ -982,7 +979,7 @@ const NotificationContent = ({
                   tabIndex={0}
                   aria-label={`${notification?.description || 'Notification'}${isShowingDummy ? `, ${notification?.unread ? 'unread' : 'read, activate to mark unread'}` : ''}`}
                   style={{ borderLeftColor: categoryAccent, animationDelay: `${enterDelayMs}ms` }}
-                  className={`mcm-notif-accent-border animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 dark:bg-mcm-surface-3/60 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 dark:border-mcm-line shadow-sm flex cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 dark:hover:bg-mcm-surface-3 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] dark:focus-visible:outline-[#94a3b8] ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
+                  className={`animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300 motion-reduce:animate-none relative w-full p-3 mt-2 bg-white/55 backdrop-blur-sm border border-l-4 rounded-xl border-white/70 shadow-sm flex cursor-pointer flex-shrink-0 transition-all motion-reduce:transition-none hover:bg-white/75 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ea6b42] ${shouldShowJoinNowForInvite ? 'pb-12' : ''} ${
                     notification?.unread ? 'opacity-100' : 'opacity-60'
                   }`}
                   onClick={toggleReadState}
@@ -995,27 +992,27 @@ const NotificationContent = ({
                   <div
                     aria-label="group icon"
                     role="img"
-                    className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] dark:border-mcm-line bg-[#fdeee0] dark:bg-mcm-surface-3 flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f] dark:text-mcm-ink-2"
+                    className="relative focus:outline-none w-11 h-11 border rounded-full border-[#f0d6b4] bg-[#fdeee0] flex flex-shrink-0 items-center justify-center p-2 text-[#b5502f]"
                   >
                     {Icon ? <div className="flex w-5 h-5">{Icon}</div> : null}
                     {notification?.unread && (
                       <span
                         aria-hidden="true"
                         style={{ backgroundColor: categoryAccent }}
-                        className="mcm-notif-accent-dot absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full ring-2 ring-white dark:ring-mcm-surface-3"
+                        className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full ring-2 ring-white"
                       />
                     )}
                   </div>
                   <div className="pl-3 w-full">
                     <div
-                      className={`flex items-center justify-between w-full text-sm text-gray-900 dark:text-mcm-ink ${notification?.unread ? 'font-medium' : 'font-normal'}`}
+                      className={`flex items-center justify-between w-full text-sm text-gray-900 ${notification?.unread ? 'font-medium' : 'font-normal'}`}
                     >
                       {notification?.description}
                     </div>
-                    <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500 dark:text-mcm-ink-3 flex items-center gap-1.5">
+                    <p className="focus:outline-none text-xs leading-3 pt-1 text-gray-500 flex items-center gap-1.5">
                       {formatNotificationDate(notification?.createdAt)}
                       {isSnoozed && (
-                        <span className="inline-flex items-center gap-1 text-[#b5502f] dark:text-mcm-ink-2 font-medium">
+                        <span className="inline-flex items-center gap-1 text-[#b5502f] font-medium">
                           <Clock className="w-3 h-3" />
                           Snoozed
                         </span>
@@ -1036,7 +1033,7 @@ const NotificationContent = ({
                             unsnoozeDummyId(notification?._id);
                             setDummyReadVersion((v) => v + 1);
                           }}
-                          className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-white bg-gradient-to-r from-[#f2794f] to-[#ea5c34] dark:from-[#f97316] dark:to-[#ea580c] border border-transparent hover:opacity-90 transition-opacity"
+                          className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-white bg-gradient-to-r from-[#f2794f] to-[#ea5c34] border border-transparent hover:opacity-90 transition-opacity"
                         >
                           <Clock className="w-3.5 h-3.5" />
                         </button>
@@ -1053,7 +1050,7 @@ const NotificationContent = ({
                               tabIndex={0}
                               aria-label="Snooze"
                               title="Snooze"
-                              className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-[#b5502f] dark:text-mcm-ink-2 bg-white/60 dark:bg-mcm-surface-3/70 border border-[#f0d6b4] dark:border-mcm-line hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] dark:hover:from-[#f97316] dark:hover:to-[#ea580c] hover:text-white hover:border-transparent transition-colors"
+                              className="cursor-pointer flex items-center justify-center rounded-full w-7 h-7 shrink-0 text-[#b5502f] bg-white/60 border border-[#f0d6b4] hover:bg-gradient-to-r hover:from-[#f2794f] hover:to-[#ea5c34] hover:text-white hover:border-transparent transition-colors"
                             >
                               <Clock className="w-3.5 h-3.5" />
                             </span>
@@ -1106,9 +1103,9 @@ const NotificationContent = ({
             );
           })
         ) : (
-          <div className="w-full max-w-96 min-h-52  h-full p-4 rounded-xl   m-auto border border-[#f0d6b4] dark:border-mcm-line bg-white/40 dark:bg-mcm-surface-3/50 flex flex-col items-center justify-center gap-2">
+          <div className="w-full max-w-96 min-h-52  h-full p-4 rounded-xl   m-auto border border-[#f0d6b4] bg-white/40 flex flex-col items-center justify-center gap-2">
             <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-            <p className="flex items-center justify-center text-gray-900 dark:text-mcm-ink  font-medium">
+            <p className="flex items-center justify-center text-gray-900  font-medium">
               {getEmptyStateMessage(notificationFilterValue?.label, showUnreadOnly)}
             </p>
           </div>

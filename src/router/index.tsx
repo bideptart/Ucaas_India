@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Outlet, Navigate, useSearchParams } from 'react-router-dom';
 import {
   ABSOLUTE,
   BILLING_REDIRECTS,
@@ -59,6 +59,16 @@ const CaptainScenarios = lazy(() => import('@/pages/admin-settings/captain/scena
 const CaptainActions = lazy(() => import('@/pages/admin-settings/captain/actions'));
 const CaptainInboxes = lazy(() => import('@/pages/admin-settings/captain/inboxes'));
 const CaptainSettings = lazy(() => import('@/pages/admin-settings/captain/settings'));
+const CaptainToolkitDetail = lazy(() => import('@/pages/admin-settings/captain/toolkit-detail'));
+const CaptainToolWizard = lazy(() => import('@/pages/admin-settings/captain/tool-wizard'));
+const CaptainWidgets = lazy(() => import('@/pages/admin-settings/captain/widgets'));
+const CaptainWidgetBuilder = lazy(() => import('@/pages/admin-settings/captain/widget-builder'));
+const CaptainSubmissions = lazy(() => import('@/pages/admin-settings/captain/submissions'));
+const CaptainInboxConversations = lazy(() => import('@/pages/admin-settings/captain/inbox-conversations'));
+const CaptainConversations = lazy(() => import('@/pages/admin-settings/captain/conversations'));
+const CaptainGuardrails = lazy(() => import('@/pages/admin-settings/captain/guardrails'));
+const CaptainResponseGuidelines = lazy(() => import('@/pages/admin-settings/captain/response-guidelines'));
+const CaptainVoiceCalls = lazy(() => import('@/pages/admin-settings/captain/voice-calls'));
 const CompanyLayout = lazy(() => import('@/pages/admin-settings/company/company-layout'));
 const CompanyPhoneRules = lazy(() => import('@/pages/admin-settings/company/page-phone-rules'));
 const CompanyGreetings = lazy(() => import('@/pages/admin-settings/company/page-greetings'));
@@ -72,14 +82,19 @@ const CompanyCalling = lazy(
 );
 const CompanyMessagingPage = lazy(() => import('@/pages/admin-settings/company/company-messaging'));
 const CompanyPoliciesPage = lazy(() => import('@/pages/admin-settings/company/company-policies'));
-const CompanyBulkSettingsPage = lazy(
-  () => import('@/pages/admin-settings/company/company-bulk-settings'),
-);
 const CompanySecurityPage = lazy(() => import('@/pages/admin-settings/company/company-security'));
-const CompanyProfileFieldsPage = lazy(
-  () => import('@/pages/admin-settings/company/company-profile-fields'),
-);
 const Dashboard = lazy(() => import('@/pages/dashboard'));
+/* Directory and Performance used to carry the page in a query --
+   `/directory?view=groups`, `/performance?view=agents`. Those addresses are in
+   bookmarks and in links already sent out, so the index of each area honours
+   the old value and forwards to the matching segment rather than dropping the
+   reader on the default page. An unrecognised value lands on the page itself,
+   which falls back to its own default. */
+const ViewIndexRedirect = ({ fallback }: { fallback: string }) => {
+  const [params] = useSearchParams();
+  return <Navigate to={params.get('view') || fallback} replace />;
+};
+
 const Performance = lazy(() => import('@/pages/performance'));
 const Login = lazy(() => import('@/pages/login'));
 const Messenger = lazy(() => import('@/pages/messenger'));
@@ -131,10 +146,6 @@ const DepartmentDetails = lazy(
   () => import('@/pages/departments/department-list/department-details'),
 );
 const UserDetails = lazy(() => import('@/pages/departments/users-list/user-details'));
-const UserSettings = lazy(() => import('@/pages/admin-settings/templates/user-settings'));
-const OutboundRates = lazy(() => import('@/pages/admin-settings/calling-rates/outbound-rates'));
-const Destinations = lazy(() => import('@/pages/admin-settings/calling-rates/destinations'));
-const CallHandling = lazy(() => import('@/pages/admin-settings/templates/call-handling'));
 const Pricing = lazy(() => import('@/pages/pricing'));
 const SignUp = lazy(() => import('@/pages/signup'));
 const SignUpPayment = lazy(() => import('@/pages/signup/payment'));
@@ -209,6 +220,8 @@ const DLCBrands = lazy(() => import('@/pages/admin-settings/compliance/10DLC-bra
 const DNC = lazy(() => import('@/pages/auto-dialer/dnc'));
 const AdminHome = lazy(() => import('@/pages/admin-settings/admin-home'));
 const CallCoverage = lazy(() => import('@/pages/admin-settings/call-coverage'));
+const DeskPhones = lazy(() => import('@/pages/admin-settings/company/desk-phones'));
+const AdminSkills = lazy(() => import('@/pages/admin-settings/phone-systems/skills'));
 const StatementOfAccount = lazy(() => import('@/pages/admin-settings/billing/statement'));
 const BillingSummary = lazy(() => import('@/pages/admin-settings/billing/summary'));
 const CostCentres = lazy(() => import('@/pages/admin-settings/billing/cost-centres'));
@@ -238,7 +251,6 @@ const BILLING_ELEMENTS: Record<string, ReactElement> = {
 const DirectoryPeople = lazy(() => import('@/pages/directory/people'));
 const DirectoryGroups = lazy(() => import('@/pages/directory/groups'));
 const DirectoryRoles = lazy(() => import('@/pages/directory/roles'));
-const JoiningAndLeaving = lazy(() => import('@/pages/admin-settings/people/joining-and-leaving'));
 const AdminScope = lazy(() => import('@/pages/admin-settings/roles/admin-scope'));
 const DefaultPermissions = lazy(() => import('@/pages/admin-settings/roles/default-permissions'));
 const AccessControl = lazy(() => import('@/pages/admin-settings/roles/access-control'));
@@ -363,9 +375,13 @@ export const router = createBrowserRouter([
         id: 'Dashboard',
       },
       {
+        /* Same as Directory: a segment per page instead of one address with a
+           `?view=` value, so every Performance page is its own URL. */
         path: 'performance',
-        element: <Performance />,
-        id: 'Performance',
+        children: [
+          { index: true, element: <ViewIndexRedirect fallback="queues-activity" /> },
+          { path: ':view', element: <Performance />, id: 'Performance' },
+        ],
       },
       {
         path: 'phone',
@@ -487,9 +503,16 @@ export const router = createBrowserRouter([
         // Directory is the console's grouping of People, Groups, Locations,
         // External and Favourites. The individual platform routes below stay
         // reachable so existing links keep working.
+        /* Each Directory page owns a path segment rather than a `?view=`
+           value on one shared address, so People, Groups, Roles, Locations,
+           External Contacts, Favourites and Blocked can each be linked,
+           bookmarked and reloaded, and the rail lights the current one from
+           the pathname instead of comparing query strings. */
         path: 'directory',
-        element: <Directory />,
-        id: 'directory',
+        children: [
+          { index: true, element: <ViewIndexRedirect fallback="people" /> },
+          { path: ':view', element: <Directory />, id: 'directory' },
+        ],
       },
       {
         path: 'contact',
@@ -522,14 +545,6 @@ export const router = createBrowserRouter([
         element: <Departments />,
         children: [
           {
-            /* `:id` used to be nested under `extension` as `{ index: true,
-               path: ':id' }`, which isn't valid — an index route can't carry
-               a path — so it silently matched nothing and any link to a
-               specific person (Directory ▸ People, Favourites, the sidebar's
-               default-to-first-user redirect) landed on the 404 page. Two
-               flat sibling routes match both the bare and the `:id` URL
-               directly; `Departments` still reads `id` via `useParams()`
-               regardless of which of its descendants matched it. */
             path: 'extension',
             element: (
               <ProtectedRoute
@@ -541,6 +556,12 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            /* A sibling route rather than a child of `extension`. It used to be
+               `{ index: true, path: ':id' }` nested underneath, which React
+               Router rejects -- an index route cannot carry a path -- so the
+               child never matched and every link to a person's extension fell
+               through to the 404 page. Directory > People, Favourites and the
+               Departments user list all navigate to `extension/<uuid>`. */
             path: 'extension/:id',
             element: (
               <ProtectedRoute
@@ -663,20 +684,6 @@ export const router = createBrowserRouter([
                   { path: 'calling', element: <CompanyCalling /> },
                   { path: 'messaging', element: <CompanyMessagingPage /> },
                   { path: 'policies', element: <CompanyPoliciesPage /> },
-                  {
-                    /* Administrator-only, like Security below. Everything else
-                       in this area changes one company record; this one writes
-                       every person's own settings, which is a different order of
-                       thing to hand to whoever can view the phone system. */
-                    path: 'apply-to-people',
-                    element: (
-                      <ProtectedRoute
-                        element={<CompanyBulkSettingsPage />}
-                        guard={{ adminOnly: true }}
-                      />
-                    ),
-                  },
-                  { path: 'profile-fields', element: <CompanyProfileFieldsPage /> },
                   {
                     /* Administrator-only. It holds the sign-in policy, and the
                            phone-system permission is far too wide a key for that. */
@@ -829,9 +836,49 @@ export const router = createBrowserRouter([
             element: <CaptainActions />,
           },
           {
+            path: 'captain/actions/toolkit/:slug',
+            id: 'captain-toolkit-detail',
+            element: <CaptainToolkitDetail />,
+          },
+          {
+            path: 'captain/tools/new',
+            id: 'captain-tool-new',
+            element: <CaptainToolWizard />,
+          },
+          {
+            path: 'captain/tools/edit',
+            id: 'captain-tool-edit',
+            element: <CaptainToolWizard />,
+          },
+          {
+            path: 'captain/widgets',
+            id: 'captain-widgets',
+            element: <CaptainWidgets />,
+          },
+          {
+            path: 'captain/widgets/:widgetId',
+            id: 'captain-widget-builder',
+            element: <CaptainWidgetBuilder />,
+          },
+          {
+            path: 'captain/submissions',
+            id: 'captain-submissions',
+            element: <CaptainSubmissions />,
+          },
+          {
             path: 'captain/inboxes',
             id: 'captain-inboxes',
             element: <CaptainInboxes />,
+          },
+          {
+            path: 'captain/inboxes/:inboxId/conversations',
+            id: 'captain-inbox-conversations',
+            element: <CaptainInboxConversations />,
+          },
+          {
+            path: 'captain/inboxes/:inboxId/conversations/:conversationId',
+            id: 'captain-inbox-conversation-detail',
+            element: <CaptainInboxConversations />,
           },
           {
             path: 'captain/inboxes/:inboxId',
@@ -844,9 +891,39 @@ export const router = createBrowserRouter([
             element: <CaptainInboxes />,
           },
           {
+            path: 'captain/conversations',
+            id: 'captain-conversations',
+            element: <CaptainConversations />,
+          },
+          {
+            path: 'captain/conversations/:conversationId',
+            id: 'captain-conversation-detail',
+            element: <CaptainConversations />,
+          },
+          {
             path: 'captain/settings',
             id: 'captain-settings',
             element: <CaptainSettings />,
+          },
+          {
+            path: 'captain/settings/guardrails',
+            id: 'captain-guardrails',
+            element: <CaptainGuardrails />,
+          },
+          {
+            path: 'captain/settings/response-guidelines',
+            id: 'captain-response-guidelines',
+            element: <CaptainResponseGuidelines />,
+          },
+          {
+            path: 'captain/voice-calls',
+            id: 'captain-voice-calls',
+            element: <CaptainVoiceCalls />,
+          },
+          {
+            path: 'captain/voice-calls/:inboxId',
+            id: 'captain-voice-calls-detail',
+            element: <CaptainVoiceCalls />,
           },
           {
             /* People, not "users/extension". An extension is a number a person
@@ -856,22 +933,6 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute
                 element={<DirectoryPeople />}
-                guard={{
-                  permission: 'account_setting.access.USER.action.view',
-                }}
-              />
-            ),
-          },
-          {
-            /* What somebody receives when they are added, and what happens when
-               they leave. Gated on the same permission as the people list
-               itself: it describes that list, and there is nothing on it
-               somebody who may see the list should be kept from. */
-            path: 'joining-and-leaving',
-            id: 'joining-and-leaving',
-            element: (
-              <ProtectedRoute
-                element={<JoiningAndLeaving />}
                 guard={{
                   permission: 'account_setting.access.USER.action.view',
                 }}
@@ -1150,6 +1211,21 @@ export const router = createBrowserRouter([
                 ),
               },
               {
+                /* Skills only matter to queue routing, so they sit beside
+                   queues and share the queue permission. */
+                path: 'skills',
+                id: 'skills',
+                element: (
+                  <ProtectedRoute
+                    element={<AdminSkills />}
+                    guard={{
+                      feature: 'phone_system_action.access.QUEUE',
+                      permission: 'phone_system_action.action.view',
+                    }}
+                  />
+                ),
+              },
+              {
                 path: 'queues/new',
                 element: (
                   <ProtectedRoute
@@ -1387,6 +1463,14 @@ export const router = createBrowserRouter([
                module's feature flag, which asked whether the company had bought
                phone features when the real question is whether this person is
                allowed to see the company's money. */
+            /* The company's handsets and who each belongs to. Administrator-only:
+               the screen hands out SIP credentials. Listed under Company in the
+               nav rather than People, because a room phone has no person. */
+            path: 'desk-phones',
+            id: 'desk-phones',
+            element: <ProtectedRoute element={<DeskPhones />} guard={{ adminOnly: true }} />,
+          },
+          {
             path: 'billing',
             id: 'billing',
             children: [
@@ -1442,67 +1526,6 @@ export const router = createBrowserRouter([
                     element={<Reseller />}
                     guard={{ adminOnly: true }}
                     trialRestricted
-                  />
-                ),
-              },
-            ],
-          },
-          {
-            path: 'templates',
-            children: [
-              {
-                /* Was `{ index: true, path: 'user-settings' }` — invalid (an
-                   index route can't carry a path), so it matched nothing and
-                   the sidebar's and global search's link to this exact URL
-                   404'd. Nothing links to the bare `/templates`, so this only
-                   needs to be a normal path route. */
-                path: 'user-settings',
-                element: <ProtectedRoute element={<UserSettings />} guard={{ adminOnly: true }} />,
-              },
-              {
-                path: 'call-handling',
-                element: (
-                  <ProtectedRoute
-                    element={<CallHandling />}
-                    guard={{
-                      feature: 'phone_system_action.access.DEPARTMENT',
-                      permission: 'phone_system_action.action.view',
-                    }}
-                  />
-                ),
-              },
-            ],
-          },
-          {
-            path: 'calling-rates',
-            id: 'calling-rates',
-            children: [
-              {
-                /* Same invalid `{ index: true, path: ... }` pairing as
-                   `templates` above — matched nothing, so the sidebar's and
-                   global search's link to this exact URL 404'd. */
-                path: 'outbound-rates',
-                id: 'outbound-rates',
-                element: (
-                  <ProtectedRoute
-                    element={<OutboundRates />}
-                    guard={{
-                      feature: 'calling_rates.IS_SHOW',
-                      permission: 'calling_rates.action.view',
-                    }}
-                  />
-                ),
-              },
-              {
-                path: 'destinations',
-                id: 'destinations',
-                element: (
-                  <ProtectedRoute
-                    element={<Destinations />}
-                    guard={{
-                      feature: 'calling_rates.IS_SHOW',
-                      permission: 'calling_rates.action.view',
-                    }}
                   />
                 ),
               },
@@ -1841,7 +1864,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'call-history',
-            element: <CallHistory splitStickyHeader tableMaxHeight="55vh" />,
+            element: <CallHistory />,
           },
           {
             path: 'local-call-list',

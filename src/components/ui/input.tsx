@@ -46,7 +46,7 @@ function Input({
         {Icon && (
           <span
             onClick={onIconClick}
-            className={`absolute ${IconPosition} cursor-pointer text-muted-foreground flex items-center`}
+            className={`absolute ${IconPosition} cursor-pointer text-gray-500 flex items-center`}
           >
             {Icon}
           </span>
@@ -54,7 +54,7 @@ function Input({
         {showEye && (
           <span
             onClick={() => setShowPassword((p) => !p)}
-            className={`absolute ${IconPosition} cursor-pointer text-muted-foreground flex items-center`}
+            className={`absolute ${IconPosition} cursor-pointer text-gray-500 flex items-center`}
           >
             {showPassword ? <EyeLineOff /> : <EyeLine />}
           </span>
@@ -65,10 +65,10 @@ function Input({
             type={!showPassword ? type : 'text'}
             data-slot="input"
             className={cn(
-              'border normal-case focus:outline-none disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none text-foreground placeholder:text-muted-foreground bg-input shadow-sm text-sm  rounded-xl w-full px-3 min-h-10',
+              'border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm  rounded-xl w-full px-3 min-h-10',
               error
                 ? 'border-red-500 focus:border-red-500 focus:ring-0'
-                : 'border-border focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary',
+                : 'border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary',
               className,
             )}
             {...props}

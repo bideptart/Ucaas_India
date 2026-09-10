@@ -1,157 +1,186 @@
-/* The company's own logo, on the company screen.
+/* The company logo, on the Company screen.
  *
- * An admin looking at "Company & Locations" expects the company's identity to
- * live here alongside its name and address, so this is where the control sits.
- *
- * What it does not do yet is put that logo in the app. The bar at the top of
- * the console renders a bundled asset — `assets/images/ucaas-logo.png`, a plain
- * import in `components/custom/header` — and there is no company-logo field on
- * the company record or endpoint to store one against. So the picture chosen
- * here is kept for this browser and nothing else reads it.
- *
- * The note under the control says exactly that rather than the reverse. A card
- * that implies every colleague now sees a new logo, when the header cannot read
- * it, sends an admin looking for a bug that is really a missing backend.
+ * Kept on the Company Default template beside the other company-level settings
+ * rather than on the companies row, because that row is billing data owned by
+ * platform staff and tenant writes to it are expected to be refused. See
+ * src/lib/company-logo.ts for the full reasoning; the rules about what may be
+ * uploaded live there too, tested, rather than in this file.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { Image as ImageIcon, Trash2, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { SettingCard } from '@/components/mcm/setting-card';
 import { Button } from '@/components/ui/button';
+import { AuthenticatedImage } from '@/components/custom/authenticated-media';
+import { useUser } from '@/hooks/use-user';
+import { handleAlert, getEnv } from '@/lib/utils';
+import { mediaUploadUrl } from '@/services/api';
+import {
+  COMPANY_DEFAULTS_QUERY_KEY,
+  fetchCompanyDefaults,
+  saveCompanyDefaults,
+} from '@/lib/company-defaults';
+import {
+  ACCEPTED_LOGO_TYPES,
+  LOGO_SETTINGS_KEY,
+  buildStoredLogo,
+  checkLogoFile,
+  logoMediaUrl,
+  readStoredLogo,
+} from '@/lib/company-logo';
 
-/* Kept per company so switching accounts does not show the wrong mark. */
-const storageKey = (companyUuid: string) => `company-logo-${companyUuid || 'default'}`;
+const CompanyLogo = () => {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
 
-const MAX_BYTES = 512 * 1024;
+  const companyUuid = user?.company_info?.uuid || (user as any)?.company_uuid || '';
 
-const CompanyLogo = ({ companyInfo }: { companyInfo?: any }) => {
-  const companyUuid = companyInfo?.uuid || '';
-  const companyName = companyInfo?.company_name || 'This company';
-  const [logo, setLogo] = useState<string>('');
-  const [error, setError] = useState('');
+  const { data: companyDefaults } = useQuery({
+    queryKey: COMPANY_DEFAULTS_QUERY_KEY,
+    queryFn: fetchCompanyDefaults,
+  });
 
-  const key = useMemo(() => storageKey(companyUuid), [companyUuid]);
+  const fileName = readStoredLogo(companyDefaults?.settings);
+  const src = logoMediaUrl({
+    apiBaseUrl: getEnv().VITE_API_BASE_URL,
+    companyUuid,
+    fileName,
+  });
 
-  useEffect(() => {
-    try {
-      setLogo(localStorage.getItem(key) || '');
-    } catch {
-      /* A blocked store only costs the preview, not the screen. */
-      setLogo('');
-    }
-  }, [key]);
-
-  const handleFile = (file?: File | null) => {
-    if (!file) return;
-    setError('');
-
-    if (!file.type.startsWith('image/')) {
-      setError('That file is not an image. Choose a PNG.');
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      setError('That file is larger than 512 KB. The logo is shown small, so it can be smaller.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const value = String(reader.result || '');
-      setLogo(value);
-      try {
-        localStorage.setItem(key, value);
-      } catch {
-        setError('The picture is shown here but could not be kept for next time.');
-      }
-    };
-    reader.onerror = () => setError('That file could not be read.');
-    reader.readAsDataURL(file);
+  /* Saving merges into the existing settings rather than replacing them. The
+     template is shared by every company-level screen, so writing the whole blob
+     would quietly discard whatever another screen saved a moment ago. */
+  const persist = async (storedFileName: string) => {
+    await saveCompanyDefaults({
+      uuid: companyDefaults?.uuid,
+      settings: {
+        ...(companyDefaults?.settings || {}),
+        [LOGO_SETTINGS_KEY]: buildStoredLogo(storedFileName),
+      },
+      greetings: companyDefaults?.greetings || {},
+    });
+    queryClient.invalidateQueries({ queryKey: COMPANY_DEFAULTS_QUERY_KEY });
   };
 
-  const handleRemove = () => {
-    setLogo('');
-    setError('');
+  const { mutate: removeLogo, isPending: removing } = useMutation({
+    mutationFn: () => persist(''),
+    onSuccess: () => handleAlert({ type: 'success', text: 'Logo removed.' }),
+    onError: () =>
+      handleAlert({ type: 'error', text: 'That could not be saved. Try again in a moment.' }),
+  });
+
+  const onChoose = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    /* Cleared straight away so choosing the same file twice still fires - a
+       browser will not re-trigger change for an unchanged value, and somebody
+       re-picking the file they just fixed is exactly the case that matters. */
+    event.target.value = '';
+    if (!file) return;
+
+    const check = checkLogoFile(file);
+    if (!check.ok) {
+      handleAlert({ type: 'error', text: check.reason || 'That file cannot be used.' });
+      return;
+    }
+    if (check.advice) {
+      handleAlert({ type: 'info', text: check.advice });
+    }
+
+    setBusy(true);
     try {
-      localStorage.removeItem(key);
+      const response = await mediaUploadUrl({
+        uuid: companyUuid,
+        type: 'logo',
+        file_name: file.name,
+      });
+      const result = response?.data?.data?.result;
+      if (!result?.url || !result?.file_name) {
+        throw new Error('No upload address came back');
+      }
+
+      const put = await fetch(result.url, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      /* The upload goes straight to storage, so a failure here never reaches
+         our own error handling - it has to be checked explicitly or a broken
+         upload looks like a successful one. */
+      if (!put.ok) {
+        throw new Error(`Storage refused the file (${put.status})`);
+      }
+
+      await persist(result.file_name);
+      handleAlert({ type: 'success', text: 'Logo updated.' });
     } catch {
-      /* Nothing to undo if the store is unavailable. */
+      handleAlert({
+        type: 'error',
+        text: 'That did not upload. Check your connection and try again — nothing has changed.',
+      });
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 backdrop-blur-[12px]">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-base font-semibold text-[#2E2D35]">Company logo</p>
-            <span className="rounded-full bg-[#EAF6F0] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#2F7A5B] uppercase dark:bg-mcm-live-wash dark:text-mcm-live">
-              {logo ? 'Set' : 'Not set'}
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-[#9A948F]">
-            The mark that stands for {companyName} on this screen.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-4 rounded-lg border border-[#EEE7DD] p-3">
-        <div className="flex h-[70px] w-[130px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-[#DCD3C6] bg-white/70 dark:bg-mcm-surface/70">
-          {logo ? (
-            <img src={logo} alt="Company logo" className="max-h-full max-w-full object-contain" />
+    <SettingCard
+      title="Company logo"
+      description="Shown in the top corner of the app for everyone in your company."
+      status="active"
+      note="This one is live: whatever you upload here is what your team sees when they open the app."
+    >
+      <div className="flex flex-wrap items-center gap-4 py-2">
+        <div className="flex h-16 w-40 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3">
+          {src ? (
+            <AuthenticatedImage
+              src={src}
+              alt="Your company logo"
+              className="max-h-12 max-w-full object-contain"
+            />
           ) : (
-            <span className="flex items-center gap-1.5 text-xs text-[#9A948F]">
-              <ImageIcon className="h-3.5 w-3.5" />
-              No logo yet
-            </span>
+            <span className="text-xs text-gray-500">No logo yet</span>
           )}
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                accept="image/png,image/svg+xml,image/jpeg"
-                className="hidden"
-                onChange={(event) => {
-                  handleFile(event.target.files?.[0]);
-                  /* Cleared so choosing the same file twice still fires. */
-                  event.target.value = '';
-                }}
-              />
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#DCD3C6] bg-white dark:bg-mcm-surface px-3 py-1.5 text-sm font-medium text-[#2E2D35] transition-colors hover:border-primary hover:text-primary">
-                <Upload className="h-3.5 w-3.5" />
-                {logo ? 'Replace' : 'Upload'}
-              </span>
-            </label>
-
-            {logo && (
-              <Button type="button" variant="outline" size="sm" onClick={handleRemove}>
-                <Trash2 className="h-3.5 w-3.5" />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => fileInput.current?.click()}
+            >
+              {busy ? 'Uploading…' : fileName ? 'Replace' : 'Upload'}
+            </Button>
+            {fileName ? (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={busy || removing}
+                onClick={() => removeLogo()}
+              >
                 Remove
               </Button>
-            )}
+            ) : null}
           </div>
-
-          <p className="mt-2 text-xs text-[#9A948F]">
+          <p className="text-xs text-gray-600">
             A PNG, so the background stays transparent. It is shown small, so it does not need to be
-            a large file — under 512&nbsp;KB.
+            a large file.
           </p>
         </div>
+
+        <input
+          ref={fileInput}
+          type="file"
+          accept={ACCEPTED_LOGO_TYPES.join(',')}
+          className="hidden"
+          onChange={onChoose}
+        />
       </div>
-
-      {error && (
-        <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
-          {error}
-        </p>
-      )}
-
-      <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-[#2E2D35]">
-        This preview is kept in this browser only. The logo in the top bar is part of the app build,
-        and there is no company-logo field on the company record yet, so what you choose here is not
-        yet shown to anyone else.
-      </p>
-    </div>
+    </SettingCard>
   );
 };
 

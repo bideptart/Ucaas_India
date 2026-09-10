@@ -59,7 +59,7 @@ const VoiceMailConfigureModal: FC<ModalProps> = ({ modalState, setModalState }) 
         </div>
 
         <DialogDescription>
-          <p className="text-gray-900 text-sm dark:text-mcm-ink">
+          <p className="text-gray-900 text-sm">
             Select co recipients who will receive voicemail notification and will be abe to check
             your voicemail messages
           </p>

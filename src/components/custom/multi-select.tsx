@@ -77,12 +77,12 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         <div
           className={`${
             error ? 'border-red-500 focus:border-red-500' : 'border-grey-400 hover:border-primary'
-          } flex justify-between items-center w-full bg-white dark:bg-mcm-surface border border-gray-300 dark:border-mcm-line text-grey-700 hover:bg-white dark:hover:bg-mcm-surface  px-1 font-normal min-h-10 rounded-lg cursor-pointer `}
+          } flex justify-between items-center w-full bg-white border border-gray-300 text-grey-700 hover:bg-white  px-1 font-normal min-h-10 rounded-lg cursor-pointer `}
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex gap-2 max-h-9 overflow-auto flex-wrap">
             {selectedOptions?.length > 0 ? (
-              <div className="flex items-center rounded-md bg-gray-100 dark:bg-mcm-surface-3 px-2 py-1 text-sm font-medium text-gray-500 dark:text-mcm-ink-3 gap-2 capitalize w-full whitespace-nowrap">
+              <div className="flex items-center rounded-md bg-gray-100 px-2 py-1 text-sm font-medium text-gray-500 gap-2 capitalize w-full whitespace-nowrap">
                 {' '}
                 {selectedOptions?.length} {selectedOptions?.length === 1 ? 'value' : 'values'}{' '}
                 selected
@@ -98,14 +98,14 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 </button>
               </div>
             ) : (
-              <p className="whitespace-nowrap pl-2 text-gray-900/80 dark:text-mcm-ink text-sm">{placeholder}</p>
+              <p className="whitespace-nowrap pl-2 text-gray-900/80 text-sm">{placeholder}</p>
             )}
           </div>
           <Icon name="ChevronIcon" className="w-5 h-5" />
         </div>
 
         {isOpen && (
-          <div className="p-2 absolute mt-2 origin-top-right rounded-md bg-white dark:bg-mcm-surface shadow-lg focus:outline-none border border-primary max-h-40 overflow-y-auto z-[99] w-full">
+          <div className="p-2 absolute mt-2 origin-top-right rounded-md bg-white shadow-lg focus:outline-none border border-primary max-h-40 overflow-y-auto z-[99] w-full">
             <div className="w-full">
               {isSearch && (
                 <Input
@@ -118,7 +118,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     if (value.startsWith(' ')) return;
                     setSearch(e.target.value);
                   }}
-                  Icon={<Icon name="SearchLine" className=" text-gray-700 dark:text-mcm-ink-2" />}
+                  Icon={<Icon name="SearchLine" className=" text-gray-700" />}
                 />
               )}
 

@@ -1,5 +1,4 @@
 import { useSocketEvents } from '@/hooks/use-socket-events';
-import { useTheme } from '@/hooks/use-theme';
 import { darkenColor, getEnv, lightenColorWithAlpha, stringToColour } from '@/lib/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/hooks/use-user';
@@ -64,20 +63,7 @@ export const statusImageLookup: any = {
   dnd: <img src={DNDImage} alt="DNDImage" className="w-2.5 h-2.5" />,
   online: <div className="w-2 h-2 rounded-full bg-green-500" />,
   offline: <div className="w-2 h-2 rounded-full bg-gray-500" />,
-  /* Unspecified on-call state (no `activeCallTone` passed) — every other
-     caller of `showPresence` (messenger, header, directory, dialpad lists,
-     ~59 files) relies on this red dot for "on a call" with no further
-     nuance, so it stays the default rather than being repurposed. */
   call: <div className="w-2 h-2 rounded-full bg-red-500" />,
-  /* Opt-in variants, driven by `activeCallTone` — only Performance ▸ Live
-     Interactions (all-users/index.tsx) passes this today, since it already
-     knows the matched call's real status per row. A green dot for a
-     healthy bridged/answered call and an amber one for ringing/on-hold
-     reads correctly next to that row's own green/yellow tint, instead of
-     every on-call agent showing the same red dot regardless of whether the
-     call is actually connected. */
-  'call-connected': <div className="w-2 h-2 rounded-full bg-emerald-500" />,
-  'call-ringing': <div className="w-2 h-2 rounded-full bg-amber-500" />,
 };
 
 interface AvatarProps {
@@ -98,12 +84,6 @@ interface AvatarProps {
      to hook into here without this. Any other avatar (someone else's, in
      a list) should leave this unset and keep reading the live feed. */
   presenceOverride?: 'online' | 'busy' | 'dnd' | 'offline' | 'call';
-  /* Only meaningful while this avatar is actively on a call (`isOnCall`
-     below). Lets a caller that already knows the specific call's status
-     (e.g. Live Interactions, matching this extension's row) pick a
-     'connected' (green) or 'ringing' (amber) dot instead of the generic
-     red 'call' dot every other caller gets by default. */
-  activeCallTone?: 'connected' | 'ringing';
 }
 const CustomAvatar = ({
   name = '',
@@ -116,7 +96,6 @@ const CustomAvatar = ({
   isActivityInfo = true,
   textClass,
   presenceOverride,
-  activeCallTone,
 }: AvatarProps) => {
   const { usersOnlineStatus, liveCalls, eventLiveCallsData } = useSocketEvents();
   const liveCallsData = getMonitoringLiveCalls(liveCalls, eventLiveCallsData);
@@ -209,28 +188,13 @@ const CustomAvatar = ({
   const isOnline = Boolean(activeUser?.online);
   const userStatus = String(activeUser?.status || '').toLowerCase();
   const status = isOnCall
-    ? activeCallTone
-      ? `call-${activeCallTone}`
-      : 'call'
+    ? 'call'
     : presenceOverride || (isOnline ? userStatus || 'online' : 'offline');
 
   const NAME = name;
   const nameColour = stringToColour(NAME);
-  /* The initials were always drawn as this person's hue darkened 90% on a
-     5%-alpha wash of the same hue -- a pairing built for a white row. On a
-     dark surface both sides collapse into the background: measured #000060
-     on rgba(54,6,191,0.2) for "ST", and one seeded colour comes out pure
-     black, so those avatars rendered as empty circles.
-
-     Dark keeps the same per-person hue -- it is what makes people
-     recognisable at a glance -- and only flips the contrast: white ink on a
-     stronger wash of the hue, which reads on a dark row the way the
-     original pairing reads on a light one. */
-  const isDark = useTheme() === 'dark';
-  const lightColor = isDark ? '#ffffff' : darkenColor(`${nameColour}`, 90);
-  const darkColor = isDark
-    ? lightenColorWithAlpha(`${nameColour}`, 20, 0.45)
-    : lightenColorWithAlpha(`${nameColour}`, 5);
+  const lightColor = darkenColor(`${nameColour}`, 90);
+  const darkColor = lightenColorWithAlpha(`${nameColour}`, 5);
 
   const handleAvatarImageError = () => {
     setHasImageError(true);
@@ -252,8 +216,9 @@ const CustomAvatar = ({
           width: `${size}px`,
           minWidth: `${size}px`,
           height: `${size}px`,
+          background: '#FFFFFF',
         }}
-        className={`rounded-full border border-white dark:border-mcm-line bg-white dark:bg-mcm-surface-3 relative cursor-pointer`}
+        className={`rounded-full border border-white relative cursor-pointer`}
         onClick={(e) => {
           if (image && mediaUrl && !hasImageError) {
             e.stopPropagation();
@@ -276,13 +241,7 @@ const CustomAvatar = ({
             <CustomTooltip
               text={
                 <div className={status === 'dnd' ? '' : 'capitalize'}>
-                  {status === 'dnd'
-                    ? 'DND'
-                    : status === 'call-connected'
-                      ? 'On call — connected'
-                      : status === 'call-ringing'
-                        ? 'On call — ringing'
-                        : status}
+                  {status === 'dnd' ? 'DND' : status}
                 </div>
               }
             >

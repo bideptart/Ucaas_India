@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import moment from 'moment';
+import { callMoment } from '@/lib/call-time';
 import { callList } from '@/services/api';
 import Loader from '@/components/custom/loader';
 import type { DialpadSession } from '@/context/dialpad-context';
 import { Ic } from '../icons';
 import { DialNumber, useConsoleDialer } from '../dial-number';
 import type { ConsoleCallRow } from '../call-list-column';
+import { durationSeconds } from '../copilot-adapter';
+import NumberWithFlag, { isDiallableNumber } from '@/components/custom/number-with-flag';
+import { normalizeCallNumber } from '@/lib/call-number';
 import { DEMO_ENABLED, demoInteractions } from '../demo-data';
 import DemoChip from './demo-chip';
 
@@ -36,11 +39,41 @@ type Item = {
   summary: string;
   items: string[];
   isDemoNarrative: boolean;
+  /** Our own number on this call — the DID it went out from, or came in on. */
+  did: string;
+  didLabel: string;
+};
+
+/**
+ * Which of the company's numbers was on this call.
+ *
+ * A log row holds both ends, and which field is *ours* flips with the
+ * direction: on an outbound call the far end is `destination_number` and we are
+ * the caller ID, on an inbound one it is the other way round.
+ *
+ * Every candidate is checked before it is shown. `display_caller_number` is the
+ * number actually presented to the person being called, so it is asked first —
+ * but it is a varchar(16) the switch does not always fill honestly, and rows
+ * carrying stubs like "000" were being printed as though they were the DID.
+ * A value that is not a real number tells the reader nothing, so the line is
+ * left off the row entirely rather than filled with something untrue.
+ */
+const ownNumberOf = (row: any, direction: string) => {
+  const candidates =
+    direction === 'Outbound'
+      ? [row?.display_caller_number, row?.caller_id_number]
+      : [row?.destination_number, row?.caller_destination];
+
+  for (const candidate of candidates) {
+    const value = normalizeCallNumber(candidate);
+    if (isDiallableNumber(value)) return value;
+  }
+  return '';
 };
 
 /** 0 -> "not answered", 45 -> "45s", 605 -> "10m 05s", 3725 -> "1h 02m" */
 const humanDuration = (value: unknown) => {
-  const n = Number(value);
+  const n = durationSeconds(value);
   if (!Number.isFinite(n) || n <= 0) return 'not answered';
   const h = Math.floor(n / 3600);
   const m = Math.floor((n % 3600) / 60);
@@ -78,11 +111,13 @@ const HistoryPane = ({
     return (rows as any[]).map((row, i) => {
       const demo = narrative[i % Math.max(1, narrative.length)];
       const start = String(row?.start_stamp ?? '').trim();
-      const billsec = Number(row?.billsec ?? row?.duration ?? 0);
+      /* Same shape problem as the call list: billsec/duration are "HH:MM:SS"
+         strings, so Number() was NaN and every call here read "not answered". */
+      const billsec = durationSeconds(row);
       const direction = String(row?.direction || '').trim() || 'Inbound';
       const missed =
         direction === 'Missed' || String(row?.hangup_cause || '').toUpperCase() === 'NO_ANSWER';
-      const at = start && moment(start).isValid() ? moment(start) : null;
+      const at = start && callMoment(start).isValid() ? callMoment(start) : null;
       return {
         id: String(row?.uuid || row?.sipcall_id || `${i}`),
         when: at ? at.format('DD MMM YYYY · HH:mm') : '—',
@@ -101,6 +136,8 @@ const HistoryPane = ({
           : demo?.summary || '',
         items: missed ? [] : demo?.items || [],
         isDemoNarrative: !missed && DEMO_ENABLED,
+        did: ownNumberOf(row, direction),
+        didLabel: direction === 'Outbound' ? 'Called from' : 'Received on',
       };
     });
   }, [rows, phone]);
@@ -171,6 +208,14 @@ const HistoryPane = ({
                           {item.direction}
                         </span>
                       </div>
+                      {/* Own line rather than a fourth segment above: the date
+                          and time already fill that row at this panel width. */}
+                      {item.did ? (
+                        <div className="tl-sub tl-did">
+                          <span>{item.didLabel}</span>
+                          <NumberWithFlag number={item.did} className="num" />
+                        </div>
+                      ) : null}
                     </div>
                     <div className="tl-right">
                       <span className="tl-dur num">{item.duration}</span>
@@ -182,6 +227,14 @@ const HistoryPane = ({
                   </button>
 
                   <div className="tl-detail">
+                    {item.did ? (
+                      <div className="kv">
+                        <span className="k">{item.didLabel}</span>
+                        <span className="v num">
+                          <NumberWithFlag number={item.did} />
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="kv">
                       <span className="k">Handled by</span>
                       <span className="v">{item.agent}</span>

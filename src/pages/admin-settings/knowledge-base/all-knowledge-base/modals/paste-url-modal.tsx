@@ -119,14 +119,14 @@ function PasteUrlModal({
               Get from URL
               <div
                 onClick={() => setModalState(false)}
-                className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
               >
                 <CloseIcon className="w-3 h-3" />
               </div>
             </div>
           </div>
           <div className="w-full flex flex-col gap-3">
-            <h5 className="text-gray-500 dark:text-mcm-ink-3 font-medium text-sm">
+            <h5 className="text-gray-500 font-medium text-sm">
               Scan information from URL link to document or website.
             </h5>
             <Controller
@@ -180,8 +180,8 @@ function PasteUrlModal({
               + Add URL
             </Button>
             <div className="flex items-center gap-1">
-              <p className="text-xs text-gray-500 dark:text-mcm-ink-3">You can add up to 5 URLs only</p>
-              <span className="text-xs text-gray-500 dark:text-mcm-ink-3">({fields?.length} / 5)</span>
+              <p className="text-xs text-gray-500">You can add up to 5 URLs only</p>
+              <span className="text-xs text-gray-500">({fields?.length} / 5)</span>
             </div>
           </div>
           <div className="justify-end flex gap-2">

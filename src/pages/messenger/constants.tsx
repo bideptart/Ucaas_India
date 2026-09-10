@@ -14,18 +14,18 @@ export const ChatChannels = [
   {
     label: 'All Channels',
     value: 'all_channels',
-    icon: () => <Bot className="w-6 h-6 text-gray-900 dark:text-mcm-ink" />,
+    icon: () => <Bot className="w-6 h-6 text-gray-900" />,
   },
 
   {
     label: 'Chat',
     value: 'chat',
-    icon: () => <ChatLine className="w-6 h-6 text-gray-900 dark:text-mcm-ink" />,
+    icon: () => <ChatLine className="w-6 h-6 text-gray-900" />,
   },
   {
     label: 'Website',
     value: 'captain',
-    icon: () => <Bot className="w-6 h-6 text-gray-900 dark:text-mcm-ink" />,
+    icon: () => <Bot className="w-6 h-6 text-gray-900" />,
   },
   // {
   //   label: 'Whatsapp',
@@ -52,7 +52,7 @@ export const CHANNELS_ICON = {
   instagram: <Instagram className="w-8 h-8" />,
   whatsapp: <WhatsappIcon className="w-8 h-8" />,
   telegram: <TelegramIcon className="w-8 h-8" />,
-  chat: <ChatLine className="w-6 h-6 text-gray-900 dark:text-mcm-ink" />,
+  chat: <ChatLine className="w-6 h-6 text-gray-900" />,
   all_channels: <></>,
 };
 

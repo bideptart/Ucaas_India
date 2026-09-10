@@ -98,7 +98,7 @@ const csvCell = (value: unknown) => {
 
 const STATE_STYLE: Record<string, string> = {
   open: 'text-emerald-700',
-  closed: 'text-gray-500 dark:text-mcm-ink-3',
+  closed: 'text-gray-500',
   holiday: 'text-amber-700',
 };
 
@@ -349,11 +349,12 @@ const LocationManagement = () => {
   if (!canView) {
     return (
       <AdminPage
+      hideHead
         section="Company"
         title="Location management"
         description="Every location your company works from, side by side."
       >
-        <div className="p-6 text-center text-sm text-gray-600 dark:text-mcm-ink-3">
+        <div className="p-6 text-center text-sm text-gray-600">
           You do not have permission to view locations.
         </div>
       </AdminPage>
@@ -408,7 +409,7 @@ const LocationManagement = () => {
               handleChange={(option: any) => setStatus((option?.value as StatusFilter) || 'all')}
             />
           </div>
-          <span className="ml-auto text-xs font-medium text-gray-500 dark:text-mcm-ink-3">
+          <span className="ml-auto text-xs font-medium text-gray-500">
             {visible.length} of {rows.length}
           </span>
         </div>
@@ -434,7 +435,7 @@ const LocationManagement = () => {
             label="Right now"
             description="Your company opening hours and holidays, judged on the location's timezone rather than yours. A location with no timezone is judged on your own clock, and is flagged as incomplete below."
             control={
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
                 <Clock className="h-3.5 w-3.5 text-gray-400" />
                 {describeWeeklyHours(companyHours)}
               </span>
@@ -444,7 +445,7 @@ const LocationManagement = () => {
             label="To complete"
             description="Address, city, country and timezone are what a location needs before people and numbers can safely be put in it. Filter to “Needs attention” to see only the locations missing something."
             control={
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
                 <AlertTriangle className="h-3.5 w-3.5 text-gray-400" />
                 {attentionCount} of {rows.length}
               </span>
@@ -485,7 +486,7 @@ const LocationManagement = () => {
                   {selectedRows.length === 1 ? 'location' : 'locations'}
                 </Button>
                 {progress ? (
-                  <span className="text-xs font-medium text-gray-500 dark:text-mcm-ink-3">
+                  <span className="text-xs font-medium text-gray-500">
                     Saved {progress.done} of {progress.total}…
                   </span>
                 ) : null}
@@ -522,7 +523,7 @@ const LocationManagement = () => {
                 ) : !visible.length ? (
                   <tr>
                     <td colSpan={canEdit ? 8 : 7}>
-                      <div className="p-6 text-center text-sm text-gray-600 dark:text-mcm-ink-3">
+                      <div className="p-6 text-center text-sm text-gray-600">
                         {rows.length
                           ? 'No locations match those filters.'
                           : 'No locations yet. Add one from Company & Locations.'}
@@ -582,7 +583,7 @@ const LocationManagement = () => {
                         ) : (
                           <span
                             className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-                              row.readiness.requiredMissing > 0 ? 'text-amber-700' : 'text-gray-600 dark:text-mcm-ink-3'
+                              row.readiness.requiredMissing > 0 ? 'text-amber-700' : 'text-gray-600'
                             }`}
                             title={row.readiness.issues
                               .map((issue: any) => issue.consequence)

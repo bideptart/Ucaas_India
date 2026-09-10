@@ -14,10 +14,10 @@ import {
 const bubbleAlign = (role: AgentMessage['role']) => (role === 'user' ? 'items-start' : 'items-end');
 const bubbleClass = (role: AgentMessage['role']) =>
   role === 'user'
-    ? 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900 dark:text-mcm-ink rounded-bl-sm'
+    ? 'bg-gray-100 text-gray-900 rounded-bl-sm'
     : role === 'agent'
       ? 'bg-primary text-white rounded-br-sm'
-      : 'bg-indigo-50 dark:bg-mcm-ai-wash text-indigo-900 dark:text-mcm-ai-ink rounded-br-sm';
+      : 'bg-indigo-50 text-indigo-900 rounded-br-sm';
 
 const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onBackToList?: () => void }) => {
   const queryClient = useQueryClient();
@@ -56,26 +56,26 @@ const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex items-center justify-between gap-3 p-3 border-b border-gray-200 dark:border-b-mcm-line">
+      <div className="flex items-center justify-between gap-3 p-3 border-b border-gray-200">
         <div className="flex items-center gap-2 min-w-0">
           {onBackToList && (
-            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-mcm-surface-3 lg:hidden">
+            <button onClick={onBackToList} className="p-1.5 rounded-lg hover:bg-gray-100 lg:hidden">
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
-          <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-mcm-surface-3 text-indigo-600 dark:text-mcm-ink-2 flex items-center justify-center font-medium text-sm shrink-0">
+          <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-medium text-sm shrink-0">
             {label.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink truncate">{label}</p>
-            <p className="text-xs text-gray-400 dark:text-mcm-ink-3 truncate">
+            <p className="font-medium text-gray-900 truncate">{label}</p>
+            <p className="text-xs text-gray-400 truncate">
               {selectedChat.contactEmail && selectedChat.contactName ? selectedChat.contactEmail : selectedChat.inboxName || 'Website'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Bot className="w-4 h-4 text-gray-400 dark:text-mcm-ink-3" />
-          <span className="text-xs text-gray-500 dark:text-mcm-ink-3">AI replying</span>
+          <Bot className="w-4 h-4 text-gray-400" />
+          <span className="text-xs text-gray-500">AI replying</span>
           <Switch
             checked={!selectedChat.aiPaused}
             onCheckedChange={(checked) => mutateToggleAi(checked)}
@@ -83,7 +83,7 @@ const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50 dark:bg-mcm-ground">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50">
         {messages
           .filter((m) => m.role !== 'system' && m.role !== 'tool')
           .map((m) => (
@@ -91,7 +91,7 @@ const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
               <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${bubbleClass(m.role)}`}>
                 {m.content}
               </div>
-              <span className="text-[10px] text-gray-400 dark:text-mcm-ink-3 mt-0.5 px-1">
+              <span className="text-[10px] text-gray-400 mt-0.5 px-1">
                 {m.role === 'user' ? label : m.role === 'agent' ? 'You' : 'AI assistant'}
               </span>
             </div>
@@ -99,7 +99,7 @@ const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-3 border-t border-gray-200 dark:border-t-mcm-line flex items-end gap-2">
+      <div className="p-3 border-t border-gray-200 flex items-end gap-2">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -111,7 +111,7 @@ const WebsiteContent = ({ selectedChat, onBackToList }: { selectedChat: any; onB
           }}
           placeholder="Reply as an agent — this pauses the AI on this conversation…"
           rows={1}
-          className="flex-1 resize-none rounded-xl border border-gray-200 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-2 px-3 py-2 text-sm max-h-24"
+          className="flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2 text-sm max-h-24"
         />
         <Button onClick={() => draft.trim() && mutateSend(draft.trim())} disabled={isSending || !draft.trim()}>
           <Send className="w-4 h-4" />

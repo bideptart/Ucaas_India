@@ -493,7 +493,7 @@ const DialpadMaxiTabTranscript = ({ activeSession }: DialpadMaxiTabTranscriptPro
     shouldForceAutomaticTranscription || shouldShowTranscriptionButtons;
 
   return activeSession ? (
-    <div className="flex h-full min-h-0 flex-col rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3">
+    <div className="flex h-full min-h-0 flex-col rounded-2xl border border-ucass-active-bg bg-white px-3">
       {shouldShowTranscriptionHeader ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {shouldForceAutomaticTranscription ? (
@@ -507,7 +507,7 @@ const DialpadMaxiTabTranscript = ({ activeSession }: DialpadMaxiTabTranscriptPro
                 type="button"
                 disabled={isStopDisabled}
                 onClick={() => emitTranscriptionEvent('transcript-stop', 'stop')}
-                className="rounded-lg border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3 py-1.5 text-xs font-semibold text-[#2f3d57] dark:text-mcm-ink transition hover:bg-[#f4f7fb] dark:hover:bg-mcm-surface-3 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-ucass-active-bg bg-white px-3 py-1.5 text-xs font-semibold text-[#2f3d57] transition hover:bg-[#f4f7fb] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Stop
               </button>
@@ -530,7 +530,7 @@ const DialpadMaxiTabTranscript = ({ activeSession }: DialpadMaxiTabTranscriptPro
         </div>
       ) : null}
 
-      <div className="relative mt-2 flex-1 min-h-0 rounded-xl bg-white dark:bg-mcm-surface px-2.5 py-2.5 ">
+      <div className="relative mt-2 flex-1 min-h-0 rounded-xl bg-white px-2.5 py-2.5 ">
         {activeMessages.length ? (
           <div
             ref={transcriptListRef}

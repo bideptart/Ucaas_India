@@ -20,11 +20,10 @@
  * truth about this account rather than a guess.
  */
 
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import { SettingCard, SettingRow } from '@/components/mcm/setting-card';
-import { Button } from '@/components/ui/button';
 import { AdminPage } from '@/pages/admin-settings/page-shell';
 import { moneyOrUnavailable } from '@/lib/billing-money';
 import { useCompanyFeatures } from '@/hooks/rbac';
@@ -39,11 +38,9 @@ import {
 } from '@/lib/addons';
 
 const PILL: Record<AddOnState, string> = {
-  included:
-    'border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-400',
-  'not-included': 'border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3',
-  unknown:
-    'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-400',
+  included: 'border-green-200 bg-green-50 text-green-800',
+  'not-included': 'border-gray-200 bg-gray-50 text-gray-600',
+  unknown: 'border-amber-200 bg-amber-50 text-amber-800',
 };
 
 const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
@@ -69,11 +66,11 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           addOn.monthlyPrice === undefined ? (
             /* Still no price for this one. Better a plain admission than a
                figure somebody budgets against. */
-            <span className="text-xs text-gray-500 dark:text-mcm-ink-3">{priceText()}</span>
+            <span className="text-xs text-gray-500">{priceText()}</span>
           ) : (
-            <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+            <span className="text-sm font-semibold tabular-nums text-gray-900">
               {moneyOrUnavailable(addOn.monthlyPrice)}
-              <span className="ml-1 text-xs font-normal text-gray-500 dark:text-mcm-ink-3">a month</span>
+              <span className="ml-1 text-xs font-normal text-gray-500">a month</span>
             </span>
           )
         }
@@ -85,7 +82,7 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           description={`${addOn.included.toLocaleString()} ${addOn.includedUnit ?? ''} each month. Unused ones do not carry over.`.trim()}
           control={
             addOn.overageRate !== undefined ? (
-              <span className="text-xs text-gray-600 dark:text-mcm-ink-3 tabular-nums">
+              <span className="text-xs text-gray-600 tabular-nums">
                 then {moneyOrUnavailable(addOn.overageRate)} per{' '}
                 {(addOn.includedUnit ?? 'unit').replace(/s$/, '')}
               </span>
@@ -106,7 +103,7 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
           {open ? (
             <ul className="mt-2 flex flex-col gap-1.5">
               {addOn.detail.map((line) => (
-                <li key={line} className="text-xs leading-relaxed text-gray-600 dark:text-mcm-ink-3">
+                <li key={line} className="text-xs leading-relaxed text-gray-600">
                   {line}
                 </li>
               ))}
@@ -119,6 +116,14 @@ const AddOnCard = ({ addOn, state }: { addOn: AddOn; state: AddOnState }) => {
 };
 
 const AddOns = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'Extras you can have on top of your plan, and which ones you already have.',
+  });
+
   /* The COMPANY's plan, deliberately - not `features`, which for a non-admin is
      narrowed to what their own role exposes. This page answers "what does this
      company have", and a role that hides a feature does not mean the company is
@@ -131,8 +136,8 @@ const AddOns = () => {
 
   return (
     <AdminPage
+      hideHead
       title="Add-ons"
-      description="Extras you can have on top of your plan, and which ones you already have."
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
         <SettingCard
@@ -148,17 +153,6 @@ const AddOns = () => {
           <SettingRow
             label="An add-on is a licence, not a switch"
             description="Each one is bought per seat, the same way your plan is, and changes what that person's line can do. Adding one is a change to your bill, not a setting you turn on."
-          />
-          <SettingRow
-            label="Looking for what a call abroad costs?"
-            description="The full price list, country by country, is on the destinations page — that is live today and does not depend on any add-on."
-            control={
-              <Link to="/admin-settings/calling-rates/destinations">
-                <Button type="button" variant="outline">
-                  Destinations and rates
-                </Button>
-              </Link>
-            }
           />
         </SettingCard>
 

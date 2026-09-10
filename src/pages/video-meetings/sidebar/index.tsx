@@ -125,15 +125,15 @@ const Sidebar = () => {
                     <AccordionTrigger
                       className="items-center p-0"
                       isActive={isActive}
-                      activeHeaderClassName="[&>button[data-state=open]]:rounded-xl [&>button[data-state=open]]:bg-[#E78B50]/10 [&>button[data-state=open]]:text-[#B5642F] dark:[&>button[data-state=open]]:bg-[#f97316]/15 dark:[&>button[data-state=open]]:text-[#ff8a2a]"
-                      activeIconClassName="text-[#B5642F] dark:text-[#ff8a2a]"
+                      activeHeaderClassName="[&>button[data-state=open]]:rounded-xl [&>button[data-state=open]]:bg-[#E78B50]/10 [&>button[data-state=open]]:text-[#B5642F]"
+                      activeIconClassName="text-[#B5642F]"
                     >
-                      <div className="flex min-h-12 w-full items-center gap-2.5 px-3 py-3 text-sm font-medium rounded-xl hover:bg-white/50 dark:hover:bg-[#f97316]/15 transition-colors">
+                      <div className="flex min-h-12 w-full items-center gap-2.5 px-3 py-3 text-sm font-medium rounded-xl hover:bg-white/50 transition-colors">
                         <Icon name={icon as IconType} className="h-5 w-5" />
                         {title}
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="bg-[#E78B50]/[0.04] dark:bg-[#f97316]/10 backdrop-blur-md rounded-xl mt-0.5 px-2 py-1">
+                    <AccordionContent className="bg-[#E78B50]/[0.04] backdrop-blur-md rounded-xl mt-0.5 px-2 py-1">
                       {children?.map(
                         (
                           {
@@ -203,12 +203,13 @@ const Tile = ({
 
   return (
     <div
-      className={`group flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${isActive ? (isChildrenExist ? 'text-[#B5642F] dark:text-[#ff8a2a]' : 'bg-white/80 backdrop-blur-md text-[#B5642F] shadow-[0_2px_8px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.8)] dark:bg-[#111c26]/80 dark:text-[#ff8a2a] dark:shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.04)]') : 'text-gray-900/80 hover:bg-white/50 dark:text-mcm-ink-3 dark:hover:bg-[#f97316]/15'} ${child ? 'py-2 mt-0.5' : ''} ${!isEnabled ? 'text-gray-400 opacity-60' : ''}`}
+      className={`group flex min-h-11 w-full items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${isActive ? (isChildrenExist ? 'text-[#B5642F]' : 'bg-white/80 backdrop-blur-md text-[#B5642F] shadow-[0_2px_8px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.8)]') : 'text-gray-900/80 hover:bg-white/50'} ${child ? 'py-2 mt-0.5' : ''} ${!isEnabled ? 'text-gray-400 opacity-60' : ''}`}
       {...getRoutePrefetchHandlers(path)}
       onClick={handleClick}
     >
       <span
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${isActive && !isChildrenExist ? 'bg-[#E78B50]/[0.14] dark:bg-[#f97316]/[0.2]' : ''}`}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
+        style={isActive && !isChildrenExist ? { background: 'rgba(231,139,80,0.14)' } : undefined}
       >
         <Icon name={icon as IconType} className="h-5 w-5" />
       </span>

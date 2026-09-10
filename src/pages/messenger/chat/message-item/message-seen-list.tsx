@@ -69,21 +69,21 @@ const MessageSeenList = ({ messageId, chatId }: MessageSeenListProps) => {
 
   if (isLoading) {
     return (
-      <div className="w-72 bg-white dark:bg-mcm-surface rounded-lg shadow-sm border dark:border-mcm-line">
-        <div className="p-2 border-b border-gray-100/80 dark:border-mcm-line bg-gray-50/60 dark:bg-mcm-surface-3/60">
+      <div className="w-72 bg-white rounded-lg shadow-sm border">
+        <div className="p-2 border-b border-gray-100/80 bg-gray-50/60">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gray-200 dark:bg-mcm-surface-3 animate-pulse" />
-            <div className="h-3 w-20 rounded bg-gray-200 dark:bg-mcm-surface-3 animate-pulse" />
+            <div className="w-4 h-4 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-3 w-20 rounded bg-gray-200 animate-pulse" />
           </div>
         </div>
-        <div className="py-10 text-center text-xs text-gray-400 dark:text-mcm-ink-3">Loading read status...</div>
+        <div className="py-10 text-center text-xs text-gray-400">Loading read status...</div>
       </div>
     );
   }
 
   if (hasError) {
     return (
-      <div className="w-72 bg-white dark:bg-mcm-surface rounded-lg shadow-sm border dark:border-mcm-line">
+      <div className="w-72 bg-white rounded-lg shadow-sm border">
         <div className="p-2 border-b border-red-100/80 bg-red-50/60">
           <div className="flex items-center gap-2">
             <Eye className="w-4 h-4 text-red-400" />
@@ -97,27 +97,27 @@ const MessageSeenList = ({ messageId, chatId }: MessageSeenListProps) => {
 
   if (!Array.isArray(seenBy) || seenBy.length === 0) {
     return (
-      <div className="w-72 bg-white dark:bg-mcm-surface rounded-lg shadow-sm border dark:border-mcm-line">
-        <div className="p-2 border-b border-gray-100/80 dark:border-mcm-line bg-gray-50/60 dark:bg-mcm-surface-3/60">
+      <div className="w-72 bg-white rounded-lg shadow-sm border">
+        <div className="p-2 border-b border-gray-100/80 bg-gray-50/60">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-gray-400 dark:text-mcm-ink-3" />
-            <span className="text-xs font-semibold text-gray-600 dark:text-mcm-ink-2 uppercase">Read Status</span>
+            <Eye className="w-4 h-4 text-gray-400" />
+            <span className="text-xs font-semibold text-gray-600 uppercase">Read Status</span>
           </div>
         </div>
-        <div className="py-10 text-center text-sm text-gray-500 dark:text-mcm-ink-3">Not seen yet</div>
+        <div className="py-10 text-center text-sm text-gray-500">Not seen yet</div>
       </div>
     );
   }
 
   return (
-    <div className="w-72 p-0 bg-white dark:bg-mcm-surface rounded-lg overflow-hidden border dark:border-mcm-line shadow-sm">
-      <div className="p-2.5 border-b border-gray-100/80 dark:border-mcm-line bg-gradient-to-r from-ucass-active-bg/60 via-indigo-50/30 to-purple-50/20">
+    <div className="w-72 p-0 bg-white rounded-lg overflow-hidden border shadow-sm">
+      <div className="p-2.5 border-b border-gray-100/80 bg-gradient-to-r from-ucass-active-bg/60 via-indigo-50/30 to-purple-50/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-7 h-7 rounded-full bg-ucass-active-bg/80">
               <CheckCheck className="w-4 h-4 text-ucass-active" />
             </div>
-            <div className="text-xs font-semibold text-gray-700 dark:text-mcm-ink-2 uppercase">Seen by</div>
+            <div className="text-xs font-semibold text-gray-700 uppercase">Seen by</div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ucass-active text-white">
             <Users className="w-3 h-3" />
@@ -138,7 +138,7 @@ const MessageSeenList = ({ messageId, chatId }: MessageSeenListProps) => {
           return (
             <div
               key={safeKey}
-              className="group relative flex items-center gap-3 p-2.5 hover:bg-ucass-active-bg/20 transition-colors border-b border-gray-50 dark:border-mcm-line last:border-0"
+              className="group relative flex items-center gap-3 p-2.5 hover:bg-ucass-active-bg/20 transition-colors border-b border-gray-50 last:border-0"
             >
               <div className="relative text-xs">
                 <CustomAvatar
@@ -148,17 +148,17 @@ const MessageSeenList = ({ messageId, chatId }: MessageSeenListProps) => {
                   size="34"
                   image={foundUser?.profile || ''}
                 />
-                <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-ucass-active border-2 border-white dark:border-mcm-surface shadow-sm">
+                <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-ucass-active border-2 border-white shadow-sm">
                   <CheckCheck className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-800 dark:text-mcm-ink truncate">{userName}</div>
+                <div className="text-sm font-semibold text-gray-800 truncate">{userName}</div>
                 {seenTime ? (
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <Eye className="w-3 h-3 text-gray-400 dark:text-mcm-ink-3" />
-                    <span className="text-xs text-gray-500 dark:text-mcm-ink-3 font-medium">{seenTime}</span>
+                    <Eye className="w-3 h-3 text-gray-400" />
+                    <span className="text-xs text-gray-500 font-medium">{seenTime}</span>
                   </div>
                 ) : null}
               </div>

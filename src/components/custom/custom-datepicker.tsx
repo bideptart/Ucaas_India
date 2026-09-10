@@ -42,8 +42,8 @@ export function CustomDatePicker({
             variant="outline"
             disabled={disabled}
             className={cn(
-              'w-full justify-between text-left font-normal p-0 border-gray-300 dark:border-mcm-line hover:bg-white dark:hover:bg-mcm-surface-3 hover:border-primary hover:text-gray-900 dark:hover:text-mcm-ink gap-2',
-              !value && 'text-gray-900 dark:text-mcm-ink',
+              'w-full justify-between text-left font-normal p-0 border-gray-300 hover:bg-white hover:border-primary hover:text-gray-900 gap-2',
+              !value && 'text-gray-900',
             )}
           >
             {value ? moment(value).format('YYYY-MM-DD') : <span>{placeholder}</span>}

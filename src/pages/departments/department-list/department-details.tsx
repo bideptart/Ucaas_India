@@ -5,16 +5,20 @@ import CustomTooltip from '@/components/custom/custom-tooltip';
 import Loader from '@/components/custom/loader';
 import SideDrawer from '@/components/custom/side-drawer';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { capitalizeFirstLetter, getObjectLength, handleAlert } from '@/lib/utils';
 import NewDepartment from '@/pages/admin-settings/phone-systems/departments/new-department';
-import { deleteDepartment } from '@/services/api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { deleteDepartment, getUserList, updateMemberForwading } from '@/services/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useUser } from '@/hooks/use-user';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useDialpad } from '@/hooks/use-dialpad';
+import { useInstantMeeting } from '@/hooks/use-instant-meeting';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const DepartmentDetails = () => {
   const queryClient = useQueryClient();
@@ -22,6 +26,10 @@ const DepartmentDetails = () => {
   const [modalState, setModalState] = useState<any>(false);
   const [drawerState, setDrawerState] = useState<any>(false);
   const [drawerDepartmentData, setDrawerDepartmentData] = useState<any>({});
+  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [personForm, setPersonForm] = useState({
+    first_name: '', last_name: '', email: '', phone: '', site: '', extension: '',
+  });
   const { features } = useCompanyFeatures();
 
   const phoneSystem = features?.plan_features?.phone_system_action;
@@ -33,6 +41,7 @@ const DepartmentDetails = () => {
   const { user } = useUser();
   const { usersOnlineStatus, createNewChat, createPrivateChatId } = useSocketEvents();
   const { makeCall, sessions } = useDialpad();
+  const { startVideoCall, isStarting } = useInstantMeeting();
   const extension = user?.user_info?.extension;
   const isMeOnCall = usersOnlineStatus?.find((user) => user?.userId == extension)?.onCall;
 
@@ -92,6 +101,51 @@ const DepartmentDetails = () => {
     makeCall(String(number));
   };
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['directoryPeople'],
+    queryFn: () => getUserList({ page: 1, limit: 500 }),
+    select: (res: any) => res?.data?.data?.result?.rows || [],
+  });
+
+  const usersByUuid = useMemo(() => {
+    const map = new Map<string, any>();
+    allUsers.forEach((u: any) => {
+      if (u?.uuid) map.set(u.uuid, u);
+    });
+    return map;
+  }, [allUsers]);
+
+  const { mutate: savePerson, isPending: isSavingPerson } = useMutation({
+    mutationFn: (payload: Record<string, string>) =>
+      updateMemberForwading({ userID: selectedMember?.user_uuid, uuid: selectedMember?.user_uuid, ...payload }),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['directoryPeople'] });
+      handleAlert({ text: data?.data?.data?.message || 'Saved', type: 'success' });
+      setSelectedMember(null);
+    },
+  });
+
+  const getMemberPresence = (memberExtension: any) => {
+    const status = usersOnlineStatus?.find((u) => u?.userId == memberExtension);
+    if (status?.onCall) return { label: 'On Call', tone: 'busy' };
+    if (status?.online) return { label: 'Available', tone: 'good' };
+    return { label: 'Offline', tone: 'neutral' };
+  };
+
+  const openMemberProfile = (member: any) => {
+    const fullUser = usersByUuid.get(member?.user_uuid);
+    const nameParts = (member?.label || '').split(' ');
+    setSelectedMember({ ...member, _full: fullUser });
+    setPersonForm({
+      first_name: fullUser?.first_name || nameParts[0] || '',
+      last_name: fullUser?.last_name || nameParts.slice(1).join(' ') || '',
+      email: fullUser?.email || member?.email || '',
+      phone: fullUser?.phone || fullUser?.mobile || '',
+      site: fullUser?.site?.name || '',
+      extension: String(fullUser?.extension || member?.value || ''),
+    });
+  };
+
   const handleStartChat = (memberData: any) => {
     if (!memberData?.user_uuid) return;
     createNewChat({ uuid: memberData?.user_uuid, ...memberData });
@@ -108,12 +162,12 @@ const DepartmentDetails = () => {
             <Loader variant="blue" size="sm" />
           </div>
         ) : !tabData?.uuid ? (
-          <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
+          <div className="m-auto flex flex-col items-center justify-center border border-[rgba(225,200,165,0.9)] rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-10 w-fit gap-7 max-w-80">
             <div className="flex flex-col justify-center items-center gap-2">
               <Icon name="NotFound" />
             </div>
             <div className="flex flex-col items-center gap-2">
-              <p className="text-[#2E2D35] dark:text-mcm-ink text-sm whitespace-normal">
+              <p className="text-[#2E2D35] text-sm whitespace-normal">
                 There is nothing to show here yet. Start by adding some departments.
               </p>
               <Button
@@ -131,20 +185,20 @@ const DepartmentDetails = () => {
           </div>
         ) : (
           <>
-            <div className="w-full min-w-0 px-3 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] gap-2 flex items-center justify-between rounded-none border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line min-h-[65px] ">
+            <div className="w-full min-w-0 px-3 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] gap-2 flex items-center justify-between rounded-none border-b border-[rgba(225,200,165,0.9)] min-h-[65px] ">
               <div className="relative shrink-0">
                 <CustomAvatar name={tabData?.name} />
               </div>
               <div className="flex min-w-0 items-center justify-between w-[calc(100%_-_3rem)]">
                 <div className="flex min-w-0 flex-col">
-                  <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink truncate text-md">
+                  <p className="font-semibold text-[#2E2D35] truncate text-md">
                     {tabData?.name || 'Unknown group'}
                   </p>
                   <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="text-[#2E2D35] dark:text-mcm-ink truncate text-sm capitalize">
+                    <p className="text-[#2E2D35] truncate text-sm capitalize">
                       {capitalizeFirstLetter(managerInfo?.label || '') || ''}
                     </p>
-                    <div className="flex shrink-0 items-center gap-1 text-[#9A948F] dark:text-mcm-ink-3">
+                    <div className="flex shrink-0 items-center gap-1 text-[#9A948F]">
                       <Icon name="Grid" className="w-4 h-4" />
                       <small className="text-xs">{tabData?.extension || '--'}</small>
                     </div>
@@ -159,7 +213,7 @@ const DepartmentDetails = () => {
                         setDrawerDepartmentData(tabData || {});
                         setDrawerState(true);
                       }}
-                      className="cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white"
+                      className="cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white"
                     >
                       <Icon name="EditStrokIcon" className="w-5 h-5" />
                     </div>
@@ -178,21 +232,21 @@ const DepartmentDetails = () => {
               </div>
             </div>
             <div className="flex flex-col gap-3 h-[calc(100vh_-_10.3rem)] overflow-auto p-3">
-              <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl p-3">
+              <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl p-3">
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink text-md">Description</p>
-                  <p className={`text-[#2E2D35] dark:text-mcm-ink text-sm ${!tabData?.description && ''}`}>
+                  <p className="font-semibold text-[#2E2D35] text-md">Description</p>
+                  <p className={`text-[#2E2D35] text-sm ${!tabData?.description && ''}`}>
                     {tabData?.description || 'No description provided '}
                   </p>
                 </div>
               </div>
               {/* Department Manager */}
-              <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl p-3 ">
+              <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl p-3 ">
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink truncate text-md">Department Manager</p>
+                  <p className="font-semibold text-[#2E2D35] truncate text-md">Department Manager</p>
                   {/* <div className="w-1/4 px-1.5"> */}
                   <div className="w-full flex min-w-0 flex-col gap-3">
-                    <div className="flex min-w-0 flex-col border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded-xl w-full p-3 gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
+                    <div className="flex min-w-0 flex-col border border-[#EEE7DD] bg-[#FBE2C8]/40 rounded-xl w-full p-3 gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-1 cursor-pointer hover:bg-[#FBE2C8]/60 transition-colors" onClick={() => openMemberProfile(managerInfo)}>
                       <CustomAvatar
                         name={managerInfo?.label}
                         showPresence
@@ -204,15 +258,15 @@ const DepartmentDetails = () => {
                         <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
                           <p className="capitalize text-md truncate">{managerInfo?.label}</p>
                           <div className="flex shrink-0 gap-1">
-                            <Icon name="Grid" className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
-                            <div className="text-[#9A948F] dark:text-mcm-ink-3 truncate text-xs">
+                            <Icon name="Grid" className="w-4 h-4 text-[#9A948F]" />
+                            <div className="text-[#9A948F] truncate text-xs">
                               {managerInfo?.value || ''}
                             </div>
                           </div>
                         </div>
                         <small className="text-primary text-[10px]">{managerInfo?.role}</small>
                         <div className="flex flex-col gap-1">
-                          <small className="text-[#9A948F] dark:text-mcm-ink-3 truncate text-sm">
+                          <small className="text-[#9A948F] truncate text-sm">
                             <CustomTooltip text={managerInfo?.email}>
                               <span>{managerInfo?.email}</span>
                             </CustomTooltip>
@@ -226,12 +280,13 @@ const DepartmentDetails = () => {
                               <div
                                 className={`flex items-center justify-center rounded-full w-8 h-8 ${
                                   isMeOnCall || isOnCallWithUser(managerInfo?.value) || iamOnCall
-                                    ? 'bg-[#F0DFC5] dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 cursor-not-allowed'
+                                    ? 'bg-[#F0DFC5] text-[#9A948F] cursor-not-allowed'
                                     : 'bg-green-100 text-[#4EAE6E] hover:bg-green-400 hover:text-white cursor-pointer'
                                 }`}
-                                onClick={() =>
-                                  handleMakeCall(managerInfo?.label, managerInfo?.value)
-                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMakeCall(managerInfo?.label, managerInfo?.value);
+                                }}
                               >
                                 <Icon name="PhoneIcon" className="w-4 h-4" />
                               </div>
@@ -239,8 +294,11 @@ const DepartmentDetails = () => {
                             {managerInfo?.user_uuid && (
                               <CustomTooltip text="Start Chat" side="top">
                                 <div
-                                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary bg-ucass-primary-200 hover:text-white"
-                                  onClick={() => handleStartChat(managerInfo)}
+                                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary bg-ucass-primary-200 hover:text-white"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleStartChat(managerInfo);
+                                  }}
                                 >
                                   <Icon name="MessageStrokIcon" className="w-4 h-4" />
                                 </div>
@@ -254,9 +312,9 @@ const DepartmentDetails = () => {
                 </div>
               </div>
               {/* Members */}
-              <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line rounded-xl p-3">
+              <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-xl p-3">
                 <div className="flex flex-col gap-1">
-                  <h6 className="font-semibold text-[#2E2D35] dark:text-mcm-ink truncate text-md">Members</h6>
+                  <h6 className="font-semibold text-[#2E2D35] truncate text-md">Members</h6>
                   <div className="flex flex-wrap gap-y-2.5">
                     {departmentMembers && departmentMembers?.length > 0 ? (
                       departmentMembers?.map((member: any) => {
@@ -264,8 +322,9 @@ const DepartmentDetails = () => {
                           // <div className="w-1/4 px-1.5" key={member?.uuid}>
                           <div className="w-full flex min-w-0 flex-col gap-3" key={member?.uuid}>
                             <div
-                              className="flex min-w-0 flex-col border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 rounded-xl w-full p-3 gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-1"
+                              className="flex min-w-0 flex-col border border-[#EEE7DD] bg-[#FBE2C8]/40 rounded-xl w-full p-3 gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-1 cursor-pointer hover:bg-[#FBE2C8]/60 transition-colors"
                               key={member?.uuid}
+                              onClick={() => openMemberProfile(member)}
                             >
                               <CustomAvatar
                                 name={member?.label}
@@ -277,15 +336,15 @@ const DepartmentDetails = () => {
                                 <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
                                   <p className="capitalize text-md truncate">{member?.label}</p>
                                   <div className="flex shrink-0 gap-1">
-                                    <Icon name="Grid" className="w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
-                                    <div className="text-[#9A948F] dark:text-mcm-ink-3 truncate text-xs">
+                                    <Icon name="Grid" className="w-4 h-4 text-[#9A948F]" />
+                                    <div className="text-[#9A948F] truncate text-xs">
                                       {member?.value || member?.value || ''}
                                     </div>
                                   </div>
                                 </div>
                                 <small className="text-primary text-[10px]">{member?.role}</small>
                                 <div className="flex flex-col gap-1">
-                                  <small className="text-[#9A948F] dark:text-mcm-ink-3 truncate text-sm">
+                                  <small className="text-[#9A948F] truncate text-sm">
                                     <CustomTooltip text={member?.email}>
                                       <span>{member?.email}</span>
                                     </CustomTooltip>
@@ -299,10 +358,13 @@ const DepartmentDetails = () => {
                                       <div
                                         className={`flex items-center justify-center rounded-full w-8 h-8 ${
                                           isMeOnCall || isOnCallWithUser(member?.value)
-                                            ? 'bg-[#F0DFC5] dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 cursor-not-allowed'
+                                            ? 'bg-[#F0DFC5] text-[#9A948F] cursor-not-allowed'
                                             : 'bg-green-100 text-[#4EAE6E] hover:bg-green-400 hover:text-white cursor-pointer'
                                         }`}
-                                        onClick={() => handleMakeCall(member?.label, member?.value)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleMakeCall(member?.label, member?.value);
+                                        }}
                                       >
                                         <Icon name="PhoneIcon" className="w-4 h-4" />
                                       </div>
@@ -310,8 +372,11 @@ const DepartmentDetails = () => {
                                     {member?.user_uuid && (
                                       <CustomTooltip text="Start Chat" side="top">
                                         <div
-                                          className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white bg-ucass-primary-200"
-                                          onClick={() => handleStartChat(member)}
+                                          className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white bg-ucass-primary-200"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleStartChat(member);
+                                          }}
                                         >
                                           <Icon name="MessageStrokIcon" className="w-4 h-4" />
                                         </div>
@@ -372,6 +437,145 @@ const DepartmentDetails = () => {
           />
         )}
       </section>
+
+      <Dialog open={Boolean(selectedMember)} onOpenChange={(next) => !next && setSelectedMember(null)}>
+        <DialogContent className="sm:max-w-[560px] w-[calc(100vw-32px)] p-0 gap-0 rounded-2xl overflow-hidden border border-[rgba(225,200,165,0.5)]">
+          {selectedMember && (() => {
+            const presence = getMemberPresence(selectedMember?.value);
+            const callerId = selectedMember?._full?.caller_id || '';
+            return (
+              <div className="flex flex-col">
+                {/* Header */}
+                <div className="flex items-center gap-3.5 px-6 py-5 border-b border-gray-100 bg-[rgba(251,249,246,0.6)]">
+                  <CustomAvatar name={selectedMember?.label} image={selectedMember?.profile} size="48" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[17px] font-bold text-gray-900 truncate">{selectedMember?.label}</div>
+                    <div className="text-[13px] text-gray-500 mt-0.5">{selectedMember?.role || 'Member'}</div>
+                  </div>
+                  <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                    presence.tone === 'good' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                    presence.tone === 'busy' ? 'bg-red-50 text-red-600 border border-red-200' :
+                    'bg-gray-100 text-gray-500 border border-gray-200'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${
+                      presence.tone === 'good' ? 'bg-emerald-500' :
+                      presence.tone === 'busy' ? 'bg-red-500' :
+                      'bg-gray-400'
+                    }`} />
+                    {presence.label}
+                  </span>
+                </div>
+
+                {/* Form fields */}
+                <div className="px-6 py-5 flex flex-col gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">First Name</label>
+                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" value={personForm.first_name} onChange={(e) => setPersonForm((p) => ({ ...p, first_name: e.target.value }))} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Name</label>
+                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" value={personForm.last_name} onChange={(e) => setPersonForm((p) => ({ ...p, last_name: e.target.value }))} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
+                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" type="email" value={personForm.email} onChange={(e) => setPersonForm((p) => ({ ...p, email: e.target.value }))} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Phone</label>
+                      <div className="[&_.react-tel-input_.form-control]:!h-10 [&_.react-tel-input_.form-control]:!rounded-lg [&_.react-tel-input_.form-control]:!border-gray-200 [&_.react-tel-input_.form-control]:!text-sm [&_.react-tel-input_.form-control]:!w-full [&_.react-tel-input_.flag-dropdown]:!rounded-l-lg [&_.react-tel-input_.flag-dropdown]:!border-gray-200">
+                        <PhoneInput country={'in'} onlyCountries={['in']} disableDropdown value={personForm.phone} onChange={(value) => setPersonForm((p) => ({ ...p, phone: `+${value.startsWith('91') ? value : '91'}` }))} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Site</label>
+                      <input className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed" value={personForm.site} disabled />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Extension</label>
+                      <input className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed" value={personForm.extension} disabled />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-t border-gray-100 mt-1">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Caller ID</span>
+                    {callerId ? (
+                      <span className="text-sm font-medium text-gray-900">{callerId}</span>
+                    ) : (
+                      <span className="text-sm text-gray-400">Not assigned</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Quick actions */}
+                {selectedMember?.user_uuid !== user?.uuid && (
+                  <div className="px-6 pb-5 flex items-center gap-3">
+                    <button
+                      type="button"
+                      className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150 disabled:opacity-40"
+                      disabled={!selectedMember?.value || iamOnCall}
+                      onClick={() => {
+                        handleMakeCall(selectedMember?.label, selectedMember?.value);
+                        setSelectedMember(null);
+                      }}
+                    >
+                      <Icon name="PhoneIcon" className="w-4 h-4" />
+                      <span>Call</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150"
+                      onClick={() => {
+                        handleStartChat(selectedMember);
+                        setSelectedMember(null);
+                      }}
+                    >
+                      <Icon name="MessageStrokIcon" className="w-4 h-4" />
+                      <span>Message</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150 disabled:opacity-40"
+                      disabled={isStarting}
+                      onClick={() => {
+                        startVideoCall(
+                          { user_uuid: selectedMember?.user_uuid, name: selectedMember?.label, email: selectedMember?.email },
+                          `Call with ${selectedMember?.label}`,
+                        );
+                        setSelectedMember(null);
+                      }}
+                    >
+                      <Icon name="VideoIcon" className="w-4 h-4" />
+                      <span>Video</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+                  <button type="button" className="h-9 px-5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setSelectedMember(null)}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="h-9 px-5 rounded-lg bg-primary text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    disabled={isSavingPerson}
+                    onClick={() => savePerson({ first_name: personForm.first_name, last_name: personForm.last_name, email: personForm.email, phone: personForm.phone })}
+                  >
+                    {isSavingPerson ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

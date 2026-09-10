@@ -33,6 +33,7 @@ import Settings from './condition';
 import { invalidateNumberLists } from '@/lib/number-list-cache';
 import { useUser } from '@/hooks/use-user';
 import { FORWARD_TYPES } from '@/constants/forwarding-consts';
+import { callForwardingOptions } from '@/components/custom/forwarding-actions';
 
 const initialState = {
   regionalSettingsModal: {
@@ -474,6 +475,13 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
       transcription: condition?.transcription || false,
       ai_call_monitoring: condition?.ai_call_monitoring || false,
     });
+    const aiTypeLabel =
+      callForwardingOptions.find(
+        (item: any) => item?.value === call_handling?.business_hours?.ai_forward_to?.type,
+      )?.label || '';
+
+    console.log(aiTypeLabel);
+
     setValue('callHandling', {
       businessHours: {
         // ai_forward_to: {
@@ -572,7 +580,7 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
           className={`flex  w-full ${isUpsertTemplate ? 'call-handling-template-tabs' : ''}`}
         >
           <div
-            className={`border-b border-gray-200 dark:border-mcm-line w-full ${
+            className={`border-b border-gray-200 w-full ${
               isUpsertTemplate ? 'call-handling-template-tabs-header' : ''
             }`}
           >
@@ -585,7 +593,7 @@ const UpsertCallForwarding: FC<UpdateForwardingProps> = ({
                 <TabsTrigger
                   key={index}
                   value={value}
-                  className={`data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6   text-gray-700 dark:text-mcm-ink-3 cursor-pointer h-full rounded-none    m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ${
+                  className={`data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6   text-gray-700 cursor-pointer h-full rounded-none    m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs ${
                     isUpsertTemplate ? 'call-handling-template-tab-trigger' : ''
                   }`}
                 >

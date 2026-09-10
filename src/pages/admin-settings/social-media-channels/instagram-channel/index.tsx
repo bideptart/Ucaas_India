@@ -73,7 +73,7 @@ const InstagramChannel = () => {
             setIsInstagramModalOpen(true);
           }
         }}
-        className="w-full bg-white rounded-xl p-4 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] hover:decoration flex flex-col gap-4 text-left dark:bg-mcm-surface"
+        className="w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-4 shadow-sm transition-colors hover:border-[var(--color-ucass-active,#c96f1f)] flex flex-col gap-4 text-left"
       >
         <div className={`w-full flex flex-col gap-4`}>
           <div className="flex items-center justify-between gap-2">
@@ -84,7 +84,7 @@ const InstagramChannel = () => {
               <h6 className={`font-medium`}>Instagram</h6>
             </div>
           </div>
-          <p className="text-gray-700 text-sm dark:text-mcm-ink-2">
+          <p className="text-gray-700 text-sm">
             Connect your Instagram Business account and set up chat on your page.
           </p>
 
@@ -146,7 +146,7 @@ const InstagramChannel = () => {
               onClick={(e) => e.stopPropagation()}
               onDoubleClick={(e) => e.stopPropagation()}
             >
-              <p className="text-gray-500 text-sm dark:text-mcm-ink-3">Active</p>
+              <p className="text-gray-500 text-sm">Active</p>
               <Switch
                 disabled={!isInstagramConnected}
                 checked={instagramData?.status === 1}
@@ -165,7 +165,7 @@ const InstagramChannel = () => {
       </div>
 
       <Dialog open={isInstagramModalOpen} onOpenChange={setIsInstagramModalOpen}>
-        <DialogContent className="w-[680px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-0 border-gray-200 dark:border-mcm-line">
+        <DialogContent className="w-[680px] max-w-[95vw] max-h-[90vh] overflow-y-auto p-0 border-gray-200">
           <div className="p-6 flex flex-col gap-5">
             <DialogHeader className="gap-2 text-left">
               <DialogTitle>Instagram Setup</DialogTitle>
@@ -226,7 +226,7 @@ const InstagramChannel = () => {
       </Dialog>
 
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="w-[400px] max-w-[95vw] p-6 border-gray-200 dark:border-mcm-line">
+        <DialogContent className="w-[400px] max-w-[95vw] p-6 border-gray-200">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 text-red-600">
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
@@ -234,7 +234,7 @@ const InstagramChannel = () => {
               </div>
               <h3 className="text-lg font-semibold">Delete Channel</h3>
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed dark:text-mcm-ink-3">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Are you sure you want to delete this channel? This action cannot be undone and will
               disconnect your integration.
             </p>

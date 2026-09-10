@@ -1,9 +1,12 @@
+import {
+  AdminHeadActions,
+  useSetAdminPageMeta,
+} from '@/pages/admin-settings/admin-page-head';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
 import { useEffect, useRef, useState } from 'react';
 import { durationMap, RequestedPlanDurationMap, RequestedPlanStatusMap } from '../constants';
 import CustomTooltip from '@/components/custom/custom-tooltip';
-import { Icon } from '@/assets/icons/icon';
 import { formatDate, handleAlert } from '@/lib/utils';
 import { useGetMyPlanDetails, useGetPlans } from '@/hooks/common';
 import {
@@ -61,6 +64,15 @@ const normalizeRateCardId = (value: any) => {
 };
 
 const Plan = () => {
+  /* The screen's own 65px head repeated "Billing > Plan Summary" under the
+     Admin head that had already named it. The sentence moves to the info button
+     there; the plan's status and its actions stay on the page, where they are
+     controls rather than a heading. */
+  useSetAdminPageMeta({
+    description:
+      'What you are paying for today, what changes at the next renewal, and what the plan includes.',
+  });
+
   const { user: userInfoData, refetch } = useUser();
   const [isOpenChangePlan, setIsOpenChangePlan] = useState<boolean>(false);
   const [cancelRequestPlan, setCancelRequestPlan] = useState<boolean>(false);
@@ -312,62 +324,50 @@ const Plan = () => {
   };
   return (
     <>
-      <section className="w-full bg-gray-200/15 dark:bg-mcm-surface-3/15 overflow-x-auto overflow-y-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-          <div>
-            <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
-              Billing
-              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
-                <Icon name="ChevronIcon" className="w-5 h-5" />
-              </div>
-              <span className="text-primary text-md">Plan Summary</span>
-            </p>
-            <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
-              What you are paying for today, what changes at the next renewal, and what the plan
-              includes.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {requestedPlanInfo?.action_type === 'CANCEL' ? (
-              <>
-                <span className="text-xs text-red-500 italic">
-                  A cancellation request is <span className="font-bold">active</span>, with
-                  cancellation set for{' '}
-                  <span className="font-bold">
-                    {`${
-                      dataGetMyPlanDetails?.current_plan_details?.plan_expiration_date
-                        ? moment(
-                            dataGetMyPlanDetails?.current_plan_details.plan_expiration_date,
-                          ).format('DD MMM, YYYY')
-                        : 'NA'
-                    }.`}
-                  </span>{' '}
-                  Revoke to continue your subscription
-                </span>
-                <Button
-                  variant={'default'}
-                  onClick={() => {
-                    setCancelRequestPlan(true);
-                    setAlertMessage('revoke-plan');
-                  }}
-                  className="border-green-600 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700"
-                  size={'sm'}
-                >
-                  {isPendingCancelSubscription ? <Loader /> : 'Revoke Request'}
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant={'default'}
-                onClick={() => setIsCancelSubscriptionAlert(true)}
-                className="border-red-500 text-red-500 bg-red-500/10 hover:bg-red-500/20 hover:text-red-500"
-                size={'sm'}
-              >
-                Cancel Subscription
-              </Button>
-            )}
-          </div>
-        </div>
+      <section className="w-full overflow-x-auto overflow-y-hidden">
+      {/* The status line and Cancel Subscription go up beside the title, where
+          Usage keeps its period picker and Export CSV. They had a 52px strip of
+          their own across the page for one button. */}
+      <AdminHeadActions>
+        {requestedPlanInfo?.action_type === 'CANCEL' ? (
+          <>
+            <span className="text-xs text-red-500 italic">
+              A cancellation request is <span className="font-bold">active</span>, with
+              cancellation set for{' '}
+              <span className="font-bold">
+                {`${
+                  dataGetMyPlanDetails?.current_plan_details?.plan_expiration_date
+                    ? moment(
+                        dataGetMyPlanDetails?.current_plan_details.plan_expiration_date,
+                      ).format('DD MMM, YYYY')
+                    : 'NA'
+                }.`}
+              </span>{' '}
+              Revoke to continue your subscription
+            </span>
+            <Button
+              variant={'default'}
+              onClick={() => {
+                setCancelRequestPlan(true);
+                setAlertMessage('revoke-plan');
+              }}
+              className="border-green-600 text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-700"
+              size={'sm'}
+            >
+              {isPendingCancelSubscription ? <Loader /> : 'Revoke Request'}
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant={'default'}
+            onClick={() => setIsCancelSubscriptionAlert(true)}
+            className="border-red-500 text-red-500 bg-red-500/10 hover:bg-red-500/20 hover:text-red-500"
+            size={'sm'}
+          >
+            Cancel Subscription
+          </Button>
+        )}
+      </AdminHeadActions>
 
         <div className="w-full p-3 flex flex-col gap-3">
           {/* The page showed today's price and next period's price in two
@@ -399,13 +399,19 @@ const Plan = () => {
               </div>
             );
           })()}
-          <div className="flex flex-col sm:flex-row gap-3 h-[calc(100vh_-_9.7rem)] overflow-auto">
+          {/* One scrollbar, the page's. This row, the card inside it and the
+              tab panel opposite each had a scroller of their own, so the left
+              column opened part-way down its own content and the page scrolled
+              underneath it. The heights were `100vh` minus a hardcoded guess at
+              the chrome above, which the head strip moving out has just made
+              52px wrong. Natural height instead. */}
+          <div className="flex flex-col sm:flex-row items-stretch gap-3">
             <div className="flex flex-col gap-2 sm:w-1/2 h-full">
-              <div className="border border-gray-200 dark:border-mcm-line rounded-xl w-full h-full p-3 bg-white dark:bg-mcm-surface overflow-y-auto">
+              <div className="border border-[rgba(225,200,165,0.9)] rounded-xl w-full h-full p-3 bg-[rgba(251,249,246,0.88)]">
                 <div className="w-full flex flex-col gap-3">
                   <div className="mcm-setcard p-3 flex flex-col gap-3">
                     <div className="w-full flex items-center justify-between gap-2">
-                      <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">Current Plan</h6>
+                      <h6 className="font-semibold text-gray-900 text-md">Current Plan</h6>
                       <div className="flex items-center gap-1">
                         {planFeatures?.action?.change_plan &&
                           dataGetMyPlanDetails?.current_plan_details?.is_trial == 'N' && (
@@ -475,12 +481,11 @@ const Plan = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-gray-900 dark:text-mcm-ink text-base xxl:text-lg">
-                        {formatMoney(
-                          dataGetMyPlanDetails?.current_plan_details?.discount_enabled
-                            ? dataGetMyPlanDetails?.current_plan_details?.discount_price
-                            : dataGetMyPlanDetails?.current_plan_details?.original_price,
-                        )}
+                      <h4 className="font-bold text-gray-900 text-base xxl:text-lg">
+                        $
+                        {dataGetMyPlanDetails?.current_plan_details?.discount_enabled
+                          ? dataGetMyPlanDetails?.current_plan_details?.discount_price
+                          : dataGetMyPlanDetails?.current_plan_details?.original_price}
                         /
                         {dataGetMyPlanDetails?.current_plan_details?.plan_duration === 12
                           ? 'year'
@@ -497,8 +502,8 @@ const Plan = () => {
                       </span> */}
                     </div>
                     <div className="w-full">
-                      <div className="flex flex-col gap-2 border-t border-gray-100 dark:border-mcm-line px-0 pt-3">
-                        <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm w-full">
+                      <div className="flex flex-col gap-2 border-t border-gray-100 px-0 pt-3">
+                        <h4 className="font-semibold text-gray-900 text-sm w-full">
                           Last billing charges for{' '}
                           {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
                             ? 1
@@ -509,27 +514,23 @@ const Plan = () => {
                           )}{' '}
                           : */}
                         </h4>
-                        <span className="text-gray-900 dark:text-mcm-ink text-sm border-t border-grey-200 w-full pt-2 font-medium">
+                        <span className="text-gray-900 text-sm border-t border-grey-200 w-full pt-2 font-medium">
                           {moment(dataGetMyPlanDetails?.last_billing?.created_at).format(
                             'DD MMM, YYYY',
                           )}{' '}
-                          :{' '}
-                          {formatMoney(
-                            dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
-                              ? 0
-                              : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0,
-                          )}{' '}
+                          : $
+                          {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
+                            ? 0
+                            : dataGetMyPlanDetails?.last_billing?.tax_detail?.plan_cost || 0}{' '}
                           X{' '}
                           {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
                             ? 1
                             : dataGetMyPlanDetails?.last_billing?.total_license}{' '}
-                          ={' '}
-                          {formatMoney(
-                            dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
-                              ? 0
-                              : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total,
-                          )}{' '}
-                          <sup className="text-gray-700 dark:text-mcm-ink-2 font-normal">(excl. Tax)</sup>
+                          = $
+                          {dataGetMyPlanDetails?.current_plan_details?.is_trial == 'Y'
+                            ? 0
+                            : dataGetMyPlanDetails?.last_billing?.tax_detail?.sub_total}{' '}
+                          <sup className="text-gray-700 font-normal">(excl. Tax)</sup>
                         </span>
                       </div>
                     </div>
@@ -541,7 +542,7 @@ const Plan = () => {
                   requestedPlanInfo?.action_type !== 'CANCEL' ? (
                     <div className="mcm-setcard p-3 flex flex-col gap-3">
                       <div className="w-full flex items-center justify-between gap-2">
-                        <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">Next Billing</h6>
+                        <h6 className="font-semibold text-gray-900 text-md">Next Billing</h6>
                         <div className="flex items-center gap-1">
                           {planFeatures?.action?.change_plan && (
                             <div className="flex justify-start gap-2">
@@ -570,7 +571,7 @@ const Plan = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-gray-900 dark:text-mcm-ink  text-base xxl:text-lg">
+                        <h4 className="font-bold text-gray-900  text-base xxl:text-lg">
                           {moneyOrUnavailable(
                             dataGetMyPlanDetails?.next_billing_details?.original_price,
                           )}
@@ -590,15 +591,15 @@ const Plan = () => {
                         </span>
                       </div>
                       <div className="w-full">
-                        <div className="flex flex-col gap-2 border-t border-gray-100 dark:border-mcm-line px-0 pt-3">
-                          <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm">
+                        <div className="flex flex-col gap-2 border-t border-gray-100 px-0 pt-3">
+                          <h4 className="font-semibold text-gray-900 text-sm">
                             Next billing charges for {totalPaybleLicences} licenses :
                           </h4>
                           {/* A sum, not a guess. If the platform has not sent
                               the next amount, the line says so rather than
                               multiplying out to a figure of our own — the two
                               can differ, and the one on the card statement wins. */}
-                          <span className="text-gray-900 dark:text-mcm-ink text-sm border-t border-grey-200 w-full pt-2 font-medium">
+                          <span className="text-gray-900 text-sm border-t border-grey-200 w-full pt-2 font-medium">
                             {moneyOrUnavailable(
                               dataGetMyPlanDetails?.next_billing_details?.original_price,
                             )}{' '}
@@ -606,7 +607,7 @@ const Plan = () => {
                             {moneyOrUnavailable(
                               dataGetMyPlanDetails?.next_billing_details?.next_billing_amount,
                             )}{' '}
-                            <sup className="text-gray-700 dark:text-mcm-ink-2 font-normal">(excl. Tax)</sup>
+                            <sup className="text-gray-700 font-normal">(excl. Tax)</sup>
                           </span>
                         </div>
                       </div>
@@ -615,11 +616,11 @@ const Plan = () => {
 
                   {isAdmin && (
                     <div className="mcm-setcard p-3 flex flex-col gap-3">
-                      <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">AI allowances</h6>
+                      <h6 className="font-semibold text-gray-900 text-md">AI allowances</h6>
                       {/* Called allowances, not usage. These are what the plan
                           carries; nothing counts AI minutes or replies back to
                           this screen, so a "used" figure here would be invented. */}
-                      <p className="text-xs text-gray-600 dark:text-mcm-ink-3">
+                      <p className="text-xs text-gray-600">
                         What your plan carries. AI minutes and replies are not counted back to this
                         screen yet.
                       </p>
@@ -627,10 +628,10 @@ const Plan = () => {
                         {aiUsageItems.map((item) => (
                           <div
                             key={item.label}
-                            className="rounded-lg border border-grey-200 bg-white dark:bg-mcm-surface px-3 py-2"
+                            className="rounded-lg border border-grey-200 bg-white px-3 py-2"
                           >
-                            <span className="text-xs font-medium text-gray-600 dark:text-mcm-ink-3">{item.label}</span>
-                            <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-mcm-ink">{item.value}</p>
+                            <span className="text-xs font-medium text-gray-600">{item.label}</span>
+                            <p className="mt-1 text-lg font-semibold text-gray-900">{item.value}</p>
                           </div>
                         ))}
                       </div>
@@ -638,9 +639,9 @@ const Plan = () => {
                         {countryRateItems.map(({ label, buttonLabel, ...rateDetails }) => (
                           <div
                             key={label}
-                            className="flex items-center justify-between gap-3 rounded-lg border border-grey-200 bg-white dark:bg-mcm-surface px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-lg border border-grey-200 bg-white px-3 py-2"
                           >
-                            <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">{label}</p>
+                            <p className="text-sm font-semibold text-gray-900">{label}</p>
                             <Button
                               type="button"
                               variant="outline"
@@ -688,21 +689,21 @@ const Plan = () => {
                       only a name, a price and a seat count. */}
                   <PlanComparison />
                   {/* <div className="mcm-setcard p-3 flex flex-col gap-3">
-                    <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-md border-b border-grey-200 pb-3">
+                    <h6 className="font-semibold text-gray-900 text-md border-b border-grey-200 pb-3">
                       Billing & Payments
                     </h6>
                     <div className="flex items-center justify-between gap-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm w-1/2">
+                      <h4 className="font-semibold text-gray-900 text-sm w-1/2">
                         Last payment for plan
                       </h4>
-                      <h4 className="font-semibold text-gray-700 dark:text-mcm-ink-2 flex items-center justify-end gap-2 text-sm w-1/2">
+                      <h4 className="font-semibold text-gray-700 flex items-center justify-end gap-2 text-sm w-1/2">
                         {dataGetMyPlanDetails?.last_billing?.total_amount ? (
                           <>
                             $
                             {Number(dataGetMyPlanDetails?.last_billing?.total_amount || 0)?.toFixed(
                               0,
                             )}{' '}
-                            <span className="text-gray-500 dark:text-mcm-ink-3 font-normal">
+                            <span className="text-gray-500 font-normal">
                               {moment(dataGetMyPlanDetails?.last_billing?.created_at).format(
                                 'DD MMM, YYYY',
                               )}
@@ -714,7 +715,7 @@ const Plan = () => {
                       </h4>
                     </div>
                     <div className="flex items-center justify-between gap-3">
-                      <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm w-1/2 flex items-center gap-2">
+                      <h4 className="font-semibold text-gray-900 text-sm w-1/2 flex items-center gap-2">
                         Next payment for plan
                         <CustomTooltip
                           text={
@@ -731,9 +732,9 @@ const Plan = () => {
                           </span>
                         </CustomTooltip>
                       </h4>
-                      <h4 className="font-semibold text-gray-700 dark:text-mcm-ink-2 flex items-center justify-end gap-2  text-sm w-1/2">
+                      <h4 className="font-semibold text-gray-700 flex items-center justify-end gap-2  text-sm w-1/2">
                         ${dataGetMyPlanDetails?.next_billing_details?.next_billing_amount || 0}{' '}
-                        <span className="text-gray-500 dark:text-mcm-ink-3 font-normal">
+                        <span className="text-gray-500 font-normal">
                           {moment(
                             dataGetMyPlanDetails?.current_plan_details?.plan_expiration_date,
                           ).format('DD MMM, YYYY')}
@@ -754,9 +755,9 @@ const Plan = () => {
 
                 {/* ---Requested Plan---- */}
                 {requestedPlanInfo && requestedPlanInfo?.action_type !== 'CANCEL' ? (
-                  <div className="border-t border-gray-200 dark:border-mcm-line w-full pt-3 mt-3 bg-white dark:bg-mcm-surface flex gap-3">
+                  <div className="border-t border-gray-200 w-full pt-3 mt-3 bg-white flex gap-3">
                     <div className="w-1/2">
-                      <h6 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">Requested Plan</h6>
+                      <h6 className="font-semibold text-gray-900 text-md">Requested Plan</h6>
                       <div className="flex items-center gap-2 my-2">
                         <h4 className="font-semibold text-primary text-md">
                           {tempReqPlan?.plan_name || 'NA'}
@@ -764,19 +765,18 @@ const Plan = () => {
                         <span
                           className={`rounded-sm px-4 py-1 text-xs ${
                             RequestedPlanStatusMap[requestedPlanInfo?.status]?.color ||
-                            'bg-gray-100 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3'
+                            'bg-gray-100 text-gray-600'
                           }`}
                         >
                           {RequestedPlanStatusMap[requestedPlanInfo?.status]?.label || 'NA'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-bold text-gray-900 dark:text-mcm-ink text-lg">
-                          {formatMoney(
-                            requestedCostObj?.discount_enabled
-                              ? requestedCostObj?.discount_price
-                              : requestedCostObj?.original_price,
-                          )}
+                        <h4 className="font-bold text-gray-900 text-lg">
+                          $
+                          {requestedCostObj?.discount_enabled
+                            ? requestedCostObj?.discount_price
+                            : requestedCostObj?.original_price}
                           /{RequestedPlanDurationMap[Number(requestedPlanInfo?.duration)]}/user
                         </h4>
                       </div>
@@ -794,18 +794,18 @@ const Plan = () => {
                     <div className=" w-1/2">
                       <div className="mcm-setcard p-3 mt-2 flex flex-col gap-3 w-full">
                         <div className="flex items-center justify-between gap-3">
-                          <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm w-1/2">
+                          <h4 className="font-semibold text-gray-900 text-sm w-1/2">
                             Requested Date
                           </h4>
-                          <h4 className="font-medium text-gray-500 dark:text-mcm-ink-3 flex items-center justify-end gap-2 text-sm w-1/2">
+                          <h4 className="font-medium text-gray-500 flex items-center justify-end gap-2 text-sm w-1/2">
                             {formatDate(requestedPlanInfo?.created_at) || 'NA'}
                           </h4>
                         </div>
                         <div className="flex items-center justify-between gap-3">
-                          <h4 className="font-semibold text-gray-900 dark:text-mcm-ink text-sm w-1/2">
+                          <h4 className="font-semibold text-gray-900 text-sm w-1/2">
                             Activation Date
                           </h4>
-                          <h4 className="font-medium text-gray-500 dark:text-mcm-ink-3 flex items-center justify-end gap-2 text-sm w-1/2">
+                          <h4 className="font-medium text-gray-500 flex items-center justify-end gap-2 text-sm w-1/2">
                             {formatDate(
                               dataGetMyPlanDetails?.current_plan_details?.plan_expiration_date,
                             ) || 'NA'}
@@ -817,19 +817,19 @@ const Plan = () => {
                 ) : null}
               </div>
             </div>
-            <div className="border border-gray-200 dark:border-mcm-line rounded-xl sm:w-1/2 p-3 w-full bg-white dark:bg-mcm-surface xs:mt-1 sm:mt-0">
+            <div className="border border-gray-200 rounded-xl sm:w-1/2 p-3 w-full bg-white xs:mt-1 sm:mt-0">
               <Tabs
                 defaultValue={selectedManagementTab}
                 value={selectedManagementTab}
                 onValueChange={(v) => setSelectedManagementTab(v)}
                 className="flex w-full h-full"
               >
-                <div className="border-b border-gray-200 dark:border-mcm-line w-full">
+                <div className="border-b border-gray-200 w-full">
                   <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none min-h-10 ">
                     {managementTabList?.map((tab: any) => {
                       return (
                         <TabsTrigger
-                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6 text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none flex-1 relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6 text-gray-700 cursor-pointer h-full rounded-none flex-1 relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                           value={tab}
                         >
                           {tab}
@@ -839,10 +839,7 @@ const Plan = () => {
                   </TabsList>
                 </div>
 
-                <TabsContent
-                  value={selectedManagementTab}
-                  className="h-[calc(100vh_-_14.8rem)] overflow-y-auto overflow-x-hidden min-w-0"
-                >
+                <TabsContent value={selectedManagementTab} className="min-w-0 overflow-x-hidden">
                   {RenderTabComponents[selectedManagementTab as keyof typeof RenderTabComponents]}
                 </TabsContent>
               </Tabs>
@@ -903,7 +900,7 @@ const Plan = () => {
 
       {rateModal && (
         <Dialog open={true} onOpenChange={(open) => !open && setRateModal(null)}>
-          <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto bg-white dark:bg-mcm-surface">
+          <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto bg-white">
             <DialogHeader>
               <DialogTitle>{rateModal.title}</DialogTitle>
               <DialogDescription>
@@ -923,7 +920,7 @@ const Plan = () => {
       {isPaymentInitiate && (
         <Dialog open={isPaymentInitiate} onOpenChange={setIsPaymentInitiate}>
           <DialogContent
-            className="w-2/5 p-3 max-h-[99%] overflow-y-auto bg-white dark:bg-mcm-surface"
+            className="w-2/5 p-3 max-h-[99%] overflow-y-auto bg-white"
             onEscapeKeyDown={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
             showCloseButton={false}
@@ -934,7 +931,7 @@ const Plan = () => {
                 Plan
                 <div
                   onClick={() => setIsPaymentInitiate(false)}
-                  className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                  className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
                 >
                   <CloseIcon className="w-3 h-3" />
                 </div>

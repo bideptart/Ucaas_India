@@ -5,12 +5,12 @@ import useDebounce from '@/hooks/use-debounce';
 import { callReportAgentList } from '@/services/api';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { dropdownCallInitialVal } from '@/components/custom/date-dropdown/constant';
+import { Loader2 } from 'lucide-react';
 import TableManager from '@/components/custom/table-manager';
 import { Input } from '@/components/ui/input';
 import { SearchLine } from '@/assets/icons';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/assets/icons/icon';
-import { handleAlert } from '@/lib/utils';
 
 const AgentReports = () => {
   const tableRef = useRef<any>(null);
@@ -30,13 +30,15 @@ const AgentReports = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRefetchTableData = () => {
-    if (!tableRef?.current) return;
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 450);
-    tableRef.current.refetchTable().then(() => {
-      handleAlert({ text: 'Refreshed', type: 'success' });
-    });
+  const handleRefetchTableData = async () => {
+    if (tableRef?.current) {
+      setIsLoading(true);
+      try {
+        await tableRef.current.refetchTable();
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   // dataExtensionsList?.forEach(
@@ -126,7 +128,7 @@ const AgentReports = () => {
             setSearch(e.target.value);
           }}
           IconPosition="left-0 pl-2 inset-y-0"
-          Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+          Icon={<SearchLine className=" text-gray-700" />}
         />
       </div>
       <DateDropdown
@@ -139,9 +141,13 @@ const AgentReports = () => {
         type="button"
         variant="outline"
         onClick={() => handleRefetchTableData()}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
-        <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
+        {isLoading ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <Icon name="Refresh" className="w-5 h-5" />
+        )}
       </Button>
     </div>
   );
@@ -152,8 +158,6 @@ const AgentReports = () => {
         <TableManager
           {...{
             tableRef,
-            splitStickyHeader: true,
-            tableMaxHeight: '55vh',
             fetcherKey: 'callAgentList',
             fetcherFn: callReportAgentList,
             columns,

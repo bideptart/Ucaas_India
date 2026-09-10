@@ -248,7 +248,7 @@ const AudioModal: FC<AudioModalProps> = ({
             Play Audio
             <div
               onClick={() => setModalState(false)}
-              className="cursor-pointer  text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer  text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -258,7 +258,7 @@ const AudioModal: FC<AudioModalProps> = ({
           {hasMediaError ? (
             <p className="py-3 text-center text-sm text-red-500">Unable to load this recording.</p>
           ) : isMediaLoading ? (
-            <Skeleton className="h-10 w-full rounded-full bg-gray-200 dark:bg-mcm-surface-3" />
+            <Skeleton className="h-10 w-full rounded-full bg-gray-200" />
           ) : authenticatedSrcUrl ? (
             <ReadyAudio controls src={authenticatedSrcUrl} autoPlay />
           ) : null}

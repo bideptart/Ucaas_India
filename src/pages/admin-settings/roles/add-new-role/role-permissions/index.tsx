@@ -227,11 +227,11 @@ export const PermissionsAccordion = ({
             <AccordionItem
               key={featureKey}
               value={featureKey}
-              className="border rounded-lg border-gray-200 dark:border-mcm-line"
+              className="border rounded-lg border-gray-200"
             >
               <AccordionTrigger
                 variant="default"
-                className="bg-gray-50 px-3 py-4 text-left text-sm font-semibold uppercase text-gray-900 hover:no-underline sm:px-4 dark:bg-mcm-surface-3 dark:text-mcm-ink"
+                className="bg-gray-50 px-3 py-4 text-left text-sm font-semibold uppercase text-gray-900 hover:no-underline sm:px-4"
               >
                 {featureKey.replace(/_/g, ' ')}
               </AccordionTrigger>

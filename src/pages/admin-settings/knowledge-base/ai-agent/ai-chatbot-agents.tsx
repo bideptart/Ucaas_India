@@ -23,19 +23,17 @@ import {
 import { Icon, IconName } from '@/assets/icons/icon';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Plus, Search, ChevronDown, Loader2, TrendingUp } from 'lucide-react';
+import { Plus, Search, ChevronDown, Loader2 } from 'lucide-react';
 import moment from 'moment';
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  AdminHeadActions,
+  useSetAdminPageMeta,
+} from '@/pages/admin-settings/admin-page-head';
 import PromptModal from '../ai-receptionist/update-prompt';
 import AgentAnalytics from './agent-analytics';
 import ChatAgentConfigureModal from './chat-agent-configure-modal';
-
-/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
-   the floating white header card actually reads as "floating" — without a
-   saturated backdrop behind it, a white card on the AdminHub shell's own
-   near-white background has almost no contrast to float against. */
-const AI_TOOLS_PAGE_GRADIENT = '#fdf1e2';
 
 const StatCardLoader = () => (
   <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-white/70 backdrop-blur-[1px]">
@@ -97,7 +95,7 @@ const sentimentBadgeClass = (sentiment: string) => {
   if (sentiment === 'positive') return 'bg-emerald-100 text-emerald-700';
   if (sentiment === 'negative') return 'bg-red-100 text-red-700';
   if (sentiment === 'neutral') return 'bg-slate-100 text-slate-700';
-  return 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#9A948F] dark:text-mcm-ink-3';
+  return 'bg-[#FBE2C8]/40 text-[#9A948F]';
 };
 
 const sentimentEmoji = (sentiment: string) => {
@@ -682,17 +680,17 @@ function AiChatbotAgents() {
           const live = isLiveAgent(agent);
 
           return (
-            <div className="flex w-full min-w-0 items-center gap-[11px]">
+            <div className="flex w-full min-w-0 items-center gap-3">
               <div className="relative shrink-0">
                 <CustomAvatar
                   name={agentName}
                   image={getAgentAvatarImage(agent)}
-                  size="36"
+                  size="34"
                   showPresence={false}
                   isActivityInfo={false}
                 />
                 <span
-                  className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white ${
+                  className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
                     live ? 'bg-emerald-500' : 'bg-slate-400'
                   }`}
                 />
@@ -745,21 +743,13 @@ function AiChatbotAgents() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="inline-flex h-7 min-w-[74px] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-extrabold cursor-pointer outline-none transition-colors duration-200"
-                  /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                     (mcm-page.css) is an unlayered reset every admin-settings
-                     page sits under — it forces a plain button's own
-                     background/color/border to none/inherit/0 ahead of any
-                     Tailwind utility, which was silently reducing this pill
-                     to plain text with no border. Inline style is the only
-                     thing that reliably beats it. */
-                  style={
+                  className={`inline-flex h-7 min-w-[74px] items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-extrabold cursor-pointer outline-none transition-colors duration-200 ${
                     live
-                      ? { borderColor: '#a7f3d0', backgroundColor: '#d1fae5', color: '#065f46' }
+                      ? 'border-emerald-200 bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80'
                       : draft
-                        ? { borderColor: '#fde68a', backgroundColor: '#fffbeb', color: '#b45309' }
-                        : { borderColor: '#e2e8f0', backgroundColor: '#f1f5f9', color: '#475569' }
-                  }
+                        ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-50/80'
+                        : 'border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-100/80'
+                  }`}
                 >
                   <span
                     className="h-2 w-2 rounded-full"
@@ -771,18 +761,18 @@ function AiChatbotAgents() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-[140px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 shadow-lg rounded-xl p-1 z-50 animate-none"
+                className="w-[140px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] shadow-lg rounded-xl p-1 z-50 animate-none"
               >
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('live')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   <span>Live</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleStatusChange('inactive')}
-                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45 text-[#2E2D35] dark:text-mcm-ink"
+                  className="flex items-center gap-2 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-lg hover:bg-[#FBE2C8]/45 text-[#2E2D35]"
                 >
                   <span className="h-2 w-2 rounded-full bg-slate-400" />
                   <span>Paused</span>
@@ -793,7 +783,12 @@ function AiChatbotAgents() {
         },
       },
       {
-        header: `Conversations (${selectedDateFilterLabel})`,
+        header: () => (
+          <span>
+            Conversations
+            <span className="block">({selectedDateFilterLabel})</span>
+          </span>
+        ),
         accessorKey: 'conversations',
         cell: ({ row }: any) => (
           <div className="text-[14px] font-extrabold text-slate-950">
@@ -833,7 +828,7 @@ function AiChatbotAgents() {
 
           if (!chats || !score) {
             return (
-              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 px-2 py-1 text-xs font-semibold text-[#9A948F] dark:text-mcm-ink-3">
+              <span className="inline-flex rounded-full bg-[#FBE2C8]/40 px-2 py-1 text-xs font-semibold text-[#9A948F]">
                 Not analyzed
               </span>
             );
@@ -865,7 +860,7 @@ function AiChatbotAgents() {
                 <div className="h-1.5 w-[108px] overflow-hidden rounded-full bg-slate-200" />
               )}
               {hasScores && (
-                <div className="pointer-events-none absolute right-0 top-10 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
+                <div className="pointer-events-none absolute right-0 top-10 z-30 hidden w-[190px] rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-3 text-left shadow-xl group-hover:block">
                   <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
                     Sentiment scores
                   </div>
@@ -910,61 +905,56 @@ function AiChatbotAgents() {
             {
               icon: 'Play' as IconName,
               onClick: () => handlePlaygroundClick(agent),
-              style: { backgroundColor: '#000000', color: '#ffffff' },
+              className: 'bg-green-100 text-green-900/80 hover:bg-green-500 hover:text-white',
               tooltipText: 'Play',
             },
             agentAccess?.edit && {
               icon: 'SettingsIcon' as IconName,
               onClick: () => openWidgetConfigure(agent),
-              style: { backgroundColor: 'rgba(251,226,200,0.4)', color: 'rgba(154,148,143,0.9)' },
+              className: 'bg-primary/5 text-primary hover:bg-primary hover:text-white',
               tooltipText: 'Configure',
             },
             agentAccess?.edit && {
               icon: 'EditStrokIcon' as IconName,
               onClick: () => openConfigureAgent(agent),
-              style: { backgroundColor: 'rgba(251,226,200,0.4)', color: 'rgba(154,148,143,0.9)' },
+              className: 'bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit agent',
             },
             agentAccess?.edit && {
               icon: 'Chat' as IconName,
               onClick: () => openPromptEditor(agent),
-              style: { backgroundColor: 'rgba(251,226,200,0.4)', color: 'rgba(154,148,143,0.9)' },
+              className: 'bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit prompt',
             },
             agentAccess?.delete &&
               !deleted && {
                 icon: 'TrashBin' as IconName,
                 onClick: () => setDeleteAgent(agent),
-                style: { backgroundColor: '#fee2e2', color: '#ef4444' },
+                className: 'bg-red-100 text-red-500 hover:bg-red-500 hover:text-white',
                 tooltipText: 'Delete',
               },
           ].filter(Boolean) as Array<{
             icon: IconName;
             onClick: () => void;
-            style: CSSProperties;
+            className: string;
             tooltipText: string;
           }>;
 
           if (!actions.length) return '---';
 
           return (
-            <div className="flex w-full min-w-[200px] items-center justify-end gap-1.5">
+            <div className="flex w-full min-w-[146px] items-center justify-end gap-1">
               {actions.map((action) => (
                 <CustomTooltip key={action.tooltipText} text={action.tooltipText} side="top">
                   <button
                     type="button"
-                    className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-full transition-shadow hover:shadow-sm"
-                    /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                       (mcm-page.css) — see note above — forces this button's
-                       own background/color to none/inherit ahead of any
-                       Tailwind utility. Inline style is what actually wins. */
-                    style={action.style}
+                    className={`cursor-pointer flex h-[26px] w-[26px] items-center justify-center rounded-full ${action.className}`}
                     onClick={(event) => {
                       event.stopPropagation();
                       action.onClick();
                     }}
                   >
-                    <Icon name={action.icon} className="h-4 w-4" />
+                    <Icon name={action.icon} className="h-3.5 w-3.5" />
                   </button>
                 </CustomTooltip>
               ))}
@@ -989,203 +979,119 @@ function AiChatbotAgents() {
     ],
   );
 
+  useSetAdminPageMeta({
+    description:
+      'Agents that answer chats on your behalf, the knowledge they draw on, and how each one is performing.',
+  });
+
   if (view === 'analytics') {
     return <AgentAnalytics onClose={() => setView('list')} agents={agentsWithMetrics} />;
   }
 
   return (
     <>
-      <section
-        className="flex h-full min-h-0 w-full flex-col overflow-hidden p-3"
-        style={{ background: AI_TOOLS_PAGE_GRADIENT }}
-      >
-        <div
-          className="mb-2 flex flex-col gap-2.5 rounded-2xl px-6 py-3 sm:flex-row sm:items-center sm:justify-between"
-          /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
-             app-wide, unlayered "glass pass" that deliberately turns any
-             `rounded-*` + `bg-white` card translucent — inline style is what
-             actually renders solid white. */
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid rgba(255,255,255,0.9)',
-            boxShadow: '0 4px 14px rgba(160,95,30,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
-          }}
-        >
-          <div>
-            <button
+      {/* No background of its own. `#f4f5f7` is a cool grey painted over the
+          Admin area's warm ground, which is why this screen and Sessions were
+          the two that looked like a different product. */}
+      <section className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+        {/* The Admin shell already prints "Chat Agents" beside the sidebar's
+            own title, so this screen printed its name a second time three
+            lines down, under a breadcrumb back to a page it IS. The buttons go
+            up to that head through the portal, and the description fills the
+            info button next to the title. */}
+        <AdminHeadActions>
+          {agentAccess?.add && (
+            <Button
               type="button"
-              onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-              className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
+              variant="outline"
+              onClick={() => setView('analytics')}
+              className="h-9 gap-2 rounded-lg border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300"
             >
-              AI Agents
-            </button>
-            <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">
-              AI Chatbot Agents
-            </h1>
-            <p className="mt-0.5 text-[13px] text-[#6b5c4d] dark:text-mcm-ink-3">
-              Agents that answer chats on your behalf, the knowledge they draw on, and how each one
-              is performing.
-            </p>
-          </div>
+              <span className="text-base leading-none">📊</span>
+              Analytics
+            </Button>
+          )}
+          {agentAccess?.add && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/admin-settings/knowledge/create-agent')}
+              className="h-9 gap-2 rounded-lg px-4 text-sm font-semibold shadow-lg shadow-primary/20"
+            >
+              <Plus className="h-4 w-4" />
+              Create New AI Chatbot Agent
+            </Button>
+          )}
+        </AdminHeadActions>
 
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
-            {agentAccess?.add && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setView('analytics')}
-                className="h-9 gap-1.5 rounded-lg px-3 text-sm font-semibold backdrop-blur-[12px] transition-shadow hover:shadow-sm"
-                /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                   (mcm-page.css) forces every plain/shared button's own
-                   background/color/border to none/inherit/0 ahead of any
-                   Tailwind utility — inline style is what actually wins. */
-                style={{
-                  backgroundColor: 'rgba(251,249,246,0.88)',
-                  borderWidth: 1,
-                  borderStyle: 'solid',
-                  borderColor: 'rgba(225,200,165,0.9)',
-                  color: '#334155',
-                }}
-              >
-                <TrendingUp className="h-4 w-4" />
-                Analytics
-              </Button>
-            )}
-            {agentAccess?.add && (
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => navigate('/admin-settings/knowledge/create-agent')}
-                className="h-9 gap-2 rounded-lg px-4 text-sm font-semibold shadow-lg shadow-primary/20"
-                style={{ backgroundColor: 'var(--primary)', borderColor: 'var(--primary)', color: '#ffffff' }}
-              >
-                <Plus className="h-4 w-4" />
-                Create New AI Chatbot Agent
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div
-          className="mb-2 flex w-fit max-w-full items-center gap-2.5 rounded-xl px-3.5 py-1.5"
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid rgba(255,255,255,0.9)',
-            boxShadow: '0 3px 10px rgba(160,95,30,0.08)',
-          }}
-        >
-          <div className="group relative max-w-full sm:w-[300px]">
-            <Search
-              strokeWidth={2.5}
-              className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-[18px] w-[18px] -translate-y-1/2 text-[#6B5B4D] transition-colors group-focus-within:text-primary"
-            />
+        <div className="flex items-center gap-3 border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-6 py-5">
+          <div className="relative max-w-full flex-1 sm:max-w-[440px]">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
               onChange={(event) => setSearch(sanitizeAiSearchText(event.target.value, 50))}
               placeholder="Search agents by name..."
               maxLength={50}
-              className="h-8 w-full rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#FBE2C8]/45 dark:bg-mcm-surface-3/45 pl-9 pr-3 text-sm text-[#2E2D35] dark:text-mcm-ink outline-none transition-colors placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3 hover:border-[#e8c9a0] dark:hover:border-mcm-line focus:border-primary focus:bg-[rgba(251,249,246,0.88)] dark:focus:bg-mcm-surface/88 focus:ring-[3px] focus:ring-primary/12"
+              className="h-11 w-full rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] pl-10 pr-4 text-sm text-[#2E2D35] outline-none transition-colors placeholder:text-[#9A948F] hover:border-[rgba(225,200,165,0.9)] focus:border-primary"
             />
           </div>
-          <div className="h-5 w-px shrink-0 bg-[#EEE7DD] dark:bg-mcm-surface-3" />
-          <div className="flex items-center gap-1 rounded-lg border border-[#e8c9a0] dark:border-mcm-line bg-white/70 p-1 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setStatusFilter('all')}
-              className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-                statusFilter === 'all' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
-              }`}
-              /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                 (mcm-page.css) forces a plain button's own background/color/
-                 border to none/inherit/0 ahead of any Tailwind utility —
-                 inline style is what actually wins. */
-              style={
-                statusFilter === 'all'
-                  ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
-                  : { color: '#6B5B4D' }
-              }
-            >
-              All
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  statusFilter === 'all' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
-                }`}
-              >
-                {totalAgentsCount}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('live')}
-              className={`flex h-7 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition-colors ${
-                statusFilter === 'live' ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'
-              }`}
-              style={
-                statusFilter === 'live'
-                  ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
-                  : { color: '#6B5B4D' }
-              }
-            >
-              <span
-                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                  statusFilter === 'live' ? 'bg-white' : 'bg-emerald-500'
-                }`}
-              />
-              Live
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  statusFilter === 'live' ? 'bg-white/20' : 'bg-[#FBE2C8]/70 dark:bg-mcm-surface-3/70'
-                }`}
-              >
-                {liveAgentsCount}
-              </span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setStatusFilter('all')}
+            className={`h-9 rounded-full border px-4 text-sm font-bold transition-colors ${
+              statusFilter === 'all'
+                ? 'border-primary bg-primary text-white'
+                : 'border-[#EEE7DD] bg-white text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
+            }`}
+          >
+            All <span>{totalAgentsCount}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter('live')}
+            className={`h-9 rounded-full border px-4 text-sm font-bold transition-colors ${
+              statusFilter === 'live'
+                ? 'border-primary bg-primary text-white'
+                : 'border-[#EEE7DD] bg-white text-[#9A948F] hover:border-[rgba(225,200,165,0.9)]'
+            }`}
+          >
+            Live <span>{liveAgentsCount}</span>
+          </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-auto">
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-6 py-5 pb-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="relative min-h-[62px] overflow-hidden rounded-[10px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3.5 py-2.5 shadow-[0_3px_10px_-3px_rgba(194,98,46,0.18)] transition-colors hover:border-primary"
+                className="relative min-h-[86px] rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] transition-colors hover:border-primary"
               >
                 {(isStatsFetching || isMetricsFetching) && <StatCardLoader />}
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                  {stat.label}
-                </p>
-                <p className="mt-0.5 text-[19px] font-bold leading-6 text-slate-950">
+                <p className="text-[11px] font-medium text-slate-500">{stat.label}</p>
+                <p className="mt-[3px] text-[22px] font-bold leading-7 text-slate-950">
                   {stat.value}
                 </p>
                 {stat.helper ? (
-                  <p className="mt-0.5 text-[10px] font-medium text-emerald-500">{stat.helper}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-emerald-500">{stat.helper}</p>
                 ) : null}
               </div>
             ))}
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl">
-            {/* `TableManager`'s own scroll box combines `overflow-auto`,
-                `rounded-xl`, and `backdrop-blur` on one element — a
-                combination Chromium sometimes fails to clip correctly,
-                letting the native scrollbar render past the rounded corner.
-                Wrapping it here (page-scoped, not touching the shared
-                component) clips that without changing how it scrolls. */}
-            <TableManager
-              columns={columns}
-              fetcherKey="getChatAgentList"
-              fetcherFn={getChatAgentList}
-              search={search}
-              extraParams={{ filters: tableFilters, date_filters: selectedDateFilters }}
-              select={selectTableAgents}
-              clientSideSearch={false}
-              customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[rgba(251,238,220,0.55)] [&_thead]:backdrop-blur-[8px] [&_th]:whitespace-nowrap [&_th]:px-2 [&_th]:py-[10px] [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-[#9A948F] dark:text-mcm-ink-3 [&_th:first-child]:w-[24%] [&_td:first-child]:w-[24%] [&_th:last-child]:w-[204px] [&_td]:h-[62px] [&_td]:px-2 [&_td]:py-[10px] [&_td:last-child]:w-[204px]"
-              loaderTableClass="min-h-[320px]"
-              getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60'}
-              emptyTablePlaceholder="No chat agents found"
-              descriptionEmptyTable="Try a different search or create a new chat agent."
-            />
-          </div>
+          <TableManager
+            columns={columns}
+            fetcherKey="getChatAgentList"
+            fetcherFn={getChatAgentList}
+            search={search}
+            extraParams={{ filters: tableFilters, date_filters: selectedDateFilters }}
+            select={selectTableAgents}
+            clientSideSearch={false}
+            customClass="shadow-sm [&_table]:table-fixed [&_thead]:bg-[#f8fafc] [&_th]:px-2 [&_th]:py-3 [&_th]:text-[11px] [&_th]:font-extrabold [&_th]:uppercase [&_th]:tracking-[0.04em] [&_th]:text-slate-500 [&_th:first-child]:w-[27%] [&_td:first-child]:w-[27%] [&_th:last-child]:w-[180px] [&_td]:h-[70px] [&_td]:px-2 [&_td]:py-2.5 [&_td:last-child]:w-[180px]"
+            loaderTableClass="min-h-[320px]"
+            getRowClassName={() => 'transition-colors hover:bg-[#FBE2C8]/60'}
+            emptyTablePlaceholder="No chat agents found"
+            descriptionEmptyTable="Try a different search or create a new chat agent."
+          />
         </div>
       </section>
 

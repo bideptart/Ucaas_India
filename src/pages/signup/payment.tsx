@@ -13,7 +13,6 @@ import PlanSummary from './plan-summary';
 import { getEnv, getObjectLength, handleAlert } from '@/lib/utils';
 import { useGetPlans } from '@/hooks/common';
 import { durationMap } from '../admin-settings/billing/constants';
-import { formatMoney } from '@/lib/billing-money';
 import Loader from '@/components/custom/loader';
 import { useOrganization } from '@/hooks/use-organisation';
 import { getPlanDidCountries } from '@/lib/did-countries';
@@ -253,8 +252,8 @@ const SignUpPayment = () => {
 
   if (isLoading || (!!planUuid && isPlanInfoLoading)) {
     return (
-      <div className="w-screen min-h-screen bg-white dark:bg-mcm-ground ">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white dark:bg-mcm-ground ">
+      <div className="w-screen min-h-screen bg-white ">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white ">
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="lg" />
           </div>
@@ -265,7 +264,7 @@ const SignUpPayment = () => {
 
   return (
     <div className="w-full flex flex-col gap-4 h-full overflow-auto">
-      <div className="w-full  flex items-center justify-between bg-white dark:bg-mcm-surface sm:px-12 px-3 py-4 shadow-sm">
+      <div className="w-full  flex items-center justify-between bg-white sm:px-12 px-3 py-4 shadow-sm">
         <div className="h-8 cursor-pointer sm:px-8" onClick={() => navigate('/')}>
           <img
             src={
@@ -277,14 +276,14 @@ const SignUpPayment = () => {
             className="h-full"
           />
         </div>
-        <p className="text-[#2E2D35] dark:text-mcm-ink">
+        <p className="text-[#2E2D35]">
           Need help? <span className="text-primary cursor-pointer">(111) 111-1111</span>
         </p>
       </div>
       <div className="w-full flex md:flex-row flex-col gap-4 px-4 md:px-12 lg:max-w-[80%] mx-auto mb-4">
-        <section className="md:w-[calc(100%-24rem)] bg-white dark:bg-mcm-surface rounded-xl">
+        <section className="md:w-[calc(100%-24rem)] bg-white rounded-xl">
           <div className="w-full h-full flex flex-col gap-16 items-center justify-center">
-            <div className="w-full flex flex-col justify-center items-center p-8 bg-white dark:bg-mcm-surface rounded-xl">
+            <div className="w-full flex flex-col justify-center items-center p-8 bg-white rounded-xl">
               <div className="flex flex-col w-full gap-8">
                 <Button
                   type="button"
@@ -297,7 +296,7 @@ const SignUpPayment = () => {
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-2">
                     <h1 className="text-2xl  font-bold">How many phone lines you require?</h1>
-                    <h6 className="text-base text-[#9A948F] dark:text-mcm-ink-3 font-normal">
+                    <h6 className="text-base text-[#9A948F] font-normal">
                       Each line comes with its own phone number and uses a single{' '}
                       {mainSiteInfo?.domain === 'mycountrymobile.com'
                         ? 'MyCountryMobile '
@@ -305,8 +304,8 @@ const SignUpPayment = () => {
                       license
                     </h6>
                   </div>
-                  <div className="flex flex-col gap-3 items-center border border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/45 dark:bg-mcm-surface-3  p-4 rounded-lg">
-                    <p className="text-[#9A948F] dark:text-mcm-ink-3 text-sm font-medium">Number of Phone Lines</p>
+                  <div className="flex flex-col gap-3 items-center border border-[#EEE7DD] bg-[#FBE2C8]/45  p-4 rounded-lg">
+                    <p className="text-[#9A948F] text-sm font-medium">Number of Phone Lines</p>
                     <div className="flex items-center gap-6 ">
                       <div
                         onClick={() => {
@@ -333,21 +332,21 @@ const SignUpPayment = () => {
                         <Icon name="Plus" className="h-10" />
                       </div>
                     </div>
-                    <p className="text-[#9A948F] dark:text-mcm-ink-3 text-sm ">
+                    <p className="text-[#9A948F] text-sm ">
                       {isTrailPlan
                         ? 'Minimum 1 line, Maximum 1 lines'
                         : `Minimum ${minLicenses} line${minLicenses > 1 ? 's' : ''}${maxLicenses !== null ? `, Maximum ${maxLicenses} lines` : ', Unlimited'}`}
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col gap-3 border-t border-[#EEE7DD] dark:border-mcm-line pt-4">
+                <div className="flex flex-col gap-3 border-t border-[#EEE7DD] pt-4">
                   <div className="flex flex-col gap-1">
                     <h1 className="text-xl font-semibold">Checkout</h1>
-                    <h6 className="text-base text-[#9A948F] dark:text-mcm-ink-3 font-normal">
+                    <h6 className="text-base text-[#9A948F] font-normal">
                       Select and add your payment information
                     </h6>
                   </div>
-                  <div className="flex border border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] rounded-xl p-3">
+                  <div className="flex border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl p-3">
                     <PaymentScreen
                       ref={paymentRef}
                       onSuccessPayment={onSuccessPayment}
@@ -356,9 +355,7 @@ const SignUpPayment = () => {
                       onFailure3dsPayment={handle3DSFailure}
                       isApiLoad={PendingSignupTrial || signUpPending || PendingInitialPlanPayment}
                       submitButtonText={
-                        isTrailPlan
-                          ? 'Add Card'
-                          : `Pay ${formatMoney(taxCalculationData?.total_amount || 0)}`
+                        isTrailPlan ? 'Add Card' : `Pay $${taxCalculationData?.total_amount || 0}`
                       }
                       enableSaveCard={false}
                       showIsSaveCard={false}

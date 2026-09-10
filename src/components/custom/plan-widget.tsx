@@ -102,7 +102,7 @@ const UpgradePlanWidget: FC = () => {
             {isPaymentPending ? null : (
               <Button
                 variant={'outline'}
-                className="hover:bg-white dark:hover:bg-mcm-surface-3 hover:text-primary/90"
+                className="hover:bg-white hover:text-primary/90"
                 onClick={() => navigate('/admin-settings/billing/plan')}
               >
                 Upgrade Now

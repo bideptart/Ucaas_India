@@ -96,7 +96,7 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
     if (normalized === 'AGENT') return 'text-slate-700 border-slate-200 bg-slate-50';
     if (normalized.includes('SUPPORT')) return 'text-emerald-700 border-emerald-200 bg-emerald-50';
     if (normalized.includes('SALES')) return 'text-rose-700 border-rose-200 bg-rose-50';
-    return 'text-gray-700 border-gray-200 bg-gray-50 dark:text-mcm-ink-2 dark:border-mcm-line dark:bg-mcm-surface-3';
+    return 'text-gray-700 border-gray-200 bg-gray-50';
   };
 
   const getCurrentRoleName = (item: any) =>
@@ -206,24 +206,24 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
         className={`w-[760px] max-w-[calc(100%-2rem)] p-0 gap-0 ${className}`}
         showCloseButton={false}
       >
-        <div className="flex items-start justify-between p-5 border-b border-gray-200 dark:border-mcm-line">
+        <div className="flex items-start justify-between p-5 border-b border-gray-200">
           <div className="flex flex-col gap-1">
-            <h4 className="text-gray-900 text-lg font-semibold dark:text-mcm-ink">Assign Users to Role</h4>
-            <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
+            <h4 className="text-gray-900 text-lg font-semibold">Assign Users to Role</h4>
+            <p className="text-sm text-gray-500">
               Selecting users for <span className="text-primary text-sm">{roleName}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-900 cursor-pointer dark:text-mcm-ink-3 dark:hover:text-mcm-ink"
+            className="text-gray-500 hover:text-gray-900 cursor-pointer"
           >
             <CloseIcon className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="px-4 py-2 border-b border-gray-200 flex items-center justify-between gap-4 dark:border-mcm-line">
-          <div className="flex items-center gap-3 text-gray-700 font-semibold text-sm dark:text-mcm-ink-2">
+        <div className="px-4 py-2 border-b border-gray-200 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-gray-700 font-semibold text-sm">
             <Checkbox checked={isAllChecked} onCheckedChange={handleSelectAll} />
             <span>
               Select All ({allVisibleUserIds?.length || 0}
@@ -241,7 +241,7 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
                 if (value.startsWith(' ')) return;
                 setSearch(value);
               }}
-              Icon={<SearchLine className="text-gray-500 dark:text-mcm-ink-3" />}
+              Icon={<SearchLine className="text-gray-500" />}
             />
           </div>
         </div>
@@ -269,8 +269,8 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
                     isDisabled
                       ? 'opacity-60 cursor-not-allowed'
                       : isSelected
-                        ? 'bg-gray-50 dark:bg-mcm-surface-3'
-                        : 'hover:bg-gray-50 dark:hover:bg-mcm-surface-3'
+                        ? 'bg-gray-50'
+                        : 'hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -281,14 +281,14 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
                     />
                     <CustomAvatar name={fullName} size="36" showPresence={false} />
                     <div className="flex flex-col">
-                      <p className="text-gray-900 font-semibold text-md leading-tight dark:text-mcm-ink">
+                      <p className="text-gray-900 font-semibold text-md leading-tight">
                         {fullName}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-mcm-ink-3">Ext : {item?.extension || '--'}</p>
+                      <p className="text-xs text-gray-500">Ext : {item?.extension || '--'}</p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-gray-400 font-semibold dark:text-mcm-ink-3">
+                    <p className="text-[11px] uppercase tracking-[0.08em] text-gray-400 font-semibold">
                       Current Role
                     </p>
                     <span
@@ -301,7 +301,7 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
               );
             })
           ) : (
-            <div className="w-full min-h-[180px] flex items-center justify-center text-sm text-gray-500 dark:text-mcm-ink-3">
+            <div className="w-full min-h-[180px] flex items-center justify-center text-sm text-gray-500">
               No users found.
             </div>
           )}
@@ -319,9 +319,9 @@ const AssignUsersModal: FC<AssignUsersModalProps> = ({ open, roleData, setOpen, 
           ) : null}
         </div>
 
-        <div className="border-t border-gray-200 bg-gray-50 px-6 text-sm py-4 flex items-center justify-between rounded-b-lg dark:border-mcm-line dark:bg-mcm-surface-3">
-          <p className="text-gray-600 font-medium dark:text-mcm-ink-3">
-            <span className="text-gray-900 dark:text-mcm-ink">{selectedUserIds.length}</span> user(s) selected
+        <div className="border-t border-gray-200 bg-gray-50 px-6 text-sm py-4 flex items-center justify-between rounded-b-lg">
+          <p className="text-gray-600 font-medium">
+            <span className="text-gray-900">{selectedUserIds.length}</span> user(s) selected
           </p>
           <div className="flex items-center gap-4">
             <Button type="button" variant="transparent" onClick={handleClose}>

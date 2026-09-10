@@ -48,13 +48,13 @@ const PlanUsageTable = ({ lines }: { lines: UsageLine[] }) => {
     >
       {shown.length === 0 ? (
         <div className="py-3">
-          <p className="text-xs text-gray-600 dark:text-mcm-ink-3">
+          <p className="text-xs text-gray-600">
             This plan has no included allowances — calls and messages are charged as you use them.
           </p>
         </div>
       ) : allUnknown ? (
         <div className="py-3">
-          <p className="text-xs text-gray-600 dark:text-mcm-ink-3">
+          <p className="text-xs text-gray-600">
             Your allowances could not be read just now. Nothing is wrong with your account — reload
             the page, and the Usage screen shows the same figures.
           </p>
@@ -67,7 +67,7 @@ const PlanUsageTable = ({ lines }: { lines: UsageLine[] }) => {
                 {['Service', 'Included', 'Used', 'Left', ''].map((h) => (
                   <th
                     key={h}
-                    className="border-b border-gray-200 dark:border-mcm-line px-0 pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 last:text-right"
+                    className="border-b border-gray-200 px-0 pb-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 last:text-right"
                   >
                     {h}
                   </th>
@@ -77,16 +77,16 @@ const PlanUsageTable = ({ lines }: { lines: UsageLine[] }) => {
             <tbody>
               {shown.map(({ line, meter }) => (
                 <tr key={line.service}>
-                  <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
+                  <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
                     {line.service}
                   </td>
-                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-700 dark:text-mcm-ink-2">
+                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-700">
                     {meter.includedText}
                   </td>
-                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-700 dark:text-mcm-ink-2">
+                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums text-gray-700">
                     {meter.usedText}
                   </td>
-                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
+                  <td className="border-b border-gray-100 py-2.5 pr-4 tabular-nums font-medium text-gray-900">
                     {meter.leftText}
                   </td>
                   {/* The percentage last and quiet: it is the least useful of
@@ -100,7 +100,7 @@ const PlanUsageTable = ({ lines }: { lines: UsageLine[] }) => {
                     ) : (
                       <span
                         className={
-                          isRunningLow(meter) ? 'font-semibold text-amber-700' : 'text-gray-500 dark:text-mcm-ink-3'
+                          isRunningLow(meter) ? 'font-semibold text-amber-700' : 'text-gray-500'
                         }
                       >
                         {meter.percent}%

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import moment from 'moment';
+import { callMoment } from '@/lib/call-time';
 import { AuthenticatedAudio } from '@/components/custom/authenticated-media';
 import { handleDownloadFile, MEDIA_URL } from '@/lib/utils';
 import { useGetExtensions } from '@/hooks/common';
@@ -7,6 +7,7 @@ import { useCompanyFeatures } from '@/hooks/rbac';
 import { useUser } from '@/hooks/use-user';
 import { getUserNameByExtension } from '@/lib/extension-utility';
 import { Ic } from './icons';
+import NumberWithFlag from '@/components/custom/number-with-flag';
 import { DialNumber, useConsoleDialer } from './dial-number';
 import { initialsOf, isNumberLike } from './copilot-adapter';
 import type { ConsoleCallRow } from './call-list-column';
@@ -98,7 +99,10 @@ const CallRecord = ({
         id: String(log?.uuid || log?.sipcall_id || log?.xml_cdr_uuid || `${i}`),
         raw: log,
         direction: isMissed ? 'miss' : isOutbound ? 'out' : 'in',
-        when: start && moment(start).isValid() ? moment(start).format('DD MMM, h:mm A') : '—',
+        when:
+          start && callMoment(start).isValid()
+            ? callMoment(start).format('DD MMM, h:mm A')
+            : '—',
         duration: clock(log?.billsec ?? log?.duration),
         by,
         viaDid: isMeaningful(log?.via_did) ? String(log.via_did).trim() : '',
@@ -127,7 +131,11 @@ const CallRecord = ({
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="record-name">
-            {isNumberLike(row.name) ? <span className="num">{row.name}</span> : row.name}
+            {isNumberLike(row.name) ? (
+              <NumberWithFlag number={row.name} className="num" />
+            ) : (
+              row.name
+            )}
             {row.contactId ? <span className="tag acc">Contact</span> : null}
           </div>
           <div className="record-sub num">

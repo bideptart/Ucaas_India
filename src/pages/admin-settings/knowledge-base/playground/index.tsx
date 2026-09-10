@@ -2,13 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { handleAlert } from '@/lib/utils';
 import { getChatAgentList, getAIReceptionistList } from '@/services/api';
-import { MessageSquare, Phone, Search, Activity, Zap, Sparkles, Check } from 'lucide-react';
+import { MessageSquare, Phone, Search, Activity, Zap, Sparkles } from 'lucide-react';
 import Loader from '@/components/custom/loader';
 import CustomAvatar from '@/components/custom/custom-avatar';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { getAi360WidgetKey, getChatWidgetScriptSrc } from '../ai-agent/chat-agent-configure-modal';
-import { isDemoMode } from '@/lib/demo-mode';
-import PlaygroundDemoPreview from './demo-preview';
 
 const EMBED_SCRIPT_ID = 'ai-agent-test-embed-script';
 const CHAT_WIDGET_MAX_WIDTH = 423;
@@ -17,22 +15,7 @@ const CALL_WIDGET_MAX_WIDTH = 360;
 const CALL_WIDGET_MAX_HEIGHT = 580;
 const CHAT_WIDGET_VIEWPORT_GAP = 8;
 
-/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
-   the floating white header card actually reads as "floating" — without a
-   saturated backdrop behind it, a white card on the AdminHub shell's own
-   near-white background has almost no contrast to float against. */
-const AI_TOOLS_PAGE_GRADIENT = '#fdf1e2';
-
 const sanitizeWidgetKey = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, '');
-
-/* `agent_uuid || id` alone left every row without one of those two fields
-   resolving to the same `undefined`, and once any agent was selected every
-   other row's `undefined === undefined` compare read as "also selected" —
-   the whole list lit up together instead of just the one row. Matches the
-   same broader fallback chain `getAgentId` uses on the Chat Agents list
-   page, since these rows come from the same APIs. */
-const getAgentRowId = (agent: any): string =>
-  String(agent?.agent_uuid || agent?.agentId || agent?.id || agent?.uuid || agent?._id || '');
 
 const unloadEmbedScript = () => {
   document
@@ -55,16 +38,15 @@ const unloadEmbedScript = () => {
 
 // function StatCard({ label, value }: { label: string; value: string | number }) {
 //   return (
-//     <div className="min-h-[76px] rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-5 py-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+//     <div className="min-h-[76px] rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-5 py-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
 //       <p className="text-sm text-slate-500">{label}</p>
-//       <p className="mt-1 text-2xl font-bold leading-7 text-[#2E2D35] dark:text-mcm-ink">{value}</p>
+//       <p className="mt-1 text-2xl font-bold leading-7 text-[#2E2D35]">{value}</p>
 //     </div>
 //   );
 // }
 
 function Playground() {
   const location = useLocation();
-  const navigate = useNavigate();
   const initialState = location.state as any;
   const [activeTab, setActiveTab] = useState<'chat' | 'voice'>(
     initialState?.activeTab === 'chat' ? 'chat' : 'voice',
@@ -188,14 +170,6 @@ function Playground() {
     (rowData: any) => {
       const rowId = rowData?.agent_uuid || rowData?.id;
       const mode = activeTab === 'voice' ? 'call' : 'chat';
-
-      /* Demo mode has no widget host to fetch from, so asking for one only
-         produced "AI widget URL is missing." and left the panel spinning on a
-         script that was never going to arrive. The sandbox renders instead. */
-      if (isDemoMode()) {
-        setActiveEmbedId(rowId);
-        return;
-      }
       const widgetKey = getAi360WidgetKey(rowData);
       const widgetScriptSrc = getChatWidgetScriptSrc();
 
@@ -275,7 +249,7 @@ function Playground() {
 
   useEffect(() => {
     if (!selectedAgent) return;
-    const rowId = getAgentRowId(selectedAgent);
+    const rowId = selectedAgent?.agent_uuid || selectedAgent?.id;
     if (activeEmbedId === rowId || embedLoadingRef.current) return;
     const timer = window.setTimeout(() => {
       handleLoadAgentWidget(selectedAgent);
@@ -301,7 +275,7 @@ function Playground() {
 
   const isWidgetActive = useMemo(() => {
     if (!selectedAgent) return false;
-    const rowId = getAgentRowId(selectedAgent);
+    const rowId = selectedAgent?.agent_uuid || selectedAgent?.id;
     return activeEmbedId === rowId;
   }, [selectedAgent, activeEmbedId]);
 
@@ -333,10 +307,7 @@ function Playground() {
   }, []);
 
   return (
-    <section
-      className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f] dark:text-mcm-ink"
-      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
-    >
+    <section className="flex h-full min-h-0 w-full flex-col overflow-auto text-[#07142f]">
       {/* Dynamic Style Override to position AI360 widget in Middle Panel */}
       {selectedAgent && activeWidgetId && (
         <style>{`
@@ -377,58 +348,20 @@ function Playground() {
         `}</style>
       )}
 
-      {/* Page Header (Matching other AI pages) */}
-      <div className="shrink-0 p-4 pb-0">
-        <div
-          className="rounded-2xl px-6 py-4"
-          /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
-             app-wide, unlayered "glass pass" that deliberately turns any
-             `rounded-*` + `bg-white` card translucent — inline style is what
-             actually renders solid white. */
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid rgba(255,255,255,0.9)',
-            boxShadow: '0 10px 34px rgba(160,95,30,0.16), inset 0 1px 0 rgba(255,255,255,0.8)',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
-          >
-            AI Agents
-          </button>
-          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">
-            Playground
-          </h1>
-        </div>
-      </div>
-
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-4 pb-2 pt-2">
+      {/* The breadcrumb printed "Playground" a second time, a line under the
+          Admin head that already says it, and carried nothing else — no
+          description and no actions. Dropped rather than moved. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-4 pb-2">
         {/* Dynamic Stats Banner */}
-        {/* Split between the container's `pt-2` and this `mt-2`, instead of
-            one `pt-4`: a container's own top padding sits outside the part
-            that reliably scrolls away in every browser, so a `pt-4` alone
-            left a sliver of the page's background gradient permanently
-            visible above the banner even once fully scrolled past — but
-            dropping the container's padding to zero left the workspace
-            cards below with no breathing room, so their rounded top corners
-            read as clipped once the banner was gone. `pt-2` keeps a small
-            fixed gap that survives scrolling; `mt-2` on the banner gives the
-            rest and scrolls away cleanly with it. */}
-        <div className="relative mt-2 overflow-hidden bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 text-[#2E2D35] dark:text-mcm-ink rounded-2xl p-6 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#fff6ec] via-[#fdece0] to-[#f9c9a3] border border-[rgba(225,200,165,0.9)] text-[#2E2D35] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.55),transparent_60%)] pointer-events-none" />
           <div className="flex items-center gap-4 relative z-10">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'var(--primary)' }}
-            >
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-full bg-[var(--color-ucass-active,#c96f1f)] flex items-center justify-center shadow-sm">
+              <Sparkles className="w-6 h-6 text-white animate-pulse" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight text-[#2E2D35] dark:text-mcm-ink">
-                Agent Playground
-              </h1>
-              <p className="text-slate-500 text-sm mt-1 max-w-lg">
+              <h1 className="text-lg font-semibold tracking-tight">Agent Playground</h1>
+              <p className="text-[#6B5B4D] text-sm mt-1 max-w-lg">
                 Test any AI Receptionist (voice) or Chat Agent in a safe sandbox. Sessions don't
                 count toward analytics.
               </p>
@@ -437,28 +370,28 @@ function Playground() {
 
           <div className="flex items-center gap-6 md:gap-8 relative z-10 shrink-0">
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-[#8A7B6C] font-semibold uppercase tracking-wider">
                 Total Agents
               </p>
-              <p className="text-3xl font-extrabold text-[#2E2D35] dark:text-mcm-ink mt-1">
+              <p className="text-3xl font-extrabold text-[#2E2D35] mt-1">
                 {isPageLoading ? '...' : totalAgentsCount}
               </p>
             </div>
-            <div className="w-px h-10 bg-[#EEE7DD] dark:bg-mcm-surface-3" />
+            <div className="w-px h-10 bg-[rgba(201,111,31,0.22)]" />
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-[#8A7B6C] font-semibold uppercase tracking-wider">
                 Receptionists
               </p>
-              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--primary)' }}>
+              <p className="text-3xl font-extrabold text-[var(--color-ucass-active,#c96f1f)] mt-1">
                 {isPageLoading ? '...' : receptionistAgents?.length}
               </p>
             </div>
-            <div className="w-px h-10 bg-[#EEE7DD] dark:bg-mcm-surface-3" />
+            <div className="w-px h-10 bg-[rgba(201,111,31,0.22)]" />
             <div className="text-center md:text-left">
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-[#8A7B6C] font-semibold uppercase tracking-wider">
                 AI Chatbots
               </p>
-              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--primary)' }}>
+              <p className="text-3xl font-extrabold text-[var(--color-ucass-active,#c96f1f)] mt-1">
                 {isPageLoading ? '...' : chatAgents?.length || 0}
               </p>
             </div>
@@ -466,47 +399,30 @@ function Playground() {
         </div>
 
         {/* Workspace Columns */}
-        {/* `min-h-full` (not a bigger fixed px value) is the point: it makes
-            this row exactly as tall as the scroll container's own visible
-            height, so the only extra scrollable distance is the stats
-            banner above it — once that's scrolled past, this row already
-            fills the rest of the viewport and there's nothing further to
-            scroll to. `overflow-hidden` then holds it to that height so its
-            children (the agent list, the sandbox card) are the ones that
-            scroll internally instead of pushing this row — and the page —
-            taller. */}
-        <div className="flex-1 flex gap-4 min-h-full overflow-hidden">
+        <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
           {/* Left Column: Pick Agent List */}
-          <div className="w-82 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col overflow-hidden shrink-0">
-            <div className="p-3 border-b border-[#EEE7DD] dark:border-mcm-line bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50 space-y-2.5">
+          <div className="w-82 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] flex flex-col overflow-hidden shrink-0">
+            <div className="p-3 border-b border-[#EEE7DD] bg-[#FBE2C8]/50 space-y-2.5">
               {/* Mini Tabs (Primary UCAAS selected tab) */}
-              <div className="flex bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 p-1 rounded-lg border border-[#EEE7DD]/40 dark:border-mcm-line/40">
+              <div className="flex bg-[#FBE2C8]/40 p-1 rounded-lg border border-[#EEE7DD]/40">
                 <button
                   onClick={() => setActiveTab('voice')}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer"
-                  /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                     (mcm-page.css) is an unlayered reset shared by every
-                     admin-settings page — it forces a plain button's own
-                     background/color to none/inherit ahead of any Tailwind
-                     utility, so the active-tab classes below never actually
-                     applied. Only an inline style beats that. */
-                  style={
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
                     activeTab === 'voice'
-                      ? { backgroundColor: '#ffffff', color: 'var(--primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
-                      : { color: '#9A948F' }
-                  }
+                      ? 'bg-ucass-primary-200 text-primary shadow-sm'
+                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
+                  }`}
                 >
                   <Phone className="w-3.5 h-3.5" />
                   AI Receptionist
                 </button>
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer"
-                  style={
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all border-0 cursor-pointer ${
                     activeTab === 'chat'
-                      ? { backgroundColor: '#ffffff', color: 'var(--primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
-                      : { color: '#9A948F' }
-                  }
+                      ? 'bg-ucass-primary-200 text-primary shadow-sm'
+                      : 'text-[#9A948F] hover:text-[#2E2D35] bg-transparent'
+                  }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   AI Chatbot
@@ -515,13 +431,13 @@ function Playground() {
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A948F]" />
                 <input
                   type="text"
                   placeholder="Search agents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-lg outline-none focus:border-primary transition-all placeholder:text-[#9A948F] dark:placeholder:text-mcm-ink-3"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] border border-[rgba(225,200,165,0.9)] rounded-lg outline-none focus:border-primary transition-all placeholder:text-[#9A948F]"
                 />
               </div>
             </div>
@@ -531,74 +447,46 @@ function Playground() {
               {isPageLoading ? (
                 <div className="py-8 flex flex-col items-center justify-center gap-2">
                   <Loader variant="custom" />
-                  <p className="text-[11px] text-[#9A948F] dark:text-mcm-ink-3">Loading agents...</p>
+                  <p className="text-[11px] text-[#9A948F]">Loading agents...</p>
                 </div>
               ) : filteredAgents.length === 0 ? (
                 <div className="py-8 px-4 text-center">
-                  <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 font-medium">No agents found</p>
+                  <p className="text-xs text-[#9A948F] font-medium">No agents found</p>
                 </div>
               ) : (
                 filteredAgents.map((agent: any) => {
-                  const agentId = getAgentRowId(agent);
-                  const isSelected = Boolean(
-                    selectedAgent && agentId && getAgentRowId(selectedAgent) === agentId,
-                  );
+                  const agentId = agent?.agent_uuid || agent?.id;
+                  const isSelected =
+                    selectedAgent &&
+                    (selectedAgent?.agent_uuid === agentId || selectedAgent?.id === agentId);
                   // const isLive = String(agent?.status || agent?.agentStatus || '').toLowerCase() === 'live';
 
                   return (
                     <button
                       key={agentId}
                       onClick={() => handleSelectAgent(agent)}
-                      /* The name/subtitle text below relies on inline `style`
-                         for its color rather than inheriting the button's —
-                         `.mcm-page button:not([data-slot='tabs-trigger'])`
-                         (mcm-page.css) sets `color: inherit` on every plain
-                         button ahead of any Tailwind utility, which was
-                         quietly beating this button's own inherited color
-                         and left every row's name reading in the same shade
-                         regardless of whether it was actually selected. */
-                      className={`group w-full text-left flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-all ${isSelected ? 'shadow-sm' : 'hover:bg-[#FBE2C8]/30 dark:hover:bg-mcm-surface-3/30'}`}
-                      style={
+                      className={`w-full text-left flex items-center justify-between p-2 rounded-lg border transition-all ${
                         isSelected
-                          ? {
-                              backgroundColor: 'color-mix(in srgb, var(--primary) 10%, white)',
-                              borderColor: 'var(--primary)',
-                            }
-                          : { backgroundColor: '#ffffff', borderColor: 'transparent' }
-                      }
+                          ? 'bg-ucass-primary-200/50 border-primary text-primary shadow-sm'
+                          : 'bg-white border-transparent hover:bg-slate-50 text-[#2E2D35]'
+                      }`}
                     >
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <div
-                          className={`shrink-0 rounded-full ${isSelected ? 'ring-2 ring-offset-2' : ''}`}
-                          style={isSelected ? ({ '--tw-ring-color': 'var(--primary)' } as any) : undefined}
-                        >
-                          <CustomAvatar
-                            name={agent?.agentName}
-                            showPresence={false}
-                            size="32"
-                            isActivityInfo={false}
-                          />
-                        </div>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <CustomAvatar
+                          name={agent?.agentName}
+                          showPresence={false}
+                          size="32"
+                          isActivityInfo={false}
+                        />
                         <div className="min-w-0">
-                          <p
-                            className="text-xs font-semibold truncate leading-4"
-                            style={{ color: isSelected ? 'var(--primary)' : '#2E2D35' }}
-                          >
+                          <p className="text-xs font-semibold truncate leading-4">
                             {agent?.agentName}
                           </p>
-                          <p className="text-[10px] text-[#9A948F] dark:text-mcm-ink-3 truncate leading-3">
+                          <p className="text-[10px] text-[#9A948F] truncate leading-3">
                             {activeTab === 'chat' ? 'Chat Agent' : 'Voice Agent'}
                           </p>
                         </div>
                       </div>
-                      {isSelected ? (
-                        <span
-                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white"
-                          style={{ backgroundColor: 'var(--primary)' }}
-                        >
-                          <Check className="h-3 w-3" strokeWidth={3} />
-                        </span>
-                      ) : null}
                     </button>
                   );
                 })
@@ -607,14 +495,14 @@ function Playground() {
           </div>
 
           {/* Middle Column: Inline Sandbox Session */}
-          <div className="flex-1 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] overflow-hidden flex flex-col min-h-0 relative">
+          <div className="flex-1 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-xl border border-[rgba(225,200,165,0.9)] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] overflow-hidden flex flex-col min-h-0 relative">
             {!selectedAgent ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto">
-                <div className="w-12 h-12 rounded-full bg-[#FBE2C8]/60 dark:bg-mcm-surface-3/60 flex items-center justify-center mb-3 text-primary">
+                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3 text-primary">
                   <Activity className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-bold text-[#2E2D35] dark:text-mcm-ink">Sandbox Preview</h3>
-                <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-1 leading-relaxed">
+                <h3 className="text-sm font-bold text-[#2E2D35]">Sandbox Preview</h3>
+                <p className="text-xs text-[#9A948F] mt-1 leading-relaxed">
                   Select an agent from the left column. The playground will immediately launch the
                   chat session or initiate a test voice call.
                 </p>
@@ -622,21 +510,21 @@ function Playground() {
             ) : (
               <div className="flex-1 flex flex-col min-h-0 ">
                 {/* Middle Column Header */}
-                <div className="p-3 border-b border-[#EEE7DD] dark:border-mcm-line flex items-center justify-between gap-3 bg-[#FBE2C8]/30 dark:bg-mcm-surface-3/30 shrink-0">
+                <div className="p-3 border-b border-[#EEE7DD] flex items-center justify-between gap-3 bg-[#FBE2C8]/30 shrink-0">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm uppercase shrink-0">
                       {String(selectedAgent?.agentName || 'A').charAt(0)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <h2 className="text-xs font-bold text-[#2E2D35] dark:text-mcm-ink truncate max-w-[120px]">
+                        <h2 className="text-xs font-bold text-[#2E2D35] truncate max-w-[120px]">
                           {selectedAgent?.agentName}
                         </h2>
                         <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/10 shrink-0">
                           Live
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-[10px] text-[#9A948F] dark:text-mcm-ink-3 leading-3">
+                      <div className="flex items-center gap-1 text-[10px] text-[#9A948F] leading-3">
                         <span>{activeTab === 'chat' ? 'Chat agent' : 'Voice receptionist'}</span>
                         <span>•</span>
                         <span className="text-primary font-semibold flex items-center gap-0.5">
@@ -649,27 +537,20 @@ function Playground() {
 
                 {/* Inline Sandbox Console */}
                 <div className="flex-1 flex flex-col min-h-0 overflow-auto">
-                  <div ref={containerRef} className="w-full flex-1 relative bg-[#FBE2C8]/50 dark:bg-mcm-surface-3/50">
-                    {isDemoMode() ? (
-                      <PlaygroundDemoPreview
-                        agentName={String(selectedAgent?.agentName || selectedAgent?.name || '')}
-                        mode={activeWidgetMode === 'call' ? 'call' : 'chat'}
-                      />
-                    ) : (
-                      <div id="ai-chat-widget-root" className="w-full h-full" />
-                    )}
+                  <div ref={containerRef} className="w-full flex-1 relative bg-gray-50/50">
+                    <div id="ai-chat-widget-root" className="w-full h-full" />
 
-                    {isDemoMode() ? null : !activeWidgetKey ? (
+                    {!activeWidgetKey ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
-                        <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">Widget key missing</p>
-                        <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#9A948F] dark:text-mcm-ink-3">
+                        <p className="text-sm font-semibold text-[#2E2D35]">Widget key missing</p>
+                        <p className="mt-1 max-w-xs text-xs leading-relaxed text-[#9A948F]">
                           Save the agent widget configuration first, then test it here.
                         </p>
                       </div>
                     ) : !isWidgetActive ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-white z-10">
                         <Loader variant="custom" />
-                        <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3 mt-2">
+                        <p className="text-xs text-[#9A948F] mt-2">
                           Loading {activeWidgetMode === 'call' ? 'call' : 'chat'} widget inside
                           center layout...
                         </p>

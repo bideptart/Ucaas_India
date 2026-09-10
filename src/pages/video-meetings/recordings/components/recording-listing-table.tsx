@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/hooks/use-user';
 import { useSearchParams } from 'react-router-dom';
-import '../../meetings-theme.css';
 
 type SortKey =
   'modified_desc' | 'modified_asc' | 'size_desc' | 'size_asc' | 'name_asc' | 'name_desc';
@@ -349,7 +348,7 @@ const RecordingListingTable = ({
             <MoreVertical className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="mtg-menu w-44">
+        <DropdownMenuContent align="end" className="w-44 border border-[#d7dbe2]">
           <DropdownMenuItem
             onClick={() => handleDownloadRecording(record)}
             disabled={isDownloading}
@@ -400,18 +399,12 @@ const RecordingListingTable = ({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                /* The orange outline-until-filled idiom the app's other
-                   toolbar icon buttons use (Reports' refresh/export, the
-                   Directory ghost buttons) — these two were a translucent
-                   white chip with a slate icon, which read as disabled
-                   next to the warm toolbar around them and gave no hover
-                   feedback beyond getting slightly whiter. */
-                className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85"
               >
                 <SlidersHorizontal className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="mtg-menu w-52">
+            <DropdownMenuContent align="end" className="w-52 border border-[#d7dbe2]">
               <DropdownMenuLabel>Filters</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
@@ -442,18 +435,12 @@ const RecordingListingTable = ({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                /* The orange outline-until-filled idiom the app's other
-                   toolbar icon buttons use (Reports' refresh/export, the
-                   Directory ghost buttons) — these two were a translucent
-                   white chip with a slate icon, which read as disabled
-                   next to the warm toolbar around them and gave no hover
-                   feedback beyond getting slightly whiter. */
-                className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/60 backdrop-blur-md text-[#64748b] hover:bg-white/85"
               >
                 <ArrowUpDown className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="mtg-menu w-52">
+            <DropdownMenuContent align="end" className="w-52 border border-[#d7dbe2]">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {sortOptions.map((option) => (

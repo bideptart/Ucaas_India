@@ -71,8 +71,11 @@ export type QueueCallStats = {
   avgHandleSec: number | null;
 };
 
-export const useCallStats = (selectedRange: { from: string; to: string }) => {
-  const { data, isPending } = useQuery({
+export const useCallStats = (
+  selectedRange: { from: string; to: string },
+  options?: { enabled?: boolean },
+) => {
+  const { data, isPending, isError, refetch, dataUpdatedAt } = useQuery({
     queryKey: ['sharedCallStats', selectedRange?.from, selectedRange?.to],
     queryFn: () => callList({ page: 1, limit: CDR_LIMIT, filter_date: selectedRange }),
     select: (res: any) => {
@@ -84,7 +87,9 @@ export const useCallStats = (selectedRange: { from: string; to: string }) => {
       };
     },
     refetchInterval: REFRESH_MS,
-    enabled: Boolean(selectedRange?.from && selectedRange?.to),
+    /* Still gated on having a range; callers may additionally switch the feed
+       off, which Performance does while the visible tab needs no live data. */
+    enabled: Boolean(selectedRange?.from && selectedRange?.to) && (options?.enabled ?? true),
   });
 
   const rows = data?.rows;
@@ -177,6 +182,11 @@ export const useCallStats = (selectedRange: { from: string; to: string }) => {
       isQueueBreakdownSampled: count > safeRows.length,
       sampledRowCount: safeRows.length,
       totalCount: count,
+      /* Surfaced so a caller can say this source failed and offer a retry,
+         rather than quietly showing zeroes as though the day were empty. */
+      isError,
+      refetch,
+      dataUpdatedAt,
     };
-  }, [rows, callStats, totalCount, isPending]);
+  }, [rows, callStats, totalCount, isPending, isError, refetch, dataUpdatedAt]);
 };

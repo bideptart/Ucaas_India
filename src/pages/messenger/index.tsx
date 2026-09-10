@@ -24,7 +24,6 @@ import {
   Plus,
   Star,
   StarOff,
-  XIcon,
   LucideUser,
   Loader2,
 } from 'lucide-react';
@@ -630,7 +629,6 @@ const SidebarContent = ({
   const { features } = useCompanyFeatures();
   const chatAccess = features?.plan_features?.chat || {};
   const omniAccess = features?.plan_features?.omni_channel || {};
-  const pageTitle = isAgentChat ? 'Agent Chat' : 'Chat';
   const [draftsByKey, setDraftsByKey] = useState<DraftRecord>(() => readDraftsFromStorage());
 
   const { data: omniChannels } = useQuery({

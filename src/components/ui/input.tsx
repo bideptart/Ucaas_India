@@ -17,18 +17,27 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   showEye?: boolean;
 }
 
-function Input({
-  className,
-  type = 'text',
-  label = null,
-  required = false,
-  error = '',
-  Icon = null,
-  IconPosition = 'right-0 inset-y-0 pr-2',
-  onIconClick,
-  showEye = false,
-  ...props
-}: InputProps) {
+/* Forwards the ref to the underlying <input>.
+
+   Callers that need to focus or measure the field -- the holiday date field and
+   the IP allow-list row -- were already passing `ref`, but a plain function
+   component silently swallows it, so those refs were always null and the field
+   never took focus. */
+const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    className,
+    type = 'text',
+    label = null,
+    required = false,
+    error = '',
+    Icon = null,
+    IconPosition = 'right-0 inset-y-0 pr-2',
+    onIconClick,
+    showEye = false,
+    ...props
+  },
+  ref,
+) {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const isSearchInput =
@@ -61,6 +70,7 @@ function Input({
         )}
         <div className="flex">
           <input
+            ref={ref}
             autoComplete="off"
             type={!showPassword ? type : 'text'}
             data-slot="input"
@@ -90,6 +100,6 @@ function Input({
       </div>
     </div>
   );
-}
+});
 
 export { Input };

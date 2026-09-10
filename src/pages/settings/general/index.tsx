@@ -1,6 +1,5 @@
 import CommonSettingPermission from '@/components/common-settings';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
 import '@/components/mcm/mcm-page.css';
 import { POLICY_FIELDS, useCompanyPolicy, type PolicyField } from '@/lib/company-policy';
 import { getHolidaysFormVal, getHolidaysPayload, handleAlert } from '@/lib/utils';
@@ -25,7 +24,7 @@ interface GeneralProps {
 
 /* "Preferences" is what the navigation calls this screen. The heading said
    "General", which matched nothing the user had clicked to get here. */
-export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
+export const General: FC<GeneralProps> = () => {
   useSetAdminPageMeta({ description: 'Your own regional settings, business hours and call handling. Company-wide rules live under Phone System → Preferences.' });
 
   const queryClient: any = useQueryClient();
@@ -230,12 +229,6 @@ export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
       setBaselineSettings(JSON.stringify(methods.getValues('settings')));
     }
   }, [userInfoData]);
-
-  /* Company-locked settings are greyed out, so there is a real distinction
-     worth stating: some of what is on this page may not be yours to change.
-     Saying how many is more use than leaving somebody to discover it one
-     disabled control at a time. */
-  const lockedCount = lockedFields.length;
 
   /* Not `formState.isDirty`. The controls on this page belong to
      `CommonSettingPermission`, which writes through `setValue` without

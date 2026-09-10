@@ -27,29 +27,15 @@
  * are untouched.
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
-import { useUser } from '@/hooks/use-user';
-import { COMPANY_ROOT, COMPANY_RULES_PATH, COMPANY_SECTIONS } from './company-sections';
+import { COMPANY_SECTIONS } from './company-sections';
 
 import '@/components/mcm/mcm-page.css';
 
-const SECTION_LABELS = new Map(COMPANY_SECTIONS.map((section) => [section.path, section.label]));
-
-/* A slug turned back into words, for a screen nested inside a section. Sections
-   themselves never come through here — their wording is the one in
-   COMPANY_SECTIONS, so the crumb and the tab cannot say different things. */
-const humanise = (slug: string) => slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
-
-/* A record's id, not a place with a name. A crumb reading "8f3c-…" tells nobody
-   anything, so these are left out of the trail and the screen they belong to
-   ends it instead. */
-const IS_ID = /^\d+$|^[0-9a-f]{8}-[0-9a-f]{4}-/i;
-
 const CompanyLayout = () => {
-  const { user } = useUser();
   const { pathname } = useLocation();
 
   /* Twelve sections do not fit across the strip on a laptop, so the tabs past

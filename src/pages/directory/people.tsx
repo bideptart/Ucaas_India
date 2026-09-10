@@ -24,7 +24,7 @@ import { mayActOn } from '@/lib/role-rank';
 import { Ic } from '@/components/mcm/icons';
 import SideDrawer from '@/components/custom/side-drawer';
 import UpdateForwarding from '@/pages/admin-settings/people/update-forwarding';
-import { DirectoryDrawer, DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { useInstantMeeting } from '@/hooks/use-instant-meeting';

@@ -5,7 +5,6 @@ import { deleteGreeting, deleteMedia, getGreetings } from '@/services/api';
 import { Icon, IconName } from '@/assets/icons/icon';
 import TableManager from '@/components/custom/table-manager';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useUser } from '@/hooks/use-user';
 import {
   capitalizeFirstLetter,
@@ -22,7 +21,6 @@ import AlertConfirm from '@/components/custom/alert-confirm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AddGreeting from '../add-greeting';
 import EditGreeting from '../edit-greeting';
-import { SearchLine } from '@/assets/icons';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import '@/components/mcm/mcm-page.css';
@@ -30,7 +28,7 @@ import '@/components/mcm/mcm-page.css';
 const GreetingContent: FC = () => {
   const { user } = useUser();
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [search] = useState('');
   const [recordingUrl, serRecordingUrl] = useState<any>('');
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -248,11 +246,6 @@ const GreetingContent: FC = () => {
       },
     },
   ];
-
-  /* This page is mounted twice: in the standalone media library, which has its
-     own sidebar, and under My Account > Media Files. The eyebrow says which
-     one you are standing in rather than claiming "My Account" in both. */
-  const inAccount = pathname.includes('/account/');
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">

@@ -410,6 +410,14 @@ type AdminNotification = {
 };
 
 interface SocketEventsType {
+  /* Defined and used inside this provider since it was written, but never put
+     on the context value -- so the Chat page, which destructures and calls it,
+     got `undefined` and threw as soon as that path ran (creating a chat under
+     demo mode). Exposed here and in the value below. */
+  updateChatLists: (
+    updater: (chats: any[]) => any[],
+    options?: { targetChatId?: string; upsertInAgentList?: boolean },
+  ) => void;
   allLiveCalls: Array<any>;
   usersOnlineStatus: Array<any>;
   unreadCount: any;
@@ -623,6 +631,7 @@ interface SocketEventsType {
 }
 
 export const SocketEvents = createContext<SocketEventsType>({
+  updateChatLists: () => {},
   allLiveCalls: [],
   usersOnlineStatus: [],
   unreadCount: 0,
@@ -4887,6 +4896,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
         clearMeetingSubtitles,
         updateMeetingSubtitleLanguage,
         updateMeetingSubtitleEnabled,
+        updateChatLists,
       }}
     >
       <audio ref={audioRef} src={notificationSound} preload="auto" />

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useCallStats } from '@/hooks/use-call-stats';
@@ -64,7 +64,13 @@ export const PERF_QUERY_KEYS = {
   queueStats: 'performanceQueueStatsList',
 } as const;
 
-export const useLiveContactCentre = (selectedRange: any) => {
+export const useLiveContactCentre = (
+  selectedRange: any,
+  /* `enabled: false` parks every feed. Performance passes it for tabs that show
+     no live figures, so those tabs stop polling five endpoints on a timer. */
+  options?: { enabled?: boolean },
+) => {
+  const enabled = options?.enabled ?? true;
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const { liveCalls, eventLiveCallsData, usersOnlineStatus, liveQueueCalls, campaignLiveCallsData } =
@@ -76,12 +82,15 @@ export const useLiveContactCentre = (selectedRange: any) => {
     [liveCalls, eventLiveCallsData],
   );
 
-  const { data: queueRows = [], isPending: isQueuesLoading } = useQuery({
+  const queueListQuery = useQuery({
     queryKey: ['performanceQueueList'],
     queryFn: () => callQueueList({ page: 1, limit: 200, filters: [], search: '' }),
     select: (res: any) => res?.data?.data?.result?.rows || [],
     refetchInterval: CONFIG_REFRESH_MS,
+    enabled,
   });
+  const queueRows = queueListQuery.data ?? [];
+  const isQueuesLoading = queueListQuery.isPending;
 
   const queues: LiveQueue[] = useMemo(
     () =>
@@ -101,14 +110,17 @@ export const useLiveContactCentre = (selectedRange: any) => {
     [queueRows],
   );
 
-  const { data: roster = [], isPending: isRosterLoading } = useQuery({
+  const rosterQuery = useQuery({
     queryKey: ['performanceUserRoster'],
     queryFn: () => getUserList({ page: 1, limit: 200 }),
     select: (res: any) => res?.data?.data?.result?.rows || [],
     refetchInterval: CONFIG_REFRESH_MS,
+    enabled,
   });
+  const roster = rosterQuery.data ?? [];
+  const isRosterLoading = rosterQuery.isPending;
 
-  const { data: agentStatsRows = [] } = useQuery({
+  const agentStatsQuery = useQuery({
     queryKey: ['performanceAgentReportList', selectedRange],
     queryFn: () =>
       callReportAgentList({
@@ -120,7 +132,9 @@ export const useLiveContactCentre = (selectedRange: any) => {
       }),
     select: (res: any) => res?.data?.data?.result?.rows || [],
     refetchInterval: KPI_REFRESH_MS,
+    enabled,
   });
+  const agentStatsRows = agentStatsQuery.data ?? [];
 
   const agentStatsByName = useMemo(() => {
     const map: Record<string, any> = {};
@@ -141,7 +155,7 @@ export const useLiveContactCentre = (selectedRange: any) => {
   );
   const isAgentsLoading = isRosterLoading;
 
-  const { data: queueStatsRows = [] } = useQuery({
+  const queueStatsQuery = useQuery({
     queryKey: ['performanceQueueStatsList', selectedRange],
     queryFn: () =>
       callLogQueueList({
@@ -152,7 +166,9 @@ export const useLiveContactCentre = (selectedRange: any) => {
       }),
     select: (res: any) => res?.data?.rows || res?.data?.data?.result?.rows || [],
     refetchInterval: KPI_REFRESH_MS,
+    enabled,
   });
+  const queueStatsRows = queueStatsQuery.data ?? [];
 
   const queueStatsByUuid = useMemo(() => {
     const map: Record<string, any> = {};
@@ -216,7 +232,7 @@ export const useLiveContactCentre = (selectedRange: any) => {
   // selected range. The live queue feed only carries a right-now snapshot and
   // the per-queue REST report reads near-zero for today, so neither matched
   // the call volume actually visible in Call History.
-  const callStats = useCallStats(selectedRange);
+  const callStats = useCallStats(selectedRange, { enabled });
 
   const totals = useMemo(
     () => ({ answered: callStats.answeredCalls, total: callStats.totalCalls }),
@@ -240,6 +256,41 @@ export const useLiveContactCentre = (selectedRange: any) => {
   const longestWaitSecs = longestWaitTimestamp
     ? Math.max(0, Math.round((Date.now() - longestWaitTimestamp) / 1000))
     : 0;
+
+  /* The five feeds this hook stands on, so a failure can be named rather than
+     shown as a page full of zeroes. Performance renders "N of 5 sources failed
+     (…)" from this and retries just the ones that broke. */
+  const sources = useMemo(
+    () => [
+      { name: 'queues', query: queueListQuery },
+      { name: 'people', query: rosterQuery },
+      { name: 'agent stats', query: agentStatsQuery },
+      { name: 'queue stats', query: queueStatsQuery },
+      { name: 'call log', query: callStats },
+    ],
+    [queueListQuery, rosterQuery, agentStatsQuery, queueStatsQuery, callStats],
+  );
+
+  const failedSources = useMemo(
+    () => sources.filter((source) => source.query?.isError).map((source) => source.name),
+    [sources],
+  );
+  const hasSourceError = failedSources.length > 0;
+
+  /* The newest successful fetch across the feeds -- what "updated 12s ago" on
+     the page means. A feed that has never loaded reports 0 and is ignored. */
+  const lastUpdatedAt = useMemo(() => {
+    const stamps = sources
+      .map((source) => Number(source.query?.dataUpdatedAt ?? 0))
+      .filter((stamp) => stamp > 0);
+    return stamps.length ? Math.max(...stamps) : 0;
+  }, [sources]);
+
+  const retryFailedSources = useCallback(() => {
+    sources.forEach((source) => {
+      if (source.query?.isError) void source.query.refetch?.();
+    });
+  }, [sources]);
 
   return {
     // raw feeds
@@ -272,5 +323,10 @@ export const useLiveContactCentre = (selectedRange: any) => {
     // loading
     isQueuesLoading,
     isAgentsLoading,
+    // source health
+    failedSources,
+    hasSourceError,
+    lastUpdatedAt,
+    retryFailedSources,
   };
 };

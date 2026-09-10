@@ -8,7 +8,7 @@ import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-di
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import PhoneInput from 'react-phone-input-2';
-import { BellOff, MessageSquareText, PhoneMissed, Voicemail } from 'lucide-react';
+import { MessageSquareText, PhoneMissed, Voicemail } from 'lucide-react';
 import { isUnchanged } from '@/lib/form-baseline';
 import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import '@/components/mcm/mcm-page.css';
@@ -122,13 +122,6 @@ const SettingsNotification = () => {
   const hasUnsavedChanges = Boolean(
     baseline && !isUnchanged(comparable(JSON.parse(baseline)), comparable(current)),
   );
-
-  /* An event with every channel switched off reaches the person nowhere. That
-     was already flagged per row; counting it in the page head means somebody
-     scanning the screen sees it before they scroll. */
-  const silentCount = NOTIFICATION_TYPES_LIST.filter(
-    (item) => !item.settingsType.some(({ value }) => watch(`${item.value}.${value}`)),
-  ).length;
 
   const channels = NOTIFICATION_TYPES_LIST[0].settingsType;
 

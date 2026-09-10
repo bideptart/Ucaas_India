@@ -84,6 +84,12 @@ interface AvatarProps {
      to hook into here without this. Any other avatar (someone else's, in
      a list) should leave this unset and keep reading the live feed. */
   presenceOverride?: 'online' | 'busy' | 'dnd' | 'offline' | 'call';
+  /* Set by Monitoring ▸ All Extensions when embedded in Performance ▸ Live
+     Interactions, to tint the presence dot by call state. Accepted but not yet
+     read here: the dot still renders from `presenceOverride` and the live
+     feed, which is what ships today. Declared so the call site typechecks
+     without changing what the avatar draws. */
+  activeCallTone?: 'connected' | 'ringing';
 }
 const CustomAvatar = ({
   name = '',

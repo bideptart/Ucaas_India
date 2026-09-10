@@ -15,6 +15,8 @@ interface IGREETINGPROPS {
   company_info?: ICompanyInfo;
   intro?: ReactNode;
   footer?: ReactNode;
+  /* Extra classes for the scrolling box -- see the note on the component. */
+  containerClass?: string;
 }
 
 /* See SettingPermission for why this renders inside the scrolling box rather

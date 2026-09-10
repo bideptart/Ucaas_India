@@ -1528,6 +1528,30 @@ export const releaseDidToCarrier = (didNumber: string) => {
 };
 
 // User Template
+/* The "add numbers you already own" screen.
+ *
+ * That screen imports these two, but they were never written and neither
+ * endpoint exists on the tenant API -- there is no route for listing SIP trunks
+ * or for registering owned numbers. The screen is also unreachable: nothing
+ * imports it and no route points at it, so it has never run.
+ *
+ * They are declared here, rather than invented against a guessed URL, so the
+ * half-finished screen compiles without implying a backend contract that does
+ * not exist. Whoever wires the screen up will land on this immediately and can
+ * point them at the real endpoints then.
+ */
+const OWNED_NUMBERS_ENDPOINT_MISSING =
+  'This build has no endpoint for owned numbers yet. See services/api/index.tsx.';
+
+export const sipTrunkList = (_data?: any): Promise<any> =>
+  Promise.reject(new Error(OWNED_NUMBERS_ENDPOINT_MISSING));
+
+export const registerOwnedNumbers = (_data: {
+  numbers: string[];
+  label?: string;
+  trunk_uuid?: string;
+}): Promise<any> => Promise.reject(new Error(OWNED_NUMBERS_ENDPOINT_MISSING));
+
 export const upsertTemplate = ({ uuid = '', ...data }) => {
   return apiClient({
     method: routes.UPSERT_TEMPLATE.METHOD,

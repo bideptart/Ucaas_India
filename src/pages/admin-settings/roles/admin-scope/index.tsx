@@ -22,7 +22,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, MapPin, MoreHorizontal, ShieldCheck, Trash2, Users } from 'lucide-react';
+import { Building2, MapPin, MoreHorizontal, Trash2, Users } from 'lucide-react';
 
 import Loader from '@/components/custom/loader';
 import { SettingCard, SettingRow } from '@/components/mcm/setting-card';

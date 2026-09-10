@@ -23,7 +23,6 @@ interface RegionalProps {
 const RegionalModal: FC<RegionalProps> = ({
   modalState,
   setModalState,
-  data,
   initialRegionalSettings,
   onSuccess,
 }) => {

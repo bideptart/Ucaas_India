@@ -1023,6 +1023,76 @@
     color: #f2994a !important;
   }
 
+  /* Compact restyle of the same date-preset menu, active only while
+     Performance ▸ Campaigns is the open tab — `.perf-tbar-campaigns-date`
+     is added to the toolbar wrapper solely for that tab (performance/
+     index.tsx), so Queues/Agents/Dashboards and the dozen other pages
+     sharing this exact select (Reports, Billing, Activity, Phone…) keep
+     the original size untouched. Has to live in this same `@layer base`
+     block for the reason documented above the base `.mcm-date-preset
+     .custom-react-select__control` rule: `!important` ignores layer
+     order, so an unlayered override (campaigns-theme.css) could never
+     beat this no matter how specific. */
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__menu {
+    width: 168px !important;
+    min-width: 168px !important;
+    border-radius: 12px !important;
+    padding: 5px !important;
+    border-color: rgba(211, 129, 74, 0.22) !important;
+    box-shadow: 0 10px 24px -8px rgba(120, 80, 45, 0.2) !important;
+    animation: perf-date-menu-in 0.16s ease both;
+  }
+  @keyframes perf-date-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option {
+    border-radius: 8px !important;
+    padding: 9px 26px 9px 10px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+  }
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option:hover,
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option--is-focused {
+    background-color: rgba(211, 129, 74, 0.08) !important;
+    color: #1a1a1a !important;
+  }
+  /* Lighter wash instead of the shared rule's solid orange-tint block,
+     with a small check mark standing in for "this is the picked one"
+     rather than relying on the background alone. */
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option--is-selected {
+    background-color: rgba(211, 129, 74, 0.1) !important;
+    background-image: none !important;
+    color: #b06a3d !important;
+    font-weight: 600 !important;
+  }
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option--is-selected:hover,
+  .perf-tbar-campaigns-date
+    .mcm-date-preset.custom-react-select__option--is-selected.custom-react-select__option--is-focused {
+    background-color: rgba(211, 129, 74, 0.15) !important;
+    color: #b06a3d !important;
+  }
+  .perf-tbar-campaigns-date .mcm-date-preset.custom-react-select__option--is-selected::after {
+    content: '✓';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: #b06a3d;
+  }
+
   .chart-container {
     position: relative;
     width: 100%;

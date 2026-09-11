@@ -178,6 +178,17 @@ const Blocked = () => {
     );
   }, [rows, search]);
 
+  /* Same paging as People: a fixed 10 rows with a pager below, rather than
+     every blocked number rendered at once with nothing to page through. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
+
   const blockedCount = useMemo(
     () => (rows ?? []).filter((row) => (statusOverride[rowKey(row)] ?? 'BLOCK') === 'BLOCK').length,
     [rows, statusOverride],
@@ -261,8 +272,8 @@ const Blocked = () => {
           <tbody>
             {isPending || rows === null ? (
               <EmptyRow span={5} message="Loading blocked numbers…" />
-            ) : visible.length ? (
-              visible.map((row) => {
+            ) : paged.length ? (
+              paged.map((row) => {
                 const key = rowKey(row);
                 const name = contactName(row) || 'Unknown';
                 const isDemo = Boolean((row as { _demo?: boolean })._demo);
@@ -311,6 +322,49 @@ const Blocked = () => {
             )}
           </tbody>
         </table>
+
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css), same
+            as People's -- hidden on a single page, one inert control is
+            noise. */}
+        {!isPending && pageCount > 1 ? (
+          <div className="gp-blocked-pager">
+            <span className="gp-blocked-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
+            </div>
+          </div>
+        ) : null}
       </DirectoryPage>
       </div>
 

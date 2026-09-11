@@ -1074,17 +1074,23 @@
      `.custom-react-select__control` component used everywhere, given its
      own prefix (via `CustomSelect`'s `inputClass` prop) so only these two
      dropdowns on this one page pick up the warm, rounded look matching the
-     rest of that toolbar (Search input, tabs). */
+     rest of that toolbar (Search input, tabs). Sized and coloured to match
+     People's own filter chips (`.gp-people .tbar .fchip`, people-glass.css)
+     exactly — full pill instead of a soft-rounded rectangle — so the whole
+     toolbar reads as one consistent set of pills rather than Search being
+     the only fully-rounded control in the row. */
   .contact-toolbar-select.custom-react-select__control {
-    height: 36px !important;
-    min-height: 36px !important;
-    border-radius: 10px !important;
-    border-color: rgba(225, 200, 165, 0.9) !important;
-    background-color: rgba(255, 255, 255, 0.7) !important;
+    height: 33px !important;
+    min-height: 33px !important;
+    border-radius: 999px !important;
+    border-color: rgba(150, 100, 50, 0.12) !important;
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    font-weight: 700;
   }
   .contact-toolbar-select.custom-react-select__control:hover,
   .contact-toolbar-select.custom-react-select__control--is-focused {
-    border-color: var(--primary) !important;
+    border-color: var(--accent-edge) !important;
+    background-color: #fff !important;
   }
   /* Dark counterpart, and it has to sit in this layer beside its light
      twin: the rule above is `!important` inside `@layer base`, which beats
@@ -1496,6 +1502,53 @@
       opacity: 0;
       transform: translateX(-50%) translateY(-500px);
     }
+  }
+
+  /* react-select menus, light -- brought in line with the redesigned
+     Directory filter dropdowns (People's Groups/Location/Presence, further
+     down this file under `[data-slot='dropdown-menu-content']`). The rule
+     above this block is `!important` inside this same `@layer base`, so the
+     override has to live here too: an unlayered rule, however specific,
+     never beats a layered `!important`. Was a flat white panel with a
+     solid full-strength `var(--primary)` ring -- the same "outlined form
+     control" look already corrected on the Radix menus. */
+  .custom-react-select__menu {
+    background-color: #fffdfb !important;
+    border-color: rgba(242, 153, 74, 0.32) !important;
+    border-radius: 14px !important;
+    box-shadow:
+      0 12px 32px rgba(160, 95, 30, 0.16),
+      0 2px 6px rgba(160, 95, 30, 0.08) !important;
+    padding: 6px !important;
+  }
+  .custom-react-select__option {
+    min-height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 9px !important;
+  }
+  .custom-react-select__menu-list {
+    gap: 2px !important;
+  }
+  /* Same slim warm scrollbar the redesigned dropdowns and the app's tables
+     use, rather than the OS default inside a 200px-capped menu list. */
+  .custom-react-select__menu-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-react-select__menu-list::-webkit-scrollbar-thumb {
+    background: rgba(194, 111, 31, 0.35);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .custom-react-select__menu-list::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 
@@ -3327,4 +3380,60 @@
 }
 .dark [class*='__placeholder'] {
   color: var(--mcm-ink-3, #93a1ba) !important;
+}
+
+/* =====================================================================
+   Dropdown menus, light — a proper panel rather than a bordered box.
+   The stock look is a white rectangle ringed in solid `#f2994a` with no
+   elevation, so it reads as an outlined form control that happens to
+   contain text. This gives it: a warm off-white ground, a hairline instead
+   of a full-strength ring, real elevation, and rounded rows that light up
+   on hover in the app's own menu colours (#fff1e0 / #c96f1f).
+   ===================================================================== */
+:root:not(.dark) [data-slot='dropdown-menu-content'] {
+  background: #fffdfb;
+  border: 1px solid rgba(242, 153, 74, 0.32);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow:
+    0 12px 32px rgba(160, 95, 30, 0.16),
+    0 2px 6px rgba(160, 95, 30, 0.08);
+  /* Long lists (Groups can run to a dozen combinations) scroll inside the
+     panel instead of running off the viewport. */
+  max-height: 320px;
+  overflow-y: auto;
+}
+:root:not(.dark) [data-slot='dropdown-menu-content'] [data-slot='dropdown-menu-item'] {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2a2733;
+  transition:
+    background-color 0.14s ease,
+    color 0.14s ease;
+}
+:root:not(.dark)
+  [data-slot='dropdown-menu-content']
+  [data-slot='dropdown-menu-item']:not([data-variant='destructive']):hover,
+:root:not(.dark)
+  [data-slot='dropdown-menu-content']
+  [data-slot='dropdown-menu-item']:not([data-variant='destructive'])[data-highlighted] {
+  background-color: #fff1e0 !important;
+  color: #c96f1f !important;
+}
+/* The scrollbar inside the panel, on the same slim warm treatment the
+   app's tables use. */
+:root:not(.dark) [data-slot='dropdown-menu-content']::-webkit-scrollbar {
+  width: 8px;
+}
+:root:not(.dark) [data-slot='dropdown-menu-content']::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+:root:not(.dark) [data-slot='dropdown-menu-content']::-webkit-scrollbar-track {
+  background: transparent;
 }

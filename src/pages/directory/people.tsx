@@ -222,6 +222,22 @@ const People = () => {
     });
   }, [rows, search, department, presence, location]);
 
+  /* The roster used to scroll inside the card. A scroll box hides how much
+     is left and makes the last row sit against a clipped edge, so it pages
+     instead: a fixed 10 rows, with the pager below the table. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  /* Filtering can leave you on a page that no longer exists (search down to
+     three results while on page 4), which would show an empty table with no
+     hint why. Clamp rather than reset to 1, so narrowing a filter keeps you
+     as close as possible to where you were. */
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
+
   const onQueue = rows.filter((row) => row.tone === 'good').length;
 
   /* Take the roster away as a spreadsheet.
@@ -348,7 +364,7 @@ const People = () => {
             {isLoading ? (
               <EmptyRow span={8} message="Loading the roster…" />
             ) : visible.length ? (
-              visible.map((row: PersonRow) => (
+              paged.map((row: PersonRow) => (
                 <tr key={row.uuid} className="gp-person-row" onClick={() => openPerson(row)}>
                   <td>
                     <span className="flex items-center gap-2.5">
@@ -550,6 +566,49 @@ const People = () => {
           </tbody>
         </table>
 
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css) so it
+            matches every other paged table rather than being a second design.
+            Hidden on a single page -- one inert control is noise. */}
+        {!isLoading && pageCount > 1 ? (
+          <div className="gp-people-pager">
+            <span className="gp-people-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {open ? (
           <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
             <DialogContent
@@ -691,11 +750,15 @@ const People = () => {
           bouncing to Admin — the console keeps you in Directory. */}
       <Dialog open={inviting} onOpenChange={(next) => !next && setInviting(false)}>
         <DialogContent
-          className="gp-create-group-dialog gp-invite-dialog sm:max-w-[600px]"
+          className="gp-create-group-dialog gp-invite-dialog sm:max-w-[600px] lg:max-w-[1120px]"
           showCloseButton={false}
         >
-          <div className="gp-create-group-head">
-            <h2>Invite people</h2>
+          {/* The title lives on the step rail now (`AddUsers`'s
+              `railTitle`/`railSubtitle`, matching the reference layout),
+              so this bar is just the close control -- kept rather than
+              removed since every other `gp-create-group-dialog` still
+              needs somewhere for it to sit. */}
+          <div className="gp-create-group-head gp-create-group-head--bare">
             <button
               type="button"
               aria-label="Close"
@@ -706,7 +769,11 @@ const People = () => {
             </button>
           </div>
           <div className="gp-create-group-body">
-            <AddUsers setDrawerState={() => setInviting(false)} />
+            <AddUsers
+              setDrawerState={() => setInviting(false)}
+              railTitle="Invite people"
+              railSubtitle="Add team members and give them access to your workspace."
+            />
           </div>
         </DialogContent>
       </Dialog>

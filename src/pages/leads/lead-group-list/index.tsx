@@ -57,6 +57,7 @@ const LeadsGroupList: FC<any> = ({
      default to its own defaults (false/undefined) — opt-in per caller. */
   splitStickyHeader = false,
   visibleRowCount,
+  fixedPageRows,
 }) => {
   const { features } = useCompanyFeatures();
   const leadsAccess = features?.plan_features?.campaign?.action || {};
@@ -211,6 +212,7 @@ const LeadsGroupList: FC<any> = ({
           customClass: tableWrapperClassName,
           splitStickyHeader,
           visibleRowCount,
+          fixedPageRows,
         }}
       />
     </div>

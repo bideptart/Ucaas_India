@@ -6,12 +6,10 @@
   position: relative;
   isolation: isolate;
   min-height: 100%;
-  background:
-    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
-    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
-    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
-    radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
-    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  /* Flat, matching People's own body colour (`#fdf1e2`) rather than the
+     layered orange radial-gradient — every Directory tab now shares one
+     page background instead of each carrying its own gradient. */
+  background: #fdf1e2;
   margin: -22px -26px -40px;
   padding: 22px 26px 40px;
 }
@@ -41,16 +39,18 @@
   color: #6b5c4d;
 }
 
+/* Same bar as People's own `.tbar` (people-glass.css): the 16px/22px
+   padding is what actually sets its height, not the chips inside it. */
 .gp-favourites .tbar {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 251, 246, 0.85);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(242, 153, 74, 0.18);
   box-shadow:
     0 6px 22px rgba(160, 95, 30, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
   border-radius: 16px;
-  padding: 8px 10px;
+  padding: 16px 22px;
   margin-bottom: 16px;
 }
 .gp-favourites .tbar .fchip {
@@ -62,11 +62,33 @@
   background: #fff;
   border-color: var(--accent-edge);
 }
+/* Match People's search pill: taller, roomier padding, no drop shadow (the
+   shared `.fchip` card shadow read as a smudge at this height), and a wider
+   field so the bar isn't mostly empty next to the count chip. */
+.gp-favourites .tbar .fchip {
+  height: 33px;
+  padding-left: 18px;
+  padding-right: 18px;
+  font-size: 13.5px;
+  box-shadow: none;
+}
+.gp-favourites .tbar .fchip input {
+  font-size: 13.5px;
+}
+.gp-favourites .tbar .fchip:has(input) {
+  flex: 1 1 320px !important;
+  max-width: 460px !important;
+}
 .gp-favourites .fchip.live {
   background: rgba(220, 245, 241, 0.75) !important;
   border-color: transparent !important;
 }
 
+/* No internal scroller, matching People's own `.panel-card`
+   (people-glass.css): with the table now paged at a fixed 10 rows (below),
+   the card's height is bounded by the page size itself, so it no longer
+   needs to cap its own height and scroll — the page scrolls as a whole
+   instead. */
 .gp-favourites .panel-card {
   background: #fffdfb;
   /* A near-white border is invisible against this card's own near-white
@@ -78,27 +100,12 @@
   border-radius: 20px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 320px);
 }
-/* Header/body split into independent scroll boxes, same technique and
-   reason as People's own table (people-glass.css): a sticky `<thead>`
-   doesn't stop its scrolling ancestor's native scrollbar from spanning the
-   full box, header band included. `.tbl-wrap` and `.favourites-table-scroll`
-   (an extra wrapper this page adds around `<table>`) both used to scroll,
-   redundantly — now both are plain flex passthroughs and `<tbody>` alone
-   scrolls. */
 .gp-favourites .tbl-wrap {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-}
-.gp-favourites .favourites-table-scroll {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
 }
 .gp-favourites table {
   display: flex;
@@ -117,12 +124,8 @@
   display: block;
   flex: 1;
   min-height: 0;
-  /* About 5-6 rows before scrolling, regardless of viewport height. */
-  max-height: 420px;
-  overflow-y: auto;
   width: 100%;
   padding-bottom: 14px;
-  padding-right: 4px;
 }
 .gp-favourites thead tr,
 .gp-favourites tbody tr {
@@ -162,22 +165,6 @@
 .gp-favourites td:nth-child(8) {
   width: 200px;
 }
-.gp-favourites tbody::-webkit-scrollbar {
-  width: 8px;
-}
-.gp-favourites tbody::-webkit-scrollbar-track {
-  background: transparent;
-}
-.gp-favourites tbody::-webkit-scrollbar-thumb {
-  background: rgba(194, 111, 31, 0.35);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.gp-favourites tbody::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 111, 31, 0.55);
-  background-clip: padding-box;
-}
 .gp-favourites th {
   background: #fffdfb;
   color: #8a6f57;
@@ -211,6 +198,10 @@
    `:not(.mcm-fav-on)` excludes the "remove from favourites" star, which
    every row here has permanently on — it keeps its own persistent gold
    state (mcm-page.css) rather than being pulled into this glass treatment. */
+/* Matches People's own row actions (people-glass.css): no disc, no ring at
+   rest -- just the glyph on the row. This page's light rule had never been
+   carried over to that treatment, so it kept the old glass-circle-plus-
+   orange-ring look on every non-star action here. */
 .gp-favourites td:last-child .mini:not(.mcm-fav-on) {
   width: 36px;
   height: 36px;
@@ -218,27 +209,49 @@
   border-radius: 9999px;
   flex: none;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(249, 115, 22, 0.4);
-  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
   transition:
     background-color 0.16s ease,
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
+/* Same pale wash as People's hover, not the filled sunset gradient. */
 .gp-favourites td:last-child .mini:not(.mcm-fav-on):hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
+  background: #fff1e0;
   border-color: transparent;
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
+  color: #c96f1f;
+  box-shadow: none;
 }
-/* The now-larger (36px) icon buttons need a bigger glyph than the source
-   markup's own size={12} prop to still look proportioned — 18px is a ~50%
-   fill ratio, reads as a deliberate icon button rather than a small glyph
-   adrift in empty space. */
-.gp-favourites td:last-child .mini:not(.mcm-fav-on) .ic {
-  width: 18px;
-  height: 18px;
+/* Down from 18px to match People's own 16px glyph size now that the disc
+   is gone -- the bigger glyph was sized for the glass button it used to
+   sit inside. */
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) .ic,
+.gp-favourites td:last-child .mini:not(.mcm-fav-on) svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Pager — same shape as People/Roles/Groups' own (`.gp-roles-pager` etc.). */
+.gp-favourites-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px 14px;
+  border-top: 1px solid rgba(150, 100, 50, 0.12);
+}
+.gp-favourites-pager-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a6f57;
+}
+.dark .gp-favourites-pager {
+  border-top-color: rgba(255, 171, 94, 0.12);
+}
+.dark .gp-favourites-pager-count {
+  color: var(--mcm-ink-3, #93a1ba);
 }
 
 /* ====================================================================
@@ -374,4 +387,15 @@
    `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
 .dark .gp-favourites .tbar .fchip input::placeholder {
   color: var(--mcm-ink, #eef2f9) !important;
+}
+/* Every row on this page is a favourite, so the shared `.mcm-fav-on` chip
+   (mcm-page.css) -- a gold-tinted circle behind the star -- repeats
+   identically down the whole list. That circle earns its keep on People,
+   where it is the one highlighted star among rows of off ones; here it is
+   just visual weight. Just the glyph in the same `--warn` gold, no disc. */
+.gp-favourites .mini.mcm-fav-on,
+.gp-favourites .mini.mcm-fav-on:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--warn);
 }

@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { forwardActionType } from '@/services/api';
 import { useCallback, useState, useMemo, memo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { Search } from 'lucide-react';
 import useDebounce from '@/hooks/use-debounce';
 import { SearchLine } from '@/assets/icons';
 
@@ -135,7 +134,7 @@ ManagerRadioCell.displayName = 'ManagerRadioCell';
 const MemberNameCell = memo(({ data }: { data: Member }) => {
   const fullName = `${data?.first_name}${data?.last_name ? ` ${data?.last_name}` : ''}`;
   return (
-    <div className="flex items-center gap-2 w-full">
+    <div className="gp-member-cell flex items-center gap-3 w-full">
       <div className="flex ">
         <CustomAvatar
           name={fullName}
@@ -146,18 +145,18 @@ const MemberNameCell = memo(({ data }: { data: Member }) => {
       </div>
       <div className="flex flex-col w-full">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-col items-start">
-            <p className="capitalize">{fullName}</p>
-            <small className="text-primary text-[10px]">
+          <div className="flex items-center gap-2">
+            <p className="gp-member-name capitalize">{fullName}</p>
+            <span className="gp-member-role">
               {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
-            </small>
+            </span>
           </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
+          <div className="gp-member-extension flex items-center gap-1 text-muted-foreground">
             <Icon name="Grid" className="w-4 h-4" />
             <div>{data?.extension}</div>
           </div>
         </div>
-        <p className="text-muted-foreground flex justify-between">
+        <p className="gp-member-email text-muted-foreground flex justify-between">
           <div>{data?.email}</div>
         </p>
       </div>
@@ -241,8 +240,14 @@ const SelectAllHeader = ({ currentMembers }: { currentMembers: Member[] }) => {
 const AddMembers = () => {
   const {
     watch,
+    control,
     formState: { errors },
   } = useFormContext();
+
+  /* Display only -- how many rows `MemberCheckboxCell`/`SelectAllHeader`
+     have already added to the `members` field array, shown next to the
+     search as a live count. Doesn't touch either of their own write paths. */
+  const selectedMembers = useWatch({ control, name: 'members', defaultValue: [] });
 
   const siteWatch = watch('site');
   const [searchKey, setSearchKey] = useState('');
@@ -303,22 +308,27 @@ const AddMembers = () => {
           </div>
         )}
 
-        {/* Search Input */}
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search by name, email, or extension..."
-            value={searchKey}
-            Icon={<SearchLine className=" text-muted-foreground" />}
-            IconPosition="left-0 pl-2 inset-y-0"
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value.startsWith(' ')) return;
-              setSearchKey(e.target.value);
-            }}
-            className="pl-10 h-9 text-sm"
-          />
+        {/* Search + live selected count, same shape as Directory's own
+            SearchChip + count pattern (page-shell.tsx). */}
+        <div className="gp-members-toolbar flex w-full items-center gap-2">
+          <div className="relative w-full max-w-sm">
+            <Input
+              type="text"
+              placeholder="Search by name, email, or extension..."
+              value={searchKey}
+              Icon={<SearchLine className="gp-members-search-icon text-muted-foreground" />}
+              IconPosition="left-0 pl-3 inset-y-0"
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.startsWith(' ')) return;
+                setSearchKey(e.target.value);
+              }}
+              className="gp-members-search pl-10 h-9 text-sm"
+            />
+          </div>
+          <span className="gp-members-count">
+            {selectedMembers.length} selected
+          </span>
         </div>
 
         {/* <div className="w-full flex flex-col gap-2"> */}
@@ -332,6 +342,16 @@ const AddMembers = () => {
               columns,
               tableMaxHeight: '100%',
               onSuccess: handleSuccess,
+              customClass: 'gp-members-table',
+              /* The list scrolls inside its own bounded box now
+                 (`.gp-members-table`'s own `max-height`, groups-glass.css)
+                 rather than paging -- the picker's own "25 per page" footer
+                 read as a second, redundant navigation layer on top of that
+                 scroller. `defaultPageSize` raised well past any real
+                 department's member count so hiding the picker never
+                 quietly caps the list at the default 25. */
+              showPagination: false,
+              defaultPageSize: 500,
               extraParams: {
                 site_uuid: siteWatch?.value,
                 type: 'EXTENSION',

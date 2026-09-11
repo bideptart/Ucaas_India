@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Info } from 'lucide-react';
 import { Ic, McmIconSprite } from '@/components/mcm/icons';
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import CustomTooltip from '@/components/custom/custom-tooltip';
 import './page-shell.css';
 
 /**
@@ -53,8 +54,16 @@ export const DirectoryPage = ({
     <McmIconSprite />
     <div className="page-head">
       <div>
-        <h1>{title}</h1>
-        <p>{description}</p>
+        <div className="page-head-title">
+          <h1>{title}</h1>
+          {description ? (
+            <CustomTooltip text={description} side="right">
+              <button type="button" className="page-head-info" aria-label={`About ${title}`}>
+                <Info className="h-[15px] w-[15px]" />
+              </button>
+            </CustomTooltip>
+          ) : null}
+        </div>
       </div>
       {actions}
     </div>

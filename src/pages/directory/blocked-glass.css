@@ -20,12 +20,10 @@
   position: relative;
   isolation: isolate;
   min-height: 100%;
-  background:
-    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
-    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
-    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
-    radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
-    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  /* Flat, matching People's own body colour (`#fdf1e2`) rather than the
+     layered orange radial-gradient — every Directory tab now shares one
+     page background instead of each carrying its own gradient. */
+  background: #fdf1e2;
   margin: -22px -26px -40px;
   padding: 22px 26px 40px;
 }
@@ -55,16 +53,18 @@
   color: #6b5c4d;
 }
 
+/* Same bar as People's own `.tbar` (people-glass.css): the 16px/22px
+   padding is what actually sets its height, not the chips inside it. */
 .gp-blocked .tbar {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 251, 246, 0.85);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(242, 153, 74, 0.18);
   box-shadow:
     0 6px 22px rgba(160, 95, 30, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
   border-radius: 16px;
-  padding: 8px 10px;
+  padding: 16px 22px;
   margin-bottom: 16px;
 }
 .gp-blocked .tbar .fchip {
@@ -76,11 +76,33 @@
   background: #fff;
   border-color: var(--accent-edge);
 }
+/* Match People's search pill: taller, roomier padding, no drop shadow (the
+   shared `.fchip` card shadow read as a smudge at this height), and a wider
+   field so the bar isn't mostly empty next to the count chip. */
+.gp-blocked .tbar .fchip {
+  height: 33px;
+  padding-left: 18px;
+  padding-right: 18px;
+  font-size: 13.5px;
+  box-shadow: none;
+}
+.gp-blocked .tbar .fchip input {
+  font-size: 13.5px;
+}
+.gp-blocked .tbar .fchip:has(input) {
+  flex: 1 1 320px !important;
+  max-width: 460px !important;
+}
 .gp-blocked .fchip.live {
   background: rgba(220, 245, 241, 0.75) !important;
   border-color: transparent !important;
 }
 
+/* No internal scroller, matching People's own `.panel-card`
+   (people-glass.css): with the table now paged at a fixed 10 rows (below),
+   the card's height is bounded by the page size itself, so it no longer
+   needs to cap its own height and scroll — the page scrolls as a whole
+   instead. */
 .gp-blocked .panel-card {
   background: #fffdfb;
   /* A near-white border is invisible against this card's own near-white
@@ -92,7 +114,6 @@
   border-radius: 20px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 260px);
 }
 
 /* ---- the blocked list: a table, matching Directory ▸ People's own table
@@ -125,12 +146,8 @@
   display: block;
   flex: 1;
   min-height: 0;
-  /* About 5-6 rows before scrolling, regardless of viewport height. */
-  max-height: 420px;
-  overflow-y: auto;
   width: 100%;
   padding-bottom: 14px;
-  padding-right: 4px;
 }
 .gp-blocked thead tr,
 .gp-blocked tbody tr {
@@ -157,22 +174,6 @@
 .gp-blocked th:nth-child(5),
 .gp-blocked td:nth-child(5) {
   width: 130px;
-}
-.gp-blocked tbody::-webkit-scrollbar {
-  width: 8px;
-}
-.gp-blocked tbody::-webkit-scrollbar-track {
-  background: transparent;
-}
-.gp-blocked tbody::-webkit-scrollbar-thumb {
-  background: rgba(194, 111, 31, 0.35);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.gp-blocked tbody::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 111, 31, 0.55);
-  background-clip: padding-box;
 }
 .gp-blocked th {
   background: #fffdfb;
@@ -352,12 +353,34 @@
   cursor: not-allowed;
 }
 
+/* Pager — same shape as People/Roles/Groups' own (`.gp-roles-pager` etc.). */
+.gp-blocked-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px 14px;
+  border-top: 1px solid rgba(150, 100, 50, 0.12);
+}
+.gp-blocked-pager-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a6f57;
+}
+.dark .gp-blocked-pager {
+  border-top-color: rgba(255, 171, 94, 0.12);
+}
+.dark .gp-blocked-pager-count {
+  color: var(--mcm-ink-3, #93a1ba);
+}
+
 /* ---- Dark theme — same treatment as people-glass.css's own .dark block. ---- */
 /* Same warm ground as the other Directory pages. */
 .dark .gp-blocked {
   background:
     radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
     radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    radial-gradient(900px 640px at 50% 118%, rgba(255, 160, 80, 0.06), transparent 60%),
     var(--mcm-ground, #080d12);
 }
 .dark .gp-blocked .page-head,

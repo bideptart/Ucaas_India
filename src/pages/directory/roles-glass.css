@@ -5,15 +5,47 @@
 .gp-roles {
   position: relative;
   isolation: isolate;
-  min-height: 100%;
-  background:
-    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
-    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
-    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
-    radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
-    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  /* fills the whole scroll area, not just the height of its own content --
+     same fix as People (people-glass.css): a plain `100%` falls 22px short
+     of the true bottom edge because negative margin-top pulls this box up
+     by 22px and a block box's height, unlike its width, doesn't
+     automatically grow to absorb that. */
+  min-height: calc(100% + 22px);
+  /* Flat, not the layered radial-gradient backdrop this used to carry --
+     same correction as People's own background (people-glass.css): that
+     stack of warm pools read as "gradient effect" rather than this page's
+     own colour. `#fdf1e2` is the live site's own `body` background. */
+  background: #fdf1e2;
+  /* cancel `.page`'s own padding so the background reaches the page's real
+     edges instead of stopping in a boxed-off inset -- see the matching
+     rule and comment in people-glass.css for the full mechanism. */
   margin: -22px -26px -40px;
-  padding: 22px 26px 40px;
+  padding: 22px 26px 8px;
+}
+.gp-roles .page {
+  padding-bottom: 8px;
+}
+/* With the card no longer capped to a fixed height (below), the page
+   scrolls as a whole -- same as People. */
+.gp-roles {
+  max-height: 100%;
+  overflow-y: auto;
+}
+.gp-roles::-webkit-scrollbar {
+  width: 10px;
+}
+.gp-roles::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gp-roles::-webkit-scrollbar-thumb {
+  background: rgba(194, 111, 31, 0.35);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.dark .gp-roles::-webkit-scrollbar-thumb {
+  background: rgba(255, 171, 94, 0.28);
+  background-clip: padding-box;
 }
 
 .gp-roles .page-head,
@@ -47,26 +79,72 @@
   color: #6b5c4d;
 }
 
+/* The filter bar reads as one frosted strip, not loose chips floating on
+   the background -- same glass treatment as the header and table panel,
+   copied exactly from People's own `.tbar` (people-glass.css). */
 .gp-roles .tbar {
-  background: rgba(255, 255, 255, 0.55);
+  /* A very light wash of the brand orange rather than plain white glass --
+     the bar sits between two warm surfaces and read as the one cold thing
+     on the page. */
+  background: rgba(255, 251, 246, 0.85);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(242, 153, 74, 0.18);
   box-shadow:
     0 6px 22px rgba(160, 95, 30, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
   border-radius: 16px;
-  padding: 8px 10px;
+  /* Side padding matched to `.page-head`'s own 22px so the count chip's
+     right edge lands on the same line as the "New role" button above it. */
+  padding: 16px 22px;
   margin-bottom: 16px;
 }
+/* A plain mid-grey placeholder, not the washed `#8a6f57`/70 the markup
+   asks for (too faint at this size) or near-black (reads as a filled
+   value). `!important` because index.css's compat net matches that
+   literal in the class string and repaints it. Light only. */
+.gp-roles .tbar .fchip input::placeholder {
+  color: #8a8a8a !important;
+  opacity: 1 !important;
+}
 .gp-roles .tbar .fchip {
+  /* Taller pills to sit in the taller bar -- at 30px they looked stranded
+     in it. Height rather than padding: these chips run `padding: 0 11px`
+     with the label vertically centred, so the box height is what sets
+     them. */
+  height: 33px;
+  padding-left: 18px;
+  padding-right: 18px;
+  font-size: 13.5px;
+  /* The shared `.fchip` rule carries a card-sized drop shadow, which under
+     a 33px pill reads as a smudge rather than a lift. */
+  box-shadow: none;
   background: rgba(255, 255, 255, 0.75);
   border-color: rgba(150, 100, 50, 0.12);
   font-weight: 700;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.gp-roles .tbar .fchip input {
+  font-size: 13.5px;
+}
+/* A wider search field: the default 220px/320px cap left the bar's middle
+   mostly empty. The cap is an INLINE `flex: 1 1 220px; max-width: 320px`
+   on the chip, so `!important` is the only way to lift it from a
+   stylesheet. */
+.gp-roles .tbar .fchip:has(input) {
+  flex: 1 1 320px !important;
+  max-width: 460px !important;
 }
 .gp-roles .tbar .fchip:hover {
   background: #fff;
   border-color: var(--accent-edge);
+}
+.gp-roles .tbar .fchip > span:first-child {
+  color: #8a6f57;
+  font-weight: 600;
+  margin-right: 2px;
 }
 .gp-roles .fchip.live {
   background: rgba(220, 245, 241, 0.75) !important;
@@ -82,9 +160,12 @@
   border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
+  /* No `max-height` any more -- with the table paged at 10 rows (below)
+     the card's height is bounded by the page size instead, same change as
+     People's own panel-card. A capped height only served to clip the
+     pager off the bottom. */
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 320px);
 }
 /* Header/body split into independent scroll boxes — see the long comment on
    the equivalent People rules in people-glass.css for why: a sticky
@@ -96,6 +177,10 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  /* The row below carries a `min-width` so its Actions column never
+     squeezes its three buttons onto two lines -- below that width this
+     scrolls sideways instead, same safety net as People's own table. */
+  overflow-x: auto;
 }
 .gp-roles table {
   display: flex;
@@ -114,61 +199,55 @@
   display: block;
   flex: 1;
   min-height: 0;
-  /* About 5-6 rows before scrolling, regardless of viewport height — a
-     row here (label + description) runs ~62px, so 5.5 of them plus a
-     little breathing room. `.panel-card`'s own `max-height` still caps
-     things on very short viewports; this is what actually decides the
-     row count on ordinary ones. */
-  max-height: 380px;
-  overflow-y: auto;
+  /* No scroll box: the table pages 10 rows at a time (roles.tsx), so the
+     body is as tall as its rows -- same as People. */
   width: 100%;
-  padding-bottom: 14px;
-  padding-right: 4px;
+  padding-bottom: 6px;
 }
 .gp-roles thead tr,
 .gp-roles tbody tr {
   display: table;
   table-layout: fixed;
   width: 100%;
+  /* Role's name+description column needs real room, and the three 38px
+     action buttons need theirs -- below this the Actions column's share
+     would resolve under what three buttons plus gaps need and wrap onto a
+     second line. Same idea as People's own row `min-width`, scaled down
+     to this table's four columns instead of eight. */
+  min-width: 560px;
 }
+/* Percentages of the table, not px, so it scales with the container
+   instead of Role (the only column that used to be `auto`) either
+   truncating or absorbing every unused pixel -- same fix as People's own
+   columns (people-glass.css). */
 .gp-roles th:nth-child(1),
 .gp-roles td:nth-child(1) {
-  width: auto;
+  width: 45%;
+  padding-left: 22px;
 }
 .gp-roles th:nth-child(2),
 .gp-roles td:nth-child(2) {
-  width: 110px;
+  width: 15%;
 }
 .gp-roles th:nth-child(3),
 .gp-roles td:nth-child(3) {
-  width: 90px;
+  width: 12%;
 }
+/* Three 38px icon buttons with 8px gaps measure ~130px, plus the cell's
+   own side padding -- `min-width` keeps this column off that floor
+   regardless of what its percentage share resolves to on a narrow card. */
 .gp-roles th:nth-child(4),
 .gp-roles td:nth-child(4) {
-  width: 180px;
-}
-.gp-roles tbody::-webkit-scrollbar {
-  width: 8px;
-}
-.gp-roles tbody::-webkit-scrollbar-track {
-  background: transparent;
-}
-.gp-roles tbody::-webkit-scrollbar-thumb {
-  background: rgba(194, 111, 31, 0.35);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.gp-roles tbody::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 111, 31, 0.55);
-  background-clip: padding-box;
+  width: 28%;
+  min-width: 160px;
 }
 .gp-roles th {
   background: #fffdfb;
-  color: #8a6f57;
+  color: #1a1a1a;
+  font-weight: 800;
   border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   height: 40px;
-  font-size: 9.5px;
+  font-size: 11.5px;
 }
 .gp-roles td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
@@ -205,38 +284,67 @@
 .gp-roles .gp-role-actions {
   justify-content: center;
 }
-/* Glass circle at rest, filled sunset gradient on hover — matching
-   Performance ▸ Calls' own action buttons (interactions-theme.css) rather
-   than a rounded square with a plain tint-on-hover. */
+/* No chrome at rest, a pale peach rounded square on hover -- the same
+   treatment People's own row actions settled on (people-glass.css), so the
+   two tables' action columns behave alike instead of one being a filled
+   gradient circle and the other a flat tint. */
 .gp-roles .gp-role-actions .mini {
   width: 38px;
   height: 38px;
   padding: 0;
   border-radius: 9999px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(249, 115, 22, 0.4);
-  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
   transition:
     background-color 0.16s ease,
     color 0.16s ease,
     box-shadow 0.16s ease;
 }
+/* `#fdf1e2` is the live site's own `body` background, same as People's
+   hover fill. Rounded square (14px), not this button's own resting
+   circle, with a hairline border -- reads as a distinct card under the
+   pointer rather than a colour change on the same shape. */
 .gp-roles .gp-role-actions .mini:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
+  background: #fdf1e2;
+  border: 1px solid rgba(242, 153, 74, 0.35);
+  border-radius: 14px;
+  color: #c96f1f;
+  box-shadow: none;
 }
 .gp-roles .gp-role-actions .mini:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.4);
+  background: transparent;
 }
 .gp-roles .gp-role-actions .mini:disabled:hover {
-  background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  border-color: transparent;
   color: inherit;
+}
+
+/* ---- Pager row -- same shape as People's (people-glass.css), reusing the
+   app's own `.mcm-pager` classes (index.css) for the page numbers
+   themselves. ---- */
+.gp-roles-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px 14px;
+  border-top: 1px solid rgba(150, 100, 50, 0.12);
+}
+.gp-roles-pager-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a6f57;
+}
+.dark .gp-roles-pager {
+  border-top-color: rgba(255, 171, 94, 0.12);
+}
+.dark .gp-roles-pager-count {
+  color: var(--mcm-ink-3, #93a1ba);
 }
 
 /* ---- New/Update role — the shared dialog shell's own cream background
@@ -306,6 +414,7 @@
   background:
     radial-gradient(1100px 780px at 4% -8%, rgba(255, 138, 46, 0.1), transparent 60%),
     radial-gradient(900px 700px at 100% -2%, rgba(255, 120, 40, 0.07), transparent 55%),
+    radial-gradient(900px 640px at 50% 118%, rgba(255, 160, 80, 0.06), transparent 60%),
     var(--mcm-ground, #080d12);
 }
 .dark .gp-roles .page-head,
@@ -333,8 +442,8 @@
   color: var(--mcm-ink-3, #aab6c1);
 }
 .dark .gp-roles .tbar {
-  background: rgba(14, 24, 33, 0.75);
-  border: 1px solid #1b2934;
+  background: rgba(20, 29, 40, 0.75);
+  border: 1px solid rgba(255, 171, 94, 0.12);
   box-shadow:
     0 6px 22px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -346,6 +455,17 @@
 .dark .gp-roles .tbar .fchip:hover {
   background: var(--mcm-surface-3, #1a2733);
   border-color: var(--mcm-accent-edge);
+}
+/* The chip label ("Type:") is a bare TEXT NODE inside `.fchip`, not an
+   element, so the colour has to be set on the chip itself and inherited
+   by both the label and its `<strong>` value -- same fix as People's. */
+.dark .gp-roles .tbar .fchip {
+  color: var(--mcm-ink, #f3f6f9);
+}
+/* The count chip's number sat on a dark teal fill, the one unreadable
+   thing left in the bar -- same fix as People's. */
+.dark .gp-roles .fchip.live .num {
+  color: #fff;
 }
 /* The "x of y" result-count chip's light rule above (`.gp-roles .fchip.live`)
    hardcodes a light mint fill with `!important`, so without this override it

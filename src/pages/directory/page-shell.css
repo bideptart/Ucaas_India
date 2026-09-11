@@ -13,6 +13,23 @@
   font-weight: 700;
 }
 
+/* Header action buttons ("Groups"/"Export"/"Invite person", "People"/
+   "Export"/"New group", ...) -- smaller than the shared `.mcm-page .btn`
+   base (40px, used app-wide for full-size actions elsewhere), matching the
+   live site's own header buttons (ucaas-india.vercel.app: measured 34px
+   tall, 0 13px padding, 12.5px text) rather than this page-head's default
+   general-purpose size. */
+.page-head .btn {
+  height: 34px;
+  padding: 0 13px;
+  font-size: 12.5px;
+}
+.page-head .btn.primary {
+  box-shadow:
+    0 1px 2px rgba(13, 21, 38, 0.06),
+    0 1px 1px rgba(13, 21, 38, 0.04);
+}
+
 /* `DropdownMenuContent` portals to `document.body`, so it is never a DOM
    descendant of any page's own wrapper regardless of where it's written in
    JSX — this is scoped off its own class rather than an ancestor it will
@@ -30,6 +47,44 @@
 }
 .dark .gp-filter-menu [data-slot='dropdown-menu-item']:hover,
 .dark .gp-filter-menu [data-slot='dropdown-menu-item'][data-highlighted] {
+  background: var(--mcm-accent-wash, #1a2733);
+  color: var(--mcm-accent-ink, #ff8a2a);
+}
+
+/* Page heading + info icon -- every Directory page's own description line
+   (`.mcm-page .page-head p`, mcm-page.css) used to sit permanently under
+   the `<h1>`. Replaced with a small icon beside the heading that shows the
+   same text as a tooltip on hover, so the header reads as one line instead
+   of a title plus a sentence underneath it on every screen. */
+.page-head-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.page-head-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-3, #8a8a8a);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.page-head-info:hover {
+  background: #fff1e0;
+  color: #c96f1f;
+}
+.dark .page-head-info {
+  color: var(--mcm-ink-3, #aab6c1);
+}
+.dark .page-head-info:hover {
   background: var(--mcm-accent-wash, #1a2733);
   color: var(--mcm-accent-ink, #ff8a2a);
 }

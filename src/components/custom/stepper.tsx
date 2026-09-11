@@ -1,5 +1,5 @@
 import { DoneIcon } from '@/assets/icons';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 interface IStepperProps {
   steps: any[];
@@ -8,6 +8,14 @@ interface IStepperProps {
   customClass?: string;
   customStep?: string;
   mobileHorizontal?: boolean;
+  /* A heading for the whole panel, not a single step -- optional and
+     undefined at every other call site, so this only renders where a
+     caller actually passes one. */
+  panelTitle?: string;
+  panelSubtitle?: string;
+  /* Arbitrary content under that heading -- undefined everywhere except
+     Directory's invite dialog, which uses it for the license-count pills. */
+  panelFooter?: ReactNode;
 }
 const Stepper: FC<IStepperProps> = ({
   steps,
@@ -15,9 +23,20 @@ const Stepper: FC<IStepperProps> = ({
   customClass,
   customStep,
   mobileHorizontal = false,
+  panelTitle,
+  panelSubtitle,
+  panelFooter,
 }) => {
   return (
-    <div className={`p-3 bg-white dark:bg-mcm-surface ${customClass}`}>
+    <div
+      className={`p-3 bg-white dark:bg-mcm-surface ${panelFooter ? 'flex h-full flex-col' : ''} ${customClass}`}
+    >
+      {panelTitle ? (
+        <div className="mcm-stepper-panel-head">
+          <h3>{panelTitle}</h3>
+          {panelSubtitle ? <p>{panelSubtitle}</p> : null}
+        </div>
+      ) : null}
       <ol
         className={`mx-auto flex w-full max-w-4xl ${mobileHorizontal ? 'items-center gap-2 overflow-x-auto pb-1 lg:w-4/5 lg:gap-0 lg:overflow-visible' : 'flex-col gap-3 sm:w-4/5 sm:flex-row sm:items-center sm:gap-0'}`}
       >
@@ -52,16 +71,28 @@ const Stepper: FC<IStepperProps> = ({
                     )}
                   </p>
                 </div>
-                <p
-                  className={`${mobileHorizontal ? 'text-xs lg:text-sm' : 'text-sm'} font-semibold whitespace-nowrap ${(currentStep ?? 0) >= step.number || step.number === 1 ? 'text-primary' : ' text-gray-900/80 dark:text-mcm-ink-2 '}`}
-                >
-                  {step.title}
-                </p>
+                <div>
+                  <p
+                    className={`${mobileHorizontal ? 'text-xs lg:text-sm' : 'text-sm'} font-semibold whitespace-nowrap ${(currentStep ?? 0) >= step.number || step.number === 1 ? 'text-primary' : ' text-gray-900/80 dark:text-mcm-ink-2 '}`}
+                  >
+                    {step.title}
+                  </p>
+                  {/* Optional, undefined everywhere this component already
+                      renders elsewhere in the app -- only a caller that adds
+                      a `description` to its own step objects gets this
+                      second line. */}
+                  {step.description ? (
+                    <p className="mt-0.5 text-xs whitespace-normal text-gray-500 dark:text-mcm-ink-3">
+                      {step.description}
+                    </p>
+                  ) : null}
+                </div>
               </div>
             </li>
           );
         })}
       </ol>
+      {panelFooter ? <div className="mt-auto">{panelFooter}</div> : null}
     </div>
   );
 };

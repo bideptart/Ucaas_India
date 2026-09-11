@@ -133,6 +133,17 @@ const Favourites = () => {
     });
   }, [rows, search, kind]);
 
+  /* Same paging as People: a fixed 10 rows with a pager below, rather than
+     an internally-scrolling list that hides how much is left. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
+
   const isLoading = peopleLoading || contactsLoading;
 
   /** SMS goes to the inbox composer, the same route the other lists use. */
@@ -161,7 +172,6 @@ const Favourites = () => {
           </>
         }
       >
-        <div className="favourites-table-scroll">
         <table>
           <thead>
             <tr>
@@ -178,8 +188,8 @@ const Favourites = () => {
           <tbody>
             {isLoading ? (
               <EmptyRow span={8} message="Loading favourites…" />
-            ) : visible.length ? (
-              visible.map((row) => (
+            ) : paged.length ? (
+              paged.map((row) => (
                 <tr key={row.key}>
                   <td>
                     <span className="flex items-center gap-2.5">
@@ -295,11 +305,47 @@ const Favourites = () => {
             )}
           </tbody>
         </table>
-        </div>
 
-        {rows.length ? (
-          <div className="mcm-tblfoot">
-            Showing {visible.length} of {rows.length} favourite{rows.length === 1 ? '' : 's'}
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css), same
+            as People's -- hidden on a single page, one inert control is
+            noise. */}
+        {!isLoading && pageCount > 1 ? (
+          <div className="gp-favourites-pager">
+            <span className="gp-favourites-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
+            </div>
           </div>
         ) : null}
       </DirectoryPage>

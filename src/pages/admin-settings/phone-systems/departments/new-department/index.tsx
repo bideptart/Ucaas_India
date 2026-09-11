@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Check } from 'lucide-react';
-import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -135,7 +134,18 @@ const TABS_ORDER = [
   DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION,
 ];
 
-const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
+const NewDepartment = ({
+  rowData,
+  setDrawerState,
+  setTabData,
+  /* Optional, undefined at the other 2 places this wizard renders (Admin ▸
+     Phone Systems ▸ Departments), where the page's own title already sits
+     above the whole form -- only Directory's Create-group dialog passes
+     these, to show a heading on the step rail instead of a separate dialog
+     header (same pattern Invite people's own rail uses). */
+  railTitle,
+  railSubtitle,
+}: any) => {
   const queryClient = useQueryClient();
   const { user } = useUser();
   const { user_info } = user || {};
@@ -551,117 +561,135 @@ const NewDepartment = ({ rowData, setDrawerState, setTabData }: any) => {
       setValue('settings.operational_hours.regional', user?.settings?.operational_hours?.regional);
     }
   }, [rowData, isEdit, user_info]);
+  /* Plain left-aligned list of step titles -- no numbered circle, just the
+     current step picked out in orange and a tick once that step's own
+     validation passes. */
+  const tabsList = (
+    <Tabs value={currentStep} onValueChange={handleTabChange} className="w-full">
+      <TabsList className="gp-department-tabs flex h-auto w-full flex-col items-stretch gap-3 overflow-visible rounded-none bg-transparent p-0 text-left text-sm font-semibold">
+        {Object.entries(DEPARTMENT_TAB_CONSTANT).map(([key, value]) => (
+          <TabsTrigger
+            className="gp-department-tab relative flex w-full shrink-0 items-center justify-between gap-2 rounded-none border-0 bg-transparent p-0 text-left text-sm font-semibold text-muted-foreground data-[state=active]:shadow-none focus-visible:outline-0 focus-visible:ring-0 focus-visible:border-0"
+            key={key}
+            value={value}
+          >
+            <span className="truncate text-left">{value}</span>
+            {(errors as any)[ERROR_TYPES[value]] ? (
+              <ErrorTooltip text={DEPARTMENT_ERROR_TYPES_MESSAGES[value]} />
+            ) : completedTabs[value] ? (
+              <span className="flex items-center justify-center rounded-full bg-primary/15 p-0.5 text-primary">
+                <Check className="h-3 w-3" strokeWidth={3} />
+              </span>
+            ) : null}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
+
   return (
     <>
-      <div className="flex h-full min-h-0 w-full flex-col justify-between gap-3 pt-2 sm:pt-3">
-        {!isEdit && (
-          <span className="text-sm leading-5 text-muted-foreground">
-            Create a department to organize your company’s workflow. This allows you to route calls
-            to specific teams (e.g., Support or Billing) and assign multiple users to a single
-            extension so they can handle incoming calls together.
-          </span>
-        )}
-        <Tabs
-          value={currentStep}
-          onValueChange={handleTabChange}
-          className="flex w-full flex-col overflow-x-hidden overflow-y-hidden"
-        >
-          <div className="w-full overflow-x-auto overflow-y-hidden border-b border-border">
-            <TabsList className="flex min-w-max min-h-12 items-stretch overflow-y-hidden rounded-none bg-transparent p-0 text-center text-sm font-semibold">
-              {Object.entries(DEPARTMENT_TAB_CONSTANT).map(([key, value]) => (
-                <TabsTrigger
-                  className="relative flex h-full shrink-0 items-center gap-1 rounded-none border-b-2 bg-transparent px-4 py-3 text-sm font-semibold text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:shadow-2xs sm:px-6 focus-visible:outline-0 focus-visible:ring-0 focus-visible:border-0 "
-                  key={key}
-                  value={value}
-                >
-                  {value}{' '}
-                  {(errors as any)[ERROR_TYPES[value]] ? (
-                    <div className="flex justify-end">
-                      <ErrorTooltip text={DEPARTMENT_ERROR_TYPES_MESSAGES[value]} />
-                    </div>
-                  ) : completedTabs[value] ? (
-                    <CustomTooltip text="This section is complete" side="top">
-                      <span className="flex items-center justify-center rounded-full bg-primary/15 p-0.5 text-primary">
-                        <Check className="h-3 w-3" strokeWidth={3} />
-                      </span>
-                    </CustomTooltip>
-                  ) : null}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-        </Tabs>
+      <div className="flex h-full min-h-0 w-full flex-col gap-3 pt-2 sm:pt-3">
         <FormProvider {...formInstance}>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex h-full min-h-0 w-full flex-col justify-between gap-4"
+            className="flex h-full min-h-0 w-full flex-1 flex-col"
           >
-            <div className="min-h-0 flex-1 overflow-y-auto pr-1">{stepLookUp?.[currentStep]}</div>
-            <div className="border-t border-border pt-2 sm:pt-3">
-              <div className="hidden items-center justify-between gap-2 lg:flex">
-                <Button variant={'transparent'} type="button" onClick={() => setDrawerState(false)}>
-                  Cancel
-                </Button>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={'outline'}
-                    type="button"
-                    onClick={handlePrev}
-                    disabled={currentStep === TABS_ORDER[0]}
-                  >
-                    Prev
-                  </Button>
-                  {currentStep !== DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
-                    <Button variant={'outline'} type="button" onClick={handleNext}>
-                      Next
-                    </Button>
-                  )}
-                  {currentStep === DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
-                    <Button variant={'primary'} type="submit" disabled={isPending}>
-                      {isPending ? 'Submiting...' : 'Submit'}
-                    </Button>
-                  )}
-                </div>
+            {/* Rail on the left (tab list, plus the intro blurb on create),
+                form content + footer on the right -- same shape as Invite
+                people's step rail, rather than a horizontal tab strip
+                stacked above the form. Stacks back to a column below `lg`,
+                same breakpoint the footer's own two layouts already switch
+                on. */}
+            <div className="flex min-h-0 w-full flex-1 flex-col gap-4 overflow-hidden lg:flex-row">
+              <div className="gp-department-rail flex h-full shrink-0 flex-col gap-4 overflow-y-auto lg:w-[230px]">
+                {railTitle ? (
+                  <div className="mcm-stepper-panel-head">
+                    <h3>{railTitle}</h3>
+                    {railSubtitle ? <p>{railSubtitle}</p> : null}
+                  </div>
+                ) : !isEdit ? (
+                  <span className="text-sm leading-5 text-muted-foreground">
+                    Route calls to a team and assign it a shared extension.
+                  </span>
+                ) : null}
+                {tabsList}
               </div>
-              <div className="overflow-x-auto overflow-y-hidden pb-1 lg:hidden">
-                <div className="flex min-w-max items-center gap-2">
-                  <Button
-                    variant={'transparent'}
-                    type="button"
-                    onClick={() => setDrawerState(false)}
-                    className="shrink-0"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant={'outline'}
-                    type="button"
-                    onClick={handlePrev}
-                    disabled={currentStep === TABS_ORDER[0]}
-                    className="shrink-0"
-                  >
-                    Prev
-                  </Button>
-                  {currentStep !== DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
+              <div className="flex min-h-0 w-full flex-1 flex-col gap-4 overflow-hidden">
+                <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+                  {stepLookUp?.[currentStep]}
+                </div>
+                <div className="border-t border-border pt-2 sm:pt-3">
+                  <div className="hidden items-center justify-between gap-2 lg:flex">
                     <Button
-                      variant={'outline'}
+                      variant={'transparent'}
                       type="button"
-                      onClick={handleNext}
-                      className="shrink-0"
+                      onClick={() => setDrawerState(false)}
                     >
-                      Next
+                      Cancel
                     </Button>
-                  )}
-                  {currentStep === DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
-                    <Button
-                      variant={'primary'}
-                      type="submit"
-                      disabled={isPending}
-                      className="shrink-0"
-                    >
-                      {isPending ? 'Submiting...' : 'Submit'}
-                    </Button>
-                  )}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant={'outline'}
+                        type="button"
+                        onClick={handlePrev}
+                        disabled={currentStep === TABS_ORDER[0]}
+                      >
+                        Prev
+                      </Button>
+                      {currentStep !== DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
+                        <Button variant={'outline'} type="button" onClick={handleNext}>
+                          Next
+                        </Button>
+                      )}
+                      {currentStep === DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
+                        <Button variant={'primary'} type="submit" disabled={isPending}>
+                          {isPending ? 'Submiting...' : 'Submit'}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto overflow-y-hidden pb-1 lg:hidden">
+                    <div className="flex min-w-max items-center gap-2">
+                      <Button
+                        variant={'transparent'}
+                        type="button"
+                        onClick={() => setDrawerState(false)}
+                        className="shrink-0"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant={'outline'}
+                        type="button"
+                        onClick={handlePrev}
+                        disabled={currentStep === TABS_ORDER[0]}
+                        className="shrink-0"
+                      >
+                        Prev
+                      </Button>
+                      {currentStep !== DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
+                        <Button
+                          variant={'outline'}
+                          type="button"
+                          onClick={handleNext}
+                          className="shrink-0"
+                        >
+                          Next
+                        </Button>
+                      )}
+                      {currentStep === DEPARTMENT_TAB_CONSTANT.GREETING_NOTIFICATION && (
+                        <Button
+                          variant={'primary'}
+                          type="submit"
+                          disabled={isPending}
+                          className="shrink-0"
+                        >
+                          {isPending ? 'Submiting...' : 'Submit'}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

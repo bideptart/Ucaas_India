@@ -1,33 +1,32 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getDepartmentList, getUserList } from '@/services/api';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getDepartmentList, updateMemberForwading } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { Icon } from '@/assets/icons/icon';
-import { AddCircle } from '@/assets/icons';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { capitalizeFirstLetter, handleAlert } from '@/lib/utils';
+import { Ic } from '@/components/mcm/icons';
+import { handleAlert } from '@/lib/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import { useNavigate } from 'react-router-dom';
+import { useConsoleDialer } from '@/pages/phone/console/dial-number';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import NewDepartment from '@/pages/admin-settings/phone-systems/departments/new-department';
+import { usePeopleRows, type PersonRow as PeopleRow, type PresenceTone } from './people-rows';
+import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-directory';
+import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
 import './groups-glass.css';
 
 /**
  * Directory ▸ Groups — the departments people belong to.
  *
- * Reproduces the platform's own "Users / Groups" split-pane page
- * (`src/pages/departments/index.tsx` + `department-list/index.tsx` +
- * `department-list/department-details.tsx`) at the console's own
- * `/directory?view=groups` address — same classes, same component pieces
- * (`Input`, `Button`, `Icon`, `AddCircle`, `CustomAvatar`) — rather than the
- * platform's `/department/organization/:id`, which those components are
- * otherwise wired to.
- *
- * One deliberate improvement over the platform page: a department record
- * only carries `{ user_uuid }` for each member, which is why the platform's
- * own manager/member rows render as a blank circle with nothing beside it.
- * This resolves that uuid against the roster (`getUserList`) so a name,
- * extension and email actually show.
+ * A table matching People's and Roles' own list design, rather than a
+ * split Users/Groups pane: Group, Manager, headcount and extension at a
+ * glance, with "Open" showing the rest (description, manager, members) in
+ * a popup instead of a permanently-docked detail column. Clicking a person
+ * inside that popup opens a second, smaller popup to edit them — the same
+ * live presence, edit-and-save shape People's own row dialog uses, reusing
+ * `usePeopleRows` so the two screens can't show a person differently.
  */
 
 const parseJson = (value: unknown): any => {
@@ -43,30 +42,89 @@ const parseMembers = (members: unknown): any[] => {
   return Array.isArray(parsed) ? parsed : [];
 };
 
-const PersonRow = ({ name, extension, email }: { name: string; extension: string; email: string }) => (
-  <div className="flex min-w-0 flex-col border border-gray-200 bg-gray-100 rounded-xl w-full p-3 gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
-    <CustomAvatar name={name} showPresence extension={extension} />
-    <div className="flex min-w-0 flex-col sm:w-[calc(100%_-_3.5rem)]">
-      <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-        <p className="capitalize text-md truncate">{name}</p>
-        <div className="flex shrink-0 gap-1">
-          <Icon name="Grid" className="w-4 h-4 text-gray-500" />
-          <div className="text-gray-500 truncate text-xs">{extension || ''}</div>
+/** Pill + dot colour for a presence tone, matching the live reference's
+   generic "Offline" badge extended to the app's other tones. */
+const PRESENCE_STYLE: Record<PresenceTone, { pill: string; dot: string }> = {
+  good: { pill: 'bg-green-50 text-green-600 border-green-100', dot: 'bg-green-500' },
+  busy: { pill: 'bg-red-50 text-red-600 border-red-100', dot: 'bg-red-500' },
+  warn: { pill: 'bg-amber-50 text-amber-600 border-amber-100', dot: 'bg-amber-500' },
+  idle: { pill: 'bg-gray-100 text-gray-500 border-gray-200', dot: 'bg-gray-400' },
+};
+
+type GroupPerson = {
+  uuid: string;
+  name: string;
+  extension: string;
+  email: string;
+  role: string;
+  phone: string;
+  site: string;
+  presence: string;
+  tone: PresenceTone;
+};
+
+const PersonRow = ({ person, onOpen }: { person: GroupPerson; onOpen: () => void }) => {
+  const navigate = useNavigate();
+  const { dial } = useConsoleDialer();
+  return (
+    <div
+      className="flex items-center gap-3 p-3 rounded-xl border border-[rgba(225,200,165,0.35)] bg-[rgba(251,249,246,0.5)] cursor-pointer hover:bg-[#FBE2C8]/40 transition-colors"
+      onClick={onOpen}
+    >
+      <CustomAvatar name={person.name} size="38" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-gray-900 truncate capitalize">{person.name}</p>
+          {person.role ? (
+            <span className="text-[10px] font-semibold text-primary uppercase">{person.role}</span>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-3 mt-0.5">
+          {person.extension ? (
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              <Icon name="Grid" className="w-3 h-3" />
+              {person.extension}
+            </span>
+          ) : null}
+          {person.email ? <span className="text-xs text-gray-400 truncate">{person.email}</span> : null}
         </div>
       </div>
-      {email ? (
-        <div className="flex flex-col gap-1">
-          <small className="text-gray-500 truncate text-sm">{email}</small>
+      <div className="flex shrink-0 gap-1.5" onClick={(event) => event.stopPropagation()}>
+        <div
+          className="gp-group-call flex items-center justify-center rounded-full w-8 h-8 cursor-pointer transition-colors"
+          title={`Call ${person.name}`}
+          onClick={() => person.extension && dial(person.extension, { forceRefreshContactInfo: true })}
+        >
+          <Ic n="phone" size={14} />
         </div>
-      ) : null}
+        <div
+          className="gp-group-message flex items-center justify-center rounded-full w-8 h-8 cursor-pointer transition-colors"
+          title={`Message ${person.name}`}
+          onClick={() => navigate(`/messenger?chatId=${person.uuid}&chatType=chat`)}
+        >
+          <Ic n="chat" size={14} />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Groups = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { dial } = useConsoleDialer();
+  const { rows: peopleRows } = usePeopleRows();
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
-  const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
+  const [openUuid, setOpenUuid] = useState<string | null>(null);
+  const [editing, setEditing] = useState<GroupPerson | null>(null);
+  const [personForm, setPersonForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    extension: '',
+  });
 
   /* Same gate the Department page puts on New Department. */
   const { features } = useCompanyFeatures();
@@ -87,28 +145,23 @@ const Groups = () => {
     select: (res: any) => res?.data?.data?.result?.rows || [],
   });
 
-  /* A department's own record only carries `{ user_uuid }` for each member —
-     the manager and members panels need a name, extension and email to show
-     anything, so the roster is fetched once here and joined in by uuid. */
-  const { data: people = [] } = useQuery({
-    queryKey: ['directoryGroupsPeople'],
-    queryFn: () => getUserList({ page: 1, limit: 500 }),
-    select: (res: any) => res?.data?.data?.result?.rows || [],
-  });
-
+  /* A department record only carries `{ user_uuid }` for each member -- the
+     manager and members panels need a name, extension, email and live
+     presence to show anything, so this joins against `usePeopleRows`
+     (the same roster People itself reads) rather than re-deriving presence
+     a second way. */
   const peopleByUuid = useMemo(() => {
-    const map = new Map<string, any>();
-    people.forEach((person: any) => {
-      if (person?.uuid) map.set(String(person.uuid), person);
+    const map = new Map<string, PeopleRow>();
+    peopleRows.forEach((person) => {
+      if (person.uuid) map.set(String(person.uuid), person);
     });
     return map;
-  }, [people]);
+  }, [peopleRows]);
 
-  const resolvePerson = (entry: any) => {
+  const resolvePerson = (entry: any, role: string): GroupPerson => {
     const person = entry?.user_uuid ? peopleByUuid.get(String(entry.user_uuid)) : null;
     const name =
       entry?.label ||
-      `${person?.first_name || ''} ${person?.last_name || ''}`.trim() ||
       person?.name ||
       /* A department's `manager` doesn't always carry a `user_uuid` to look
          up — the contact-centre seed stores just a name — so this is the
@@ -116,10 +169,15 @@ const Groups = () => {
       entry?.name ||
       '';
     return {
-      uuid: entry?.user_uuid || person?.uuid,
+      uuid: entry?.user_uuid || person?.uuid || '',
       name,
       extension: entry?.value || person?.extension || '',
       email: entry?.email || person?.email || '',
+      role,
+      phone: person?.phone || '',
+      site: person?.location || '',
+      presence: person?.presence || 'Offline',
+      tone: person?.tone || 'idle',
     };
   };
 
@@ -127,232 +185,470 @@ const Groups = () => {
     const needle = search.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((row: any) => {
-      const manager = resolvePerson(parseJson(row?.manager) || {});
+      const manager = resolvePerson(parseJson(row?.manager) || {}, 'Manager');
       return [row?.name, row?.extension, manager.name]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
   }, [rows, search, peopleByUuid]);
 
-  /* The first group is selected the moment the list loads, so this view never
-     opens on an empty pane — the same thing the platform's own Groups tab
-     already does at `/department/organization`. */
-  useEffect(() => {
-    if (selectedUuid && rows.some((row: any) => row?.uuid === selectedUuid)) return;
-    setSelectedUuid(rows[0]?.uuid || null);
-  }, [rows, selectedUuid]);
+  /* Same paging as People/Roles: a fixed 10 rows with a pager below. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
 
-  const selected = rows.find((row: any) => row?.uuid === selectedUuid) || null;
-  const selectedManager = selected ? resolvePerson(parseJson(selected?.manager) || {}) : null;
-  const selectedMembers = selected
+  const opened = rows.find((row: any) => row?.uuid === openUuid) || null;
+  const openedManager = opened ? resolvePerson(parseJson(opened?.manager) || {}, 'Manager') : null;
+  const openedMembers = opened
     ? Array.from(
         new Map(
-          parseMembers(selected?.members).map((entry) => [entry?.user_uuid, resolvePerson(entry)]),
+          parseMembers(opened?.members).map((entry) => [
+            entry?.user_uuid,
+            resolvePerson(entry, 'Agent'),
+          ]),
         ).values(),
       )
     : [];
 
+  const openPerson = (person: GroupPerson) => {
+    setEditing(person);
+    setPersonForm({
+      first_name: person.name.split(' ')[0] || '',
+      last_name: person.name.split(' ').slice(1).join(' ') || '',
+      email: person.email || '',
+      phone: person.phone || '',
+      extension: person.extension || '',
+    });
+  };
+
+  const { mutate: savePerson, isPending: isSavingPerson } = useMutation({
+    mutationFn: (payload: Record<string, string>) =>
+      updateMemberForwading({ userID: editing?.uuid, uuid: editing?.uuid, ...payload }),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['directoryPeople'] });
+      invalidateGlobalUsersDirectory(queryClient);
+      handleAlert({ text: data?.data?.data?.message || 'Saved', type: 'success' });
+      setEditing(null);
+    },
+  });
+
+  /* Take the roster away as a spreadsheet -- same shape as People's own
+     Export, scoped to the groups currently on screen. */
+  const exportGroups = () => {
+    const csv = [
+      ['Group', 'Manager', 'People', 'Extension'].join(','),
+      ...visible.map((row: any) => {
+        const manager = resolvePerson(parseJson(row?.manager) || {}, 'Manager');
+        const members = parseMembers(row?.members);
+        return [row?.name, manager.name, members.length, row?.extension]
+          .map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`)
+          .join(',');
+      }),
+    ].join('\n');
+    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'groups.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="gp-groups">
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden lg:flex-row">
-        {/* ── left: Users / Groups list ─────────────────────────────────── */}
-        <section className="gp-ug-left relative bg-white h-full border-r border-gray-200 w-full lg:min-w-[19rem] lg:max-w-[19rem] xl:min-w-[22rem] xl:max-w-[22rem]">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px]">
-              <div className="flex gap-1 items-center">
-                <h4 className="text-gray-900 font-semibold text-lg">Groups</h4>
-              </div>
-              {canCreateGroup ? (
-                <div
-                  role="button"
-                  aria-label="New group"
-                  title="New group"
-                  onClick={() => setCreating(true)}
-                  className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
-                >
-                  <AddCircle className="w-6 h-6" />
-                </div>
-              ) : null}
-            </div>
-
-            <div className="flex-1 min-h-0 flex flex-col">
-              <div className="flex w-full min-w-0 flex-col gap-2">
-                <div className="flex items-center w-full min-w-0 gap-2 px-3 pt-3 pb-1">
-                  <Input
-                    IconPosition="left-0 pl-2 inset-y-0"
-                    placeholder="Search by name and extension number"
-                    className="min-w-0 pl-10 py-2.5"
-                    value={search}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      if (value.startsWith(' ')) return;
-                      setSearch(value);
-                    }}
-                    Icon={<Icon name="SearchLine" className="text-gray-700" />}
-                  />
-                  <Button
-                    className="gp-groups-refresh shrink-0"
-                    style={{ width: 44, height: 44, padding: 0 }}
-                    type="button"
-                    variant="outline"
-                    onClick={() =>
-                      refetch().then(() => handleAlert({ text: 'Groups refreshed', type: 'success' }))
-                    }
+      <DirectoryPage
+        title="Groups"
+        description="Everyone routes through a group — see who's in each one and who manages it."
+        actions={
+          <>
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={() => navigate('/directory?view=people')}
+            >
+              <Ic n="users" />
+              People
+            </button>
+            <button type="button" className="btn ghost" onClick={exportGroups}>
+              <Ic n="dl" />
+              Export
+            </button>
+            {canCreateGroup ? (
+              <button type="button" className="btn primary" onClick={() => setCreating(true)}>
+                <Ic n="plus" />
+                New group
+              </button>
+            ) : null}
+          </>
+        }
+        filters={
+          <>
+            <SearchChip value={search} onChange={setSearch} placeholder="Search groups" />
+            <span className="fchip live" style={{ marginLeft: 'auto' }}>
+              <span className="num">{visible.length}</span> groups
+            </span>
+          </>
+        }
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Manager</th>
+              <th>People</th>
+              <th>Extension</th>
+              <th>Open</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isPending ? (
+              <EmptyRow span={5} message="Loading groups…" />
+            ) : visible.length ? (
+              paged.map((row: any) => {
+                const members = parseMembers(row?.members);
+                const manager = resolvePerson(parseJson(row?.manager) || {}, 'Manager');
+                return (
+                  <tr
+                    key={row?.uuid}
+                    className="gp-group-row"
+                    onClick={() => setOpenUuid(row?.uuid)}
                   >
-                    <Icon name="Refresh" className={`w-5 h-5${isFetching ? ' animate-spin' : ''}`} />
-                  </Button>
-                </div>
-              </div>
+                    <td>
+                      <span className="flex items-center gap-2.5">
+                        <CustomAvatar name={row?.name} size="30" />
+                        <span style={{ fontWeight: 700 }}>{row?.name || '--'}</span>
+                      </span>
+                    </td>
+                    <td>{manager.name || '—'}</td>
+                    <td>
+                      <span className="tag acc num">{members.length}</span>
+                    </td>
+                    <td className="num">{row?.extension || '—'}</td>
+                    <td onClick={(event) => event.stopPropagation()}>
+                      <button
+                        type="button"
+                        className="mini gp-group-open"
+                        onClick={() => setOpenUuid(row?.uuid)}
+                      >
+                        <Ic n="chev" size={12} />
+                        Open
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <EmptyRow
+                span={5}
+                message={rows.length ? 'No groups match that search.' : 'No groups yet.'}
+              />
+            )}
+          </tbody>
+        </table>
 
-              <div className="flex w-full flex-col overflow-auto h-[calc(100vh_-_14.5rem)]">
-                <ul role="list" className="list-rows h-full">
-                  {isPending ? (
-                    <div className="flex items-center justify-center p-5">
-                      <span className="skel" style={{ width: '100%', height: 40, display: 'block' }} />
-                    </div>
-                  ) : visible.length ? (
-                    visible.map((row: any) => {
-                      const members = parseMembers(row?.members);
-                      const manager = resolvePerson(parseJson(row?.manager) || {});
-                      const isSelected = selectedUuid === row?.uuid;
-                      return (
-                        <li
-                          key={row?.uuid}
-                          className={`list-row ${isSelected ? 'on' : ''}`}
-                          onClick={() => setSelectedUuid(row?.uuid)}
-                        >
-                          <div className="flex min-w-0 items-center w-full gap-2">
-                            <div className="relative shrink-0">
-                              <CustomAvatar name={row?.name} size="36" />
-                            </div>
-                            <div className="flex min-w-0 flex-col justify-between text-sm w-[calc(100%_-_3rem)] gap-1">
-                              <div className="flex min-w-0 items-center justify-between gap-2">
-                                <p className="list-row-name truncate">{row?.name || '--'}</p>
-                                <div className="flex shrink-0 items-center gap-2">
-                                  <span
-                                    className="list-row-meta num"
-                                    style={{ display: 'inline-flex', alignItems: 'center' }}
-                                  >
-                                    <Icon name="Grid" className="h-3.5 w-3.5" />
-                                    {row?.extension || '--'}
-                                  </span>
-                                  <span
-                                    className="tag acc num"
-                                    style={{ display: 'inline-flex', alignItems: 'center' }}
-                                  >
-                                    {members.length}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex min-w-0 items-center gap-1">
-                                <p className="shrink-0 text-gray-800 truncate text-xs">Manager :</p>
-                                <p className="text-gray-500 flex min-w-0 items-center gap-0.5 truncate text-xs">
-                                  {capitalizeFirstLetter(manager.name) || ''}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <div className="flex justify-center items-center w-full h-full">
-                      <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
-                        <p className="text-sm font-medium text-gray-900">
-                          {rows.length ? 'No groups match that search.' : 'No Department Found'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </ul>
-              </div>
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css), same
+            as People and Roles -- hidden on a single page. */}
+        {!isPending && pageCount > 1 ? (
+          <div className="gp-groups-pager">
+            <span className="gp-groups-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
             </div>
           </div>
-        </section>
+        ) : null}
+      </DirectoryPage>
 
-        {/* ── right: selected group's detail ────────────────────────────── */}
-        <div className="gp-ug-right-body min-h-0 flex-1 flex flex-col overflow-hidden bg-muted/40">
-          {selected ? (
-            <>
-              <div className="gp-ug-detail-head w-full min-w-0 px-3 bg-white gap-2 flex items-center justify-between rounded-none border-b border-gray-200 min-h-[65px]">
-                <div className="relative shrink-0">
-                  <CustomAvatar name={selected?.name} />
+      {/* "Open" -- a group's description, manager and members, in a popup
+          rather than a permanently-docked detail pane. Markup/classes copied
+          from the live site (ucaas-india.vercel.app/directory/groups) so
+          this reads as the same product rather than a re-interpretation. */}
+      <Dialog open={Boolean(opened)} onOpenChange={(next) => !next && setOpenUuid(null)}>
+        <DialogContent
+          className="sm:max-w-[640px] w-[calc(100vw-32px)] p-0 gap-0 rounded-2xl overflow-hidden border border-[rgba(225,200,165,0.5)]"
+          showCloseButton={false}
+        >
+          {opened ? (
+            <div className="flex flex-col max-h-[80vh]">
+              <div className="flex items-center gap-3.5 px-6 py-4 border-b border-[rgba(225,200,165,0.3)] bg-[rgba(251,249,246,0.6)]">
+                <CustomAvatar name={opened?.name} size="44" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[17px] font-bold text-gray-900 truncate">{opened?.name}</div>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <span className="text-[13px] text-gray-500 flex items-center gap-1">
+                      <Icon name="Grid" className="w-3.5 h-3.5" />
+                      {opened?.extension || '--'}
+                    </span>
+                    <span className="text-[13px] text-gray-500">{openedMembers.length} members</span>
+                  </div>
                 </div>
-                <div className="flex min-w-0 items-center justify-between w-[calc(100%_-_3rem)]">
-                  <div className="flex min-w-0 flex-col">
-                    <p className="font-semibold text-gray-900 truncate text-md">
-                      {selected?.name || 'Unknown group'}
-                    </p>
-                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-                      <div className="flex shrink-0 items-center gap-1 text-gray-500">
-                        <Icon name="Grid" className="w-4 h-4" />
-                        <small className="text-xs">{selected?.extension || '--'}</small>
-                      </div>
-                    </div>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  className="gp-create-group-close"
+                  onClick={() => setOpenUuid(null)}
+                >
+                  <Icon name="CloseIcon" className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Description
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    {opened?.description || 'No description provided.'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    Manager
+                  </p>
+                  {openedManager?.uuid ? (
+                    <PersonRow person={openedManager} onOpen={() => openPerson(openedManager)} />
+                  ) : (
+                    <p className="text-sm text-gray-500">No manager assigned</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    Members
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {openedMembers.length ? (
+                      openedMembers.map((member) => (
+                        <PersonRow key={member.uuid} person={member} onOpen={() => openPerson(member)} />
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No members in this group.</p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 h-[calc(100vh_-_10.3rem)] overflow-auto p-3">
-                <div className="bg-white border border-gray-200 rounded-xl p-3">
-                  <div className="flex flex-col gap-1">
-                    <p className="font-semibold text-gray-900 text-md">Description</p>
-                    <p className="text-gray-800 text-sm">
-                      {selected?.description || 'No description provided '}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-xl p-3">
-                  <div className="flex flex-col gap-1">
-                    <p className="font-semibold text-gray-900 truncate text-md">Department Manager</p>
-                    <div className="w-full flex min-w-0 flex-col gap-3">
-                      {selectedManager?.uuid ? (
-                        <PersonRow
-                          name={selectedManager.name}
-                          extension={selectedManager.extension}
-                          email={selectedManager.email}
-                        />
-                      ) : (
-                        <p className="text-gray-500 text-sm">No manager assigned</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white border border-gray-200 rounded-xl p-3">
-                  <div className="flex flex-col gap-1">
-                    <h6 className="font-semibold text-gray-900 truncate text-md">Members</h6>
-                    <div className="flex flex-wrap gap-y-2.5">
-                      {selectedMembers.length ? (
-                        selectedMembers.map((member) => (
-                          <div className="w-full flex min-w-0 flex-col gap-3" key={member.uuid}>
-                            <PersonRow name={member.name} extension={member.extension} email={member.email} />
-                          </div>
-                        ))
-                      ) : (
-                        <p>No members found in this departments</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center justify-end px-6 py-3 border-t border-[rgba(225,200,165,0.3)] bg-[rgba(251,249,246,0.4)]">
+                <button
+                  type="button"
+                  className="h-9 px-5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => setOpenUuid(null)}
+                >
+                  Close
+                </button>
               </div>
-            </>
-          ) : (
-            <div className="m-auto flex flex-col items-center justify-center gap-2 p-10">
-              <p className="text-gray-800 text-sm">Select a group on the left to see its details.</p>
             </div>
-          )}
-        </div>
-      </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* One person from that group -- editable, same field set as People's
+          own row dialog (people.tsx), reached here too since a manager or
+          member is the same record either way. */}
+      <Dialog open={Boolean(editing)} onOpenChange={(next) => !next && setEditing(null)}>
+        <DialogContent
+          className="sm:max-w-[560px] w-[calc(100vw-32px)] p-0 gap-0 rounded-2xl overflow-hidden border border-[rgba(225,200,165,0.5)]"
+          showCloseButton={false}
+        >
+          {editing ? (
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3.5 px-6 py-5 border-b border-gray-100 bg-[rgba(251,249,246,0.6)]">
+                <CustomAvatar name={editing.name} size="48" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[17px] font-bold text-gray-900 truncate">{editing.name}</div>
+                  <div className="text-[13px] text-gray-500 mt-0.5">{editing.role}</div>
+                </div>
+                <span
+                  className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${PRESENCE_STYLE[editing.tone].pill}`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${PRESENCE_STYLE[editing.tone].dot}`} />
+                  {editing.presence}
+                </span>
+              </div>
+
+              <div className="px-6 py-5 flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      First Name
+                    </label>
+                    <input
+                      className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      value={personForm.first_name}
+                      onChange={(event) =>
+                        setPersonForm((prev) => ({ ...prev, first_name: event.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Last Name
+                    </label>
+                    <input
+                      className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      value={personForm.last_name}
+                      onChange={(event) =>
+                        setPersonForm((prev) => ({ ...prev, last_name: event.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Email
+                    </label>
+                    <input
+                      className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      type="email"
+                      value={personForm.email}
+                      onChange={(event) =>
+                        setPersonForm((prev) => ({ ...prev, email: event.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Phone
+                    </label>
+                    <div className="[&_.react-tel-input_.form-control]:!h-10 [&_.react-tel-input_.form-control]:!rounded-lg [&_.react-tel-input_.form-control]:!border-gray-200 [&_.react-tel-input_.form-control]:!text-sm [&_.react-tel-input_.form-control]:!w-full [&_.react-tel-input_.flag-dropdown]:!rounded-l-lg [&_.react-tel-input_.flag-dropdown]:!border-gray-200">
+                      <PhoneInput
+                        country={'in'}
+                        onlyCountries={['in']}
+                        disableDropdown
+                        value={personForm.phone}
+                        onChange={(value) =>
+                          setPersonForm((prev) => ({
+                            ...prev,
+                            phone: `+${value.startsWith('91') ? value : '91'}`,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Site
+                    </label>
+                    <input
+                      className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed"
+                      disabled
+                      value={editing.site}
+                      title="Site is set from the person's assigned location, not edited here"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Extension
+                    </label>
+                    <input
+                      className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed"
+                      disabled
+                      value={personForm.extension}
+                      title="Extension is provisioned, not edited here"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 pb-5 flex items-center gap-3">
+                <button
+                  type="button"
+                  className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150 disabled:opacity-40"
+                  disabled={!editing.extension}
+                  onClick={() =>
+                    editing.extension && dial(editing.extension, { forceRefreshContactInfo: true })
+                  }
+                >
+                  <Ic n="phone" size={16} />
+                  Call
+                </button>
+                <button
+                  type="button"
+                  className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150"
+                  onClick={() => navigate(`/messenger?chatId=${editing.uuid}&chatType=chat`)}
+                >
+                  <Ic n="chat" size={16} />
+                  Message
+                </button>
+              </div>
+
+              <div className="px-6 pb-5 flex items-center justify-end gap-2 border-t border-gray-100 pt-4">
+                <button
+                  type="button"
+                  className="h-9 px-5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => setEditing(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="h-9 px-5 rounded-lg bg-primary text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                  disabled={isSavingPerson}
+                  onClick={() =>
+                    savePerson({
+                      first_name: personForm.first_name,
+                      last_name: personForm.last_name,
+                      email: personForm.email,
+                      phone: personForm.phone,
+                    })
+                  }
+                >
+                  {isSavingPerson ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       {/* The platform's own department form, opened as a centered popup
           rather than a side drawer. `rowData` empty means create rather
           than edit. */}
       <Dialog open={creating} onOpenChange={(next) => !next && setCreating(false)}>
-        <DialogContent className="gp-create-group-dialog sm:max-w-[920px]" showCloseButton={false}>
-          <div className="gp-create-group-head">
-            <h2>Create group</h2>
+        <DialogContent className="gp-create-group-dialog sm:max-w-[1100px]" showCloseButton={false}>
+          {/* The title lives on the step rail now (`railTitle`/`railSubtitle`
+              below), so this bar is just the close control -- same pattern
+              as the Invite people dialog (people.tsx). */}
+          <div className="gp-create-group-head gp-create-group-head--bare">
             <button
               type="button"
               aria-label="Close"
@@ -363,7 +659,12 @@ const Groups = () => {
             </button>
           </div>
           <div className="gp-create-group-body">
-            <NewDepartment rowData={{}} setDrawerState={setCreating} />
+            <NewDepartment
+              rowData={{}}
+              setDrawerState={setCreating}
+              railTitle="Create group"
+              railSubtitle="Route calls to a team and assign it a shared extension."
+            />
           </div>
         </DialogContent>
       </Dialog>

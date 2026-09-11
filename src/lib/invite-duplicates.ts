@@ -237,8 +237,14 @@ export const findInviteClashes = ({ rows, roster }: InviteDuplicateInput): Clash
       }
     }
 
+    /* A fresh row starts with the phone field pre-filled to just the
+       country code ("91", from `userInitialState`) before anyone has typed
+       an actual number -- normalised, that is 2 digits. Every blank row
+       carries the same 2 digits, so without this floor two rows nobody has
+       touched yet report as sharing a phone number the moment a second one
+       is added. */
     const phone = normalisePhone(row?.phone);
-    if (phone) {
+    if (phone.length > 2) {
       const firstAt = seenPhone.get(phone);
       if (firstAt === undefined) {
         seenPhone.set(phone, index);

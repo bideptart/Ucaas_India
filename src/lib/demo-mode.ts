@@ -375,7 +375,14 @@ const buildUser = (
   phone = '',
   site = '',
 ) => ({
-  uuid: `demo-user-${extension}`,
+  /* Extension 1001 is Arjun Mehta -- the logged-in demo account itself
+     (`DEMO_USER.uuid` above), not just another roster row. Without this,
+     the row's own uuid came out as `demo-user-1001` (this file's generic
+     per-extension pattern) while `useUser()` reports the real session's
+     `demo-user-0000-...-0001`, so `row.uuid === myUuid` was never true and
+     the People table's "set my presence" dropdown never appeared on your
+     own row -- it only ever compared against a different Arjun Mehta. */
+  uuid: extension === '1001' ? DEMO_USER.uuid : `demo-user-${extension}`,
   first_name: first,
   last_name: last,
   name: `${first} ${last}`,
@@ -1259,6 +1266,29 @@ const matchDemoPayload = (url: string, data: unknown) => {
   }
 
   if (url.includes('/api/send-otp')) return ok({ sent: true });
+
+  /* Invite people ▸ Order Summary. No demo handler existed for this route at
+     all, so every request fell through to the generic `listPayload()` at the
+     bottom of this function -- an empty list, not the {plan_cost, tax_amount,
+     ...} shape the summary card reads. That's why every amount showed ₹0
+     regardless of how many licenses were being added, independent of the
+     (also real) stale React Query cache key bug fixed in order-summary.tsx. */
+  if (url.includes('/api/plan/calculate-tax')) {
+    const licenses = Math.max(1, Number(asObject(data)?.licenses) || 1);
+    const perLicenseCost = 499;
+    const subTotal = perLicenseCost * licenses;
+    const taxPercentage = 18;
+    const taxAmount = Math.round((subTotal * taxPercentage) / 100);
+    return ok({
+      plan_cost: perLicenseCost,
+      per_license_cost: perLicenseCost,
+      sub_total: subTotal,
+      tax_percentage: taxPercentage,
+      tax_amount: taxAmount,
+      total_amount: subTotal + taxAmount,
+      tax_calculation_id: 'demo-tax-calc',
+    });
+  }
 
   const written = applyWrite(url, asObject(data));
   if (written) return written;

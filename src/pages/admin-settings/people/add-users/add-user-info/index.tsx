@@ -1,6 +1,5 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import CustomSelect from '@/components/custom/custom-select';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/hooks/use-user';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
@@ -10,14 +9,24 @@ import { getRoleList, getUserList, validateUser } from '@/services/api';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import type { ISELECTVALUE } from '@/interfaces/api-interfaces';
-import { Plus, TrashBin } from '@/assets/icons';
+import { Minus, Plus, TrashBin } from '@/assets/icons';
 import { useGetSite } from '@/hooks/common';
 import OrderSummary from '../order-summary';
 import { Label } from '@/components/ui/label';
 import ErrorTooltip from '@/components/custom/error-tooltip';
 import { generateRandomExtension, handleAlert } from '@/lib/utils';
 import CustomTooltip from '@/components/custom/custom-tooltip';
-import { InfoIcon } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  InfoIcon,
+  Layers,
+  Mail,
+  MapPin,
+  ShieldCheck,
+  User as UserIcon,
+  Phone as PhoneIcon,
+} from 'lucide-react';
 import { COMPANY_DEFAULTS_QUERY_KEY, fetchCompanyDefaults } from '@/lib/company-defaults';
 import { NEW_PERSON_ROLE_KEY, readNewPersonRole } from '@/lib/role-permission-defaults';
 import {
@@ -57,6 +66,7 @@ const AddUserInfo = ({
   setIsUserValidatorError,
   dataGetMyPlanDetails,
   setPaymentCalculation,
+  onLicenseStatsChange,
 }: any) => {
   const {
     register,
@@ -123,7 +133,16 @@ const AddUserInfo = ({
 
   const { fields, append, remove } = formFieldArrayInstance;
 
-  const [users, userAddCountRaw] = watch(['users', 'user_add_count']) as [User[], number | null];
+  /* Which invitee card is showing -- one at a time, like the reference,
+     rather than every card stacked in one long scroll. Clamped whenever
+     the list shrinks (removing the last card) so it never points past the
+     end. */
+  const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => {
+    if (activeIndex > fields.length - 1) setActiveIndex(Math.max(0, fields.length - 1));
+  }, [activeIndex, fields.length]);
+
+  const users = watch('users') as User[];
 
   useEffect(() => {
     const picked = roleDecision.role;
@@ -157,7 +176,6 @@ const AddUserInfo = ({
      cannot find either — two unsaved rows are not "taken" yet, and its check
      spans every company it hosts rather than just this one. */
   const clashes = useMemo(() => findInviteClashes({ rows: users, roster }), [users, roster]);
-  const userAddCount = Number(userAddCountRaw) || 0;
   const { plan_info, user_info = {}, company_info } = user || {};
   const isPlanExpired = company_info?.plan_status === 'EXPIRED';
   const isTrial = company_info?.is_trial === 'Y';
@@ -207,6 +225,53 @@ const AddUserInfo = ({
       cost,
     };
   }, [users, dataGetMyPlanDetails, planCost]);
+
+  /* Every already-filled-in person before the one on screen, so they stay
+     visible on the rail while a later card (Person 2, 3, ...) is being
+     filled in -- once the pager moves off a card, its own fields scroll out
+     of view with nothing on screen to check against while filling the next
+     one. Only people before the active card, not all of them: the ones
+     after haven't been touched yet and have nothing worth showing. */
+  const precedingNames = (users || [])
+    .slice(0, activeIndex)
+    .map((person) => [person?.first_name, person?.last_name].filter(Boolean).join(' ').trim());
+  const precedingNamesKey = precedingNames.join('|');
+
+  /* Handed up to the step rail (Directory's invite dialog only -- every
+     other caller of this wizard leaves `onLicenseStatsChange` undefined) so
+     the pills sit under "Invite people" instead of inside this form. No
+     "Add Multiple Users" action to keep fresh here any more -- the stepper
+     itself adds/removes cards immediately (see `applyPeopleCount`). */
+  useEffect(() => {
+    if (!onLicenseStatsChange) return;
+    onLicenseStatsChange(
+      <>
+        {precedingNames.some(Boolean) ? (
+          <div className="mcm-invite-person1-ref">
+            {precedingNames.map((name, index) =>
+              name ? (
+                <p key={index} className="mcm-invite-person1-ref-name">
+                  {index + 1}. {name}
+                </p>
+              ) : null,
+            )}
+          </div>
+        ) : null}
+        <div className="mcm-license-stats flex flex-col items-start gap-2">
+          <span className="mcm-invite-stat">
+            Unused licenses: <strong>{licenseInfo?.available || 0}</strong>
+            <CustomTooltip text="License purchased" side="top">
+              <InfoIcon className="w-3.5 h-3.5 cursor-pointer" />
+            </CustomTooltip>
+          </span>
+          <span className="mcm-invite-stat">
+            New licenses purchased: <strong>{licenseInfo?.extraUnits || 0}</strong>
+          </span>
+        </div>
+      </>,
+    );
+  }, [licenseInfo?.available, licenseInfo?.extraUnits, onLicenseStatsChange, precedingNamesKey]);
+
   const { mutate: mutateValidateUser } = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutationFn: ({ index, ...payload }: any) => validateUser(payload),
@@ -324,21 +389,24 @@ const AddUserInfo = ({
 
   const MAX_USERS = 10;
 
-  const handleUserAddCountChange = (event: ChangeEvent<HTMLInputElement>) => {
-    /* Two digits, so the box can express MAX_USERS. Anything below 1 clears the
-       field, anything above the cap is pinned to the cap. */
-    const sanitizedValue = event.target.value.replace(/[^0-9]/g, '').slice(0, 2);
-    const parsedValue = sanitizedValue ? Number(sanitizedValue) : null;
-    const nextValue =
-      parsedValue === null || parsedValue < 1 ? null : Math.min(parsedValue, MAX_USERS);
+  /* How many licenses are actually left to buy -- `null` (not 0) when the
+     plan/license data simply hasn't loaded yet, so a slow API response
+     reads as "unknown, don't block" rather than "zero, block everything".
+     `licenses === 0` from the plan itself is the one case that genuinely
+     means unlimited (an unmetered plan), kept as-is from the original
+     check this replaces. */
+  const availableLicensesToPurchase = useMemo(() => {
+    const licenses = plan_info?.dataValues?.licenses;
+    const totalLicenses = dataGetMyPlanDetails?.license_detail?.total_licenses;
+    if (licenses === 0) return 'Unlimited';
+    if (licenses == null || totalLicenses == null) return 'Unlimited';
+    return licenses - totalLicenses;
+  }, [plan_info?.dataValues?.licenses, dataGetMyPlanDetails?.license_detail?.total_licenses]);
 
-    setValue('user_add_count', nextValue, {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
-
-  const handleAddUser = () => {
+  /* Number of users now IS the person count -- the stepper (and typing in
+     the box) add or remove cards immediately, rather than staging a count
+     for a separate "Add Multiple Users" click. */
+  const applyPeopleCount = (rawNext: number) => {
     if (isPlanExpired) {
       handleAlert({
         text: 'You cannot add users until your subscription is renewed.',
@@ -355,90 +423,71 @@ const AddUserInfo = ({
       return;
     }
 
-    if (userAddCount < 1 || userAddCount > MAX_USERS) {
-      handleAlert({
-        text: `Please enter a number between 1 and ${MAX_USERS}.`,
-        type: 'warning',
-      });
+    const current = fields.length;
+    const target = Math.min(MAX_USERS, Math.max(1, rawNext));
+    if (target === current) return;
+
+    if (target < current) {
+      for (let i = current - 1; i >= target; i -= 1) remove(i);
+      setActiveIndex((i) => Math.min(i, target - 1));
       return;
     }
-
-    const currentCount = users?.length;
-
-    const availableLicensesToPurchase =
-      plan_info?.dataValues?.licenses !== 0
-        ? (plan_info?.dataValues?.licenses || 0) -
-          (dataGetMyPlanDetails?.license_detail?.total_licenses || 0)
-        : 'Unlimited';
 
     const maxAllowed =
       availableLicensesToPurchase !== 'Unlimited'
         ? Math.min(MAX_USERS, availableLicensesToPurchase)
         : MAX_USERS;
 
-    if (currentCount >= maxAllowed) {
+    if (current >= maxAllowed) {
       handleAlert({
         text:
-          availableLicensesToPurchase !== 'Unlimited' && currentCount >= availableLicensesToPurchase
+          availableLicensesToPurchase !== 'Unlimited'
             ? `You have reached the maximum limit of available licenses.`
-            : `Maximum of 10 users can be added at once.`,
+            : `Maximum of ${MAX_USERS} users can be added at once.`,
         type: 'warning',
       });
       return;
     }
 
-    if (userAddCount > maxAllowed) {
+    const cappedTarget = Math.min(target, maxAllowed);
+    if (cappedTarget < target) {
       handleAlert({
-        text:
-          availableLicensesToPurchase !== 'Unlimited' && userAddCount > availableLicensesToPurchase
-            ? `You can only add up to ${availableLicensesToPurchase} users based on available licenses.`
-            : `Maximum of 10 users can be added at once.`,
+        text: `You can only add up to ${maxAllowed} users based on available licenses.`,
         type: 'warning',
       });
-      return;
     }
 
-    const remainingSlots = maxAllowed - currentCount;
+    const toAdd = cappedTarget - current;
+    if (toAdd <= 0) return;
 
-    if (userAddCount > remainingSlots) {
-      if (currentCount === 1 && userAddCount === maxAllowed) {
-        // Silently allow it if there's only the default row and they entered the max allowed,
-        // it will append (maxAllowed - 1) rows, bringing the total exactly to maxAllowed.
-      } else {
-        handleAlert({
-          text:
-            availableLicensesToPurchase !== 'Unlimited' && remainingSlots < MAX_USERS - currentCount
-              ? `You can only add ${remainingSlots} more user${remainingSlots === 1 ? '' : 's'} based on available licenses.`
-              : `You can only add ${remainingSlots} more user${remainingSlots === 1 ? '' : 's'}.`,
-          type: 'warning',
-        });
-        return;
-      }
-    }
-
-    const count = Math.min(userAddCount, remainingSlots);
-    if (count <= 0) return;
-
-    Array.from({ length: count }).forEach(() => {
+    Array.from({ length: toAdd }).forEach(() => {
       append({ ...userInitialState });
     });
-
-    setValue('user_add_count', '');
+    // Jump to the first of the newly-added cards, same as clicking its pager number.
+    setActiveIndex(current);
   };
 
-  // const handleAddUser = () => {
-  //   const count = Math.min(userAddCount, 10 - users.length);
-
-  //   if (count <= 0) return;
-
-  //   for (let i = 0; i < count; i++) {
-  //     append({ ...userInitialState });
-  //   }
-  //   setValue('user_add_count', '');
-  // };
-
+  /* A random 4-digit extension has a real chance of repeating somebody else
+     already on this same invite -- ~1 in 9000 per pair, but with several
+     rows generated back-to-back that shows up often enough to trip the
+     duplicate-extension check before anybody has typed a thing. Re-roll
+     against the extensions already sitting on other rows instead of
+     trusting one draw to be unique. Reads `watch('users')` fresh rather
+     than the `users` closed over from render: several rows can get their
+     extension generated in the same pass (see the effect below), and each
+     one needs to see the ones just assigned to the rows before it, not the
+     snapshot from before any of them ran. */
   const generateNewExtension = (index: number) => {
-    const newExtension = generateRandomExtension();
+    const liveUsers = watch('users') as User[];
+    const taken = new Set(
+      (liveUsers || [])
+        .map((row, rowIndex) => (rowIndex === index ? '' : String(row?.extension || '')))
+        .filter(Boolean),
+    );
+    let newExtension = generateRandomExtension();
+    while (taken.has(newExtension)) {
+      newExtension = generateRandomExtension();
+    }
     setValue(`users.[${index}].extension`, newExtension, { shouldValidate: true });
     handleValidateUser({ value: newExtension, type: 'extension' }, index);
   };
@@ -476,36 +525,71 @@ const AddUserInfo = ({
   return (
     <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <div className="mcm-invite-summary flex flex-col gap-1 mt-3">
-        <p className="text-gray-900 text-center mb-2 dark:text-mcm-ink">
-          Licenses available to purchase:{' '}
-          {plan_info?.dataValues?.licenses !== 0
-            ? plan_info?.dataValues?.licenses - dataGetMyPlanDetails?.license_detail?.total_licenses
-            : 'Unlimited'}
-        </p>
+        <div className="mcm-invite-banner">
+          <span className="mcm-invite-banner-icon">
+            <Layers className="w-4 h-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-gray-900 dark:text-mcm-ink">
+              Licenses available to purchase:{' '}
+              <strong className="mcm-invite-count">
+                {plan_info?.dataValues?.licenses !== 0
+                  ? plan_info?.dataValues?.licenses -
+                    dataGetMyPlanDetails?.license_detail?.total_licenses
+                  : 'Unlimited'}
+              </strong>
+            </p>
+            <p className="text-xs text-gray-500 dark:text-mcm-ink-3">
+              Add one or more users and assign a location.
+            </p>
+          </div>
+        </div>
+      </div>
 
-        <div className="mcm-bulk-add flex flex-col items-stretch justify-center gap-3 md:flex-row md:items-start lg:justify-center">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <div className="w-34">
+      <div className="mcm-invite-users flex flex-col gap-1">
+        <h4 className="mcm-invite-heading text-center">Add Users</h4>
+        <div className="mcm-bulk-add grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <span className="mcm-field-label">Number of users</span>
+            <div className="mcm-count-stepper flex items-center">
+              <button
+                type="button"
+                aria-label="Fewer users"
+                disabled={fields.length <= 1}
+                onClick={() => applyPeopleCount(fields.length - 1)}
+              >
+                <Minus className="w-3 h-3" />
+              </button>
               <Input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder="Enter no."
-                value={String(userAddCountRaw ?? '')}
-                onChange={handleUserAddCountChange}
+                placeholder="1"
+                value={String(fields.length)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  const sanitized = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
+                  if (!sanitized) return;
+                  applyPeopleCount(Number(sanitized));
+                }}
                 maxLength={2}
               />
-              <p className="text-[10px] ps-[2px] pt-1 text-gray-500 dark:text-mcm-ink-3">
-                Enter number between 1-{MAX_USERS}
-              </p>
+              <button
+                type="button"
+                aria-label="More users"
+                disabled={fields.length >= MAX_USERS}
+                onClick={() => applyPeopleCount(fields.length + 1)}
+              >
+                <Plus className="w-3 h-3" />
+              </button>
             </div>
-            <Button variant={'outline'} type="button" onClick={handleAddUser}>
-              <Plus className="w-3 h-3" />
-              Add Users
-            </Button>
+            <p className="text-[10px] ps-[2px] pt-1 text-gray-500 dark:text-mcm-ink-3">
+              Enter number between 1-{MAX_USERS}
+            </p>
           </div>
-          <div className="w-full md:max-w-[260px] lg:max-w-none lg:w-auto">
+          <div className="mcm-icon-select-field relative w-full">
+            <MapPin className="mcm-icon-select-field-icon" />
             <CustomSelect
+              label="Location"
               options={companySiteList?.map((site: { name: string; uuid: string }) => ({
                 label: site?.name,
                 value: site?.uuid,
@@ -526,14 +610,6 @@ const AddUserInfo = ({
           Additional licenses to purchase: {licenseInfo.extraUnits}
         </p>
       )} */}
-        <p className="text-gray-700 text-center text-sm mt-1 flex items-center justify-center gap-1 dark:text-mcm-ink-2">
-          Unused licenses: {licenseInfo?.available || 0}
-          <CustomTooltip text="License purchased" side="top">
-            <InfoIcon className="w-4 h-4 text-gray-500 cursor-pointer dark:text-mcm-ink-3" />
-          </CustomTooltip>
-          <span className="mx-1">·</span>
-          New licenses purchased: {licenseInfo?.extraUnits || 0}
-        </p>
         {licenseInfo?.hasLicenseMismatch ? (
           <p className="text-amber-600 text-center text-xs">
             Your plan lists {licenseInfo?.reportedFree} unused licence
@@ -568,10 +644,64 @@ const AddUserInfo = ({
           </p>
         ) : null}
       </div>
-      <div className="mcm-invite-list flex flex-col my-2 gap-3 pr-0 md:pr-3 lg:gap-2">
-        {fields?.map((_, index) => (
+      {/* Two columns from here down: the invitee cards on the left, the
+          running cost pinned on the right — so the total is still visible
+          while scrolling a long list of people, instead of buried below
+          all of them. Collapses to one column under `lg` (this dialog is
+          also used at its old 600px width in narrower contexts), where the
+          summary just falls in after the last card. */}
+      <div
+        className={`mcm-invite-columns flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-10 ${
+          fields.length > 1 ? 'mcm-invite-columns--paged' : ''
+        }`}
+      >
+        <div className="mcm-invite-main min-w-0 flex-1">
+          <h4 className="mcm-invite-heading">User Information</h4>
+          {fields.length > 1 ? (
+            <div className="mcm-invitee-pager flex items-center justify-between">
+              <span className="mcm-invitee-pager-label">
+                Person {activeIndex + 1} of {fields.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-label="Previous person"
+                  disabled={activeIndex === 0}
+                  onClick={() => setActiveIndex((i) => Math.max(0, i - 1))}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                {fields.map((field, i) => (
+                  <button
+                    key={field.id}
+                    type="button"
+                    aria-label={`Person ${i + 1}`}
+                    aria-current={i === activeIndex}
+                    className={i === activeIndex ? 'is-active' : ''}
+                    onClick={() => setActiveIndex(i)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  aria-label="Next person"
+                  disabled={activeIndex === fields.length - 1}
+                  onClick={() => setActiveIndex((i) => Math.min(fields.length - 1, i + 1))}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ) : null}
+          <div className="mcm-invite-list flex flex-col my-2 gap-3 pr-0 md:pr-3 lg:gap-2">
+            {(() => {
+              const index = activeIndex;
+              const field = fields[index];
+              if (!field) return null;
+              return (
           <div
-            key={index}
+            key={field.id}
             className="mcm-invitee grid grid-cols-1 gap-3 rounded-xl border border-gray-200 p-3 md:grid-cols-2 xl:grid-cols-3"
           >
             <div className="w-full">
@@ -579,7 +709,10 @@ const AddUserInfo = ({
                 label="First Name"
                 required
                 type="text"
-                placeholder="First Name"
+                placeholder="First name"
+                Icon={<UserIcon className="w-4 h-4" />}
+                IconPosition="left-0 inset-y-0 pl-3"
+                className="pl-9"
                 {...register(`users.${index}.first_name`)}
                 error={errors?.users?.[index]?.first_name?.message}
                 maxLength={50}
@@ -590,18 +723,24 @@ const AddUserInfo = ({
                 label="Last Name"
                 required
                 type="text"
-                placeholder="Last Name"
+                placeholder="Last name"
+                Icon={<UserIcon className="w-4 h-4" />}
+                IconPosition="left-0 inset-y-0 pl-3"
+                className="pl-9"
                 {...register(`users.${index}.last_name`)}
                 error={errors?.users?.[index]?.last_name?.message}
                 maxLength={50}
               />
             </div>
-            <div className="w-full">
+            <div className="mcm-invitee-email w-full">
               <Input
                 label="Email"
                 required
                 type="email"
-                placeholder="Email"
+                placeholder="you@company.com"
+                Icon={<Mail className="w-4 h-4" />}
+                IconPosition="left-0 inset-y-0 pl-3"
+                className="pl-9"
                 {...register(`users.${index}.email`)}
                 error={emailProblem(index)}
                 onChange={(e) => {
@@ -614,7 +753,7 @@ const AddUserInfo = ({
               />
             </div>
 
-            <div className="flex flex-col gap-1.5 w-full">
+            <div className="mcm-invitee-full flex flex-col gap-1.5 w-full">
               <div className="flex items-center justify-between">
                 <Label required>Phone</Label>
                 <div className="flex items-start">
@@ -626,6 +765,7 @@ const AddUserInfo = ({
                   country={'in'}
                   onlyCountries={['in']}
                   disableDropdown
+                  placeholder="Phone number"
                   value={watch(`users.${index}.phone`)}
                   onChange={(value) => {
                     /* countryCodeEditable={false} freezes this library's input entirely
@@ -643,10 +783,12 @@ const AddUserInfo = ({
               </div>
             </div>
 
-            <div className="w-full">
+            <div className="mcm-icon-select-field mcm-invitee-full relative w-full">
+              <ShieldCheck className="mcm-icon-select-field-icon" />
               <CustomSelect
                 label="Role"
                 required
+                placeholder="Select role"
                 value={watch(`users.${index}.role`)}
                 options={roleList.map(
                   (role: { name: string; role_uuid: string; type: string; uuid: string }) => ({
@@ -710,6 +852,9 @@ const AddUserInfo = ({
                 required
                 type="text"
                 placeholder="Extension"
+                Icon={<PhoneIcon className="w-4 h-4" />}
+                IconPosition="left-0 inset-y-0 pl-3"
+                className="pl-9"
                 value={watch(`users.[${index}].extension`)}
                 error={extensionProblem(index)}
                 onChange={(e) => {
@@ -726,29 +871,40 @@ const AddUserInfo = ({
             <div className="mcm-invitee-actions flex items-center justify-end gap-2">
               {fields.length > 1 && (
                 <div
-                  className="border-0 cursor-pointer min-w-10 w-10 h-10 rounded-xl bg-red-100 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center"
-                  onClick={() => remove(index)}
+                  className="border-0 cursor-pointer min-w-10 w-10 h-10 text-red-500 hover:text-red-700 flex items-center justify-center"
+                  onClick={() => {
+                    remove(index);
+                    // Stay on the same position unless the last card was removed.
+                    setActiveIndex((i) => Math.min(i, fields.length - 2));
+                  }}
                 >
                   <TrashBin className="w-5 h-5" />
                 </div>
               )}
             </div>
           </div>
-        ))}
-      </div>
+              );
+            })()}
+          </div>
+        </div>
 
-      {licenseInfo.extraCharge ? (
-        <OrderSummary
-          customClass="w-full"
-          orderSummary={{
-            watchUserLength: users?.length,
-            availableLicenses: licenseInfo?.available,
-            totalPayableUnit: licenseInfo?.extraUnits,
-          }}
-          dataGetMyPlanDetails={dataGetMyPlanDetails}
-          onCalculationChange={setPaymentCalculation}
-        />
-      ) : null}
+        {licenseInfo.extraCharge ? (
+          <div className="mcm-invite-side lg:sticky lg:top-0 lg:w-[280px] lg:shrink-0">
+            <OrderSummary
+              customClass="w-full mcm-order-summary"
+              subtitle="Review your license details"
+              note="Final amount may vary based on selected location and license type."
+              orderSummary={{
+                watchUserLength: users?.length,
+                availableLicenses: licenseInfo?.available,
+                totalPayableUnit: licenseInfo?.extraUnits,
+              }}
+              dataGetMyPlanDetails={dataGetMyPlanDetails}
+              onCalculationChange={setPaymentCalculation}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };

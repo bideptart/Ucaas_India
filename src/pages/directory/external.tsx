@@ -259,14 +259,16 @@ const ExternalInner = () => {
                 </Button>
 
                 <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center lg:w-auto lg:min-w-0 lg:flex-nowrap">
-                  <Input
-                    placeholder="Search"
-                    className="h-9 min-h-9 w-full rounded-lg border-[rgba(225,200,165,0.9)] bg-white/70 pl-10 shadow-sm focus:shadow sm:min-w-[6rem] lg:min-w-[12rem] xl:min-w-[18rem]"
-                    IconPosition="left-0 pl-3 inset-y-0"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    Icon={<SearchLine className="text-[#8a7a67] w-4 h-4" />}
-                  />
+                  <div className="gp-contact-search-wrap">
+                    <Input
+                      placeholder="Search"
+                      className="gp-contact-search h-9 min-h-9 w-full rounded-lg border-[rgba(225,200,165,0.9)] bg-white/70 pl-10 shadow-sm focus:shadow sm:min-w-[6rem] lg:min-w-[18rem] xl:min-w-[24rem]"
+                      IconPosition="left-0 pl-3 inset-y-0"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      Icon={<SearchLine className="gp-contact-search-icon text-[#8a7a67] w-4 h-4" />}
+                    />
+                  </div>
                   {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                     <>
                       <div className="w-full sm:w-44">
@@ -334,6 +336,7 @@ const ExternalInner = () => {
             search={debouncedSearch}
             tableWrapperClassName="gp-contact-table"
             splitStickyHeader
+            fixedPageRows={10}
           />
         ) : (
           <AllNewContactsList
@@ -342,6 +345,7 @@ const ExternalInner = () => {
             payloadExtraParams={payloadExtraParams}
             tableWrapperClassName="gp-contact-table"
             splitStickyHeader
+            fixedPageRows={10}
             permissionAccess={{
               canView: canViewContact,
               canEdit: canEditContact,

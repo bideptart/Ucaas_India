@@ -20,11 +20,11 @@ const RingStrategy = () => {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto">
-      <div className="flex flex-col gap-4 px-1 sm:px-3 lg:flex-row lg:items-start lg:gap-5">
-        <p className="text-sm text-foreground lg:max-w-xs">
+      <div className="gp-ring-row flex flex-col gap-4 px-1 sm:px-3 lg:flex-row lg:items-center lg:gap-5">
+        <p className="gp-ring-label text-sm text-foreground lg:max-w-xs">
           Set how you'd like to answer calls when conditions are met.{' '}
         </p>
-        <div className="w-full">
+        <div className="gp-ring-select-wrap w-full">
           <CustomSelect
             options={MEMBER_RING_STRATEGY_OPTIONS}
             handleChange={(value) => {
@@ -73,8 +73,8 @@ const RingStrategy = () => {
       <div className="w-full">
         <p className="font-semibold text-foreground truncate text-md mb-2">Department Members</p>
         {watchRingStrategy?.value !== DEPARTMENT_RING_STRATEGY.LINEAR ? (
-          <div className="w-full lg:w-1/2">
-            <div className="flex flex-col gap-2 overflow-auto border border-border rounded-xl">
+          <div className="w-full">
+            <div className="gp-members-table flex flex-col gap-2 overflow-auto border border-border rounded-xl">
               <Table className="w-full text-sm text-muted-foreground h-full ">
                 <TableHeader className="bg-muted/40 text-gray-90/80">
                   <TableRow>
@@ -102,17 +102,17 @@ const RingStrategy = () => {
                             />
                             <div className="flex flex-col w-full">
                               <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="capitalize font-medium text-sm">{fullName}</p>
-                                  <p className="text-primary text-[11px]">{data?.role}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="gp-member-name capitalize">{fullName}</p>
+                                  <span className="gp-member-role">{data?.role}</span>
                                 </div>
-                                <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                                <div className="gp-member-extension flex items-center gap-1 text-muted-foreground">
                                   <Icon name="Grid" className="w-4 h-4" />
                                   <span>{data?.value}</span>
                                 </div>
                               </div>
                               {data?.email && (
-                                <p className="text-muted-foreground text-[11px] truncate">{data?.email}</p>
+                                <p className="gp-member-email truncate">{data?.email}</p>
                               )}
                             </div>
                           </div>
@@ -125,8 +125,8 @@ const RingStrategy = () => {
             </div>
           </div>
         ) : (
-          <div className="w-full lg:w-1/2">
-            <div className="flex flex-col gap-2 overflow-auto border border-border rounded-xl">
+          <div className="w-full">
+            <div className="gp-members-table flex flex-col gap-2 overflow-auto border border-border rounded-xl">
               <Table className="w-full text-sm text-muted-foreground h-full ">
                 <TableHeader className="bg-muted/40 text-gray-90/80">
                   <TableRow>

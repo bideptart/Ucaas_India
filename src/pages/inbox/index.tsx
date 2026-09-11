@@ -1298,7 +1298,9 @@ const InboxContent = ({
                     smsListData?.map((item: any, idx) => {
                       return (
                         <div key={idx} className="flex flex-col">
-                          <div className="my-3 flex justify-center">
+                          {/* Full width, not centred-and-shrunk: the date rule
+                              draws its own hairlines out to both edges. */}
+                          <div className="mt-4 mb-3 flex">
                             <span className="mcm-daychip">
                               {formatChatDate(item?.[0]?.createdAt)}
                             </span>
@@ -1381,28 +1383,26 @@ const InboxContent = ({
                                       {isExpanded ? 'Show less' : 'Show more'}
                                     </button>
                                   ) : null}
+                                  {/* One timestamp per group, not per message: a
+                                      run of messages a minute apart does not
+                                      need the same clock time under each.
+
+                                      It sits inside the bubble rather than under
+                                      it. Outside, every group cost a second line
+                                      and left a column of small grey numbers down
+                                      both edges of the thread, so the bubbles read
+                                      as floating and the eye had to pair each one
+                                      with the stamp beneath it. Inside, a message
+                                      is a single block. */}
+                                  {isGroupEnd || showsStatus ? (
+                                    <div className="mcm-bub-foot">
+                                      {isGroupEnd ? (
+                                        <span className="mcm-num mcm-bub-time">{messageDate}</span>
+                                      ) : null}
+                                      {showsStatus ? messageStatus(status) : null}
+                                    </div>
+                                  ) : null}
                                 </div>
-                                {/* One timestamp per group, not per message: a
-                                    run of messages a minute apart does not
-                                    need the same clock time under each. */}
-                                {isGroupEnd || showsStatus ? (
-                                  <div
-                                    className={cn(
-                                      'mt-1 flex items-center gap-2 px-1',
-                                      isOutbound ? 'flex-row-reverse' : 'flex-row',
-                                    )}
-                                  >
-                                    {isGroupEnd ? (
-                                      <span
-                                        className="mcm-num text-[10px]"
-                                        style={{ color: 'var(--mcm-ink-4)' }}
-                                      >
-                                        {messageDate}
-                                      </span>
-                                    ) : null}
-                                    {showsStatus ? messageStatus(status) : null}
-                                  </div>
-                                ) : null}
                               </div>
                             );
                           })}

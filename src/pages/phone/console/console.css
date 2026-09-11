@@ -479,14 +479,13 @@
 .mcm-console .phone-grid {
   /* list is fixed, the stage takes the slack (it holds the softphone and the
      call record), the panel is bounded so the transcript stays readable.
-
-     304px, a little under the 20rem the other Activity columns use. This one
-     holds a call list — a number, a name and a time — not conversations with
-     preview text, so it reads fine at less, and every pixel it gives back
-     goes to the stage beside it, which is where the softphone and the call
-     record actually live. */
+     The panel's own floor moved from 400 to 460: with the dialer now capped
+     at a fixed width (see the stage rules below), the stage track never
+     actually needs its full flexible range, so growing the panel here only
+     eats into the stage's now-empty margin, never the dialer itself — and
+     it's what the 6-tab panel header needs to lay out without scrolling. */
   display: grid;
-  grid-template-columns: 304px minmax(420px, 1fr) minmax(400px, 460px);
+  grid-template-columns: 320px minmax(420px, 1fr) minmax(460px, 520px);
   height: 100%;
   overflow: hidden;
 }
@@ -2324,7 +2323,7 @@
 }
 @media (max-width: 1240px) {
   .mcm-console .phone-grid {
-    grid-template-columns: 280px minmax(380px, 1fr) minmax(360px, 400px);
+    grid-template-columns: 280px minmax(380px, 1fr) minmax(420px, 460px);
   }
 }
 @media (max-width: 900px) {
@@ -3170,6 +3169,25 @@
   min-width: 0;
 }
 
+/* The stage track is `minmax(420px, 1fr)` so it can absorb whatever width
+   the call-list and panel columns don't use — but nothing ever capped how
+   wide the softphone content itself was allowed to grow. On an ordinary
+   desktop monitor the stage track lands well past 420px, `.stage-inner`
+   stretched edge to edge with it (align-items defaults to stretch), and the
+   keypad's 3 equal grid columns stretched right along, ballooning every key
+   past 130px with huge gaps between them — the "toy dialer" look. Capping
+   and centering `.stage-inner` keeps every state (dialer, caller card,
+   wrap-up, call record) at one fixed, phone-shaped width no matter how much
+   spare room the grid track has. 420px matches the track's own minimum, so
+   nothing changes at that narrow end. */
+.mcm-console .col.stage {
+  align-items: center;
+}
+.mcm-console .col.stage .stage-inner {
+  width: 100%;
+  max-width: 420px;
+}
+
 /* ============================================================
    POLISH — layout hardening found by testing at real widths
    ============================================================ */
@@ -3773,6 +3791,157 @@
   color: var(--ink-3);
   font-weight: 600;
 }
+/* ============================================================
+   PAST CALL RECORD — attractive pass. Same markup/classes as the
+   "PAST CALL RECORD" block above; this is the final, winning layer
+   (later in the cascade), so it can restyle without touching JSX.
+   ============================================================ */
+/* `.col.stage .stage-inner .btn.ghost` (dialpad's own round icon buttons,
+   further up in this file) forces every `.btn.ghost` in the stage into a
+   fixed 44×44 circle with zero padding. The "‹ Dialer" back link is a
+   `.btn.ghost.sm` in that same `.stage-inner` — an icon *and* the word
+   "Dialer" squeezed into that circle, which is why the text rendered
+   spilling out past its edge instead of inside a button. `.sm` already
+   carries the right pill sizing (30px tall, padded, 8px radius) on its
+   own; this just needs to out-rank the circular rule with one more class
+   in the selector so `.sm`'s sizing wins instead of being overridden. */
+.mcm-console .col.stage .stage-inner .btn.ghost.sm {
+  width: auto;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: 9999px;
+  background: var(--surface);
+  box-shadow: none;
+  gap: 6px;
+}
+.mcm-console .col.stage .stage-inner .btn.ghost.sm:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .record-head {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border-bottom: 1px solid var(--line-2);
+}
+.mcm-console .record-av {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  font-size: 15px;
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--line-2);
+}
+.mcm-console .record-name {
+  font-size: 18px;
+}
+/* Matches `.col.stage .stage-inner .btn.primary` (the dialpad's own big
+   round call button, further up in this file) class-for-class — the
+   record-head Call button sits in that same `.stage-inner` container, so
+   without this it silently inherited that other button's dark gradient
+   and glow instead of its own lighter styling below. */
+/* Back to its original size — icon plus "Call", not a full-width bar.
+   Only the color changed earlier (the dark gradient it used to have),
+   and that stays; the shape and size are exactly what they were. */
+.mcm-console .col.stage .stage-inner .record-head .btn.primary {
+  height: 44px;
+  border-radius: 22px;
+  font-size: 14px;
+  background: var(--accent-edge);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.mcm-console .col.stage .stage-inner .record-head .btn.primary:hover {
+  background: color-mix(in srgb, var(--accent-edge) 70%, var(--accent));
+}
+
+/* One row again, matching every other header in this console — back
+   button, avatar, name/number, Call button, side by side as it was
+   originally. The only change from the original: the leg count used to
+   share the number's own line ("+91... · 1 call") and that's exactly what
+   forced the number itself under an ellipsis, so it's dropped from this
+   line rather than reintroducing that bug — the leg list right below
+   already shows how many there are. */
+.mcm-console .col.stage .stage-inner .rh-back {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  flex: none;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.mcm-console .col.stage .stage-inner .rh-back:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.stage .stage-inner .record-name > * {
+  overflow: visible;
+  text-overflow: clip;
+}
+.mcm-console .col.stage .stage-inner .record-sub {
+  overflow: visible;
+}
+.mcm-console .col.stage .stage-inner .record-sub > .dialnum {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* legs read as individual soft cards with breathing room between them,
+   instead of one flat list divided by hairlines. */
+.mcm-console .record-legs {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mcm-console .leg {
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: var(--surface);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.mcm-console .leg + .leg {
+  border-top: 1px solid var(--line-2);
+}
+.mcm-console .leg:hover {
+  background: var(--surface);
+  border-color: var(--accent-edge);
+  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
+  transform: translateY(-1px);
+}
+.mcm-console .leg.open {
+  border-color: var(--accent-edge);
+  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
+}
+.mcm-console .cr-av {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.mcm-console .leg-by strong {
+  font-weight: 800;
+}
+.mcm-console .legbtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 99px;
+}
+.mcm-console .legbtn.on {
+  box-shadow: 0 3px 8px -2px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.mcm-console .leg-audio {
+  padding: 0 16px 14px 65px;
+}
 
 
 /* ============================================================
@@ -3929,14 +4098,56 @@
   border-radius: 0 3px 3px 0;
   box-shadow: 0 0 6px var(--accent);
 }
+.mcm-console .col.calls .cr-av-wrap {
+  position: relative;
+  flex: none;
+}
 .mcm-console .col.calls .cr-av {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  font-size: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  font-size: 11px;
   color: #fff;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+/* The direction arrow used to live inside the avatar itself, so who the
+   call was with and which way it went were the same glance — this reads
+   more like a contact list (WhatsApp, Slack DMs) and less like a raw call
+   log, but direction still needs to be scannable without reading the row.
+   A small badge in the avatar's corner keeps both. */
+.mcm-console .col.calls .cr-dir-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 99px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border: 2px solid var(--surface);
+}
+.mcm-console .col.calls .cr-dir-badge.in {
+  background: #0d9488;
+}
+.mcm-console .col.calls .cr-dir-badge.out {
+  background: #c96f1f;
+}
+.mcm-console .col.calls .cr-dir-badge.miss {
+  background: var(--crit);
+}
+/* The quick-call button (revealed on row hover) used the same teal as an
+   inbound-direction icon, which read as a second, darker color popping up
+   out of nowhere on hover. One accent color for every interactive control
+   in this column, never a shift to teal on hover. */
+.mcm-console .col.calls .cr-call {
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+}
+.mcm-console .col.calls .cr-call:hover {
+  background: var(--accent-edge);
+  color: var(--accent-ink);
 }
 /* Every direction gets its own gradient instead of a flat wash, so the list
    reads with some color even before anything is selected. */
@@ -3955,8 +4166,30 @@
   background: linear-gradient(150deg, #f0973d, #ffd48a);
   box-shadow: 0 3px 8px rgba(234, 124, 30, 0.25);
 }
+.dark .mcm-console .col.calls .call-row.on .cr-av {
+  background: linear-gradient(150deg, var(--accent), var(--accent-edge));
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+/* Default body line-height (1.5) on three stacked short lines of type
+   added up to real height even after the padding/avatar were trimmed —
+   each line was carrying far more vertical space than 13px/11.5px text
+   needs. Tightening line-height (not font-size) shrinks the row without
+   making anything harder to read. */
 .mcm-console .col.calls .cr-name {
   font-weight: 800;
+  font-size: 13px;
+  line-height: 1.25;
+}
+.mcm-console .col.calls .cr-top,
+.mcm-console .col.calls .cr-num,
+.mcm-console .col.calls .cr-time {
+  line-height: 1.25;
+}
+.mcm-console .col.calls .call-row {
+  padding: 8px 12px;
+}
+.mcm-console .col.calls .col-title h2 {
+  font-size: 19px;
 }
 .mcm-console .col.calls .col-head {
   position: relative;
@@ -3970,11 +4203,320 @@
 }
 .mcm-console .col.calls .tag {
   border-radius: 99px;
-  padding: 2px 8px;
+  padding: 1px 7px;
   font-weight: 800;
+}
+.mcm-console .col.calls .cr-tags {
+  margin-top: 4px;
 }
 .mcm-console .col.calls .tag.acc {
   box-shadow: 0 1px 3px rgba(234, 124, 30, 0.18);
+}
+
+/* ============================================================
+   Panel column — visual polish only.
+
+   Every selector here is scoped under `.col.panel-col` (the right column:
+   Copilot, Summary, Transcript, Notes, History, Contact) so nothing outside
+   it is touched — same markup, same classes, same behavior. The call list
+   above and the dialer below both got a polish pass (elevated cards, soft
+   shadows, a bit of gradient) elsewhere in this file; this column never
+   did, so next to them it read as the flat, unfinished one. Same tokens
+   throughout — just brought up to the same level of finish.
+   ============================================================ */
+.mcm-console .col.panel-col .panel-tabs {
+  background: var(--surface);
+  padding: 8px 8px 0;
+  gap: 3px;
+}
+/* Underline tabs read as the same flat text as everything else in the
+   column — a filled pill for the open tab (and a hover pill for the rest)
+   is a much clearer "you are here" than a 2px line, and matches the tab
+   idiom used on the call-list side of this same page. */
+.mcm-console .col.panel-col .ptab {
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  padding: 9px 9px 10px;
+  font-size: 12.5px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mcm-console .col.panel-col .ptab:hover {
+  background: var(--surface-2);
+}
+.mcm-console .col.panel-col .ptab.on {
+  background: var(--accent-wash);
+}
+.mcm-console .col.panel-col .ptab.ai-tab.on {
+  background: var(--ai-wash);
+}
+.mcm-console .col.panel-col .card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+.mcm-console .col.panel-col .aicard {
+  box-shadow: var(--shadow-sm);
+}
+.mcm-console .col.panel-col .saynext {
+  box-shadow: 0 0 0 4px var(--ai-wash), var(--shadow);
+}
+/* Base panel type runs 11-13px throughout, which reads dense/utilitarian
+   next to an ordinary website's body copy. Sizing up the two things people
+   actually read (labels, values) rather than every micro-label keeps the
+   density this console needs while still feeling less cramped. */
+.mcm-console .col.panel-col .kv {
+  padding: 9px 0;
+}
+.mcm-console .col.panel-col .kv .k {
+  font-size: 13px;
+}
+.mcm-console .col.panel-col .kv .v {
+  font-size: 14px;
+}
+.mcm-console .col.panel-col .sect-title {
+  color: var(--ink-2);
+  font-size: 11.5px;
+}
+
+/* ---- "Selected call" header card: avatar + name + number + a direction
+   badge, replacing what used to be three separate label/value rows for
+   the same three facts (Contact, Number, Direction). Same data, laid out
+   the way a contact card on an ordinary website would. ---- */
+.mcm-console .col.panel-col .scc-card {
+  padding: 16px;
+}
+.mcm-console .col.panel-col .scc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mcm-console .col.panel-col .scc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+.mcm-console .col.panel-col .scc-avatar.scc-dir-in {
+  background: linear-gradient(150deg, #2dd4bf, #0d9488);
+}
+.mcm-console .col.panel-col .scc-avatar.scc-dir-out {
+  background: linear-gradient(150deg, #f0973d, #c96f1f);
+}
+.mcm-console .col.panel-col .scc-avatar.scc-dir-miss {
+  background: linear-gradient(150deg, #ef6a6a, #d32f2f);
+}
+.mcm-console .col.panel-col .scc-name {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mcm-console .col.panel-col .scc-number {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.mcm-console .col.panel-col .scc-badge {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.mcm-console .col.panel-col .scc-badge.scc-dir-in {
+  background: var(--live-wash);
+  color: var(--live);
+}
+.mcm-console .col.panel-col .scc-badge.scc-dir-out {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .scc-badge.scc-dir-miss {
+  background: var(--crit-wash);
+  color: var(--crit);
+}
+.mcm-console .col.panel-col .scc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.mcm-console .col.panel-col .scc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.mcm-console .col.panel-col .scc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-console .col.panel-col .scc-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+/* Every empty state in this column (Copilot armed, no transcript yet, no
+   notes yet, ...) was a bare icon at 50% opacity floating above two lines
+   of text. A soft circular badge behind it reads as a deliberate empty
+   state instead of a placeholder nobody finished styling. */
+.mcm-console .col.panel-col .empty svg {
+  width: 30px;
+  height: 30px;
+  padding: 13px;
+  box-sizing: content-box;
+  border-radius: 99px;
+  background: var(--surface-3);
+  color: var(--ink-3);
+  opacity: 1;
+}
+.mcm-console .col.panel-col .askdock {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-3));
+  box-shadow: 0 -6px 16px -12px rgba(13, 21, 38, 0.25);
+}
+.mcm-console .col.panel-col .askrow textarea {
+  box-shadow: var(--shadow-sm);
+}
+.mcm-console .col.panel-col .sendbtn {
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+.mcm-console .col.panel-col .sendbtn:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+.mcm-console .col.panel-col .mini {
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.mcm-console .col.panel-col .mini:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* One hover color for every button in this column: a light orange wash,
+   never a darker shade of whatever the button already is and never a
+   different hue (the teal "call" affordance, the violet AI accent). The
+   button's own resting color still tells you what it does; hovering it
+   only ever confirms "this is clickable" the same way everywhere. */
+.mcm-console .col.panel-col .mini:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .mini.solid:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .sendbtn:hover,
+.mcm-console .col.panel-col .note-send:hover:not(:disabled) {
+  background: var(--accent-wash) !important;
+  color: var(--accent-ink) !important;
+  filter: none;
+}
+.mcm-console .col.panel-col .scopebtn:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .sugg:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .btn.primary:hover {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .btn.ghost:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .dialnum.contact-call:hover {
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+.mcm-console .col.panel-col .ptab:hover {
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+}
+
+/* `.panel-card`/`.pc-head`/`.pc-body` is the "record" pattern used by
+   Contact (Contact record, Account, Open tickets, Linked systems) and
+   Summary (Call measures): a header bar over a stack of label/value rows.
+   The stack read as a plain settings ledger — a 2-column field grid, each
+   label sitting above its value, lays the same data out the way an
+   ordinary contact card does instead of a table of rows. */
+.mcm-console .col.panel-col .panel-card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.mcm-console .col.panel-col .pc-head {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+.mcm-console .col.panel-col .pc-head h3 {
+  font-size: 13.5px;
+}
+.mcm-console .col.panel-col .panel-card .pc-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px 16px;
+}
+.mcm-console .col.panel-col .panel-card .kv {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0;
+  border-bottom: 0;
+}
+.mcm-console .col.panel-col .panel-card .kv .k {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.mcm-console .col.panel-col .panel-card .kv .v {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--ink);
+}
+
+/* AI insight cards (recap sections, transcript summaries, checklist notes)
+   were a fully-tinted wash box — readable, but three or four of them in one
+   pane, all shouting "AI" at the same volume, read as a wall of
+   highlighter. A white card with a colored spine gives the same "this is
+   generated" signal without competing with itself or the page around it. */
+/* Any background tint at all — even a very light neutral one — draws a
+   visible seam where it meets the plain white pane around it, which is
+   what kept reading as "a line" no matter how faint the tint got.
+   Dropping the background entirely (transparent, same as the page behind
+   it) leaves nothing for a seam to form: just the colored left bar. */
+.mcm-console .col.panel-col .aicard {
+  background: transparent;
+  border: none;
+  border-left: 3px solid var(--ai);
+  border-radius: 0;
+  box-shadow: none;
+  padding-left: 13px;
+}
+.mcm-console .col.panel-col .aicard.warnc {
+  border-left-color: var(--warn);
+}
+.mcm-console .col.panel-col .aicard.critc {
+  border-left-color: var(--crit);
 }
 
 /* ============================================================
@@ -4048,15 +4590,21 @@
 .mcm-console .col.stage .stage-inner .key:hover i {
   color: var(--accent-ink);
 }
+/* Was a gradient sliding from --accent into the darker --accent-ink,
+   which read as "half the button is dark" even at rest. Matched to the
+   record-head Call button's already-light treatment just above instead —
+   same light-orange fill and ink-colored text, no dark end to the
+   gradient, at rest or on hover. */
 .mcm-console .col.stage .stage-inner .btn.primary {
   height: 44px;
   border-radius: 22px;
   font-size: 14px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-ink));
-  box-shadow: 0 6px 16px rgba(234, 124, 30, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: var(--accent-edge);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .mcm-console .col.stage .stage-inner .btn.primary:hover {
-  box-shadow: 0 8px 20px rgba(234, 124, 30, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: color-mix(in srgb, var(--accent-edge) 70%, var(--accent));
   transform: translateY(-1px);
 }
 .mcm-console .col.stage .stage-inner .btn.primary:active {

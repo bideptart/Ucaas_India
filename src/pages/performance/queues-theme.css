@@ -253,10 +253,19 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   height: 13px;
   color: var(--qa-accent-ink);
 }
+/* Same soft warm-orange badge pill Agents' `.ag-sect-count` uses — kept in
+   sync so the two tabs' section-header row count reads as one shared
+   component, not two look-alikes drifting apart. */
 .mcm-page .perf-queues .qa-sect-count {
   font-size: 12px;
   font-weight: 600;
   color: var(--qa-muted);
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.08);
+}
+.dark .mcm-page .perf-queues .qa-sect-count {
+  background: rgba(251, 146, 60, 0.12);
 }
 /* Tight anchor gap between the section header and the table below it —
    the header reads as belonging to the table immediately beneath it,
@@ -437,6 +446,15 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
    5. Main queues table — 20px frosted glass card, sticky frosted header,
    Directory's signature left accent-bar row hover.
    ------------------------------------------------------------ */
+/* `.mcm-page table` (mcm-page.css) already sets `border-collapse: collapse`,
+   but restating it here, scoped and `!important`, makes explicit that the
+   row divider below depends on it: under collapse, each td's own
+   border-bottom is what draws the line between rows (there's no separate
+   border-top on the row below to fight it), so nothing upstream can
+   silently flip this table back to `separate` and blank the dividers out. */
+.mcm-page .perf-queues .table-scroll table {
+  border-collapse: collapse !important;
+}
 .mcm-page .perf-queues .table-scroll {
   /* Bottom corners only — `splitStickyHeader` puts the header above this
      in its own box, which already owns the top corners (via the
@@ -551,9 +569,23 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   box-shadow: inset 3px 0 0 #ea580c !important;
 }
 .mcm-page .perf-queues .table-scroll tbody td {
-  padding-top: 11px;
-  padding-bottom: 11px;
-  border-bottom-color: var(--qa-hairline);
+  padding-top: 13px;
+  padding-bottom: 13px;
+  /* The hairline var (--qa-hairline, 0.08 alpha in light mode) reads as
+     invisible against this table's #fffdfb card background — row
+     boundaries vanished entirely. A plain `border-bottom` here measures
+     correctly in devtools but this page renders at a fractional device-
+     pixel ratio (1.5), and `border-collapse: collapse`'s own border-
+     conflict math rounds a 1px cell border down into a ~0.667px line the
+     rasterizer all but drops — a real border-bottom stays invisible on
+     screen no matter how opaque its color. `box-shadow` isn't part of
+     that collapse model, so it paints at its full specified 1px
+     regardless of the table's collapse rounding — same sleek, light
+     warm-orange-100 hairline, just actually visible. Needs !important to
+     outrank the base `.mcm-page td` border-bottom (mcm-page.css) and the
+     tr-level border-color set just above. */
+  border-bottom: none !important;
+  box-shadow: inset 0 -1px 0 0 #fed7aa !important;
   color: #334155;
   /* Row content was inheriting the console's base 14-15px body size,
      visibly oversized next to an (also since-fixed) 9.5px header — 13px
@@ -563,6 +595,12 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
 }
 .dark .mcm-page .perf-queues .table-scroll tbody td {
   color: var(--qa-muted);
+}
+/* Last row shouldn't carry a divider into the card's own rounded bottom
+   edge — nothing below it to separate from. */
+.mcm-page .perf-queues .table-scroll tbody tr:last-child td {
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 /* ASA / AHT (columns 10 and 11: Queue, Media, Waiting, Longest, Members,
    Interacting, Offered, Handled, SL today, ASA, AHT, Abandon) — a clock
@@ -574,6 +612,13 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   font-family: ui-monospace, 'SFMono-Regular', 'Roboto Mono', Menlo, Consolas, monospace;
   font-size: 12.5px !important;
   font-variant-numeric: tabular-nums;
+}
+
+/* Null-state em-dash (Longest / ASA / AHT columns, no data yet) — muted
+   slate rather than the row's own dark charcoal body text, so an absent
+   value reads as "nothing here" instead of competing with real numbers. */
+.mcm-page .perf-queues .table-scroll tbody td .qa-dash {
+  color: #94a3b8;
 }
 
 /* Queue name — crisp dark charcoal, not a bright orange link; the row's

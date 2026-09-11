@@ -249,7 +249,7 @@ const QueuesActivityTab = ({
         row.original.longestWaitTimestamp ? (
           <Timer startTime={row.original.longestWaitTimestamp} />
         ) : (
-          '—'
+          <span className="qa-dash">—</span>
         ),
     },
     { header: 'Members', accessorKey: 'membersCount' },
@@ -295,15 +295,21 @@ const QueuesActivityTab = ({
       header: 'ASA',
       accessorKey: 'asa',
       cell: ({ row }: any) =>
-        row.original.asa === null || row.original.asa === undefined
-          ? '—'
-          : formatSecsToClock(row.original.asa),
+        row.original.asa === null || row.original.asa === undefined ? (
+          <span className="qa-dash">—</span>
+        ) : (
+          formatSecsToClock(row.original.asa)
+        ),
     },
     {
       header: 'AHT',
       accessorKey: 'aht',
       cell: ({ row }: any) =>
-        row.original.aht === null ? '—' : formatSecsToClock(row.original.aht),
+        row.original.aht === null ? (
+          <span className="qa-dash">—</span>
+        ) : (
+          formatSecsToClock(row.original.aht)
+        ),
     },
     {
       header: 'Abandon',

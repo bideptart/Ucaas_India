@@ -1217,7 +1217,8 @@ const SidebarContent = ({
         <Input
           Icon={<SearchLine className="text-[#9A948F]" />}
           IconPosition="left-0 pl-3 inset-y-0"
-          className="pl-9"
+          className="pl-9 focus:ring-0 bg-white dark:bg-mcm-surface"
+          style={{ outline: 'none', boxShadow: 'none' }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search..."

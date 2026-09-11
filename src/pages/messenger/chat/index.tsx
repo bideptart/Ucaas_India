@@ -838,7 +838,7 @@ export const Messages = ({
       ) : null}
 
       <div
-        className={`w-full relative flex flex-col ${isAgentChat ? 'gap-4 px-6 py-5' : 'gap-1 p-4'}`}
+        className={`w-full max-w-4xl mx-auto relative flex flex-col ${isAgentChat ? 'gap-4 px-6 py-5' : 'gap-1 p-4'}`}
         style={{ overflowAnchor: 'auto' }}
       >
         {displayMessages.map((message: any, index: number, arr: any[]) => {
@@ -1601,21 +1601,19 @@ export const ChatHeader = ({
             <div className="flex items-center gap-3 min-w-0">
               <CustomAvatar
                 name={nameToShow}
-                size="38"
+                size="46"
                 showPresence={!isGroupChat && !isOwnChat}
                 extension={!isGroupChat ? otherUserData?.extension : ''}
                 image={
-                  isGroupChat
-                    ? currentChat?.avatar
-                    : getUserProfileByUuid(otherUserData?.uuid) || ''
+                  isGroupChat ? currentChat?.avatar : getUserProfileByUuid(otherUserData?.uuid) || ''
                 }
               />
               <div className="min-w-0">
-                <div className="text-sm font-semibold truncate text-[#2E2D35] block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
+                <div className="text-base font-bold tracking-tight truncate text-[#2E2D35] dark:text-mcm-ink block sm:max-w-30 md:max-w-35 xl:max-w-60  xxl:max-w-120">
                   {nameToShow}
                 </div>
                 {subtitle ? (
-                  <div className="text-xs text-[#9A948F] truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
+                  <div className="text-xs text-[#9A948F] dark:text-mcm-ink-3 truncate block sm:max-w-40 md:max-w-42 xl:max-w-100 xxl:max-w-200">
                     {subtitle}
                   </div>
                 ) : null}
@@ -3613,7 +3611,7 @@ export const ChatFooter = ({
               </div>
             </div>
           ) : (
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 w-full max-w-4xl mx-auto">
               {typingText ? (
                 <div className="text-xs text-ucass-active px-1 py-1">{typingText}</div>
               ) : null}
@@ -4499,7 +4497,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
         )}
       </div>
 
-      <div className="flex-1 w-full bg-white lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col overflow-hidden min-h-0">
+      <div className="flex-1 w-full relative p-4 flex flex-col overflow-hidden min-h-0 bg-[radial-gradient(circle_at_15%_10%,rgba(242,153,74,0.4),transparent_45%),radial-gradient(circle_at_85%_15%,rgba(201,111,31,0.28),transparent_45%),radial-gradient(circle_at_50%_95%,rgba(255,217,173,0.5),transparent_55%)] dark:bg-[radial-gradient(circle_at_15%_10%,rgba(255,171,94,0.2),transparent_45%),radial-gradient(circle_at_85%_15%,rgba(255,171,94,0.12),transparent_45%),radial-gradient(circle_at_50%_95%,rgba(255,171,94,0.14),transparent_55%)]">
         <div className="flex-1 overflow-y-auto pr-2 pb-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
             {members.map((member: any, index: number) => {
@@ -4536,11 +4534,11 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                 <div
                   key={member?.uuid || `member-${index}`}
                   className={cn(
-                    'flex flex-col gap-2 p-3 rounded-lg border transition-all bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]',
+                    'flex flex-col gap-3 p-4 rounded-2xl border transition-all backdrop-blur-xl bg-white/35 dark:bg-white/[0.06] shadow-[0_8px_32px_rgba(31,38,135,0.12)] hover:bg-white/50 dark:hover:bg-white/[0.1] hover:shadow-[0_8px_32px_rgba(31,38,135,0.2)]',
                     isSelectMode && canBeRemoved ? 'cursor-pointer' : '',
                     isSelected
-                      ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                      : 'border-[rgba(225,200,165,0.9)] hover:bg-[#FBE2C8]/45',
+                      ? 'border-primary bg-primary/10 ring-1 ring-primary/30'
+                      : 'border-white/60 dark:border-white/10',
                   )}
                   onClick={handleToggleSelectCard}
                 >
@@ -4551,7 +4549,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                         `${member?.first_name || ''} ${member?.last_name || ''}`.trim()
                       }
                       extension={member?.extension}
-                      size="40"
+                      size="48"
                       showPresence={true}
                       image={
                         member?.profile ||
@@ -4561,11 +4559,11 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                       }
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-[#2E2D35] truncate">
+                      <div className="text-[15px] font-bold tracking-tight text-[#2E2D35] dark:text-mcm-ink truncate">
                         {member?.name ||
                           `${member?.first_name || ''} ${member?.last_name || ''}`.trim()}
                         {isCurrentUser && (
-                          <span className="ml-2 text-xs text-ucass-active font-bold bg-ucass-active-bg px-1.5 py-0.5 rounded">
+                          <span className="ml-2 text-[10px] text-ucass-active font-bold bg-ucass-active-bg px-1.5 py-0.5 rounded-full align-middle">
                             You
                           </span>
                         )}
@@ -4575,7 +4573,16 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                       </div>
                     </div>
                     {memberRoleLabel && !isSelectMode && (
-                      <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-full uppercase tracking-wider">
+                      <span
+                        className={cn(
+                          'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0',
+                          memberRoleLabel === 'Host'
+                            ? 'bg-ucass-active-bg text-ucass-active'
+                            : memberRoleLabel === 'Guest'
+                              ? 'bg-blue-50 text-blue-600 dark:bg-mcm-hold-wash dark:text-mcm-hold'
+                              : 'bg-gray-100 text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3',
+                        )}
+                      >
                         {memberRoleLabel}
                       </span>
                     )}
@@ -4592,10 +4599,10 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                     !isCurrentUser &&
                     !currentChat?.allowFallbackChat &&
                     !isSelectMode && (
-                      <div className="flex gap-2 pt-2 border-t border-gray-100 mt-1">
+                      <div className="flex gap-2 pt-3 border-t border-[#F0E6D9] dark:border-mcm-line">
                         <button
                           type="button"
-                          className="cursor-pointer flex-1 min-h-8 flex items-center justify-center gap-1.5 rounded-md bg-ucass-active-bg text-ucass-active text-xs font-semibold hover:bg-ucass-active-bg transition-colors"
+                          className="cursor-pointer flex-1 min-h-8 flex items-center justify-center gap-1.5 rounded-full bg-ucass-active-bg text-ucass-active text-xs font-bold hover:brightness-95 transition-all"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (isMainAdmin) {
@@ -4610,7 +4617,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
                         </button>
                         <button
                           type="button"
-                          className="cursor-pointer flex-1 min-h-8 flex items-center justify-center gap-1.5 rounded-md bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors"
+                          className="cursor-pointer flex-1 min-h-8 flex items-center justify-center gap-1.5 rounded-full bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold hover:brightness-95 transition-all"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (isMainAdmin) {
@@ -4634,7 +4641,7 @@ const MembersView = ({ currentChat, onClose }: { currentChat: any; onClose: () =
           <div className="pt-3 mt-3 border-t border-[#EEE7DD] shrink-0">
             <Button
               type="button"
-              className="w-full text-sm h-11 font-semibold cursor-pointer"
+              className="w-full text-sm h-11 font-semibold cursor-pointer bg-ucass-active-bg hover:bg-[#F0DFC5] text-ucass-active shadow-none border border-ucass-active/20"
               onClick={() => setIsAddMemberOpen(true)}
             >
               <UserPlus className="w-4 h-4 mr-2" /> Add Member

@@ -12,7 +12,7 @@ import { dropdownCallInitialVal, handleDate } from '@/components/custom/date-dro
 import { Ic } from './icons';
 import { useConsoleDialer } from './dial-number';
 import NumberWithFlag from '@/components/custom/number-with-flag';
-import { formatDuration, isNumberLike, talkSeconds } from './copilot-adapter';
+import { formatDuration, initialsOf, isNumberLike, talkSeconds } from './copilot-adapter';
 
 /** The three call-log sources the old phone page exposed, same `tabType` values. */
 export type ConsoleLogSource = 'call' | 'recording' | 'voicemail';
@@ -391,17 +391,28 @@ const CallListColumn = ({
                     }
                   }}
                 >
-                  <div className={`cr-av ${row.direction === 'miss' ? 'miss' : row.direction}`}>
-                    <Ic
-                      n={
-                        row.direction === 'out'
-                          ? 'arrow-out'
-                          : row.direction === 'miss'
-                            ? 'miss'
-                            : 'arrow-in'
-                      }
-                      size={15}
-                    />
+                  <div className="cr-av-wrap">
+                    <div className={`cr-av ${row.direction === 'miss' ? 'miss' : row.direction}`}>
+                      {isNumberLike(row.name) ? (
+                        <Ic n="user" size={15} />
+                      ) : (
+                        initialsOf(row.name)
+                      )}
+                    </div>
+                    <span
+                      className={`cr-dir-badge ${row.direction === 'miss' ? 'miss' : row.direction}`}
+                    >
+                      <Ic
+                        n={
+                          row.direction === 'out'
+                            ? 'arrow-out'
+                            : row.direction === 'miss'
+                              ? 'miss'
+                              : 'arrow-in'
+                        }
+                        size={7}
+                      />
+                    </span>
                   </div>
                   <div className="cr-body">
                     <div className="cr-top">

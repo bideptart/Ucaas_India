@@ -45,6 +45,20 @@ const DidPicker = ({
   const current = index >= 0 ? options[index] : undefined;
   const line = current?.line ?? '-';
 
+  /* The last four digits of the sending number, which is how people identify
+     one of their own lines. The face used to show the line's position
+     instead ("From 1") on the grounds that thirteen digits is too many for a
+     header corner — true, but "1" is not a shorter way of writing the
+     number, it is a different fact, and the only way to learn which number
+     it stands for is to open the menu.
+
+     Falls back to the position when there is no number to shorten, so the
+     control still says something rather than going blank. */
+  const face = (() => {
+    const digits = String(current?.label ?? '').replace(/\D/g, '');
+    return digits.length >= 4 ? `··${digits.slice(-4)}` : String(line);
+  })();
+
   /* Wraps, so the button never dead-ends on the last number. */
   const goToNext = () => {
     if (options.length < 2) return;
@@ -71,7 +85,7 @@ const DidPicker = ({
             about what it is or that it can be changed -- the tooltip only
             helps someone who already suspected there was something here. */}
         <span className="mcm-linepick-label">From</span>
-        <span className="mcm-linepick-n mcm-num">{line}</span>
+        <span className="mcm-linepick-n mcm-num">{face}</span>
       </button>
 
       <DropdownMenu>

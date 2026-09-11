@@ -153,11 +153,7 @@
 
 .gp-roles .panel-card {
   background: #fffdfb;
-  /* A near-white border is invisible against this card's own near-white
-     fill and the page's light peach backdrop — --glass-border (the app's
-     own token for a visible edge on a light glass card) instead, same fix
-     as People's panel-card (people-glass.css). */
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   /* No `max-height` any more -- with the table paged at 10 rows (below)
@@ -167,15 +163,8 @@
   display: flex;
   flex-direction: column;
 }
-/* Header/body split into independent scroll boxes — see the long comment on
-   the equivalent People rules in people-glass.css for why: a sticky
-   `<thead>` doesn't stop its scrolling ancestor's native scrollbar from
-   spanning the full box, header band included, so the bar always read as
-   running through the header no matter how it was styled. */
 .gp-roles .tbl-wrap {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  overflow-y: auto;
   min-height: 0;
   /* The row below carries a `min-width` so its Actions column never
      squeezes its three buttons onto two lines -- below that width this
@@ -183,11 +172,6 @@
   overflow-x: auto;
 }
 .gp-roles table {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
   background: transparent;
 }
 .gp-roles thead {
@@ -252,10 +236,8 @@
 .gp-roles td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
-/* Same wash Performance ▸ Calls uses for its own row hover
-   (--ic-row-hover in interactions-theme.css). */
 .gp-roles tbody tr:hover {
-  background: rgba(255, 241, 235, 0.55);
+  background: rgba(255, 205, 155, 0.14);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -281,6 +263,9 @@
 .gp-roles .gp-role-actions-head {
   text-align: center;
 }
+.gp-roles .gp-role-actions-cell {
+  min-width: 160px;
+}
 .gp-roles .gp-role-actions {
   justify-content: center;
 }
@@ -292,7 +277,7 @@
   width: 38px;
   height: 38px;
   padding: 0;
-  border-radius: 9999px;
+  border-radius: 11px;
   justify-content: center;
   background: transparent;
   border-color: transparent;
@@ -370,7 +355,7 @@
    untouched. Portaled to `document.body`, so scoped off its own class
    rather than an ancestor it never sits inside. ---- */
 .gp-assign-users-dialog {
-  background: #ffffff;
+  background: #fffaf3;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-assign-users-dialog .border-gray-200 {

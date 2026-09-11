@@ -207,27 +207,23 @@ const MyCampaignListStandalone = () => {
     return Number(((value / total) * 100).toFixed(2));
   };
 
-  /* Reuses Performance's own `.tag pos/warn/neg/neu` tokens (Queues' SLA
-     pills read the same way: green for good, orange for in-progress, red
-     for stopped) instead of inventing colours here — same palette as the
-     rest of Performance, not a one-off. */
   const getStatusBadgeConfig = (status: string) => {
     const statusMap: Record<string, { label: string; className: string }> = {
       PROCESSING: {
         label: 'Processing',
-        className: 'tag warn',
+        className: 'bg-orange-50 border border-orange-200 text-orange-500',
       },
       COMPLETED: {
         label: 'Completed',
-        className: 'tag pos',
+        className: 'bg-emerald-50 border border-emerald-200 text-emerald-600',
       },
       PAUSE: {
         label: 'Pause',
-        className: 'tag neg',
+        className: 'bg-rose-50 border border-rose-200 text-rose-600',
       },
       NEW: {
         label: 'New',
-        className: 'tag neu',
+        className: 'bg-sky-50 border border-sky-200 text-sky-600',
       },
     };
 
@@ -236,7 +232,7 @@ const MyCampaignListStandalone = () => {
         label: String(status || 'Unknown')
           .toLowerCase()
           .replace(/\b\w/g, (char) => char.toUpperCase()),
-        className: 'tag neu',
+        className: 'bg-slate-50 border border-slate-200 text-slate-600',
       }
     );
   };
@@ -602,18 +598,16 @@ const MyCampaignListStandalone = () => {
           matter because without them none of the console's shared rules
           reach this route at all. */}
       <section className="mcm-page mcm-admin w-full flex flex-col overflow-x-auto overflow-y-hidden h-full">
-        <div className="flex items-center justify-between p-4 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 min-h-[68px] bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]">
+        <div className="flex items-center justify-between p-4 border-b border-[rgba(225,200,165,0.9)] min-h-[68px] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
           <div className="flex flex-col">
-            <p className="text-[#2E2D35] dark:text-mcm-ink font-semibold text-lg leading-tight">Campaign Workspace</p>
-            <p className="text-xs text-[#9A948F] dark:text-mcm-ink-3">
+            <p className="text-[#2E2D35] font-semibold text-lg leading-tight">Campaign Workspace</p>
+            <p className="text-xs text-[#9A948F]">
               Running campaigns with quick join and assigned queues.
             </p>
           </div>
         </div>
 
-        {/* `pt-7` so the content clears its page header by the same 28px the
-            Performance tabs leave above their first card. */}
-        <div className="px-3 pt-7 pb-3 w-full h-full gap-2 flex flex-col">
+        <div className="p-3 w-full h-full gap-2 flex flex-col">
           {/* Upstream's warm panel, but the strip and rail keep their
               `mcm-tabstrip*` classes. Upstream's version is the slate/white
               gradient over a grey rail that was invisible against the panel
@@ -621,7 +615,7 @@ const MyCampaignListStandalone = () => {
               Those classes shade each nested layer from the page's own
               backdrop instead, and the tab buttons below already depend on
               them. */}
-          <div className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] w-full rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
+          <div className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] w-full rounded-2xl border border-[rgba(225,200,165,0.9)] h-[calc(100vh-11rem)] overflow-hidden flex flex-col">
             <div className="mcm-tabstrip w-full">
               <div className="sm:px-3 sm:pt-3 sm:pb-2 flex-col sm:flex items-center justify-between gap-3 w-full ">
                 <div className="mcm-tabstrip-rail inline-flex items-center sm:rounded-xl p-1 gap-1 w-full">
@@ -660,7 +654,7 @@ const MyCampaignListStandalone = () => {
                       <Loader variant="blue" />
                     </div>
                   ) : campaignList?.length ? (
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {campaignList.map((campaign: any) => {
                         const isJoined = joinedCampaignId === campaign?._id;
                         const isRefreshingAnalytics = !!refreshingCampaignIds[campaign?._id];
@@ -697,25 +691,10 @@ const MyCampaignListStandalone = () => {
                           assignedLeads,
                         );
                         const statusBadge = getStatusBadgeConfig(campaign?.campaignStatus);
-                        const dialMethodName =
-                          CAMPAIGN_TYPE_NAME[campaign?.dialMethod] ||
-                          campaign?.dialMethod ||
-                          'Preview';
                         return (
                           <div
                             key={campaign?._id}
-                            /* `bg-white` on a rounded element inside `.mcm-page` gets
-                               silently rewritten to a translucent glass surface with a
-                               low-contrast `--glass-border` (mcm-page.css), which is why
-                               this card's own top border kept washing out.
-                               `bg-[var(--surface)]`/`border-[var(--line)]` are the same
-                               opaque white and a real border color, spelled so the
-                               rewrite rule's `.bg-white` selector doesn't match them.
-                               No `hover:-translate-y` either: the grid sits flush against
-                               its scroll container with no top clearance, so lifting the
-                               first row on hover pushed their rounded top edge past the
-                               container's own clip boundary and cut the border off. */
-                            className="flex flex-col justify-between min-h-44 group rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-[var(--accent-edge)] hover:shadow-[0_8px_22px_-8px_rgba(15,23,42,0.14)]"
+                            className="flex flex-col justify-between min-h-32 group rounded-xl border border-slate-200 bg-white px-4 py-3 hover:border-slate-300"
                           >
                             <div className="gap-3  items-start justify-between sm:gap-3 xs:flex-col sm:flex-row flex">
                               <div className="min-w-0 flex-1 sm:mb-0 mb-2">
@@ -723,7 +702,9 @@ const MyCampaignListStandalone = () => {
                                   <p className="text-base font-semibold text-slate-900 truncate">
                                     {campaign?.name || 'Untitled Campaign'}
                                   </p>
-                                  <div className={`w-fit whitespace-nowrap ${statusBadge.className}`}>
+                                  <div
+                                    className={`px-3 py-1 w-fit whitespace-nowrap  text-center rounded-md text-xs font-medium ${statusBadge.className}`}
+                                  >
                                     {statusBadge.label}
                                   </div>
                                   {isJoined && (
@@ -733,24 +714,18 @@ const MyCampaignListStandalone = () => {
                                   )}
                                 </div>
 
-                                <p className="text-xs text-slate-500">{dialMethodName}</p>
+                                <p className="text-xs text-slate-500">
+                                  {CAMPAIGN_TYPE_NAME[campaign?.dialMethod] ||
+                                    campaign?.dialMethod ||
+                                    'Preview'}
+                                </p>
                               </div>
 
                               {isJoined ? (
                                 <button
                                   onClick={() => handleLeaveCampaign(campaign)}
                                   disabled={hasActionPending}
-                                  /* `.mcm-page button:not([data-slot='tabs-trigger'])` (a shared
-                                     reset, further up the cascade) strips background/color/border
-                                     off every plain <button>, which is why this rendered as
-                                     unstyled text instead of a rose pill — inline style always
-                                     wins over a class-based rule, reset included. */
-                                  style={{
-                                    backgroundColor: '#fff1f2',
-                                    color: '#be123c',
-                                    borderColor: '#fecdd3',
-                                  }}
-                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer bg-rose-50 text-rose-700 border-rose-200 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                   {isActionPending ? 'Leaving...' : 'Leave'}
                                 </button>
@@ -758,19 +733,14 @@ const MyCampaignListStandalone = () => {
                                 <button
                                   onClick={() => handleJoinCampaign(campaign)}
                                   disabled={hasActionPending}
-                                  style={{
-                                    backgroundColor: '#059669',
-                                    color: '#fff',
-                                    borderColor: '#059669',
-                                  }}
-                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+                                  className="shrink-0 px-4 py-2 rounded-lg border text-sm font-semibold cursor-pointer bg-emerald-600 text-white border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                   {isActionPending ? 'Joining...' : 'Join Campaign'}
                                 </button>
                               )}
                             </div>
 
-                            <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-1">
+                            <div className="mt-3 flex flex-col gap-1">
                               <div className="flex items-center min-w-[160px] w-full gap-2">
                                 {!hasAnalytics ? (
                                   <div className="flex-1 min-w-[120px]">
@@ -780,12 +750,12 @@ const MyCampaignListStandalone = () => {
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <div className="flex-1 min-w-[120px] cursor-pointer">
-                                        <div className="w-full bg-violet-50 rounded-full h-3 relative overflow-hidden flex">
+                                        <div className="w-full bg-stone-300/50 rounded-xs h-3 relative overflow-hidden flex">
                                           {pendingPercentage > 0 && (
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-violet-200 transition-all duration-300"
+                                                  className="h-full bg-slate-400 transition-all duration-300"
                                                   style={{ width: `${pendingPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -798,7 +768,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-gradient-to-r from-green-300 to-blue-300 transition-all duration-300"
+                                                  className="h-full bg-green-400 transition-all duration-300"
                                                   style={{ width: `${connectedPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -811,7 +781,7 @@ const MyCampaignListStandalone = () => {
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <div
-                                                  className="h-full bg-rose-300 transition-all duration-300"
+                                                  className="h-full bg-orange-300 transition-all duration-300"
                                                   style={{ width: `${notAnsweredPercentage}%` }}
                                                 />
                                               </TooltipTrigger>
@@ -853,14 +823,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                {/* Popover content renders through a portal outside
-                                                    `.mcm-page`, so the `--live`/`--crit`/`--surface-*`
-                                                    custom properties the mini-bar above uses aren't in
-                                                    scope here — static Tailwind colors matching those
-                                                    same tokens instead. */}
-                                                <div className="w-full bg-orange-50 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-slate-100 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-violet-200 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-slate-400 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${pendingPercentage}%` }}
                                                   />
                                                 </div>
@@ -887,9 +852,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-green-50 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-green-100 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-gradient-to-r from-green-300 to-blue-300 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-green-400 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${connectedPercentage}%` }}
                                                   />
                                                 </div>
@@ -916,9 +881,9 @@ const MyCampaignListStandalone = () => {
                                             </div>
                                             <div className="flex gap-2">
                                               <div className="flex-1 min-w-[100px]">
-                                                <div className="w-full bg-rose-50 rounded-xs h-4 relative overflow-hidden">
+                                                <div className="w-full bg-orange-100 rounded-xs h-4 relative overflow-hidden">
                                                   <div
-                                                    className="h-full bg-rose-300 rounded-xs transition-all duration-300 flex items-center justify-center"
+                                                    className="h-full bg-orange-300 rounded-xs transition-all duration-300 flex items-center justify-center"
                                                     style={{ width: `${notAnsweredPercentage}%` }}
                                                   />
                                                 </div>
@@ -932,11 +897,7 @@ const MyCampaignListStandalone = () => {
                                 )}
                                 <button
                                   type="button"
-                                  style={{
-                                    backgroundColor: '#fde5c8',
-                                    color: '#c2670a',
-                                  }}
-                                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="w-6 h-6 rounded-full flex items-center justify-center text-slate-500 hover:text-primary hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={!campaign?._id || isRefreshingAnalytics}
                                   onClick={() => {
                                     if (!campaign?._id || isRefreshingAnalytics) return;
@@ -951,23 +912,15 @@ const MyCampaignListStandalone = () => {
                                   )}
                                 </button>
                               </div>
-                              {hasAnalytics && (
-                                <p className="text-[11px] text-slate-500">
-                                  <span className="font-semibold text-slate-700">
-                                    {connectedPercentage + notAnsweredPercentage}% dialled
-                                  </span>{' '}
-                                  · {pending} left
-                                </p>
-                              )}
                             </div>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
+                    <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F]">
                       <img src={NotFound} alt="BusyImage" className="min-w-36 max-w-36" />
-                      <p className="text-[#2E2D35] dark:text-mcm-ink text-sm whitespace-normal text-center">
+                      <p className="text-[#2E2D35] text-sm whitespace-normal text-center">
                         No campaigns found
                       </p>
                     </div>
@@ -978,15 +931,15 @@ const MyCampaignListStandalone = () => {
                   <div className="relative w-full">
                     <Input
                       placeholder="Search assigned queue"
-                      className="pl-10 w-full h-11 rounded-full bg-white border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.05)] focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-orange-200 focus-visible:border-orange-300"
-                      IconPosition="left-0 pl-3.5 inset-y-0"
+                      className="pl-10 w-full bg-slate-50 border-slate-200 focus-visible:bg-white"
+                      IconPosition="left-0 pl-2 inset-y-0"
                       value={queueSearch}
                       onChange={(e) => {
                         const value = e.target.value;
                         if (value.startsWith(' ')) return;
                         setQueueSearch(value);
                       }}
-                      Icon={<SearchLine className="text-[#2E2D35] dark:text-mcm-ink" />}
+                      Icon={<SearchLine className="text-[#2E2D35]" />}
                     />
                     {isQueueLoading && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -997,30 +950,24 @@ const MyCampaignListStandalone = () => {
 
                   <div className="w-full flex-1 overflow-y-auto pr-1">
                     {isQueueError ? (
-                      <div className="w-full flex justify-center items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
+                      <div className="w-full flex justify-center items-center py-10 text-[#9A948F]">
                         Failed to load call queue data.
                       </div>
                     ) : isQueueLoading ? null : callQueueData?.length ? (
-                      <>
-                        <p className="text-xs font-medium text-[#9A948F] dark:text-mcm-ink-3 mb-2">
-                          {callQueueData.length} {callQueueData.length === 1 ? 'queue' : 'queues'}{' '}
-                          assigned to you
-                        </p>
-                        <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                          {callQueueData?.map((queue: any, index: number) => (
-                            <div key={queue?.uuid || index}>
-                              <CallQueueCard queue={queue} refetch={refetchCallQueue} />
-                            </div>
-                          ))}
-                        </div>
-                      </>
+                      <div className="w-full grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                        {callQueueData?.map((queue: any, index: number) => (
+                          <div key={queue?.uuid || index}>
+                            <CallQueueCard queue={queue} refetch={refetchCallQueue} />
+                          </div>
+                        ))}
+                      </div>
                     ) : (
-                      <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F] dark:text-mcm-ink-3">
+                      <div className="w-full h-full flex justify-center flex-col gap-2 items-center py-10 text-[#9A948F]">
                         <img src={NotFound} alt="BusyImage" className="min-w-36 max-w-36" />
-                        <p className="flex items-center justify-center text-[#2E2D35] dark:text-mcm-ink">
+                        <p className="flex items-center justify-center text-[#2E2D35]">
                           No call queue found.
                         </p>
-                        <p className="text-sm text-[#2E2D35] dark:text-mcm-ink">
+                        <p className="text-sm text-[#2E2D35]">
                           Call queues assigned to you will appear here.
                         </p>
                       </div>
@@ -1041,18 +988,18 @@ const MyCampaignListStandalone = () => {
         }}
       >
         <DialogContent
-          className="w-[calc(100vw-2rem)] max-w-[520px] gap-0 rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] p-0 shadow-2xl"
+          className="w-[calc(100vw-2rem)] max-w-[520px] gap-0 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-0 shadow-2xl"
           showCloseButton={false}
         >
           <div className="w-full px-5 py-4 sm:px-7 sm:py-6">
-            <div className="flex items-center justify-between gap-4 border-b border-[#EEE7DD] dark:border-mcm-line pb-4">
-              <h3 className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink sm:text-xl">
+            <div className="flex items-center justify-between gap-4 border-b border-[#EEE7DD] pb-4">
+              <h3 className="text-lg font-semibold text-[#2E2D35] sm:text-xl">
                 Microphone Permission Required
               </h3>
               <button
                 type="button"
                 aria-label="Close microphone permission dialog"
-                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#9A948F] dark:text-mcm-ink-3 transition hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 hover:text-[#2E2D35] dark:hover:text-mcm-ink"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#9A948F] transition hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35]"
                 onClick={() => {
                   setMicPermissionDialogOpen(false);
                   setPendingCampaign(null);
@@ -1067,7 +1014,7 @@ const MyCampaignListStandalone = () => {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ucass-active-bg text-primary">
                   <Mic className="h-5 w-5" />
                 </span>
-                <p className="text-sm font-semibold leading-6 text-[#2E2D35] dark:text-mcm-ink sm:text-base">
+                <p className="text-sm font-semibold leading-6 text-[#2E2D35] sm:text-base">
                   Campaign calling needs microphone access before it can start.
                 </p>
               </div>
@@ -1076,7 +1023,7 @@ const MyCampaignListStandalone = () => {
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600">
                   <Info className="h-5 w-5" />
                 </span>
-                <p className="text-sm font-semibold leading-6 text-[#2E2D35] dark:text-mcm-ink sm:text-base">
+                <p className="text-sm font-semibold leading-6 text-[#2E2D35] sm:text-base">
                   {micPermissionState === 'denied'
                     ? 'Microphone permission is blocked in browser site settings. Please allow microphone for this site, then continue.'
                     : 'Click Allow Microphone and accept the browser permission prompt to continue.'}

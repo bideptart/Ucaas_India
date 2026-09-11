@@ -120,7 +120,7 @@ const AIChatRequestModal = ({
   if (!isOpen || pendingRequests.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] w-[420px] overflow-hidden rounded-2xl bg-white dark:bg-mcm-surface shadow-2xl ring-1 ring-black/5 animate-in slide-in-from-bottom-8 fade-in duration-300">
+    <div className="fixed bottom-6 right-6 z-[9999] w-[420px] overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 animate-in slide-in-from-bottom-8 fade-in duration-300">
       {/* ── Header ──────────────────────────────────────────── */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 px-5 py-4">
         {/* Decorative blobs */}
@@ -181,7 +181,7 @@ const AIChatRequestModal = ({
 
       {/* ── Request list ────────────────────────────────────── */}
       <div
-        className="bg-gray-50 dark:bg-mcm-surface divide-y divide-gray-100 dark:divide-mcm-line overflow-y-auto"
+        className="bg-gray-50 divide-y divide-gray-100 overflow-y-auto"
         style={{ maxHeight: '420px' }}
       >
         {pendingRequests?.slice(0, 1)?.map((data, index) => {
@@ -196,7 +196,7 @@ const AIChatRequestModal = ({
           return (
             <div
               key={chatId || index}
-              className="group flex flex-col gap-3 px-5 py-4 bg-white dark:bg-mcm-surface-3/50 hover:bg-primary/[0.02] transition-colors duration-150"
+              className="group flex flex-col gap-3 px-5 py-4 bg-white hover:bg-primary/[0.02] transition-colors duration-150"
             >
               {/* User row */}
               <div className="flex items-center gap-3">
@@ -208,22 +208,22 @@ const AIChatRequestModal = ({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 dark:text-mcm-ink truncate">{displayName}</p>
+                  <p className="text-sm font-semibold text-gray-800 truncate">{displayName}</p>
 
                   {/* Meta info */}
                   <div className="flex items-center gap-3 mt-0.5">
                     {guestUser?.email && (
-                      <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-mono truncate">
+                      <span className="text-[11px] text-gray-400 font-mono truncate">
                         {guestUser.email}
                       </span>
                     )}
                     {guestUser?.phone && (
-                      <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-mono truncate">
+                      <span className="text-[11px] text-gray-400 font-mono truncate">
                         {guestUser.phone}
                       </span>
                     )}
                     {data?.domain && (
-                      <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 truncate">· {data.domain}</span>
+                      <span className="text-[11px] text-gray-400 truncate">· {data.domain}</span>
                     )}
                   </div>
                 </div>
@@ -302,9 +302,9 @@ const AIChatRequestModal = ({
       </div>
 
       {/* ── Footer note ─────────────────────────────────────── */}
-      <div className="bg-white dark:bg-mcm-surface border-t border-gray-100 dark:border-mcm-line px-5 py-2.5 flex items-center gap-2">
+      <div className="bg-white border-t border-gray-100 px-5 py-2.5 flex items-center gap-2">
         <svg
-          className="w-3.5 h-3.5 text-gray-400 dark:text-mcm-ink-3 flex-shrink-0"
+          className="w-3.5 h-3.5 text-gray-400 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -316,7 +316,7 @@ const AIChatRequestModal = ({
             d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
           />
         </svg>
-        <p className="text-[11px] text-gray-400 dark:text-mcm-ink-3">
+        <p className="text-[11px] text-gray-400">
           Dismissing hides the popup — request remain accessible via the agent chat.
         </p>
       </div>

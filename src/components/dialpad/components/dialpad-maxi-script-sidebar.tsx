@@ -103,7 +103,7 @@ const DialpadMaxiScriptSidebar = ({ scriptId, sessionId }: DialpadMaxiScriptSide
   );
 
   return (
-    <aside className="h-full min-h-0 rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface p-2.5">
+    <aside className="h-full min-h-0 rounded-2xl border border-ucass-active-bg bg-white p-2.5">
       <div className="flex h-full min-h-0 flex-col">
         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5a7396] sm:text-xs">
           Script

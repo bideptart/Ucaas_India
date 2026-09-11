@@ -45,10 +45,70 @@
   background: #fff1e0;
   color: #c96f1f;
 }
-.dark .gp-filter-menu [data-slot='dropdown-menu-item']:hover,
-.dark .gp-filter-menu [data-slot='dropdown-menu-item'][data-highlighted] {
-  background: var(--mcm-accent-wash, #1a2733);
-  color: var(--mcm-accent-ink, #ff8a2a);
+
+/* The head's title row. The description used to sit under the title as a
+   second line; it now lives behind the info button beside it, matching the
+   Admin head, so every Directory head is the same single-line height. */
+.page-head-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Same shape and hover as the Admin head's info button, so the two areas
+   read as one product rather than two takes on the same control. */
+.page-head-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.page-head-info:hover {
+  color: var(--accent-ink);
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+}
+
+/* The filter row, kept to one line.
+
+   `FilterChip` renders a native <select>, and a <select> sizes itself to its
+   WIDEST option, not to the one selected. On People the Location list holds
+   entries like "Sushil Company Mumbai, MH", which inflated that one chip to
+   310px even while it read "All" — enough to push the row onto a second line.
+   The width therefore depended on the account's data rather than on the
+   design, so it wrapped for some tenants and not others.
+
+   Capping the select decouples the two: the chip is sized by its label, and a
+   long option is truncated in the closed state only. The open dropdown is
+   drawn by the browser and is not constrained by this, so nothing becomes
+   unreadable or unselectable.
+
+   Measured on the deployed stylesheet at the Admin content width (1038px):
+   two lines before, one after, and it stays on one line down to 960px. Below
+   about 880px it wraps again, which is what `flex-wrap` is there for. */
+.tbar .fchip select {
+  flex: 0 1 auto;
+  max-width: 96px;
+  text-overflow: ellipsis;
+}
+
+/* A flex item will not shrink past its content unless it is allowed to, so
+   without this the chips hold their full width and the row breaks instead. */
+.tbar .fchip {
+  min-width: 0;
 }
 
 /* Page heading + info icon -- every Directory page's own description line

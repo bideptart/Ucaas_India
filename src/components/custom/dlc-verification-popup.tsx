@@ -24,7 +24,7 @@ const DLCVerificationPopup = ({ open, setOpen }: DLCVerificationPopupProps) => {
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
-        <div className="flex flex-col gap-1.5 text-gray-900 dark:text-mcm-ink">
+        <div className="flex flex-col gap-1.5 text-gray-900">
           <div className="font-semibold truncate text-md flex items-center justify-between">
             DLC Verification Required
             <div

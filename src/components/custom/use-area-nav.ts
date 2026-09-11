@@ -2,13 +2,7 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useUser } from '@/hooks/use-user';
-import {
-  AREA_VIEWS,
-  areaOfItem,
-  areaOfPath,
-  isViewAllowedByPlan,
-  type AreaId,
-} from './nav-areas';
+import { AREA_VIEWS, areaOfItem, areaOfPath, type AreaId } from './nav-areas';
 import { navList, navListBottom, type NavItem } from './sidebar';
 
 /**
@@ -66,7 +60,7 @@ export const useAreaNav = () => {
    * An area that carries its own views shows those in the rail instead of its
    * route items — that is how the console navigates Performance. They are
    * shaped as nav items so the rail renders them without knowing the
-   * difference, and they link through `?view=`, which the page already reads.
+   * difference, and they link through their own path segment, which the page reads.
    */
   const areaConfig = AREA_VIEWS[currentArea];
   const areaViews = areaConfig?.views;
@@ -76,10 +70,10 @@ export const useAreaNav = () => {
     // The plan gates that used to sit on the tab strip live here now, so a
     // tenant without video does not get a Video rail item.
     const allowed = areaViews.filter((view) => {
-      // The plan rule itself now lives beside the view list, so the page
-      // behind this rail applies exactly the same test — hiding the link was
-      // never enough on its own, because `?view=` still reached the view.
-      if (!isViewAllowedByPlan(view, planFeatures)) return false;
+      if (view.feature === 'video') return Boolean(planFeatures?.video?.IS_SHOW);
+      if (view.feature === 'ai') return Boolean(planFeatures?.ai?.IS_SHOW);
+      if (view.feature === 'queue')
+        return Boolean(planFeatures?.phone_system_action?.access?.QUEUE);
       // The three former top-bar shortcuts that depend on the signed-in user
       // — drop the rail item entirely rather than link somewhere broken.
       if (view.key in dynamicHrefByKey) return Boolean(dynamicHrefByKey[view.key]);
@@ -90,15 +84,14 @@ export const useAreaNav = () => {
       return {
         id: 1000 + index,
         name: view.label,
-        link: resolvedHref || `${base}?view=${view.key}`,
+        link: resolvedHref || `${base}/${view.key}`,
         icon: view.icon,
         sep: view.sep,
-        // A view that opens off its own href (one of the moved shortcuts)
-        // is lit by its own path, same as any other route item — only the
-        // in-page `?view=` tabs need the viewKey comparison.
-        viewKey: resolvedHref ? undefined : view.key,
+        /* Every view now owns a path, so the rail lights the current item
+           from the pathname like any other route item. `viewKey` stays unset:
+           there is no longer a query value to compare. */
+        viewKey: undefined,
         altPaths: view.altPaths,
-        altViews: view.altViews,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

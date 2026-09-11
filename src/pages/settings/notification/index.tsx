@@ -8,9 +8,9 @@ import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-di
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import PhoneInput from 'react-phone-input-2';
-import { BellOff, MessageSquareText, PhoneMissed, Voicemail } from 'lucide-react';
+import { MessageSquareText, PhoneMissed, Voicemail } from 'lucide-react';
 import { isUnchanged } from '@/lib/form-baseline';
-import AccountPageHead from '../account-page-head';
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import '@/components/mcm/mcm-page.css';
 
 /* What the save bar compares, which is not the raw form values.
@@ -41,6 +41,8 @@ const EVENT_ICONS: Record<string, React.ReactNode> = {
 };
 
 const SettingsNotification = () => {
+  useSetAdminPageMeta({ description: 'What you get alerted about, and whether it arrives in the browser, by email or both.' });
+
   const { data: userInfoData } = useQuery({
     queryKey: ['getUserDetailsForNotification'],
     queryFn: getUserDetails,
@@ -121,32 +123,10 @@ const SettingsNotification = () => {
     baseline && !isUnchanged(comparable(JSON.parse(baseline)), comparable(current)),
   );
 
-  /* An event with every channel switched off reaches the person nowhere. That
-     was already flagged per row; counting it in the page head means somebody
-     scanning the screen sees it before they scroll. */
-  const silentCount = NOTIFICATION_TYPES_LIST.filter(
-    (item) => !item.settingsType.some(({ value }) => watch(`${item.value}.${value}`)),
-  ).length;
-
   const channels = NOTIFICATION_TYPES_LIST[0].settingsType;
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <AccountPageHead
-        title="Notifications"
-        about="What you get told about, and whether it reaches you by email, in the browser, by text or on the mobile app."
-      >
-        {silentCount > 0 && (
-          <div className="mcm-acct-note">
-            <BellOff className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span>
-              {silentCount} of {NOTIFICATION_TYPES_LIST.length}{' '}
-              {silentCount === 1 ? 'event reaches' : 'events reach'} you nowhere.
-            </span>
-          </div>
-        )}
-      </AccountPageHead>
-
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">
           {/* Voicemail, missed calls and SMS all save, and nothing reads them.

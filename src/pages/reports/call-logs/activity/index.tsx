@@ -172,18 +172,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           timeIntervals={60}
           timeCaption="Time"
           dateFormat="h:mm aa"
-          // `calendarClassName="mcm-datepicker"` — the same scoped skin the
-          // shared DateDropdown's own calendar/time popups already use
-          // (date-picker-theme.css); this picker was left on react-
-          // datepicker's raw default CSS entirely, which is why it looked
-          // like a different, unstyled component next to every other
-          // dropdown on this page.
-          calendarClassName="mcm-datepicker"
-          // `border-gray-200 dark:border-mcm-line`/`ring-ucass-active` were Tailwind defaults
-          // that render blue here (`--color-ucass-active`'s own fallback is
-          // #1d4ed8) — hardcoded to Directory's warm palette instead,
-          // consistent with every other input on this page.
-          className="w-full px-2 py-2 min-h-10 border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-xl hover:border-[#f2994a] focus:outline-none focus:ring-1 focus:ring-[#f2994a] focus:border-transparent text-sm"
+          className="w-full px-2 py-2 min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
       <span className="">-</span>
@@ -198,8 +187,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
           dateFormat="h:mm aa"
           minTime={startTime}
           maxTime={maxTime}
-          calendarClassName="mcm-datepicker"
-          className="w-full px-2 py-2  min-h-10 border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 rounded-xl hover:border-[#f2994a] focus:outline-none focus:ring-1 focus:ring-[#f2994a] focus:border-transparent text-sm"
+          className="w-full px-2 py-2  min-h-10 border border-gray-200 rounded-xl hover:border-primary focus:outline-none focus:ring-1 focus:ring-ucass-active focus:border-transparent text-sm"
         />
       </div>
     </div>

@@ -169,7 +169,7 @@ const DialpadAiConversationOverview = ({
       >
         <AccordionItem value={AI_CONVERSATION_ACCORDION_VALUE} className="relative border-0">
           <AccordionContent className="absolute bottom-[calc(100%+0.5rem)] left-0 right-0 z-20 max-h-[75vh] !pb-0 !pt-0">
-            <div className="flex max-h-[72vh] min-h-[20rem] flex-col rounded-2xl border border-[#d6e4ff] dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-3 shadow-[0_12px_28px_rgba(17,58,112,0.16)]">
+            <div className="flex max-h-[72vh] min-h-[20rem] flex-col rounded-2xl border border-[#d6e4ff] bg-white px-3 py-3 shadow-[0_12px_28px_rgba(17,58,112,0.16)]">
               <div className="mb-2 flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <Sparkles className="h-4 w-4 shrink-0 text-[#1f4f8f]" />

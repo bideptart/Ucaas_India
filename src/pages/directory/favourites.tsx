@@ -4,13 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { getContactList } from '@/services/api';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import SideDrawer from '@/components/custom/side-drawer';
-import '@/styles/warm-glass.css';
 import SendWhatsappMessage from '@/pages/messenger/drawers/send-whatsapp-message';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { Ic } from '@/components/mcm/icons';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import './list-page-glass.css';
 import { usePeopleRows, type PersonRow } from './people-rows';
 import { useDirectoryFavourites } from './use-directory-favourites';
+import '@/styles/warm-glass.css';
 import './favourites-glass.css';
 
 /**
@@ -219,48 +220,40 @@ const Favourites = () => {
                       <span className={TONE_CLASS[row.tone || 'idle'] || 'tag neu'}>
                         {row.presence}
                       </span>
-                    ) : (
-                      <span style={{ color: 'var(--ink-4)' }}>—</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="mini"
-                        title={`Call ${row.name}`}
-                        aria-label={`Call ${row.name}`}
-                        disabled={!row.dialTarget}
-                        onClick={() =>
-                          row.dialTarget &&
-                          dial(row.dialTarget, { forceRefreshContactInfo: true })
-                        }
-                      >
-                        <Ic n="phone" size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="mini"
-                        title={`Send an SMS to ${row.name}`}
-                        aria-label={`Send an SMS to ${row.name}`}
-                        disabled={!row.phone}
-                        onClick={() => sendSms(row.phone)}
-                      >
-                        <Ic n="chat" size={12} />
-                      </button>
-                      {/* WhatsApp routes off a real number, which colleagues are
-                          not reachable on from here — so it is offered only for
-                          external contacts. */}
-                      {row.kind === 'contact' ? (
+                    </td>
+                    <td>
+                      <span className={row.kind === 'person' ? 'tag acc' : 'tag neu'}>
+                        {row.kind === 'person' ? 'Colleague' : 'External'}
+                      </span>
+                    </td>
+                    <td>{row.org || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td>{row.role || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td className="num">
+                      <span style={{ display: 'block' }}>{row.reach || '—'}</span>
+                      <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>{row.reachLabel}</span>
+                    </td>
+                    <td>{row.email || <span style={{ color: 'var(--ink-4)' }}>—</span>}</td>
+                    <td>
+                      {row.presence ? (
+                        <span className={TONE_CLASS[row.tone || 'idle'] || 'tag neu'}>
+                          {row.presence}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--ink-4)' }}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="flex items-center gap-1">
                         <button
                           type="button"
                           className="mini"
-                          title={
-                            row.whatsapp ? `WhatsApp ${row.name}` : `${row.name} has no WhatsApp number`
+                          title={`Call ${row.name}`}
+                          aria-label={`Call ${row.name}`}
+                          disabled={!row.dialTarget}
+                          onClick={() =>
+                            row.dialTarget &&
+                            dial(row.dialTarget, { forceRefreshContactInfo: true })
                           }
-                          aria-label={`WhatsApp ${row.name}`}
-                          disabled={!row.whatsapp}
-                          onClick={() => setWhatsappTo(row.whatsapp)}
                         >
                           <Ic n="send" size={12} />
                         </button>
@@ -357,13 +350,7 @@ const Favourites = () => {
           handleClose={() => setWhatsappTo('')}
           title="Send WhatsApp message"
           content={
-            <div className="mcm-warm-glass whatsapp-drawer-glass flex h-full min-h-0 w-full flex-col">
-              <SendWhatsappMessage
-                handleClose={() => setWhatsappTo('')}
-                initialNumber={whatsappTo}
-                selectClassName="whatsapp-drawer-select"
-              />
-            </div>
+            <SendWhatsappMessage handleClose={() => setWhatsappTo('')} initialNumber={whatsappTo} />
           }
         />
       ) : null}

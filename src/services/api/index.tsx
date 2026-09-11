@@ -960,6 +960,14 @@ export const getCampaignDetail = (data: { campaignId: string }) => {
   });
 };
 
+export const getTwilioVoiceToken = () => {
+  return apiClient({
+    method: routes.TWILIO_VOICE_TOKEN.METHOD,
+    url: routes.TWILIO_VOICE_TOKEN.URL,
+    data: {},
+  });
+};
+
 export const campaignAnalytics = (data: { campaignId: string }) => {
   return apiClient({
     method: routes.CAMPAIGN_ANALYTICS.METHOD,
@@ -1520,6 +1528,30 @@ export const releaseDidToCarrier = (didNumber: string) => {
 };
 
 // User Template
+/* The "add numbers you already own" screen.
+ *
+ * That screen imports these two, but they were never written and neither
+ * endpoint exists on the tenant API -- there is no route for listing SIP trunks
+ * or for registering owned numbers. The screen is also unreachable: nothing
+ * imports it and no route points at it, so it has never run.
+ *
+ * They are declared here, rather than invented against a guessed URL, so the
+ * half-finished screen compiles without implying a backend contract that does
+ * not exist. Whoever wires the screen up will land on this immediately and can
+ * point them at the real endpoints then.
+ */
+const OWNED_NUMBERS_ENDPOINT_MISSING =
+  'This build has no endpoint for owned numbers yet. See services/api/index.tsx.';
+
+export const sipTrunkList = (_data?: any): Promise<any> =>
+  Promise.reject(new Error(OWNED_NUMBERS_ENDPOINT_MISSING));
+
+export const registerOwnedNumbers = (_data: {
+  numbers: string[];
+  label?: string;
+  trunk_uuid?: string;
+}): Promise<any> => Promise.reject(new Error(OWNED_NUMBERS_ENDPOINT_MISSING));
+
 export const upsertTemplate = ({ uuid = '', ...data }) => {
   return apiClient({
     method: routes.UPSERT_TEMPLATE.METHOD,
@@ -2998,6 +3030,85 @@ export const changeOmniStatus = (data: { uuid: string; status: 0 | 1 }) => {
   return apiClient({
     method: routes.OMNI_CHANGE_STATUS.METHOD,
     url: routes.OMNI_CHANGE_STATUS.URL,
+    data,
+  });
+};
+
+/* Queue skills — see the SKILL_* block in routes.tsx. */
+export const getSkills = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_LIST.METHOD,
+    url: routes.SKILL_LIST.URL,
+    data,
+  });
+};
+export const upsertSkill = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_UPSERT.METHOD,
+    url: routes.SKILL_UPSERT.URL,
+    data,
+  });
+};
+export const deleteSkill = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_DELETE.METHOD,
+    url: routes.SKILL_DELETE.URL,
+    data,
+  });
+};
+export const getUserSkills = (data?: any) => {
+  return apiClient({
+    method: routes.USER_SKILLS_GET.METHOD,
+    url: routes.USER_SKILLS_GET.URL,
+    data,
+  });
+};
+export const setUserSkills = (data?: any) => {
+  return apiClient({
+    method: routes.USER_SKILLS_SET.METHOD,
+    url: routes.USER_SKILLS_SET.URL,
+    data,
+  });
+};
+export const getSkillPeople = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_PEOPLE_GET.METHOD,
+    url: routes.SKILL_PEOPLE_GET.URL,
+    data,
+  });
+};
+export const setSkillPeople = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_PEOPLE_SET.METHOD,
+    url: routes.SKILL_PEOPLE_SET.URL,
+    data,
+  });
+};
+export const getUsersSkills = (data?: any) => {
+  return apiClient({
+    method: routes.USERS_SKILLS_GET.METHOD,
+    url: routes.USERS_SKILLS_GET.URL,
+    data,
+  });
+};
+export const getSkillCategories = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_CATEGORY_LIST.METHOD,
+    url: routes.SKILL_CATEGORY_LIST.URL,
+    data,
+  });
+};
+export const upsertSkillCategory = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_CATEGORY_UPSERT.METHOD,
+    url: routes.SKILL_CATEGORY_UPSERT.URL,
+    data,
+  });
+};
+export const deleteSkillCategory = (data?: any) => {
+  return apiClient({
+    method: routes.SKILL_CATEGORY_DELETE.METHOD,
+    url: routes.SKILL_CATEGORY_DELETE.URL,
     data,
   });
 };

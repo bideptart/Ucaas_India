@@ -258,7 +258,7 @@ function CreateNewLeadGroup({
 
           {/* ACTIONS */}
           <div className="flex items-center justify-between gap-2 mt-2">
-            <div className="text-sm font-medium text-gray-500 dark:text-mcm-ink-3">
+            <div className="text-sm font-medium text-gray-500">
               {mergedSelectedIds.length} {mergedSelectedIds.length === 1 ? 'item' : 'items'}{' '}
               selected
             </div>
@@ -319,12 +319,12 @@ const ContactSelectionList = React.memo(({ isLeadList, selectedIds, onSelect }: 
           IconPosition="left-0 pl-2 inset-y-0"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          Icon={<SearchLine className="text-gray-700 dark:text-mcm-ink-2" />}
+          Icon={<SearchLine className="text-gray-700" />}
         />
       )}
 
       {!isContactsEmpty && filteredContacts.length > 0 && (
-        <div className="flex items-center gap-3 p-2 border-b border-gray-100 dark:border-mcm-line">
+        <div className="flex items-center gap-3 p-2 border-b border-gray-100">
           <Checkbox
             checked={
               filteredContacts.every((c: any) => selectedIds.includes(c._id))
@@ -349,7 +349,7 @@ const ContactSelectionList = React.memo(({ isLeadList, selectedIds, onSelect }: 
               }
             }}
           />
-          <span className="text-sm font-semibold text-gray-700 dark:text-mcm-ink-2">Select All</span>
+          <span className="text-sm font-semibold text-gray-700">Select All</span>
         </div>
       )}
 
@@ -358,7 +358,7 @@ const ContactSelectionList = React.memo(({ isLeadList, selectedIds, onSelect }: 
           <Skeleton className="h-10 w-full" />
         ) : isContactsEmpty ? (
           <div className="flex flex-col items-center justify-center p-6 gap-4">
-            <p className="text-sm text-gray-500 dark:text-mcm-ink-3 font-medium">
+            <p className="text-sm text-gray-500 font-medium">
               {isLeadList ? 'No lead available' : 'No contact available'}
             </p>
             <Button
@@ -393,7 +393,7 @@ const ContactSelectionList = React.memo(({ isLeadList, selectedIds, onSelect }: 
                   <div>
                     {contact?.name?.first} {contact?.name?.last}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-mcm-ink-3">
+                  <div className="text-xs text-gray-500">
                     {contact?.contact?.number || contact?.contact?.phone || ''}
                   </div>
                 </div>

@@ -12,7 +12,7 @@ const PaymentFailedPopup = ({ handleClose, isLogin }: any) => {
 
   return (
     <>
-      <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200 dark:border-mcm-line"></div>
+      <div className="flex flex-col gap-1.5 p-3 bg-ucass-primary-200 text-primary rounded-xl border border-gray-200"></div>
       {!isLogin && (
         <h4 className=" font-semibold text-xl text-center">
           Your account has been created successfully!

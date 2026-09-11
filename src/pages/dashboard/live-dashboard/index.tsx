@@ -69,6 +69,17 @@ import {
 import { CallPathCell, CallPathDialog } from '@/pages/monitoring/call-path-cell';
 import CallHistory from '@/pages/reports/call-logs/call-history';
 import { useCallStats } from '@/hooks/use-call-stats';
+/* Written for this board (and referenced in several comments below) but
+   never actually wired up with an import — the file existed, its
+   `.dash-legacy table[data-slot='table'] thead th` rules were completely
+   inert, and the roster's `<thead>` (sticky, `top-0`) rendered fully
+   transparent as a result. A transparent sticky header has nothing wrong
+   with its own layout — it still reserves its own 40px row — but every
+   row that scrolls underneath it (inside `.agent-roster-scroll`) shows
+   straight through the see-through header cells, reading as the header
+   labels and a data row colliding in the same space. This one import is
+   the actual fix; the CSS itself was already correct. */
+import '@/pages/performance/legacy-table-theme.css';
 
 type Trend = 'up' | 'down' | 'flat';
 type DashboardCallListKey = 'total' | 'inbound' | 'outbound' | 'missed';
@@ -145,16 +156,14 @@ const stateBelow = (value: number, ok: number, warn: number): MetricState =>
 
 /* Only warn and breach paint. A board that colours every healthy figure too
    has spent the signal before anything has gone wrong. */
-const metricStateClasses: Record<MetricState, { value: string; edge: string; cell: string }> = {
-  ok: { value: 'text-[#1A1A1A] dark:text-mcm-ink', edge: '', cell: '' },
+const metricStateClasses: Record<MetricState, { value: string; cell: string }> = {
+  ok: { value: 'text-[#1A1A1A] dark:text-mcm-ink', cell: '' },
   warn: {
     value: 'text-[#C2670A]',
-    edge: 'bg-[#E8A33D]',
     cell: 'bg-[#FDF1DE]',
   },
   breach: {
     value: 'text-[#C0261F]',
-    edge: 'bg-[#D8453C]',
     cell: 'bg-[#FDECEB]',
   },
 };
@@ -1246,7 +1255,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
           across a room and mostly unattended, so it has to answer that
           without the reader totting up seventeen figures first. */}
       <div
-        className={`mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-[20px] border px-4 py-3 ${
+        className={`mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full border px-3.5 py-1.5 ${
           floorState === 'breach'
             ? 'border-[rgba(216,69,60,0.3)] bg-[#FDECEB]'
             : floorState === 'warn'
@@ -1255,7 +1264,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
         }`}
       >
         <span
-          className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+          className={`h-2 w-2 shrink-0 rounded-full ${
             floorState === 'breach'
               ? 'bg-[#D8453C]'
               : floorState === 'warn'
@@ -1296,19 +1305,29 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             a zero-specificity `:where()` it scores (0,1,1) and outranks every
             Tailwind utility here. Without the attribute the fill, border and
             colour below are dropped and the control renders as plain text.
-            Same styling as the AI Wall refresh so the two boards match. */}
-        <button
-          type="button"
-          data-slot="button"
-          onClick={handleRefreshCampaignStats}
-          disabled={isRefreshing}
-          title="Refresh live figures"
-          aria-label="Refresh live figures"
-          className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(214,163,90,0.6)] bg-[#fffdfb] px-4 py-2 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Refreshing' : 'Refresh'}
-        </button>
+            Same styling as the AI Wall refresh so the two boards match.
+
+            `CustomTooltip`, not a plain `title` attribute -- every other
+            icon-only control on this board (the monitoring action buttons,
+            the campaign refresh icon) already gets the app's own styled
+            tooltip; this was the one control still falling back to the
+            browser's native title tooltip, which pops up its own plain
+            grey box a beat after the pointer settles -- right on top of
+            this pill's own rounded corner and shadow, reading as a second,
+            broken-looking control stacked on the first on hover. */}
+        <CustomTooltip text="Refresh live figures" side="top">
+          <button
+            type="button"
+            data-slot="button"
+            onClick={handleRefreshCampaignStats}
+            disabled={isRefreshing}
+            aria-label="Refresh live figures"
+            className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[rgba(214,163,90,0.6)] bg-[#fffdfb] px-3 py-1.5 text-xs font-semibold text-primary shadow-[0_2px_8px_rgba(194,98,46,0.16)] transition hover:border-primary/60 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing' : 'Refresh'}
+          </button>
+        </CustomTooltip>
       </div>
 
       {/* ── Right now ───────────────────────────────────────────────────
@@ -1329,15 +1348,9 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               className={`relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)] ${
                 heroState
                   ? `${heroState.cell} border-[rgba(249,115,22,0.14)]`
-                  : 'border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%]'
+                  : 'border-[rgba(249,115,22,0.16)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%]'
               }`}
             >
-              {heroState ? (
-                <span
-                  aria-hidden="true"
-                  className={`absolute inset-y-0 left-0 w-1 ${heroState.edge}`}
-                />
-              ) : null}
               <div>
                 <p
                   className={`num text-[28px] font-bold leading-none tracking-tight ${
@@ -1360,7 +1373,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
             </div>
           );
         })}
-        <div className="relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+        <div className="relative flex items-start justify-between gap-3 overflow-hidden rounded-[20px] border border-[rgba(249,115,22,0.16)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] px-5 py-3.5 shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
           <div>
             <p className="num text-[28px] font-bold leading-none tracking-tight text-[#1A1A1A] dark:text-mcm-ink">
               {agentsAvailableNow}
@@ -1445,7 +1458,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                  (`--surface` housing `--surface-2` compartments), applied
                  here instead of literally cloning the floating-pill shape. */
               <div
-                className="grid w-full gap-1.5 overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface p-1.5 backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]"
+                className="grid w-full gap-1.5 overflow-hidden rounded-[20px] border border-[rgba(249,115,22,0.16)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface p-1.5 backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]"
                 style={{
                   gridTemplateColumns: `repeat(${Math.max(1, Math.ceil(section.items.length / 2))}, minmax(140px, 1fr))`,
                 }}
@@ -1481,15 +1494,6 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                           : ''
                       }`}
                     >
-                      {/* A 3px edge on the breaching cell only. Reads as a
-                          flag down the left of the panel from a distance,
-                          before any of the numbers are legible. */}
-                      {stateStyle ? (
-                        <span
-                          aria-hidden="true"
-                          className={`absolute inset-y-0 left-0 w-[3px] ${stateStyle.edge}`}
-                        />
-                      ) : null}
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                           {item.label}
@@ -1543,7 +1547,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                  object, the seven readings are its cells. Same fill, radius,
                  hairline and shadow as those panels, so the three groups now
                  look like one family instead of two plus a loose row. */
-              <div className="w-full overflow-hidden rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+              <div className="w-full overflow-hidden rounded-[20px] border border-[rgba(249,115,22,0.16)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
                   {section.items.map((item) => {
                     const IconComp = item.icon;
@@ -1577,15 +1581,6 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                             : ''
                         }`}
                       >
-                        {/* 3px edge on the breaching cell only -- reads as a
-                            flag down the strip before the numbers are legible,
-                            matching how the panels above flag a breach. */}
-                        {stateStyle ? (
-                          <span
-                            aria-hidden="true"
-                            className={`absolute inset-y-0 left-0 w-[3px] ${stateStyle.edge}`}
-                          />
-                        ) : null}
                         <div
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                             stateStyle ? 'bg-white/60' : 'bg-[#FFF1E0] dark:bg-mcm-accent-wash'
@@ -1642,7 +1637,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
               stacked cards each carrying its own border and shadow. Each band
               opens with a rule, an eyebrow and a sentence saying what it is
               for, so the panel reads before its numbers do. */}
-          <div className="w-full rounded-[20px] border border-[rgba(225,200,165,0.55)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
+          <div className="w-full rounded-[20px] border border-[rgba(249,115,22,0.16)] dark:border-mcm-line/55 bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] backdrop-saturate-[190%] shadow-[0_10px_34px_rgba(160,95,30,0.14)]">
             <div className="grid grid-cols-1 divide-y divide-[rgba(225,200,165,0.4)] md:grid-cols-3 md:divide-x md:divide-y-0">
 
               <section className="p-5">
@@ -1734,7 +1729,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                 {queueStatusData.length > 0 ? (
                   /* Scrolls in place once the list outgrows the column, so ten
                      queues do not stretch the funnel and campaigns beside it. */
-                  <div className="perf-thin-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-auto">
+                  <div className="perf-thin-scroll mt-5 max-h-[300px] overflow-y-auto overflow-x-hidden">
                     {/* Header pixel-matched to the Directory People benchmark
                         (legacy-table-theme.css/live-theme.css): `#fffdfb`
                         background, `#8a6f57` text at 9.5px/800/0.09em
@@ -1752,7 +1747,7 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                         header, well under the 4.5:1 small-text minimum, the
                         same trap `.mcm-page button`'s reset sets for plain
                         buttons elsewhere in this file. */}
-                    <table className="w-full min-w-[330px]">
+                    <table className="w-full">
                       <thead>
                         <tr className="bg-[#fffdfb] dark:bg-mcm-surface">
                           <th className="py-2 pl-2 text-left text-[9.5px] font-extrabold uppercase tracking-[0.09em] !text-[#8a6f57] dark:!text-mcm-ink-2 !border-b-2 !border-b-[rgba(242,153,74,0.25)]">
@@ -1789,22 +1784,26 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                 ? 'bg-[#E8A33D]'
                                 : 'bg-[#4EAE6E]';
                           return (
-                            /* Directory's signature row-hover: a 3px inset
-                               left accent bar plus a warm peach wash
-                               (`box-shadow: inset 3px 0 0 var(--accent)` +
-                               `rgba(254,215,170,0.22)` in live-theme.css/
-                               legacy-table-theme.css) — this table's rows had
-                               no hover treatment at all before. The
-                               permanent per-row SLA-health bar (`edge`, in
-                               the first cell) stays exactly as it was; this
-                               is a second, separate signal that only shows
-                               on hover, same as every other Performance
-                               table. `bg-transparent` keeps the row clean at
-                               rest so the hover wash is the only thing that
-                               ever paints it. */
+                            /* Only the warm peach wash on hover, not
+                               Directory's usual 3px inset accent bar too —
+                               this table already carries its own permanent
+                               per-row SLA-health bar (`edge`, in the first
+                               cell), which sits a couple pixels in from the
+                               row's true left edge (inside the `pl-2`
+                               padding). Adding the accent bar as well drew a
+                               second, separate line right at the row's outer
+                               edge — two parallel colour bars a few pixels
+                               apart on hover, reading as a doubled border.
+                               This exact conflict is already documented in
+                               legacy-table-theme.css's own file banner (why
+                               that stylesheet deliberately does NOT reach
+                               this table); the same reasoning applies to
+                               this inline hover, so it stops short of the
+                               accent bar too. `bg-transparent` keeps the row
+                               clean at rest. */
                             <tr
                               key={queue.queue}
-                              className="bg-transparent transition-colors duration-150 hover:bg-[rgba(254,215,170,0.22)] hover:shadow-[inset_3px_0_0_#ea580c]"
+                              className="bg-transparent transition-colors duration-150 hover:bg-[rgba(254,215,170,0.22)]"
                             >
                               <td className="py-3 pl-2 text-left">
                                 <span className="flex items-center gap-2.5">
@@ -1879,8 +1878,22 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                      `py-3.5` on every row (see the note there), so the first
                      row already contributes 14px of its own above the list.
                      Trimming the container's margin by the same amount keeps
-                     the gap under the subtitle exactly where it was. */
-                  <div className="perf-thin-scroll mt-1.5 flex max-h-[300px] flex-col divide-y divide-[rgba(225,200,165,0.4)] overflow-y-auto">
+                     the gap under the subtitle exactly where it was.
+
+                     `-mx-5` moved here, onto the scroll container itself,
+                     rather than living on each row (see the note below) —
+                     `overflow-y: auto` here forces `overflow-x` to compute to
+                     `auto` too (the same rule the dot's `origin-left` note
+                     below already documents), so a row's own `-mx-5` bled 20px
+                     past THIS container's edges only to be hard-clipped right
+                     back at them: the wash stopped in a straight vertical
+                     line a couple of pixels short of the card's real edge,
+                     reading as a stray border where it cut off. Escaping the
+                     section's 20px padding has to happen at the level that
+                     actually clips overflow — this container — not one level
+                     further in, where the escape attempt never survives to
+                     be seen. */
+                  <div className="perf-thin-scroll -mx-5 mt-1.5 flex max-h-[300px] flex-col divide-y divide-[rgba(225,200,165,0.4)] overflow-y-auto">
                     {activeCampaignsData.map((campaign) => {
                       const reached =
                         campaign.dialed > 0
@@ -1899,14 +1912,14 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                              list's outer spacing is handled on the container
                              instead, where it does not distort the rows.
 
-                             `-mx-5`/`px-5`, not `-mx-2`/`px-2`: the wash was
-                             only reaching a couple of pixels past the row's
-                             own text, well short of the card's actual edges,
-                             because it was undoing its own small buffer
-                             rather than the parent `<section className="p-5">`'s
-                             20px padding. Matching that padding is what lets
-                             the highlight run the full width of the card. */
-                          className="group -mx-5 rounded-xl px-5 py-3.5 transition-colors duration-150 hover:bg-[rgba(249,115,22,0.05)]"
+                             `px-5` alone, no `-mx-5` here: the container above
+                             now already spans the card's real width, so this
+                             row (an ordinary block child, no negative margin
+                             of its own) already fills that same width — its
+                             background paints edge to edge under the padding
+                             regardless, `px-5` only insets the text/content
+                             inside that same box. */
+                          className="group rounded-xl px-5 py-3.5 transition-colors duration-150 hover:bg-[rgba(249,115,22,0.05)]"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <span className="flex min-w-0 items-center gap-2.5">
@@ -2199,13 +2212,26 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                       </TableBody>
                     ) : agents?.length > 0 ? (
                       <TableBody>
-                        {agents?.map((agent: any, agentIndex: number) => (
-                          <TableRow
-                            key={agent?.extension}
-                            className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/50 hover:bg-[#FBE2C8]/60 dark:hover:bg-mcm-surface-3/60 ${
-                              agentIndex % 2 === 1 ? 'bg-[#FBF6EE]/40' : ''
-                            }`}
-                          >
+                        {/* Directory's own row hover (`legacy-table-theme.css`,
+                            `.dash-legacy table[data-slot='table'] tbody
+                            tr:hover`) now owns this row's hover state — the
+                            3px inset accent bar plus peach wash, same as
+                            Queue Status beside it. This row used to carry a
+                            second, competing hover of its own (a left
+                            border shift plus a different `#FBE2C8` tint) and
+                            an alternating zebra stripe — both landed on top
+                            of that CSS rule once its import gap was fixed,
+                            so rows briefly had two hover treatments firing
+                            at once, and the stripe (a plain Tailwind
+                            background utility, layered) was already losing
+                            to the theme file's own unlayered `background:
+                            transparent` on every row regardless. Dropped
+                            both: Directory's own tables don't zebra-stripe
+                            either, rows read cleanest fully transparent at
+                            rest with only the hover accent to distinguish
+                            one from the next. */}
+                        {agents?.map((agent: any) => (
+                          <TableRow key={agent?.extension}>
                             <TableCell className="px-3 py-2.5">
                               <div className="flex items-center gap-2.5">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#F2994A] to-[#C96F1F] text-[12px] font-semibold text-white shadow-sm">

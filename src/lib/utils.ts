@@ -1,4 +1,5 @@
 /* eslint-disable no-useless-escape */
+import type { ReactNode } from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import * as yup from 'yup';
 import { Slide, toast, type TypeOptions } from 'react-toastify';
@@ -15,6 +16,7 @@ import {
   VoicemailLineIcon,
 } from '@/assets/icons';
 import parsePhoneNumber from 'libphonenumber-js';
+import { parsePhoneNumber as parsePhoneNumberMax } from 'libphonenumber-js/max';
 import { CreditCardIcon } from 'lucide-react';
 import { COMMN_CONST, COMMON_CONST } from '@/constants/common-const';
 import { getDomain } from 'tldts';
@@ -43,6 +45,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const isPreviewHost = (hostname?: string) => {
+  const host = hostname ?? (typeof window === 'undefined' ? '' : window.location.hostname);
+
+  return (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '0.0.0.0' ||
+    host === '::1' ||
+    host === '[::1]' ||
+    host.endsWith('.local') ||
+    host.endsWith('.vercel.app')
+  );
+};
+
 export const getAiBaseUrl = () =>
   String(import.meta.env.VITE_AI_URL || '')
     .trim()
@@ -69,55 +85,13 @@ export const getAiWidgetScriptUrl = () => {
   }
 };
 
-/**
- * Hosts that are not one of the organisation's registered domains — a local
- * dev server, or a preview deployment.
- *
- * Three separate things are provisioned per domain and so do not cover these
- * hosts: the API's CORS allowlist, the organisation registered to a domain, and
- * the hostnames a Cloudflare Turnstile widget accepts. Each needs its own
- * fallback, but they all key off this same question.
- */
-export const isPreviewHost = (hostname?: string) => {
-  const host = hostname ?? (typeof window === 'undefined' ? '' : window.location.hostname);
-
-  return (
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '0.0.0.0' ||
-    host === '::1' ||
-    host === '[::1]' ||
-    host.endsWith('.local') ||
-    host.endsWith('.vercel.app')
-  );
-};
-
-/**
- * Where API requests go.
- *
- * `VITE_API_BASE_URL` names the API host directly, which is how the production
- * deployment is configured. Calling the API cross-origin only works from a host
- * the API allowlists, though: it returns no `Access-Control-Allow-Origin` to
- * anyone else, so the browser blocks every response and the app cannot load its
- * own organisation.
- *
- * With no variable set the base is empty, which makes every request same-origin
- * (`/api/...`). Both the dev server and the deployment proxy that path to the
- * API, so the browser never performs a cross-origin request and there is
- * nothing for an allowlist to reject.
- */
-export const getApiBaseUrl = () =>
-  String(import.meta.env.VITE_API_BASE_URL || '')
-    .trim()
-    .replace(/\/+$/, '');
-
 export function getEnv() {
   const aiBaseUrl = getAiBaseUrl();
 
   return {
     ...import.meta.env,
     VITE_PAYPAL_CLIENT_ID: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-    VITE_API_BASE_URL: getApiBaseUrl(),
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     VITE_NOTIFICATION_SOCKET_URL: import.meta.env.VITE_NOTIFICATION_SOCKET_URL,
     VITE_AI_SOCKET_URL: import.meta.env.VITE_AI_SOCKET_URL,
     VITE_AGENTIC_API_URL: import.meta.env.VITE_AGENTIC_API_URL,
@@ -146,20 +120,25 @@ export const getDomainNameFromLocation = () => {
 
   return getDomain(host, { allowPrivateDomains: true }) || host;
 };
+/**
+ * `icon` and `className` are optional passthroughs to react-toastify.
+ *
+ * The notification drawer's "marked as read" toast carries its own tick icon
+ * and a class that styles the Undo button inside it. Without these two the
+ * toast still appeared, but as plain text — the icon and the styling were
+ * being dropped silently at this boundary rather than erroring anywhere
+ * obvious. Optional, so every existing caller is unaffected.
+ */
 export function handleAlert({
   text = '',
   type = 'success',
   icon,
   className,
-  autoClose,
 }: {
   text: any;
-  type: TypeOptions;
-  /** Overrides react-toastify's default type icon — pass `false` to hide it entirely. */
-  icon?: any;
-  /** Extra class on the toast's own element, for a one-off restyle. */
+  type?: TypeOptions;
+  icon?: ReactNode;
   className?: string;
-  autoClose?: number | false;
 }) {
   if (typeof window !== 'undefined' && (window as any).isSessionTerminated) {
     toast.dismiss();
@@ -170,9 +149,8 @@ export function handleAlert({
     type: type,
     position: 'top-center',
     transition: Slide,
-    ...(icon !== undefined ? { icon } : {}),
+    ...(icon ? { icon: () => icon } : {}),
     ...(className ? { className } : {}),
-    ...(autoClose !== undefined ? { autoClose } : {}),
   });
 }
 
@@ -293,6 +271,10 @@ export const GUEST_MEETING_TOKEN_UPDATED_EVENT = 'guest-meeting-token-updated';
 /** Persistent device identifier for this browser; used in login, send-otp, verify-otp */
 export const DEVICE_ID_KEY = 'ucaas-device-id';
 
+/** Whether this browser opted out of the emailed code. Read on the next sign-in,
+    before any code is sent, so it has to outlive the session that set it. */
+export const REMEMBER_DEVICE_KEY = 'ucaas-remember-device';
+
 /** Get or create a persistent device id for this browser (stored in localStorage). */
 export const getDeviceId = (): string => {
   let id = typeof localStorage !== 'undefined' ? localStorage.getItem(DEVICE_ID_KEY) : null;
@@ -301,6 +283,31 @@ export const getDeviceId = (): string => {
     localStorage.setItem(DEVICE_ID_KEY, id);
   }
   return id;
+};
+
+/**
+ * Sign the person out without forgetting which browser this is.
+ *
+ * `localStorage.clear()` looks like the thorough way to end a session, and it is
+ * the reason "Skip the code on this device for 30 days" never worked: it takes
+ * the device id with everything else, so the next sign-in introduces itself as a
+ * brand new device and the server — which matches the 30-day trust on
+ * `device_id` — has nothing to match against. Every sign-in was a first one.
+ *
+ * These two keys describe the browser, not the session, so they are the two that
+ * have to survive a logout. Everything else still goes.
+ */
+export const clearStorageKeepingDeviceIdentity = (): void => {
+  try {
+    const deviceId = localStorage.getItem(DEVICE_ID_KEY);
+    const rememberDevice = localStorage.getItem(REMEMBER_DEVICE_KEY);
+    localStorage.clear();
+    if (deviceId) localStorage.setItem(DEVICE_ID_KEY, deviceId);
+    if (rememberDevice) localStorage.setItem(REMEMBER_DEVICE_KEY, rememberDevice);
+  } catch {
+    /* Storage can be unavailable in a private window or with site data blocked.
+       Losing the device id there costs an extra code, not a broken sign-in. */
+  }
 };
 
 /** When API returns plan expired with isPlanPaymentPending + token, we store company uuid for renew-plan page */
@@ -1169,10 +1176,93 @@ export const notificationIconColorLookup: any = {
   did_purchase: 'text-success-500',
   change_plan_request: 'text-success-500',
 };
+/**
+ * The country to read a number as when it carries no country code of its own.
+ *
+ * The call log stores both forms of the same number — `917666718264` and the
+ * bare `7666718264` — and the second says nothing about where it is from. This
+ * is an Indian deployment, so a bare national number is Indian. It is only ever
+ * a fallback: a number that arrives with a "+" states its own country and this
+ * never overrides it.
+ */
+const DEFAULT_PHONE_COUNTRY = 'IN';
+
+/**
+ * A number in international form, e.g. `+91 76667 18264`.
+ *
+ * Three things this has to get right, because numbers reach it from the call
+ * log, the contact book, assigned DIDs and the dialler, each storing them
+ * differently:
+ *
+ *  1. It must not throw. `parsePhoneNumber` throws INVALID_COUNTRY on bare
+ *     digits, and an uncaught throw takes down whatever was rendering the
+ *     number.
+ *  2. Bare digits must not be turned into a foreign number by sticking a "+"
+ *     in front. `7666718264` became "+7 666718264" — Russia — and
+ *     `9004583988` became "+90 4583988", Turkey. Reading it as a national
+ *     number of this deployment's country is what makes it +91 76667 18264.
+ *  3. A guess is only believed when the result is a number that could actually
+ *     exist. Both guesses are checked with `isValid()` against the full
+ *     metadata (`libphonenumber-js/max` — the default build is lenient enough
+ *     to call "+91 16059713935" valid), and the country code found in the
+ *     digits wins over the assumed one: `16059713935` is +1 605 971 3935 in
+ *     the United States, not an Indian number.
+ *
+ * When neither reading holds up, the digits are returned as they came. Saying
+ * "we do not know where this is from" is honest; inventing a country is not.
+ */
 export const formatPhoneNumber = (number: string) => {
   if (!number || typeof number === 'object') return;
-  const phoneNumber = parsePhoneNumber(`${number.replace(/\s/g, '')}`);
-  return phoneNumber?.formatInternational() ?? number?.replace('+', '');
+  const cleaned = String(number).replace(/\s/g, '');
+  if (!cleaned) return;
+
+  /** Formatted only when the parse produced a number that could really exist. */
+  const attempt = (value: string, country?: 'IN') => {
+    try {
+      const parsed = parsePhoneNumberMax(value, country as any);
+      return parsed?.isValid() ? parsed.formatInternational() : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
+  // Already states its own country — nothing to guess.
+  if (cleaned.startsWith('+')) return attempt(cleaned) ?? cleaned;
+
+  const digits = cleaned.replace(/\D/g, '');
+  const formatted =
+    // A national number of this deployment's country, or one that already
+    // carries its country code — libphonenumber reads both from this.
+    attempt(cleaned, DEFAULT_PHONE_COUNTRY) ??
+    // Otherwise the digits may be an international number that simply lost its
+    // "+" somewhere: believed only if that reading is valid.
+    (digits ? attempt(`+${digits}`) : undefined);
+
+  return formatted ?? cleaned.replace('+', '');
+};
+
+/**
+ * The same resolution as `formatPhoneNumber`, but handing back E.164
+ * (`+917666718264`) rather than a display string — for anything that needs the
+ * country rather than the formatting, such as the flag beside the number.
+ * Empty when no reading of the digits produced a real number.
+ */
+export const toE164 = (number: unknown): string => {
+  const cleaned = String(number ?? '').replace(/\s/g, '');
+  if (!cleaned) return '';
+
+  const attempt = (value: string, country?: 'IN') => {
+    try {
+      const parsed = parsePhoneNumberMax(value, country as any);
+      return parsed?.isValid() ? parsed.number : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
+  if (cleaned.startsWith('+')) return attempt(cleaned) ?? '';
+  const digits = cleaned.replace(/\D/g, '');
+  return attempt(cleaned, DEFAULT_PHONE_COUNTRY) ?? (digits ? attempt(`+${digits}`) : '') ?? '';
 };
 
 /**

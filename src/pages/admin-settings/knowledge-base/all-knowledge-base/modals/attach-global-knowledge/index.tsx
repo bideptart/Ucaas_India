@@ -107,7 +107,7 @@ function AttachGlobalKnowledgeBase({
               Attach Global Knowledge Base
               <div
                 onClick={() => setModalState(false)}
-                className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
               >
                 <CloseIcon className="w-3 h-3" />
               </div>
@@ -144,7 +144,7 @@ function AttachGlobalKnowledgeBase({
                       key={item?.ingestionId}
                       onClick={() => toggleSelection(item?.ingestionId)}
                       className={`border rounded-lg p-3 cursor-pointer flex items-center gap-3 transition 
-                       ${checked ? 'border-primary bg-ucass-active-bg' : 'border-gray-300 dark:border-mcm-line'}
+                       ${checked ? 'border-primary bg-ucass-active-bg' : 'border-gray-300'}
                       `}
                     >
                       <div onClick={(e) => e.stopPropagation()}>
@@ -167,7 +167,7 @@ function AttachGlobalKnowledgeBase({
                   );
                 })
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-500 dark:text-mcm-ink-3 text-md">
+                <div className="flex items-center justify-center h-full text-gray-500 text-md">
                   No items available
                 </div>
               )}

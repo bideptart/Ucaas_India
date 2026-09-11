@@ -63,6 +63,7 @@ const AccessControlPage = () => {
 
   return (
     <AdminPage
+      hideHead
       section="People"
       title="How access works"
       description="Who can do what, in four steps. Start here, then work down: the later steps assume the earlier ones have been answered."
@@ -131,7 +132,7 @@ const AccessControlPage = () => {
                 </>
               }
               control={
-                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-600 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-3">
+                <span className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-600">
                   {SCOPE_LABEL[tier.scope]}
                 </span>
               }

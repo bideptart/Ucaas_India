@@ -56,7 +56,7 @@ const Media = () => {
         <div className="flex w-full flex-col gap-4 pr-1 sm:pr-2">
           <div className="flex w-full flex-col gap-4">
             <div className="flex w-full flex-col gap-3 lg:w-1/2">
-              <h5 className="font-semibold text-foreground text-md my-2">Media</h5>
+              <h5 className="font-semibold text-gray-900 text-md my-2">Media</h5>
               <div className="flex flex-col gap-4 pt-2">
                 <div className="divide-y divide-gray-200">
                   {mediaOptionsGreetingNotifications.map(({ name, label }) => {
@@ -65,7 +65,7 @@ const Media = () => {
                         key={name}
                         className="flex flex-col gap-2 w-full py-2 first:pt-0 last:pb-0"
                       >
-                        <p className="text-foreground text-sm">{`Do you want to add "${capitalizeFirstLetter(label)} message" ?`}</p>
+                        <p className="text-gray-900 text-sm">{`Do you want to add "${capitalizeFirstLetter(label)} message" ?`}</p>
                         <div className="flex min-h-10 flex-col items-start gap-3 md:flex-row md:items-center">
                           <RadioGroup
                             value={watchMedia?.[name]?.enabled?.toString()}

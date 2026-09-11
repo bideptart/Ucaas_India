@@ -1,6 +1,5 @@
-import { UserLine, UsersGroupLine, FilterIcon, LetterOpenedLine } from '@/assets/icons';
+import { SearchLine, UserLine, UsersGroupLine, FilterIcon, LetterOpenedLine } from '@/assets/icons';
 import CustomAvatar from '@/components/custom/custom-avatar';
-import CustomSelect from '@/components/custom/custom-select';
 import SideDrawer from '@/components/custom/side-drawer';
 import CreateDirectChat from './drawers/create-direct-chat';
 import CreateTeamChat from './drawers/create-team-chat';
@@ -25,7 +24,6 @@ import {
   Plus,
   Star,
   StarOff,
-  XIcon,
   LucideUser,
   Loader2,
 } from 'lucide-react';
@@ -47,6 +45,7 @@ import useDebounce from '@/hooks/use-debounce';
 import { useLoadMoreUsersObserver, useMessengerUsers } from './hooks/use-messenger-users';
 import '@/components/mcm/mcm-page.css';
 import '@/styles/warm-glass.css';
+import ActivityPageHead from '@/components/custom/activity-page-head';
 
 type ChannelType = keyof typeof CHANNELS_ICON;
 
@@ -268,7 +267,7 @@ const NotificationBadge = ({
 
   return (
     <>
-      {isMuted && <BellOff className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3 shrink-0" />}
+      {isMuted && <BellOff className="w-3.5 h-3.5 text-[#9A948F] shrink-0" />}
       {count > 0 && (
         <span className="bg-primary min-w-5 h-5 px-1 rounded-full flex items-center justify-center text-white text-[11px]">
           {count > 99 ? '99+' : count}
@@ -365,8 +364,8 @@ const ListItem = ({
   // Handle available user case
   if (chat?.isAvailableUser) {
     return (
-      <div className="flex hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 cursor-pointer" onClick={() => onChatSelect(chat)}>
-        <div className="flex items-center w-full px-3 h-16 gap-2">
+      <div className="flex hover:bg-[#FBE2C8]/40 cursor-pointer" onClick={() => onChatSelect(chat)}>
+        <div className="flex items-center w-full px-2 h-12 gap-2">
           <div className="relative">
             <CustomAvatar
               name={`${otherUserData?.first_name} ${otherUserData?.last_name}`}
@@ -378,8 +377,8 @@ const ListItem = ({
           <div className="flex flex-col justify-between text-sm w-[calc(100%_-_3rem)] gap-1">
             <div className="flex justify-between gap-2">
               <div className="flex items-center gap-1 w-full ">
-                <LucideUser className="w-4 min-w-4 h-4 text-[#9A948F] dark:text-mcm-ink-3" />
-                <p className="text-[#2E2D35] dark:text-mcm-ink truncate font-medium">
+                <LucideUser className="w-4 min-w-4 h-4 text-[#9A948F]" />
+                <p className="text-[#2E2D35] truncate font-medium">
                   {otherUserData?.first_name}&nbsp;
                   {otherUserData?.last_name}
                 </p>
@@ -452,24 +451,24 @@ const ListItem = ({
       className="text-xs text-[var(--color-text-black)] pb-0 cursor-pointer"
       onClick={() => handleClickItem(chat)}
     >
-      <div className="w-full flex flex-col gap-1 ">
+      <div className="w-full flex flex-col">
         <div
-          className={`flex justify-between w-full items-center pl-3 pr-2 min-h-[60px] group relative  transition-all border-b border-[#EEE7DD] dark:border-mcm-line duration-200
-             ${isChatOpened ? 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40  ' : 'bg-transparent hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3/40 '}`}
+          className={`flex justify-between w-full items-center pl-2 pr-1.5 min-h-[48px] group relative transition-all border-b border-[#EEE7DD] duration-200
+             ${isChatOpened ? 'bg-[#FBE2C8]/40' : 'bg-transparent hover:bg-[#FBE2C8]/40'}`}
         >
           <div className="flex w-full min-w-0 items-center gap-2">
             <div className="text-xs font-medium flex items-center gap-1">
               <CustomAvatar
                 name={nameToShow || ''}
                 showPresence={!isGroupChat && !isOwnChat}
-                size="36"
+                size="32"
                 extension={!isGroupChat ? otherUserData?.extension : ''}
                 image={isGroupChat ? chat?.avatar : getUserProfileByUuid(otherUserData?.uuid) || ''}
               />
             </div>
-            <div className="flex w-full min-w-0 flex-col gap-1">
-              <div className="flex min-w-0 items-center gap-2 text-sm">
-                <div className=" min-w-0 truncate">{nameToShow || ''}</div>
+            <div className="flex w-full min-w-0 flex-col gap-0.5">
+              <div className="flex min-w-0 items-center gap-1.5 text-xs">
+                <div className="min-w-0 truncate font-medium">{nameToShow || ''}</div>
                 {isFavorited ? (
                   <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500 shrink-0" />
                 ) : null}
@@ -479,10 +478,10 @@ const ListItem = ({
                 <NotificationBadge count={unreadMsgCount} isMuted={isMuted} />
               </div>
               {isOwnChat ? (
-                <div className="text-[#9A948F] dark:text-mcm-ink-3 italic">(You)</div>
+                <div className="text-[#9A948F] italic">(You)</div>
               ) : (
                 <div
-                  className={`truncate text-xs ${isTyping ? 'text-primary' : shouldShowDraftPreview ? 'text-amber-600 font-medium' : 'text-[#9A948F] dark:text-mcm-ink-3'}`}
+                  className={`truncate text-[11px] ${isTyping ? 'text-primary' : shouldShowDraftPreview ? 'text-amber-600 font-medium' : 'text-[#9A948F]'}`}
                 >
                   {isTyping
                     ? typingText
@@ -501,24 +500,24 @@ const ListItem = ({
                   className="focus:outline-none"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="min-w-6 max-h-10 max-w-6 cursor-pointer invisible flex items-center justify-end group-hover:visible group-focus-within:flex text-[#9A948F] dark:text-mcm-ink-3">
-                    <EllipsisVertical width={18} height={18} />
+                  <div className="min-w-6 max-h-10 max-w-6 cursor-pointer flex items-center justify-end text-[#9A948F]">
+                    <EllipsisVertical width={16} height={16} />
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] rounded-lg shadow-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 p-1 min-w-[200px]">
+                <DropdownMenuContent className="bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-lg shadow-lg border border-[rgba(225,200,165,0.9)] p-1 min-w-[200px]">
                   <DropdownMenuItem
-                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45"
+                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleUnread({ chatId: chat?.chatId, type: 'read' }, true);
                     }}
                   >
-                    {/* <LetterOpenedLine className="text-[#2E2D35] dark:text-mcm-ink w-4 h-4" /> */}
-                    <LetterOpenedLine className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                    <span className="text-[#2E2D35] dark:text-mcm-ink">Mark as read</span>
+                    {/* <LetterOpenedLine className="text-[#2E2D35] w-4 h-4" /> */}
+                    <LetterOpenedLine className="w-3.5 h-3.5 text-[#9A948F]" />
+                    <span className="text-[#2E2D35]">Mark as read</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45"
+                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45"
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(chat);
@@ -526,18 +525,18 @@ const ListItem = ({
                   >
                     {isFavorited ? (
                       <>
-                        <StarOff className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                        <span className="text-[#2E2D35] dark:text-mcm-ink">Remove from favorites</span>
+                        <StarOff className="w-3.5 h-3.5 text-[#9A948F]" />
+                        <span className="text-[#2E2D35]">Remove from favorites</span>
                       </>
                     ) : (
                       <>
-                        <Star className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                        <span className="text-[#2E2D35] dark:text-mcm-ink">Add to favorites</span>
+                        <Star className="w-3.5 h-3.5 text-[#9A948F]" />
+                        <span className="text-[#2E2D35]">Add to favorites</span>
                       </>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45"
+                    className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45"
                     onClick={(e) => {
                       e.stopPropagation();
                       togglePinConversation(chat);
@@ -545,20 +544,20 @@ const ListItem = ({
                   >
                     {isConversationPinned ? (
                       <>
-                        <PinOff className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                        <span className="text-[#2E2D35] dark:text-mcm-ink">Unpin conversation</span>
+                        <PinOff className="w-3.5 h-3.5 text-[#9A948F]" />
+                        <span className="text-[#2E2D35]">Unpin conversation</span>
                       </>
                     ) : (
                       <>
-                        <Pin className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                        <span className="text-[#2E2D35] dark:text-mcm-ink">Pin conversation</span>
+                        <Pin className="w-3.5 h-3.5 text-[#9A948F]" />
+                        <span className="text-[#2E2D35]">Pin conversation</span>
                       </>
                     )}
                   </DropdownMenuItem>
 
                   {!isOwnChat && (
                     <DropdownMenuItem
-                      className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45 dark:hover:bg-mcm-surface-3/45"
+                      className="flex items-center gap-3 p-2 text-xs font-normal cursor-pointer rounded-md hover:bg-[#FBE2C8]/45"
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleMute(chat);
@@ -566,13 +565,13 @@ const ListItem = ({
                     >
                       {isMuted ? (
                         <>
-                          <Bell className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                          <span className="text-[#2E2D35] dark:text-mcm-ink">Unmute conversation</span>
+                          <Bell className="w-3.5 h-3.5 text-[#9A948F]" />
+                          <span className="text-[#2E2D35]">Unmute conversation</span>
                         </>
                       ) : (
                         <>
-                          <BellOff className="w-3.5 h-3.5 text-[#9A948F] dark:text-mcm-ink-3" />
-                          <span className="text-[#2E2D35] dark:text-mcm-ink">Mute conversation</span>
+                          <BellOff className="w-3.5 h-3.5 text-[#9A948F]" />
+                          <span className="text-[#2E2D35]">Mute conversation</span>
                         </>
                       )}
                     </DropdownMenuItem>
@@ -582,7 +581,7 @@ const ListItem = ({
             )}
 
             {(chat?.lastMessage?.createdAt || chat?.metaData?.lastMessageTimeStamp) && (
-              <div className="text-xs whitespace-nowrap text-[#9A948F] dark:text-mcm-ink-3">
+              <div className="text-[10px] whitespace-nowrap text-[#9A948F]">
                 {getSimpleDateString(
                   chat?.lastMessage?.createdAt || chat?.metaData?.lastMessageTimeStamp,
                 )}
@@ -611,7 +610,6 @@ const SidebarContent = ({
   isCompactLayout?: boolean;
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<MessageStatus>('all');
   const {
@@ -631,7 +629,6 @@ const SidebarContent = ({
   const { features } = useCompanyFeatures();
   const chatAccess = features?.plan_features?.chat || {};
   const omniAccess = features?.plan_features?.omni_channel || {};
-  const pageTitle = isAgentChat ? 'Agent Chat' : 'Chat';
   const [draftsByKey, setDraftsByKey] = useState<DraftRecord>(() => readDraftsFromStorage());
 
   const { data: omniChannels } = useQuery({
@@ -1103,151 +1100,124 @@ const SidebarContent = ({
 
   return (
     <div className="w-full h-full min-h-0 bg-white flex flex-col">
-      <div className="min-h-16 flex items-center px-3 sm:px-4 justify-between border-b border-[#EEE7DD] dark:border-mcm-line">
-        <div className="flex gap-3 w-full">
-          {searchOpen ? (
-            <div className="w-full h-full flex items-center justify-between gap-2">
-              <Input
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search member"
-                className="border-none min-h-14 h-full w-full focus-visible:ring-0 px-0"
-              />
-              <button
-                className="flex cursor-pointer text-[#2E2D35] dark:text-mcm-ink"
-                onClick={() => {
-                  setSearchOpen(false);
-                  setSearchQuery('');
-                }}
-                aria-label="Close search"
-              >
-                <XIcon width={16} height={16} />
-              </button>
+      {!isAgentChat ? (
+        <div className="border-b border-[#EEE7DD] px-1.5">
+          <div className="flex min-h-8 items-center gap-1">
+            <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto no-scrollbar">
+              {tabOptions.map((tab) => (
+                <button
+                  key={tab.value}
+                  className={`px-1.5 py-2 text-xs font-medium border-b-2 transition-colors cursor-pointer ${
+                    activeTab === tab.value
+                      ? 'text-primary border-primary'
+                      : 'text-[#2E2D35] border-transparent hover:text-primary'
+                  }`}
+                  onClick={() => {
+                    setActiveTab(tab.value);
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev);
+                      next.set('type', tab.value);
+                      next.delete('chatId');
+                      return next;
+                    });
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-          ) : (
-            <div className="flex items-center justify-between gap-2 w-full">
-              <div className="text-xl font-semibold w-full min-w-0 truncate text-[#2E2D35] dark:text-mcm-ink">
-                {pageTitle}
-              </div>
-              {!isAgentChat ? (
-                <div className="flex gap-2 shrink-0">
-                  {chatAccess?.access?.DIRECT_MESSAGE || chatAccess?.access?.TEAM_MESSAGE ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="flex items-center justify-center cursor-pointer w-10 h-10 rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35] dark:text-mcm-ink hover:bg-primary hover:text-white"
-                          aria-label="Add"
-                        >
-                          <Plus width={18} height={18} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {chatAccess?.access?.DIRECT_MESSAGE && (
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => {
-                              setShowCreateChatModal('direct');
-                            }}
-                          >
-                            <UserLine className="text-[#2E2D35] dark:text-mcm-ink w-8 h-8" /> Direct Message
-                          </DropdownMenuItem>
-                        )}
-                        {chatAccess?.access?.TEAM_MESSAGE && (
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => {
-                              setShowCreateChatModal('team');
-                            }}
-                          >
-                            <UsersGroupLine className="text-[#2E2D35] dark:text-mcm-ink w-8 h-8" />
-                            Create New Team
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
+            {/* New chat and channel filter live here rather than in a row of
+                their own: the row above them held nothing else once the
+                duplicated title went, so it was a strip of empty space. */}
+            <div className="flex gap-1.5 shrink-0">
+              {chatAccess?.access?.DIRECT_MESSAGE || chatAccess?.access?.TEAM_MESSAGE ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center justify-center cursor-pointer w-10 h-10 rounded-full bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35] dark:text-mcm-ink hover:bg-primary hover:text-white"
+                      className="flex items-center justify-center cursor-pointer w-8 h-8 rounded-full bg-[#FBE2C8]/40 text-[#2E2D35] hover:bg-primary hover:text-white"
                       aria-label="Add"
                     >
                       <Plus width={18} height={18} />
                     </button>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <div className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-[#FBE2C8]/40 dark:bg-mcm-surface-3/40 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white">
-                        <FilterIcon className="w-6 h-6" />
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {ChatChannels?.map((item: any, index: number) => {
-                        return (
-                          <DropdownMenuItem
-                            key={index}
-                            onClick={() => {
-                              setChatType(item.value);
-                              setselectedChannelType(item);
-                            }}
-                          >
-                            {item.icon()} {item.label}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                      {allowedOmniChannels && allowedOmniChannels?.length
-                        ? allowedOmniChannels.map((item: any, index: number) => (
-                            <DropdownMenuItem
-                              key={index}
-                              onClick={() => {
-                                setChatType(item.type);
-                                setselectedChannelType(item);
-                              }}
-                            >
-                              {CHANNELS_ICON[item?.type as ChannelType]}{' '}
-                              {capitalizeFirstLetter(item.type)}
-                            </DropdownMenuItem>
-                          ))
-                        : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ) : null}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {chatAccess?.access?.DIRECT_MESSAGE && (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setShowCreateChatModal('direct');
+                        }}
+                      >
+                        <UserLine className="text-[#2E2D35] w-8 h-8" /> Direct Message
+                      </DropdownMenuItem>
+                    )}
+                    {chatAccess?.access?.TEAM_MESSAGE && (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setShowCreateChatModal('team');
+                        }}
+                      >
+                        <UsersGroupLine className="text-[#2E2D35] w-8 h-8" />
+                        Create New Team
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <button
+                  className="flex items-center justify-center cursor-pointer w-8 h-8 rounded-full bg-[#FBE2C8]/40 text-[#2E2D35] hover:bg-primary hover:text-white"
+                  aria-label="Add"
+                >
+                  <Plus width={18} height={18} />
+                </button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <div className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white">
+                    <FilterIcon className="w-6 h-6" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {ChatChannels?.map((item: any, index: number) => {
+                    return (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={() => {
+                          setChatType(item.value);
+                          setselectedChannelType(item);
+                        }}
+                      >
+                        {item.icon()} {item.label}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  {allowedOmniChannels && allowedOmniChannels?.length
+                    ? allowedOmniChannels.map((item: any, index: number) => (
+                        <DropdownMenuItem
+                          key={index}
+                          onClick={() => {
+                            setChatType(item.type);
+                            setselectedChannelType(item);
+                          }}
+                        >
+                          {CHANNELS_ICON[item?.type as ChannelType]}{' '}
+                          {capitalizeFirstLetter(item.type)}
+                        </DropdownMenuItem>
+                      ))
+                    : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          )}
-        </div>
-      </div>
-
-      {!isAgentChat ? (
-        <div className="border-b border-[#EEE7DD] dark:border-mcm-line px-2">
-          <div className="flex min-h-10 items-center justify-between overflow-x-auto">
-            {tabOptions.map((tab) => (
-              <button
-                key={tab.value}
-                className={`px-2 py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
-                  activeTab === tab.value
-                    ? 'text-primary border-primary'
-                    : 'text-[#2E2D35] dark:text-mcm-ink border-transparent hover:text-primary'
-                }`}
-                onClick={() => {
-                  setActiveTab(tab.value);
-                  setSearchParams((prev) => {
-                    const next = new URLSearchParams(prev);
-                    next.set('type', tab.value);
-                    next.delete('chatId');
-                    return next;
-                  });
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
           </div>
         </div>
       ) : null}
 
-      <div className="px-3 py-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-gray-100">
+      <div className="px-2 py-1.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 border-b border-gray-100">
         <Input
-          className="focus:ring-0"
+          Icon={<SearchLine className="text-[#9A948F]" />}
+          IconPosition="left-0 pl-3 inset-y-0"
+          className="pl-9 focus:ring-0 bg-white dark:bg-mcm-surface"
           style={{ outline: 'none', boxShadow: 'none' }}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -1255,16 +1225,14 @@ const SidebarContent = ({
         />
         {!isAgentChat ? (
           <div className="w-full sm:min-w-28 sm:w-28">
-            <CustomSelect
-              options={[
-                { label: 'All', value: 'all' },
-                { label: 'Unread', value: 'unread' },
-              ]}
+            <select
+              className="border border-[rgba(225,200,165,0.9)] rounded-xl px-3 min-h-10 text-sm w-full text-[#2E2D35] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]"
               value={statusFilter}
-              handleChange={(option) => setStatusFilter((option?.value || 'all') as MessageStatus)}
-              isSearchable={false}
-              isClearable={false}
-            />
+              onChange={(e) => setStatusFilter(e.target.value as MessageStatus)}
+            >
+              <option value="all">All</option>
+              <option value="unread">Unread</option>
+            </select>
           </div>
         ) : null}
       </div>
@@ -1278,10 +1246,10 @@ const SidebarContent = ({
                   <MessageSquareIcon className="h-9 w-9 text-primary" />
                 </div>
 
-                <div className="text-lg font-semibold text-[#2E2D35] dark:text-mcm-ink">
+                <div className="text-lg font-semibold text-[#2E2D35]">
                   {isAgentChat ? 'No chats available' : 'Create a new chat'}
                 </div>
-                <div className="text-[#9A948F] dark:text-mcm-ink-3 mt-2 text-sm">
+                <div className="text-[#9A948F] mt-2 text-sm">
                   {isAgentChat
                     ? 'Chats will appear here once they are available.'
                     : 'Click on the plus icon to create a new chat'}
@@ -1290,13 +1258,13 @@ const SidebarContent = ({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 py-2 pb-[45px] overflow-auto">
+          <div className="flex flex-col gap-1 py-1 pb-[45px] overflow-auto">
             {groupList.map((group: any) => {
               if (!group?.shouldVisible || !group?.data?.length) return null;
               return (
                 <div key={group?.label} className="w-full">
                   {group?.label && !isAgentChat ? (
-                    <div className="text-xs uppercase tracking-wider font-medium text-[#9A948F] dark:text-mcm-ink-3 flex gap-2 py-0 items-center bg-transparent min-h-9 justify-start max-h-9 px-2">
+                    <div className="text-[10px] uppercase tracking-wider font-medium text-[#9A948F] flex gap-1.5 py-0 items-center bg-transparent min-h-7 justify-start max-h-7 px-2">
                       {group?.label}
                     </div>
                   ) : null}
@@ -1444,14 +1412,7 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
       return;
     }
 
-    /* 'all_channels' is deliberately never written to the URL (see the
-       rawChatTypeInUrl branch above, and normalizedChatTypeInUrl mapping it
-       to 'chat'), so it always reads as a mismatch here. Without this
-       exclusion, every render re-triggers setSelectedChat(null) + a navigate
-       that re-adds ?chatType=all_channels, which the branch above then
-       strips right back out — an infinite bounce that wiped out row
-       selection in the All Channels list before a click could ever stick. */
-    if (chatType !== 'all_channels' && chatType !== normalizedChatTypeInUrl) {
+    if (chatType !== normalizedChatTypeInUrl) {
       setSelectedChat(null);
       if (chatType === 'chat') {
         navigate(location.pathname);
@@ -1496,13 +1457,18 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
   };
 
   return (
-    <div className="mcm-page mcm-admin mcm-warm-glass">
+    <div className="mcm-actpage">
+      <ActivityPageHead
+        title={isAgentChat ? 'Agent Chat' : 'Chat'}
+        description="Team and customer conversations across every channel you have connected."
+      />
+      <div className="mcm-page mcm-admin mcm-warm-glass">
       <div className="w-full h-full min-h-0 flex overflow-hidden bg-white">
         {chatType === 'chat' ? (
           <>
             <section
               className={cn(
-                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] lg:w-[22rem] lg:min-w-[22rem] lg:max-w-[22rem]',
+                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] lg:w-[19rem] lg:min-w-[19rem] lg:max-w-[19rem]',
                 activeChatId ? 'hidden lg:block' : 'w-full',
               )}
             >
@@ -1532,12 +1498,7 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
           <>
             <section
               className={cn(
-                // No fixed lg:/xl: min-width here: Sidebar renders inside
-                // PageSidebarLayout, which already sets its own width and
-                // collapses itself to 0 via the orange chevron toggle. A
-                // fixed min-width on this wrapper fought that collapse and
-                // left dead space instead of letting Content expand into it.
-                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px]',
+                'h-full min-h-0 border-r border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] lg:max-w-[19rem] lg:min-w-[19rem] xl:max-w-[22rem] xl:min-w-[22rem]',
                 selectedChat ? 'hidden lg:block' : 'block w-full',
               )}
             >
@@ -1566,6 +1527,7 @@ const Messenger = ({ mode = 'messenger' }: { mode?: MessengerMode }) => {
             </section>
           </>
         )}
+      </div>
       </div>
     </div>
   );

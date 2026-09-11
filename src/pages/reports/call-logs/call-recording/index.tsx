@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
 import { useNavigate } from 'react-router-dom';
-import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import { ReportsPageLayout } from '../../reports-content-layout';
-import { convertDateFormateApis, formatSecondsToMMSS, handleAlert, MEDIA_URL } from '@/lib/utils';
+import { convertDateFormateApis, formatSecondsToMMSS, MEDIA_URL } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { FilterIcon, SearchLine } from '@/assets/icons';
 import { Input } from '@/components/ui/input';
@@ -16,6 +15,7 @@ import AudioModal from '@/pages/phone/audio-dialog';
 import { transFilterObject } from '@/components/custom/custom-filter';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { dropdownCallInitialVal } from '@/components/custom/date-dropdown/constant';
+import { Loader2 } from 'lucide-react';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useQueries } from '@tanstack/react-query';
 import { ACTIVITYLIST } from '@/components/activity-list/constants';
@@ -122,13 +122,15 @@ const CallRecording = () => {
     setSelectedFilters(data);
   };
 
-  const handleRefetchTableData = () => {
-    if (!tableRef?.current) return;
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 450);
-    tableRef.current.refetchTable().then(() => {
-      handleAlert({ text: 'Refreshed', type: 'success' });
-    });
+  const handleRefetchTableData = async () => {
+    if (tableRef?.current) {
+      setIsLoading(true);
+      try {
+        await tableRef.current.refetchTable();
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleFilter = () => {
@@ -347,8 +349,7 @@ const CallRecording = () => {
       accessorKey: 'chargeTotal',
       cell: ({ row }: any) => {
         const data = row?.original;
-        const value = Number(data?.chargeTotal ?? data?.charge ?? 0);
-        return `₹${(value * USD_TO_INR_RATE).toFixed(2)}`;
+        return data?.chargeTotal ? data?.chargeTotal : data?.charge ? data?.charge : 0.0;
       },
     },
     {
@@ -428,7 +429,7 @@ const CallRecording = () => {
             setSearch(e.target.value);
           }}
           IconPosition="left-0 pl-2 inset-y-0"
-          Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+          Icon={<SearchLine className=" text-gray-700" />}
         />
       </div>
       <DateDropdown
@@ -441,16 +442,20 @@ const CallRecording = () => {
         type="button"
         variant="outline"
         onClick={() => handleRefetchTableData()}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
-        <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
+        {isLoading ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <Icon name="Refresh" className="w-5 h-5" />
+        )}
       </Button>
 
       <Button
         type="button"
         variant="outline"
         onClick={handleFilter}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <FilterIcon className="w-5 h-5" />
       </Button>
@@ -463,8 +468,6 @@ const CallRecording = () => {
         <TableManager
           {...{
             tableRef,
-            splitStickyHeader: true,
-            tableMaxHeight: '55vh',
             fetcherKey: 'callListingRecording',
             fetcherFn: callList,
             columns,

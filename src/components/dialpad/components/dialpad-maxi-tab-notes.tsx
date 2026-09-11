@@ -16,7 +16,7 @@ const DialpadMaxiTabNotes = ({ activeSession }: DialpadMaxiTabNotesProps) => {
   return activeSession ? (
     <NotesWidget sipCallId={sipCallId} contactId={contactId} activeSession={activeSession} />
   ) : (
-    <div className="h-full rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
+    <div className="h-full rounded-2xl border border-ucass-active-bg bg-white px-3 py-3 max-[380px]:px-2.5 max-[380px]:py-2.5 sm:px-4 sm:py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5a7396] max-[380px]:text-[10px] sm:text-xs">
         Notes
       </p>

@@ -8,6 +8,11 @@ import {
   Target,
   Gauge,
   PhoneMissed,
+  Flame,
+  AlarmClock,
+  UserCheck,
+  Activity,
+  Layers,
 } from 'lucide-react';
 import TableManager from '@/components/custom/table-manager';
 import Timer from '@/components/timer';
@@ -77,7 +82,6 @@ const QUEUE_TAB_STYLES = `
     background:var(--surface); border-radius:16px; overflow:hidden;
     border:1px solid var(--line);
     box-shadow: 0 1px 2px rgba(46,45,53,0.05);
-    margin-bottom: 4px;
   }
   .mcm-page .kpi-strip-cell {
     flex:1; min-width:0; padding:14px 16px;
@@ -245,7 +249,7 @@ const QueuesActivityTab = ({
         row.original.longestWaitTimestamp ? (
           <Timer startTime={row.original.longestWaitTimestamp} />
         ) : (
-          '—'
+          <span className="qa-dash">—</span>
         ),
     },
     { header: 'Members', accessorKey: 'membersCount' },
@@ -291,15 +295,21 @@ const QueuesActivityTab = ({
       header: 'ASA',
       accessorKey: 'asa',
       cell: ({ row }: any) =>
-        row.original.asa === null || row.original.asa === undefined
-          ? '—'
-          : formatSecsToClock(row.original.asa),
+        row.original.asa === null || row.original.asa === undefined ? (
+          <span className="qa-dash">—</span>
+        ) : (
+          formatSecsToClock(row.original.asa)
+        ),
     },
     {
       header: 'AHT',
       accessorKey: 'aht',
       cell: ({ row }: any) =>
-        row.original.aht === null ? '—' : formatSecsToClock(row.original.aht),
+        row.original.aht === null ? (
+          <span className="qa-dash">—</span>
+        ) : (
+          formatSecsToClock(row.original.aht)
+        ),
     },
     {
       header: 'Abandon',
@@ -376,23 +386,25 @@ const QueuesActivityTab = ({
     return (
       <div className="perf-queues flex flex-col gap-3 px-[22px] pt-7 pb-4">
         <style>{QUEUE_TAB_STYLES}</style>
-        <div
-          className="qa-crumb flex items-center gap-1.5"
-          style={{ fontSize: 11.5, color: 'var(--ink-3)' }}
-        >
-          <button
-            type="button"
-            onClick={() => setSelectedQueueUuid(null)}
-            className="cursor-pointer hover:underline"
+        <div className="flex flex-col gap-1.5">
+          <div
+            className="qa-crumb flex items-center gap-1.5"
+            style={{ fontSize: 11.5, color: 'var(--ink-3)' }}
           >
-            Queues Activity
-          </button>
-          <span>›</span>
-          <span style={{ fontWeight: 700, color: 'var(--ink-2)' }}>{selectedRow.name}</span>
+            <button
+              type="button"
+              onClick={() => setSelectedQueueUuid(null)}
+              className="cursor-pointer hover:underline"
+            >
+              Queues Activity
+            </button>
+            <span>›</span>
+            <span style={{ fontWeight: 700, color: 'var(--ink-2)' }}>{selectedRow.name}</span>
+          </div>
+          <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800, letterSpacing: '-.035em' }}>
+            {selectedRow.name}
+          </h2>
         </div>
-        <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800, letterSpacing: '-.035em' }}>
-          {selectedRow.name}
-        </h2>
 
         <div className="summary-grid">
           {detailKpis.map((kpi) => (
@@ -422,7 +434,14 @@ const QueuesActivityTab = ({
   }
 
   return (
-    <div className="perf-queues flex flex-col gap-3 px-[22px] pt-7 pb-4">
+    /* `pt-3`, not the drill-in view's `pt-7` above — that 28px exists so a
+       tab with no hero band still starts its own content on the same
+       28px line every other tab does. This view already sits directly
+       under the shared 8-tile hero band (rendered one level up, with its
+       own ~14-24px bottom padding), so stacking another 28px on top of
+       that doubled the visible gap between the hero row and this strip
+       into a single ~50px band of empty gradient. */
+    <div className="perf-queues flex flex-col gap-3 px-[22px] pt-3 pb-4">
       <KpiStrip
         items={[
           {
@@ -434,10 +453,12 @@ const QueuesActivityTab = ({
                 ? `${busiestQueue.interacting} interacting now`
                 : `${busiestQueue.handledToday} handled today`
               : undefined,
+            icon: Flame,
           },
           {
             key: 'longest-waiting',
             label: 'Longest waiting',
+            icon: AlarmClock,
             value:
               longestWaitingQueue && longestWaitingQueue.longestWaitTimestamp !== null ? (
                 <Timer startTime={longestWaitingQueue.longestWaitTimestamp} />
@@ -462,18 +483,21 @@ const QueuesActivityTab = ({
             value: lowestSlaQueue ? `${Math.round(lowestSlaQueue.sla as number)}%` : '—',
             sub: lowestSlaQueue ? lowestSlaQueue.name : undefined,
             tone: lowestSlaQueue && (lowestSlaQueue.sla as number) < 60 ? 'danger' : 'default',
+            icon: Target,
           },
           {
             key: 'total-members',
             label: 'Total members',
             value: totalMembers,
             sub: 'across all queues',
+            icon: Users,
           },
           {
             key: 'available-now',
             label: 'Available now',
             value: totalAvailable,
             sub: 'free to take a call',
+            icon: UserCheck,
           },
           {
             key: 'total-interacting',
@@ -488,35 +512,36 @@ const QueuesActivityTab = ({
                 totalInteracting
               ),
             sub: 'on a call right now',
+            icon: Activity,
           },
         ]}
       />
-      {isCdrSampled && (
-        <div className="qa-notice">
-          <p className="page-note">
-            Offered, Handled, ASA, AHT and Abandon are counted from the most recent 1,000 calls in
-            this range — older calls in the range aren't included in these columns.
-          </p>
-        </div>
-      )}
 
       <style>{QUEUE_TAB_STYLES}</style>
 
-      <div className="flex items-center justify-between">
-        <h3 className="sect-title">Queues</h3>
-      </div>
+      <div className="qa-queue-section">
+        <div className="flex items-center justify-between">
+          <h3 className="sect-title">
+            <Layers className="qa-sect-icon" />
+            Queues
+          </h3>
+          <span className="qa-sect-count">
+            {rows.length} {rows.length === 1 ? 'queue' : 'queues'}
+          </span>
+        </div>
 
-      <TableManager
-        columns={columns}
-        staticData={rows}
-        loading={isLoading}
-        showPagination={false}
-        emptyTablePlaceholder="No queues configured"
-        descriptionEmptyTable="Call queues you create will show live activity here."
-        splitStickyHeader
-        search={globalSearch}
-        clientSideSearch
-      />
+        <TableManager
+          columns={columns}
+          staticData={rows}
+          loading={isLoading}
+          showPagination={false}
+          emptyTablePlaceholder="No queues configured"
+          descriptionEmptyTable="Call queues you create will show live activity here."
+          splitStickyHeader
+          search={globalSearch}
+          clientSideSearch
+        />
+      </div>
     </div>
   );
 };

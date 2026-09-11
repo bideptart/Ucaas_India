@@ -195,7 +195,7 @@ function KnowledgeBaseList() {
               }
             },
             // className: `${data?.type === 'pdf' ? 'cursor-not-allowed opacity-50 bg-gray-100 text-gray-400' : 'cursor-pointer bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white'}`,
-            className: `cursor-pointer bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white`,
+            className: `cursor-pointer bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white`,
             tooltipText: 'Edit',
           },
           knowledgeBaseAccess?.delete && {
@@ -231,11 +231,11 @@ function KnowledgeBaseList() {
 
   return (
     <>
-      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-          <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+          <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
             AI Tools
-            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+            <div className="-rotate-90 text-gray-800">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Knowledge Base</span>

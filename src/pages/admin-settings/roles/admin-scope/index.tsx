@@ -22,14 +22,20 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Building2, ShieldCheck, Trash2, Users } from 'lucide-react';
+import { Building2, MapPin, MoreHorizontal, Trash2, Users } from 'lucide-react';
 
 import Loader from '@/components/custom/loader';
 import { SettingCard, SettingRow } from '@/components/mcm/setting-card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AdminPage } from '@/pages/admin-settings/page-shell';
-import { AreaNav } from '@/pages/admin-settings/roles/area-nav';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { handleAlert } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { fetchAllPages } from '@/lib/fetch-all-pages';
@@ -103,6 +109,11 @@ const AdminScopePage = () => {
   const [scopes, setScopes] = useState<AdminScope[]>([]);
   const [editing, setEditing] = useState<AdminScope | null>(null);
   const [dirty, setDirty] = useState(false);
+  /* The rail can hold every administrator in the company, so the list needs the
+     same two controls the other admin tables have: find a name, and see only
+     the ones that are or are not narrowed yet. */
+  const [search, setSearch] = useState('');
+  const [only, setOnly] = useState<'all' | 'scoped' | 'unscoped'>('all');
 
   const { data: stored, isLoading } = useQuery({
     queryKey: COMPANY_DEFAULTS_QUERY_KEY,
@@ -160,8 +171,33 @@ const AdminScopePage = () => {
       name: nameOf(person),
       locationUuid: person?.site_uuid || null,
       departmentUuids: byUser.get(String(person?.uuid || '')) || [],
+      /* Carried so the table can list the people this screen is actually
+         about. The same field People reads for its Role column. */
+      role: String(
+        person?.custom_role_data?.name || person?.role_data?.name || person?.role || '',
+      ),
     }));
   }, [people, departments]);
+
+  /* Who this screen is for. A scope only means anything for somebody who can
+     administer, so the table lists them rather than sitting empty until
+     somebody is added -- everyone starts on "Whole company", which is the
+     truth today, and each row is a way to narrow it. */
+  const administrators = useMemo(
+    () => roster.filter((person) => /admin|manager/i.test(String((person as any).role || ''))),
+    [roster],
+  );
+
+  const visibleAdministrators = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return administrators.filter((person) => {
+      const scoped = Boolean(scopeFor(scopes, person.uuid));
+      if (only === 'scoped' && !scoped) return false;
+      if (only === 'unscoped' && scoped) return false;
+      if (!q) return true;
+      return `${person.name} ${(person as any).role || ''}`.toLowerCase().includes(q);
+    });
+  }, [administrators, scopes, search, only]);
 
   const personName = (uuid: string) =>
     roster.find((person) => person.uuid === uuid)?.name || 'Somebody who has since left';
@@ -216,6 +252,20 @@ const AdminScopePage = () => {
     setDirty(true);
   };
 
+  /* Writes a scope straight into the list, for the shortcuts that do not need
+     the editor. Same normalise-and-replace the editor does, so a scope set this
+     way is identical to one built by hand. */
+  const applyScope = (raw: AdminScope) => {
+    const clean = normaliseScope(raw);
+    if (!mayEdit(clean).allowed) return;
+    setScopes((list) =>
+      [...list.filter((scope) => scope.personUuid !== clean.personUuid), clean].sort((a, b) =>
+        personName(a.personUuid).localeCompare(personName(b.personUuid)),
+      ),
+    );
+    setDirty(true);
+  };
+
   const removeScope = (personUuid: string) => {
     setScopes((list) => list.filter((scope) => scope.personUuid !== personUuid));
     setDirty(true);
@@ -224,46 +274,76 @@ const AdminScopePage = () => {
   const toggleIn = (list: string[], uuid: string) =>
     list.includes(uuid) ? list.filter((item) => item !== uuid) : [...list, uuid];
 
-  /* Who is not on the list yet. Somebody can only hold one scope, so the picker
-     offers everybody who does not already have one — and never the signed-in
-     person, who is not allowed to decide their own reach. */
-  const unassigned = roster.filter(
-    (person) =>
-      !scopes.some((scope) => scope.personUuid === person.uuid) &&
-      mayEdit(blankScope(person.uuid)).allowed,
-  );
-
   return (
     <AdminPage
-      section="People"
+      hideHead
       title="Admin scope"
-      description="Step 3 of four. A role says what somebody may do. This says who they may do it to — the whole company, chosen locations, or chosen departments."
-      actions={<AreaNav current="/admin-settings/admin-scope" />}
+      description="A role says what somebody may do. This says who they may do it to — the whole company, chosen locations, or chosen departments."
     >
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3">
         {isLoading || peopleLoading ? (
           <Loader />
         ) : (
           <>
-            <SettingCard
-              title="Who administers what"
-              icon={<ShieldCheck className="h-4 w-4" />}
-              description={
-                scopes.length
-                  ? `${scopes.length} ${scopes.length === 1 ? 'person has' : 'people have'} a scope written down. Anybody not listed is treated as covering the whole company, which is what happens today.`
-                  : 'Nobody has a scope yet, so every administrator covers the whole company — including people at other locations.'
-              }
-              status="coming-soon"
-              note={
-                <>
-                  Coming soon. This is saved on your company record and nothing acts on it yet: an
-                  administrator&rsquo;s scope is never checked, so it is a written record of who{' '}
-                  <em>should</em> manage what rather than a restriction. Decide it now and it is
-                  ready the day it arrives.
-                </>
-              }
-              aside={
-                dirty ? (
+            {/* Led by who covers what, the way People and Roles beside it are:
+                one row per administrator, scannable, with the limitation stated
+                once above rather than wrapped around every row. */}
+            {/* Amber, written inline rather than through `.mcm-notsaved`: that
+                class carries a `prefers-color-scheme: dark` variant, so on a
+                machine set to dark it painted a near-black box into this
+                otherwise light page. */}
+            <div className="rounded-md border border-amber-200 border-l-[3px] border-l-amber-500 bg-amber-50 px-3.5 py-2.5 text-[13px] leading-relaxed text-amber-900">
+              <span className="font-semibold">Saved here, not enforced yet.</span> Nothing checks a
+              scope when an administrator acts, so everyone still covers the whole company. Writing
+              it down now means it applies the day that check is switched on.
+            </div>
+
+            {/* The save lives with the list it saves, and only appears once
+                something has changed -- a button that is always there says
+                nothing about whether there is anything to keep. */}
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search administrators"
+                aria-label="Search administrators"
+                className="h-9 min-w-56 flex-1 rounded-md border border-[rgba(225,200,165,0.9)] bg-white px-3 text-sm outline-none focus:border-primary"
+              />
+              <select
+                value={only}
+                onChange={(event) => setOnly(event.target.value as typeof only)}
+                aria-label="Show"
+                className="h-9 rounded-md border border-[rgba(225,200,165,0.9)] bg-white px-3 text-sm outline-none focus:border-primary"
+              >
+                <option value="all">Everyone</option>
+                <option value="scoped">Narrowed only</option>
+                <option value="unscoped">Whole company only</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-[#2E2D35]">
+                {scopes.length
+                  ? `${scopes.length} of ${administrators.length} scoped. The rest cover the whole company.`
+                  : `${administrators.length} ${administrators.length === 1 ? 'administrator' : 'administrators'}, all covering the whole company.`}
+              </p>
+              <div className="flex items-center gap-2">
+                {/* Undoes the narrowing in one go. Only offered when there is
+                    something to undo, and it goes through the same save as
+                    every other change rather than writing straight through. */}
+                {scopes.length ? (
+                  <Button
+                    type="button"
+                    variant="transparent"
+                    onClick={() => {
+                      setScopes([]);
+                      setDirty(true);
+                    }}
+                  >
+                    Reset everyone
+                  </Button>
+                ) : null}
+                {dirty ? (
                   <Button
                     type="button"
                     variant="primary"
@@ -272,100 +352,182 @@ const AdminScopePage = () => {
                   >
                     {isPending ? 'Saving…' : 'Save changes'}
                   </Button>
-                ) : null
-              }
+                ) : null}
+              </div>
+            </div>
+
+            <div className="panel-card">
+              <div className="tbl-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Administrator</th>
+                      <th>Role</th>
+                      <th>Covers</th>
+                      <th>Reaches</th>
+                      <th className="text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleAdministrators.length === 0 ? (
+                      <tr>
+                        <td colSpan={5}>
+                          <div className="empty">
+                            <p>
+                              {administrators.length === 0
+                                ? 'Nobody holds an administrator role yet. Give someone one under Roles and they will appear here to be scoped.'
+                                : 'No administrator matches that.'}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      visibleAdministrators.map((person) => {
+                        const scope = scopeFor(scopes, person.uuid);
+                        const cover = scope ? coverageOf(scope, roster, directory) : null;
+                        const decision = scope ? mayEdit(scope) : { allowed: true, reason: '' };
+                        return (
+                          <tr key={person.uuid}>
+                            <td>
+                              <span className="font-semibold text-[#2E2D35]">{person.name}</span>
+                            </td>
+                            <td className="text-[#9A948F]">{String((person as any).role || '—')}</td>
+                            <td>
+                              {scope ? (
+                                describeScope(scope, directory)
+                              ) : (
+                                <span className="text-[#9A948F]">
+                                  The whole company &middot; nothing narrower set
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              {cover ? (
+                                <>
+                                  {cover.people} of {cover.totalPeople} people
+                                  {cover.unplaced > 0 ? (
+                                    <span className="block text-xs text-[#9A948F]">
+                                      {cover.unplaced}{' '}
+                                      {scope?.tier === 'location'
+                                        ? 'have no location set, so they are left out'
+                                        : 'are in no department, so they are left out'}
+                                    </span>
+                                  ) : null}
+                                </>
+                              ) : (
+                                <span className="text-[#9A948F]">Everyone</span>
+                              )}
+                              {decision.allowed ? null : (
+                                <span className="block text-xs text-[#9A948F]">{decision.reason}</span>
+                              )}
+                            </td>
+                            <td>
+                              <div className="flex items-center justify-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  disabled={!decision.allowed}
+                                  onClick={() =>
+                                    setEditing(scope ? { ...scope } : blankScope(person.uuid))
+                                  }
+                                >
+                                  {scope ? 'Change' : 'Narrow this'}
+                                </Button>
+                                {/* The two common narrowings without opening the
+                                    editor, and the way back to the whole
+                                    company. The editor is still there for
+                                    picking exactly which locations. */}
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className="mini"
+                                      disabled={!decision.allowed}
+                                      title={`More for ${person.name}`}
+                                      aria-label={`More actions for ${person.name}`}
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="min-w-56">
+                                    {/* The commonest scope of all -- a manager
+                                        over the site they work at -- in one
+                                        click, using the location already on
+                                        their record. */}
+                                    {person.locationUuid ? (
+                                      <DropdownMenuItem
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                          applyScope({
+                                            ...(scope || blankScope(person.uuid)),
+                                            tier: 'location',
+                                            locationUuids: [String(person.locationUuid)],
+                                            departmentUuids: [],
+                                          })
+                                        }
+                                      >
+                                        <Building2 className="h-3.5 w-3.5" /> Narrow to their own
+                                        location
+                                      </DropdownMenuItem>
+                                    ) : null}
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() =>
+                                        setEditing({
+                                          ...(scope || blankScope(person.uuid)),
+                                          tier: 'location',
+                                        })
+                                      }
+                                    >
+                                      <MapPin className="h-3.5 w-3.5" /> Choose locations…
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      className="cursor-pointer"
+                                      onClick={() =>
+                                        setEditing({
+                                          ...(scope || blankScope(person.uuid)),
+                                          tier: 'department',
+                                        })
+                                      }
+                                    >
+                                      <Users className="h-3.5 w-3.5" /> Choose departments…
+                                    </DropdownMenuItem>
+                                    {scope ? (
+                                      <DropdownMenuItem
+                                        className="cursor-pointer text-red-600 focus:text-red-600"
+                                        onClick={() => removeScope(person.uuid)}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" /> Reset to whole company
+                                      </DropdownMenuItem>
+                                    ) : null}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* A dialog, not a panel under the table. Opened from a row that
+                can be most of a screen down, the editor used to appear below
+                everything and needed scrolling to find -- the click looked as
+                though it had done nothing. */}
+            <Dialog
+              open={Boolean(editing)}
+              onOpenChange={(next) => (next ? undefined : setEditing(null))}
             >
-              {scopes.length === 0 ? (
-                <SettingRow
-                  label="Nothing written down"
-                  description="Most companies start with the person who runs each location."
-                />
-              ) : (
-                scopes.map((scope) => {
-                  const cover = coverageOf(scope, roster, directory);
-                  const decision = mayEdit(scope);
-                  return (
-                    <SettingRow
-                      key={scope.personUuid}
-                      label={personName(scope.personUuid)}
-                      description={
-                        <>
-                          {describeScope(scope, directory)} — reaches {cover.people} of{' '}
-                          {cover.totalPeople} people
-                          {cover.unplaced > 0 ? (
-                            <>
-                              {' '}
-                              ({cover.unplaced}{' '}
-                              {scope.tier === 'location'
-                                ? 'have no location set, so they are left out'
-                                : 'are in no department, so they are left out'}
-                              )
-                            </>
-                          ) : null}
-                          .{decision.allowed ? null : <> {decision.reason}</>}
-                        </>
-                      }
-                      control={
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={!decision.allowed}
-                            onClick={() => setEditing({ ...scope })}
-                          >
-                            Change
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="transparent"
-                            disabled={!decision.allowed}
-                            onClick={() => removeScope(scope.personUuid)}
-                            aria-label={`Remove the scope for ${personName(scope.personUuid)}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      }
-                    />
-                  );
-                })
-              )}
-
-              <SettingRow
-                label="Give somebody a scope"
-                description={
-                  unassigned.length
-                    ? 'Pick the person, then choose how far they reach.'
-                    : 'Everybody already has one.'
-                }
-                control={
-                  <select
-                    aria-label="Choose a person to give a scope to"
-                    className="h-10 w-full min-w-56 rounded-md border border-gray-300 bg-white px-3 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-slate-500 dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink dark:disabled:bg-mcm-surface-3"
-                    value=""
-                    disabled={unassigned.length === 0}
-                    onChange={(event) => {
-                      if (!event.target.value) return;
-                      setEditing(blankScope(event.target.value));
-                    }}
+              <DialogContent className="max-w-xl p-0" showCloseButton={false}>
+                {editing ? (
+                  <SettingCard
+                    title={`How far ${personName(editing.personUuid)} reaches`}
+                    icon={<Users className="h-4 w-4" />}
+                    description="Everything inside the scope is theirs to administer. Everything outside it is not."
                   >
-                    <option value="">Choose a person…</option>
-                    {unassigned.map((person) => (
-                      <option key={person.uuid} value={person.uuid}>
-                        {person.name}
-                      </option>
-                    ))}
-                  </select>
-                }
-              />
-            </SettingCard>
-
-            {editing ? (
-              <SettingCard
-                title={`How far ${personName(editing.personUuid)} reaches`}
-                icon={<Users className="h-4 w-4" />}
-                description="Everything inside the scope is theirs to administer. Everything outside it is not."
-              >
                 {TIERS.map((tier) => (
                   <SettingRow
                     key={tier.tier}
@@ -396,7 +558,7 @@ const AdminScopePage = () => {
                   >
                     <div className="flex flex-col gap-2">
                       {directory.locations.length === 0 ? (
-                        <p className="text-sm text-gray-600 dark:text-mcm-ink-3">
+                        <p className="text-sm text-gray-600">
                           No locations yet. Add one under Company before using this scope.
                         </p>
                       ) : (
@@ -418,7 +580,7 @@ const AdminScopePage = () => {
                                 )
                               }
                             />
-                            <Building2 className="h-3.5 w-3.5 text-gray-500 dark:text-mcm-ink-3" />
+                            <Building2 className="h-3.5 w-3.5 text-gray-500" />
                             {location.name}
                           </label>
                         ))
@@ -434,7 +596,7 @@ const AdminScopePage = () => {
                   >
                     <div className="flex flex-col gap-2">
                       {directory.departments.length === 0 ? (
-                        <p className="text-sm text-gray-600 dark:text-mcm-ink-3">
+                        <p className="text-sm text-gray-600">
                           No departments yet. Add one under Phone System before using this scope.
                         </p>
                       ) : (
@@ -491,21 +653,23 @@ const AdminScopePage = () => {
                   />
                 ))}
 
-                <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
-                  <Button type="button" variant="transparent" onClick={() => setEditing(null)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="primary"
-                    disabled={!canSaveEditor}
-                    onClick={commitEditor}
-                  >
-                    Use this scope
-                  </Button>
-                </div>
-              </SettingCard>
-            ) : null}
+                    <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                      <Button type="button" variant="transparent" onClick={() => setEditing(null)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        disabled={!canSaveEditor}
+                        onClick={commitEditor}
+                      >
+                        Use this scope
+                      </Button>
+                    </div>
+                  </SettingCard>
+                ) : null}
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </div>

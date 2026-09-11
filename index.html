@@ -2,21 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      /* The dark/light class is normally applied by ThemeToggle's own effect,
-         which can only run after React mounts and first paint — so a fresh
-         load or hard refresh briefly rendered light-mode colors (the orange
-         --primary, white surfaces) before flipping to dark. Reading the same
-         localStorage key here, synchronously, before the body paints, removes
-         that flash without touching how the toggle itself works. */
-      try {
-        if (localStorage.getItem('mcm-theme') === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {}
-    </script>
-    <!-- Favicon set from org API (fav_icon); no default to avoid flash before API loads -->
-    <!-- <link rel="icon" type="image/svg+xml" href="/fav.ico" /> -->
+    <!-- These links are the tab icon, full stop. organization-context.tsx used to
+         rewrite them from the org API's fav_icon once the branding call
+         returned; that block is gone (see the comment where it stood) because
+         the org record holds an older cloud-only mark and a single icon, so it
+         replaced whatever shipped here a moment after load and collapsed the
+         light/dark pair. Nothing overwrites these at runtime any more.
+
+         Two icons, picked by the browser's own theme: the wordmark is dark, so
+         on a dark tab strip it disappears, and fav-dark.ico is the same logo
+         with the wordmark in white. The unconditional link comes first as the
+         fallback for browsers that ignore `media` here.
+
+         The ?v= is a cache-buster, not decoration. Cloudflare fronts this site
+         and the nginx rule for .ico sends `max-age=2592000, immutable`, so the
+         edge holds a copy for 30 days and a replaced fav.ico on the origin is
+         not served until it expires. Unlike the hashed build assets this
+         filename never changes, so the version has to be carried here. Bump it
+         whenever public/fav.ico is replaced. -->
+    <link rel="icon" type="image/x-icon" href="/fav.ico?v=4" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="/fav-dark.ico?v=3"
+      media="(prefers-color-scheme: dark)"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

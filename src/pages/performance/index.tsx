@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   PhoneIncoming,
   AlarmClock,
@@ -15,7 +16,6 @@ import {
 } from 'lucide-react';
 import moment from 'moment';
 import './live-theme.css';
-import { useSearchParamManager } from '@/hooks/use-search-params';
 import DateDropdown, { type DateDropdownHandle } from '@/components/custom/date-dropdown';
 import { DateFilterTypes, handleDate } from '@/components/custom/date-dropdown/constant';
 import Timer from '@/components/timer';
@@ -106,10 +106,8 @@ const slaTone = (sla: number | null): 'default' | 'success' | 'warning' | 'dange
 };
 
 const Performance = () => {
-  // The open view lives in the URL, the same `?view=` convention the calendar
-  // uses. That makes a Performance view shareable and survive a refresh, and it
-  // is what lets the area rail highlight the view you are actually on.
-  const { setParam, getParam } = useSearchParamManager();
+  const { view: viewParam } = useParams<{ view: string }>();
+  const navigate = useNavigate();
   const { companyPlanFeatures } = useCompanyFeatures();
 
   /* Wallboards the plan does not include are removed from the set of valid
@@ -127,16 +125,10 @@ const Performance = () => {
     () => [...TABS.map((tab) => tab.key), ...allowedWallboardKeys],
     [allowedWallboardKeys],
   );
-  const viewParam = getParam('view');
   const activeTab =
-    viewParam && allTabKeys.includes(viewParam as string) ? (viewParam as string) : TABS[0].key;
-  /* A `?view=` that does not resolve — misspelled, or a wallboard this plan
-     does not include — used to leave the bad value in the URL while the page
-     showed something else. The address bar then disagreed with the screen and
-     the rail could not highlight anything. `setParam` navigates with
-     `replace: true`, so correcting it costs no history entry. */
+    viewParam && allTabKeys.includes(viewParam) ? viewParam : TABS[0].key;
   useEffect(() => {
-    if (viewParam && viewParam !== activeTab) setParam({ view: activeTab });
+    if (viewParam && viewParam !== activeTab) navigate(`/performance/${activeTab}`, { replace: true });
   }, [viewParam, activeTab]);
   /* Centralized global search — one box in the parent toolbar that every
      sub-tab reads instead of each view growing its own. Kept as a single
@@ -151,8 +143,8 @@ const Performance = () => {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [selectedQueueUuid, setSelectedQueueUuid] = useState<string | null>(null);
   const [dropdownVal, setDropdownVal] = useState(() => ({
-    value: handleDate('Today'),
-    date_type: 'Today',
+    value: handleDate('Last 30 Days'),
+    date_type: 'Last 30 Days',
     dateOptions: DateFilterTypes,
   }));
   const dateDropdownRef = useRef<DateDropdownHandle>(null);
@@ -360,7 +352,7 @@ const Performance = () => {
             <button
               type="button"
               className="btn primary"
-              onClick={() => setParam('view', 'dashboards')}
+              onClick={() => navigate('/performance/dashboards')}
             >
               <Ic n="grid" />
               My dashboards

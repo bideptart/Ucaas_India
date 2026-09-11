@@ -7,7 +7,15 @@ import { fetchPhone } from '@/services/api';
 import { Ic, McmIconSprite } from '@/components/mcm/icons';
 import Timer from '@/components/timer';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
-import { useLiveContactCentre, KPI_REFRESH_MS } from '@/hooks/use-live-contact-centre';
+import { useLiveContactCentre } from '@/hooks/use-live-contact-centre';
+
+/* Today's voicemail and missed-call counts. Held as its own number rather than
+ * a multiple of the contact-centre poll: these two only need to keep up with
+ * how fast a counter moves, and tying them to the live-board clock meant
+ * retuning that clock silently retuned these too. The repo this file is kept
+ * in step with still writes `KPI_REFRESH_MS * 15`, which reads as 30s there
+ * and would be 2.5 minutes here — keep this constant when porting. */
+const HOME_COUNTER_REFRESH_MS = 30000;
 import { useAnimatedNumber } from '@/pages/performance/use-animated-number';
 import { formatSecsToClock } from '@/pages/performance/format';
 import buildQueueRows from '@/pages/performance/queue-rows';
@@ -239,7 +247,7 @@ const Home = () => {
         sort: { key: 'start_stamp', desc: true },
       }),
     select: (res: any) => Number(res?.data?.data?.result?.totalRecords) || 0,
-    refetchInterval: KPI_REFRESH_MS * 15,
+    refetchInterval: HOME_COUNTER_REFRESH_MS,
   });
 
   const { data: missedRows = [] } = useQuery({
@@ -253,7 +261,7 @@ const Home = () => {
         sort: { key: 'start_stamp', desc: true },
       }),
     select: (res: any) => res?.data?.data?.result?.rows || [],
-    refetchInterval: KPI_REFRESH_MS * 15,
+    refetchInterval: HOME_COUNTER_REFRESH_MS,
   });
 
   /* ── quick dial: the people you actually call ────────────────────────── */
@@ -801,7 +809,7 @@ const Home = () => {
             Occupancy, adherence and sentiment are in the artifact but have no
             service behind them yet, so this shows what the platform knows
             rather than filling the columns in. */}
-        <div className="panel-card roomy-rows">
+        <div className="panel-card roomy-rows fill-remaining">
           <div className="pc-head">
             <h3>Agents</h3>
             <button type="button" className="btn sm ghost" onClick={() => navigate('/performance')}>

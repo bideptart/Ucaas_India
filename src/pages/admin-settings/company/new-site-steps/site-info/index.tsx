@@ -154,11 +154,11 @@ const SiteInfo = ({ formInstance }: any) => {
 
   return (
     // <div className="flex flex-col gap-2 h-[calc(100vh_-_19rem)] overflow-auto">
-    <div className="mcm-site-form flex w-full flex-col gap-5">
-      <div className="flex flex-col gap-5 border-b border-gray-200 dark:border-mcm-line py-4 sm:py-5">
+    <div className="flex w-full flex-col gap-5">
+      <div className="flex flex-col gap-5 border-b border-gray-200 py-4 sm:py-5">
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">General Location Info</h5>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-sm">
+          <h5 className="font-semibold text-gray-900 text-md">General Location Info</h5>
+          <p className="text-gray-500 text-sm">
             The name of this place — <span className="font-medium">Mumbai Office</span>,{' '}
             <span className="font-medium">London Branch</span>. Not your company name, which is
             shown at the top of Company &amp; Locations.
@@ -182,8 +182,8 @@ const SiteInfo = ({ formInstance }: any) => {
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold text-gray-900 dark:text-mcm-ink text-md">Physical Address</h5>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-sm">Enter the geographical address for this site.</p>
+          <h5 className="font-semibold text-gray-900 text-md">Physical Address</h5>
+          <p className="text-gray-500 text-sm">Enter the geographical address for this site.</p>
         </div>
         <div className="flex flex-col gap-5 sm:gap-6">
           <div className="flex w-full items-center gap-3">
@@ -197,7 +197,7 @@ const SiteInfo = ({ formInstance }: any) => {
                   placeholder="Enter address"
                   {...register('address')}
                   rows={3}
-                  className={`border w-full ${errors?.address?.message ? 'border-red-500' : 'border-gray-300 dark:border-mcm-line'} rounded-xl text-sm resize-none p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none text-gray-700 dark:text-mcm-ink-2`}
+                  className={`border w-full ${errors?.address?.message ? 'border-red-500' : 'border-gray-300'} rounded-xl text-sm resize-none p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none text-gray-700`}
                 />
               </div>
             </div>
@@ -336,11 +336,11 @@ const SiteInfo = ({ formInstance }: any) => {
             </div>
           </div>
 
-          <div className="rounded-md border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-2.5">
-            <p className="text-xs text-gray-700 dark:text-mcm-ink-2">
+          <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
+            <p className="text-xs text-gray-700">
               {CALLER_ID_HELP[watchedCallerIdType] || CALLER_ID_HELP.MAIN}
             </p>
-            <p className="mt-1 text-xs text-gray-500 dark:text-mcm-ink-3">{CALLER_ID_NOTE}</p>
+            <p className="mt-1 text-xs text-gray-500">{CALLER_ID_NOTE}</p>
           </div>
         </div>
       </div>

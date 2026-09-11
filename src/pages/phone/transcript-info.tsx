@@ -306,7 +306,7 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
         variant="outline"
         size="icon"
         onClick={() => handleDownloadFile({ fileUrl: initialData })}
-        className="rounded-full shrink-0 h-9 w-9 border-gray-200 dark:border-mcm-line text-gray-500 dark:text-mcm-ink-3 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
+        className="rounded-full shrink-0 h-9 w-9 border-gray-200 text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
       >
         <Icon name="Download" className="w-4.5 h-4.5" />
       </Button>
@@ -335,11 +335,11 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
   }
 
   return (
-    <div className="w-full h-full min-h-0 bg-white dark:bg-mcm-ground flex flex-col overflow-hidden">
+    <div className="w-full h-full min-h-0 bg-white flex flex-col overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1.7fr)_minmax(19rem,1fr)] flex-1 min-h-0">
-        <section className="flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-gray-200 dark:border-mcm-line">
-          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-mcm-line bg-gray-50/70 dark:bg-mcm-surface/70">
-            <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase">
+        <section className="flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-gray-200">
+          <div className="px-4 py-2.5 border-b border-gray-200 bg-gray-50/70">
+            <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
               Transcript Records
             </p>
           </div>
@@ -382,8 +382,8 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
                       <div
                         className={`max-w-[88%] px-3 py-2 rounded-2xl border text-sm leading-6 break-words ${
                           isAgent
-                            ? 'bg-primary/10 border-primary/20 text-gray-900 dark:text-mcm-ink rounded-br-md'
-                            : 'bg-gray-50 dark:bg-mcm-surface-3 border-gray-200 dark:border-mcm-line text-gray-800 dark:text-mcm-ink-2 rounded-bl-md'
+                            ? 'bg-primary/10 border-primary/20 text-gray-900 rounded-br-md'
+                            : 'bg-gray-50 border-gray-200 text-gray-800 rounded-bl-md'
                         } ${isCurrent ? 'ring-1 ring-primary/40' : ''}`}
                       >
                         {item?.text || ''}
@@ -401,15 +401,15 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
         </section>
 
         <aside className="flex flex-col min-h-0">
-          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-mcm-line bg-gray-50/70 dark:bg-mcm-surface/70">
-            <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase">
+          <div className="px-4 py-2.5 border-b border-gray-200 bg-gray-50/70">
+            <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
               Conversation Insights
             </p>
           </div>
 
           <div className="min-h-0 overflow-y-auto px-4 py-4 space-y-5">
             <section>
-              <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase mb-2">
+              <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase mb-2">
                 Sentiment
               </p>
 
@@ -439,7 +439,7 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
                               background: `conic-gradient(${item.color} ${progressAngle}deg, #e6edf9 ${progressAngle}deg)`,
                             }}
                           >
-                            <div className="flex h-[80%] w-[80%] items-center justify-center rounded-full bg-white dark:bg-mcm-surface-3 text-[#1e3352] dark:text-mcm-ink">
+                            <div className="flex h-[80%] w-[80%] items-center justify-center rounded-full bg-white text-[#1e3352]">
                               <span className="text-[10px] font-semibold max-[380px]:text-[9px] sm:text-[11px]">
                                 {item.value.toFixed(2)}%
                               </span>
@@ -461,11 +461,11 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
             </section>
 
             <section>
-              <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase mb-2">
+              <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase mb-2">
                 Call Summary
               </p>
-              <div className="rounded-xl border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-3 py-3">
-                <p className="text-sm text-gray-700 dark:text-mcm-ink-2 leading-6">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-3">
+                <p className="text-sm text-gray-700 leading-6">
                   {summary || 'No summary available for this call.'}
                 </p>
               </div>
@@ -473,14 +473,14 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
 
             {keywords.length > 0 && (
               <section>
-                <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase mb-2">
+                <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase mb-2">
                   Key Topics
                 </p>
                 <div className="flex flex-wrap gap-2 rounded-xl border border-ucass-active-bg bg-[#f7faff] p-2.5">
                   {keywords.map((kw, index) => (
                     <span
                       key={`${kw}-${index}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#b8d4ff] dark:border-[rgba(100,116,139,0.4)] bg-white dark:bg-mcm-surface-3 px-3 py-1.5 text-xs font-semibold text-primary dark:text-mcm-ink-2 shadow-[0_1px_3px_rgba(25,99,210,0.1)]"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#b8d4ff] bg-white px-3 py-1.5 text-xs font-semibold text-primary shadow-[0_1px_3px_rgba(25,99,210,0.1)]"
                     >
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                       {kw}
@@ -492,15 +492,15 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
 
             {speakerRatios.length > 0 && (
               <section>
-                <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase mb-2">
+                <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase mb-2">
                   Speak Word Ratio
                 </p>
-                <div className="rounded-xl border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 px-3 py-3 space-y-3">
+                <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 space-y-3">
                   {speakerRatios.map((item, index) => (
                     <div key={`${item.name}-${index}`}>
                       <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-                        <span className="truncate font-medium text-gray-700 dark:text-mcm-ink-2">{item.name}</span>
-                        <span className="shrink-0 font-semibold text-gray-600 dark:text-mcm-ink-3">
+                        <span className="truncate font-medium text-gray-700">{item.name}</span>
+                        <span className="shrink-0 font-semibold text-gray-600">
                           {item.percentage.toFixed(1)}% ({item.wordCount} words)
                         </span>
                       </div>
@@ -519,8 +519,8 @@ const TranscriptInfo: FC<TranscriptInfoProps> = ({
         </aside>
       </div>
 
-      <div className="shrink-0 border-t border-gray-200 dark:border-mcm-line px-4 py-3 bg-white dark:bg-mcm-ground">
-        <p className="text-xs font-semibold tracking-wide text-gray-600 dark:text-mcm-ink-3 uppercase mb-2">
+      <div className="shrink-0 border-t border-gray-200 px-4 py-3 bg-white">
+        <p className="text-xs font-semibold tracking-wide text-gray-600 uppercase mb-2">
           Recording
         </p>
         {audioPlayer}

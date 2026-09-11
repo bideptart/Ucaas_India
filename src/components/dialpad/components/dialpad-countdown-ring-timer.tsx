@@ -97,7 +97,7 @@ const DialpadCountdownRingTimer = ({
       >
         <div
           className={cn(
-            'flex flex-col items-center justify-center rounded-full bg-white dark:bg-mcm-surface text-[#1f2f47] dark:text-mcm-ink',
+            'flex flex-col items-center justify-center rounded-full bg-white text-[#1f2f47]',
             isCompact
               ? 'h-[calc(100%-6px)] w-[calc(100%-6px)]'
               : 'h-[calc(100%-10px)] w-[calc(100%-10px)]',

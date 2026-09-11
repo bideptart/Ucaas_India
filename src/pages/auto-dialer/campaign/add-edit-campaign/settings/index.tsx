@@ -221,7 +221,7 @@ const Settings: FC<any> = ({ dialMethod, setModalState, campaignStatus }) => {
           <>
             <div className="w-full flex items-start flex-col gap-2">
               <div className="flex items-center gap-2">
-                <p className="text-gray-900 dark:text-mcm-ink font-medium text-sm">Automatic Answer</p>
+                <p className="text-gray-900 font-medium text-sm">Automatic Answer</p>
                 <Switch
                   disabled={campaignStatus !== '' && campaignStatus !== 'NEW'}
                   onCheckedChange={(checked) => {
@@ -249,7 +249,7 @@ const Settings: FC<any> = ({ dialMethod, setModalState, campaignStatus }) => {
             </div>
             <div className="w-full flex items-start gap-2 flex-col">
               <div className="flex items-center gap-2">
-                <p className="text-gray-900 dark:text-mcm-ink font-medium text-sm">Answering Machine Detection</p>
+                <p className="text-gray-900 font-medium text-sm">Answering Machine Detection</p>
                 <Switch
                   disabled={campaignStatus !== '' && campaignStatus !== 'NEW'}
                   onCheckedChange={(checked) => {
@@ -327,7 +327,7 @@ const Settings: FC<any> = ({ dialMethod, setModalState, campaignStatus }) => {
             <div className="w-full flex items-center gap-2 mb-2">
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-1">
-                  <h3 className="text-gray-900 dark:text-mcm-ink font-semibold text-md">Agent Disposition</h3>
+                  <h3 className="text-gray-900 font-semibold text-md">Agent Disposition</h3>
                   {(errors as any)?.agentDisposition?.message && (
                     <ErrorTooltip text={(errors as any)?.agentDisposition?.message} />
                   )}
@@ -354,7 +354,7 @@ const Settings: FC<any> = ({ dialMethod, setModalState, campaignStatus }) => {
                         className="w-full  flex items-center justify-between gap-3"
                         key={`${item?.disposition?.name}`}
                       >
-                        <div className="w-full p-2 border border-gray-200 dark:border-mcm-line rounded-lg flex items-center justify-between gap-2  min-h-[62px]">
+                        <div className="w-full p-2 border border-gray-200 rounded-lg flex items-center justify-between gap-2  min-h-[62px]">
                           <div className="flex items-center gap-3">
                             <Switch
                               id={item?._id}
@@ -365,7 +365,7 @@ const Settings: FC<any> = ({ dialMethod, setModalState, campaignStatus }) => {
                             />
                             <label
                               htmlFor={item?._id}
-                              className="text-gray-900/80 dark:text-mcm-ink font-semibold text-sm"
+                              className="text-gray-900/80 font-semibold text-sm"
                             >
                               {item?.disposition?.name}
                             </label>

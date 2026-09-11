@@ -96,7 +96,7 @@ const Sidebar = ({
       title={
         ['whatsapp', 'instagram', 'facebook', 'messenger', 'telegram'].includes(chatType) ? (
           <div className="flex flex-col gap-1">
-            <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg leading-5 capitalize">
+            <p className="text-gray-900 font-semibold text-lg leading-5 capitalize">
               {selectedChannelType?.name || ''}
             </p>
             {chatType === 'facebook' || chatType === 'messenger' ? (
@@ -111,7 +111,7 @@ const Sidebar = ({
                 >
                   Click here
                 </span>
-                <span className="text-gray-300 dark:text-mcm-ink-3 text-xs">|</span>
+                <span className="text-gray-300 text-xs">|</span>
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -124,7 +124,7 @@ const Sidebar = ({
                       console.error('Failed to copy link: ', err);
                     }
                   }}
-                  className="text-gray-500 dark:text-mcm-ink-3 hover:text-primary transition-colors inline-flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
+                  className="text-gray-500 hover:text-primary transition-colors inline-flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
                   title="Copy Link"
                 >
                   <Copy className="w-3.5 h-3.5" />
@@ -164,7 +164,7 @@ const Sidebar = ({
                 {
                   <div
                     className={
-                      'cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white'
+                      'cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white'
                     }
                     onClick={handleAddButtonClick}
                   >
@@ -181,7 +181,7 @@ const Sidebar = ({
                         setShowCreateChatModal('direct');
                       }}
                     >
-                      <UserLine className="text-gray-900 dark:text-mcm-ink w-8 h-8" /> Direct Message
+                      <UserLine className="text-gray-900 w-8 h-8" /> Direct Message
                     </DropdownMenuItem>
                   )}
                   {chatAccess?.access?.TEAM_MESSAGE && (
@@ -191,7 +191,7 @@ const Sidebar = ({
                         setShowCreateChatModal('team');
                       }}
                     >
-                      <UsersGroupLine className="text-gray-900 dark:text-mcm-ink w-8 h-8" />
+                      <UsersGroupLine className="text-gray-900 w-8 h-8" />
                       Create New Team
                     </DropdownMenuItem>
                   )}
@@ -202,7 +202,7 @@ const Sidebar = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <div className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white">
+              <div className="cursor-pointer flex items-center justify-center rounded-full w-10 h-10 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white">
                 <FilterIcon className="w-6 h-6" />
               </div>
             </DropdownMenuTrigger>

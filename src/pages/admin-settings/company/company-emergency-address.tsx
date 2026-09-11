@@ -9,6 +9,8 @@ import { AlertTriangle, MapPinIcon, PhoneCall } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { SectionHeading } from './section-heading';
+import { BackButton } from './section-actions';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import CustomSelect from '@/components/custom/custom-select';
@@ -194,7 +196,7 @@ const CompanyEmergencyAddress = () => {
     setValue,
     watch,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = formInstance;
 
   const [watchedCountry, watchedState] = watch(['country', 'state']);
@@ -343,6 +345,7 @@ const CompanyEmergencyAddress = () => {
       uuid: companyDefaultRow?.uuid,
       settings: nextSettings,
       greetings: storedGreetings,
+      only: [EMERGENCY_ADDRESS_KEY],
     });
   };
 
@@ -351,7 +354,7 @@ const CompanyEmergencyAddress = () => {
 
   if (!canView) {
     return (
-      <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center">
+      <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-8 text-center">
         <p className="text-sm font-semibold text-[#2E2D35]">
           You do not have permission to view the emergency address
         </p>
@@ -360,60 +363,48 @@ const CompanyEmergencyAddress = () => {
   }
 
   return (
-    <section className="flex w-full flex-col gap-4">
-      <div className="flex items-start gap-3">
-        <MapPinIcon className="mt-0.5 h-4.5 w-4.5 text-primary" />
-        <div className="flex flex-col gap-0.5">
-          <h5 className="text-base font-semibold tracking-wide text-[#2E2D35]">
-            Emergency address (E911)
-          </h5>
-          <p className="text-xs font-medium text-[#2E2D35]">
-            The street address emergency responders would be sent to, and the number they would call
-            back on.
-          </p>
-        </div>
+    <section className="cs-section flex w-full flex-col gap-4">
+      {/* On a panel, like the heading block every other section opens with. It
+          was the one section whose title sat bare on the page ground. */}
+      <div className="cs-block">
+        <SectionHeading
+          icon={<MapPinIcon className="h-[18px] w-[18px]" />}
+          title="Emergency address (E911)"
+          description="The street address emergency responders would be sent to, and the number they would call back on."
+        />
       </div>
 
-      {/* The whole point of this panel: say plainly that nothing routes on it. */}
+      {/* Small, but still a warning and still amber - not the plain grey note
+          the other screens use for "saved, nothing reads it yet". Everywhere
+          else that pattern costs somebody a setting that does not apply; here it
+          is whether an ambulance arrives. Shortened to the three things a reader
+          has to leave with: it is not used, keep another phone, and saving does
+          not make you compliant. The detail that used to be here - which part of
+          the system does not read it, and what building it needs - is in the
+          file header, where the next engineer will look for it. */}
       <div
         role="alert"
-        className="rounded-xl border-2 border-red-300 bg-red-50 p-4 text-red-900 shadow-sm"
+        className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3"
       >
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-bold uppercase tracking-wide text-red-700">
-              This address is written down. It is not used to route emergency calls.
-            </p>
-            <p className="text-sm font-medium">
-              If someone dials 911 or another emergency number from a desk phone or from this app,
-              the call is <span className="font-bold">not</span> sent using this address, and this
-              address is <span className="font-bold">not</span> passed to the responders. The part
-              of the system that connects the call does not read this field at all. Building that
-              needs work with our phone carrier and our call switch, and it has not been done yet.
-            </p>
-            <p className="text-sm font-medium">
-              Until that work is finished, keep a normal phone line or a mobile phone available for
-              emergencies, and tell everyone at this address not to rely on this system to call for
-              help.
-            </p>
-            <p className="text-sm font-medium">
-              In the US, Kari&apos;s Law and the RAY BAUM&apos;S Act require emergency calls to work
-              and to carry a usable address. Saving this form does{' '}
-              <span className="font-bold">not</span> make the account compliant with either law.
-            </p>
-          </div>
-        </div>
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+        <p className="text-xs text-gray-800">
+          <span className="font-semibold text-[#2E2D35]">
+            This address is recorded here only.
+          </span>{' '}
+          A 999 or 911 call does not use it, and responders are not sent it — so keep a normal
+          phone or a mobile available for emergencies. In the US, saving this does not make the
+          account compliant with Kari&apos;s Law or the RAY BAUM&apos;S Act.
+        </p>
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-10">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-10">
           <div className="flex items-center justify-center">
             <Loader variant="blue" size="md" />
           </div>
         </div>
       ) : isError ? (
-        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-8 text-center">
+        <div className="rounded-xl border border-[rgba(225,200,165,0.9)] bg-white px-4 py-8 text-center">
           <p className="text-sm font-semibold text-[#2E2D35]">
             Could not load the saved emergency address
           </p>
@@ -422,9 +413,9 @@ const CompanyEmergencyAddress = () => {
       ) : (
         <form
           onSubmit={handleSubmit(onSubmit as any)}
-          className="flex flex-col gap-5 rounded-xl bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] p-4 shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]"
+          className="flex flex-col gap-5 rounded-xl bg-white p-4 shadow-sm"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EEE7DD] pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(225,200,165,0.9)] pb-3">
             <p className="text-sm font-semibold text-[#2E2D35]">Emergency address</p>
             <p className="text-xs text-[#9A948F]">
               {hasSavedAddress && savedAt
@@ -572,7 +563,7 @@ const CompanyEmergencyAddress = () => {
             </div>
           </div>
 
-          <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3">
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
             <p className="text-xs font-medium text-amber-900">
               A PO box will be rejected. Emergency responders need a street address they can drive
               to, so a mailbox is not accepted here - this matches what carriers and other providers
@@ -580,7 +571,7 @@ const CompanyEmergencyAddress = () => {
             </p>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-[#EEE7DD] bg-[#FBE2C8]/45 px-4 py-3">
+          <div className="flex items-start gap-3 rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3">
             <Checkbox
               id="emergency-address-acknowledgement"
               checked={acknowledged}
@@ -590,7 +581,7 @@ const CompanyEmergencyAddress = () => {
             />
             <Label
               htmlFor="emergency-address-acknowledgement"
-              className="cursor-pointer items-start text-xs font-medium leading-5 text-[#2E2D35]"
+              className="cursor-pointer items-start text-xs font-medium leading-5 text-gray-800"
             >
               I understand this address is only written down. It does not route emergency calls and
               it is not sent to emergency responders.
@@ -598,21 +589,17 @@ const CompanyEmergencyAddress = () => {
           </div>
 
           {canEdit && (
-            <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[#EEE7DD] pt-4">
+            <div className="cs-savebar">
+              <BackButton />
               <Button
-                type="button"
-                variant="secondary"
-                disabled={isSaving || !isDirty}
-                onClick={() => {
-                  reset();
-                  setAcknowledged(false);
-                }}
+                type="submit"
+                variant="primary"
+                size="sm"
+                className="cs-save"
+                disabled={isSaving}
               >
-                Reset
-              </Button>
-              <Button type="submit" variant="primary" disabled={isSaving || !acknowledged}>
                 {isSaving ? <Loader variant="white" size="xs" /> : null}
-                Save emergency address
+                Save settings
               </Button>
             </div>
           )}

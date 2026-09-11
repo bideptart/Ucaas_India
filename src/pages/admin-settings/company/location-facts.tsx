@@ -35,12 +35,12 @@ const LocationFacts = ({ site }: { site: any }) => {
 
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
         <Users className="h-3.5 w-3.5 text-gray-400" />
         {peopleLabel}
       </span>
 
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 dark:text-mcm-ink-2">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
         <Hash className="h-3.5 w-3.5 text-gray-400" />
         {numberCount === 0
           ? 'No numbers'
@@ -57,7 +57,7 @@ const LocationFacts = ({ site }: { site: any }) => {
            find out what. With one issue there is room to just say it. */
         <span
           className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-            readiness.requiredMissing > 0 ? 'text-amber-700' : 'text-gray-600 dark:text-mcm-ink-3'
+            readiness.requiredMissing > 0 ? 'text-amber-700' : 'text-gray-600'
           }`}
           title={readiness.issues.map((issue) => issue.label).join(' · ')}
         >

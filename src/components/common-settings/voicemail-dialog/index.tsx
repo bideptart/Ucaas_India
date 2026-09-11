@@ -75,7 +75,7 @@ const VoiceMailConfigureModal: FC<ModalProps> = ({ modalState, setModalState, da
             Voicemail Settings
             <div
               onClick={handleCancel}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -83,8 +83,8 @@ const VoiceMailConfigureModal: FC<ModalProps> = ({ modalState, setModalState, da
         </div>
 
         <DialogDescription>
-          <p className="text-gray-900 dark:text-mcm-ink text-sm mb-1 font-semibold">Shared Voicemail</p>
-          <p className="text-gray-700 dark:text-mcm-ink-2 text-sm">
+          <p className="text-gray-900 text-sm mb-1 font-semibold">Shared Voicemail</p>
+          <p className="text-gray-700 text-sm">
             Select co recipients who will receive voicemail notification and will be abe to check
             your voicemail messages
           </p>

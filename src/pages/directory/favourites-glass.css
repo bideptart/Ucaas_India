@@ -91,28 +91,17 @@
    instead. */
 .gp-favourites .panel-card {
   background: #fffdfb;
-  /* A near-white border is invisible against this card's own near-white
-     fill and the page's light peach backdrop — --glass-border (the app's
-     own token for a visible edge on a light glass card) instead, same fix
-     as People's panel-card (people-glass.css). */
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
 }
 .gp-favourites .tbl-wrap {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  overflow-y: auto;
   min-height: 0;
 }
 .gp-favourites table {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
   background: transparent;
 }
 .gp-favourites thead {
@@ -168,26 +157,16 @@
 .gp-favourites th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
-  height: 40px;
-  font-size: 9.5px;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .gp-favourites td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
-/* The "Contact via" icon row otherwise sits flush against the card's own
-   right edge — extra breathing room past the base cell padding. The icon
-   row (4 icons, ~114px) nearly fills this column's own width on its own,
-   so a modest padding bump wasn't enough to read as a real gap; this pushes
-   it clearly off the edge. */
-.gp-favourites th:last-child,
-.gp-favourites td:last-child {
-  padding-right: 48px;
-}
-/* Same wash Performance ▸ Calls uses for its own row hover
-   (--ic-row-hover in interactions-theme.css). */
 .gp-favourites tbody tr:hover {
-  background: rgba(255, 241, 235, 0.55);
+  background: rgba(255, 205, 155, 0.14);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 /* Action-column icon buttons (call/SMS/WhatsApp/activity) had no override

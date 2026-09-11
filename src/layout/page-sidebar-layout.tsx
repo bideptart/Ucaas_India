@@ -4,6 +4,11 @@ import { cn } from '@/lib/utils';
 
 const PageSidebarLayout = ({
   title = '',
+  /* Suppresses the rail's own heading while leaving `title` in place, since
+     `title` also selects this layout's glass and responsive-topbar variants.
+     Campaign needs it: its page head already says "Campaign", so the rail
+     printed the same word again immediately below. */
+  hideHeading = false,
   content = null,
   action = null,
   icon = null,
@@ -11,8 +16,18 @@ const PageSidebarLayout = ({
   headerCustomClass = '',
   fullHeightOnMobile = false,
   collapsible = true,
+  widthClass = '',
 }: {
   title?: string;
+  hideHeading?: boolean;
+  /** Overrides the width this layout would pick for itself.
+   *
+   *  Eleven sections share this component, so widening the branch a section
+   *  happens to fall into would drag the other ten with it. Video and Campaign
+   *  pass their own width to sit at the same 22rem as Chat's list; everything
+   *  else keeps the width it had. Ignored while collapsed, which is 0 either
+   *  way. */
+  widthClass?: string;
   headerCustomClass?: string;
   icon?: any;
   content: any;
@@ -47,8 +62,8 @@ const PageSidebarLayout = ({
         // Campaign, which those two pages style directly.
         'mcm-sidepanel relative transition-colors duration-300 ease-in-out',
         isGlassSidebar
-          ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)] dark:bg-mcm-surface/50'
-          : 'bg-mcm-surface',
+          ? 'bg-white/50 backdrop-blur-2xl shadow-[inset_-1px_0_0_rgba(255,255,255,0.6)]'
+          : 'bg-white',
         isCampaignResponsiveTopbar
           ? 'h-auto lg:h-full'
           : isAdminResponsiveTopbar
@@ -65,19 +80,21 @@ const PageSidebarLayout = ({
           : isAdminResponsiveTopbar
             ? hovered
               ? 'border-b border-primary lg:border-r lg:border-b-0'
-              : 'border-b border-mcm-line lg:border-r lg:border-b-0'
+              : 'border-b border-gray-200 lg:border-r lg:border-b-0'
             : title === 'Reports'
               ? hovered
                 ? 'border-b border-primary md:border-r md:border-b-0'
-                : 'border-b border-mcm-line md:border-r md:border-b-0'
+                : 'border-b border-gray-200 md:border-r md:border-b-0'
               : isGlassSidebar
                 ? 'border-r'
                 : hovered
                   ? 'border-r border-primary'
-                  : 'border-r border-mcm-line ',
+                  : 'border-r border-gray-200 ',
         collapsed
           ? 'w-[0rem] min-w-[0rem]'
-          : isTab
+          : widthClass
+            ? widthClass
+            : isTab
             ? 'w-full min-w-0 lg:min-w-[19rem] lg:max-w-[19rem] xl:min-w-[22rem] xl:max-w-[22rem]'
             : title === 'Reports'
               ? 'w-full min-w-0 max-w-full md:min-w-[14rem] md:max-w-[14rem]'
@@ -86,7 +103,6 @@ const PageSidebarLayout = ({
                 : isAdminResponsiveTopbar
                   ? 'w-full min-w-0 max-w-full lg:min-w-[16rem] lg:max-w-[16rem]'
                   : 'md:min-w-[16rem] md:max-w-[16rem] w-full xs:max-h-32 md:max-h-full',
-        isGlassSidebar && 'psl-glass-border',
       )}
       style={
         isGlassSidebar
@@ -98,16 +114,16 @@ const PageSidebarLayout = ({
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-mcm-line rounded-full p-0.5 cursor-pointer hidden',
+            'absolute z-30 top-10 -right-3 transition-all ease-in-out duration-200 border border-gray-200 rounded-full p-0.5 cursor-pointer hidden',
             isCampaignResponsiveTopbar ? 'lg:flex' : isAdminResponsiveTopbar ? 'lg:flex' : 'md:flex',
             collapsed || hovered || isCampaignResponsiveTopbar
               ? 'opacity-100 pointer-events-auto'
               : 'opacity-0 pointer-events-none',
             hovered
               ? isGlassSidebar
-                ? 'text-white psl-glass-collapse-hover'
+                ? 'text-white'
                 : 'bg-primary text-white'
-              : 'bg-mcm-surface text-mcm-ink-3',
+              : 'bg-white text-gray-600',
           )}
           style={hovered && isGlassSidebar ? { background: '#E78B50' } : undefined}
         >
@@ -121,30 +137,28 @@ const PageSidebarLayout = ({
       )}
 
       <div className={cn('flex flex-col', fullHeightOnMobile ? 'h-full' : 'h-auto sm:h-full')}>
-        {(title || action) && (
+        {((title && !hideHeading) || action) && (
           <div
             className={cn(
               // No `transition-opacity`: it faded the header on collapse
               // while the panel itself snaps, so the two moved at different
               // speeds. Upstream's glass border variant is kept.
               'flex items-center justify-between p-3 border-b min-h-[65px]',
-              isGlassSidebar ? 'border-orange-100/60 dark:border-[rgba(100,116,139,0.25)]' : 'border-mcm-line',
+              isGlassSidebar ? 'border-orange-100/60' : 'border-gray-200',
               title === 'Reports' && 'min-h-14 md:min-h-[65px]',
               collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100',
             )}
           >
             <div className={`flex gap-1 items-center ${headerCustomClass}`}>
               <span>{icon}</span>
-              <h4
-                className={cn(
-                  'font-semibold text-lg',
-                  !isGlassSidebar && 'text-mcm-ink',
-                  isGlassSidebar && 'psl-glass-title',
-                )}
-                style={isGlassSidebar ? { color: '#8A3F1C' } : undefined}
-              >
-                {title}
-              </h4>
+              {hideHeading ? null : (
+                <h4
+                  className={cn('font-semibold text-lg', !isGlassSidebar && 'text-gray-900')}
+                  style={isGlassSidebar ? { color: '#8A3F1C' } : undefined}
+                >
+                  {title}
+                </h4>
+              )}
             </div>
             {action && action}
           </div>

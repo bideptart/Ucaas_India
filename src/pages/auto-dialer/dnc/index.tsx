@@ -135,9 +135,9 @@ const DNC = () => {
   });
   return (
     <>
-      <section className="w-full bg-gray-200/15 dark:bg-mcm-surface-3/15 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
             Do Not Contact List
           </p>
 
@@ -160,26 +160,26 @@ const DNC = () => {
             </Button>
           </div>
         </div>
-        <div className="w-full flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] ">
+        <div className="w-full flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] ">
           {/* <Tabs value={tabName} onValueChange={handleTabChange} className="flex w-full">
             <div className="w-full">
               <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none bg-transparent min-h-10 ">
                 <TabsTrigger
                   value={DNC_TABS.DEFAULT}
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                 >
                   {DNC_TABS.DEFAULT}
                 </TabsTrigger>
                 <TabsTrigger
                   value={DNC_TABS.PERSONAL}
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                 >
                   {DNC_TABS.PERSONAL}
                 </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value={DNC_TABS.DEFAULT}>
-              <section className="w-full bg-gray-200/15 dark:bg-mcm-surface-3/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+              <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
                 <div className="w-full  p-3 flex flex-col gap-2 ">
                   <TableManager
                     {...{
@@ -195,7 +195,7 @@ const DNC = () => {
               </section>
             </TabsContent>
             <TabsContent value={DNC_TABS.PERSONAL}>
-              <section className="w-full bg-gray-200/15 dark:bg-mcm-surface-3/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+              <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
                 <div className="w-full  p-3 flex flex-col gap-2 ">
                   <TableManager
                     {...{
@@ -228,7 +228,7 @@ const DNC = () => {
               </section>
             </TabsContent>
           </Tabs> */}
-          <section className="dtable-page w-full bg-gray-200/15 dark:bg-mcm-surface-3/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
+          <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden  h-full">
             <div className="w-full flex flex-col gap-2 ">
               <TableManager
                 {...{
@@ -237,7 +237,6 @@ const DNC = () => {
                   fetcherFn: getDncCampaign,
                   emptyTablePlaceholder: 'No DNC records found',
                   descriptionEmptyTable: 'Numbers added to Do Not Call will appear here.',
-                  splitStickyHeader: true,
                 }}
               />
             </div>

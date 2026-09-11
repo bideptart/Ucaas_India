@@ -8,13 +8,13 @@ import AddEditIvrMenu from './add-edit-ivr';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { handleAlert } from '@/lib/utils';
 import AlertConfirm from '@/components/custom/alert-confirm';
-import { Plus } from '@/assets/icons';
+import { Plus, SearchLine } from '@/assets/icons';
 import SideDrawer from '@/components/custom/side-drawer';
 import { IVR_PATH, IVR_DEFAULT_TAB } from './ivr-tabs';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { Icon, IconName } from '@/assets/icons/icon';
+// import Breadcrumb from '@/components/custom/breadcrumb';
 import useDebounce from '@/hooks/use-debounce';
-import { Input } from '@/components/ui/input';
 import { useCompanyFeatures } from '@/hooks/rbac';
 
 interface IIVR {
@@ -22,6 +22,7 @@ interface IIVR {
   extension: string;
   site: string;
 }
+// const breadcrumbData = [{ label: 'Phone System' }, { label: 'IVR Menus' }];
 
 const IvrMenus: FC = () => {
   /* Which IVR is open, and which tab, both come from the URL so an IVR can be
@@ -74,19 +75,13 @@ const IvrMenus: FC = () => {
     {
       header: 'Site',
       accessorKey: 'site',
-      /* `site` arrives as a JSON string on some rows and as a plain name (or
-         nothing) on others. Parsing unconditionally threw on every row that
-         wasn't JSON, and the catch returned nothing at all — so the cell
-         rendered blank and logged an error per row, per render. */
       cell: ({ row }) => {
-        const raw = row?.original?.site;
-        if (!raw) return '---';
-        if (typeof raw !== 'string') return (raw as any)?.label || '---';
-        if (!raw.trim().startsWith('{')) return raw;
+        const data = row?.original;
         try {
-          return JSON.parse(raw)?.label || '---';
-        } catch {
-          return raw;
+          const getSiteObj = JSON.parse(data?.site);
+          return getSiteObj?.label || '---';
+        } catch (error) {
+          console.error('ERROR ON SITE: ', error);
         }
       },
     },
@@ -100,14 +95,14 @@ const IvrMenus: FC = () => {
             ivrActions?.edit && {
               icon: 'EditStrokIcon',
               onClick: () => openIvr(data),
-              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
+              className: 'mcm-rowact',
               tooltipText: 'Edit',
             },
           hasIvrAccess &&
             ivrActions?.delete && {
               icon: 'TrashBin',
               onClick: () => setDeleteIVRMenu(data),
-              className: 'bg-red-100 text-red-500 hover:bg-red-500 hover:text-white',
+              className: 'mcm-rowact is-danger',
               tooltipText: 'Delete',
             },
         ].filter(Boolean);
@@ -117,17 +112,16 @@ const IvrMenus: FC = () => {
         return (
           <div className="flex items-center gap-2">
             {actions?.map((action, index) => (
-              <CustomTooltip key={index} text={action.tooltipText} side="top">
-                <button
-                  type="button"
-                  aria-label={action.tooltipText}
-                  className={`mcm-row-action cursor-pointer flex items-center justify-center rounded-full w-8 h-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${action.className}`}
+              <CustomTooltip text={action.tooltipText} side="top">
+                <div
+                  key={index}
+                  className={`cursor-pointer flex items-center justify-center ${action.className}`}
                   onClick={() => {
                     action.onClick();
                   }}
                 >
-                  <Icon name={action.icon as IconName} className="w-5 h-5" aria-hidden="true" />
-                </button>
+                  <Icon name={action.icon as IconName} className="w-5 h-5" />
+                </div>
               </CustomTooltip>
             ))}
           </div>
@@ -139,6 +133,8 @@ const IvrMenus: FC = () => {
   return (
     <>
       <AdminPage
+        hideHead
+        bareBody
         section="Phone System"
         title="IVR menus"
         description="Automated menus that greet callers and route them. Assign one to any number to control greetings, routing and voicemail."
@@ -154,25 +150,35 @@ const IvrMenus: FC = () => {
             </button>
           ) : null
         }
-        filters={
-          <Input
-            type="search"
-            name="ivr-search"
-            autoComplete="off"
-            spellCheck={false}
-            aria-label="Search IVR menus"
-            placeholder="Search IVR menus…"
-            onChange={(e) => setSearchedText(e.target.value)}
-            className="w-full min-h-9 rounded-lg"
-          />
-        }
       >
         <div className="flex flex-col gap-2">
-          <p className="text-foreground text-sm">
-            Use this to build your automated menu. After creating your IVR here, you can assign it
-            to any Phone Number in your system to manage greetings, routing, and voicemail messages
-            automatically.
-          </p>
+          {/* One line with the full wording behind it, rather than a
+              paragraph restating the screen above every row on every visit. */}
+          {/* Note and search share one row. `filters` is not used: it renders
+              a full-width white bar of its own above the content, which cost a
+              line to hold a single search box. */}
+          <div className="mcm-listbar">
+            <CustomTooltip
+              text={
+                "Build your automated menu here, then assign it to any phone number to control that number's greetings, routing and voicemail."
+              }
+              side="bottom"
+              className="max-w-sm"
+            >
+              <p className="mcm-numnote">
+                <Icon name={'InfoIcon' as IconName} className="w-3.5 h-3.5" />
+                Assign a menu to a number to control its greetings, routing and voicemail.
+              </p>
+            </CustomTooltip>
+            <label className="mcm-numsearch">
+              <SearchLine />
+              <input
+                type="search"
+                placeholder="Search IVR menus"
+                onChange={(e) => setSearchedText(e.target.value)}
+              />
+            </label>
+          </div>
           <TableManager
             {...{
               columns,
@@ -207,10 +213,10 @@ const IvrMenus: FC = () => {
           content={
             ivrNotFound ? (
               <div className="p-6">
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-sm font-semibold text-gray-900">
                   This IVR menu is not on the current page of results
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-gray-600">
                   Search for it by name in the list behind this panel, then open it from there.
                 </p>
                 <button type="button" className="btn primary mt-4" onClick={closeIvr}>

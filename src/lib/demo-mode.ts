@@ -1258,7 +1258,34 @@ const PHONE_VOICEMAIL_SEED = [
 ];
 
 /** Endpoint-specific answers; everything else gets an empty list. */
+/**
+ * The organisation record the app asks for before it renders anything.
+ *
+ * Demo mode answers it locally rather than letting it reach the network, so a
+ * demo build needs no backend at all. Deliberately carries no colours or logo
+ * paths: the provider writes any it finds onto CSS variables, and pointing at
+ * asset URLs that cannot be fetched offline would strip the theme the app
+ * ships with. The Stripe key is a publishable test key — publishable keys are
+ * safe in client code by design, and this one belongs to Stripe's own docs.
+ */
+const DEMO_ORGANISATION = {
+  uuid: 'demo-org-0000-0000-0000-000000000001',
+  fav_title: 'Demo Console',
+  source_name: 'Demo Console',
+  organisation_name: 'Demo Console',
+  domain: 'demo.local',
+  sub_domain: 'demo.local',
+  status: 1,
+  stripe_publish_key: 'pk_test_TYooMQauvdEDq54NiTphI7jx',
+  address: '1 Demo Street',
+  invoice_email: 'billing@example.com',
+};
+
 const matchDemoPayload = (url: string, data: unknown) => {
+  /* Answered here so demo mode never needs a backend; without it the provider
+     waits on a request that cannot succeed and the app sits on its spinner. */
+  if (url.includes('/api/admin/organisation/get-meta-data')) return ok(DEMO_ORGANISATION);
+
   if (url.includes('/api/user/info')) return ok(DEMO_USER);
 
   if (url.includes('/api/login') || url.includes('/api/verify-otp')) {

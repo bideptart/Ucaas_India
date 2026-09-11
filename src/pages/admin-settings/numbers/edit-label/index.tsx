@@ -79,8 +79,8 @@ const EditNumberLabel: FC<EditNumberLabelProps> = ({ did, open, onClose }) => {
       <DialogContent className="max-w-lg p-4" showCloseButton={false}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-0.5">
-            <div className="text-md font-semibold text-gray-900 dark:text-mcm-ink">Edit label</div>
-            <div className="text-sm text-gray-800 dark:text-mcm-ink-2">{did?.did_number}</div>
+            <div className="text-md font-semibold text-gray-900">Edit label</div>
+            <div className="text-sm text-gray-800">{did?.did_number}</div>
           </div>
           <button
             type="button"
@@ -102,7 +102,7 @@ const EditNumberLabel: FC<EditNumberLabelProps> = ({ did, open, onClose }) => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
               error={check.ok ? undefined : check.reason}
             />
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-mcm-ink-3">
+            <div className="flex items-center justify-between text-xs text-gray-500">
               <span>Shown beside this number wherever numbers are listed.</span>
               <span>
                 {normalised.length}/{LABEL_MAX_LENGTH}
@@ -110,14 +110,14 @@ const EditNumberLabel: FC<EditNumberLabelProps> = ({ did, open, onClose }) => {
             </div>
             {/* Said plainly and up front, because it is the one thing about this
                 label a person cannot work out from the screen. */}
-            <p className="mt-1 rounded-lg bg-gray-100 dark:bg-mcm-surface-3 px-3 py-2 text-xs text-gray-800 dark:text-mcm-ink-2">
+            <p className="mt-1 rounded-lg bg-gray-100 px-3 py-2 text-xs text-gray-800">
               The label is kept with this number&apos;s call handling, so removing its forwarding or
               releasing the number clears it. It appears on these admin screens only — it is not
               shown on the softphone or in call history.
             </p>
           </div>
         ) : (
-          <p className="mt-3 rounded-lg bg-gray-100 dark:bg-mcm-surface-3 px-3 py-2 text-sm text-gray-800 dark:text-mcm-ink-2">
+          <p className="mt-3 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-800">
             {allowed.reason}
           </p>
         )}

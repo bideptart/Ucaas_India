@@ -131,8 +131,8 @@ const DepartmentLeftContent: FC<DepartmentLeftContentProps> = ({
                     {item?.manager && (
                       <>
                         <div className="flex min-w-0 items-center gap-1">
-                          <p className="shrink-0 text-foreground truncate text-xs">{'Manager'} :</p>
-                          <p className="text-muted-foreground flex min-w-0 items-center gap-0.5 truncate text-xs">
+                          <p className="shrink-0 text-gray-800 truncate text-xs">{'Manager'} :</p>
+                          <p className="text-gray-500 flex min-w-0 items-center gap-0.5 truncate text-xs">
                             {capitalizeFirstLetter(managerInfo?.label) || ''}
                           </p>
                         </div>
@@ -145,12 +145,12 @@ const DepartmentLeftContent: FC<DepartmentLeftContentProps> = ({
           })
         ) : (
           // !debouncedDepartmentSearch ? (
-          //   <div className="m-auto flex flex-col items-center justify-center border border-border rounded-lg bg-card p-10 w-fit gap-7 max-w-80">
+          //   <div className="m-auto flex flex-col items-center justify-center border border-gray-200 rounded-lg bg-white p-10 w-fit gap-7 max-w-80">
           //     <div className="flex flex-col justify-center items-center gap-2">
           //       <Icon name="NotFound" />
           //     </div>
           //     <div className="flex flex-col items-center gap-2">
-          //       <p className="text-foreground text-sm whitespace-normal">
+          //       <p className="text-gray-800 text-sm whitespace-normal">
           //         There is nothing to show here yet. Start by creating some departments.gdf
           //       </p>
           //       <Button
@@ -167,7 +167,7 @@ const DepartmentLeftContent: FC<DepartmentLeftContentProps> = ({
           <div className="flex justify-center items-center w-full h-full">
             <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
               <img src={NotFound} alt="BusyImage" className="min-w-28 w-28" />
-              <p className="text-sm font-medium text-foreground">No Department Found</p>
+              <p className="text-sm font-medium text-gray-900">No Department Found</p>
             </div>
           </div>
         )}

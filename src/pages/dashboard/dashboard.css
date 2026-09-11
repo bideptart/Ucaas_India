@@ -50,18 +50,3 @@
   overflow: auto;
   background: var(--ground);
 }
-
-/* AI wallboard's AHT chart draws its stroke/fill as raw SVG attributes,
-   which cannot carry a Tailwind dark: variant directly. Neutralize the
-   warm accent colour and hairline gridlines for dark mode only. */
-.dark .ai-wallboard-gridline {
-  stroke: #475569;
-}
-
-.dark .ai-wallboard-aht-line {
-  stroke: #f97316;
-}
-
-.dark .ai-wallboard-aht-dot {
-  fill: #f97316;
-}

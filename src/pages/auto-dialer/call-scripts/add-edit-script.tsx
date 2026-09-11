@@ -92,7 +92,7 @@ const ScriptForm = ({
   return (
     <div className="flex h-full min-h-0 w-full flex-col overflow-auto xl:overflow-hidden">
       <div className="h-full min-h-0">
-        <div className="flex h-full min-h-0 w-full flex-col gap-4 rounded-xl bg-white dark:bg-mcm-surface">
+        <div className="flex h-full min-h-0 w-full flex-col gap-4 rounded-xl bg-white">
           <form className="flex h-full min-h-0 flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
             <Controller
               control={control}
@@ -152,7 +152,7 @@ const ScriptForm = ({
                 </div>
               )}
             />
-            <div className="flex justify-end gap-2 border-t border-gray-100 dark:border-mcm-line pt-2">
+            <div className="flex justify-end gap-2 border-t border-gray-100 pt-2">
               <Button type="submit" variant={'primary'} disabled={isPending} className="min-w-24">
                 {isPending ? <Loader variant="blue" /> : 'Save'}
               </Button>

@@ -284,7 +284,7 @@ const CallHistoryLogs = ({ data }: ActivityListProps) => {
   );
 
   return (
-    <div className="w-full bg-white dark:bg-mcm-surface flex flex-col gap-3">
+    <div className="w-full bg-white flex flex-col gap-3">
       <TableManager columns={columns} staticData={data} showPagination={false} />
       <AudioModal
         modalState={modalState}

@@ -599,7 +599,7 @@ const DialpadConnectedScreen = ({
           </div>
 
           {sentimentScores && (
-            <div className="mt-auto rounded-2xl border border-ucass-active-bg bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] dark:bg-mcm-surface dark:bg-none px-2 py-2 ">
+            <div className="mt-auto rounded-2xl border border-ucass-active-bg bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-2 py-2 ">
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#5d7394] max-[380px]:text-[9px] sm:text-[11px]">
                 Live sentiment
               </p>
@@ -625,7 +625,7 @@ const DialpadConnectedScreen = ({
                           background: `conic-gradient(${item.color} ${progressAngle}deg, #e6edf9 ${progressAngle}deg)`,
                         }}
                       >
-                        <div className="flex h-[80%] w-[80%] items-center justify-center rounded-full bg-white dark:bg-mcm-surface text-[#1e3352] dark:text-mcm-ink">
+                        <div className="flex h-[80%] w-[80%] items-center justify-center rounded-full bg-white text-[#1e3352]">
                           <span className="text-[10px] font-semibold max-[380px]:text-[9px] sm:text-[11px]">
                             {/* {item.value.toFixed(2)} */}
                             {item.value.toFixed(2)}%

@@ -118,16 +118,16 @@ const Thread = ({
 
   return (
     <div className="w-full flex flex-col h-full min-h-0 bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-white dark:bg-mcm-surface flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200 dark:border-b-mcm-line">
+      <div className="w-full shrink-0 px-4 bg-white flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200">
         <div className="cursor-pointer" onClick={() => setInfoBar(false)}>
           <div className="flex gap-2 items-center">
-            <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-mcm-ink-3" />
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-mcm-ink">Call Details</h3>
+            <ArrowLeft className="w-5 h-5 text-gray-500" />
+            <h3 className="text-sm lg:text-base font-semibold text-gray-900">Call Details</h3>
           </div>
         </div>
       </div>
 
-      <div className="h-0 min-h-0 flex-1 p-4 overflow-y-auto overflow-x-hidden bg-white dark:bg-mcm-surface lg:bg-[var(--color-bg-gray-50)]">
+      <div className="h-0 min-h-0 flex-1 p-4 overflow-y-auto overflow-x-hidden bg-white lg:bg-[var(--color-bg-gray-50)]">
         <MessageItem
           fromStreak={fromStreak}
           {...threadInfo}
@@ -183,7 +183,7 @@ const Thread = ({
       </div>
 
       {threadInfo?.messageType === 'prompt' ? null : (
-        <div className="p-4 border-t italic text-center text-xs text-gray-500 dark:text-mcm-ink-3">
+        <div className="p-4 border-t italic text-center text-xs text-gray-500">
           Replies are disabled for this message type
         </div>
       )}

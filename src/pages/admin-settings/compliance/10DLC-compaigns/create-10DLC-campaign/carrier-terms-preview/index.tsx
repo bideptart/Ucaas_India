@@ -53,8 +53,8 @@ const CarrierTermsPreview = ({ formInstance }: { formInstance: UseFormReturn<any
 
   return (
     <div className="flex min-h-0 flex-col gap-2 w-full overflow-y-auto pr-1">
-      <h3 className="text-gray-900 font-semibold text-md dark:text-mcm-ink">Carrier Terms Preview</h3>
-      <p className="text-gray-500 text-sm dark:text-mcm-ink-3">
+      <h3 className="text-gray-900 font-semibold text-md">Carrier Terms Preview</h3>
+      <p className="text-gray-500 text-sm">
         The below list shows campaign qualification results and terms for each MNO.
       </p>
       <div className="w-full grid overflow-x-auto gap-2 mt-1">
@@ -66,7 +66,7 @@ const CarrierTermsPreview = ({ formInstance }: { formInstance: UseFormReturn<any
           Object.entries(previewData)?.map(([key, item]: any) => {
             return (
               <div className="flex w-full flex-col lg:flex-row" key={key}>
-                <div className="bg-gray-100 border border-b-0 lg:border-b lg:border-r-0 border-gray-200 p-4 rounded-t-lg lg:rounded-t-none lg:rounded-l-lg lg:h-full lg:min-w-[172px] dark:bg-mcm-surface-3 dark:border-mcm-line">
+                <div className="bg-gray-100 border border-b-0 lg:border-b lg:border-r-0 border-gray-200 p-4 rounded-t-lg lg:rounded-t-none lg:rounded-l-lg lg:h-full lg:min-w-[172px]">
                   <div className="flex items-center gap-2 whitespace-nowrap h-full">
                     <Checkbox
                       checked={selectedMnoIds?.includes(Number(key))}
@@ -75,30 +75,30 @@ const CarrierTermsPreview = ({ formInstance }: { formInstance: UseFormReturn<any
                     <Label>{item?.mno || ''}</Label>
                   </div>
                 </div>
-                <div className="border border-gray-200 p-4 rounded-b-lg lg:rounded-b-none lg:rounded-r-lg w-full grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6 dark:border-mcm-line">
+                <div className="border border-gray-200 p-4 rounded-b-lg lg:rounded-b-none lg:rounded-r-lg w-full grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">Qualify</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.qualify ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">Qualify</h3>
+                    <p className="text-gray-500 text-sm">{item?.qualify ? 'Yes' : 'No'}</p>
                   </div>
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">MNO Review</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.mnoReview ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">MNO Review</h3>
+                    <p className="text-gray-500 text-sm">{item?.mnoReview ? 'Yes' : 'No'}</p>
                   </div>
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">TPM Scope</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.tpmScope ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">TPM Scope</h3>
+                    <p className="text-gray-500 text-sm">{item?.tpmScope ? 'Yes' : 'No'}</p>
                   </div>
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">SMS TPM</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.tpm ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">SMS TPM</h3>
+                    <p className="text-gray-500 text-sm">{item?.tpm ? 'Yes' : 'No'}</p>
                   </div>
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">MMS TPM</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.mmsTpm ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">MMS TPM</h3>
+                    <p className="text-gray-500 text-sm">{item?.mmsTpm ? 'Yes' : 'No'}</p>
                   </div>
                   <div className="flex items-center flex-col gap-1 text-center">
-                    <h3 className="text-gray-900 font-medium text-sm dark:text-mcm-ink">Message Class</h3>
-                    <p className="text-gray-500 text-sm dark:text-mcm-ink-3">{item?.msgClass !== 'N' ? 'Yes' : 'No'}</p>
+                    <h3 className="text-gray-900 font-medium text-sm">Message Class</h3>
+                    <p className="text-gray-500 text-sm">{item?.msgClass !== 'N' ? 'Yes' : 'No'}</p>
                   </div>
                 </div>
               </div>

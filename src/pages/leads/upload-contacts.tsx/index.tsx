@@ -160,7 +160,7 @@ const UploadContacts: FC<IUploadContactProps> = ({
                     handleUploadModalClose();
                     reset();
                   }}
-                  className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+                  className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
                 >
                   <CloseIcon className="w-3 h-3" />
                 </div>
@@ -202,7 +202,7 @@ const UploadContacts: FC<IUploadContactProps> = ({
                 {watchCountry?.value && (
                   <>
                     <div className="w-full p-2.5 rounded-md bg-yellow-50 border border-amber-400/20">
-                      <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
+                      <p className="text-sm text-gray-500">
                         <span className="font-medium">Note:</span> add phone numbers with the
                         appropriate country prefix (e.g., {normalizedPrefix} XXXXXXXXXX).
                       </p>
@@ -237,13 +237,13 @@ const UploadContacts: FC<IUploadContactProps> = ({
               <div className="flex gap-4 flex-row">
                 <label
                   htmlFor="file-upload"
-                  className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-gray-200 dark:border-mcm-line rounded-xl cursor-pointer bg-white dark:bg-mcm-surface hover:border-gray-400 dark:hover:border-mcm-line-2"
+                  className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-white hover:border-gray-400"
                 >
                   <div className="flex flex-col items-center">
                     <UploadIcon className="w-5 h-5" />
 
-                    <p className="pt-2 text-sm text-gray-900 dark:text-mcm-ink">Upload File</p>
-                    <p className="mt-2 text-sm text-gray-700 dark:text-mcm-ink-2">Supported Format .csv, .xlsx, .xls</p>
+                    <p className="pt-2 text-sm text-gray-900">Upload File</p>
+                    <p className="mt-2 text-sm text-gray-700">Supported Format .csv, .xlsx, .xls</p>
                     {watch('file') && (
                       <p className="mt-2 text-sm text-primary">{watch('file')?.name}</p>
                     )}

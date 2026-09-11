@@ -58,9 +58,9 @@ export const AutoPurchase = ({
   }, [userInfo]);
 
   return (
-    <div className="border border-gray-200 dark:border-mcm-line rounded-xl p-3 gap-3 flex flex-col w-full justify-between bg-white dark:bg-mcm-surface">
+    <div className="border border-gray-200 rounded-xl p-3 gap-3 flex flex-col w-full justify-between bg-white">
       <div className="flex flex-col gap-3">
-        <h5 className="text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold">
+        <h5 className="text-gray-900 flex items-center gap-1.5 font-semibold">
           Activate Auto Purchase
         </h5>
         <div className="flex flex-col gap-2 my-2">
@@ -84,14 +84,14 @@ export const AutoPurchase = ({
               checked={hasAutoPurchase}
             />
           </div>
-          <p className="text-gray-800 dark:text-mcm-ink-2 text-sm">
+          <p className="text-gray-800 text-sm">
             Enable automatic credit top-ups using your saved card when the balance is low.
           </p>
         </div>
         {hasAutoPurchase && (
-          <div className="flex flex-col gap-0.5 p-2 rounded-lg bg-gray-50 dark:bg-mcm-surface-3 border border-gray-100">
+          <div className="flex flex-col gap-0.5 p-2 rounded-lg bg-gray-50 border border-gray-100">
             <div className="flex flex-col">
-              <p className="text-gray-600 dark:text-mcm-ink-3 font-medium pr-5 text-sm mb-3">
+              <p className="text-gray-600 font-medium pr-5 text-sm mb-3">
                 Auto top-up is enabled when your balance falls below a certain amount
               </p>
               <CustomSelect
@@ -103,7 +103,7 @@ export const AutoPurchase = ({
               />
             </div>
             <div className="flex flex-col gap-3 mt-4">
-              <h5 className="text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold">
+              <h5 className="text-gray-900 flex items-center gap-1.5 font-semibold">
                 Auto top-up with:
               </h5>
               <AmountSection
@@ -190,9 +190,9 @@ export const LowBalanceAlert = ({
   }, [user, userInfo]);
 
   return (
-    <div className="border border-gray-200 dark:border-mcm-line rounded-xl p-3 gap-3 flex flex-col w-full justify-between bg-white dark:bg-mcm-surface">
+    <div className="border border-gray-200 rounded-xl p-3 gap-3 flex flex-col w-full justify-between bg-white">
       <div className="flex flex-col gap-3">
-        <h5 className="text-gray-900 dark:text-mcm-ink flex items-center gap-1.5 font-semibold">Low Balance Alert</h5>
+        <h5 className="text-gray-900 flex items-center gap-1.5 font-semibold">Low Balance Alert</h5>
         <div className="flex flex-col gap-2 my-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-md font-medium cursor-pointer text-sm">
@@ -213,16 +213,16 @@ export const LowBalanceAlert = ({
               checked={isLowBalanceAlertEnabled}
             />
           </div>
-          <p className="text-gray-800 dark:text-mcm-ink-2 text-sm">
+          <p className="text-gray-800 text-sm">
             Receive an notification when your balance falls below the specified threshold.
           </p>
         </div>
         {isLowBalanceAlertEnabled && (
-          <div className="flex flex-col gap-0.5 p-2 rounded-lg bg-gray-50 dark:bg-mcm-surface-3 border border-gray-100">
+          <div className="flex flex-col gap-0.5 p-2 rounded-lg bg-gray-50 border border-gray-100">
             <div className="w-full">
               <Input
                 type="number"
-                label="Threshold Amount (₹)"
+                label="Threshold Amount ($)"
                 placeholder="Enter amount"
                 value={lowBalanceAmount}
                 onChange={(e) => {

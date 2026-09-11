@@ -1,5 +1,4 @@
 import { Plus, SearchLine } from '@/assets/icons';
-import SetupGuide from '@/components/mcm/setup-guide';
 import TableManager from '@/components/custom/table-manager';
 import { Button } from '@/components/ui/button';
 import { deleteMember, getUserList, removeAssignNumber } from '@/services/api';
@@ -149,19 +148,19 @@ const UsersExtension: FC = () => {
                   </span>
                 </div>
 
-                <p className="text-muted-foreground  text-xs flex justify-between">
+                <p className="text-gray-500  text-xs flex justify-between">
                   <div>{data?.email}</div>
                 </p>
               </div>
               <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-2.5 py-1 min-w-[122px]">
-                <div className="w-7 h-7 rounded-lg border border-primary/30 bg-card flex items-center justify-center text-primary text-base font-semibold leading-none">
+                <div className="w-7 h-7 rounded-lg border border-primary/30 bg-white flex items-center justify-center text-primary text-base font-semibold leading-none">
                   #
                 </div>
                 <div className="flex flex-col gap-1 leading-tight">
-                  <span className="text-[9px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                  <span className="text-[9px] font-semibold tracking-[0.08em] text-gray-500 uppercase">
                     Extension
                   </span>
-                  <span className="text-foreground text-xs font-semibold leading-none">
+                  <span className="text-gray-900 text-xs font-semibold leading-none">
                     {data?.extension}
                   </span>
                 </div>
@@ -176,6 +175,16 @@ const UsersExtension: FC = () => {
     //   accessorKey: 'phone',
     //   cell: ({ getValue }) => <NumberWithFlag number={getValue()} />,
     // },
+    {
+      /* Two people called Sam Patel are indistinguishable in this list. The
+         reference product leads with the email address for exactly that reason,
+         and the row already carries it — it was fetched and thrown away. */
+      header: 'Email',
+      accessorKey: 'email',
+      cell: ({ row }: any) => (
+        <span className="text-gray-600">{row?.original?.email || '—'}</span>
+      ),
+    },
     {
       header: 'Caller Id',
       accessorKey: 'caller_id',
@@ -213,7 +222,7 @@ const UsersExtension: FC = () => {
         const live = getAgentLiveState(person?.extension, usersOnlineStatus, []);
 
         if (person?.uuid !== myUuid) {
-          return <span className="text-muted-foreground text-xs">{live.status}</span>;
+          return <span className="text-gray-500 text-xs">{live.status}</span>;
         }
 
         const rules =
@@ -280,7 +289,7 @@ const UsersExtension: FC = () => {
               openDrawer('assignUser');
               setSelectedUser({ ...data, user_uuid: data?.user_uuid || data?.uuid });
             },
-            className: 'bg-muted text-foreground/80   hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80   hover:bg-primary hover:text-white',
             tooltipText: 'Assign Caller ID',
             access: isOnCall,
           },
@@ -292,7 +301,7 @@ const UsersExtension: FC = () => {
                 `/messenger?channel=chat&type=all&chatId=${createPrivateChatId([user?.uuid, data?.uuid])}&exact=true`,
               );
             },
-            className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Chat',
             access: isSelf,
           },
@@ -303,7 +312,7 @@ const UsersExtension: FC = () => {
                 openDrawer('updateForwarding');
                 setSelectedUser(data);
               },
-              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
+              className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
               tooltipText: 'Edit',
               access: isOnCall,
             },
@@ -342,7 +351,7 @@ const UsersExtension: FC = () => {
                 <CustomTooltip text={action.tooltipText} side="top">
                   <div
                     key={index}
-                    className={`${action.access ? 'cursor-not-allowed bg-muted text-foreground/80' : `cursor-pointer ${action.className}`} flex items-center justify-center rounded-full w-8 h-8`}
+                    className={`${action.access ? 'cursor-not-allowed bg-gray-100 text-gray-900/80' : `cursor-pointer ${action.className}`} flex items-center justify-center rounded-full w-8 h-8`}
                     onClick={() => {
                       if (!action.access) {
                         action.onClick();
@@ -351,12 +360,12 @@ const UsersExtension: FC = () => {
                   >
                     {CustomActionIcon ? (
                       <CustomActionIcon
-                        className={`${action.iconClass || 'w-4 h-4'} ${action.access ? 'text-muted-foreground' : ''}`}
+                        className={`${action.iconClass || 'w-4 h-4'} ${action.access ? 'text-gray-400' : ''}`}
                       />
                     ) : (
                       <Icon
                         name={action.icon as IconName}
-                        className={`${action.iconClass || 'w-4 h-4'} ${action.access ? 'text-muted-foreground' : ''}`}
+                        className={`${action.iconClass || 'w-4 h-4'} ${action.access ? 'text-gray-400' : ''}`}
                       />
                     )}
                   </div>
@@ -399,16 +408,10 @@ const UsersExtension: FC = () => {
   return (
     <>
       <section className="w-full overflow-x-auto overflow-y-hidden">
-        {/* The same guide as Company & Locations, so the thread carries through
-            the sections rather than stopping at the first screen. It hides itself
-            once setup is finished. */}
-        <div className="px-3 pt-3">
-          <SetupGuide companyInfo={user?.company_info} />
-        </div>
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
-          <p className="text-foreground font-semibold text-lg flex items-center gap-1">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
             Users
-            <div className="-rotate-90 text-muted-foreground">
+            <div className="-rotate-90 text-gray-800">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Extension</span>
@@ -424,7 +427,7 @@ const UsersExtension: FC = () => {
                 if (value.startsWith(' ')) return;
                 setSearch(e.target.value);
               }}
-              Icon={<SearchLine className=" text-muted-foreground" />}
+              Icon={<SearchLine className=" text-gray-700" />}
             />
             {!isTrial && userAccess?.add && (
               <Button
@@ -466,7 +469,7 @@ const UsersExtension: FC = () => {
             </div>
           </div> */}
         <div className="w-full  p-3 flex flex-col gap-2">
-          <p className="text-foreground text-sm">
+          <p className="text-gray-900 text-sm">
             Each additional user requires a separate monthly subscription. Your monthly total will
             increase based on the features and services assigned to this new user.
           </p>

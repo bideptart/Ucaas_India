@@ -1,25 +1,14 @@
+import {
+  AdminHeadActions,
+  useSetAdminPageMeta,
+} from '@/pages/admin-settings/admin-page-head';
 import { getAgentList, getChatAgentList, getSessionList } from '@/services/api';
-import { USD_TO_INR_RATE } from '@/lib/billing-money';
 import AiSessionDetailDrawer from '@/pages/admin-settings/knowledge-base/components/ai-session-detail-drawer';
-import CustomSelect from '@/components/custom/custom-select';
 import { useQuery } from '@tanstack/react-query';
-import { Download, Loader2, MessageSquare, Phone, Search } from 'lucide-react';
+import { ChevronDown, Download, Loader2, MessageSquare, Phone, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 type SessionChannel = 'all' | 'call' | 'chat';
-
-/* The same warm-glass gradient Directory ▸ People uses (people-glass.css) so
-   the floating white header card actually reads as "floating" — without a
-   saturated backdrop behind it, a white card on the AdminHub shell's own
-   near-white background has almost no contrast to float against. */
-const AI_TOOLS_PAGE_GRADIENT = [
-  'radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%)',
-  'radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%)',
-  'radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%)',
-  'radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%)',
-  'linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%)',
-].join(', ');
 type SelectOption = { label: string; value: string };
 type SessionIntent = { label: string; summary: string };
 type SentimentKey = 'positive' | 'neutral' | 'negative';
@@ -69,7 +58,7 @@ const formatDuration = (durationMs: any) => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
-const formatCost = (value: any) => `₹${(safeNumber(value) * USD_TO_INR_RATE).toFixed(2)}`;
+const formatCost = (value: any) => `$${safeNumber(value).toFixed(2)}`;
 
 const hasSessionCost = (session: any) =>
   session?.totalCostUSD !== null && session?.totalCostUSD !== undefined;
@@ -307,7 +296,7 @@ const SentimentGraph = ({ session }: { session: any }) => {
       <div className="h-1.5 w-[70px] overflow-hidden rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${score}%` }} />
       </div>
-      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-slate-200 bg-white p-3 text-left shadow-xl group-hover:block">
+      <div className="pointer-events-none absolute right-0 top-6 z-30 hidden w-[190px] rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] p-3 text-left shadow-xl group-hover:block">
         <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
           Sentiment scores
         </div>
@@ -337,8 +326,10 @@ const SentimentGraph = ({ session }: { session: any }) => {
 };
 
 const StatCard = ({ title, value, icon }: { title: string; value: string; icon?: string }) => (
-  <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-3.5 shadow-sm">
-    <div className="text-[11px] font-medium text-slate-500">{title}</div>
+  <div className="min-w-0 rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3.5 py-3.5 shadow-sm">
+    {/* Wraps rather than forcing the column wider -- "Escalations / handoffs"
+        is the one label that does not fit a seventh of the row on one line. */}
+    <div className="text-[11px] font-medium leading-tight text-slate-500">{title}</div>
     <div className="mt-1 text-[22px] font-bold leading-tight text-slate-950">{value}</div>
     <div className="mt-0.5 min-h-[14px] text-[11px] leading-none text-emerald-600">
       {icon || '\u00a0'}
@@ -347,7 +338,6 @@ const StatCard = ({ title, value, icon }: { title: string; value: string; icon?:
 );
 
 const AiBotSession = () => {
-  const navigate = useNavigate();
   const [activeChannel, setActiveChannel] = useState<SessionChannel>('all');
   const [selectedAgent, setSelectedAgent] = useState(allAgentsOption);
   const [selectedOutcome, setSelectedOutcome] = useState(allOutcomesOption);
@@ -538,60 +528,54 @@ const AiBotSession = () => {
     downloadTextFile('ai-sessions.csv', [header.join(','), ...csvRows].join('\n'));
   };
 
-  return (
-    <section
-      className="relative flex h-full w-full flex-col overflow-hidden p-4"
-      style={{ background: AI_TOOLS_PAGE_GRADIENT }}
-    >
-      <div
-        className="mb-3 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-6 py-4"
-        /* `.mcm-page [class*='rounded-']...bg-white` (mcm-page.css) is an
-           app-wide, unlayered "glass pass" that deliberately turns any
-           `rounded-*` + `bg-white` card translucent — inline style is what
-           actually renders solid white. */
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid rgba(255,255,255,0.9)',
-          boxShadow: '0 10px 34px rgba(160,95,30,0.16), inset 0 1px 0 rgba(255,255,255,0.8)',
-        }}
-      >
-        <div>
-          <button
-            type="button"
-            onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-            className="text-xs font-semibold text-slate-500 transition-colors hover:text-primary"
-          >
-            AI Agents
-          </button>
-          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-[#1a1a1a] dark:text-mcm-ink">Sessions</h1>
-          <p className="mt-1 text-[13px] text-[#6b5c4d] dark:text-mcm-ink-3">
-            Every AI receptionist call & AI chatbot conversation — with transcripts, sentiment &
-            outcomes.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="min-w-[140px]">
-            <CustomSelect
-              value={dateRangeOptions.find((option) => option.value === dateRange) || null}
-              handleChange={(option: any) => setDateRange(option?.value || dateRangeOptions[0].value)}
-              options={dateRangeOptions}
-              placeholder="Select range..."
-            />
-          </div>
-          <button
-            type="button"
-            onClick={exportCsv}
-            className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border px-3 text-xs font-semibold"
-            style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Export CSV
-          </button>
-        </div>
-      </div>
+  useSetAdminPageMeta({
+    description:
+      'Every AI receptionist call and AI chatbot conversation — with transcripts, sentiment and outcomes.',
+  });
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="my-4 grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
+  /* No background of its own. `bg-slate-50` is a cool grey, and the Admin area
+     is a warm orange ground — this one screen painted over it and read as a
+     different product. */
+  return (
+    <section className="relative flex h-full w-full flex-col overflow-hidden">
+      {/* "Sessions" was printed three times over: once by the Admin head, once
+          in this breadcrumb, and once again as an <h1> below it. The head keeps
+          the title, the controls go up beside it, and the description fills the
+          info button there. */}
+      <AdminHeadActions>
+        <div className="relative">
+          <select
+            value={dateRange}
+            onChange={(event) => setDateRange(event.target.value)}
+            className="h-[34px] min-w-[140px] appearance-none rounded-[7px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 pr-9 text-xs font-semibold text-slate-950 outline-none"
+          >
+            {dateRangeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        </div>
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="inline-flex h-[34px] items-center gap-1.5 rounded-[7px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 text-xs font-semibold text-slate-700 hover:border-slate-400"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Export CSV
+        </button>
+      </AdminHeadActions>
+
+      <div className="flex-1 overflow-y-auto px-7 py-6">
+
+        {/* Seven across on a wide screen. `minmax(150px, 1fr)` needed
+            7x150 + 6 gaps = 1122px, which is more than the Admin content area
+            gives at 1366px — so the seventh card dropped to a row of its own
+            and left five card-widths of white beside it. The floor comes down
+            to what the cards actually need, and an explicit seven columns from
+            `xl` keeps them level rather than leaving it to auto-fit. */}
+        <div className="my-4 grid grid-cols-[repeat(auto-fit,minmax(132px,1fr))] gap-3 xl:grid-cols-7">
           <StatCard title="Total sessions" value={String(stats.totalSessions)} />
           <StatCard title="Voice calls" value={String(stats.voiceCalls)} />
           <StatCard title="Chat sessions" value={String(stats.chatSessions)} />
@@ -608,7 +592,7 @@ const AiBotSession = () => {
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
               placeholder="Search by contact, agent, intent or transcript..."
-              className="h-[38px] w-full rounded-[10px] border border-slate-200 bg-white pl-[38px] pr-3 text-[13.5px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="h-[38px] w-full rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] pl-[38px] pr-3 text-[13.5px] text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
             />
           </div>
           {(['all', 'call', 'chat'] as SessionChannel[]).map((channel) => {
@@ -619,44 +603,55 @@ const AiBotSession = () => {
                 key={channel}
                 type="button"
                 onClick={() => setActiveChannel(channel)}
-                className="inline-flex h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold"
-                /* `.mcm-page button:not([data-slot='tabs-trigger'])`
-                   (mcm-page.css) forces a plain button's own background/
-                   color/border to none/inherit/0 ahead of any Tailwind
-                   utility — inline style is what actually wins. Also swapped
-                   the leftover blue accent for the app's orange primary, to
-                   match the rest of the AI Tools section. */
-                style={
+                className={`inline-flex h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-semibold ${
                   isActive
-                    ? { borderColor: 'var(--primary)', backgroundColor: 'var(--primary)', color: '#ffffff' }
-                    : { borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#475569' }
-                }
+                    ? 'border-blue-600 bg-blue-600 text-white'
+                    : 'border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] text-slate-600 hover:bg-[#FBE2C8]/45'
+                }`}
               >
                 {Icon ? <Icon className="h-3.5 w-3.5" /> : null}
                 {channel === 'all' ? 'All' : channel === 'call' ? 'Voice' : 'Chat'}
               </button>
             );
           })}
-          <div className="min-w-[190px]">
-            <CustomSelect
-              value={selectedAgent}
-              handleChange={(option: any) => setSelectedAgent(option || allAgentsOption)}
-              options={agentOptions}
-              placeholder="All agents"
-            />
+          <div className="relative min-w-[190px]">
+            <select
+              value={selectedAgent.value}
+              onChange={(event) => {
+                const option = agentOptions.find((item) => item.value === event.target.value);
+                setSelectedAgent(option || allAgentsOption);
+              }}
+              className="h-[38px] w-full appearance-none rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 pr-8 text-[13.5px] text-slate-900 outline-none"
+            >
+              {agentOptions.map((option) => (
+                <option key={option.value || 'all-agents'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
           </div>
-          <div className="min-w-[170px]">
-            <CustomSelect
-              value={selectedOutcome}
-              handleChange={(option: any) => setSelectedOutcome(option || allOutcomesOption)}
-              options={outcomeOptions}
-              placeholder="All outcomes"
-            />
+          <div className="relative min-w-[170px]">
+            <select
+              value={selectedOutcome.value}
+              onChange={(event) => {
+                const option = outcomeOptions.find((item) => item.value === event.target.value);
+                setSelectedOutcome(option || allOutcomesOption);
+              }}
+              className="h-[38px] w-full appearance-none rounded-[10px] border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 pr-8 text-[13.5px] text-slate-900 outline-none"
+            >
+              {outcomeOptions.map((option) => (
+                <option key={option.value || 'all-outcomes'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50 px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
+        <div className="overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] shadow-sm">
+          <div className="grid w-full min-w-0 grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-[rgba(225,200,165,0.9)] bg-gradient-to-b from-[rgba(251,249,246,0.95)] to-[rgba(251,249,246,0.7)] px-[18px] py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-500">
             <div>Channel</div>
             <div>Agent</div>
             <div>Contact</div>
@@ -682,17 +677,14 @@ const AiBotSession = () => {
               return (
                 <div
                   key={session?.sessionId}
-                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-slate-100 px-[18px] py-3 last:border-b-0 hover:bg-slate-50"
+                  className="grid w-full min-w-0 cursor-pointer grid-cols-[82px_1.3fr_1.4fr_0.95fr_0.7fr_0.72fr_0.95fr_1fr_96px] items-center gap-3 border-b border-[#EEE7DD] px-[18px] py-3 last:border-b-0 hover:bg-[#FBE2C8]/45"
                   onClick={() => setSelectedSession(session)}
                 >
                   <div>
                     <ChannelPill channel={session?.channel} />
                   </div>
                   <div className="flex min-w-0 items-center gap-[9px]">
-                    <div
-                      className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                      style={{ backgroundColor: 'var(--primary)' }}
-                    >
+                    <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
                       {getInitials(agentName)}
                     </div>
                     <div className="min-w-0">
@@ -747,9 +739,8 @@ const AiBotSession = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedSession(session)}
-                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border"
+                      className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] text-slate-600 hover:bg-[#FBE2C8]/45"
                       aria-label="Open session"
-                      style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#475569' }}
                     >
                       <MessageSquare className="h-[15px] w-[15px]" />
                     </button>
@@ -766,7 +757,7 @@ const AiBotSession = () => {
           !isLoadingReceptionists &&
           !isLoadingChatAgents &&
           tableRows.length ? (
-            <div className="flex items-center justify-between border-t border-slate-200 px-[18px] py-3 text-xs text-slate-500">
+            <div className="flex items-center justify-between border-t border-[rgba(225,200,165,0.9)] px-[18px] py-3 text-xs text-slate-500">
               <div>
                 Showing {pageStart}-{pageEnd} of {tableRows.length}
               </div>
@@ -775,8 +766,7 @@ const AiBotSession = () => {
                   type="button"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  className="rounded-lg border px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-40"
-                  style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
+                  className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 py-1.5 font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Previous
                 </button>
@@ -787,8 +777,7 @@ const AiBotSession = () => {
                   type="button"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  className="rounded-lg border px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:opacity-40"
-                  style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
+                  className="rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] px-3 py-1.5 font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                 </button>

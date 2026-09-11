@@ -186,130 +186,6 @@
 .cmp tr.rowlink:focus-within .rowacts {
   opacity: 1;
 }
-/* Same peach-wash + left accent bar every other Performance/Directory
-   table now uses for its row hover — this table had none at all, just
-   whatever bare default the shared table markup carries. Literal
-   #f2994a, not var(--accent) — that resolves to this page's own sunset
-   tone, not Directory's, which the table specifically needs to match. */
-.cmp tbody tr:hover {
-  background: rgba(255, 241, 235, 0.55);
-  box-shadow: inset 3px 0 0 #f2994a;
-}
-
-/* Without a bounded height, `.panel-card` just grows to fit every row, so
-   `.table-scroll`'s own `overflow-auto` (TableManager) never actually
-   triggers — the whole `.page` scrolls instead, dragging the "sticky"
-   header along with it rather than leaving it pinned to the panel's own
-   top edge the way Directory's tables (fixed `max-height` + internal
-   scroll) do.
-
-   Two viewport-relative attempts both failed in practice: a fixed
-   `calc(100vh - Npx)` guess only holds at one browser zoom level, and a
-   flex `flex: 1` ("take whatever's left") shrank to a sliver — or the
-   header rendered but the rows didn't paint at all — the moment the
-   remainder got small, on a shorter real window than either was tested
-   against. Both make this card's size depend on a number (the viewport,
-   or "everything above it") this file can't reliably know ahead of time.
-   A flat, fixed height doesn't have that problem — same 460px on every
-   screen and every zoom level, sized for 4 rows.
-
-   `.page`'s own `overflow-y: auto` (the base rule) was left in place as a
-   fallback for a short window — Directory's own compact tables document
-   relying on the same fallback. In practice it did the opposite of
-   "fallback": with two independently scrollable boxes stacked inside one
-   another (`.page` and `.table-scroll`), which one a scroll gesture
-   landed on depended on the mouse's exact position, and scrolling `.page`
-   moves the whole card — sticky header and all — as one rigid block,
-   since `position: sticky` only ever pins an element within ITS OWN
-   scrolling ancestor (`.table-scroll`), not `.page` above it. `overflow:
-   hidden` here removes the ambiguity — a scroll gesture over this card
-   can now only ever reach `.table-scroll`, so the header genuinely never
-   moves, matching Directory. The trade-off is the one `.page` scroll was
-   covering: on a window too short for even 1 row of this fixed 460px
-   card, the rest is clipped rather than reachable by scrolling further —
-   in exchange for the header/table actually behaving correctly at every
-   size that DOES fit, which every window this was tested against does. */
-.cmp .page {
-  overflow: hidden;
-}
-.cmp .panel-card {
-  display: flex;
-  flex-direction: column;
-  height: 460px;
-}
-/* TableManager's own outer wrapper around `.table-scroll` clips a native
-   scrollbar to ITS OWN default 12px Tailwind radius, not `.panel-card`'s
-   18px (`--r-lg`) — same mismatch, same fix, as Performance/Directory's
-   tables: the scrollbar rendered as a flat rectangle poking past the
-   card's more-rounded corner. */
-.cmp div:has(> .table-scroll) {
-  border-radius: 18px;
-  overflow: hidden;
-}
-/* With `splitStickyHeader`, `.table-scroll` (the body) sits directly below
-   the header as a sibling, not a descendant — but the shared base rule
-   (mcm-page.css) still rounds all four of ITS OWN corners by default.
-   The outer wrapper above already owns the card's real top-corner curve;
-   `.table-scroll` rounding its top corners too draws a second, redundant
-   curve right where the header meets the body — the same seam
-   agents-theme.css/interactions-theme.css already fix this same way for
-   their own splitStickyHeader tables. Bottom corners only, matching the
-   outer wrapper's own bottom radius. */
-.cmp .table-scroll {
-  border-radius: 0 0 18px 18px;
-}
-/* An exact copy of Directory's own scrollbar (people-glass.css), not the
-   shared default (mcm-page.css: 9px, `var(--line)` — this page's faint
-   0.2-opacity orange retint, `background-clip: content-box`). The 2px
-   transparent border + `padding-box` clip is what actually draws the gap
-   between the thumb and the track's own edges in Directory's version;
-   without it the thumb runs edge-to-edge instead of reading as a pill
-   with breathing room. */
-.cmp .table-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-.cmp .table-scroll::-webkit-scrollbar-thumb {
-  background: rgba(194, 111, 31, 0.35);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.cmp .table-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 111, 31, 0.55);
-  background-clip: padding-box;
-}
-
-/* `className="mini ic"` (the outcomes-refresh button, and every button in
-   `.rowacts`) puts `.mini`'s button chrome and `.ic`'s icon sizing
-   (`width/height: 1em`, meant for a bare <svg>) on the SAME button — `.ic`'s
-   1em width wins over `.mini`'s own sizing, rendering these as a cramped
-   ~20x26 rectangle rather than a real icon button. Explicit sizing here
-   fixes that AND reshapes them into the circular glass-to-gradient-hover
-   buttons every other table's action column uses now (Performance ▸
-   Calls, Directory's own tables). */
-.cmp .mini.ic {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: 9999px;
-  justify-content: center;
-  /* Directory's own exact rest/hover colours (people-glass.css), not this
-     page's sunset — literal hex, not var(--accent)/var(--accent-ink),
-     which resolve to the sunset retint in this page's scope. */
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(249, 115, 22, 0.4);
-  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
-  transition:
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
-}
-.cmp .mini.ic:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f2994a 0%, #c96f1f 100%);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
-}
 
 /* ── panel footer: legends, caveats, counts ────────────────── */
 .cmp .pc-foot {
@@ -489,6 +365,7 @@
   color: #8a3f1c;
 }
 
+.cmp .panel-card,
 .cmp .kpi,
 .cmp .fchip,
 .cmp .card,
@@ -498,47 +375,10 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
-/* Table card only: an exact copy of Directory's own panel-card
-   (people-glass.css) — solid `#fffdfb`, not this page's translucent
-   blurred glass, and `--glass-border` (mcm-page.css), not the ambient
-   sunset `--line` token every other card on this page reads. The table
-   was asked to match Directory pixel-for-pixel; the KPI cards/chips
-   around it stay on this page's own sunset palette. */
 .cmp .panel-card {
-  background: #fffdfb;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: var(--glass-border);
   box-shadow:
     0 4px 20px rgba(154, 52, 18, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-/* With `splitStickyHeader` now on, the header table lives in its own
-   `shrink-0` sibling box, no longer a descendant of `.table-scroll` —
-   `.table-scroll table thead th` (the old selector) silently stops
-   matching a header that isn't inside `.table-scroll` any more, the same
-   gotcha this codebase's own Performance themes already document
-   (agents-theme.css et al). Scoped to `.cmp thead th` directly instead,
-   the same way those do. */
-.cmp thead th {
-  /* #f2994a (Directory's own accent), not this page's sunset #e78b50 —
-     the table was asked to match Directory's exact palette, same as the
-     panel-card above. */
-  border-bottom: 3px solid rgba(242, 153, 74, 0.4) !important;
-  /* Solid, not the glass pass's translucent-plus-blur — Directory's own
-     `th` (people-glass.css) is a flat #fffdfb, matching the now-opaque
-     panel-card instead of showing rows blur past underneath it. */
-  background: #fffdfb !important;
-  /* The shared table-head component (`data-slot="table-head"`) also
-     carries a hardcoded `border-[#EEE7DD]` vertical divider between
-     columns (removed only on the last one) — a flat tan hairline
-     unrelated to this page's orange theme or its --line override. It
-     read as unnoticeable next to the header's own equally-faint 1px
-     bottom line, but next to the bottom line's new 3px orange weight the
-     mismatch stands out as a stray, disconnected tick. No Performance or
-     Directory table has vertical header dividers; dropping it here too
-     for the same clean single-bottom-line look. */
-  border-right: 0 !important;
 }
 .cmp .kpis {
   background: rgba(231, 139, 80, 0.16);
@@ -566,61 +406,4 @@
     radial-gradient(70% 55% at 100% 0%, rgba(231, 139, 80, 0.14) 0%, transparent 100%),
     radial-gradient(60% 55% at 0% 100%, rgba(217, 101, 46, 0.08) 0%, transparent 100%),
     #fdf6f0;
-}
-
-/* ---- Dark theme ----
-   The sunset-glass reskin above (.mcm-page.cmp / .mcm-page.mcm-admin.cmp-shell)
-   redeclares the shared platform tokens with its own literal light-only
-   values, the same trick mcm-page.css's own .dark block uses — so it needs
-   its own dark companion for the same reason perf-glass-theme.css did.
-   `.dark .mcm-page.cmp` (three classes) outranks the plain two-class
-   `.mcm-page.cmp` above regardless of source order. */
-.dark .mcm-page.cmp {
-  --ground: #080d12;
-  --surface: rgba(11, 20, 28, 0.7);
-  --surface-2: rgba(14, 24, 33, 0.6);
-  --surface-3: rgba(17, 29, 39, 0.65);
-  --line: #1b2934;
-  --line-2: #263642;
-  /* Orange restored (2026-09-05 re-theme); --accent-wash is a neutral
-     surface tint, not an orange fill. */
-  --accent: #f97316;
-  --accent-ink: #ff8a2a;
-  --accent-wash: rgba(17, 29, 39, 0.9);
-  --accent-edge: rgba(249, 115, 22, 0.4);
-
-  background: var(--mcm-ground, #080d12);
-}
-.dark .cmp .page-head h1 {
-  color: var(--mcm-ink, #f3f6f9);
-}
-.dark .cmp .page-head .eyebrow {
-  color: var(--mcm-accent-ink, #ff8a2a);
-}
-.dark .cmp .pc-head h3 {
-  color: var(--mcm-ink, #f3f6f9);
-}
-.dark .cmp .panel-card {
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-.dark .cmp .kpis {
-  background: var(--mcm-surface-3, #1a2733);
-}
-.dark .cmp .btn.primary {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  color: #1a0f06;
-}
-.dark .cmp .btn.primary:hover {
-  background: linear-gradient(135deg, #ff8a2a, #f97316);
-}
-.dark .mcm-page.mcm-admin.cmp-shell {
-  --ground: #080d12;
-  --accent: #f97316;
-  --accent-ink: #ff8a2a;
-  --accent-wash: rgba(17, 29, 39, 0.9);
-  --accent-edge: rgba(249, 115, 22, 0.4);
-
-  background: var(--mcm-ground, #080d12);
 }

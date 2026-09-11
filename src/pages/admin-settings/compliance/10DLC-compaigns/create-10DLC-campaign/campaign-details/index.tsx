@@ -38,7 +38,7 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
 
   return (
     <div className="w-full min-h-0 flex flex-col gap-3 overflow-y-auto pr-1">
-      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4 dark:border-mcm-line">
+      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4">
         <h3 className="text-shadow-gray-900 flex items-center gap-1.5 font-medium ">
           Content Details
         </h3>
@@ -83,9 +83,9 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
               render={({ field }) => (
                 <textarea
                   {...field}
-                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3
-    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none dark:text-mcm-ink
-    border border-gray-200 dark:border-mcm-line ${
+                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700
+    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none
+    border border-gray-200 ${
       errors?.description?.message ? 'border-red-500 focus:border-red-500' : ''
     }`}
                   rows={2}
@@ -111,9 +111,9 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
               render={({ field }) => (
                 <textarea
                   {...field}
-                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3
-    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none dark:text-mcm-ink
-    border border-gray-200 dark:border-mcm-line ${
+                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700
+    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none
+    border border-gray-200 ${
       errors?.messageFlow?.message ? 'border-red-500 focus:border-red-500' : ''
     }`}
                   // className="w-full h-full  leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none border border-gray-200"
@@ -133,7 +133,7 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
       </div>
       {/* <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4">
         <div className="w-full flex flex-col gap-1">
-          <h3 className="text-gray-900 dark:text-mcm-ink font-medium ">
+          <h3 className="text-gray-900 font-medium ">
             CTA (Call-to-Action), Privacy Policy and/or Terms and Condition Mutltimedia Upload
           </h3>
           <p className="text-gray-500 text-sm">
@@ -145,14 +145,14 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
           <div className="flex gap-4 flex-row">
             <label
               htmlFor="file-upload"
-              className="flex flex-col items-center justify-center w-full h-54 border-1 border-gray-200 dark:border-mcm-line rounded-xl cursor-pointer bg-white dark:bg-mcm-surface-3"
+              className="flex flex-col items-center justify-center w-full h-54 border-1 border-gray-200 rounded-xl cursor-pointer bg-white "
             >
               <div className="flex flex-col items-center">
                 <UploadLineIcon className="w-8 h-8 text-gray-500" />
 
-                <p className="pt-2 text-sm text-gray-900 dark:text-mcm-ink">Drop a mutltimedia file to upload</p>
-                <p className="mt-2 text-sm text-gray-700 dark:text-mcm-ink-3">Supported Format .csv, .xlsx</p>
-                <p className="mt-2 text-sm text-gray-700 dark:text-mcm-ink-3">Maximum upload file size: 10MB</p>
+                <p className="pt-2 text-sm text-gray-900">Drop a mutltimedia file to upload</p>
+                <p className="mt-2 text-sm text-gray-700">Supported Format .csv, .xlsx</p>
+                <p className="mt-2 text-sm text-gray-700">Maximum upload file size: 10MB</p>
                 <p className="mt-2 text-sm text-primary"></p>
               </div>
 
@@ -164,9 +164,9 @@ const CampaignDetails = ({ formInstance }: { formInstance: any }) => {
               />
             </label>
           </div>
-          <div className=" w-full h-54 border-1  border-gray-200 dark:border-mcm-line rounded-xl bg-white dark:bg-mcm-surface-3">
-            <div className="p-3 rounded-t-xl bg-gray-100 dark:bg-mcm-surface">
-              <h3 className="text-gray-900 dark:text-mcm-ink font-medium ">Multimedia File</h3>
+          <div className=" w-full h-54 border-1  border-gray-200 rounded-xl bg-white ">
+            <div className="p-3 rounded-t-xl bg-gray-100">
+              <h3 className="text-gray-900 font-medium ">Multimedia File</h3>
             </div>
             <div className="w-full max-h-[158px] overflow-y-auto flex flex-col gap-1.5 p-3">
               <p className="flex items-center gap-1 text-sm">
@@ -233,7 +233,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
           </div>
         </div>
       </div> */}
-      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4 dark:border-mcm-line">
+      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4">
         {/* <h3 className="text-shadow-gray-900 flex items-center gap-1.5 font-medium ">
           Sample Messages
         </h3> */}
@@ -256,9 +256,9 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
               render={({ field }) => (
                 <textarea
                   {...field}
-                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3
-                  focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none dark:text-mcm-ink
-                  border border-gray-200 dark:border-mcm-line ${
+                  className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700
+                  focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none
+                  border border-gray-200 ${
                     errors?.sample1?.message ? 'border-red-500 focus:border-red-500' : ''
                   }`}
                   // className="w-full h-full  leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none border border-gray-200"
@@ -277,7 +277,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
       </div>
       {/* <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4">
         <div className="w-full flex flex-col gap-1">
-          <h3 className="text-gray-900 dark:text-mcm-ink font-medium ">Sample Multimedia</h3>
+          <h3 className="text-gray-900 font-medium ">Sample Multimedia</h3>
           <p className="text-gray-500 text-sm">
             Provides an area to upload sample MMS content. Not intended for call-to-action, terms
             and conditions, or privacy policy information.
@@ -287,14 +287,14 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
           <div className="flex gap-4 flex-row">
             <label
               htmlFor="file-upload"
-              className="flex flex-col items-center justify-center w-full h-54 border-1 border-gray-200 dark:border-mcm-line rounded-xl cursor-pointer bg-white dark:bg-mcm-surface-3"
+              className="flex flex-col items-center justify-center w-full h-54 border-1 border-gray-200 rounded-xl cursor-pointer bg-white "
             >
               <div className="flex flex-col items-center">
                 <UploadLineIcon className="w-8 h-8 text-gray-500" />
 
-                <p className="pt-2 text-sm text-gray-900 dark:text-mcm-ink">Drop a mutltimedia file to upload</p>
-                <p className="mt-2 text-sm text-gray-700 dark:text-mcm-ink-3">Supported Format .csv, .xlsx</p>
-                <p className="mt-2 text-sm text-gray-700 dark:text-mcm-ink-3">Maximum upload file size: 10MB</p>
+                <p className="pt-2 text-sm text-gray-900">Drop a mutltimedia file to upload</p>
+                <p className="mt-2 text-sm text-gray-700">Supported Format .csv, .xlsx</p>
+                <p className="mt-2 text-sm text-gray-700">Maximum upload file size: 10MB</p>
                 <p className="mt-2 text-sm text-primary"></p>
               </div>
 
@@ -306,9 +306,9 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
               />
             </label>
           </div>
-          <div className=" w-full h-54 border-1  border-gray-200 dark:border-mcm-line rounded-xl bg-white dark:bg-mcm-surface-3">
-            <div className="p-3 rounded-t-xl bg-gray-100 dark:bg-mcm-surface">
-              <h3 className="text-gray-900 dark:text-mcm-ink font-medium ">Sample Multimedia File</h3>
+          <div className=" w-full h-54 border-1  border-gray-200 rounded-xl bg-white ">
+            <div className="p-3 rounded-t-xl bg-gray-100">
+              <h3 className="text-gray-900 font-medium ">Sample Multimedia File</h3>
             </div>
             <div className="w-full max-h-[158px] overflow-y-auto flex flex-col gap-1.5 p-3">
               <p className="flex items-center gap-1 text-sm">
@@ -335,7 +335,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
         </h3>
         <div className="grid grid-cols-5 w-full gap-6">
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Subscriber Opt-in</p>
+            <p className="font-medium text-gray-900 text-sm">Subscriber Opt-in</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -352,7 +352,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Subscriber Opt-out</p>
+            <p className="font-medium text-gray-900 text-sm">Subscriber Opt-out</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -369,7 +369,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Subscriber Opt-help</p>
+            <p className="font-medium text-gray-900 text-sm">Subscriber Opt-help</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -386,7 +386,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Number Pooling</p>
+            <p className="font-medium text-gray-900 text-sm">Number Pooling</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -403,7 +403,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Direct Lending or Loan Arrangement</p>
+            <p className="font-medium text-gray-900 text-sm">Direct Lending or Loan Arrangement</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -420,7 +420,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Embedded Link</p>
+            <p className="font-medium text-gray-900 text-sm">Embedded Link</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -437,7 +437,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Embedded Phone Number</p>
+            <p className="font-medium text-gray-900 text-sm">Embedded Phone Number</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -455,7 +455,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
           </div>
 
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Age-Gated Content</p>
+            <p className="font-medium text-gray-900 text-sm">Age-Gated Content</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -472,7 +472,7 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="font-medium text-gray-900 dark:text-mcm-ink text-sm">Terms & Conditions</p>
+            <p className="font-medium text-gray-900 text-sm">Terms & Conditions</p>
             <div className="flex gap-3 relative">
               <RadioGroup className="flex flex-col gap-4 ">
                 <div className="flex items-center gap-3">
@@ -490,10 +490,10 @@ Reply HELP for help. Message frequency may vary. Msg&data rates may apply. Conse
           </div>
         </div>
       </div> */}
-      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4 dark:border-mcm-line">
+      <div className="w-full flex flex-col gap-3 border-b border-gray-200 pb-4">
         <div className="w-full flex flex-col gap-1">
-          <h3 className="text-gray-900 font-medium dark:text-mcm-ink">Other Responsible Parties</h3>
-          <p className="text-gray-500 text-sm dark:text-mcm-ink-3">
+          <h3 className="text-gray-900 font-medium ">Other Responsible Parties</h3>
+          <p className="text-gray-500 text-sm">
             For Sole Proprietor campaigns, if your CNP is not showing in the list, it means they are
             not enabled to receive Sole Proprietor campaigns. Please reach out to your CNP for more
             details.

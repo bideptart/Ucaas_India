@@ -90,7 +90,7 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
               {['Item', 'Net', 'Tax', 'Total'].map((h, i) => (
                 <th
                   key={h}
-                  className={`border-b border-gray-200 dark:border-mcm-line pb-1.5 pr-4 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
+                  className={`border-b border-gray-200 pb-1.5 pr-4 text-[10px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
                     i === 0 ? 'text-left' : 'text-right'
                   }`}
                 >
@@ -103,9 +103,9 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
             {lines.map((line, i) => (
               <tr key={`${line.label}-${i}`}>
                 <td className="border-b border-gray-100 py-2 pr-4 align-top">
-                  <span className="font-medium text-gray-900 dark:text-mcm-ink">{line.label}</span>
+                  <span className="font-medium text-gray-900">{line.label}</span>
                   {line.detail ? (
-                    <p className="mt-0.5 max-w-[26rem] text-gray-600 dark:text-mcm-ink-3">{line.detail}</p>
+                    <p className="mt-0.5 max-w-[26rem] text-gray-600">{line.detail}</p>
                   ) : null}
                 </td>
                 <td className="border-b border-gray-100 py-2 pr-4 text-right align-top tabular-nums">
@@ -114,14 +114,14 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
                 <td className="border-b border-gray-100 py-2 pr-4 text-right align-top tabular-nums">
                   {moneyOrUnavailable(line.tax)}
                 </td>
-                <td className="border-b border-gray-100 py-2 text-right align-top tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
+                <td className="border-b border-gray-100 py-2 text-right align-top tabular-nums font-medium text-gray-900">
                   {moneyOrUnavailable(line.total)}
                 </td>
               </tr>
             ))}
             {discount !== null && discount > 0 ? (
               <tr>
-                <td className="border-b border-gray-100 py-2 pr-4 text-gray-700 dark:text-mcm-ink-2" colSpan={3}>
+                <td className="border-b border-gray-100 py-2 pr-4 text-gray-700" colSpan={3}>
                   Promotion applied{invoice?.promo_applied ? ` (${invoice.promo_applied})` : ''}
                 </td>
                 <td className="border-b border-gray-100 py-2 text-right tabular-nums text-green-700">
@@ -131,7 +131,7 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
             ) : null}
             {refunded !== null && refunded > 0 ? (
               <tr>
-                <td className="border-b border-gray-100 py-2 pr-4 text-gray-700 dark:text-mcm-ink-2" colSpan={3}>
+                <td className="border-b border-gray-100 py-2 pr-4 text-gray-700" colSpan={3}>
                   Refunded on {dateOrUnavailable(invoice?.refund_date)}
                 </td>
                 <td className="border-b border-gray-100 py-2 text-right tabular-nums text-green-700">
@@ -143,9 +143,9 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
         </table>
       </div>
 
-      <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 text-gray-600 dark:text-mcm-ink-3">
+      <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 text-gray-600">
         <div>
-          <dt className="inline font-medium text-gray-700 dark:text-mcm-ink-2">Tax rate: </dt>
+          <dt className="inline font-medium text-gray-700">Tax rate: </dt>
           <dd className="inline tabular-nums">
             {knownNumber(tax?.tax_percentage) === null
               ? UNAVAILABLE
@@ -153,18 +153,18 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
           </dd>
         </div>
         <div>
-          <dt className="inline font-medium text-gray-700 dark:text-mcm-ink-2">Taxed at: </dt>
+          <dt className="inline font-medium text-gray-700">Taxed at: </dt>
           <dd className="inline">{place || UNAVAILABLE}</dd>
         </div>
         <div>
-          <dt className="inline font-medium text-gray-700 dark:text-mcm-ink-2">Paid by: </dt>
+          <dt className="inline font-medium text-gray-700">Paid by: </dt>
           <dd className="inline">
             {invoice?.mode || UNAVAILABLE}
             {invoice?.last_four_digit ? ` ending ${invoice.last_four_digit}` : ''}
           </dd>
         </div>
         <div>
-          <dt className="inline font-medium text-gray-700 dark:text-mcm-ink-2">Charged on: </dt>
+          <dt className="inline font-medium text-gray-700">Charged on: </dt>
           <dd className="inline">{dateOrUnavailable(invoice?.created_at)}</dd>
         </div>
       </dl>
@@ -173,7 +173,7 @@ const InvoiceLines = ({ invoice }: { invoice: any }) => {
           invoice-document service, so nothing on this screen can hand over a
           stamped PDF — and a picture of a web page is not an invoice. Better to
           say so than to offer a download that an accountant later rejects. */}
-      <p className="mt-3 text-[11px] text-gray-500 dark:text-mcm-ink-3">
+      <p className="mt-3 text-[11px] text-gray-500">
         A formal PDF invoice is not available yet. These figures are the record of what was
         charged; your accounts team can use them directly.
       </p>

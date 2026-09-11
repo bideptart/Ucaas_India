@@ -39,7 +39,7 @@ const extractUpdatedByName = (
       ? [updatedByIds]
       : [];
 
-  if (!ids.length) return <div className="font-medium text-gray-900 dark:text-mcm-ink">---</div>;
+  if (!ids.length) return <div className="font-medium text-gray-900">---</div>;
 
   const idsToShow = [ids[ids.length - 1]];
   const usersToShow = idsToShow
@@ -54,10 +54,10 @@ const extractUpdatedByName = (
     })
     .filter(Boolean);
 
-  if (!usersToShow.length) return <div className="font-medium text-gray-900 dark:text-mcm-ink">---</div>;
+  if (!usersToShow.length) return <div className="font-medium text-gray-900">---</div>;
 
   return (
-    <div className="font-medium text-gray-900 dark:text-mcm-ink">
+    <div className="font-medium text-gray-900">
       {usersToShow.map((item: any, index: number) => (
         <span key={`${item?.name}-${index}`}>
           {index > 0 ? ', ' : ''}
@@ -134,7 +134,7 @@ const AllLeadsList: FC<any> = ({
             image={row.original?.profile?.contactPic}
           />
           <div>
-            <span className="font-medium text-gray-900 dark:text-mcm-ink">
+            <span className="font-medium text-gray-900">
               {row.original.name?.first || ''} {row.original.name?.last || ''}
             </span>
             <div className="text-ucass-active">{row?.original?.contact?.email || '---'}</div>
@@ -185,7 +185,7 @@ const AllLeadsList: FC<any> = ({
               return (
                 <CustomTooltip key={index} text={username} side="top">
                   <div className="w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800 capitalizes cursor-pointer">
-                    <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3 text-xs capitalize">
+                    <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
                       {getInitials(username)}
                     </div>
                   </div>
@@ -276,7 +276,7 @@ const AllLeadsList: FC<any> = ({
                 onClick={() =>
                   navigate(`/contact-activity?contactId=${row?.original?._id}&isLeadList=true`)
                 }
-                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
               >
                 <Icon name="ActivityIcon" className="w-5 h-5" />
               </span>
@@ -291,7 +291,7 @@ const AllLeadsList: FC<any> = ({
                     leadsActivity: false,
                   })
                 }
-                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
               >
                 <Icon name="EditStrokIcon" className="w-5 h-5" />
               </span>
@@ -311,7 +311,7 @@ const AllLeadsList: FC<any> = ({
   ];
 
   return (
-    <div className="dtable-page w-full p-3 flex flex-col gap-2">
+    <div className="w-full p-3 flex flex-col gap-2">
       <TableManager
         {...{
           tableRef,
@@ -328,7 +328,6 @@ const AllLeadsList: FC<any> = ({
           descriptionEmptyTable: payloadExtraParams?.search
             ? ''
             : 'Add or import leads to begin campaign calling.',
-          splitStickyHeader: true,
         }}
       />
       {modalState?.open && (

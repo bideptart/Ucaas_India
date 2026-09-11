@@ -75,7 +75,7 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
     'numberType',
     'location',
   ]);
-  const { data: identityData = [] } = useQuery({
+  const { data: identityData = [], isFetching: isIdentityProofLoading } = useQuery({
     queryKey: ['getSingleIdentityList', isEdit, formData?.uuid ?? null],
     queryFn: () =>
       getIdentityList({
@@ -84,6 +84,8 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
     select: (data) => data?.data?.data?.result?.rows?.[0] || {},
     enabled: isEdit,
   });
+  console.log('🚀 ~ CreateIdentity ~ identityData:', identityData);
+  console.log('🚀 ~ CreateIdentity ~ isIdentityProofLoading:', isIdentityProofLoading);
 
   const { data: identityRequirements = {} } = useQuery({
     queryKey: ['getIdentityRequirements'],
@@ -572,10 +574,10 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
                 render={({ field }) => (
                   <textarea
                     {...field}
-                    className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3 border focus:outline-none text-gray-700 dark:text-mcm-ink-2 bg-white dark:bg-mcm-surface-3 shadow-sm resize-none ${
+                    className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 border focus:outline-none text-gray-700 bg-white shadow-sm resize-none ${
                       errors?.description?.message
                         ? 'border-red-500 focus:border-red-500 focus:ring-0'
-                        : 'border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary'
+                        : 'border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary'
                     }`}
                     rows={3}
                     placeholder="Type Here..."
@@ -643,7 +645,7 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
                           return (
                             <CustomSelect
                               {...field}
-                              className="bg-white dark:bg-mcm-surface-3"
+                              className="bg-white"
                               value={field.value}
                               handleChange={(val) => field.onChange(val)}
                               options={filteredOptions}
@@ -698,8 +700,8 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
             </div>
             {fields?.length > 0 && (
               <div className="w-full flex flex-col gap-2">
-                <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">Max upload file size: 20MB</p>
-                <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">Accepted formats: pdf, jpg, png</p>
+                <p className="text-gray-500 text-xs">Max upload file size: 20MB</p>
+                <p className="text-gray-500 text-xs">Accepted formats: pdf, jpg, png</p>
               </div>
             )}
             <div className="w-full flex">
@@ -792,7 +794,7 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
                             <>
                               <CustomSelect
                                 {...field}
-                                className="bg-white dark:bg-mcm-surface-3"
+                                className="bg-white"
                                 value={field.value as string}
                                 handleChange={(val) => field.onChange(val)}
                                 options={filteredOptions}
@@ -803,7 +805,7 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
                                 }
                               />
                               {selectedDoc && (
-                                <div className="flex justify-between items-center text-sm text-gray-700 dark:text-mcm-ink-2">
+                                <div className="flex justify-between items-center text-sm text-gray-700">
                                   <div className="flex gap-1 items-center">
                                     {extractFileNameFromUrl(selectedDoc?.attributes?.url)}
                                   </div>
@@ -892,13 +894,13 @@ const CreateIdentity = ({ formInstance, className, rowData }: any) => {
             </div>
           )}
         </div>
-        <div className="w-full h-full border-l border-gray-200 dark:border-mcm-line pl-4 flex gap-4">
+        <div className="w-full h-full border-l border-gray-200 pl-4 flex gap-4">
           <div className="w-full flex flex-col gap-3">
             <h3 className="text-shadow-gray-900 flex items-center gap-1.5 font-medium">
               Requirements
             </h3>
             <div className="w-full flex flex-col gap-1.5">
-              <p className="text-gray-500 dark:text-mcm-ink-3 text-sm">
+              <p className="text-gray-500 text-sm">
                 Select the requirement type and country to see detailed information about service
                 activation
               </p>

@@ -104,13 +104,13 @@ const DisplayNumberModal: FC<ModalProps> = ({ modalState, setModalState, data })
             </div>
           </div>
         </div>
-        <ul role="list" className="divide-y divide-gray-200 dark:divide-mcm-line">
+        <ul role="list" className="divide-y divide-gray-200">
           {/* Incoming number */}
           <li className="py-4 first:pt-0 last:pb-0">
             <div className="flex gap-2 flex-col">
               <div className="flex flex-col gap-1">
-                <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">Incoming number</p>
-                <small className="text-gray-700 text-sm dark:text-mcm-ink-2">
+                <p className="font-semibold text-md text-gray-900">Incoming number</p>
+                <small className="text-gray-700 text-sm">
                   Show the number the caller is using to call you
                 </small>
               </div>
@@ -144,8 +144,8 @@ const DisplayNumberModal: FC<ModalProps> = ({ modalState, setModalState, data })
             <li className="py-4 flex flex-col gap-4">
               <div className="flex gap-2 flex-col">
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold text-md text-gray-900 dark:text-mcm-ink">Masking</p>
-                  <p className="text-gray-800 text-sm dark:text-mcm-ink-2">
+                  <p className="font-semibold text-md text-gray-900">Masking</p>
+                  <p className="text-gray-800 text-sm">
                     {showMaskingInputDesc[maskingValue as Exclude<MaskingType, 'N'>] ??
                       'Invalid masking type'}
                   </p>

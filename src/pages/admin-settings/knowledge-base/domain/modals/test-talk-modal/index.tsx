@@ -121,16 +121,16 @@ function TestTalkModal({
       }}
     >
       <DialogContent
-        className="p-0 border-none bg-white dark:bg-mcm-surface shadow-2xl w-[360px] max-w-[95vw] overflow-hidden rounded-[28px]"
+        className="p-0 border-none bg-white shadow-2xl w-[360px] max-w-[95vw] overflow-hidden rounded-[28px]"
         showCloseButton={false}
       >
         {isAgentListLoading ? (
-          <div className="flex flex-col items-center justify-center min-h-[580px] bg-[#f4f5f7] dark:bg-mcm-surface gap-4">
+          <div className="flex flex-col items-center justify-center min-h-[580px] bg-[#f4f5f7] gap-4">
             <Loader variant="custom" />
-            <p className="text-sm text-gray-500 dark:text-mcm-ink-3 animate-pulse">Loading agent configuration...</p>
+            <p className="text-sm text-gray-500 animate-pulse">Loading agent configuration...</p>
           </div>
         ) : activeView === 'list' ? (
-          <div className="flex flex-col bg-[#f4f5f7] dark:bg-mcm-surface min-h-[580px]">
+          <div className="flex flex-col bg-[#f4f5f7] min-h-[580px]">
             {/* Tall Welcome Header */}
             <div
               className="h-[220px] pt-10 pb-6 px-6 text-white text-center flex flex-col items-center relative"
@@ -145,7 +145,7 @@ function TestTalkModal({
                 <X className="w-5 h-5" />
               </button>
               <div
-                className="w-16 h-16 bg-white dark:bg-mcm-surface rounded-2xl flex items-center justify-center mb-3 shadow-lg"
+                className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-3 shadow-lg"
                 style={{ color: widgetIconColor }}
               >
                 <Icon name="PhoneCalling" className="w-10 h-10" />
@@ -156,11 +156,11 @@ function TestTalkModal({
 
             {/* Welcome Body */}
             <div className="flex-1 flex flex-col items-center justify-center p-8">
-              <div className="bg-white dark:bg-mcm-surface rounded-full flex items-center justify-center mb-8 shadow-sm w-20 h-20">
+              <div className="bg-white rounded-full flex items-center justify-center mb-8 shadow-sm w-20 h-20">
                 <Icon name="Microphone" className="w-10 h-10 text-gray-300" />
               </div>
-              <p className="text-gray-500 dark:text-mcm-ink-3 text-center mb-8 font-medium">
-                Our AI agent <span className="text-gray-800 dark:text-mcm-ink-2 font-bold">{agentName}</span> is ready
+              <p className="text-gray-500 text-center mb-8 font-medium">
+                Our AI agent <span className="text-gray-800 font-bold">{agentName}</span> is ready
                 to assist you over a voice call.
               </p>
 
@@ -176,7 +176,7 @@ function TestTalkModal({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col bg-white dark:bg-mcm-surface min-h-[580px]">
+          <div className="flex flex-col bg-white min-h-[580px]">
             {/* Compact Header */}
             <div
               className="h-14 px-4 text-white flex items-center justify-between"
@@ -200,7 +200,7 @@ function TestTalkModal({
             </div>
 
             {/* Call Body */}
-            <div className="flex-1 flex flex-col items-center justify-center py-20 bg-white dark:bg-mcm-surface">
+            <div className="flex-1 flex flex-col items-center justify-center py-20 bg-white">
               <div className="mb-12">
                 <p className="text-[#646464] text-lg font-normal text-center">{statusLabel}</p>
               </div>

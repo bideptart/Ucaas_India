@@ -88,16 +88,16 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
 
   return (
     <div className="w-full flex flex-col h-full bg-[var(--color-bg-gray-50)] overflow-hidden">
-      <div className="w-full shrink-0 px-4 bg-white dark:bg-mcm-surface flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200 dark:border-b-mcm-line">
+      <div className="w-full shrink-0 px-4 bg-white flex items-center justify-between border-b min-h-[56px] lg:min-h-[65px] border-b-gray-200">
         <div className="cursor-pointer" onClick={() => setActiveState('message')}>
           <div className="flex gap-2 items-center">
-            <ArrowLeft className="w-5 h-5 text-gray-500 dark:text-mcm-ink-3" />
-            <h3 className="text-sm lg:text-base font-semibold text-gray-900 dark:text-mcm-ink">Notes</h3>
+            <ArrowLeft className="w-5 h-5 text-gray-500" />
+            <h3 className="text-sm lg:text-base font-semibold text-gray-900">Notes</h3>
           </div>
         </div>
         {chatAccess?.create_note && (
           <div
-            className="cursor-pointer w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 dark:bg-mcm-surface-3 hover:bg-primary hover:text-white"
+            className="cursor-pointer w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 hover:bg-primary hover:text-white"
             onClick={() => {
               setAddNotes(true);
               setCurrentNote({ title: 'Untitled Note', content: defaultEditorValue });
@@ -111,14 +111,14 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
       </div>
 
       {addNotes && (
-        <div className="flex-1 w-full bg-white dark:bg-mcm-surface lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
-          <div className="w-full h-full flex flex-col justify-between bg-white dark:bg-mcm-surface-3 rounded-xl pb-3">
+        <div className="flex-1 w-full bg-white lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
+          <div className="w-full h-full flex flex-col justify-between bg-white rounded-xl pb-3">
             <div className="w-full flex flex-col gap-2 ">
               {isEditingTitle ? (
-                <div className="flex flex-col gap-1 border-b border-gray-200 dark:border-mcm-line relative">
+                <div className="flex flex-col gap-1 border-b border-gray-200 relative">
                   <input
                     autoFocus
-                    className="text-sm font-semibold border-b border-gray-300 focus:border-gray-200 dark:border-mcm-line dark:focus:border-mcm-line-2 rounded-lg outline-none px-4 py-2 h-10 rounded-none border-t-none border-r-none border-l-none"
+                    className="text-sm font-semibold border-b border-gray-300 focus:border-gray-200 rounded-lg outline-none px-4 py-2 h-10 rounded-none border-t-none border-r-none border-l-none"
                     value={currentNote?.title}
                     maxLength={100}
                     onChange={(e) =>
@@ -132,13 +132,13 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
                       }
                     }}
                   />
-                  <span className="text-xs text-gray-400 dark:text-mcm-ink-3 absolute right-2 bottom-3">
+                  <span className="text-xs text-gray-400 absolute right-2 bottom-3">
                     {currentNote?.title?.length ?? 0}/100
                   </span>
                 </div>
               ) : (
                 <h2
-                  className="text-md font-semibold cursor-pointer border-b border-gray-200 dark:border-mcm-line h-10 min-h-10 px-4 flex items-center text-sm text-primary text-ellipsis overflow-hidden whitespace-nowrap"
+                  className="text-md font-semibold cursor-pointer border-b border-gray-200 h-10 min-h-10 px-4 flex items-center text-sm text-primary text-ellipsis overflow-hidden whitespace-nowrap"
                   onClick={() => setIsEditingTitle(true)}
                 >
                   {currentNote?.title || 'Untitled Note'}
@@ -174,22 +174,22 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
 
       {!addNotes ? (
         currentChatNotes?.length > 0 ? (
-          <div className="flex-1 w-full bg-white dark:bg-mcm-surface lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 w-full bg-white lg:bg-[var(--color-bg-gray-50)] p-4 flex flex-col min-h-0 overflow-hidden">
             <div className="flex-1 overflow-y-auto pr-2 pb-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
                 {currentChatNotes?.map((note: any) => {
                   return (
                     <div
                       key={JSON.stringify(note)}
-                      className={`flex flex-col gap-2 p-3 border rounded-sm   ${noteId === note?._id ? 'bg-yellow-50' : 'bg-white dark:bg-mcm-surface-3 hover:bg-ucass-active-bg'} `}
+                      className={`flex flex-col gap-2 p-3 border rounded-sm   ${noteId === note?._id ? 'bg-yellow-50' : 'bg-white hover:bg-ucass-active-bg'} `}
                     >
                       <div className="flex gap-2 justify-between items-center">
                         <div className="flex gap-2 items-start w-[calc(100%-70px)]">
                           <div className="mt-0.5">
-                            <NotebookPenIcon className="w-5 min-w-5 h-5 text-gray-500 dark:text-mcm-ink-3" />
+                            <NotebookPenIcon className="w-5 min-w-5 h-5 text-gray-500" />
                           </div>
                           <div className="flex flex-col overflow-hidden">
-                            <h3 className="text-sm font-medium text-gray-900 dark:text-mcm-ink truncate">
+                            <h3 className="text-sm font-medium text-gray-900 truncate">
                               {note?.title}
                             </h3>
                           </div>
@@ -214,7 +214,7 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
                       <div className="text-sm">
                         {note?.noteData && <TextEditor initialValue={note?.noteData} readOnly />}
                       </div>
-                      <span className="text-[11px] text-gray-500 dark:text-mcm-ink-3 truncate mt-0.5 justify-end w-full">
+                      <span className="text-[11px] text-gray-500 truncate mt-0.5 justify-end w-full">
                         By{' '}
                         {(() => {
                           const creator = selectedChat?.users?.find(
@@ -240,11 +240,11 @@ const NotesList = ({ selectedChat, setActiveState }: any) => {
         ) : (
           <div className="flex-1 w-full bg-[var(--color-bg-gray-50)] p-3 flex items-center justify-center min-h-0 overflow-hidden">
             <div className="flex flex-col justify-center items-center gap-2 py-5 h-full w-full mx-auto">
-              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-mcm-surface-3 flex items-center justify-center mb-2">
-                <NotebookPenIcon className="w-8 h-8 text-gray-400 dark:text-mcm-ink-3" />
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                <NotebookPenIcon className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="text-base font-semibold text-gray-900 dark:text-mcm-ink">No notes yet</p>
-              <p className="text-sm text-center text-gray-500 dark:text-mcm-ink-3 max-w-xs">
+              <p className="text-base font-semibold text-gray-900">No notes yet</p>
+              <p className="text-sm text-center text-gray-500 max-w-xs">
                 Create your first note to share with the team.
               </p>
             </div>

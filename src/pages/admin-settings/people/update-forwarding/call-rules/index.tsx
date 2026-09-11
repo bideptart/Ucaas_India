@@ -232,6 +232,10 @@ const CallRules: FC<CallRulesProps> = ({
           </div>
         </div>
 
+        {/* One notice, not two. The summary said the rules are saved but not in
+            force, and the "Coming soon" note under it said the same thing again
+            in different words -- three paragraphs of preamble before the first
+            control, two of them making one point. */}
         <div className={`mcm-callsummary ${summaryTone}`} role="status">
           <span className="mcm-callsummary-l">When someone calls you now</span>
           <p>{summary}</p>
@@ -244,10 +248,6 @@ const CallRules: FC<CallRulesProps> = ({
             describes an intention, not what happens to a caller today. Saying
             "checked first" without this reads as a working precedence order.
             Delete this in the same change that makes the rules real. */}
-        <p className="mcm-setrow-note is-info mb-3">
-          Coming soon — these rules are saved, but calls are not routed by them yet. The order below
-          is how they will apply once they are switched on.
-        </p>
         <div className="mcm-rule">
           <span className="block">
             <div className="mcm-rule-h">

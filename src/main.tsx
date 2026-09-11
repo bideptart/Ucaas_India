@@ -9,7 +9,9 @@ import { SESSION_NAME } from './lib/utils';
 polyfillCountryFlagEmojis();
 
 /* Before React mounts, so the first render already sees a session and the
-   guards send `/` to the dashboard instead of the login screen. */
+   route guards send `/` to the dashboard instead of the login screen. The
+   fetch patch covers the Captain screens, which call their own service
+   directly rather than through the axios client. */
 seedDemoSession(SESSION_NAME);
 installCaptainDemoFetch();
 

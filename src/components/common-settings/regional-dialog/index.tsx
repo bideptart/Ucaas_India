@@ -156,7 +156,7 @@ const RegionalModal: FC<RegionalProps> = ({
             <DialogTitle className="text-base font-semibold">Regional Settings</DialogTitle>
             <div
               onClick={handleCancel}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -168,7 +168,7 @@ const RegionalModal: FC<RegionalProps> = ({
           </div>
           <div className="flex flex-col gap-1.5 w-full">
             <Label>Country Code</Label>
-            <div className="w-full flex items-center justify-between px-3 py-2 text-sm bg-white dark:bg-mcm-surface-3 border rounded-xl border-grey-400">
+            <div className="w-full flex items-center justify-between px-3 py-2 text-sm bg-white border rounded-xl border-grey-400">
               {draftRegional?.country_code?.label}
             </div>
           </div>

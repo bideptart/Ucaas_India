@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import FullPageLoader from './components/custom/full-page-loader';
 
 import 'react-datepicker/dist/react-datepicker.css';
@@ -56,33 +56,11 @@ const GoogleOAuthProviderWrapper = ({ children }: { children: React.ReactNode })
   );
 };
 
-/* react-toastify ships its own light/dark stylesheet, chosen by the
-   `theme` prop — it does not read this app's own `.dark` class on
-   <html>, so left at the default it rendered every toast with a white
-   card and dark text regardless of which theme the rest of the app was
-   in. theme-toggle.tsx flips that class directly (no store, no context)
-   rather than through React state, so a MutationObserver is what
-   actually notices the toggle — a plain read-once value would only ever
-   match whatever theme was active on first mount. */
-const useIsDarkTheme = () => {
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => setIsDark(root.classList.contains('dark')));
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
-};
-
 const App = () => {
   const appEnv = String(import.meta.env.VITE_APP_ENV || '').toLowerCase();
   if (appEnv === 'production' || appEnv === 'prod') {
     console.log = () => {};
   }
-  const isDarkTheme = useIsDarkTheme();
   return (
     <Suspense fallback={<FullPageLoader />}>
       <QueryClientProvider client={queryClient}>
@@ -98,7 +76,7 @@ const App = () => {
               </CampaignProvider>
             </UsersDirectoryProvider>
           </UserProvider>
-          <ToastContainer theme={isDarkTheme ? 'dark' : 'light'} />
+          <ToastContainer />
           <NewBuildNotice />
         </OrganizationProvider>
       </QueryClientProvider>

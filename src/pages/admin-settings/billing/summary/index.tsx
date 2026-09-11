@@ -23,6 +23,7 @@
  * customer will plan around, and then ask for a refund over.
  */
 
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -84,6 +85,14 @@ const Tile = ({
 );
 
 const BillingSummary = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'What you are paying for, what is due next, and what you have paid before.',
+  });
+
   const today = useMemo(() => isoDay(new Date()), []);
   const monthStart = useMemo(() => {
     const d = new Date();
@@ -177,9 +186,9 @@ const BillingSummary = () => {
 
   return (
     <AdminPage
+      hideHead
       section="Billing"
       title="Billing summary"
-      description="What you are paying for, what is due next, and what you have paid before."
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
         {/* Only on screen when there is something to do. A banner that is always
@@ -189,25 +198,21 @@ const BillingSummary = () => {
             role="status"
             className={`mb-3 flex flex-wrap items-start gap-3 rounded-lg border p-3.5 ${
               alert.tone === 'danger'
-                ? 'border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/30'
-                : 'border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/30'
+                ? 'border-red-200 bg-red-50'
+                : 'border-amber-200 bg-amber-50'
             }`}
           >
             <div className="min-w-[16rem] flex-1">
               <p
                 className={`text-sm font-semibold ${
-                  alert.tone === 'danger'
-                    ? 'text-red-800 dark:text-red-400'
-                    : 'text-amber-900 dark:text-amber-400'
+                  alert.tone === 'danger' ? 'text-red-800' : 'text-amber-900'
                 }`}
               >
                 {alert.title}
               </p>
               <p
                 className={`mt-0.5 text-xs ${
-                  alert.tone === 'danger'
-                    ? 'text-red-700 dark:text-red-300/80'
-                    : 'text-amber-800 dark:text-amber-300/80'
+                  alert.tone === 'danger' ? 'text-red-700' : 'text-amber-800'
                 }`}
               >
                 {alert.detail}

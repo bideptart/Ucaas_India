@@ -23,21 +23,36 @@
  *    them, so a change on either side shows up as a failing test rather than a
  *    surprised customer.
  *
- * 3. **Currency is Indian Rupees.** This is an India-only product, so every
- *    figure a customer sees is converted to INR at display time and shown
- *    with the ₹ symbol — kept in one place here rather than guessed per
- *    component. The underlying proration math (`prorate`, `MINIMUM_CHARGE`,
- *    etc.) stays in its own consistent unit; only `formatMoney` converts, so
- *    a figure is never accidentally converted twice.
+ * 3. **Currency is Indian rupees.** The platform serves India only and prices
+ *    are set in rupees, so that is what the screens say. Showing a different
+ *    symbol would be a wrong fact on a billing screen, which is the one thing
+ *    these screens must never do — so it is fixed here rather than guessed per
+ *    component, and it comes from `india.ts` so the country and the currency
+ *    cannot drift apart.
+ *
+ *    THE AMOUNT IS NOT CONVERTED HERE, AND MUST NOT BE. This module changes how
+ *    a figure is written, never what it is worth. Anything still holding a
+ *    dollar figure — `plans.cost` was written in USD — has to be re-denominated
+ *    at the source. A conversion applied at the point of display would be a
+ *    second, invisible source of truth that disagrees with what the processor
+ *    actually charges.
  */
 
-/* Every figure is converted to INR at the point it's formatted. Kept as a
-   constant, not sprinkled through the screens, so there is one place to
-   change the rate and one place to test it. */
-export const BILLING_CURRENCY = 'INR';
-const CURRENCY_SYMBOL = '₹';
-/* Approximate USD → INR conversion applied at display time. */
+import { HOME_CURRENCY, HOME_CURRENCY_SYMBOL, formatRupees } from './india';
+
+/* Kept as a constant, not sprinkled through the screens, so there is one place
+   to change and one place to test. */
+export const BILLING_CURRENCY = HOME_CURRENCY;
+
+/* The rate the Charge column converts at.
+   `call-history/index.tsx` has imported this since e727514, but the export
+   itself was only ever in that session's working tree, never committed — so
+   every commit from e727514 onward fails to build from a clean checkout. It
+   went unnoticed because the deploys were built from the working tree, which
+   still held the uncommitted file. Recovered verbatim from the imported tree
+   rather than guessed. */
 export const USD_TO_INR_RATE = 83;
+const CURRENCY_SYMBOL = HOME_CURRENCY_SYMBOL;
 
 /* A month, for billing purposes, is 30 days — the same rule the charge itself
    uses. Calendar months of 28 and 31 days would make the same plan cost
@@ -46,8 +61,13 @@ export const DAYS_PER_BILLING_MONTH = 30;
 
 /* Card processors refuse very small charges, so the server lifts any positive
    prorated amount up to this. Somebody buying one licence on the last day of a
-   cycle pays this rather than four cents. */
-export const MINIMUM_CHARGE = 0.51;
+   cycle pays this rather than a few paise.
+
+   ₹1.00 is Razorpay's floor for a card charge. The old value here was 0.51,
+   which was the dollar floor — left as rupees it would have rounded tiny
+   charges to 51 paise, below what the processor accepts, and the payment would
+   fail at the gateway rather than on this screen. */
+export const MINIMUM_CHARGE = 1;
 
 /* Is this a figure we actually have?
  *
@@ -66,19 +86,21 @@ export const knownNumber = (value: unknown): number | null => {
 export const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 100) / 100;
 
-/* Money, written the way a customer expects to read it: symbol, Indian
-   digit grouping, always two decimal places. "₹124.50", never "₹124.5".
+/* Money, written the way an Indian customer expects to read it: symbol, lakh
+   and crore grouping, always two decimal places. "₹1,23,456.78" — not
+   "₹123,456.78", which is the same number written for a different country.
    An unknown figure comes back as null so the caller shows its own wording -
-   this function will not print a zero it was not given. */
+   this function will not print a zero it was not given.
+
+   The sign is placed outside the formatted body rather than left to Intl, which
+   writes a negative as "-₹5.00" in some locales and "₹-5.00" in others; a
+   credit note has to read the same way every time. */
 export const formatMoney = (value: unknown): string | null => {
   const n = knownNumber(value);
   if (n === null) return null;
-  const rounded = roundMoney(n * USD_TO_INR_RATE);
+  const rounded = roundMoney(n);
   const negative = rounded < 0;
-  const body = Math.abs(rounded).toLocaleString('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const body = formatRupees(Math.abs(rounded)).replace(CURRENCY_SYMBOL, '');
   return `${negative ? '-' : ''}${CURRENCY_SYMBOL}${body}`;
 };
 

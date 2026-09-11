@@ -47,6 +47,7 @@ type SipCredentials = {
   turn_password?: string;
   stun_url?: string;
   turn_url?: string;
+  turn_urls?: string[];
   wss_url: string;
   extension: string;
   password: string;
@@ -619,20 +620,29 @@ const parseRemoteMetaDataHeader = (request: any): SessionRemoteMetaData => {
 };
 
 const buildPcConfig = (credentials: SipCredentials) => {
-  const { stun_url, turn_url, turn_username, turn_password } = credentials;
+  const { stun_url, turn_url, turn_urls, turn_username, turn_password } = credentials;
   const stunUrl = stun_url || DEFAULT_STUN_URL;
-  const turnUrl = turn_url || '';
   const turnUsername = turn_username || '';
   const turnPassword = turn_password || '';
-  const iceServers: Array<{ urls: string; username?: string; credential?: string }> = [];
+  const iceServers: Array<{ urls: string | string[]; username?: string; credential?: string }> = [];
 
   if (stunUrl) {
     iceServers.push({ urls: stunUrl });
   }
 
-  if (turnUrl && turnPassword) {
+  // Every relay address the API offers, not just the first. A browser on a
+  // network that blocks outbound UDP gathers no relay candidate from a UDP-only
+  // list, and the call then dies about fifteen seconds in - it dials, it rings,
+  // and the carrier gives up because no audio ever reached it. The TCP and TLS
+  // entries exist for that case. Older API builds send only turn_url, so fall
+  // back to it rather than losing the relay entirely.
+  const relayUrls = (turn_urls?.length ? turn_urls : [turn_url])
+    .map((url) => `${url || ''}`.trim())
+    .filter((url) => url.length > 0);
+
+  if (relayUrls.length > 0 && turnPassword) {
     iceServers.push({
-      urls: turnUrl,
+      urls: relayUrls,
       username: turnUsername,
       credential: turnPassword,
     });
@@ -734,6 +744,7 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
       turn_password: credentials.turn_password,
       stun_url: credentials.stun_url,
       turn_url: credentials.turn_url,
+      turn_urls: credentials.turn_urls,
       wss_url: credentials.wss_url,
       extension: credentials.extension,
       password: credentials.password,
@@ -2864,9 +2875,9 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
     const session = sessionRef.current[sessionId];
     if (!session || !tone) return;
     session.sendDTMF(tone, {
-      duration: 100,
+      duration: 160,
       interToneGap: 500,
-      transportType: 'INFO',
+      transportType: 'RFC2833',
     });
   }, []);
 
@@ -3003,16 +3014,16 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
             onEscapeKeyDown={(event) => event.preventDefault()}
             onInteractOutside={(event) => event.preventDefault()}
           >
-            <DialogHeader className="bg-gradient-to-r from-primary/10 via-white to-primary/5 dark:via-mcm-surface px-5 py-4 text-left">
+            <DialogHeader className="bg-gradient-to-r from-primary/10 via-white to-primary/5 px-5 py-4 text-left">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Dialpad Permissions
               </p>
-              <DialogTitle className="mt-1 text-xl font-semibold text-gray-900 dark:text-mcm-ink">
+              <DialogTitle className="mt-1 text-xl font-semibold text-gray-900">
                 {permissionPopup.title}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 px-5 pb-5 pt-1">
-              <DialogDescription className="text-sm leading-6 text-gray-700 dark:text-mcm-ink-2">
+              <DialogDescription className="text-sm leading-6 text-gray-700">
                 {permissionPopup.description}
               </DialogDescription>
 
@@ -3021,14 +3032,14 @@ export const DialpadProvider = ({ children }: { children: ReactNode }) => {
                   <div className="space-y-2 rounded-xl border border-primary/10 bg-primary/5 p-3">
                     {permissionPopup.pendingPermissions.map((permission) => (
                       <div key={permission} className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-mcm-surface-3 shadow-sm ring-1 ring-primary/10">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-primary/10">
                           {permission === 'microphone' ? (
                             <Mic className="h-4 w-4 text-primary" />
                           ) : (
                             <Video className="h-4 w-4 text-primary" />
                           )}
                         </div>
-                        <span className="text-sm font-medium capitalize text-gray-800 dark:text-mcm-ink-2">
+                        <span className="text-sm font-medium capitalize text-gray-800">
                           {permission} Access
                         </span>
                       </div>

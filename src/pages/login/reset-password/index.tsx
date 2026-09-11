@@ -118,7 +118,7 @@ const ResetPassword = () => {
             >
               <div className="flex flex-col xxl:w-2/3 xl:w-3/4 lg:w-4/5 md:w-11/12 xs:w-full gap-8">
                 <div className="flex flex-col gap-3">
-                  <h1 className="text-4xl text-black dark:text-mcm-ink font-semibold">Recover your password</h1>
+                  <h1 className="text-4xl text-black font-semibold">Recover your password</h1>
                   <h6 className="text-base text-grey-800 font-normal">
                     Enter a new password below
                   </h6>
@@ -166,33 +166,33 @@ const ResetPassword = () => {
             </form>
           </div>
         </section>
-        <section className="w-7/12 bg-ucass-gray dark:bg-mcm-surface-3 overflow-hidden sm:block xs:hidden">
+        <section className="w-7/12 bg-ucass-gray overflow-hidden sm:block xs:hidden">
           <div className="flex flex-col justify-between h-screen xl:gap-10 xs:gap-8">
             <div className="container m-auto pt-8 md:px-24 sm:px-8">
               <div className="flex flex-col gap-6">
-                <h2 className="text-gray-900 dark:text-mcm-ink font-medium text-3xl leading-10">
+                <h2 className="text-gray-900 font-medium text-3xl leading-10">
                   Few things make me feel more powerful than setting up automations in Untitled to
                   make my life easier and more efficient.
                 </h2>
                 <div className="flex justify-between">
                   <div className="flex flex-col">
-                    <p className="text-black dark:text-mcm-ink text-lg font-semibold">&mdash; Aliah Lane</p>
-                    <p className="text-grey-800 dark:text-mcm-ink-2 text-base font-medium">Founder, Layers.io</p>
+                    <p className="text-black text-lg font-semibold">&mdash; Aliah Lane</p>
+                    <p className="text-grey-800 text-base font-medium">Founder, Layers.io</p>
                   </div>
                   <div className="flex gap-0.5">
-                    <div className="text-ucass-orange dark:text-[#ff8a2a] hover:text-ucass-orange/80 dark:hover:text-[#ff8a2a]/80">
+                    <div className="text-ucass-orange hover:text-ucass-orange/80">
                       <Icon name="Star" />
                     </div>
-                    <div className="text-ucass-orange dark:text-[#ff8a2a] hover:text-ucass-orange/80 dark:hover:text-[#ff8a2a]/80">
+                    <div className="text-ucass-orange hover:text-ucass-orange/80">
                       <Icon name="Star" />
                     </div>
-                    <div className="text-ucass-orange dark:text-[#ff8a2a] hover:text-ucass-orange/80 dark:hover:text-[#ff8a2a]/80">
+                    <div className="text-ucass-orange hover:text-ucass-orange/80">
                       <Icon name="Star" />
                     </div>
-                    <div className="text-ucass-orange dark:text-[#ff8a2a] hover:text-ucass-orange/80 dark:hover:text-[#ff8a2a]/80">
+                    <div className="text-ucass-orange hover:text-ucass-orange/80">
                       <Icon name="Star" />
                     </div>
-                    <div className="text-ucass-orange dark:text-[#ff8a2a] hover:text-ucass-orange/80 dark:hover:text-[#ff8a2a]/80">
+                    <div className="text-ucass-orange hover:text-ucass-orange/80">
                       <Icon name="Star" />
                     </div>
                   </div>

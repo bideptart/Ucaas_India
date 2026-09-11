@@ -1170,7 +1170,7 @@ const DialpadCampaignOverview = ({
 
         <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-col items-start gap-2 text-left">
-            <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-ucass-active-bg bg-white/85 dark:bg-mcm-surface px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary">
+            <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-ucass-active-bg bg-white/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary">
               <Clock3 className="h-3.5 w-3.5" />
               Campaign Queue
             </div>

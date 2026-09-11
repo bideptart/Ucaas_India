@@ -366,8 +366,8 @@ const SignUp = () => {
 
   if (isCustomPlan) {
     return (
-      <div className="flex min-h-screen w-full flex-col gap-4 overflow-auto bg-muted/40">
-        <div className="flex w-full items-center justify-between bg-white dark:bg-mcm-surface px-3 py-4 shadow-sm sm:px-12">
+      <div className="flex min-h-screen w-full flex-col gap-4 overflow-auto bg-gray-200/15">
+        <div className="flex w-full items-center justify-between bg-white px-3 py-4 shadow-sm sm:px-12">
           <div className="h-8 cursor-pointer sm:px-8" onClick={() => navigate('/')}>
             <img
               src={
@@ -379,7 +379,7 @@ const SignUp = () => {
               className="h-full"
             />
           </div>
-          <p className="text-gray-900 dark:text-mcm-ink">
+          <p className="text-gray-900">
             Need help? <span className="cursor-pointer text-primary">(111) 111-1111</span>
           </p>
         </div>
@@ -392,8 +392,8 @@ const SignUp = () => {
 
   if (needsPlanHydration && (isPlanLoading || matchingPlan)) {
     return (
-      <div className="w-screen min-h-screen bg-white dark:bg-mcm-ground">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-mcm-ground">
+      <div className="w-screen min-h-screen bg-white">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white">
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="lg" />
           </div>
@@ -404,12 +404,12 @@ const SignUp = () => {
 
   if ((needsPlanHydration && !matchingPlan) || (!planId && !rowData?.uuid)) {
     return (
-      <div className="w-screen min-h-screen bg-white dark:bg-mcm-ground flex items-center justify-center p-6">
+      <div className="w-screen min-h-screen bg-white flex items-center justify-center p-6">
         <div className="flex max-w-md flex-col items-center gap-4 text-center">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-mcm-ink">
+          <h1 className="text-xl font-semibold text-gray-900">
             {isPlanError ? 'Unable to load the selected plan' : 'Plan not found'}
           </h1>
-          <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
+          <p className="text-sm text-gray-500">
             Please check the signup link or select a plan again.
           </p>
           <Button type="button" onClick={() => navigate('/')}>
@@ -421,8 +421,8 @@ const SignUp = () => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 h-full overflow-auto bg-muted/40">
-      <div className="w-full  flex items-center justify-between bg-white dark:bg-mcm-surface sm:px-12 px-3 py-4 shadow-sm">
+    <div className="w-full flex flex-col gap-4 h-full overflow-auto bg-gray-200/15">
+      <div className="w-full  flex items-center justify-between bg-white sm:px-12 px-3 py-4 shadow-sm">
         <div className="h-8 cursor-pointer sm:px-8" onClick={() => navigate('/')}>
           <img
             src={
@@ -434,21 +434,21 @@ const SignUp = () => {
             className="h-full"
           />
         </div>
-        <p className="text-gray-900 dark:text-mcm-ink">
+        <p className="text-gray-900">
           Need help? <span className="text-primary cursor-pointer">(111) 111-1111</span>
         </p>
       </div>
       <div className="w-full flex md:flex-row flex-col gap-4 px-4 md:px-12 lg:max-w-[80%] mx-auto mb-4">
-        <section className="md:w-[calc(100%-24rem)] bg-white dark:bg-mcm-surface rounded-xl">
+        <section className="md:w-[calc(100%-24rem)] bg-white rounded-xl">
           <div className="mx-auto h-full flex flex-col gap-16">
             <form
               onSubmit={handleSubmit(handleSubmitForm)}
-              className="flex flex-col justify-center items-center p-8 bg-white dark:bg-mcm-surface rounded-xl"
+              className="flex flex-col justify-center items-center p-8 bg-white rounded-xl"
             >
               <div className="flex flex-col w-full gap-8">
                 <div className="flex flex-col gap-1">
                   <h1 className="text-xl  font-bold">Contact Information</h1>
-                  <h6 className="text-base text-gray-500 dark:text-mcm-ink-3 font-normal">
+                  <h6 className="text-base text-gray-500 font-normal">
                     Please enter all your contact information in the fields provided below to
                     complete your cloud phone system setup.
                   </h6>
@@ -540,7 +540,7 @@ const SignUp = () => {
                           placeholder="Enter Company Address"
                           {...register('company_address')}
                           rows={3}
-                          className={`border w-full ${errors?.company_address?.message ? 'border-red-500' : 'border-gray-300 dark:border-mcm-line'}  rounded-xl text-sm resize-none p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none`}
+                          className={`border w-full ${errors?.company_address?.message ? 'border-red-500' : 'border-gray-300'}  rounded-xl text-sm resize-none p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none`}
                         />
                       </div>
                       <div className="flex gap-4 flex-col sm:flex-row">

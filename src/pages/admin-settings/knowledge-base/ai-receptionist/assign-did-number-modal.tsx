@@ -166,9 +166,9 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
       }}
     >
       <DialogContent className="w-[680px] p-0 gap-0" showCloseButton={false}>
-        <div className="p-5 border-b border-gray-200 dark:border-mcm-line flex items-start justify-between gap-4">
+        <div className="p-5 border-b border-gray-200 flex items-start justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <h4 className="text-gray-900 dark:text-mcm-ink font-semibold text-xl">Assign Caller ID</h4>
+            <h4 className="text-gray-900 font-semibold text-xl">Assign Caller ID</h4>
           </div>
           <button
             type="button"
@@ -176,7 +176,7 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
               setSearch('');
               onClose();
             }}
-            className="text-gray-500 dark:text-mcm-ink-3 hover:text-gray-900 dark:hover:text-mcm-ink cursor-pointer"
+            className="text-gray-500 hover:text-gray-900 cursor-pointer"
           >
             <Icon name="XIcon" className="w-4 h-4" />
           </button>
@@ -194,7 +194,7 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
               const numericValue = e.target.value.replace(/\D/g, '');
               setSearch(numericValue);
             }}
-            Icon={<SearchLine className="text-gray-500 dark:text-mcm-ink-3" />}
+            Icon={<SearchLine className="text-gray-500" />}
           />
 
           <div className="flex flex-col gap-3 max-h-[calc(100vh_-_23rem)] overflow-y-auto pr-1 min-h-[240px]">
@@ -207,14 +207,14 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
                 {assignedDidList?.map((item: any) => (
                   <div
                     key={item?.uuid || item?.did_number}
-                    className="w-full border border-gray-200 dark:border-mcm-line rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
+                    className="w-full border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
                   >
                     <div className="flex flex-col gap-1">
                       <NumberWithFlag number={item?.did_number} />
-                      <p className="text-xs font-medium flex items-center gap-1 text-gray-500 dark:text-mcm-ink-3">
+                      <p className="text-xs font-medium flex items-center gap-1 text-gray-500">
                         <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
                         Assigned to this Agent
-                        <span className="text-gray-700 dark:text-mcm-ink-2">- {fullName}</span>
+                        <span className="text-gray-700">- {fullName}</span>
                       </p>
                     </div>
 
@@ -234,7 +234,7 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
                   return (
                     <div
                       key={item?.uuid || item?.did_number}
-                      className="w-full border border-gray-200 dark:border-mcm-line rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
+                      className="w-full border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
                     >
                       <div className="flex flex-col gap-1">
                         <NumberWithFlag number={item?.did_number} />
@@ -260,8 +260,8 @@ const AssignDIDNumberModal: FC<AssignDIDNumberModalProps> = ({ open, onClose, us
             ) : (
               <div className="w-full h-full min-h-[200px] flex flex-col items-center justify-center gap-1">
                 <img src={NotFound} alt="No Numbers Found" className="min-w-36 max-w-36" />
-                <p className="text-md font-medium text-gray-900 dark:text-mcm-ink">No numbers found</p>
-                <p className="text-sm text-gray-700 dark:text-mcm-ink-2">Try adjusting your search criteria.</p>
+                <p className="text-md font-medium text-gray-900">No numbers found</p>
+                <p className="text-sm text-gray-700">Try adjusting your search criteria.</p>
               </div>
             )}
           </div>

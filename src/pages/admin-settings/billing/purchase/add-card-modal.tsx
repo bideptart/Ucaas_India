@@ -72,7 +72,7 @@ const AddCardModal = ({ open, setOpen }: { open: any; setOpen: any }) => {
             Add Card
             <div
               onClick={() => setOpen(false)}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -105,20 +105,20 @@ const AddCardModal = ({ open, setOpen }: { open: any; setOpen: any }) => {
                   showIcon: true,
                   placeholder: '**** **** **** ****',
                 }}
-                className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10"
+                className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10"
               />
             </div>
             <div className="flex gap-1.5 w-full flex-col">
               <p className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
                 Expiration Date
               </p>
-              <CardExpiryElement className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
+              <CardExpiryElement className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
             </div>
             <div className="flex gap-1.5 w-full flex-col">
               <p className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
                 CVC
               </p>
-              <CardCvcElement className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white dark:bg-mcm-surface shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
+              <CardCvcElement className="stripe-element w-full border normal-case border-grey-400 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 disabled:bg-grey-300 disabled:text-slate-500 disabled:border-grey-300 disabled:shadow-none text-grey-700 placeholder:text-grey-700 bg-white shadow-sm text-sm hover:border-primary rounded-xl focus:border-primary p-3 min-h-10" />
             </div>
           </div>
 

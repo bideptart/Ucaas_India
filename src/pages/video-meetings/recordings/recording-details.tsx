@@ -139,8 +139,8 @@ const RecordingDetails = () => {
 
   if (meetingInfoLoad) {
     return (
-      <div className="w-screen min-h-screen bg-white dark:bg-mcm-ground ">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white dark:bg-mcm-ground ">
+      <div className="w-screen min-h-screen bg-white ">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white ">
           <div className="flex items-center justify-center p-5">
             <Loader variant="blue" size="lg" />
           </div>
@@ -171,9 +171,9 @@ const RecordingDetails = () => {
         </div>
         <div className="flex flex-col min-h-full w-full pt-16 h-full">
           <div className="p-3 flex flex-col gap-3">
-            <div className="flex items-center w-full px-3 h-16 gap-2 bg-gray-100 dark:bg-mcm-surface-3 rounded-xl border border-gray-200 dark:border-mcm-line">
+            <div className="flex items-center w-full px-3 h-16 gap-2 bg-gray-100 rounded-xl border border-gray-200">
               <div className="flex flex-col">
-                <h5 className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-md">
+                <h5 className="font-semibold text-gray-900 truncate text-md">
                   {meetingDetailInfo?.name || 'Instant Meeting'}
                 </h5>
               </div>
@@ -257,19 +257,19 @@ const RecordingDetails = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-2/4 bg-white dark:bg-mcm-surface p-10">
+              <div className="w-2/4 bg-white p-10">
                 <div className="flex flex-col gap-3">
                   <Tabs defaultValue={'Perticipents'} className="flex w-full">
-                    <div className="border-b border-gray-200 dark:border-mcm-line w-full">
+                    <div className="border-b border-gray-200 w-full">
                       <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none min-h-10 ">
                         <TabsTrigger
-                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
+                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
                           value={'Perticipents'}
                         >
                           Participents
                         </TabsTrigger>
                         <TabsTrigger
-                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
+                          className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs "
                           value={'Transcript'}
                         >
                           Transcript
@@ -278,12 +278,12 @@ const RecordingDetails = () => {
                     </div>
 
                     <TabsContent value={'Perticipents'}>
-                      <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-mcm-line">
+                      <div className="flex items-center justify-between pb-3 border-b border-gray-200">
                         <div className="flex gap-2.5 flex-col">
                           <div className="flex items-center gap-3.5">
                             <CustomAvatar name={meetingDetailInfo?.hostName} size="40" />
                             <div className="flex items-center gap-1">
-                              <h5 className="font-semibold text-gray-900 dark:text-mcm-ink truncate text-md">
+                              <h5 className="font-semibold text-gray-900 truncate text-md">
                                 {meetingDetailInfo?.hostName}
                               </h5>
                               <div className="capitalize">(Host)</div>
@@ -306,7 +306,7 @@ const RecordingDetails = () => {
                                 />
 
                                 <div className="flex items-center gap-1">
-                                  <h5 className="font-semibold text-black dark:text-mcm-ink">
+                                  <h5 className="font-semibold text-black">
                                     {isGuest
                                       ? isNameExist
                                         ? participant?.name
@@ -355,17 +355,17 @@ const Summary = () => {
             <div className="flex items-center justify-between gap-6">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-5">
-                  <h5 className="font-semibold text-black dark:text-mcm-ink">Keywords</h5>
+                  <h5 className="font-semibold text-black">Keywords</h5>
                   <small>Auto generated</small>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="inline-flex items-center rounded-full bg-white dark:bg-mcm-surface-3 px-4 py-2 font-medium ring-1 ring-inset ring-white dark:ring-mcm-line">
+                  <span className="inline-flex items-center rounded-full bg-white px-4 py-2 font-medium ring-1 ring-inset ring-white">
                     <p>Technology</p>
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-white dark:bg-mcm-surface-3 px-4 py-2 font-medium ring-1 ring-inset ring-white dark:ring-mcm-line">
+                  <span className="inline-flex items-center rounded-full bg-white px-4 py-2 font-medium ring-1 ring-inset ring-white">
                     <p>Trends</p>
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-white dark:bg-mcm-surface-3 px-4 py-2 font-medium ring-1 ring-inset ring-white dark:ring-mcm-line">
+                  <span className="inline-flex items-center rounded-full bg-white px-4 py-2 font-medium ring-1 ring-inset ring-white">
                     <p>Techniques</p>
                   </span>
                 </div>
@@ -386,7 +386,7 @@ const Summary = () => {
             <div className="flex items-center justify-between gap-6">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-5">
-                  <h5 className="font-semibold text-black dark:text-mcm-ink">Summary</h5>
+                  <h5 className="font-semibold text-black">Summary</h5>
                   <small>Auto generated</small>
                 </div>
                 <p className="mb-2">
@@ -468,9 +468,7 @@ const Transcript = ({ transcriptData, isLoading }: { transcriptData: any; isLoad
   if (!transcriptData || !transcriptEvents?.length) {
     return (
       <div className="flex items-center justify-center p-10">
-        <p className="text-gray-500 dark:text-mcm-ink-3">
-          No transcript available for this recording
-        </p>
+        <p className="text-gray-500">No transcript available for this recording</p>
       </div>
     );
   }
@@ -484,7 +482,7 @@ const Transcript = ({ transcriptData, isLoading }: { transcriptData: any; isLoad
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         {/* <div
-          className="border border-gray-300 dark:border-mcm-line rounded-xl w-9 h-9 bg-white dark:bg-mcm-surface-3 flex items-center justify-center text-black dark:text-mcm-ink hover:text-black/80 dark:hover:text-mcm-ink-2 cursor-pointer"
+          className="border border-gray-300 rounded-xl w-9 h-9 bg-white flex items-center justify-center text-black hover:text-black/80 cursor-pointer"
           onClick={handleDownload}
         >
           <Download className="w-5" />
@@ -493,7 +491,7 @@ const Transcript = ({ transcriptData, isLoading }: { transcriptData: any; isLoad
       <div className="flex flex-col max-h-[calc(100vh-24rem)] overflow-y-auto">
         {filteredTranscripts.length === 0 ? (
           <div className="flex items-center justify-center p-10">
-            <p className="text-gray-500 dark:text-mcm-ink-3">No results found</p>
+            <p className="text-gray-500">No results found</p>
           </div>
         ) : (
           filteredTranscripts.map((event: any, index: number) => {
@@ -510,9 +508,7 @@ const Transcript = ({ transcriptData, isLoading }: { transcriptData: any; isLoad
                       <div className="gap-2.5 flex items-center">
                         <CustomAvatar name={participantName} size="32" />
                         <div className="flex flex-col gap-0.5">
-                          <h5 className="font-semibold text-black dark:text-mcm-ink">
-                            {participantName}
-                          </h5>
+                          <h5 className="font-semibold text-black">{participantName}</h5>
                           {/* {confidence < 0.5 && (
                             <small className="text-yellow-600">Low confidence</small>
                           )} */}

@@ -47,11 +47,11 @@ const CampaignConatctsList: FC<ICampaignContactProps> = ({
 
   return (
     <div className="flex flex-col gap-3 h-[calc(100vh_-_7.8rem)] overflow-auto">
-      <div className="w-full px-3 bg-white dark:bg-mcm-surface flex items-center justify-between border-b dark:border-mcm-line min-h-[65px]">
+      <div className="w-full px-3 bg-white flex items-center justify-between border-b min-h-[65px]">
         <div className="cursor-pointer" onClick={() => setSelectedCampaign(null)}>
           <div className="flex gap-2 items-center">
             <ArrowLeft className="w-6 h-5" />
-            <h3 className="font-semibold text-gray-900 dark:text-mcm-ink">
+            <h3 className="font-semibold text-gray-900">
               Campaign <span className="font-normal">{selectedCampaign?.name}</span>
             </h3>
           </div>

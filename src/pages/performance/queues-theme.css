@@ -192,50 +192,6 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
     animation: none;
   }
 }
-/* ------------------------------------------------------------
-   2. Live-sync notice — a frosted glass pill instead of floating text.
-   Muted slate on translucent white, matching the notice pill standard set
-   on Dashboards (db-notice) rather than the orange-wash treatment used
-   here originally.
-   ------------------------------------------------------------ */
-.mcm-page .perf-queues .qa-notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(249, 115, 22, 0.15);
-  color: #475569;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  /* A single-line sentence at the very edge of the pill's width can spill
-     past the rounded corner on a narrower real browser window than any
-     one dev viewport tests — overflow:hidden clips it to the pill's own
-     shape instead of the text poking out past its background. */
-  overflow: hidden;
-}
-.dark .mcm-page .perf-queues .qa-notice {
-  color: #475569;
-}
-/* `.page-note` (mcm-page.css) caps itself at `max-width: 100ch`, tuned for
-   a page description rather than a pill with the band's full width to
-   work with — that cap is what forced this long caveat to wrap a few
-   words from the end. */
-.mcm-page .perf-queues .qa-notice .page-note {
-  margin: 0;
-  color: inherit;
-  font-size: inherit;
-  max-width: none;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: inherit;
-}
 
 /* The top padding this tab used to override down to 14px now lives on the
    component itself (`pt-7` in queues-activity-tab.tsx), so Queues starts its
@@ -267,16 +223,24 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
 .dark .mcm-page .perf-queues .qa-sect-count {
   background: rgba(251, 146, 60, 0.12);
 }
-/* Tight anchor gap between the section header and the table below it —
-   the header reads as belonging to the table immediately beneath it,
-   not a separate block with its own breathing room. */
+/* Ultra-tight anchor gap between the section header and the table below
+   it — the header reads as flush with the table's own top edge, not a
+   separate block with its own breathing room. `!important` on every rule
+   here so nothing upstream (the root flex column's own `gap-3`, or
+   TableManager's own top margin on its outer wrapper) can reintroduce
+   space between them. */
 .mcm-page .perf-queues .qa-queue-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px !important;
 }
 .mcm-page .perf-queues .qa-queue-section > div:first-child {
   padding: 0 8px;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.mcm-page .perf-queues .qa-queue-section div:has(> .table-scroll) {
+  margin-top: 0 !important;
 }
 
 /* ------------------------------------------------------------

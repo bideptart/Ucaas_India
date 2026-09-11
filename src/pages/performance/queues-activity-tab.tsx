@@ -516,38 +516,32 @@ const QueuesActivityTab = ({
           },
         ]}
       />
-      {isCdrSampled && (
-        <div className="qa-notice">
-          <p className="page-note">
-            Offered, Handled, ASA, AHT and Abandon are counted from the most recent 1,000 calls in
-            this range — older calls in the range aren't included in these columns.
-          </p>
-        </div>
-      )}
 
       <style>{QUEUE_TAB_STYLES}</style>
 
-      <div className="flex items-center justify-between">
-        <h3 className="sect-title">
-          <Layers className="qa-sect-icon" />
-          Queues
-        </h3>
-        <span className="qa-sect-count">
-          {rows.length} {rows.length === 1 ? 'queue' : 'queues'}
-        </span>
-      </div>
+      <div className="qa-queue-section">
+        <div className="flex items-center justify-between">
+          <h3 className="sect-title">
+            <Layers className="qa-sect-icon" />
+            Queues
+          </h3>
+          <span className="qa-sect-count">
+            {rows.length} {rows.length === 1 ? 'queue' : 'queues'}
+          </span>
+        </div>
 
-      <TableManager
-        columns={columns}
-        staticData={rows}
-        loading={isLoading}
-        showPagination={false}
-        emptyTablePlaceholder="No queues configured"
-        descriptionEmptyTable="Call queues you create will show live activity here."
-        splitStickyHeader
-        search={globalSearch}
-        clientSideSearch
-      />
+        <TableManager
+          columns={columns}
+          staticData={rows}
+          loading={isLoading}
+          showPagination={false}
+          emptyTablePlaceholder="No queues configured"
+          descriptionEmptyTable="Call queues you create will show live activity here."
+          splitStickyHeader
+          search={globalSearch}
+          clientSideSearch
+        />
+      </div>
     </div>
   );
 };

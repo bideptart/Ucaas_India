@@ -14,7 +14,7 @@ import { useGetSite } from '@/hooks/common';
 import OrderSummary from '../order-summary';
 import { Label } from '@/components/ui/label';
 import ErrorTooltip from '@/components/custom/error-tooltip';
-import { generateRandomExtension, handleAlert } from '@/lib/utils';
+import { generateRandomExtension, handleAlert, withIndianDialCode } from '@/lib/utils';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import {
   ChevronLeft,
@@ -768,11 +768,7 @@ const AddUserInfo = ({
                   placeholder="Phone number"
                   value={watch(`users.${index}.phone`)}
                   onChange={(value) => {
-                    /* countryCodeEditable={false} freezes this library's input entirely
-                       (can't type or delete at all), so +91 is protected here instead:
-                       if editing eats into the dial code, snap back to a bare 91 rather
-                       than let it disappear. */
-                    const next = value.startsWith('91') ? value : '91';
+                    const next = withIndianDialCode(value);
                     setValue(`users.[${index}].phone`, next, {
                       shouldValidate: true,
                     });

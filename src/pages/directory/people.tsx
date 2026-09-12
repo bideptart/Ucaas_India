@@ -38,6 +38,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 import './people-glass.css';
 import './groups-glass.css';
 import './edit-person-glass.css';
@@ -98,6 +99,21 @@ const People = () => {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<PersonRow | null>(null);
 
+  /* Bulk selection -- lets an admin act on many rows at once (change role,
+     remove) instead of repeating the same per-row menu item over and over. */
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const toggleSelected = (uuid: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(uuid)) next.delete(uuid);
+      else next.add(uuid);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+  const [bulkChangingRole, setBulkChangingRole] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
   /* Before anybody is removed, find what still points at them — a queue they
      are the last agent on, a menu key, a number forwarded to their extension.
      The roster is already on screen, so it is handed over rather than fetched
@@ -115,6 +131,22 @@ const People = () => {
       invalidateGlobalUsersDirectory(queryClient);
       handleAlert({ text: data?.data?.message || 'Person removed', type: 'success' });
       setDeleting(null);
+    },
+  });
+
+  /* One DELETE call per person -- the API has no bulk-remove endpoint, so
+     the selected ids are removed in parallel and the roster is refreshed
+     once everything settles rather than once per row. */
+  const { mutate: bulkRemovePeople, isPending: isBulkDeletingPeople } = useMutation({
+    mutationKey: ['bulkDeleteMembers'],
+    mutationFn: (uuids: string[]) => Promise.allSettled(uuids.map((uuid) => deleteMember(uuid))),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fetchUsersList'] });
+      queryClient.invalidateQueries({ queryKey: ['directoryPeople'] });
+      invalidateGlobalUsersDirectory(queryClient);
+      handleAlert({ text: 'Selected people removed', type: 'success' });
+      clearSelection();
+      setBulkDeleting(false);
     },
   });
 
@@ -240,6 +272,37 @@ const People = () => {
 
   const onQueue = rows.filter((row) => row.tone === 'good').length;
 
+  /* Bulk selection only ever covers rows the row menu itself would let you
+     remove -- everyone but yourself, and only when you're allowed to delete
+     at all -- so "select all" can never queue up an action that would have
+     been refused one row at a time. */
+  const selectablePaged = useMemo(
+    () => (canDelete ? paged.filter((row) => row.uuid !== myUuid) : []),
+    [paged, canDelete, myUuid],
+  );
+  const allPagedSelected =
+    selectablePaged.length > 0 && selectablePaged.every((row) => selectedIds.has(row.uuid));
+  const toggleSelectAllOnPage = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allPagedSelected) {
+        selectablePaged.forEach((row) => next.delete(row.uuid));
+      } else {
+        selectablePaged.forEach((row) => next.add(row.uuid));
+      }
+      return next;
+    });
+  };
+  const selectedRows = useMemo(
+    () => rows.filter((row) => selectedIds.has(row.uuid)),
+    [rows, selectedIds],
+  );
+  const selectedForRoleChange = useMemo(
+    () => selectedRows.filter((row) => canChangeRoleOf(row)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedRows, isAdmin],
+  );
+
   /* Take the roster away as a spreadsheet.
    *
    * The platform has no export of any kind for people, so this is built here
@@ -347,10 +410,56 @@ const People = () => {
           </div>
         }
       >
+        {selectedIds.size > 0 ? (
+          <div className="gp-bulk-bar">
+            <span className="gp-bulk-count">
+              {selectedIds.size} selected
+            </span>
+            <span className="gp-bulk-actions">
+              <button
+                type="button"
+                className="btn ghost sm"
+                disabled={!selectedForRoleChange.length}
+                title={
+                  selectedForRoleChange.length
+                    ? undefined
+                    : 'None of the selected people can have their role changed'
+                }
+                onClick={() => setBulkChangingRole(true)}
+              >
+                <Ic n="shield" size={13} />
+                Change role
+              </button>
+              <button
+                type="button"
+                className="btn ghost sm gp-bulk-remove"
+                onClick={() => setBulkDeleting(true)}
+              >
+                <Ic n="trash" size={13} />
+                Remove
+              </button>
+              <button type="button" className="btn ghost sm" onClick={clearSelection}>
+                Clear
+              </button>
+            </span>
+          </div>
+        ) : null}
         <table>
           <thead>
             <tr>
-              <th>Person</th>
+              <th>
+                {canDelete ? (
+                  <span className="gp-bulk-check-head">
+                    <Checkbox
+                      checked={allPagedSelected}
+                      disabled={!selectablePaged.length}
+                      onCheckedChange={toggleSelectAllOnPage}
+                      aria-label="Select all people on this page"
+                    />
+                  </span>
+                ) : null}
+                Person
+              </th>
               <th>Role</th>
               <th>Groups</th>
               <th>Location</th>
@@ -368,6 +477,22 @@ const People = () => {
                 <tr key={row.uuid} className="gp-person-row" onClick={() => openPerson(row)}>
                   <td>
                     <span className="flex items-center gap-2.5">
+                      {canDelete ? (
+                        <span
+                          className="gp-bulk-check-cell"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {row.uuid !== myUuid ? (
+                            <Checkbox
+                              checked={selectedIds.has(row.uuid)}
+                              onCheckedChange={() => toggleSelected(row.uuid)}
+                              aria-label={`Select ${row.name}`}
+                            />
+                          ) : (
+                            <span className="gp-bulk-check-spacer" />
+                          )}
+                        </span>
+                      ) : null}
                       <CustomAvatar name={row.name} image={row.image} size="30" />
                       <span style={{ minWidth: 0 }}>
                         <span style={{ fontWeight: 700, display: 'block' }}>{row.name}</span>
@@ -830,6 +955,35 @@ const People = () => {
         setOpen={(val: boolean) => {
           if (!val) setChangingRole(null);
         }}
+      />
+
+      <AlertConfirm
+        {...{
+          apiLoading: isBulkDeletingPeople,
+          open: bulkDeleting,
+          setOpen: (value: boolean) => setBulkDeleting(value),
+          onConfirm: () => bulkRemovePeople(selectedRows.map((row) => row.uuid)),
+          onCancel: () => setBulkDeleting(false),
+          onClose: () => setBulkDeleting(false),
+          confirmBtnText: 'Remove them',
+          closeBtnText: 'Cancel',
+          descriptionTextComp: (
+            <div className="text-md">
+              Remove {selectedRows.length} selected {selectedRows.length === 1 ? 'person' : 'people'}
+              ? This action cannot be undone.
+            </div>
+          ),
+        }}
+      />
+
+      <RoleChangeModal
+        open={bulkChangingRole}
+        userData={null}
+        bulkUsers={selectedForRoleChange.map((row) => row.uuid)}
+        setOpen={(val: boolean) => {
+          if (!val) setBulkChangingRole(false);
+        }}
+        onSuccess={clearSelection}
       />
 
       {/* The Extension page normalises the key before handing the record over,

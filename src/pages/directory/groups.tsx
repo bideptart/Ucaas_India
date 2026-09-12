@@ -116,6 +116,7 @@ const Groups = () => {
   const { rows: peopleRows } = usePeopleRows();
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<any>(null);
   const [openUuid, setOpenUuid] = useState<string | null>(null);
   const [editing, setEditing] = useState<GroupPerson | null>(null);
   const [personForm, setPersonForm] = useState({
@@ -126,10 +127,11 @@ const Groups = () => {
     extension: '',
   });
 
-  /* Same gate the Department page puts on New Department. */
+  /* Same gate the Department page puts on New Department / Edit. */
   const { features } = useCompanyFeatures();
   const phoneSystem = features?.plan_features?.phone_system_action;
   const canCreateGroup = Boolean(phoneSystem?.access?.DEPARTMENT && phoneSystem?.action?.add);
+  const canEditGroup = Boolean(phoneSystem?.access?.DEPARTMENT && phoneSystem?.action?.edit);
 
   const departmentQueryKey = ['getDepartmentList', 'directoryGroups'];
   const {
@@ -300,7 +302,7 @@ const Groups = () => {
               <th>Manager</th>
               <th>People</th>
               <th>Extension</th>
-              <th>Open</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -328,14 +330,27 @@ const Groups = () => {
                     </td>
                     <td className="num">{row?.extension || '—'}</td>
                     <td onClick={(event) => event.stopPropagation()}>
-                      <button
-                        type="button"
-                        className="mini gp-group-open"
-                        onClick={() => setOpenUuid(row?.uuid)}
-                      >
-                        <Ic n="chev" size={12} />
-                        Open
-                      </button>
+                      <span className="flex items-center gap-1">
+                        {canEditGroup ? (
+                          <button
+                            type="button"
+                            className="mini"
+                            title={`Edit ${row?.name}`}
+                            aria-label={`Edit ${row?.name}`}
+                            onClick={() => setEditingGroup(row)}
+                          >
+                            <Ic n="sliders" size={14} />
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="mini gp-group-open"
+                          onClick={() => setOpenUuid(row?.uuid)}
+                        >
+                          <Ic n="chev" size={12} />
+                          Open
+                        </button>
+                      </span>
                     </td>
                   </tr>
                 );
@@ -639,9 +654,18 @@ const Groups = () => {
       </Dialog>
 
       {/* The platform's own department form, opened as a centered popup
-          rather than a side drawer. `rowData` empty means create rather
-          than edit. */}
-      <Dialog open={creating} onOpenChange={(next) => !next && setCreating(false)}>
+          rather than a side drawer -- shared between Create and Edit, same
+          as Admin ▸ Phone Systems ▸ Departments: an empty `rowData` means
+          create, a populated one (the row that was clicked) means edit. */}
+      <Dialog
+        open={creating || Boolean(editingGroup)}
+        onOpenChange={(next) => {
+          if (!next) {
+            setCreating(false);
+            setEditingGroup(null);
+          }
+        }}
+      >
         <DialogContent className="gp-create-group-dialog sm:max-w-[1100px]" showCloseButton={false}>
           {/* The title lives on the step rail now (`railTitle`/`railSubtitle`
               below), so this bar is just the close control -- same pattern
@@ -651,17 +675,29 @@ const Groups = () => {
               type="button"
               aria-label="Close"
               className="gp-create-group-close"
-              onClick={() => setCreating(false)}
+              onClick={() => {
+                setCreating(false);
+                setEditingGroup(null);
+              }}
             >
               <Icon name="CloseIcon" className="h-4 w-4" />
             </button>
           </div>
           <div className="gp-create-group-body">
             <NewDepartment
-              rowData={{}}
-              setDrawerState={setCreating}
-              railTitle="Create group"
-              railSubtitle="Route calls to a team and assign it a shared extension."
+              rowData={editingGroup || {}}
+              setDrawerState={(next: boolean) => {
+                if (!next) {
+                  setCreating(false);
+                  setEditingGroup(null);
+                }
+              }}
+              railTitle={editingGroup ? 'Edit group' : 'Create group'}
+              railSubtitle={
+                editingGroup
+                  ? "Update this team's details, manager and members."
+                  : 'Route calls to a team and assign it a shared extension.'
+              }
             />
           </div>
         </DialogContent>

@@ -226,12 +226,10 @@
   padding-left: 22px;
   padding-right: 18px;
 }
-/* Header only -- the rows keep their left-aligned avatar+name block, which
-   is what makes the column scannable. This just stops "PERSON" sitting hard
-   against the card's left edge while every other heading sits over the
-   middle of its own column. */
+/* Header stays left-aligned, in line with the row's own avatar+name block --
+   both read at the same left edge, 22px in, matching the filter bar above. */
 .gp-people th:nth-child(1) {
-  text-align: center;
+  text-align: left;
 }
 .gp-people td:nth-child(1) > span,
 .gp-people td:nth-child(1) > span > span:last-child {
@@ -303,6 +301,57 @@
 .gp-people tbody::-webkit-scrollbar-thumb:hover {
   background: rgba(194, 111, 31, 0.55);
   background-clip: padding-box;
+}
+
+/* Row-select checkbox riding inside the Person cell rather than its own
+   table column -- keeps every `nth-child` width/alignment rule above
+   pointed at the same columns whether or not bulk selection is available,
+   since adding a real column would shift them by one only for admins (the
+   only ones who ever see a checkbox at all). */
+.gp-people th .gp-bulk-check-head {
+  display: inline-flex;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.gp-people td .gp-bulk-check-cell {
+  display: inline-flex;
+  align-items: center;
+}
+.gp-people td .gp-bulk-check-spacer {
+  display: inline-block;
+  width: 16px;
+}
+
+/* Bulk action bar -- appears above the table the moment a row is checked,
+   and disappears the moment selection is cleared, so it never eats space
+   on a page nobody is bulk-acting on. */
+.gp-people .gp-bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background: rgba(242, 153, 74, 0.12);
+  border: 1px solid rgba(242, 153, 74, 0.28);
+}
+.gp-people .gp-bulk-count {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a1a1a;
+}
+.gp-people .gp-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gp-people .gp-bulk-remove {
+  color: #b42318;
+  border-color: rgba(180, 35, 24, 0.3);
+}
+.gp-people .gp-bulk-remove:hover {
+  background: rgba(180, 35, 24, 0.08);
 }
 
 .gp-people .page-head {

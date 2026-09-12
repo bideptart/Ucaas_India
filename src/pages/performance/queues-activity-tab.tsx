@@ -134,7 +134,6 @@ const QueuesActivityTab = ({
   liveSlaByName,
   liveQueueStatsByName,
   cdrByQueueUuid,
-  isCdrSampled,
   usersOnlineStatus,
   isLoading,
   selectedQueueUuid,

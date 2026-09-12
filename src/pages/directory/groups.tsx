@@ -135,8 +135,6 @@ const Groups = () => {
   const {
     data: rows = [],
     isPending,
-    isFetching,
-    refetch,
   } = useQuery({
     /* The platform's department writes invalidate ['getDepartmentList']; keying
        this list anything else meant a newly created group never appeared. */

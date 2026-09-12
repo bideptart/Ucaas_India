@@ -451,7 +451,6 @@ const ExternalInner = () => {
               customClass="h-[60vh]"
               extraPayload={{ phone: notesContact?.contact?.phone }}
               contactId={notesContact?._id || ''}
-              hideHeader
             />
           </div>
         </DialogContent>
@@ -479,7 +478,6 @@ const ExternalInner = () => {
                 handleClose={() => setWhatsappTo('')}
                 initialNumber={whatsappTo}
                 selectClassName="whatsapp-drawer-select"
-                bodyClassName="max-h-[45vh]"
               />
             </div>
           </div>

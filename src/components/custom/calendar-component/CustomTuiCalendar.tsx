@@ -541,7 +541,7 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
        plain inline style snapshot from the last time this ran, so it does
        not follow that on its own — this keeps it in sync. */
     useEffect(() => {
-      const handleResize = () => {
+      const remeasure = () => {
         const viewName = calendarInstRef.current?.getViewName();
         if (viewName === 'month') {
           applyMonthRowHeight();
@@ -552,8 +552,29 @@ const CustomTuiCalendar = forwardRef<CalendarRef, CalendarProps>(
         }
         calendarInstRef.current.render();
       };
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      window.addEventListener('resize', remeasure);
+
+      /* Window resize isn't the only thing that can change the outer box's
+         real height after the measurement above already ran. Web fonts
+         loaded with `font-display: swap` (see index.html) paint with a
+         fallback font first and swap in the real one once it downloads —
+         a reflow that fires late on a cold cache (a fresh production
+         visit) but is usually already done by the time local dev, with
+         the font warm in its cache, gets here. `document.fonts.ready`
+         resolves once that swap has settled, so re-running the same
+         measurement then catches whatever it missed the first time —
+         same functions, same math, just triggered by one more event. */
+      let cancelled = false;
+      document.fonts?.ready
+        ?.then(() => {
+          if (!cancelled) remeasure();
+        })
+        .catch(() => {});
+
+      return () => {
+        cancelled = true;
+        window.removeEventListener('resize', remeasure);
+      };
     }, []);
 
     /* Delegated rather than one listener per cell: the library tears down

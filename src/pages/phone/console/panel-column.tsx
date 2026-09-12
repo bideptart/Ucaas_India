@@ -19,6 +19,7 @@ import {
   buildBrief,
   buildCards,
   buildSayNext,
+  initialsOf,
   sentimentColor,
   SUGGESTED_QUESTIONS,
   type ConsoleTurn,
@@ -282,29 +283,28 @@ const CopilotPane = ({
             // a past call is open in the stage — show what we know about it
             // rather than an empty "armed" state
             <>
-              <div className="card card-pad">
-                <div className="sect-title" style={{ marginBottom: 10 }}>
-                  <Ic n="clock" size={13} /> Selected call
-                </div>
-                <div className="kv">
-                  <span className="k">Contact</span>
-                  <span className="v">
+              <div className="card card-pad scc-card">
+                <div className="scc-head">
+                  <div className={`scc-avatar scc-dir-${selectedCall.direction}`}>
                     {isNumberLike(selectedCall.name) ? (
-                      <NumberWithFlag number={selectedCall.name} className="num" />
+                      <Ic n="user" size={17} />
                     ) : (
-                      selectedCall.name
+                      initialsOf(selectedCall.name) || <Ic n="user" size={17} />
                     )}
-                  </span>
-                </div>
-                <div className="kv">
-                  <span className="k">Number</span>
-                  <span className="v">
-                    <NumberWithFlag number={selectedCall.number} className="num" />
-                  </span>
-                </div>
-                <div className="kv">
-                  <span className="k">Direction</span>
-                  <span className="v">
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="scc-name">
+                      {isNumberLike(selectedCall.name) ? (
+                        <NumberWithFlag number={selectedCall.name} className="num" />
+                      ) : (
+                        selectedCall.name
+                      )}
+                    </div>
+                    <div className="scc-number num">
+                      <NumberWithFlag number={selectedCall.number} className="num" />
+                    </div>
+                  </div>
+                  <span className={`scc-badge scc-dir-${selectedCall.direction}`}>
                     {selectedCall.direction === 'out'
                       ? 'Outbound'
                       : selectedCall.direction === 'miss'
@@ -312,13 +312,15 @@ const CopilotPane = ({
                         : 'Inbound'}
                   </span>
                 </div>
-                <div className="kv">
-                  <span className="k">When</span>
-                  <span className="v">{selectedCall.time}</span>
-                </div>
-                <div className="kv">
-                  <span className="k">Duration</span>
-                  <span className="v num">{selectedCall.duration}</span>
+                <div className="scc-grid">
+                  <div className="scc-field">
+                    <span className="scc-label">When</span>
+                    <span className="scc-value">{selectedCall.time}</span>
+                  </div>
+                  <div className="scc-field">
+                    <span className="scc-label">Duration</span>
+                    <span className="scc-value num">{selectedCall.duration}</span>
+                  </div>
                 </div>
               </div>
 

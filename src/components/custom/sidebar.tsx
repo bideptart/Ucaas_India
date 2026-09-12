@@ -225,10 +225,15 @@ const Sidebar = () => {
 
       <section
         id="mobile-sidebar-nav"
+        /* The exact flat tint the Performance toolbar's own `.page-bar` uses
+           for itself (`#fffaf4` in light mode, `--mcm-surface` in dark —
+           see the comment in performance/live-theme.css above
+           `body.perf-warm-toolbar .mcm-page .page-bar`) — a plain inline
+           `#ffffff` here read as a disconnected white stripe next to that
+           warm toolbar instead of one continuous chrome. */
         className={`fixed left-0 top-16 z-20 h-[calc(100vh-4rem)] w-20 border-r border-white/50 transition-transform duration-200 ${
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0`}
-        style={{ background: '#ffffff' }}
+        } md:translate-x-0 bg-[#fffaf4] dark:bg-mcm-surface dark:border-mcm-line`}
       >
         {/* This wrapper had no height, so the scroller's `h-full` below
             resolved against auto and never constrained anything — the views

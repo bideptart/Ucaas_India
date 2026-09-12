@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Info } from 'lucide-react';
-import { AdminHeadActions, useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
+import { ChevronDown, Info } from 'lucide-react';
 import { Ic, McmIconSprite } from '@/components/mcm/icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import './page-shell.css';
 
@@ -24,7 +28,9 @@ export const DirectoryPage = ({
   note,
   actions,
   filters,
+  beforeTable,
   children,
+  className,
 }: {
   title: string;
   description: string;
@@ -33,52 +39,50 @@ export const DirectoryPage = ({
   note?: ReactNode;
   actions?: ReactNode;
   filters?: ReactNode;
+  /* Rendered as its own card between the filter bar and the table's panel
+     card, rather than inside it — so something like the People setup guide
+     reads as a distinct block, not fused into the same white surface as the
+     roster below it. */
+  beforeTable?: ReactNode;
   children: ReactNode;
-}) => {
-  /* People and Roles are shown in two places: their own Directory rail, and
-     the Admin rail. Admin prints the screen title in its own head, so drawing
-     this one there stacked two headers carrying the same word. Inside Admin
-     the title is dropped and the description and actions go to that head
-     instead, which is where they belong. */
-  const inAdmin = useLocation().pathname.startsWith('/admin-settings');
-  useSetAdminPageMeta({ description });
-
-  return (
-    <div className="page">
-      <McmIconSprite />
-      {inAdmin ? (
-        actions ? (
-          <AdminHeadActions>{actions}</AdminHeadActions>
-        ) : null
-      ) : (
-        <div className="page-head">
-      {/* The description sits behind an info button rather than under the
-          title, the same way the Admin head carries its own. It keeps every
-          Directory head one line tall, so the title lines up with the rail
-          beside it on all seven screens. */}
-      <div className="page-head-title">
-        <h1>{title}</h1>
-        {description ? (
-          <CustomTooltip text={description} side="bottom" className="max-w-xs">
-            <button type="button" className="page-head-info" aria-label={`About ${title}`}>
-              <Info size={15} aria-hidden="true" />
-            </button>
-          </CustomTooltip>
-        ) : null}
-      </div>
-          {actions}
+  /* Opt-in extra class on the page wrapper, so a single Directory view can
+     carry its own layout/spacing tweaks without touching the others that
+     share this shell. */
+  className?: string;
+}) => (
+  <div className={`page${className ? ` ${className}` : ''}`}>
+    <McmIconSprite />
+    <div className="page-head">
+      <div>
+        <div className="page-head-title">
+          <h1>{title}</h1>
+          {description ? (
+            <CustomTooltip text={description} side="right">
+              <button type="button" className="page-head-info" aria-label={`About ${title}`}>
+                <Info className="h-[15px] w-[15px]" />
+              </button>
+            </CustomTooltip>
+          ) : null}
         </div>
-      )}
-      {note ? <div className="page-caveat">{note}</div> : null}
-      {filters ? <div className="tbar">{filters}</div> : null}
-      <div className="panel-card">
-        <div className="tbl-wrap">{children}</div>
       </div>
+      {actions}
     </div>
-  );
-};
+    {note ? <div className="page-caveat">{note}</div> : null}
+    {filters ? <div className="tbar">{filters}</div> : null}
+    {beforeTable}
+    <div className="panel-card">
+      <div className="tbl-wrap">{children}</div>
+    </div>
+  </div>
+);
 
-/** A filter chip that wraps a native control, so the chip is the whole hit area. */
+/* A native `<select>` used to back this — its closed control is stylable,
+   but the open options popup is drawn by the browser/OS and cannot be
+   themed at all, which is why it always looked like a stray unstyled list
+   dropped onto an otherwise orange-themed page. Rebuilt on the same
+   DropdownMenu every row-action menu in Directory already uses, so the
+   open list gets the same border, rounded rows and orange hover as
+   everything else. */
 export const FilterChip = ({
   label,
   value,
@@ -90,20 +94,21 @@ export const FilterChip = ({
   options: string[];
   onChange: (value: string) => void;
 }) => (
-  <label className="fchip">
-    {label}:
-    <select
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      style={{ border: 0, background: 'transparent', fontWeight: 700, outline: 'none' }}
-    >
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <button type="button" className="fchip">
+        {label}: <strong>{value}</strong>
+        <ChevronDown size={14} />
+      </button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start" className="gp-filter-menu">
       {options.map((option) => (
-        <option key={option} value={option}>
+        <DropdownMenuItem key={option} onClick={() => onChange(option)}>
           {option}
-        </option>
+        </DropdownMenuItem>
       ))}
-    </select>
-  </label>
+    </DropdownMenuContent>
+  </DropdownMenu>
 );
 
 export const SearchChip = ({
@@ -115,17 +120,26 @@ export const SearchChip = ({
   onChange: (value: string) => void;
   placeholder: string;
 }) => (
-  /* A small basis, not a small box: it still grows to fill whatever the other
-     chips leave, up to 320px. The basis is what the browser measures when
-     deciding whether the row fits, so a large one made the row wrap while the
-     box was still willing to shrink. */
-  <label className="fchip" style={{ flex: '1 1 120px', maxWidth: 320 }}>
+  <label className="fchip" style={{ flex: '1 1 220px', maxWidth: 320 }}>
     <Ic n="search" size={13} />
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      style={{ border: 0, background: 'transparent', width: '100%', outline: 'none' }}
+      /* Text color moved from an inline style to a className with a `dark:`
+         variant — inline styles win over every stylesheet rule regardless
+         of specificity, so a hardcoded `color` here could never be
+         overridden by `.dark .gp-people .tbar .fchip` (or any other page's
+         dark rules) no matter what those set. Left the input's own text at
+         near-black in dark mode: readable on light-theme's cream chip, but
+         indistinguishable from the dark-theme chip behind it. */
+      className="text-[#1a1a1a] placeholder:text-[#8a6f57]/70 dark:text-mcm-ink dark:placeholder:text-mcm-ink-3"
+      style={{
+        border: 0,
+        background: 'transparent',
+        width: '100%',
+        outline: 'none',
+      }}
     />
   </label>
 );

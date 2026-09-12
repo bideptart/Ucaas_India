@@ -9,7 +9,7 @@ import { Icon } from '@/assets/icons/icon';
 import AlertConfirm from '@/components/custom/alert-confirm';
 import AddNewRole from '@/pages/admin-settings/roles/add-new-role';
 import AssignUsersModal from '@/pages/admin-settings/roles/assign-users-modal';
-import { DirectoryPage, EmptyRow, SearchChip } from './page-shell';
+import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
 import './roles-glass.css';
 
 /**
@@ -52,6 +52,7 @@ const Roles = () => {
   const isAdmin = user?.user_info?.role === 'ADMIN';
 
   const [search, setSearch] = useState('');
+  const [type, setType] = useState('All');
   const [editing, setEditing] = useState<Role | null>(null);
   const [creating, setCreating] = useState(false);
   const [assigning, setAssigning] = useState<Role | null>(null);
@@ -74,13 +75,27 @@ const Roles = () => {
 
   const visible = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    if (!needle) return roles;
-    return roles.filter((role: Role) =>
-      [role?.name, role?.description]
+    return roles.filter((role: Role) => {
+      const system = isSystemRole(role);
+      if (type === 'System' && !system) return false;
+      if (type === 'Custom' && system) return false;
+      if (!needle) return true;
+      return [role?.name, role?.description]
         .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(needle)),
-    );
-  }, [roles, search]);
+        .some((value) => String(value).toLowerCase().includes(needle));
+    });
+  }, [roles, search, type]);
+
+  /* Same paging as People: a fixed 10 rows with a pager below, rather than
+     a scroll box hiding how much of the list is left. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
 
   const closeForm = () => {
     setCreating(false);
@@ -103,6 +118,12 @@ const Roles = () => {
         }
         filters={
           <>
+            <FilterChip
+              label="Type"
+              value={type}
+              options={['All', 'System', 'Custom']}
+              onChange={setType}
+            />
             <SearchChip value={search} onChange={setSearch} placeholder="Search roles" />
             <span className="fchip live" style={{ marginLeft: 'auto' }}>
               {visible.length} of {roles.length}
@@ -123,7 +144,7 @@ const Roles = () => {
             {isPending ? (
               <EmptyRow span={4} message="Loading roles…" />
             ) : visible.length ? (
-              visible.map((role: Role) => {
+              paged.map((role: Role) => {
                 const system = isSystemRole(role);
                 return (
                   <tr key={role?.uuid || role?.role_uuid || role?.name}>
@@ -191,6 +212,49 @@ const Roles = () => {
             )}
           </tbody>
         </table>
+
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css), same
+            as People's -- hidden on a single page, one inert control is
+            noise. */}
+        {!isPending && pageCount > 1 ? (
+          <div className="gp-roles-pager">
+            <span className="gp-roles-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
+            </div>
+          </div>
+        ) : null}
       </DirectoryPage>
 
       <Dialog open={creating || Boolean(editing)} onOpenChange={(next) => !next && closeForm()}>

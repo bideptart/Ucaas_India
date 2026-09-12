@@ -7,21 +7,32 @@
 
 .mcm-inbox {
   /* --- surfaces / ink / lines ---
-     Warm, matching `.mcm-page` in mcm-page.css. These were the console's
-     original cool blue-greys (#eef1f8 / #f6f8fc / #eaeef7 / #dfe5f0), and
-     because this block redefines the tokens for the whole Inbox scope it was
-     repainting the page cool underneath an orange accent -- the one screen in
-     the app that did not follow the warm theme. */
-  --mcm-ground: transparent;
+     Neutral, very slightly warm. The old set was a cold blue-grey
+     (#eef1f8 ground, #dfe5f0 lines) sitting inside a warm cream console, so
+     the message pane read as a grey slab bolted into the page — the single
+     loudest thing on a screen whose job is to show a conversation. These are
+     the same steps in lightness, with the blue taken out, so the pane reads
+     as paper and the ink and accent do the talking. */
+  /* Warm, not cool. The original set was blue-grey (#eef1f8 ground,
+     #dfe5f0 lines) inside a warm cream console, so the message pane read as
+     a grey slab bolted into the page. Neutral grey fixed the clash but still
+     sat apart from the cream around it; these are the same steps in
+     lightness carried into the console's own warmth, so the pane reads as
+     part of the page. Each one is a shade below white, which is what gives
+     incoming bubbles an edge without needing a shadow. */
+  --mcm-ground: #f7f2ec;
   --mcm-surface: #ffffff;
-  --mcm-surface-2: #fbf3e8;
-  --mcm-surface-3: #f5e6d3;
-  --mcm-ink: #0d1526;
-  --mcm-ink-2: #3d4a63;
-  --mcm-ink-3: #6b7891;
-  --mcm-ink-4: #93a0b8;
-  --mcm-line: #eee7dd;
-  --mcm-line-2: #f0e4d3;
+  --mcm-surface-2: #faf6f1;
+  --mcm-surface-3: #f0eae2;
+  --mcm-ink: #1b1815;
+  --mcm-ink-2: #4a453e;
+  /* #6a635a, not #726b62: the row preview uses this ink, and over the
+     warmest row state (selected + hovered) the lighter value measured
+     4.42:1 — just under the 4.5 threshold. */
+  --mcm-ink-3: #6a635a;
+  --mcm-ink-4: #9c948a;
+  --mcm-line: #ebe4db;
+  --mcm-line-2: #f2ece4;
 
   /* --- accent ---
      Swap these four to var(--primary) etc. if the inbox should follow the
@@ -30,6 +41,25 @@
   --mcm-accent-ink: #c96f1f;
   --mcm-accent-wash: #fff1e0;
   --mcm-accent-edge: #ffd9ad;
+
+  /* Outgoing bubble — a tint of the accent, not the accent itself.
+
+     Two constraints pull against each other here. White on the brand orange
+     measures 2.23:1, so the message you just sent was the least legible text
+     on the page; but the fixes that buy contrast both add weight — a deeper
+     fill for white text reads as rust, and dark brown ink on the full-
+     strength orange reads as a heavy block on a cream page.
+
+     A pale tint of the same orange settles it: the fill is lighter than the
+     pane, the ink is a warm amber-brown rather than a near-black, and the
+     pair still measures 5.77:1. Three light steps tell the thread apart —
+     white incoming, cream pane, peach outgoing — with nothing dark in it. */
+  --mcm-bub-out-bg: #ffe8d1;
+  --mcm-bub-out-ink: #8a4a12;
+  /* 0.95: on a fill this pale the alpha eats contrast fast — 0.85 put the
+     send time at 4.24:1, under the threshold. */
+  --mcm-bub-out-ink-2: rgba(138, 74, 18, 0.95);
+  --mcm-bub-out-edge: #ffd7ae;
 
   --mcm-live: #0d9488;
   --mcm-live-wash: #dcf5f1;
@@ -67,6 +97,14 @@
   --mcm-ink-4: #6b7a96;
   --mcm-line: #26314a;
   --mcm-line-2: #1c2537;
+
+  /* Dark keeps the bright fill and flips the text instead: white on #ffa552
+     is 1.95:1, near-black on it is 9.18:1. Deepening the fill the way light
+     mode does would have made it the darkest thing on an already dark pane
+     and lost the sent/received distinction entirely. */
+  --mcm-bub-out-bg: #ffa552;
+  --mcm-bub-out-ink: #16171a;
+  --mcm-bub-out-ink-2: rgba(0, 0, 0, 0.62);
 
   --mcm-accent: #ffa552;
   --mcm-accent-ink: #ffc285;
@@ -142,34 +180,14 @@
 .mcm-inbox .mcm-col-head {
   /* Roomier, and the divider is the faint line rather than the strong one:
      the head already separates itself by sitting above a list of rows, so a
-     hard rule on top of that reads as a second, competing edge.
-
-     Sides are 8px, not 16, to match the Video rail's `p-2`. Both columns are
-     the same 22rem, but at 16px the tabs and the search box sat a full 16px
-     further in on each side, which is what made this column read as the
-     narrower of the two. Vertical padding is unchanged. */
-  padding: 16px 8px 14px;
+     hard rule on top of that reads as a second, competing edge. */
+  padding: 16px 16px 14px;
   border-bottom: 1px solid var(--mcm-line-2);
   display: flex;
   flex-direction: column;
   gap: 12px;
   flex: none;
 }
-/* The tabs and the New button share one row: the tab strip takes the space
-   that is left, and the button keeps its own width. */
-.mcm-inbox .mcm-col-tabrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.mcm-inbox .mcm-col-tabrow .mcm-seg {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.mcm-inbox .mcm-col-tabrow > :not(.mcm-seg) {
-  flex: none;
-}
-
 .mcm-inbox .mcm-col-title {
   display: flex;
   align-items: center;
@@ -332,11 +350,8 @@
   gap: 12px;
   /* Roomier, and separated by the faintest line the palette has. A row list
      is read by scanning names, and hard rules between every pair compete
-     with that far more than whitespace does.
-
-     Sides follow the head above at 8px, so a conversation lines up with the
-     search box over it rather than starting further in. */
-  padding: 13px 8px;
+     with that far more than whitespace does. */
+  padding: 13px 16px;
   border: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--mcm-line-2) 60%, transparent);
   background: none;
@@ -624,58 +639,115 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 18px 20px;
+  /* Roomier gutters. The bubbles are capped to a reading measure below, so
+     the extra width goes to margin instead of letting a six-word message
+     stretch halfway across a wide screen. */
+  padding: 8px 28px 20px;
   display: flex;
   flex-direction: column;
   background: var(--mcm-ground);
 }
 
+/* Day separator: a hairline with the date sitting in it, rather than a
+   shadowed pill. The pill was a raised object marking something that is
+   only a divider — it drew more attention than the messages either side. */
 .mcm-inbox .mcm-daychip {
-  align-self: center;
-  padding: 3px 11px;
-  border-radius: 99px;
-  background: var(--mcm-surface);
-  border: 1px solid var(--mcm-line);
-  box-shadow: var(--mcm-shadow-sm);
+  /* `flex: 1`, not `align-self: stretch` — the wrapper is a row, so stretch
+     works the cross (vertical) axis and left the rule shrink-wrapped. */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--mcm-ink-3);
 }
+.mcm-inbox .mcm-daychip::before,
+.mcm-inbox .mcm-daychip::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mcm-line);
+}
 
 .mcm-inbox .mcm-bub {
-  max-width: 88%;
-  padding: 9px 13px;
-  font-size: 12.5px;
-  line-height: 1.55;
+  /* A reading measure, not a share of the pane. `88%` meant line length grew
+     with the window, and long messages became hard to track back to the next
+     line on a wide monitor; ~62 characters is the comfortable range. */
+  max-width: min(62ch, 76%);
+  padding: 10px 14px;
+  /* 13.5px over 12.5px: this is the content of the page, and it was set
+     smaller than the conversation list beside it. */
+  font-size: 13.5px;
+  line-height: 1.5;
   width: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
   overflow-wrap: anywhere;
 }
 .mcm-inbox .mcm-bub-out {
   align-self: flex-end;
-  background: var(--mcm-accent);
-  color: #fff;
+  background: var(--mcm-bub-out-bg);
+  color: var(--mcm-bub-out-ink);
   font-weight: 500;
-  border-radius: 13px 13px 13px 13px;
-  box-shadow: var(--mcm-shadow-sm);
+  border-radius: 14px;
+  /* No shadow on either side. Every bubble carrying its own drop shadow put
+     dozens of soft edges on one screen, which is what made a short thread
+     look busy; the fill alone separates them from the pane. */
+  box-shadow: none;
 }
 .mcm-inbox .mcm-bub-out.is-tail {
-  border-radius: 13px 13px 4px 13px;
+  border-radius: 14px 14px 4px 14px;
 }
 .mcm-inbox .mcm-bub-in {
   align-self: flex-start;
+  /* Filled rather than outlined-on-white. Against the pane a white bubble
+     with a hairline border was nearly invisible, so incoming messages read
+     as loose text while outgoing ones read as objects. */
   background: var(--mcm-surface);
   border: 1px solid var(--mcm-line);
   color: var(--mcm-ink);
-  border-radius: 13px 13px 13px 13px;
-  box-shadow: var(--mcm-shadow-sm);
+  border-radius: 14px;
+  box-shadow: none;
 }
 .mcm-inbox .mcm-bub-in.is-tail {
-  border-radius: 13px 13px 13px 4px;
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* Time and delivery state, inside the bubble on its own line, aligned to the
+   trailing edge. See the note in index.tsx for why they moved in here. */
+.mcm-inbox .mcm-bub-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: -1px;
+  line-height: 1;
+}
+/* ink-3, not ink-4: at 10.5px the lightest ink measured 2.7:1 on white, and
+   the send time is a fact people check, not decoration. */
+.mcm-inbox .mcm-bub-time {
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  color: var(--mcm-ink-3);
+}
+/* On the filled bubble the muted ink and the green/red status colours have
+   no contrast, so both step to the fill's own secondary foreground. */
+.mcm-inbox .mcm-bub-out .mcm-bub-time,
+.mcm-inbox .mcm-bub-out .mcm-bub-meta,
+.mcm-inbox .mcm-bub-out .mcm-bub-meta.pos,
+.mcm-inbox .mcm-bub-out .mcm-bub-meta.neg {
+  color: var(--mcm-bub-out-ink-2);
+}
+.mcm-inbox .mcm-bub-out .mcm-showmore {
+  color: var(--mcm-bub-out-ink);
 }
 .mcm-inbox .mcm-bub a {
   color: inherit;
@@ -976,10 +1048,22 @@
   background: transparent;
 }
 
-/* 4. Hover and selection come back up to white and to the accent, so
-      the row under the pointer is the lightest thing in the list. */
+/* 4. Hover and selection come back up to the accent, so the row under the
+      pointer is the warmest thing in the list.
+
+      Hover was plain white, which on a cream list is a colourless flash and
+      says "something happened here" without saying it belongs to this app.
+      A light wash of the brand orange, at roughly half the strength of the
+      selected row, keeps the two distinguishable: hover is a hint, selection
+      is the state. */
 .mcm-inbox .mcm-row:hover {
-  background: var(--mcm-surface);
+  /* Mixed from the accent itself, not from `--mcm-accent-wash`. The wash is
+     already a near-white tint, so mixing it *further* into white lands at
+     #fffaf4 — lighter than the cream list it sits on, which is why both the
+     old white hover and a wash-based one were invisible. A small percentage
+     of the full-strength orange moves toward the theme rather than away
+     from it. */
+  background: color-mix(in srgb, var(--mcm-accent) 11%, var(--mcm-surface));
 }
 .mcm-inbox .mcm-row.is-active {
   background: color-mix(in srgb, var(--mcm-accent-wash) 70%, var(--mcm-surface));
@@ -1200,50 +1284,41 @@
    the whole middle read as blank paper.
    ============================================================ */
 
-/* A deeper, slightly bluer ground, with a soft warm pool behind the
-   thread so the column is not one flat fill top to bottom. */
+/* The problem this section originally set out to solve is real: a pale
+   ground under white bubbles left the pane with no edges. It was fixed by
+   deepening the ground to a hard #e6ebf5, which traded "no edges" for a
+   blue-grey slab in the middle of a warm console.
+
+   The edge comes from the ground/bubble step instead, in neutral: the ground
+   is a shade below white, incoming bubbles stay white with a hairline, and
+   the accent does the rest.
+
+   Flat, no gradient — 04b07a6 ("Replace multi-layer gradient page
+   backgrounds with flat solid colors") took the warm pool out of this rule
+   upstream, and the neutral ground does not need one. Both themes read the
+   token, which already resolves per theme, so the two rules that used to
+   differ here collapse into one. */
 .mcm-inbox .mcm-thread {
-  background:
-    radial-gradient(
-      120% 60% at 50% 0%,
-      color-mix(in srgb, var(--mcm-accent) 7%, transparent) 0%,
-      transparent 60%
-    ),
-    #e6ebf5;
-}
-.dark .mcm-inbox .mcm-thread {
-  background:
-    radial-gradient(
-      120% 60% at 50% 0%,
-      color-mix(in srgb, var(--mcm-accent) 10%, transparent) 0%,
-      transparent 60%
-    ),
-    var(--mcm-ground);
+  background-color: var(--mcm-ground);
 }
 
-/* Incoming bubbles keep white, which now reads as raised against a ground
-   that is no longer almost the same colour. */
+/* One hairline and a shadow barely off zero. Two stacked shadows per bubble
+   is what made a four-message thread look busy. */
 .mcm-inbox .mcm-bub-in {
-  border-color: color-mix(in srgb, var(--mcm-line) 70%, transparent);
-  box-shadow: 0 1px 2px rgba(13, 21, 38, 0.06), 0 2px 6px rgba(13, 21, 38, 0.04);
+  border-color: var(--mcm-line);
+  box-shadow: 0 1px 1px rgba(16, 17, 20, 0.03);
 }
 
-/* Outgoing gets a little depth rather than a flat fill. */
+/* Flat fill. The gradient plus an accent-coloured glow made each outgoing
+   message a lit object; at three in a row the thread read as a row of
+   buttons rather than a conversation.
+
+   A hairline in the same family as the fill, matching the one incoming
+   bubbles carry: at this lightness the fill alone leaves the bubble's edge
+   soft against the pane. */
 .mcm-inbox .mcm-bub-out {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--mcm-accent) 92%, #fff) 0%,
-    var(--mcm-accent) 100%
-  );
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--mcm-accent) 30%, transparent);
-}
-
-/* The day chip sat white on near-white. Tinted, it reads as a marker in the
-   thread rather than another pale card. */
-.mcm-inbox .mcm-daychip {
-  background: color-mix(in srgb, var(--mcm-accent) 12%, var(--mcm-surface));
-  border-color: color-mix(in srgb, var(--mcm-accent) 22%, transparent);
-  color: var(--mcm-accent-ink);
+  background: var(--mcm-bub-out-bg);
+  border: 1px solid var(--mcm-bub-out-edge);
   box-shadow: none;
 }
 
@@ -1257,14 +1332,19 @@
    you had already chosen the loudest thing in a column you are scanning for
    the next one. The wash drops to a hint and the name returns to normal
    ink; the bar alone is enough to say which row is open. */
+/* Mixed from the accent for the same reason as hover above: at 32% of the
+   wash this landed on #fffaf5, a hair lighter than the list itself, so the
+   selected row was marked by its bar alone. A step past hover keeps the two
+   readable as a pair — hover is a hint, selection is the state — while
+   staying a tint rather than a fill. */
 .mcm-inbox .mcm-row.is-active {
-  background: color-mix(in srgb, var(--mcm-accent-wash) 32%, var(--mcm-surface));
+  background: color-mix(in srgb, var(--mcm-accent) 18%, var(--mcm-surface));
 }
 .mcm-inbox .mcm-row.is-active .mcm-row-name {
   color: var(--mcm-ink);
 }
 .mcm-inbox .mcm-row.is-active:hover {
-  background: color-mix(in srgb, var(--mcm-accent-wash) 45%, var(--mcm-surface));
+  background: color-mix(in srgb, var(--mcm-accent) 23%, var(--mcm-surface));
 }
 
 /* ============================================================

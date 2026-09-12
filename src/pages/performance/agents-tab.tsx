@@ -279,11 +279,29 @@ const AgentsTab = ({
         row.original.callStart ? (
           <Timer startTime={row.original.callStart} />
         ) : (
-          <span style={{ color: 'var(--ink-4)' }}>—</span>
+          <span className="ag-dash">—</span>
         ),
     },
-    { header: 'Queue / Campaign', accessorKey: 'queueOrCampaign' },
-    { header: 'Caller ID', accessorKey: 'callerId' },
+    {
+      header: 'Queue / Campaign',
+      accessorKey: 'queueOrCampaign',
+      cell: ({ row }: any) =>
+        row.original.queueOrCampaign === '--' ? (
+          <span className="ag-dash">—</span>
+        ) : (
+          row.original.queueOrCampaign
+        ),
+    },
+    {
+      header: 'Caller ID',
+      accessorKey: 'callerId',
+      cell: ({ row }: any) =>
+        row.original.callerId === '--' ? (
+          <span className="ag-dash">—</span>
+        ) : (
+          row.original.callerId
+        ),
+    },
     {
       header: 'Utilization',
       accessorKey: 'isOnCall',
@@ -312,7 +330,11 @@ const AgentsTab = ({
           <span className="ag-daily-row">
             <span className="ag-daily-k">AHT</span>
             <span className="ag-daily-v">
-              {row.original.aht === null ? '—' : formatSecsToClock(row.original.aht)}
+              {row.original.aht === null ? (
+                <span className="ag-dash">—</span>
+              ) : (
+                formatSecsToClock(row.original.aht)
+              )}
             </span>
           </span>
         </div>
@@ -326,9 +348,15 @@ const AgentsTab = ({
   ], []);
 
   return (
-    <div className="perf-agents flex flex-col gap-4 px-[22px] py-4">
+    /* `pt-[20px]`, not `pt-7` (28px) — Queues' own top offset, so the first
+       KPI card starts the same distance below the toolbar Queues' hero band
+       does. The KPI grid below carries no vertical padding of its own
+       (previously `py-3`, which stacked on top of this and doubled the
+       toolbar→cards gap) — the parent `gap-[16px]` is now the only thing
+       spacing the grid from the roster section beneath it. */
+    <div className="perf-agents flex flex-col gap-[16px] px-[22px] pt-[20px] pb-4">
       {/* ── KPI strip ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-2 py-3 md:grid-cols-8">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-8">
         <PerfStatCard
           label={'Agents\nOnline'}
           value={String(onlineCount)}
@@ -381,39 +409,42 @@ const AgentsTab = ({
       </div>
 
       {/* ── Agent roster ───────────────────────────────────────────────────── */}
-      <div className="ag-table-section">
-        <div className="ag-table-head">
-          <div className="ag-table-head-left">
-            <h2 className="ag-table-title">Agent roster</h2>
-            <span className="ag-table-count">
-              {filteredRows.length !== rows.length
-                ? `${filteredRows.length} of ${rows.length}`
-                : rows.length}{' '}
-              agents
-            </span>
-          </div>
+      <div className="ag-roster-section">
+        <div className="flex items-center justify-between">
+          <h2 className="sect-title">
+            <Users className="ag-sect-icon" />
+            Agent roster
+          </h2>
+          <span className="ag-sect-count">
+            {filteredRows.length !== rows.length
+              ? `${filteredRows.length} of ${rows.length}`
+              : rows.length}{' '}
+            {rows.length === 1 ? 'agent' : 'agents'}
+          </span>
         </div>
 
-        <TableManager
-          columns={columns}
-          staticData={paginatedRows}
-          loading={isLoading}
-          showPagination={false}
-          emptyTablePlaceholder={
-            globalSearch?.trim() ? 'No agents match your search' : 'No agent activity yet'
-          }
-          descriptionEmptyTable={
-            globalSearch?.trim() ? '' : 'Agent stats appear once calls are handled today.'
-          }
-        />
+        <div className="ag-table-section">
+          <TableManager
+            columns={columns}
+            staticData={paginatedRows}
+            loading={isLoading}
+            showPagination={false}
+            emptyTablePlaceholder={
+              globalSearch?.trim() ? 'No agents match your search' : 'No agent activity yet'
+            }
+            descriptionEmptyTable={
+              globalSearch?.trim() ? '' : 'Agent stats appear once calls are handled today.'
+            }
+          />
 
-        <AgentPagination
-          currentPage={safePage}
-          totalPages={totalPages}
-          totalItems={filteredRows.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-          onPageChange={setCurrentPage}
-        />
+          <AgentPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalItems={filteredRows.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
     </div>
   );

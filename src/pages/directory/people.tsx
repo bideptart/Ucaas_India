@@ -1,30 +1,11 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { useRecentlyRemoved } from './use-recently-removed';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
-import {
-  History,
-  MoreHorizontal,
-  Pencil,
-  PhoneOff,
-  PhoneOutgoing,
-  ShieldCheck,
-  Star,
-  Trash2,
-} from 'lucide-react';
-import { mayActOn } from '@/lib/role-rank';
 import { Ic } from '@/components/mcm/icons';
-import SideDrawer from '@/components/custom/side-drawer';
 import UpdateForwarding from '@/pages/admin-settings/people/update-forwarding';
 import { DirectoryPage, EmptyRow, FilterChip, SearchChip } from './page-shell';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useConsoleDialer } from '@/pages/phone/console/dial-number';
 import { useInstantMeeting } from '@/hooks/use-instant-meeting';
@@ -37,6 +18,7 @@ import { handleAlert } from '@/lib/utils';
 import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-directory';
 import AlertConfirm from '@/components/custom/alert-confirm';
 import RemovalWarning, { useRemovalImpact } from '@/components/mcm/removal-warning';
+import SetupGuide from '@/components/mcm/setup-guide';
 import {
   PRESENCE_OPTIONS,
   presenceValueOf,
@@ -48,8 +30,17 @@ import AssignCallerIdModal from '@/pages/admin-settings/people/add-users/assign-
 import AddUsers from '@/pages/admin-settings/people/add-users';
 import { invalidateNumberLists } from '@/lib/number-list-cache';
 import { buildRosterCsv, rosterFileName, toExportRow } from '@/lib/user-roster-export';
+import { Icon } from '@/assets/icons/icon';
+import { MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import './people-glass.css';
 import './groups-glass.css';
+import './edit-person-glass.css';
 
 /**
  * Directory ▸ People — the organisation roster.
@@ -71,6 +62,15 @@ const TONE_CLASS: Record<string, string> = {
   idle: 'tag neu',
 };
 
+/* Role hierarchy, darkest/most solid at the top — so seniority reads at a
+   glance instead of every role wearing the identical badge. */
+const ROLE_CLASS: Record<string, string> = {
+  Administrator: 'role-badge role-admin',
+  'Sub Admin': 'role-badge role-subadmin',
+  Manager: 'role-badge role-manager',
+  Agent: 'role-badge role-agent',
+};
+
 const People = () => {
   const navigate = useNavigate();
   const { dial } = useConsoleDialer();
@@ -90,11 +90,6 @@ const People = () => {
     features?.plan_features?.virtual_numbers?.action?.assign_number,
   );
 
-  /* Rank, not a string test. A plan permission says the feature exists on the
-     account; it says nothing about who you may point it at. `outranks` answers
-     that one way for every action on this screen -- see lib/role-rank.ts. */
-  const outranks = (row: PersonRow) => mayActOn(user?.user_info, row.raw);
-
   /* Same gate the Extension page puts on Add Users: trial accounts and users
      without the add permission don't get an invite button that would fail. */
   const canInvite = Boolean(userAccess?.add) && user?.company_info?.is_trial !== 'Y';
@@ -111,13 +106,10 @@ const People = () => {
   const removal = useRemovalImpact((deleting?.raw ?? null) as any, Boolean(deleting), roster);
   const [unassigning, setUnassigning] = useState<PersonRow | null>(null);
 
-  const { show: showRemoved, setShow: setShowRemoved, entries: recentlyRemoved, track: trackRemoval } = useRecentlyRemoved();
-
   const { mutate: removePerson, isPending: isDeletingPerson } = useMutation({
     mutationKey: ['deleteMember'],
     mutationFn: deleteMember,
     onSuccess: ({ data }: any) => {
-      if (deleting) trackRemoval(deleting);
       queryClient.invalidateQueries({ queryKey: ['fetchUsersList'] });
       queryClient.invalidateQueries({ queryKey: ['directoryPeople'] });
       invalidateGlobalUsersDirectory(queryClient);
@@ -139,9 +131,10 @@ const People = () => {
     },
   });
 
-  /* Was `row.role !== 'ADMIN'`, which reads the label: an administrator on a
-     custom role named anything else passed it. Rank reads the stored role. */
-  const canChangeRoleOf = (row: PersonRow) => isAdmin && outranks(row);
+  /* Admins may change anyone's role except another admin's — the same rule the
+     Extension page applies to its inline role control. */
+  const canChangeRoleOf = (row: PersonRow) =>
+    isAdmin && String(row.role || '').toUpperCase() !== 'ADMIN';
 
   const [changingRole, setChangingRole] = useState<PersonRow | null>(null);
   const [assigningCallerId, setAssigningCallerId] = useState<PersonRow | null>(null);
@@ -155,8 +148,16 @@ const People = () => {
   const [open, setOpen] = useState<PersonRow | null>(null);
   const [editing, setEditing] = useState<PersonRow | null>(null);
 
+  /* The popup's own editable copy of the fields it shows — set fresh each
+     time a different person opens it, so typing in one person's form never
+     bleeds into the next. */
   const [personForm, setPersonForm] = useState({
-    first_name: '', last_name: '', email: '', phone: '', site: '', extension: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    site: '',
+    extension: '',
   });
 
   const openPerson = (row: PersonRow) => {
@@ -221,6 +222,22 @@ const People = () => {
     });
   }, [rows, search, department, presence, location]);
 
+  /* The roster used to scroll inside the card. A scroll box hides how much
+     is left and makes the last row sit against a clipped edge, so it pages
+     instead: a fixed 10 rows, with the pager below the table. */
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  /* Filtering can leave you on a page that no longer exists (search down to
+     three results while on page 4), which would show an empty table with no
+     hint why. Clamp rather than reset to 1, so narrowing a filter keeps you
+     as close as possible to where you were. */
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [visible, currentPage],
+  );
+
   const onQueue = rows.filter((row) => row.tone === 'good').length;
 
   /* Take the roster away as a spreadsheet.
@@ -265,7 +282,7 @@ const People = () => {
             <button
               type="button"
               className="btn ghost"
-              onClick={() => navigate('/directory/groups')}
+              onClick={() => navigate('/directory?view=groups')}
             >
               <Ic n="users" />
               Groups
@@ -285,7 +302,7 @@ const People = () => {
               onClick={exportRoster}
             >
               <Ic n="dl" />
-              Export {visible.length}
+              Export
             </button>
             {canInvite ? (
               <button type="button" className="btn primary" onClick={() => setInviting(true)}>
@@ -316,53 +333,20 @@ const People = () => {
               onChange={setPresence}
             />
             <SearchChip value={search} onChange={setSearch} placeholder="Search people" />
-            <button type="button" className="fchip" style={{ cursor: 'pointer', gap: 6, fontWeight: showRemoved ? 700 : undefined, background: showRemoved ? 'var(--primary)' : undefined, color: showRemoved ? '#fff' : undefined, borderColor: showRemoved ? 'var(--primary)' : undefined }} onClick={() => setShowRemoved((v) => !v)}>
-              <Ic n="clock" size={12} />
-              Recently removed
-            </button>
             <span className="fchip live" style={{ marginLeft: 'auto' }}>
               <span className="num">{onQueue}</span> available
             </span>
           </>
         }
+        beforeTable={
+          /* A new admin adding their first people is exactly who needs to see
+             how far through setup they are. The guide hides itself once
+             everything is done, so an established account never sees it. */
+          <div className="gp-people-setup">
+            <SetupGuide companyInfo={user?.company_info} />
+          </div>
+        }
       >
-        {showRemoved && (
-          <table>
-            <thead>
-              <tr>
-                <th>Person</th>
-                <th>Role</th>
-                <th>Groups</th>
-                <th>Location</th>
-                <th>Numbers</th>
-                <th>ACD skills</th>
-                <th>Presence</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentlyRemoved.length ? recentlyRemoved.map((entry) => {
-                const hoursAgo = Math.round((Date.now() - entry.removedAt) / 3600000);
-                return (
-                  <tr key={entry.uuid}>
-                    <td><span className="flex items-center gap-2.5"><CustomAvatar name={entry.name} size="30" /><span style={{ fontWeight: 700 }}>{entry.name}</span></span></td>
-                    <td>{entry.role || '—'}</td>
-                    <td><span style={{ color: 'var(--ink-4)' }}>—</span></td>
-                    <td><span style={{ color: 'var(--ink-4)' }}>—</span></td>
-                    <td className="num">{entry.extension || '—'}</td>
-                    <td><span style={{ color: 'var(--ink-4)' }}>—</span></td>
-                    <td><span className="tag neg">Removed {hoursAgo < 1 ? 'just now' : `${hoursAgo}h ago`}</span></td>
-                    <td><span style={{ color: 'var(--ink-4)' }}>—</span></td>
-                  </tr>
-                );
-              }) : (
-                <EmptyRow span={8} message="Nobody has been removed in the last 72 hours." />
-              )}
-            </tbody>
-          </table>
-        )}
-
-        {!showRemoved && (
         <table>
           <thead>
             <tr>
@@ -380,7 +364,7 @@ const People = () => {
             {isLoading ? (
               <EmptyRow span={8} message="Loading the roster…" />
             ) : visible.length ? (
-              visible.map((row: PersonRow) => (
+              paged.map((row: PersonRow) => (
                 <tr key={row.uuid} className="gp-person-row" onClick={() => openPerson(row)}>
                   <td>
                     <span className="flex items-center gap-2.5">
@@ -398,7 +382,11 @@ const People = () => {
                       </span>
                     </span>
                   </td>
-                  <td>{row.role}</td>
+                  <td>
+                    <span className={ROLE_CLASS[row.role] || 'role-badge role-agent'}>
+                      {row.role}
+                    </span>
+                  </td>
                   <td>{row.department}</td>
                   <td>
                     <span style={{ display: 'block' }}>{row.location}</span>
@@ -446,11 +434,25 @@ const People = () => {
                     ) : null}
                   </td>
                   <td onClick={(event) => event.stopPropagation()}>
-                    {/* Three actions on the row, the rest behind the menu. Ten
-                        buttons wrapped onto a second line and made every row
-                        taller, and the three people actually reach for -- call,
-                        message, video -- were lost among the admin ones. */}
                     <span className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className={`mini${isFavourite('person', row.uuid) ? ' mcm-fav-on' : ''}`}
+                        title={
+                          isFavourite('person', row.uuid)
+                            ? `Remove ${row.name} from favourites`
+                            : `Add ${row.name} to favourites`
+                        }
+                        aria-label={
+                          isFavourite('person', row.uuid)
+                            ? `Remove ${row.name} from favourites`
+                            : `Add ${row.name} to favourites`
+                        }
+                        aria-pressed={isFavourite('person', row.uuid)}
+                        onClick={() => toggleFavourite('person', row.uuid)}
+                      >
+                        <Ic n="star" size={16} fill={isFavourite('person', row.uuid)} />
+                      </button>
                       <button
                         type="button"
                         className="mini"
@@ -487,83 +489,68 @@ const People = () => {
                       >
                         <Ic n="video" size={16} />
                       </button>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type="button"
-                            className="mini"
-                            title={`More for ${row.name}`}
-                            aria-label={`More actions for ${row.name}`}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="min-w-52">
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => toggleFavourite('person', row.uuid)}
-                          >
-                            <Star
-                              className="h-4 w-4"
-                              fill={isFavourite('person', row.uuid) ? 'currentColor' : 'none'}
-                            />
-                            {isFavourite('person', row.uuid)
-                              ? 'Remove from favourites'
-                              : 'Add to favourites'}
-                          </DropdownMenuItem>
-                          {canEdit ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => setEditing(row)}
+                      {(canEdit ||
+                        isAdmin ||
+                        canChangeRoleOf(row) ||
+                        (canAssignCallerId && row.callerId) ||
+                        (canDelete && row.uuid !== myUuid) ||
+                        canAssignCallerId) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="mini"
+                              title={`More actions for ${row.name}`}
+                              aria-label={`More actions for ${row.name}`}
                             >
-                              <Pencil className="h-4 w-4" /> Edit person
-                            </DropdownMenuItem>
-                          ) : null}
-                          {isAdmin ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => navigate(`/activity/${row.uuid}`)}
-                            >
-                              <History className="h-4 w-4" /> View activity
-                            </DropdownMenuItem>
-                          ) : null}
-                          {canChangeRoleOf(row) ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => setChangingRole(row)}
-                            >
-                              <ShieldCheck className="h-4 w-4" /> Change role
-                            </DropdownMenuItem>
-                          ) : null}
-                          {canAssignCallerId && outranks(row) ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => setAssigningCallerId(row)}
-                            >
-                              <PhoneOutgoing className="h-4 w-4" /> Assign caller ID
-                            </DropdownMenuItem>
-                          ) : null}
-                          {canAssignCallerId && row.callerId && outranks(row) ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => setUnassigning(row)}
-                            >
-                              <PhoneOff className="h-4 w-4" /> Remove caller ID
-                            </DropdownMenuItem>
-                          ) : null}
-                          {/* Admins can remove a person; never yourself, and
-                              never another admin unless you are one. */}
-                          {canDelete && row.uuid !== myUuid && outranks(row) ? (
-                            <DropdownMenuItem
-                              className="cursor-pointer text-red-600 focus:text-red-600"
-                              onClick={() => setDeleting(row)}
-                            >
-                              <Trash2 className="h-4 w-4" /> Remove person
-                            </DropdownMenuItem>
-                          ) : null}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <MoreVertical size={15} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="gp-person-menu">
+                            {canEdit ? (
+                              <DropdownMenuItem onClick={() => setEditing(row)}>
+                                <Ic n="sliders" size={15} />
+                                Edit
+                              </DropdownMenuItem>
+                            ) : null}
+                            {isAdmin ? (
+                              <DropdownMenuItem onClick={() => navigate(`/activity/${row.uuid}`)}>
+                                <Ic n="clock" size={15} />
+                                Activity
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canChangeRoleOf(row) ? (
+                              <DropdownMenuItem onClick={() => setChangingRole(row)}>
+                                <Ic n="shield" size={15} />
+                                Change role
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId && row.callerId ? (
+                              <DropdownMenuItem onClick={() => setUnassigning(row)}>
+                                <Ic n="x" size={15} />
+                                Remove caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {canAssignCallerId ? (
+                              <DropdownMenuItem onClick={() => setAssigningCallerId(row)}>
+                                <Ic n="grid" size={15} />
+                                Assign caller ID
+                              </DropdownMenuItem>
+                            ) : null}
+                            {/* Admins can remove a person; never yourself, and
+                                never another admin unless you are one. */}
+                            {canDelete && row.uuid !== myUuid ? (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setDeleting(row)}
+                              >
+                                <Ic n="trash" size={15} />
+                                Remove
+                              </DropdownMenuItem>
+                            ) : null}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </span>
                   </td>
                 </tr>
@@ -578,150 +565,218 @@ const People = () => {
             )}
           </tbody>
         </table>
-        )}
 
-        <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
-          <DialogContent className="sm:max-w-[560px] w-[calc(100vw-32px)] p-0 gap-0 rounded-2xl overflow-hidden border border-[rgba(225,200,165,0.5)]">
-            {open && (
-              <div className="flex flex-col">
-                {/* Header */}
-                <div className="flex items-center gap-3.5 px-6 py-5 border-b border-gray-100 bg-[rgba(251,249,246,0.6)]">
-                  <CustomAvatar name={open.name} image={open.image} size="48" />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[17px] font-bold text-gray-900 truncate">{open.name}</div>
-                    <div className="text-[13px] text-gray-500 mt-0.5">{open.role}</div>
-                  </div>
-                  <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                    open.tone === 'good' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                    open.tone === 'busy' ? 'bg-red-50 text-red-600 border border-red-200' :
-                    open.tone === 'warn' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                    'bg-gray-100 text-gray-500 border border-gray-200'
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full ${
-                      open.tone === 'good' ? 'bg-emerald-500' :
-                      open.tone === 'busy' ? 'bg-red-500' :
-                      open.tone === 'warn' ? 'bg-amber-500' :
-                      'bg-gray-400'
-                    }`} />
-                    {open.presence}
-                  </span>
-                </div>
+        {/* Pager. Reuses the app's own `.mcm-pager` classes (index.css) so it
+            matches every other paged table rather than being a second design.
+            Hidden on a single page -- one inert control is noise. */}
+        {!isLoading && pageCount > 1 ? (
+          <div className="gp-people-pager">
+            <span className="gp-people-pager-count">
+              {(currentPage - 1) * PAGE_SIZE + 1}–
+              {Math.min(currentPage * PAGE_SIZE, visible.length)} of {visible.length}
+            </span>
+            <div className="mcm-pager flex items-center">
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                &#8249;
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => (
+                <button
+                  key={number}
+                  type="button"
+                  className={`mcm-pager-page${number === currentPage ? ' is-current' : ''}`}
+                  onClick={() => setPage(number)}
+                  aria-current={number === currentPage ? 'page' : undefined}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="mcm-pager-btn"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === pageCount}
+                aria-label="Next page"
+              >
+                &#8250;
+              </button>
+            </div>
+          </div>
+        ) : null}
 
-                {/* Form fields */}
-                <div className="px-6 py-5 flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">First Name</label>
-                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" value={personForm.first_name} onChange={(e) => setPersonForm((p) => ({ ...p, first_name: e.target.value }))} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Name</label>
-                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" value={personForm.last_name} onChange={(e) => setPersonForm((p) => ({ ...p, last_name: e.target.value }))} />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
-                      <input className="h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors" type="email" value={personForm.email} onChange={(e) => setPersonForm((p) => ({ ...p, email: e.target.value }))} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Phone</label>
-                      <div className="[&_.react-tel-input_.form-control]:!h-10 [&_.react-tel-input_.form-control]:!rounded-lg [&_.react-tel-input_.form-control]:!border-gray-200 [&_.react-tel-input_.form-control]:!text-sm [&_.react-tel-input_.form-control]:!w-full [&_.react-tel-input_.flag-dropdown]:!rounded-l-lg [&_.react-tel-input_.flag-dropdown]:!border-gray-200">
-                        <PhoneInput country={'in'} onlyCountries={['in']} disableDropdown value={personForm.phone} onChange={(value) => setPersonForm((p) => ({ ...p, phone: `+${value.startsWith('91') ? value : '91'}` }))} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Site</label>
-                      <input className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed" value={personForm.site} disabled />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Extension</label>
-                      <input className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed" value={personForm.extension} disabled />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between py-2 border-t border-gray-100 mt-1">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Caller ID</span>
-                    {open.callerId ? (
-                      <span className="text-sm font-medium text-gray-900">{open.callerId}</span>
-                    ) : canAssignCallerId ? (
-                      <button type="button" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors" onClick={() => setAssigningCallerId(open)}>
-                        <Ic n="vm" size={14} />
-                        Assign Number
-                      </button>
-                    ) : (
-                      <span className="text-sm text-gray-400">Not assigned</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Quick actions */}
-                <div className="px-6 pb-5 flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150 disabled:opacity-40"
-                    disabled={!open.extension}
-                    onClick={() => open.extension && dial(open.extension, { forceRefreshContactInfo: true })}
-                  >
-                    <span className="inline-flex [&_svg]:fill-white [&_svg]:stroke-gray-700 [&_svg]:[stroke-width:1.5px] group-hover:[&_svg]:stroke-white"><Ic n="phone" size={16} /></span>
-                    <span className="transition-colors">Call</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150"
-                    onClick={() => navigate(`/messenger?chatId=${open.uuid}&chatType=chat`)}
-                  >
-                    <span className="inline-flex [&_svg]:fill-white [&_svg]:stroke-gray-700 [&_svg]:[stroke-width:1.5px] group-hover:[&_svg]:stroke-white"><Ic n="chat" size={16} /></span>
-                    <span className="transition-colors">Message</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="group flex-1 flex items-center justify-center gap-2.5 h-11 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 shadow-sm hover:bg-primary hover:border-primary hover:text-white active:scale-[0.98] transition-all duration-150 disabled:opacity-40"
-                    disabled={isStarting}
-                    onClick={() => startVideoCall({ user_uuid: open.uuid, name: open.name, email: open.email }, `Call with ${open.name}`)}
-                  >
-                    <span className="inline-flex [&_svg]:fill-white [&_svg]:stroke-gray-700 [&_svg]:[stroke-width:1.5px] group-hover:[&_svg]:stroke-white"><Ic n="video" size={16} /></span>
-                    <span className="transition-colors">Video</span>
-                  </button>
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-                  <button type="button" className="h-9 px-5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setOpen(null)}>
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="h-9 px-5 rounded-lg bg-primary text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-                    disabled={isSavingPerson}
-                    onClick={() => savePerson({ first_name: personForm.first_name, last_name: personForm.last_name, email: personForm.email, phone: personForm.phone })}
-                  >
-                    {isSavingPerson ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
+        {open ? (
+          <Dialog open={Boolean(open)} onOpenChange={(next) => !next && setOpen(null)}>
+            <DialogContent
+              className="gp-person-dialog sm:max-w-[620px]"
+              /* Radix focuses the first focusable element when the dialog
+                 opens — a plain `<input>`'s default browser behaviour on
+                 programmatic focus (rather than a user click) is to select
+                 all of its text, so "First Name" opened with the person's
+                 whole name highlighted, one keystroke away from being wiped
+                 out. Focus lands on the dialog itself instead, keeping
+                 keyboard/screen-reader focus trapped inside it (rather than
+                 lost to the page behind, which a bare `preventDefault`
+                 would leave it) without pre-selecting any field. */
+              onOpenAutoFocus={(event) => {
+                event.preventDefault();
+                (event.target as HTMLElement)?.focus?.();
+              }}
+            >
+              <div className="gp-person-fields">
+                <label className="gp-field">
+                  <span className="gp-field-l">First Name</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.first_name}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, first_name: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Last Name</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.last_name}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, last_name: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Email</span>
+                  <input
+                    className="gp-field-v"
+                    type="email"
+                    value={personForm.email}
+                    onChange={(event) =>
+                      setPersonForm((prev) => ({ ...prev, email: event.target.value }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Phone</span>
+                  <PhoneInput
+                    country={'in'}
+                    onlyCountries={['in']}
+                    disableDropdown
+                    value={personForm.phone}
+                    onChange={(value) =>
+                      /* countryCodeEditable={false} freezes this library's input entirely
+                         (can't type or delete at all), so +91 is protected here instead:
+                         if editing eats into the dial code, snap back to a bare +91 rather
+                         than let it disappear. */
+                      setPersonForm((prev) => ({
+                        ...prev,
+                        phone: `+${value.startsWith('91') ? value : '91'}`,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Site</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.site}
+                    disabled
+                    title="Site is set from the person's assigned location, not edited here"
+                  />
+                </label>
+                <label className="gp-field">
+                  <span className="gp-field-l">Extension</span>
+                  <input
+                    className="gp-field-v"
+                    value={personForm.extension}
+                    disabled
+                    title="Extension is provisioned, not edited here"
+                  />
+                </label>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
+
+              <div className="gp-person-callerid">
+                <span className="gp-field-l">Caller ID</span>
+                {open.callerId ? (
+                  <span className="gp-field-v" style={{ flex: 'none' }}>
+                    {open.callerId}
+                  </span>
+                ) : canAssignCallerId ? (
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => setAssigningCallerId(open)}
+                  >
+                    <Ic n="vm" size={12} />
+                    Assign Number
+                  </button>
+                ) : (
+                  <span className="gp-field-v" style={{ flex: 'none' }}>
+                    Not assigned
+                  </span>
+                )}
+              </div>
+
+              <div className="gp-person-actions">
+                <button type="button" className="btn ghost sm" onClick={() => setOpen(null)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn primary sm"
+                  disabled={isSavingPerson}
+                  onClick={() =>
+                    savePerson({
+                      first_name: personForm.first_name,
+                      last_name: personForm.last_name,
+                      email: personForm.email,
+                      phone: personForm.phone,
+                    })
+                  }
+                >
+                  {isSavingPerson ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        ) : null}
       </DirectoryPage>
       </div>
 
       {/* The platform's own add-user flow, opened in place rather than
           bouncing to Admin — the console keeps you in Directory. */}
-      {inviting && (
-        <SideDrawer
-          isOpen={inviting}
-          title="Invite people"
-          width="min(1180px, 88vw)"
-          isTab={false}
-          handleClose={() => setInviting(false)}
-          content={<AddUsers setDrawerState={() => setInviting(false)} />}
-        />
-      )}
+      <Dialog open={inviting} onOpenChange={(next) => !next && setInviting(false)}>
+        <DialogContent
+          className="gp-create-group-dialog gp-invite-dialog sm:max-w-[600px] lg:max-w-[1120px]"
+          showCloseButton={false}
+        >
+          {/* The title lives on the step rail now (`AddUsers`'s
+              `railTitle`/`railSubtitle`, matching the reference layout),
+              so this bar is just the close control -- kept rather than
+              removed since every other `gp-create-group-dialog` still
+              needs somewhere for it to sit. */}
+          <div className="gp-create-group-head gp-create-group-head--bare">
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setInviting(false)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            <AddUsers
+              setDrawerState={() => setInviting(false)}
+              railTitle="Invite people"
+              railSubtitle="Add team members and give them access to your workspace."
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AlertConfirm
         {...{
@@ -792,28 +847,34 @@ const People = () => {
         onClose={() => setAssigningCallerId(null)}
       />
 
-      {/* An explicit width matters: without one SideDrawer falls back to
-          `calc(100% - 21rem)`, which is ~1660px on a wide screen — far more
-          than a four-step form needs, and it buries the page behind it. */}
-      {editing ? (
-        <SideDrawer
-          isOpen={Boolean(editing)}
-          title={`Edit ${editing.name}`}
-          width="min(1080px, 82vw)"
-          enableResponsive
-          responsiveWidth="96vw"
-          responsiveBreakpoint={1024}
-          handleClose={() => setEditing(null)}
-          content={
-            <UpdateForwarding
-              drawerState
-              setDrawerState={() => setEditing(null)}
-              data={editing.raw}
-              setTabData={() => undefined}
-            />
-          }
-        />
-      ) : null}
+      <Dialog open={Boolean(editing)} onOpenChange={(next) => !next && setEditing(null)}>
+        <DialogContent
+          className="gp-create-group-dialog gp-edit-person-dialog sm:max-w-[760px]"
+          showCloseButton={false}
+        >
+          <div className="gp-create-group-head">
+            <h2>{editing ? `Edit ${editing.name}` : 'Edit'}</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              className="gp-create-group-close"
+              onClick={() => setEditing(null)}
+            >
+              <Icon name="CloseIcon" className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="gp-create-group-body">
+            {editing ? (
+              <UpdateForwarding
+                drawerState
+                setDrawerState={() => setEditing(null)}
+                data={editing.raw}
+                setTabData={() => undefined}
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

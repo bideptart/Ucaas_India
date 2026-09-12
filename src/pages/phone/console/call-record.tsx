@@ -120,9 +120,14 @@ const CallRecord = ({
 
   return (
     <>
-      {/* ---- one header ---- */}
+      {/* ---- one header ----
+          Back to one row, as it was originally — the stacked two-row
+          version wasn't wanted. The number still needs to not truncate
+          (that was the original bug report), so the leg count moves out
+          of the name/number line instead of sharing it — that's the one
+          piece of content this row has no room to also carry. */}
       <div className="card record-head">
-        <button type="button" className="btn ghost sm" onClick={onBack}>
+        <button type="button" className="rh-back" onClick={onBack}>
           <Ic n="chev" size={13} className="flip" />
           Dialer
         </button>
@@ -140,10 +145,6 @@ const CallRecord = ({
           </div>
           <div className="record-sub num">
             <DialNumber number={row.number} />
-            <span style={{ color: 'var(--ink-4)' }}>
-              {' '}
-              · {legs.length} {legs.length === 1 ? 'call' : 'calls'}
-            </span>
           </div>
         </div>
         <button

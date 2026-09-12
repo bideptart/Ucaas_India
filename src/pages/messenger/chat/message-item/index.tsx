@@ -1170,8 +1170,8 @@ const MessageItem = ({
                           ? 'rounded-2xl border border-border bg-muted px-3 py-2 text-foreground shadow-sm'
                           : 'rounded-2xl border border-border bg-white px-3 py-2 text-foreground shadow-sm'
                       : isMine
-                        ? 'bg-ucass-primary-200 text-black '
-                        : 'bg-white text-black',
+                        ? 'bg-[var(--mcm-accent-wash)] text-[var(--mcm-accent-ink)] '
+                        : 'bg-white dark:bg-mcm-surface text-black dark:text-mcm-ink',
                   )}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}

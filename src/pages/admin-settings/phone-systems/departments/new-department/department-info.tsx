@@ -8,6 +8,7 @@ import { useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { Icon } from '@/assets/icons/icon';
 import { COMPANY_DEFAULTS_QUERY_KEY, fetchCompanyDefaults } from '@/lib/company-defaults';
+import { Building2, FileText, Phone as PhoneIcon } from 'lucide-react';
 
 const DepartmentInfo = ({
   isEdit = false,
@@ -52,6 +53,9 @@ const DepartmentInfo = ({
                   placeholder="Enter department name"
                   error={errors?.name?.message}
                   maxLength={50}
+                  Icon={<Building2 className="w-4 h-4" />}
+                  IconPosition="left-0 inset-y-0 pl-3"
+                  className="pl-9"
                 />
               </div>
               <div className="relative flex w-full gap-1 md:w-1/2">
@@ -88,6 +92,9 @@ const DepartmentInfo = ({
                   placeholder="Enter description"
                   error={errors?.description?.message}
                   maxLength={501}
+                  Icon={<FileText className="w-4 h-4" />}
+                  IconPosition="left-0 inset-y-0 pl-3"
+                  className="pl-9"
                 />
               </div>
               <div className="relative flex w-full gap-1.5 md:w-1/2">
@@ -101,6 +108,9 @@ const DepartmentInfo = ({
                     {...register('extension')}
                     error={errors?.extension?.message}
                     disabled={isEdit}
+                    Icon={<PhoneIcon className="w-4 h-4" />}
+                    IconPosition="left-0 inset-y-0 pl-3"
+                    className="pl-9"
                   />
                   {!isEdit && (
                     <Button

@@ -67,16 +67,16 @@ const DraggableMember = ({
           <CustomAvatar name={label} showPresence extension={value} image={profile} />
           <div className="flex flex-col w-full">
             <div className="flex justify-between items-start">
-              <div>
-                <p className="capitalize font-medium text-sm">{label}</p>
-                <p className="text-primary text-[11px]">{role}</p>
+              <div className="flex items-center gap-2">
+                <p className="gp-member-name capitalize">{label}</p>
+                <span className="gp-member-role">{role}</span>
               </div>
-              <div className="flex items-center gap-1 text-[#9A948F] text-sm">
+              <div className="gp-member-extension flex items-center gap-1 text-[#9A948F]">
                 <Icon name="Grid" className="w-4 h-4" />
                 <span>{value}</span>
               </div>
             </div>
-            {email && <p className="text-[#9A948F] text-[11px] truncate">{email}</p>}
+            {email && <p className="gp-member-email truncate">{email}</p>}
           </div>
         </div>
       </TableCell>

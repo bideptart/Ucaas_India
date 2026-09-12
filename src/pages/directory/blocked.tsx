@@ -241,7 +241,6 @@ const Blocked = () => {
     <>
       <div className="gp-blocked">
       <DirectoryPage
-        className="blocked-compact"
         title="Blocked Numbers"
         description="Everyone you have stopped hearing from, and one place to block someone new."
         actions={

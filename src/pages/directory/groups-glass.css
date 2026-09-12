@@ -184,14 +184,19 @@
      column's share would squeeze its label/chevron onto two lines. */
   min-width: 520px;
 }
+/* Group holds the same single-line avatar+name as Manager -- there's no
+   reason its share should be nearly double Manager's the way the old 38%
+   was. At a wide viewport (a low browser zoom like 80% reports one) that
+   extra share showed up as a dead gap between the name and Manager rather
+   than as anything the column actually used. */
 .gp-groups th:nth-child(1),
 .gp-groups td:nth-child(1) {
-  width: 38%;
+  width: 24%;
   padding-left: 22px;
 }
 .gp-groups th:nth-child(2),
 .gp-groups td:nth-child(2) {
-  width: 22%;
+  width: 24%;
 }
 .gp-groups th:nth-child(3),
 .gp-groups td:nth-child(3) {
@@ -199,11 +204,11 @@
 }
 .gp-groups th:nth-child(4),
 .gp-groups td:nth-child(4) {
-  width: 14%;
+  width: 16%;
 }
 .gp-groups th:nth-child(5),
 .gp-groups td:nth-child(5) {
-  width: 12%;
+  width: 22%;
   min-width: 100px;
 }
 .gp-groups th {

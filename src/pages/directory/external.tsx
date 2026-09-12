@@ -378,7 +378,7 @@ const ExternalInner = () => {
         }
       >
         <DialogContent
-          className="gp-create-group-dialog gp-contact-form-dialog sm:max-w-[620px]"
+          className="gp-create-group-dialog gp-contact-form-dialog sm:max-w-[820px]"
           showCloseButton={false}
         >
           <div className="gp-create-group-head">

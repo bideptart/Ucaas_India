@@ -773,8 +773,12 @@
 /* `:not([data-slot='button'])` keeps this off the shared `Button` component's
    `outline` variant (`bg-white ... hover:bg-primary/90 hover:text-white`) —
    without it, this `!important` beat the hover utility's lower-specificity
-   background, leaving white hover text on an unchanged white background. */
-.gp-create-group-body .bg-white:not([data-slot='button']) {
+   background, leaving white hover text on an unchanged white background.
+   `:not(.gp-location-rail)` keeps it off Locations' own step rail
+   (locations-glass.css), which carries this same Tailwind `bg-white` class
+   (from `Stepper`, stepper.tsx) but needs to stay pure white rather than
+   join this dialog's cream repaint. */
+.gp-create-group-body .bg-white:not([data-slot='button']):not(.gp-location-rail) {
   background: #fffdfb !important;
 }
 /* `.mcm-userform` paints its own opaque white background — built for sitting
@@ -1088,7 +1092,7 @@
 .dark .gp-create-group-body .border-gray-200 {
   border-color: #1b2934 !important;
 }
-.dark .gp-create-group-body .bg-white:not([data-slot='button']) {
+.dark .gp-create-group-body .bg-white:not([data-slot='button']):not(.gp-location-rail) {
   background: var(--mcm-surface, #111c26) !important;
 }
 .dark .gp-create-group-body [data-slot='input'] {

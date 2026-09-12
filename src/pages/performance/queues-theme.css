@@ -244,10 +244,10 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
 }
 
 /* ------------------------------------------------------------
-   3. Six-metric snapshot strip (Busiest queue / Longest waiting / Lowest
-   SLA / Total members / Available now / Total interacting) — one frosted
-   glass bar, each metric its own pill segment rather than hairline-divided
-   flat cells.
+   3. Seven-metric snapshot strip (Busiest queue / Callbacks waiting /
+   Longest waiting / Lowest SLA / Total members / Available now / Total
+   interacting) — one frosted glass bar, each metric its own pill segment
+   rather than hairline-divided flat cells.
    ------------------------------------------------------------ */
 .mcm-page .perf-queues .kpi-strip {
   background: var(--qa-glass);
@@ -257,7 +257,14 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   border-radius: 16px;
   box-shadow: var(--qa-glass-shadow);
   padding: 6px;
-  gap: 4px;
+  /* Matches the 8-tile hero row's own gap (`.mcm-page .hero-row`,
+     index.tsx) directly above it, so the two stacked strips read as one
+     consistent rhythm instead of the hero row's cards sitting visibly
+     further apart than this strip's own cells. The per-cell `margin: 0 1px`
+     this used to lean on for spacing is dropped below — with an explicit
+     gap now owning it, that margin would only stack on top and widen the
+     gap past 8px. */
+  gap: 8px;
 }
 /* Leadership review: each cell used to be a translucent
    `rgba(255,255,255,0.55)` wash — mostly-transparent white sitting directly
@@ -279,7 +286,6 @@ body.perf-warm-backdrop .mcm-page .hero-row .hero-stat-breach {
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(249, 115, 22, 0.16) !important;
   box-shadow: 0 4px 16px rgba(160, 95, 30, 0.08) !important;
-  margin: 0 1px;
   padding: 10px 12px !important;
   display: flex;
   flex-direction: column;

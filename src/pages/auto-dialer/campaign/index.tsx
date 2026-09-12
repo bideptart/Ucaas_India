@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Search as SearchIcon } from 'lucide-react';
 import moment from 'moment';
 
 import TableManager from '@/components/custom/table-manager';
@@ -76,6 +77,7 @@ const MODE_FILTERS: Array<[string, string]> = [
 const Campaign = ({
   embedded = false,
   globalSearch,
+  onReady,
 }: {
   embedded?: boolean;
   /* Performance ▸ Campaigns' centralized toolbar search (index.tsx →
@@ -84,6 +86,12 @@ const Campaign = ({
      local box is empty, so typing locally still wins without either input
      needing to know about the other. */
   globalSearch?: string;
+  /* Hands the embedding page a way to open the create-campaign drawer from
+     its own header, without lifting `drawerState` itself — Performance ▸
+     Campaigns' redesigned header wants its own "Create campaign" button
+     rather than the page-head one this component hides while embedded.
+     Optional and unused by the standalone `/campaign/all-campaigns` route. */
+  onReady?: (openCreate: () => void) => void;
 }) => {
   const navigate = useNavigate();
   const queryClient: any = useQueryClient();
@@ -103,6 +111,11 @@ const Campaign = ({
   });
   const [refreshingCampaignIds, setRefreshingCampaignIds] = useState<Record<string, boolean>>({});
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<IAutoDialer | null>(null);
+
+  useEffect(() => {
+    onReady?.(() => setDrawerState({ selectedCampaign: null, isModalOpen: true }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onReady]);
 
   /* ── aggregates for the KPI strip ────────────────────────────────────
      The table is paginated, so totals cannot come from the visible page.
@@ -584,7 +597,14 @@ const Campaign = ({
 
         <div className="tbar">
           <div className="cmp-search">
-            <Ic n="search" />
+            {/* A self-contained icon, not `<Ic n="search">` — that reads
+                a shared sprite mounted once per page, but this component
+                also mounts its own `<McmIconSprite>` a few lines down, so
+                embedded here (Performance ▸ Campaigns already mounts the
+                page's own sprite) two sprites exist with the same ids at
+                once, which breaks the `<use>` reference's colour
+                inheritance and left this one invisible. */}
+            <SearchIcon className="ic" />
             <input
               placeholder="Search campaigns"
               aria-label="Search campaigns"
@@ -602,6 +622,7 @@ const Campaign = ({
             <button
               key={value}
               type="button"
+              data-status={value}
               className={`fchip${statusFilter === value ? ' on' : ''}`}
               onClick={() => setStatusFilter(value)}
             >
@@ -610,7 +631,7 @@ const Campaign = ({
             </button>
           ))}
 
-          <span style={{ width: 1, height: 20, background: 'var(--line)', margin: '0 3px' }} />
+          <span className="tbar-divider" style={{ width: 1, height: 20, background: 'var(--line)', margin: '0 3px' }} />
 
           {MODE_FILTERS.map(([value, label]) => (
             <button

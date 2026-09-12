@@ -80,7 +80,11 @@ const TABS = [
   { key: 'reports', label: 'Reports' },
 ];
 
-const SHOW_KPI_HEADER_TABS = new Set(['queues-activity', 'campaign-activity', 'dashboards']);
+/* Campaign Activity renders its own KPI band (campaign-specific figures,
+   inside CampaignActivityTab) — this generic queue hero-row (Waiting Calls,
+   SLA, Handle Time…) doesn't describe an outbound campaign and would just
+   be a second, unrelated KPI strip stacked above it. */
+const SHOW_KPI_HEADER_TABS = new Set(['queues-activity', 'dashboards']);
 
 /**
  * The views that actually read `useLiveContactCentre`.
@@ -88,15 +92,12 @@ const SHOW_KPI_HEADER_TABS = new Set(['queues-activity', 'campaign-activity', 'd
  * The hook polls queue configuration, the user roster and two REST reports. It
  * used to run on all fourteen views because it is called at page level — so
  * Reports, Speech & Text, Flows, Callbacks and every wallboard were polling
- * queue and roster data none of them display. These four are the views that
- * either show the KPI band or render queue/agent collections.
+ * queue and roster data none of them display. These are the views that
+ * either show the KPI band or render queue/agent collections — Campaign
+ * Activity dropped off this list once it stopped showing that band, since
+ * it fetches its own campaign data independently and never reads this hook.
  */
-const LIVE_DATA_TABS = new Set([
-  'queues-activity',
-  'campaign-activity',
-  'dashboards',
-  'agents',
-]);
+const LIVE_DATA_TABS = new Set(['queues-activity', 'dashboards', 'agents']);
 
 const slaTone = (sla: number | null): 'default' | 'success' | 'warning' | 'danger' => {
   if (sla === null) return 'default';
@@ -273,12 +274,25 @@ const Performance = () => {
             from three places (the app's date dropdown, the design system's
             chips, its buttons) at three different heights — `perf-tbar` below
             settles them onto one baseline. */}
-        <div className="tbar perf-tbar">
+        <div className={`tbar perf-tbar${activeTab === 'campaign-activity' ? ' perf-tbar-campaigns-date' : ''}`}>
           <div className="perf-tbar-group">
             <div className="perf-filter-pill">
               <DateDropdown
                 ref={dateDropdownRef}
-                dropdownVal={dropdownVal}
+                dropdownVal={
+                  // "Date Range" → "Custom Range" only while Campaigns is
+                  // the open tab — the other twelve pages sharing this
+                  // same option list (DateFilterTypes in
+                  // date-dropdown/constant.ts) keep the original label.
+                  activeTab === 'campaign-activity'
+                    ? {
+                        ...dropdownVal,
+                        dateOptions: dropdownVal.dateOptions.map((opt: any) =>
+                          opt.value === 'Custom' ? { ...opt, label: 'Custom Range' } : opt,
+                        ),
+                      }
+                    : dropdownVal
+                }
                 setDropdownVal={setDropdownVal}
                 // The default 'inline' placement rendered the From/To
                 // date cards, clear button and Apply button in the same

@@ -1,9 +1,9 @@
 /* MCM Unified Console typeface pair. Plus Jakarta Sans for UI, IBM Plex
-   Mono for anything numeric — durations, counts, timestamps — so digits
+   Mono for anything numeric â€” durations, counts, timestamps â€” so digits
    stay tabular and stop jittering as they tick.
 
    This must be the FIRST statement in the file. Every `@import` below is
-   inlined in place — Tailwind alone is ~13k lines — so a font import
+   inlined in place â€” Tailwind alone is ~13k lines â€” so a font import
    placed after any of them lands deep in the bundle, where `@import` is
    no longer legal. Postcss drops it and the fonts silently never load. */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
@@ -188,7 +188,7 @@
   --primary: #f2994a !important;
   /* Same problem as --primary, but these tokens are declared inside
      Tailwind's @theme block, which strips !important before it reaches the
-     generated stylesheet — so overriding them there did nothing against the
+     generated stylesheet â€” so overriding them there did nothing against the
      org API's inline blue (--color-ucass-primary-100/200 and
      --color-ucass-active(-bg)/-login-bg are all set inline from
      mainSiteInfo by organization-context.tsx, several of them without
@@ -197,7 +197,7 @@
      --color-ucass-primary-200 in particular MUST stay a light wash, not the
      solid --primary orange: it's what every hover/active state built on
      bg-ucass-primary-200 reads (bell, theme toggle, avatar chip, quick-menu
-     icons, nav items) alongside hover:text-primary — pairing a solid
+     icons, nav items) alongside hover:text-primary â€” pairing a solid
      background with solid-orange text made the icon disappear into its own
      background, which is what "the notification bell turned into a blank
      orange square" actually was. This block previously redefined the same
@@ -279,7 +279,7 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   /* Dark theme gets the same !important protection as the light theme's
-     --primary, and the matching ucass-* overrides — same runtime-override
+     --primary, and the matching ucass-* overrides â€” same runtime-override
      risk from organization-context.tsx applies here too. */
   --primary: #ffab5e !important;
   --primary-foreground: oklch(0.205 0 0);
@@ -322,7 +322,7 @@
     height: 100%;
     font-family: var(--mcm-sans);
     @apply text-foreground;
-    /* Warm gradient backdrop for the glassmorphism pass — the blurred
+    /* Warm gradient backdrop for the glassmorphism pass â€” the blurred
        panels need something with color behind them or the blur has
        nothing to show. Fixed so it doesn't scroll away under long pages. */
     background:
@@ -486,7 +486,7 @@
   /* Toolbar icon buttons (refresh/export/filter) declare their own
      `bg-white` utility, but the app-wide `.mcm-page button:not(...)` reset
      strips background/border/color off every plain button and wins on
-     specificity — leaving them see-through next to the white-card preset
+     specificity â€” leaving them see-through next to the white-card preset
      dropdown. Restore the white card look here. */
   .mcm-page .filters button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
     background: #ffffff !important;
@@ -502,7 +502,7 @@
 
   /* Performance's Calls toolbar (interactions-theme.css) wants these same
      buttons on its own warm-glass palette instead of the plain white-card
-     look above — for `!important` declarations the cascade reverses layer
+     look above â€” for `!important` declarations the cascade reverses layer
      order and treats unlayered styles as lowest priority, so a
      `.perf-interactions`-scoped override in that page's own stylesheet can
      never beat this rule no matter how specific it is. It has to live in
@@ -512,7 +512,7 @@
      more-specific `.filter-active` rule competing against it) is
      deliberate: this stylesheet's rules sit behind a `@import` of the
      Google Fonts URL, which makes the whole sheet's `cssRules` opaque to
-     script (a cross-origin-adjacent restriction) — harmless for
+     script (a cross-origin-adjacent restriction) â€” harmless for
      rendering, but it also seemed to make an otherwise-more-specific
      added rule fail to win here in practice. Excluding the active case
      directly in the resting selector removes the fight entirely: with
@@ -534,7 +534,7 @@
     border-color: transparent !important;
     color: #ffffff !important;
   }
-  /* The Filter (funnel) toggle's own "on" state — call-history/index.tsx
+  /* The Filter (funnel) toggle's own "on" state â€” call-history/index.tsx
      adds `.filter-active` while the advanced filter panel is open. Same
      gradient fill as :hover above, but persistent regardless of pointer
      position, so the button itself is the indicator that the panel is
@@ -562,7 +562,7 @@
        same cell. With this app's other overrides on the control, that
        grid resolves to two fixed-width column tracks instead of one, and
        a value spanning both tracks renders with its leading edge subtly
-       mis-rasterized — reads as the first character being sheared off
+       mis-rasterized â€” reads as the first character being sheared off
        ("00" showing like a stray mark plus "0"). Flex with wrapping gives
        the same single/placeholder + input overlap behavior (the input is
        empty and 2px wide, so it doesn't visibly compete for space) without
@@ -818,7 +818,7 @@
 
   /* react-select keeps a live text input under the displayed value/
      placeholder for typeahead search. Its own text is already
-     transparent, but the browser still blinks a caret at its position —
+     transparent, but the browser still blinks a caret at its position â€”
      sitting right at the start of "16", "Select", etc., which reads as a
      stray blurred sliver to the left of the text. These selects don't
      rely on a visible caret (there's nothing to see it type), so hiding
@@ -972,10 +972,6 @@
     border-bottom-right-radius: 0 !important;
   }
   .mcm-date-preset.custom-react-select__menu {
-    /* Pure opaque white, not a 96%-alpha + blur combo — the blur softened
-       whatever sat behind the menu instead of hiding it outright, and on
-       Performance's own busy backdrop (bold KPI figures right underneath)
-       that still read as visible ghosted text through the menu. */
     background-color: #fff !important;
     border-radius: 14px !important;
     padding: 6px !important;
@@ -1006,18 +1002,9 @@
     color: #ea580c !important;
   }
 
-  /* Standalone date-preset select (`.rp-date-standalone` — Reports ▸ Call
+  /* Standalone date-preset select (`.rp-date-standalone` — Reports Call
      Analytics, and anywhere else this select renders alone rather than as
-     the first segment of Performance's fused Today+Division+Media pill).
-     Has to sit here, inside this same `@layer base` block, for the same
-     reason documented above the base `.mcm-date-preset.custom-react-
-     select__control` rule: for `!important` declarations the cascade
-     reverses layer order, so an unlayered override (in date-picker-
-     theme.css) can never beat a layered one no matter how specific —
-     restoring symmetric corners had to happen in the one place that can
-     actually outrank the fused-pill default. Directory's orange outline-
-     button treatment (border + text, no fill) instead of round-left/
-     square-right on a transparent background. */
+     the first segment of Performance's fused Today+Division+Media pill). */
   .rp-date-standalone .mcm-date-preset.custom-react-select__control {
     border-radius: 999px !important;
     background-color: #fff !important;
@@ -1035,6 +1022,68 @@
     color: #f2994a !important;
   }
 
+  /* Compact restyle of the Performance Campaigns date-preset menu
+     (Today, Yesterday, Last 7 Days...), active only while that tab is open.
+     Scoped via `body.perf-campaigns-tab-active` (added/removed by
+     campaign-activity-tab.tsx's own mount effect) rather than a class on
+     the toolbar itself, since this select's open menu renders through a
+     React portal straight onto `<body>`. */
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__menu {
+    width: 168px !important;
+    min-width: 168px !important;
+    border-radius: 12px !important;
+    padding: 5px !important;
+    border-color: rgba(211, 129, 74, 0.22) !important;
+    box-shadow: 0 10px 24px -8px rgba(120, 80, 45, 0.2) !important;
+    animation: perf-date-menu-in 0.16s ease both;
+  }
+  @keyframes perf-date-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option {
+    border-radius: 8px !important;
+    padding: 9px 26px 9px 10px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+  }
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option:hover,
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option--is-focused {
+    background-color: rgba(211, 129, 74, 0.08) !important;
+    color: #1a1a1a !important;
+  }
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option--is-selected {
+    background-color: rgba(211, 129, 74, 0.1) !important;
+    background-image: none !important;
+    color: #b06a3d !important;
+    font-weight: 600 !important;
+  }
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option--is-selected:hover,
+  body.perf-campaigns-tab-active
+    .mcm-date-preset.custom-react-select__option--is-selected.custom-react-select__option--is-focused {
+    background-color: rgba(211, 129, 74, 0.15) !important;
+    color: #b06a3d !important;
+  }
+  body.perf-campaigns-tab-active .mcm-date-preset.custom-react-select__option--is-selected::after {
+    content: '✓';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: #b06a3d;
+  }
   .chart-container {
     position: relative;
     width: 100%;
@@ -1070,13 +1119,13 @@
     padding-bottom: 0.35rem !important;
   }
 
-  /* Directory ▸ Contact view's Group/Tag toolbar filters — same
+  /* Directory â–¸ Contact view's Group/Tag toolbar filters â€” same
      `.custom-react-select__control` component used everywhere, given its
      own prefix (via `CustomSelect`'s `inputClass` prop) so only these two
      dropdowns on this one page pick up the warm, rounded look matching the
      rest of that toolbar (Search input, tabs). Sized and coloured to match
      People's own filter chips (`.gp-people .tbar .fchip`, people-glass.css)
-     exactly — full pill instead of a soft-rounded rectangle — so the whole
+     exactly â€” full pill instead of a soft-rounded rectangle â€” so the whole
      toolbar reads as one consistent set of pills rather than Search being
      the only fully-rounded control in the row. */
   .contact-toolbar-select.custom-react-select__control {
@@ -1111,7 +1160,7 @@
 
   /* Contact view's "Send WhatsApp Message" drawer (`SendWhatsappMessage`,
      opted in via its own `selectClassName`/wrapper class only from this
-     page — External Contacts' separate WhatsApp drawer doesn't pass either,
+     page â€” External Contacts' separate WhatsApp drawer doesn't pass either,
      so it is unaffected). Same reasoning as `.contact-toolbar-select`
      above: the template dropdown and the phone number field both carry
      fixed, unscoped styling (`.custom-react-select__control`,
@@ -1137,7 +1186,7 @@
   /* Schedule modal's Start Time hour/minute dropdowns (Calendar's
      ScheduleEventModal). Plus Jakarta Sans draws "1" with a serif flag and
      foot, which reads as a lowercase "l" at a glance regardless of weight
-     or size — heavier weight alone (an earlier attempt) just made the
+     or size â€” heavier weight alone (an earlier attempt) just made the
      misleading shape bolder. Dropping to the plain system sans-serif stack
      for this element only gives "1" a straight, unadorned stroke; tabular
      figures keep every digit the same width as you page through values. */
@@ -1360,7 +1409,7 @@
      styled all over mcm-page.css and the Directory *-glass.css files with
      their own :disabled treatment (typically a dimmed opacity that keeps
      the button's own color, e.g. `.mcm-page .btn:disabled { opacity:
-     0.45 }`) — this reset's !important painted them flat grey regardless,
+     0.45 }`) â€” this reset's !important painted them flat grey regardless,
      silently overriding every one of those regardless of specificity,
      since an unlayered or later-layered !important can never beat a
      `@layer base` !important no matter how specific its selector is. */
@@ -1400,7 +1449,7 @@
      rule above paints every disabled button with a grey-100 fill and
      grey-500 text, which put filled grey discs behind the greyed-out days
      of a month and coloured them from a different neutral family than the
-     rest of the panel — the one visibly "off" colour in the sidebar.
+     rest of the panel â€” the one visibly "off" colour in the sidebar.
 
      This has to stay inside `@layer base` alongside that rule: for
      `!important` declarations the cascade reverses layer order and treats
@@ -1413,7 +1462,7 @@
   }
 
   /* Same story for the pagination arrows. On a single page all four are
-     disabled, and the form-control rule filled each with a grey pill —
+     disabled, and the form-control rule filled each with a grey pill â€”
      four grey blobs around one orange page number. They should read as
      dimmed, not as filled controls. Inside the layer for the same reason
      as the rule above. */
@@ -1567,9 +1616,9 @@
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Global Search Component
-   ───────────────────────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .global-search-root {
   position: relative;
@@ -1616,7 +1665,7 @@
   color: #64748b;
 }
 
-/* The ⌘K affordance. Hidden once the field is in use — the hint has done its
+/* The âŒ˜K affordance. Hidden once the field is in use â€” the hint has done its
    job by then, and the shortcut is what selects the existing text. */
 .global-search-kbd {
   flex: none;
@@ -1657,7 +1706,7 @@
   flex-shrink: 0;
 }
 
-/* ── Dropdown ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ Dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .global-search-dropdown {
   position: absolute;
@@ -1690,7 +1739,7 @@
   }
 }
 
-/* ── Section label ─────────────────────────────────────────────────────────── */
+/* â”€â”€ Section label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .global-search-section-label {
   font-size: 11px;
@@ -1706,7 +1755,7 @@
   border-top: none;
 }
 
-/* ── Result item ───────────────────────────────────────────────────────────── */
+/* â”€â”€ Result item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .global-search-item {
   display: flex;
@@ -1747,7 +1796,7 @@
   white-space: nowrap;
 }
 
-/* ── Empty / loading state ─────────────────────────────────────────────────── */
+/* â”€â”€ Empty / loading state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .global-search-empty {
   display: flex;
@@ -2134,11 +2183,11 @@
 }
 
 /* ============================================================
-   Area nav — the console's top-level areas in the header.
+   Area nav â€” the console's top-level areas in the header.
    The sidebar below narrows to whichever area is lit here.
    ============================================================ */
 /* The area rail scrolls when an area has more views than fit, but a visible
-   track down a 80px-wide column is all chrome and no value — the rail still
+   track down a 80px-wide column is all chrome and no value â€” the rail still
    scrolls by wheel, trackpad, touch and keyboard. */
 .rail-scroll {
   scrollbar-width: none;
@@ -2227,7 +2276,7 @@
 }
 
 /* ============================================================
-   Brand block — the console keeps identity at the far left of
+   Brand block â€” the console keeps identity at the far left of
    the top bar, with the area rail below it rather than beside it.
    ============================================================ */
 .mcm-brandbar {
@@ -2352,7 +2401,7 @@
 }
 
 /* Customer initial, shown when they have not uploaded a logo. Never the
-   vendor's mark — the brand bar belongs to whoever runs the console. */
+   vendor's mark â€” the brand bar belongs to whoever runs the console. */
 .mcm-brand-initial {
   display: inline-flex;
   align-items: center;
@@ -2368,13 +2417,13 @@
 
 /* Active marker on the left nav rail. The active tile previously said "you
    are here" with a peach fill alone, which reads as a hover state as much
-   as a selection — the bar is what makes it unambiguous, and it's the same
+   as a selection â€” the bar is what makes it unambiguous, and it's the same
    idiom the app already uses for its other "current item" markers (the
    Inbox's active row, Directory's row hover).
 
    `left: -6px` puts it against the rail's own edge rather than the tile's:
    the rail is 80px with 8px of padding, so the tile starts at x=8 and this
-   lands the 3px bar at x=2 — a hair inside the edge, clear of the tile.
+   lands the 3px bar at x=2 â€” a hair inside the edge, clear of the tile.
    It stays inside the scroll container's padding box, so `overflow-y: auto`
    doesn't clip it. Rounded on the outer side only, so it reads as a marker
    growing off the edge rather than a floating capsule. */
@@ -2382,7 +2431,7 @@
   content: '';
   position: absolute;
   left: -6px;
-  /* A short centred stub, not a bar spanning the tile's full height —
+  /* A short centred stub, not a bar spanning the tile's full height â€”
      centred on the tile so it stays put whether the label wraps to one
      line or two ("External Contacts"), which a top/bottom-inset bar
      would not: that one changed length with the tile. */
@@ -2392,7 +2441,7 @@
   width: 3px;
   border-radius: 0 3px 3px 0;
   /* The same token the tile's own icon/label colour comes from
-     (`text-ucass-active`), so the bar tracks it — including the per-tenant
+     (`text-ucass-active`), so the bar tracks it â€” including the per-tenant
      `active_sidebar_color` this variable is set from at runtime. Hardcoding
      the orange here would have left the bar stranded on any tenant whose
      sidebar colour isn't the default. */
@@ -2414,7 +2463,7 @@
   word-break: break-word;
 }
 
-/* Shown on My Phone when a call rule is displayed but was never stored — the
+/* Shown on My Phone when a call rule is displayed but was never stored â€” the
    screen would otherwise claim voicemail is set while the switch hangs up.
 
    Written in the design tokens rather than the hex literals it started with,
@@ -2599,7 +2648,7 @@
 }
 
 /* ==================================================================
-   Calendar sidebar — tonal grading.
+   Calendar sidebar â€” tonal grading.
 
    The panel was #f6f8fc, nine points off white, and the month/year pills
    and the empty-state box were both plain #ffffff with no shadow. So a
@@ -2609,7 +2658,7 @@
    Three levels instead, warmed so the panel belongs with the app's orange
    backdrop rather than sitting in a cool slate of its own:
 
-     well    #f2e9dd   recessed — empty states, read as a hollow
+     well    #f2e9dd   recessed â€” empty states, read as a hollow
      panel   #faf5ef   the sidebar itself
      raised  #ffffff   controls, lifted with a hairline and a shadow
 
@@ -2667,11 +2716,11 @@
 }
 
 /* Density dots under each mini-calendar day. Colours are the big calendar's
-   legend — events #00a9ff, tasks #34C38F — so the two views agree on what a
+   legend â€” events #00a9ff, tasks #34C38F â€” so the two views agree on what a
    colour means. The row keeps its height when empty so the weeks stay on a
    even rhythm. */
 /* One size for every dot, and a gap derived from it rather than set on its
-   own — so the row keeps the same proportion whatever `--cal-dot` becomes,
+   own â€” so the row keeps the same proportion whatever `--cal-dot` becomes,
    instead of the spacing having to be re-guessed each time the size moves.
    At 5px the gap lands on 3px, and three dots span 21px inside a 28px
    cell. */
@@ -2704,7 +2753,7 @@
 .mcm-calpanel .mcm-cal-dot.is-task {
   background: #34c38f;
 }
-/* Meeting, the third calendar category — violet, matching colour id 4 in
+/* Meeting, the third calendar category â€” violet, matching colour id 4 in
    the calendar's `findColors` and the dot on its month previews. */
 .mcm-calpanel .mcm-cal-dot.is-meeting {
   background: #a78bfa;
@@ -2882,13 +2931,13 @@
    with a 0px gap between them, so the table's bottom edge and the pager's
    top edge read as one doubled line.
 
-   `.mcm-tasktable` is the inner scrolling box — TableManager wraps it in
+   `.mcm-tasktable` is the inner scrolling box â€” TableManager wraps it in
    its own non-scrolling corner-clip div first (see the comment on that
    wrapper in table-manager.tsx), so the pager is actually a sibling of
    THAT wrapper, one level further out, never of `.mcm-tasktable` itself.
    `.mcm-tasktable + div` matched nothing there and never applied.
    `.mcm-tasktable-shell` is the page-level box one level out again (the
-   one already carrying `flex flex-col` — see the JSX in
+   one already carrying `flex flex-col` â€” see the JSX in
    video-meetings/Calender/index.tsx) that actually holds both the table
    wrapper and the pager as direct children, so `> div + div` reaches the
    real sibling. */
@@ -2900,7 +2949,7 @@
    child, rendered by TableManager) relies on `overflow: hidden` +
    `border-radius` to keep the scrolling table's own content from
    spilling past its rounded corners. That pairing clips the BORDER
-   correctly — the curve you see tracing the edge is always right — but
+   correctly â€” the curve you see tracing the edge is always right â€” but
    confirmed live it does not reliably clip the FILL underneath it: with
    more rows than fit (any window short enough that the last row is cut
    off mid-row, common at ordinary laptop heights), that row's own
@@ -2908,11 +2957,11 @@
    square fill sitting inside a curved border, showing as a wedge of the
    page's own background between the two. `clip-path`, unlike
    `overflow`, isn't a scroll/paint-containment feature being pressed
-   into clipping service — it's built to cut exactly the shape it's
+   into clipping service â€” it's built to cut exactly the shape it's
    given, so it clips the fill the same way it clips the border.
    `var(--radius-xl)` matches the `rounded-xl` already on this element,
    so the clip traces the same curve the border and background already
-   draw — nothing here changes that shape, only makes content actually
+   draw â€” nothing here changes that shape, only makes content actually
    respect it. */
 .mcm-tasktable-shell > div:first-child {
   clip-path: inset(0 round var(--radius-xl));
@@ -2957,7 +3006,7 @@
 
    The `!important`s are doing real work. These arrows are `Button`
    components whose own variant classes set a grey fill and a 12px radius,
-   which beat plain selectors here — the result was pill-shaped grey
+   which beat plain selectors here â€” the result was pill-shaped grey
    arrows sitting next to a 7px orange square, which is what made the
    group look mismatched.
 
@@ -3007,7 +3056,7 @@
    a complete set rather than losing buttons at the edges. */
 
 
-/* The page you are on — the one piece of colour in the group. */
+/* The page you are on â€” the one piece of colour in the group. */
 .mcm-pager-page.is-current {
   background: var(--primary) !important;
   color: #ffffff !important;
@@ -3025,7 +3074,7 @@
 }
 
 /* ==================================================================
-   Schedule dialog — bright glass.
+   Schedule dialog â€” bright glass.
 
    Not scoped under `.mcm-page`: Radix portals its dialogs to the end of
    `body`, outside the page wrapper, so a `.mcm-page` selector would
@@ -3126,7 +3175,7 @@
   background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* "Mark all as read" toast — react-toastify's default green success skin
+/* "Mark all as read" toast â€” react-toastify's default green success skin
    read as a generic system alert rather than something from this console.
    Warm-orange icon and a proper pill for Undo (was plain underlined text)
    match the notification drawer it's confirming an action from. */
@@ -3234,7 +3283,7 @@
 }
 
 /* Cancel is a bare `text-gray-700 hover:text-primary` button with `border: 0`
-   -- in dark that grey (oklch(0.373 …)) sits nearly invisible on the footer
+   -- in dark that grey (oklch(0.373 â€¦)) sits nearly invisible on the footer
    and the button reads as static label text rather than a control. Given the
    same orange outline as every other Cancel in Directory, with the label
    matching the border, and the usual fill on hover. */
@@ -3383,7 +3432,7 @@
 }
 
 /* =====================================================================
-   Dropdown menus, light — a proper panel rather than a bordered box.
+   Dropdown menus, light â€” a proper panel rather than a bordered box.
    The stock look is a white rectangle ringed in solid `#f2994a` with no
    elevation, so it reads as an outlined form control that happens to
    contain text. This gives it: a warm off-white ground, a hairline instead

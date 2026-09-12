@@ -1,18 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Users,
-  PhoneIncoming,
-  CheckCircle2,
-  PhoneOff,
-  ShieldAlert,
-  UserCheck,
-  Activity,
-  PhoneForwarded,
-} from 'lucide-react';
+import moment from 'moment';
+import { Plus } from 'lucide-react';
 import Campaign from '@/pages/auto-dialer/campaign';
 import { campaignList } from '@/services/api';
-import PerfStatCard from './stat-card';
+import { capitalizeFirstLetter } from '@/lib/utils';
+import { readOutcomes, statusOf } from '@/pages/auto-dialer/campaign/campaign-ui';
+import { useCompanyFeatures } from '@/hooks/rbac';
+import CampaignKpiCards from './campaign-kpi-cards';
+import CampaignAnalyticsCards from './campaign-analytics-cards';
 import './campaigns-theme.css';
 
 const parseMembers = (members: any) => {
@@ -39,7 +35,29 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-backdrop');
-    return () => document.body.classList.remove('perf-warm-backdrop');
+    /* `perf-warm-backdrop` is shared by half of Performance's tabs (every
+       one on the warm theme), so it can't scope anything Campaigns-only.
+       This one is added only here — the hook the compact date-dropdown
+       restyle (index.css) needs, since that dropdown's open menu renders
+       through a portal straight onto `<body>`, outside any DOM ancestor
+       this tab's own markup has. */
+    document.body.classList.add('perf-campaigns-tab-active');
+    return () => {
+      document.body.classList.remove('perf-warm-backdrop');
+      document.body.classList.remove('perf-campaigns-tab-active');
+    };
+  }, []);
+
+  const { features } = useCompanyFeatures();
+  const canCreateCampaign = !!features?.plan_features?.campaign?.action?.add;
+
+  /* `<Campaign />` keeps owning its create-drawer's open/closed state — this
+     just gets a handle to it, so the redesigned header's own "Create
+     campaign" button can trigger the same drawer without either component
+     needing to know about the other beyond this one function. */
+  const [openCreateCampaign, setOpenCreateCampaign] = useState<null | (() => void)>(null);
+  const handleCampaignReady = useCallback((fn: () => void) => {
+    setOpenCreateCampaign(() => fn);
   }, []);
 
   const { data: campaigns = [] } = useQuery({
@@ -49,148 +67,168 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
     refetchInterval: 5000,
   });
 
-  const totals = useMemo(() => {
-    const acc = {
-      assignedLeads: 0,
-      answeredLeads: 0,
-      totalCallNotAnswered: 0,
-      totalDnc: 0,
-      members: 0,
-      byStatus: {} as Record<string, number>,
-      byDialMethod: {} as Record<string, number>,
-    };
-    campaigns.forEach((campaign: any) => {
-      const analytics = campaign?.campaignAnalytics || {};
-      acc.assignedLeads += Number(analytics?.assignedLeads) || 0;
-      acc.answeredLeads += Number(analytics?.answeredLeads) || 0;
-      acc.totalCallNotAnswered += Number(analytics?.totalCallNotAnswered) || 0;
-      acc.totalDnc += Number(analytics?.totalDnc) || 0;
-      acc.members += parseMembers(campaign?.members).length;
+  /* One pass over the raw rows into the shape every card below reads —
+     the same four outcome counts `readOutcomes` already gives the
+     standalone dialer table, so this view can't drift from what that page
+     shows for the same campaign. */
+  const perCampaign = useMemo(
+    () =>
+      campaigns.map((c: any) => {
+        const outcomes = readOutcomes(c?.campaignAnalytics);
+        return {
+          id: c?._id || c?.name,
+          name: capitalizeFirstLetter(c?.name || 'Untitled campaign'),
+          status: String(c?.campaignStatus || 'UNKNOWN').toUpperCase(),
+          dialMethod: String(c?.dialMethod || 'UNKNOWN').toUpperCase(),
+          createdAt: c?.createdAt,
+          members: parseMembers(c?.members),
+          ...outcomes,
+          connectRate: outcomes.assigned ? Math.round((outcomes.answered / outcomes.assigned) * 100) : 0,
+        };
+      }),
+    [campaigns],
+  );
 
-      const status = String(campaign?.campaignStatus || 'UNKNOWN').toUpperCase();
-      acc.byStatus[status] = (acc.byStatus[status] || 0) + 1;
+  const totals = useMemo(
+    () =>
+      perCampaign.reduce(
+        (acc, c) => {
+          acc.assigned += c.assigned;
+          acc.answered += c.answered;
+          acc.noAnswer += c.noAnswer;
+          acc.dnc += c.dnc;
+          acc.pending += c.pending;
+          acc.dialed += c.dialed;
+          acc.members += c.members.length;
+          return acc;
+        },
+        { assigned: 0, answered: 0, noAnswer: 0, dnc: 0, pending: 0, dialed: 0, members: 0 },
+      ),
+    [perCampaign],
+  );
 
-      const dialMethod = String(campaign?.dialMethod || 'UNKNOWN').toUpperCase();
-      acc.byDialMethod[dialMethod] = (acc.byDialMethod[dialMethod] || 0) + 1;
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    perCampaign.forEach((c) => {
+      const label = statusOf(c.status).label;
+      counts[label] = (counts[label] || 0) + 1;
     });
-    return acc;
-  }, [campaigns]);
+    return counts;
+  }, [perCampaign]);
 
-  const connectRate = totals.assignedLeads
-    ? (totals.answeredLeads / totals.assignedLeads) * 100
-    : null;
-  const noAnswerRate = totals.assignedLeads
-    ? (totals.totalCallNotAnswered / totals.assignedLeads) * 100
-    : null;
+  const dialMethodCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    perCampaign.forEach((c) => {
+      counts[c.dialMethod] = (counts[c.dialMethod] || 0) + 1;
+    });
+    return counts;
+  }, [perCampaign]);
 
-  const statusEntries = Object.entries(totals.byStatus).sort((a, b) => b[1] - a[1]);
-  const dialMethodEntries = Object.entries(totals.byDialMethod).sort((a, b) => b[1] - a[1]);
+  const agentAssignment = useMemo(() => {
+    const map = new Map<string, { name: string; campaigns: number; leads: number }>();
+    perCampaign.forEach((c) => {
+      c.members.forEach((member: any) => {
+        const key = member?.user_uuid || member?.label || JSON.stringify(member);
+        const name =
+          member?.label || `${member?.first_name || ''} ${member?.last_name || ''}`.trim() || 'Unknown';
+        const existing = map.get(key) || { name, campaigns: 0, leads: 0 };
+        existing.campaigns += 1;
+        existing.leads += c.assigned;
+        map.set(key, existing);
+      });
+    });
+    return Array.from(map.values())
+      .sort((a, b) => b.leads - a.leads)
+      .slice(0, 6);
+  }, [perCampaign]);
+
+  const connectRate = totals.assigned ? (totals.answered / totals.assigned) * 100 : null;
+  const noAnswerRate = totals.assigned ? (totals.noAnswer / totals.assigned) * 100 : null;
+  const dncPercent = totals.assigned ? Math.round((totals.dnc / totals.assigned) * 100) : null;
+  const membersPerCampaign = campaigns.length ? Math.round(totals.members / campaigns.length) : null;
+  const activeCampaigns = statusCounts.Running || 0;
+  const completedCampaigns = statusCounts.Completed || 0;
+
+  /* Total Leads' sparkline — each campaign's own assigned-leads count,
+     oldest first, so the shape reads as "how the book has grown campaign
+     to campaign" rather than a fabricated time series nothing measures. */
+  const leadsTrend = useMemo(
+    () =>
+      [...perCampaign]
+        .filter((c) => c.createdAt)
+        .sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf())
+        .map((c) => c.assigned),
+    [perCampaign],
+  );
+
+  const agentNames = useMemo(() => agentAssignment.map((agent) => agent.name), [agentAssignment]);
+
+  /* The two KPI ring cards' "vs average campaign" trend chip — the mean of
+     each campaign's OWN connect/no-answer rate, not the fleet-wide weighted
+     rate above it. A real, derived comparison (this campaign book is running
+     hotter or colder than a typical campaign in it) rather than a fabricated
+     time trend nothing here actually measures. */
+  const campaignsWithLeads = useMemo(() => perCampaign.filter((c) => c.assigned > 0), [perCampaign]);
+  const avgCampaignConnectRate = campaignsWithLeads.length
+    ? Math.round(campaignsWithLeads.reduce((sum, c) => sum + c.connectRate, 0) / campaignsWithLeads.length)
+    : null;
+  const avgCampaignNoAnswerRate = campaignsWithLeads.length
+    ? Math.round(
+        campaignsWithLeads.reduce((sum, c) => sum + (c.noAnswer / c.assigned) * 100, 0) /
+          campaignsWithLeads.length,
+      )
+    : null;
 
   /* `pt-7` lands the first card on the same 28px as every other Performance
      tab (Agents/Calls reach it as a `py-4` root plus the 12px their stat
      grids add via `py-3`). Bottom keeps this tab's own `py-5`. */
   return (
     <div className="perf-campaigns flex w-full flex-col gap-4 px-[22px] pt-7 pb-5">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-        <PerfStatCard
-          label="Total leads"
-          value={String(totals.assignedLeads)}
-          sub={`across ${campaigns.length} campaigns`}
-          icon={Users}
-        />
-        <PerfStatCard
-          label="Answered leads"
-          value={String(totals.answeredLeads)}
-          /* The denominator the number beside it is a share of — 1,476 on
-             its own doesn't say whether that's most of the book or a
-             fraction of it. */
-          sub={totals.assignedLeads ? `of ${totals.assignedLeads} assigned` : undefined}
-          icon={PhoneIncoming}
-        />
-        <PerfStatCard
-          label="Connect rate"
-          value={connectRate === null ? '—' : `${Math.round(connectRate)}%`}
-          sub="answered ÷ assigned"
-          icon={CheckCircle2}
-        />
-        <PerfStatCard
-          label="No-answer rate"
-          value={noAnswerRate === null ? '—' : `${Math.round(noAnswerRate)}%`}
-          tone={noAnswerRate !== null && noAnswerRate > 50 ? 'warning' : 'default'}
-          /* Spelled out the same way Connect rate states its own formula
-             next door, so the pair reads as two shares of one denominator
-             rather than two unrelated percentages that happen not to add
-             up to 100 (they don't — a lead can be neither yet). */
-          sub="unanswered ÷ assigned"
-          icon={PhoneOff}
-        />
-        <PerfStatCard
-          label="DNC skips"
-          value={String(totals.totalDnc)}
-          /* A count of skips means little without the book it was skipped
-             from — 141 is either a rounding error or a real dent depending
-             on whether the list is 3,000 or 300. */
-          sub={
-            totals.assignedLeads
-              ? `${Math.round((totals.totalDnc / totals.assignedLeads) * 100)}% of assigned`
-              : undefined
-          }
-          icon={ShieldAlert}
-        />
-        <PerfStatCard
-          label="Members assigned"
-          value={String(totals.members)}
-          /* This total sums each campaign's own member list, so someone on
-             two campaigns is counted twice — it's assignments, not people.
-             Framing it per-campaign is what that number actually supports,
-             and avoids implying a headcount it isn't. */
-          sub={
-            campaigns.length
-              ? `≈${Math.round(totals.members / campaigns.length)} per campaign`
-              : undefined
-          }
-          icon={UserCheck}
-        />
-        <PerfStatCard
-          label="Top status"
-          value={
-            statusEntries.length
-              ? `${statusEntries[0][0].charAt(0)}${statusEntries[0][0].slice(1).toLowerCase()}`
-              : '—'
-          }
-          sub={
-            statusEntries.length
-              ? statusEntries
-                  .map(
-                    ([status, count]) =>
-                      `${status.charAt(0)}${status.slice(1).toLowerCase()}: ${count}`,
-                  )
-                  .join(' · ')
-              : undefined
-          }
-          icon={Activity}
-        />
-        <PerfStatCard
-          label="Top dial method"
-          value={
-            dialMethodEntries.length
-              ? `${dialMethodEntries[0][0].charAt(0)}${dialMethodEntries[0][0].slice(1).toLowerCase()}`
-              : '—'
-          }
-          sub={
-            dialMethodEntries.length
-              ? dialMethodEntries
-                  .map(
-                    ([method, count]) =>
-                      `${method.charAt(0)}${method.slice(1).toLowerCase()}: ${count}`,
-                  )
-                  .join(' · ')
-              : undefined
-          }
-          icon={PhoneForwarded}
-        />
+      <div className="pc-hero-head">
+        <div className="pc-hero-title-row">
+          <span className="pc-live-dot" aria-hidden="true" />
+          <div>
+            <div className="pc-hero-title">Campaigns</div>
+            <div className="pc-hero-sub">Real-time performance across every outbound campaign</div>
+          </div>
+        </div>
+        {canCreateCampaign && openCreateCampaign && (
+          <button type="button" className="pc-create-btn" onClick={() => openCreateCampaign()}>
+            <Plus size={15} />
+            Create campaign
+          </button>
+        )}
       </div>
-      <Campaign embedded globalSearch={globalSearch} />
+
+      <CampaignKpiCards
+        totalLeads={totals.assigned}
+        campaignsCount={campaigns.length}
+        answeredLeads={totals.answered}
+        assignedLeads={totals.assigned}
+        connectRate={connectRate}
+        avgCampaignConnectRate={avgCampaignConnectRate}
+        noAnswerRate={noAnswerRate}
+        noAnswerCount={totals.noAnswer}
+        avgCampaignNoAnswerRate={avgCampaignNoAnswerRate}
+        dncSkips={totals.dnc}
+        dncPercent={dncPercent}
+        membersAssigned={totals.members}
+        membersPerCampaign={membersPerCampaign}
+        agentNames={agentNames}
+        activeCampaigns={activeCampaigns}
+        completedCampaigns={completedCampaigns}
+        leadsTrend={leadsTrend}
+      />
+
+      <CampaignAnalyticsCards
+        perCampaign={perCampaign}
+        totals={totals}
+        statusCounts={statusCounts}
+        dialMethodCounts={dialMethodCounts}
+        agentAssignment={agentAssignment}
+      />
+
+      <Campaign embedded globalSearch={globalSearch} onReady={handleCampaignReady} />
     </div>
   );
 };

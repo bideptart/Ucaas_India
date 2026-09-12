@@ -58,6 +58,7 @@ const LeadsGroupList: FC<any> = ({
   splitStickyHeader = false,
   visibleRowCount,
   fixedPageRows,
+  showRecordRange = false,
 }) => {
   const { features } = useCompanyFeatures();
   const leadsAccess = features?.plan_features?.campaign?.action || {};
@@ -213,6 +214,7 @@ const LeadsGroupList: FC<any> = ({
           splitStickyHeader,
           visibleRowCount,
           fixedPageRows,
+          showRecordRange,
         }}
       />
     </div>

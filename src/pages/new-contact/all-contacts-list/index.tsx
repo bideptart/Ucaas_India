@@ -312,6 +312,7 @@ const AllNewContactsList: FC<any> = ({
   splitStickyHeader = false,
   visibleRowCount,
   fixedPageRows,
+  showRecordRange = false,
 }) => {
   const navigate = useNavigate();
   const tableRef = useRef<any>(null);
@@ -902,6 +903,7 @@ const AllNewContactsList: FC<any> = ({
           splitStickyHeader,
           visibleRowCount,
           fixedPageRows,
+          showRecordRange,
         }}
       />
       <AlertConfirm

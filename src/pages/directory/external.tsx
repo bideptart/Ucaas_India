@@ -337,6 +337,7 @@ const ExternalInner = () => {
             tableWrapperClassName="gp-contact-table"
             splitStickyHeader
             fixedPageRows={10}
+            showRecordRange
           />
         ) : (
           <AllNewContactsList
@@ -346,6 +347,7 @@ const ExternalInner = () => {
             tableWrapperClassName="gp-contact-table"
             splitStickyHeader
             fixedPageRows={10}
+            showRecordRange
             permissionAccess={{
               canView: canViewContact,
               canEdit: canEditContact,

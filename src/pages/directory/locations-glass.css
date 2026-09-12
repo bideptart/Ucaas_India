@@ -107,6 +107,11 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  /* Same fallback as People/Groups/Roles: below the row's own min-width
+     (a narrow window or high browser zoom, not ordinary use) this scrolls
+     sideways instead of wrapping the Actions column's icon buttons onto a
+     second line. */
+  overflow-x: auto;
 }
 .gp-locations table {
   display: flex;
@@ -137,30 +142,38 @@
   display: table;
   table-layout: fixed;
   width: 100%;
+  /* Actions' two 36px icon buttons + gap + cell padding measure ~110px --
+     below that they wrap onto a second line. Same idea as People/Groups/
+     Roles' own row floor, scaled to this table's six columns. */
+  min-width: 680px;
 }
+/* Percentages of the table, not px -- see People's own table (people-glass.css)
+   for why: together they sum to 100%, so the row fills its container at any
+   zoom or width instead of leaving a blank strip or overflowing it. */
 .gp-locations th:nth-child(1),
 .gp-locations td:nth-child(1) {
-  width: auto;
+  width: 24%;
 }
 .gp-locations th:nth-child(2),
 .gp-locations td:nth-child(2) {
-  width: 170px;
+  width: 22%;
 }
 .gp-locations th:nth-child(3),
 .gp-locations td:nth-child(3) {
-  width: 130px;
+  width: 18%;
 }
 .gp-locations th:nth-child(4),
 .gp-locations td:nth-child(4) {
-  width: 110px;
+  width: 14%;
 }
 .gp-locations th:nth-child(5),
 .gp-locations td:nth-child(5) {
-  width: 80px;
+  width: 10%;
 }
 .gp-locations th:nth-child(6),
 .gp-locations td:nth-child(6) {
-  width: 130px;
+  width: 12%;
+  min-width: 110px;
 }
 .gp-locations tbody::-webkit-scrollbar {
   width: 8px;

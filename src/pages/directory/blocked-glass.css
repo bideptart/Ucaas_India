@@ -3,6 +3,20 @@
    so no other `.mcm-page` screen is affected. */
 
 .gp-blocked {
+  /* `.page` inside relies on being a flex item of a column flex container
+     (`flex: 1; min-height: 0; overflow-y: auto`, in mcm-page.css) to be
+     bounded to the available height and scroll internally — that's what
+     every other Directory page gets for free by having `.page` as a direct
+     child of `.mcm-page` (itself `display: flex; flex-direction: column`).
+     This wrapper (added only for the gradient background) sits between the
+     two, and as a plain block it broke that chain: `.page` fell back to its
+     natural content height, silently overflowing past `.mcm-page`'s
+     `overflow: hidden` with nothing left to scroll it — the page just
+     stopped scrolling once the "Block a number" form pushed the content
+     taller than the viewport. Repeating the same flex-column treatment here
+     passes the bounded height through instead of absorbing it. */
+  display: flex;
+  flex-direction: column;
   position: relative;
   isolation: isolate;
   min-height: 100%;
@@ -91,7 +105,11 @@
    instead. */
 .gp-blocked .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;

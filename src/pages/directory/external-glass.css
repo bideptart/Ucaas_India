@@ -71,7 +71,11 @@
    People's does. */
 .gp-external .panel-card {
   background: #fffdfb;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* A near-white border is invisible against this card's own near-white
+     fill and the page's light peach backdrop — --glass-border (the app's
+     own token for a visible edge on a light glass card) instead, same fix
+     as People's panel-card (people-glass.css). */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
@@ -123,7 +127,7 @@
 .gp-external th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -131,8 +135,10 @@
 .gp-external td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
+/* Same wash Performance ▸ Calls uses for its own row hover
+   (--ic-row-hover in interactions-theme.css). */
 .gp-external tbody tr:hover {
-  background: rgba(255, 205, 155, 0.14);
+  background: rgba(255, 241, 235, 0.55);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -151,7 +157,41 @@
    groups-glass.css for the cream/orange body, adding only what this
    contact's own content needs.
 
-   `.mcm-field`, `.mini` and `.ic` normally read `--line`/`--surface`/
+   The shell's own cream background (`#fffaf3`) read as an unwanted orange
+   wash behind this dialog — plain white instead, same fix as every other
+   Directory dialog (Invite people, Edit person, New role, New location). */
+.gp-external-dialog {
+  background: #ffffff !important;
+}
+.gp-external-dialog .gp-create-group-head {
+  background: #ffffff;
+}
+
+/* ---- Contact Notes — centered popup (moved off the right-side
+   SideDrawer), same shell and cream/orange header colours as the Add
+   Contact dialog above. */
+.gp-notes-dialog {
+  background: #ffffff !important;
+}
+.gp-notes-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+
+/* ---- Send WhatsApp Message — centered popup (moved off the right-side
+   SideDrawer), same shell and cream/orange header colours as the dialogs
+   above. `SendWhatsappMessage` has no header of its own (every other
+   caller relies entirely on its wrapper for one), so this dialog's own
+   head is the only title shown, not a replacement for a duplicate. */
+.gp-whatsapp-dialog {
+  background: #ffffff !important;
+}
+.gp-whatsapp-dialog .gp-create-group-head {
+  background: #fff6e9;
+  border-bottom: 1px solid rgba(242, 153, 74, 0.2);
+}
+
+/* `.mcm-field`, `.mini` and `.ic` normally read `--line`/`--surface`/
    `--ink-2`/`--ai` etc, tokens defined only within `.mcm-page` — this
    dialog sits outside that ancestor, so every one of those variables is
    undefined here rather than falling back to anything, and a `border: 1px
@@ -274,11 +314,21 @@
   background: #c96f1f;
   border-color: #c96f1f;
 }
+/* Icon and label side by side, not stacked — the base `.mcm-page .mini`
+   rule already lays them out this way, but this dialog sits outside
+   `.mcm-page` (portaled to `document.body`), so that rule never reaches it
+   and the button fell back to default block flow: icon on its own line
+   above the text, and much taller than intended. */
 .gp-external-dialog .mini {
-  height: auto;
-  padding: 10px 18px;
-  border-radius: 9px;
-  gap: 8px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  gap: 6px;
+  font-size: 12px;
   white-space: nowrap;
   flex: none;
 }
@@ -291,6 +341,9 @@
   border-top: 1px solid rgba(242, 153, 74, 0.2);
 }
 .gp-ext-dialog-close {
+  /* Same solid orange-outline-until-filled-on-hover treatment as Cancel on
+     every other Directory dialog (Invite people, Edit person, New role,
+     New location) — not the fainter grey-text-until-hover look this had. */
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -300,13 +353,13 @@
   font-size: 13px;
   font-weight: 700;
   background: transparent;
-  border: 1px solid rgba(242, 153, 74, 0.3);
-  color: #6b5c4d;
+  border: 1px solid #f2994a;
+  color: #f2994a;
   cursor: pointer;
 }
 .gp-ext-dialog-close:hover {
-  border-color: #f2994a;
-  color: #c96f1f;
+  background: #f2994a;
+  color: #ffffff;
 }
 .gp-ext-dialog-edit {
   display: inline-flex;

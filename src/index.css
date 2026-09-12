@@ -16,7 +16,6 @@
    means a shared class like .mcm-savebar works wherever it is applied
    instead of only on the 31 files that happened to import the stylesheet. */
 @import './components/mcm/mcm-page.css';
-@import './styles/recovered-inflight.css';
 
 
 @theme {
@@ -414,6 +413,59 @@
     overflow: auto !important;
   }
 
+  /* The control's white fill and grey border above are `!important`, so every
+     custom react-select kept a bright white input box in dark mode -- the
+     value text was already being fixed further down, but the box behind it
+     stayed lit. Menu and option surfaces get the same treatment so the
+     dropdown that opens from it matches. */
+  .dark .custom-react-select__control {
+    background-color: var(--mcm-surface-2) !important;
+    /* Orange edge rather than the cold `--mcm-line`, so a select reads as
+       the same control as the app's other inputs and buttons in dark. */
+    border-color: rgba(255, 171, 94, 0.28) !important;
+  }
+  .dark .custom-react-select__control:hover,
+  .dark .custom-react-select__control--is-focused {
+    border-color: var(--mcm-accent, #ffab5e) !important;
+  }
+  .dark .custom-react-select__single-value,
+  .dark .custom-react-select__input-container {
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+
+  /* Same edge the app's other dropdowns use (`.mtg-menu`): a solid accent
+     border at 12px radius, `#ffab5e` in dark. The border goes on `__menu`
+     alone -- react-select nests `__menu-list` inside it, and bordering both
+     draws two lines a pixel apart. */
+  .dark .custom-react-select__menu {
+    background-color: var(--mcm-surface-2) !important;
+    border: 1px solid var(--mcm-accent, #ffab5e) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+  .dark .custom-react-select__menu-list {
+    background-color: var(--mcm-surface-2) !important;
+    border: 0 !important;
+  }
+
+  .dark .custom-react-select__option {
+    background-color: transparent !important;
+    color: var(--mcm-ink) !important;
+  }
+
+  /* Warm hover, matching the menu idiom used elsewhere (#fff1e0/#c96f1f in
+     light). `--mcm-surface-3` was just a lighter slate -- readable, but it
+     didn't say "this is the app's accent" the way every other hover does. */
+  .dark .custom-react-select__option--is-focused,
+  .dark .custom-react-select__option:hover {
+    background-color: rgba(255, 171, 94, 0.16) !important;
+    color: var(--mcm-accent-ink, #ffc98a) !important;
+  }
+  .dark .custom-react-select__option--is-selected {
+    background-color: rgba(255, 171, 94, 0.26) !important;
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+
   .filters .custom-react-select__control {
     height: 36px !important;
     border-radius: 10px !important;
@@ -456,10 +508,20 @@
      never beat this rule no matter how specific it is. It has to live in
      this layer, right beside the rule it overrides, for specificity to
      decide normally. */
+  /* `:not(.filter-active)` on the resting rule (not just a separate,
+     more-specific `.filter-active` rule competing against it) is
+     deliberate: this stylesheet's rules sit behind a `@import` of the
+     Google Fonts URL, which makes the whole sheet's `cssRules` opaque to
+     script (a cross-origin-adjacent restriction) — harmless for
+     rendering, but it also seemed to make an otherwise-more-specific
+     added rule fail to win here in practice. Excluding the active case
+     directly in the resting selector removes the fight entirely: with
+     `.filter-active` present, this rule simply no longer matches, so
+     there's nothing left to out-specificity. */
   .mcm-page
     .perf-interactions
     .filters
-    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):not(.filter-active) {
     background: rgba(255, 255, 255, 0.75) !important;
     border: 1px solid rgba(249, 115, 22, 0.3) !important;
     color: #f97316 !important;
@@ -467,7 +529,20 @@
   .mcm-page
     .perf-interactions
     .filters
-    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):hover {
+    button:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn):not(.filter-active):hover {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+  }
+  /* The Filter (funnel) toggle's own "on" state — call-history/index.tsx
+     adds `.filter-active` while the advanced filter panel is open. Same
+     gradient fill as :hover above, but persistent regardless of pointer
+     position, so the button itself is the indicator that the panel is
+     currently open, not just a hover affordance. */
+  .mcm-page
+    .perf-interactions
+    .filters
+    button.filter-active:not([data-slot='tabs-trigger']):not(.mcm-date-apply-btn):not(.mcm-date-clear-btn) {
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
     border-color: transparent !important;
     color: #ffffff !important;
@@ -482,6 +557,20 @@
   }
 
   .custom-react-select__value-container {
+    /* react-select lays this out as a CSS grid so the single value/
+       placeholder and the (invisible) typeahead input can overlap in the
+       same cell. With this app's other overrides on the control, that
+       grid resolves to two fixed-width column tracks instead of one, and
+       a value spanning both tracks renders with its leading edge subtly
+       mis-rasterized — reads as the first character being sheared off
+       ("00" showing like a stray mark plus "0"). Flex with wrapping gives
+       the same single/placeholder + input overlap behavior (the input is
+       empty and 2px wide, so it doesn't visibly compete for space) without
+       going through that grid math, and it still lets a multi-select's
+       chips wrap onto more than one line. */
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
     text-align: left !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -541,6 +630,27 @@
 
   .select-group__control:hover {
     border-color: var(--primary) !important;
+  }
+
+  /* Dark counterpart, in this layer beside its light twin: the rule above
+     sets the white fill `!important` inside `@layer base`, and a layered
+     important outranks an unlayered one however specific -- so the group
+     picker stayed a white pill against the generic react-select overrides
+     written further down this file. */
+  .dark .select-group__control {
+    background-color: var(--mcm-surface-2, #161f31) !important;
+    border-color: rgba(255, 171, 94, 0.28) !important;
+  }
+  .dark .select-group__menu,
+  .dark .select-group__menu-list {
+    background-color: var(--mcm-surface-2, #161f31) !important;
+  }
+  .dark .select-group__single-value,
+  .dark .select-group__input-container {
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+  .dark .select-group__placeholder {
+    color: var(--mcm-ink-3, #93a1ba) !important;
   }
 
   .select-group-control-error .select-group__control {
@@ -619,10 +729,34 @@
     color: var(--color-white) !important;
   }
 
+  /* Dark counterparts for the three option states above -- all `!important`
+     inside this layer, so they can only be beaten from inside it. Matches
+     what the Country picker does: white options, warm hover with orange
+     ink, stronger wash for the selected one. */
+  .dark .select-group__option {
+    background-color: transparent !important;
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+  .dark .select-group__option:hover,
+  .dark .select-group__option--is-focused {
+    background-color: rgba(255, 171, 94, 0.16) !important;
+    color: var(--mcm-accent-ink, #ffc98a) !important;
+  }
+  .dark .select-group__option--is-selected {
+    background-color: rgba(255, 171, 94, 0.26) !important;
+    color: var(--mcm-ink, #eef2f9) !important;
+  }
+
   .select-group__indicator,
   .select-group__single-value,
   .select-group__multi-value__label {
     color: var(--color-gray-900) !important;
+  }
+
+  .dark .select-group__indicator,
+  .dark .select-group__single-value,
+  .dark .select-group__multi-value__label {
+    color: var(--mcm-ink) !important;
   }
 
   .select-group__placeholder {
@@ -682,6 +816,17 @@
     flex-direction: column;
   }
 
+  /* react-select keeps a live text input under the displayed value/
+     placeholder for typeahead search. Its own text is already
+     transparent, but the browser still blinks a caret at its position —
+     sitting right at the start of "16", "Select", etc., which reads as a
+     stray blurred sliver to the left of the text. These selects don't
+     rely on a visible caret (there's nothing to see it type), so hiding
+     it removes the artifact without touching search/typing itself. */
+  .custom-react-select__input {
+    caret-color: transparent !important;
+  }
+
   .custom-react-select__indicator-separator {
     display: none !important;
   }
@@ -739,6 +884,21 @@
   .custom-react-select__placeholder {
     color: var(--color-gray-700) !important;
     margin: 0 !important;
+  }
+
+  /* The two rules above pin every custom react-select's text to a near-black
+     grey with `!important`, so in dark mode the chosen value ("Today" on the
+     Performance toolbar, and the same control everywhere else it is used)
+     rendered black-on-dark and read as an empty box. Matching `!important` is
+     what it takes to override them. */
+  .dark .custom-react-select__indicator,
+  .dark .custom-react-select__single-value,
+  .dark .custom-react-select__multi-value__label {
+    color: var(--mcm-ink) !important;
+  }
+
+  .dark .custom-react-select__placeholder {
+    color: var(--mcm-ink-3) !important;
   }
 
   .custom-react-select__multi-value {
@@ -869,6 +1029,10 @@
   .rp-date-standalone .mcm-date-preset .custom-react-select__single-value,
   .rp-date-standalone .mcm-date-preset .custom-react-select__placeholder {
     color: #f2994a !important;
+    font-weight: 600;
+  }
+  .rp-date-standalone .mcm-date-preset .custom-react-select__dropdown-indicator svg {
+    color: #f2994a !important;
   }
 
   .chart-container {
@@ -928,6 +1092,22 @@
     border-color: var(--accent-edge) !important;
     background-color: #fff !important;
   }
+  /* Dark counterpart, and it has to sit in this layer beside its light
+     twin: the rule above is `!important` inside `@layer base`, which beats
+     an unlayered `!important` however specific -- so the Group/Tag selects
+     kept their white 0.7 fill against every override written from the page
+     stylesheet. */
+  .dark .contact-toolbar-select.custom-react-select__control {
+    background-color: #111a24 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+  .dark .contact-toolbar-select .custom-react-select__placeholder,
+  .dark .contact-toolbar-select .custom-react-select__single-value,
+  .dark .contact-toolbar-select .custom-react-select__input-container,
+  .dark .contact-toolbar-select .custom-react-select__indicator {
+    color: #fff !important;
+    opacity: 1 !important;
+  }
 
   /* Contact view's "Send WhatsApp Message" drawer (`SendWhatsappMessage`,
      opted in via its own `selectClassName`/wrapper class only from this
@@ -952,6 +1132,25 @@
   }
   .whatsapp-drawer-glass .form-control:focus {
     border-color: var(--primary) !important;
+  }
+
+  /* Schedule modal's Start Time hour/minute dropdowns (Calendar's
+     ScheduleEventModal). Plus Jakarta Sans draws "1" with a serif flag and
+     foot, which reads as a lowercase "l" at a glance regardless of weight
+     or size — heavier weight alone (an earlier attempt) just made the
+     misleading shape bolder. Dropping to the plain system sans-serif stack
+     for this element only gives "1" a straight, unadorned stroke; tabular
+     figures keep every digit the same width as you page through values. */
+  .mcm-time-select.custom-react-select__single-value {
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif !important;
+    font-weight: 600 !important;
+    font-variant-numeric: tabular-nums !important;
+    font-size: 15px !important;
+    color: var(--color-gray-900) !important;
+  }
+
+  .dark .mcm-time-select.custom-react-select__single-value {
+    color: var(--mcm-ink) !important;
   }
 
   .epr-search-container input {
@@ -1157,7 +1356,15 @@
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 
-  button:disabled,
+  /* `.mini`/`.btn` are this app's own themed pill-button component,
+     styled all over mcm-page.css and the Directory *-glass.css files with
+     their own :disabled treatment (typically a dimmed opacity that keeps
+     the button's own color, e.g. `.mcm-page .btn:disabled { opacity:
+     0.45 }`) — this reset's !important painted them flat grey regardless,
+     silently overriding every one of those regardless of specificity,
+     since an unlayered or later-layered !important can never beat a
+     `@layer base` !important no matter how specific its selector is. */
+  button:disabled:not(.mini):not(.btn),
   input:disabled,
   select:disabled,
   textarea:disabled,
@@ -1169,6 +1376,24 @@
     color: var(--color-gray-500) !important;
     cursor: not-allowed !important;
     opacity: 50 !important;
+  }
+
+  /* The dark counterpart, and it has to live HERE rather than in a page
+     stylesheet: the rule above is `!important` inside `@layer base`, and a
+     layered important beats an unlayered one whatever its specificity --
+     exactly the trap its own comment describes. Without this, every
+     disabled field in dark (Country on the location form, a disabled Prev
+     on a wizard) rendered as a light grey chip. */
+  .dark button:disabled:not(.mini):not(.btn),
+  .dark input:disabled,
+  .dark select:disabled,
+  .dark textarea:disabled,
+  .dark .custom-react-select__option--is-disabled,
+  .dark .custom-react-select__control--is-disabled,
+  .dark input:disabled ~ .flag-dropdown {
+    background-color: var(--mcm-surface-3, #1e293e) !important;
+    border: 1px solid rgba(255, 171, 94, 0.12) !important;
+    color: var(--mcm-ink-3, #93a1ba) !important;
   }
 
   /* Calendar day cells are buttons, but they are not form controls. The
@@ -1226,11 +1451,18 @@
     overflow: auto;
   }
 
-  .table-scroll table {
-    width: 100%;
-    margin: auto;
-    border-collapse: separate;
-    border-spacing: 0;
+  /* The Performance lists scroll without drawing a bar. Even at 6px the
+     track sat as a visible rule down the side of a 300px column, which is
+     more chrome than the content it was measuring. Scrolling still works by
+     wheel, trackpad, keyboard and touch -- only the indicator is gone. */
+  .perf-thin-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .perf-thin-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
 
   .dashboard-modal-horizontal-scroll {
@@ -1341,9 +1573,8 @@
 
 .global-search-root {
   position: relative;
-  flex: 1 1 0%;
-  min-width: 120px;
-  max-width: 420px;
+  /* width: 430px; */
+  flex-shrink: 0;
 }
 
 .global-search-input-wrapper {
@@ -1922,10 +2153,7 @@
 .mcm-areanav {
   display: none;
   align-items: center;
-  /* Enough to read as five destinations rather than one strip, without the
-     row spreading wider than it needs. Only applies at >=1280px where the
-     labels show; the icon-only override further down keeps its own spacing. */
-  gap: 3px;
+  gap: 0px;
   height: 100%;
   min-width: 0;
 }
@@ -1938,20 +2166,26 @@
 
 .mcm-areanav-btn {
   display: inline-flex;
+  /* Icon over label. Stacking buys back the horizontal room the old
+     side-by-side row spent on five labels, which is what let the labels come
+     back at every width instead of being dropped under 1280px. */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 3px;
   /* min-width, not width: a hard fixed width forced every tab to the same
-     size, but "Directory" and "Performance" don't fit 90px next to a 16px
-     icon with white-space: nowrap. Flexbox had nowhere else to take the
-     overflow from but the icon (shrinkable) since the text can't wrap —
-     so the icon collapsed toward 0 instead of the tab widening. */
-  min-width: 60px;
-  height: 32px;
-  padding: 7px 10px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+     size, but "Performance" does not fit a 60px tab with white-space:
+     nowrap, and flexbox had nowhere to take the overflow from but the icon.
+     Stacked, the label sets the width and the icon is never squeezed. */
+  min-width: 62px;
+  /* The header is 64px with 10px of padding each side, so 44px is the whole
+     budget: 18px icon + 3px gap + ~13px label + 6px padding. */
+  height: 44px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
   white-space: nowrap;
   color: #64748b;
   background: none;
@@ -1980,21 +2214,15 @@
   border-radius: 8px 8px 0 0;
 }
 
-/* Below the widest breakpoint the labels go and the icons carry it. */
+/* The labels no longer drop under 1280px. Stacked, five tabs cost about
+   310px against the ~560px the old side-by-side row needed, so the width
+   that used to force icon-only is no longer tight -- and an icon-only tab
+   was the weaker half of the pair to keep, since these five glyphs are not
+   self-evident without their words. Only the padding tightens. */
 @media (max-width: 1279px) {
-  .mcm-areanav-btn span {
-    display: none;
-  }
-  /* icon-only at this width, so the tint needs to sit evenly around it.
-     min-width: 90px (set to stop the icon getting squeezed to 0 next to a
-     long label — see the flex-shrink comment above) has no label to
-     protect here, so it was just holding each tab at 90px around a 16px
-     icon. Across 5 tabs that is ~370px of dead width, which is what was
-     pushing bell/theme-toggle/avatar off the right edge of the header on
-     laptop-width screens. */
   .mcm-areanav-btn {
-    min-width: 0;
-    padding: 9px 13px;
+    min-width: 56px;
+    padding: 3px 6px;
   }
 }
 
@@ -2003,14 +2231,10 @@
    the top bar, with the area rail below it rather than beside it.
    ============================================================ */
 .mcm-brandbar {
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: none;
   height: 100%;
-  /* No divider here. AreaNav renders inside this block, so the border landed
-     after the last area tab rather than between the logo and the tabs, which
-     read as a stray line hanging off "Admin". The padding stays — the gap is
-     what separates this group from the search box. */
   padding-right: 14px;
+  border-right: 1px solid #e2e8f0;
   margin-right: 2px;
 }
 
@@ -2142,6 +2366,39 @@
   font-weight: 800;
 }
 
+/* Active marker on the left nav rail. The active tile previously said "you
+   are here" with a peach fill alone, which reads as a hover state as much
+   as a selection — the bar is what makes it unambiguous, and it's the same
+   idiom the app already uses for its other "current item" markers (the
+   Inbox's active row, Directory's row hover).
+
+   `left: -6px` puts it against the rail's own edge rather than the tile's:
+   the rail is 80px with 8px of padding, so the tile starts at x=8 and this
+   lands the 3px bar at x=2 — a hair inside the edge, clear of the tile.
+   It stays inside the scroll container's padding box, so `overflow-y: auto`
+   doesn't clip it. Rounded on the outer side only, so it reads as a marker
+   growing off the edge rather than a floating capsule. */
+.mcm-rail-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  /* A short centred stub, not a bar spanning the tile's full height —
+     centred on the tile so it stays put whether the label wraps to one
+     line or two ("External Contacts"), which a top/bottom-inset bar
+     would not: that one changed length with the tile. */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  /* The same token the tile's own icon/label colour comes from
+     (`text-ucass-active`), so the bar tracks it — including the per-tenant
+     `active_sidebar_color` this variable is set from at runtime. Hardcoding
+     the orange here would have left the bar stranded on any tenant whose
+     sidebar colour isn't the default. */
+  background: var(--color-ucass-active);
+}
+
 /* Rail labels wrap to two lines instead of truncating. The tile is 64px wide,
    so "External Contacts" on one line would be cut mid-word. */
 .mcm-rail-label {
@@ -2172,67 +2429,75 @@
   gap: 3px;
   margin-bottom: 14px;
   padding: 12px 14px;
-  border: 1px solid #f0c088;
-  border-left: 3px solid #c2670a;
-  border-radius: 10px;
-  background: #fdf5e9;
-  color: #7a4406;
+  border: 1px solid color-mix(in srgb, var(--warn) 34%, var(--surface));
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r, 10px);
+  background: var(--warn-wash);
+  color: var(--ink-2);
   font-size: 13px;
   line-height: 1.5;
 }
 .mcm-notsaved strong {
   font-weight: 700;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .mcm-notsaved {
-    border-color: #6b4a1c;
-    background: #2a2013;
-    color: #e8c98d;
-  }
+  color: var(--warn);
 }
 
-/* ── "How your calls reach you" on Basic Info ─────────────────────────────
-   A checklist that reports the person's real configuration, so an unfinished
-   step is visible here rather than discovered by a caller hearing silence. */
+/* -- "How your calls reach you": the setup checklist on Profile ---------
+   A card, not a bare list under a rule. It sits in the Profile aside beside
+   the coverage panel, and a section divided off with only a top border read
+   as leftover page rather than as a panel of its own.
+
+   Rewritten in the design tokens as well: it was built from 51 hard-coded
+   greys out of a cool palette (#101828, #667085, #e6e9f0) sitting inside a
+   warm, orange-accented app, which is why it looked borrowed from another
+   product. It is tighter than it was, too. It ran to 837px -- taller than
+   the viewport it shares with the form -- almost all of it padding, line
+   height and a third grid column. */
 .mcm-setupguide {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid #e6e9f0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 .mcm-setupguide header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .mcm-setupguide h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  color: #101828;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 .mcm-setupguide header p {
   margin: 3px 0 0;
-  font-size: 12.5px;
-  color: #667085;
-  max-width: 62ch;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  max-width: 46ch;
+  text-wrap: pretty;
 }
 .mcm-setupguide-pill {
   flex: none;
-  padding: 4px 11px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  background: #e7f6ee;
-  color: #087443;
+  white-space: nowrap;
+  background: var(--live-wash);
+  color: var(--live);
 }
 .mcm-setupguide-pill.warn {
-  background: #fdf0e0;
-  color: #96650d;
+  background: var(--warn-wash);
+  color: var(--warn);
 }
 
 .mcm-setupguide ol {
@@ -2241,82 +2506,95 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
+/* Icon, text, action. The action used to sit in a third grid column, which
+   on a 360px aside left the sentence beside it wrapping to five or six lines
+   against a button with nothing under it -- the single biggest reason this
+   panel ran so long. It now sits under the text it belongs to, so a row is
+   as tall as its content needs and no taller. */
 .mcm-setupguide li {
   display: grid;
-  grid-template-columns: 26px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 4px 10px;
   align-items: start;
-  padding: 14px 0;
-  border-bottom: 1px solid #f0f2f6;
+  padding: 11px 0;
+  border-top: 1px solid var(--line-2);
 }
-.mcm-setupguide li:last-child {
-  border-bottom: 0;
+.mcm-setupguide li:first-child {
+  border-top: 0;
+  padding-top: 2px;
 }
 .mcm-setupguide-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   margin-top: 1px;
 }
 .mcm-setupguide li.ok .mcm-setupguide-mark {
-  background: #e7f6ee;
-  color: #087443;
+  background: var(--live-wash);
+  color: var(--live);
 }
 .mcm-setupguide li.todo .mcm-setupguide-mark {
-  background: #fdf0e0;
-  color: #96650d;
+  background: var(--warn-wash);
+  color: var(--warn);
 }
 .mcm-setupguide-body h3 {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
-  color: #101828;
+  color: var(--ink);
 }
 .mcm-setupguide-status {
-  margin: 2px 0 0;
-  font-size: 13px;
+  margin: 1px 0 0;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #344054;
+  line-height: 1.4;
+  color: var(--live);
+  text-wrap: pretty;
 }
 .mcm-setupguide li.todo .mcm-setupguide-status {
-  color: #96650d;
+  color: var(--warn);
 }
 .mcm-setupguide-explain {
-  margin: 4px 0 0;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: #667085;
-  max-width: 68ch;
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  text-wrap: pretty;
 }
+/* Second column, under the text it acts on. */
 .mcm-setupguide-action {
-  flex: none;
-  align-self: center;
-  padding: 6px 12px;
-  border: 1px solid #d5dae5;
-  border-radius: 8px;
-  font-size: 12.5px;
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 8px;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 11.5px;
   font-weight: 600;
-  color: #c96f1f;
+  color: var(--ink-2);
   text-decoration: none;
-  white-space: nowrap;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
 }
 .mcm-setupguide-action:hover {
-  background: #fff1e0;
-  border-color: #ffd9ad;
+  border-color: var(--accent-edge);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
 }
-@media (max-width: 640px) {
-  .mcm-setupguide li {
-    grid-template-columns: 26px 1fr;
-  }
+.mcm-setupguide-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
   .mcm-setupguide-action {
-    grid-column: 2;
-    justify-self: start;
-    margin-top: 8px;
+    transition: none;
   }
 }
 
@@ -2440,32 +2718,63 @@
    this may be written against its own selectors.
    ================================================================== */
 
-/* Content-sized columns with Title absorbing the slack. Measured before
-   this pass: Title truncated at 134px while "Created By" held 94px of
-   empty cells beside it. Sizing by content means a title clips only when
-   the viewport genuinely cannot fit it, never because a neighbour is
-   hoarding width. Columns are sized here rather than with percentages
-   because none of these cells can compress below their content. */
+/* Fixed percentage columns instead of content-sized ones. The previous
+   approach (`width: 1%` + Title absorbing slack via `max-width: 0`) let
+   Title compress, but every other column was still sized by its own
+   content minimum -- once those minimums plus Title's 170px floor added
+   up to more than the container, the table exceeded it and fell back to
+   a horizontal scrollbar. `table-fixed` with percentages that always sum
+   to 100% removes that failure mode entirely: the table can never be
+   wider than its container, at any viewport width or content length.
+   Title still gets the ellipsis treatment (`.mcm-task-title`) rather than
+   wrapping, so a long name is still legible as a truncated single line
+   instead of forcing a taller row. */
+.mcm-tasktable table {
+  table-layout: fixed;
+  width: 100%;
+}
 .mcm-tasktable thead th,
 .mcm-tasktable tbody td {
-  width: 1%;
-  white-space: nowrap;
+  overflow: hidden;
+}
+.mcm-tasktable thead th:nth-child(1),
+.mcm-tasktable tbody td:nth-child(1) {
+  width: 15%;
 }
 .mcm-tasktable thead th:nth-child(2),
 .mcm-tasktable tbody td:nth-child(2) {
-  width: 100%;
-  /* `max-width: 0` against `width: 100%` is what lets this cell fall below
-     its content width. Without it the cell reports its full title as a
-     minimum, the table cannot compress, and it overflows its container
-     instead -- 27px past the edge at a 1100px viewport. Title is the only
-     column that should give up space: every other one holds a date, a
-     chip or a control that cannot compress at all. */
-  max-width: 0;
-  /* ...but only down to a point. Left unbounded it reached 63px in a
-     800px container, which is narrower than the word "Onboarding" and
-     shows nothing useful. Past this floor the wrapper scrolls, which is
-     the honest outcome for a table that has genuinely run out of room. */
-  min-width: 170px;
+  width: 26%;
+}
+.mcm-tasktable thead th:nth-child(3),
+.mcm-tasktable tbody td:nth-child(3) {
+  width: 17%;
+}
+.mcm-tasktable thead th:nth-child(4),
+.mcm-tasktable tbody td:nth-child(4) {
+  width: 10%;
+}
+.mcm-tasktable thead th:nth-child(5),
+.mcm-tasktable tbody td:nth-child(5) {
+  width: 14%;
+}
+.mcm-tasktable thead th:nth-child(6),
+.mcm-tasktable tbody td:nth-child(6) {
+  width: 12%;
+}
+.mcm-tasktable thead th:nth-child(7),
+.mcm-tasktable tbody td:nth-child(7) {
+  width: 6%;
+}
+
+/* The two date columns (Created On, Scheduled At) share the same
+   two-line `.mcm-task-when` markup as Title's row, but never had their
+   own overflow guard -- a long timezone suffix on the time line
+   (`mcm-task-time`) had nothing stopping it from pushing past its now
+   fixed-percentage column. */
+.mcm-tasktable .mcm-task-date,
+.mcm-tasktable .mcm-task-time {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 8px on all four sides was the same inset between two dense columns as
@@ -2571,23 +2880,57 @@
 
 /* The pager is TableManager's next sibling and the two bordered cards sat
    with a 0px gap between them, so the table's bottom edge and the pager's
-   top edge read as one doubled line. */
-.mcm-tasktable + div {
+   top edge read as one doubled line.
+
+   `.mcm-tasktable` is the inner scrolling box — TableManager wraps it in
+   its own non-scrolling corner-clip div first (see the comment on that
+   wrapper in table-manager.tsx), so the pager is actually a sibling of
+   THAT wrapper, one level further out, never of `.mcm-tasktable` itself.
+   `.mcm-tasktable + div` matched nothing there and never applied.
+   `.mcm-tasktable-shell` is the page-level box one level out again (the
+   one already carrying `flex flex-col` — see the JSX in
+   video-meetings/Calender/index.tsx) that actually holds both the table
+   wrapper and the pager as direct children, so `> div + div` reaches the
+   real sibling. */
+.mcm-tasktable-shell > div + div {
   margin-top: 10px;
 }
 
-/* TableManager sizes the scroll box from `window.innerHeight` less a flat
-   66px, but the panel it sits in ends 12px above the window bottom, so
-   the pager was already hanging 3px into the clip before the gap above
-   pushed it to 13. `max-height` wins over the inline `height` it sets, so
-   this caps the box without touching a component ~80 tables share.
-
-   Budget below the scroll box: 57 pager + 10 gap + 12 panel inset + 12
-   gutter, against a 133px offset from the top of the viewport, which is
-   fixed by this page's chrome and so does not vary with window height. */
-.mcm-tasktable {
-  max-height: calc(100vh - 224px);
+/* The table's outer corner-clip wrapper (`.mcm-tasktable-shell`'s first
+   child, rendered by TableManager) relies on `overflow: hidden` +
+   `border-radius` to keep the scrolling table's own content from
+   spilling past its rounded corners. That pairing clips the BORDER
+   correctly — the curve you see tracing the edge is always right — but
+   confirmed live it does not reliably clip the FILL underneath it: with
+   more rows than fit (any window short enough that the last row is cut
+   off mid-row, common at ordinary laptop heights), that row's own
+   background still rendered as a sharp square right into the corner,
+   square fill sitting inside a curved border, showing as a wedge of the
+   page's own background between the two. `clip-path`, unlike
+   `overflow`, isn't a scroll/paint-containment feature being pressed
+   into clipping service — it's built to cut exactly the shape it's
+   given, so it clips the fill the same way it clips the border.
+   `var(--radius-xl)` matches the `rounded-xl` already on this element,
+   so the clip traces the same curve the border and background already
+   draw — nothing here changes that shape, only makes content actually
+   respect it. */
+.mcm-tasktable-shell > div:first-child {
+  clip-path: inset(0 round var(--radius-xl));
 }
+
+/* TableManager's own `overflow-auto` scrolls both axes. The `table-fixed`
+   percentage columns above already keep the table itself from ever
+   exceeding this box's width, but pinning `overflow-x` to `hidden`
+   explicitly (rather than relying on there simply being nothing to
+   scroll) means a horizontal scrollbar can never flash into existence
+   for a frame during a resize or a row re-render, and removes the
+   browser's reserved horizontal scrollbar gutter, which was shaving a
+   few px off the table's usable height. Vertical scroll is untouched. */
+.mcm-tasktable {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 
 /* The trigger only revealed itself on hover, so the control looked like
    loose punctuation until the pointer found it. */

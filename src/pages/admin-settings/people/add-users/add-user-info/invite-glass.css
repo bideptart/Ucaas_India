@@ -24,6 +24,9 @@
   max-height: 88vh;
   background: #ffffff !important;
 }
+.dark .gp-invite-dialog {
+  background: var(--mcm-surface, #1e293b) !important;
+}
 .gp-invite-dialog .gp-create-group-head {
   /* Transparent, not white: the rail's peach (below) is painted behind
      everything via a pseudo-element on the dialog itself so it can reach
@@ -635,6 +638,10 @@
   border-color: rgba(242, 153, 74, 0.25);
   background: #fffdfb;
 }
+.dark .gp-invite-dialog .mcm-invite [data-slot='input'] {
+  border-color: #1b2934;
+  background: var(--mcm-surface, #111c26);
+}
 .gp-invite-dialog .mcm-invite [data-slot='input']:hover,
 .gp-invite-dialog .mcm-invite [data-slot='input']:focus {
   border-color: #f2994a;
@@ -659,6 +666,10 @@
   background: #fff1e0 !important;
   border-color: rgba(242, 153, 74, 0.35) !important;
   border-radius: 10px !important;
+}
+.dark .gp-invite-dialog .mcm-invite-summary p[role='status'] {
+  background: var(--mcm-surface-3, #1a2733) !important;
+  border-color: rgba(249, 115, 22, 0.35) !important;
 }
 
 /* ---- invitee cards — forced to one column regardless of viewport width.
@@ -789,6 +800,9 @@
 .gp-invite-dialog .mcm-invite .flag-dropdown {
   border-color: rgba(242, 153, 74, 0.25) !important;
 }
+.dark .gp-invite-dialog .mcm-invite .flag-dropdown {
+  border-color: #1b2934 !important;
+}
 
 /* "Select location" / "Role" dropdowns — matched to the same rounded warm
    border every plain input in this dialog already has, instead of the
@@ -798,9 +812,17 @@
   background-color: #fffdfb !important;
   border-radius: 12px !important;
 }
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control {
+  border-color: #1b2934 !important;
+  background-color: var(--mcm-surface, #111c26) !important;
+}
 .gp-invite-dialog .mcm-invite .custom-react-select__control:hover,
 .gp-invite-dialog .mcm-invite .custom-react-select__control--is-focused {
   border-color: #f2994a !important;
+}
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control:hover,
+.dark .gp-invite-dialog .mcm-invite .custom-react-select__control--is-focused {
+  border-color: #f97316 !important;
 }
 
 /* ---- footer ---- */
@@ -814,15 +836,28 @@
   color: #f2994a !important;
   border-radius: 9px !important;
 }
+.dark .gp-invite-dialog .btn.ghost {
+  border-color: #f97316 !important;
+  color: #ff8a2a !important;
+}
 .gp-invite-dialog .btn.ghost:hover {
   background: #f2994a !important;
   border-color: #f2994a !important;
   color: #ffffff !important;
 }
+.dark .gp-invite-dialog .btn.ghost:hover {
+  background: #f97316 !important;
+  border-color: #f97316 !important;
+  color: #1a0f06 !important;
+}
 .gp-invite-dialog .btn.primary {
   background: #f2994a;
   border-color: #f2994a;
   border-radius: 9px;
+}
+.dark .gp-invite-dialog .btn.primary {
+  background: #f97316;
+  border-color: #f97316;
 }
 .gp-invite-dialog .btn.primary:hover {
   background: #c96f1f;

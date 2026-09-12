@@ -623,7 +623,7 @@ const AddUserInfo = ({
             answer for all of them, and it is a company-wide setting somebody
             can go and change. */}
         {roleDecision.reason ? (
-          <p className="mx-auto mt-1 max-w-3xl text-center text-xs text-gray-600">
+          <p className="mx-auto mt-1 max-w-3xl text-center text-xs text-gray-600 dark:text-mcm-ink-3">
             {roleDecision.reason}
           </p>
         ) : null}
@@ -833,7 +833,7 @@ const AddUserInfo = ({
                 const caution = roleWarning(chosen);
                 return chosen ? (
                   <>
-                    <p className="mt-1 text-[11px] leading-snug text-gray-500">
+                    <p className="mt-1 text-[11px] leading-snug text-gray-500 dark:text-mcm-ink-3">
                       {describeRole(chosen)}
                     </p>
                     {caution ? (

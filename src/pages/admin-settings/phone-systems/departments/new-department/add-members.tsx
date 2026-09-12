@@ -220,14 +220,19 @@ const SelectAllHeader = ({ currentMembers }: { currentMembers: Member[] }) => {
   );
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-xs font-semibold text-gray-500">Members</span>
+    <div className="flex items-center justify-center gap-2">
       <div className="flex justify-center text-primary">
         <Checkbox
           checked={isAllChecked ? true : isIndeterminate ? 'indeterminate' : false}
           onCheckedChange={handleSelectAllChange}
         />
       </div>
+      {/* `text-muted-foreground` is a mid grey in both themes -- fine beside
+          the black headings this table used to have, too dim next to the
+          white ones it has now. */}
+      <span className="text-xs font-semibold text-muted-foreground dark:text-mcm-ink">
+        Members
+      </span>
     </div>
   );
 };

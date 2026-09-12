@@ -218,8 +218,47 @@ const NewDepartment = ({
     watch,
     trigger,
     setValue,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = formInstance;
+
+  /* Which tabs are finished, for the tick in the strip. Each tab already
+     owns a schema (`validationSchema`), and `handleTabChange` validates
+     against exactly these when moving forward -- so "complete" here means
+     the same thing as "you would be allowed past this tab", rather than a
+     second, drifting definition of done.
+
+     `watch()` with no argument re-renders on every keystroke, which is what
+     keeps the ticks live; five small sync schemas per keystroke is
+     affordable on a form this size. A schema with an async test would make
+     validateSync throw, and the catch simply leaves that tab unticked
+     rather than breaking the strip. */
+  const watchedValues = watch();
+  const completedTabs = useMemo(() => {
+    const done: Record<string, boolean> = {};
+    TABS_ORDER.forEach((tab) => {
+      /* Schema-valid alone isn't "done": Ring Strategy and Media pass with
+         the form's own defaults, so they ticked before the user had opened
+         them. The tab also has to hold something the user actually entered.
+         Which fields belong to a tab comes from that tab's schema rather
+         than a hand-kept list, so the two can't drift apart. */
+      const tabFields = Object.keys(validationSchema[tab]?.fields || {});
+      const hasInput = tabFields.some((field) => (dirtyFields as any)?.[field]);
+      if (!hasInput) {
+        done[tab] = false;
+        return;
+      }
+      try {
+        validationSchema[tab].validateSync(watchedValues, {
+          abortEarly: true,
+          context: { activeTab: tab, schemaContext },
+        });
+        done[tab] = true;
+      } catch {
+        done[tab] = false;
+      }
+    });
+    return done;
+  }, [watchedValues, schemaContext, dirtyFields]);
 
   const handleTabChange = async (nextTab: string) => {
     const currentIndex = TABS_ORDER.indexOf(currentStep);

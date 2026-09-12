@@ -44,6 +44,11 @@ export interface CreateNewContactProps {
   isLead?: boolean;
   prefillPhone?: string;
   hideCancelButton?: boolean;
+  /* Opt-in, every other caller unaffected (Leads, Phone console's contact
+     pane, ...). Bigger avatar circle, and the edit/remove actions sit
+     beside it as always-visible buttons instead of small badges
+     overlapping its corners (remove was hover-only there too). */
+  largeAvatar?: boolean;
 }
 
 export type ContactFormValues = {

@@ -406,6 +406,7 @@ const ExternalInner = () => {
               setDrawerState={() => void 0}
               keepFormDataAfterSave
               isLead={false}
+              largeAvatar
               handleClose={() =>
                 setDrawerState((prev) => ({ ...prev, addContact: false, selectedContact: null }))
               }

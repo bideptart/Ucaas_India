@@ -16,6 +16,16 @@ interface IStepperProps {
   /* Arbitrary content under that heading -- undefined everywhere except
      Directory's invite dialog, which uses it for the license-count pills. */
   panelFooter?: ReactNode;
+  /* Opt-in, every other caller unaffected. When the root itself sits in a
+     taller box that stretches to match a scrolling sibling (Locations'
+     own rail: `align-self: stretch`, so its own border-right can span the
+     full height instead of just this panel's content), the heading+step
+     list need their own `position: sticky` -- the ROOT can't be the
+     sticky element there, since a stretched box is already exactly as
+     tall as the scrollable range, leaving no slack for it to lag behind
+     and catch. Wraps just the title+list (not panelFooter, which nothing
+     using this prop currently passes) in a sticky container instead. */
+  stickyPanel?: boolean;
 }
 const Stepper: FC<IStepperProps> = ({
   steps,
@@ -26,11 +36,10 @@ const Stepper: FC<IStepperProps> = ({
   panelTitle,
   panelSubtitle,
   panelFooter,
+  stickyPanel = false,
 }) => {
-  return (
-    <div
-      className={`p-3 bg-white dark:bg-mcm-surface ${panelFooter ? 'flex h-full flex-col' : ''} ${customClass}`}
-    >
+  const titleAndSteps = (
+    <>
       {panelTitle ? (
         <div className="mcm-stepper-panel-head">
           <h3>{panelTitle}</h3>
@@ -92,6 +101,18 @@ const Stepper: FC<IStepperProps> = ({
           );
         })}
       </ol>
+    </>
+  );
+
+  return (
+    <div
+      className={`p-3 bg-white dark:bg-mcm-surface ${panelFooter ? 'flex h-full flex-col' : ''} ${customClass}`}
+    >
+      {stickyPanel ? (
+        <div style={{ position: 'sticky', top: 0 }}>{titleAndSteps}</div>
+      ) : (
+        titleAndSteps
+      )}
       {panelFooter ? <div className="mt-auto">{panelFooter}</div> : null}
     </div>
   );

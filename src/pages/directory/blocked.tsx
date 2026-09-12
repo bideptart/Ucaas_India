@@ -369,7 +369,7 @@ const Blocked = () => {
 
       <Dialog open={blockFormOpen} onOpenChange={setBlockFormOpen}>
         <DialogContent
-          className="gp-create-group-dialog gp-block-dialog sm:max-w-[520px]"
+          className="gp-create-group-dialog gp-block-dialog sm:max-w-[620px]"
           showCloseButton={false}
         >
           <div className="gp-create-group-head">

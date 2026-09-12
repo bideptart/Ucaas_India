@@ -889,3 +889,49 @@
   color: var(--mcm-accent, #ffab5e) !important;
   border-bottom: 3px solid rgba(255, 171, 94, 0.35) !important;
 }
+
+/* ---- Pager row ----
+   Both tabs here (Contacts, Groups) render through the shared TableManager
+   (table-manager.tsx), whose own pager is a bordered, backdrop-blurred card
+   with a refresh button and a "per page" selector -- a different look from
+   every other Directory table's plain pager (`.gp-people-pager` etc.,
+   people-glass.css). No `customClass`/prop on TableManager reaches that
+   bar, so this strips its card chrome and extra controls from here instead,
+   leaving the same prev/number/next control (`.mcm-pager-*`, index.css)
+   every other Directory pager already shares. */
+.gp-external div:has(> div > .mcm-pager) {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid rgba(150, 100, 50, 0.12) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 12px 22px 14px !important;
+}
+.dark .gp-external div:has(> div > .mcm-pager) {
+  border-top-color: rgba(255, 171, 94, 0.12) !important;
+}
+/* Record count -- same size/weight/colour as People's own
+   `.gp-people-pager-count`, not the bar's bold default label. */
+.gp-external div:has(> div > .mcm-pager) label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a6f57;
+}
+.dark .gp-external div:has(> div > .mcm-pager) label {
+  color: var(--mcm-ink-3, #93a1ba);
+}
+/* Refresh button and the "N per page" selector -- neither exists on any
+   other Directory pager; this table pages a fixed size like the rest. */
+.gp-external .table-refresh-btn,
+.gp-external div:has(> .tableSelect) {
+  display: none !important;
+}
+/* First/last (double-chevron) jump buttons -- People's own pager only ever
+   offers prev/number/next. Both are `.mcm-pager-btn` with no class of their
+   own, but they're always the first and last control in the group. */
+.gp-external .mcm-pager > .mcm-pager-btn:first-child,
+.gp-external .mcm-pager > .mcm-pager-btn:last-child {
+  display: none !important;
+}

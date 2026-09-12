@@ -44,7 +44,7 @@ const DialpadCallTimer = ({ connectedAt }: DialpadCallTimerProps) => {
   if (!connectedAt) return null;
 
   return (
-    <span className="rounded-full  bg-white dark:bg-mcm-surface   font-mono text-[11px] font-semibold text-red-600 max-[380px]:px-1.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1 sm:text-xs xl:text-[13px]">
+    <span className="rounded-full  bg-white   font-mono text-[11px] font-semibold text-red-600 max-[380px]:px-1.5 max-[380px]:text-[10px] sm:px-2.5 sm:py-1 sm:text-xs xl:text-[13px]">
       {formatDialpadDuration(elapsedSeconds)}
     </span>
   );

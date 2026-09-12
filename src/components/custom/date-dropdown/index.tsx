@@ -1,5 +1,4 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import ReactDatePicker from 'react-datepicker';
 import moment from 'moment';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -206,30 +205,6 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
     const rangePanelRef = useRef<HTMLDivElement | null>(null);
     const presetTriggerRef = useRef<HTMLDivElement | null>(null);
 
-    /* Where the calendar popup portals to. A plain `portalId` (a fixed
-       `document.body` target react-datepicker creates once and reuses)
-       is what every other usage of this control relies on to escape a
-       clipping ancestor — but a Radix `Dialog` (the "Open a full report
-       page" modal, reports-tab.tsx) traps focus to its own DOM subtree,
-       and a `document.body`-level portal sits entirely outside that
-       subtree. The instant the calendar receives real focus, Radix's
-       focus trap yanks it straight back to the dialog, which reads as
-       the calendar closing the moment you touch the month nav or the
-       month/year dropdown (a plain synthetic `.click()` doesn't move
-       real focus the same way, which is why that failure mode is easy to
-       miss testing programmatically). Portaling into the nearest
-       `[role="dialog"]` ancestor instead keeps the calendar inside
-       Radix's trap; outside any dialog (every other caller — Performance's
-       own toolbar, the phone console) this still resolves to `document.body`,
-       identical to before. */
-    /* `children` optional, not required — react-datepicker types this prop
-       as a `FunctionComponent<{ children?: ReactNode }>`, and a required
-       `children` isn't assignable to it. */
-    const getPopperContainer = ({ children }: { children?: React.ReactNode }) => {
-      const target = presetTriggerRef.current?.closest('[role="dialog"]') || document.body;
-      return createPortal(children, target);
-    };
-
     useImperativeHandle(
       forwardedRef,
       () => ({
@@ -243,21 +218,18 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
 
     // Click-outside-to-dismiss: a mousedown anywhere that isn't the panel
     // itself, the preset select that reopens it, or the calendar popup
-    // (rendered through `getPopperContainer` above — physically outside
-    // this component's own DOM subtree in whichever container that
-    // resolved to, so `rangePanelRef` alone would never contain a click
-    // on a day in the calendar) closes the panel. Checked by class
-    // (`.mcm-datepicker`, the calendar's own `calendarClassName`) rather
-    // than a fixed portal element id, since `getPopperContainer` no longer
-    // portals to one single well-known node. Only wired up while the
-    // panel is actually open, so it costs nothing the rest of the time.
+    // (rendered through `portalId="mcm-datepicker-portal"` — physically
+    // outside this component's own DOM subtree, in a body-level portal
+    // node, so `rangePanelRef` alone would never contain a click on a day
+    // in the calendar) closes the panel. Only wired up while the panel is
+    // actually open, so it costs nothing the rest of the time.
     useEffect(() => {
       if (!isRangePanelOpen) return;
       const handlePointerDown = (event: MouseEvent) => {
         const target = event.target as Node;
         if (rangePanelRef.current?.contains(target)) return;
         if (presetTriggerRef.current?.contains(target)) return;
-        if ((target as HTMLElement).closest?.('.mcm-datepicker')) return;
+        if (document.getElementById('mcm-datepicker-portal')?.contains(target)) return;
         setIsRangePanelOpen(false);
       };
       document.addEventListener('mousedown', handlePointerDown);
@@ -315,7 +287,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
         className="mcm-date-input"
         customInput={<DateFieldInput label="From" />}
         popperPlacement={showCustomPickerBelow ? 'bottom-start' : undefined}
-        popperContainer={getPopperContainer}
+        portalId="mcm-datepicker-portal"
       />
     );
     const toPicker = (
@@ -332,7 +304,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
         className="mcm-date-input"
         customInput={<DateFieldInput label="To" />}
         popperPlacement={showCustomPickerBelow ? 'bottom-end' : undefined}
-        popperContainer={getPopperContainer}
+        portalId="mcm-datepicker-portal"
       />
     );
 
@@ -382,14 +354,14 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
             // two-line card.
             <div
               ref={rangePanelRef}
-              className="mcm-date-range-bar absolute right-0 top-full z-50 mt-2 flex w-fit flex-row flex-nowrap items-center gap-2 whitespace-nowrap rounded-2xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[#fdfbf8] px-2.5 py-2 shadow-lg"
+              className="mcm-date-range-bar absolute right-0 top-full z-50 mt-2 flex w-fit flex-row flex-nowrap items-center gap-2 whitespace-nowrap rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[#fdfbf8] px-2.5 py-2 shadow-lg"
             >
               <div className="mcm-date-field w-[120px] flex-none">{fromPicker}</div>
               <div className="mcm-date-field w-[120px] flex-none">{toPicker}</div>
               <button
                 type="button"
                 title="Clear"
-                className="mcm-date-clear-btn flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white text-[#9A948F] dark:text-mcm-ink-3 transition-colors hover:border-primary hover:text-primary"
+                className="mcm-date-clear-btn flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary"
                 onClick={() => setDateRange((prev: any) => ({ ...prev, from: '', to: '' }))}
               >
                 <Icon name="CloseIcon" className="h-3.5 w-3.5" />
@@ -404,10 +376,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
               </Button>
             </div>
           ) : (
-            <div
-              ref={rangePanelRef}
-              className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap"
-            >
+            <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
               {/* Two independent single-month pickers rather than one connected
                   two-month range calendar — "From" only ever opens its own
                   calendar, "To" its own, so picking a start date never leaves a
@@ -420,7 +389,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                 <button
                   type="button"
                   title="Clear"
-                  className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-white text-[#9A948F] dark:text-mcm-ink-3 transition-colors hover:border-primary hover:text-primary"
+                  className="mcm-date-clear-btn flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(225,200,165,0.9)] bg-white text-[#9A948F] transition-colors hover:border-primary hover:text-primary"
                   onClick={() => setDateRange((prev: any) => ({ ...prev, from: '', to: '' }))}
                 >
                   <Icon name="CloseIcon" className="h-3.5 w-3.5" />
@@ -449,7 +418,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: date,
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showMonthDropdown
                 showYearDropdown
                 peekNextMonth
@@ -473,7 +442,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: newEndTime,
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showTimeSelect
                 showTimeSelectOnly
                 timeFormat="HH:mm"
@@ -490,7 +459,7 @@ const DateDropdown = forwardRef<DateDropdownHandle, any>(
                     to: moment(time).format('HH:mm'),
                   }));
                 }}
-                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface/88 backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
+                className="h-9 w-full min-w-0 rounded-lg border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-3 text-sm shadow-none hover:border-primary focus:border-primary focus:outline-none"
                 showTimeSelect
                 showTimeSelectOnly
                 timeFormat="HH:mm"

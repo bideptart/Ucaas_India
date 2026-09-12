@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { getRoutePrefetchHandlers } from '@/router/route-prefetch';
-import { COMPANY_RULES_PATH } from '@/pages/admin-settings/company/company-sections';
+import { COMPANY_RULES_PATH, COMPANY_SECTION_PATHS } from '@/pages/admin-settings/company/company-sections';
 import { ABSOLUTE, BILLING_SECTIONS } from '@/pages/admin-settings/billing/billing-sections';
 
 export const canShowItem = (item: any, isAdmin: boolean) => {
@@ -39,7 +39,11 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
         { title: 'FAQs', icon: 'QuestionIcon', path: '/admin-settings/captain/faqs' },
         { title: 'Scenarios', icon: 'PlayDottedCircle', path: '/admin-settings/captain/scenarios' },
         { title: 'Actions', icon: 'WebhookIcon', path: '/admin-settings/captain/actions' },
+        { title: 'Widgets', icon: 'Grid', path: '/admin-settings/captain/widgets' },
+        { title: 'Activity', icon: 'AnalyticsIcon', path: '/admin-settings/captain/submissions' },
         { title: 'Inboxes', icon: 'InboxIcon', path: '/admin-settings/captain/inboxes' },
+        { title: 'AI Voice Calls', icon: 'Mic', path: '/admin-settings/captain/voice-calls' },
+        { title: 'Conversations', icon: 'MessageLine', path: '/admin-settings/captain/conversations' },
         { title: 'Settings', icon: 'SettingsIcon', path: '/admin-settings/captain/settings' },
       ],
     },
@@ -65,9 +69,23 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
         {
           title: 'Company Rules',
           path: COMPANY_RULES_PATH,
+          /* Stays lit across all nine sections, not just the one the entry
+             points at. */
+          extraActiveTab: COMPANY_SECTION_PATHS,
           icon: 'SettingsIcon',
           enabled: true,
           visible: Boolean(features?.plan_features?.account_setting?.access?.SITE?.action?.view),
+        },
+        {
+          /* The company's handsets and who each belongs to. Beside locations,
+             not under People: a room phone has no person, and the phone is a
+             thing in a place. Administrator-only — the screen hands out SIP
+             credentials. */
+          title: 'Desk phones',
+          path: '/admin-settings/desk-phones',
+          icon: 'PhoneIcon',
+          enabled: IS_ADMIN,
+          visible: IS_ADMIN,
         },
       ].filter(Boolean),
     },
@@ -118,28 +136,7 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           path: '/admin-settings/people',
         },
         {
-          /* Sits directly under the list it explains. An administrator looking
-             for "what happens when I remove somebody" looks next to the people,
-             not under access control. */
-          title: 'Joining and leaving',
-          icon: 'UserCircleIcon',
-          path: '/admin-settings/joining-and-leaving',
-        },
-        /* Access is one decision made in four steps, so the four screens are
-           listed in the order they should be used rather than alphabetically or
-           in the order they happened to be built. The reference table sits last:
-           it explains the model but decides nothing. */
-        {
-          /* Step 1 — the front door, and the only screen that says what order
-             the rest go in. */
-          title: 'How access works',
-          icon: 'LockFilled',
-          path: '/admin-settings/access-control',
-          enabled: IS_ADMIN,
-          visible: IS_ADMIN,
-        },
-        {
-          /* Step 2 — what a role can do. */
+          /* What a role can do. */
           title: 'Roles',
           icon: 'RoleIcon',
           path: '/admin-settings/roles',
@@ -147,27 +144,18 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           visible: IS_ADMIN,
         },
         {
-          /* Step 3 — roles say what somebody may do. This says who to. */
+          /* Who a role reaches: the whole company, chosen locations or chosen
+             groups.
+
+             Listed on request, to match the reference console. Worth knowing
+             what it does here: the form saves, and `canActOn` in
+             src/lib/admin-scope.ts -- the function that would enforce it -- is
+             called nowhere in this product, so a scope narrows nothing yet. The
+             screen says that on itself, which is what makes listing it honest
+             rather than a claim the feature is live. */
           title: 'Admin scope',
-          icon: 'LockFilled',
+          icon: 'RoleIcon',
           path: '/admin-settings/admin-scope',
-          enabled: IS_ADMIN,
-          visible: IS_ADMIN,
-        },
-        {
-          /* Step 4 — what a role should hold, as opposed to what one happens
-             to hold, and what a brand-new person starts on. */
-          title: 'Default permissions',
-          icon: 'RoleIcon',
-          path: '/admin-settings/default-permissions',
-          enabled: IS_ADMIN,
-          visible: IS_ADMIN,
-        },
-        {
-          /* The reference table. Every capability against every kind of person. */
-          title: 'What each role can do',
-          icon: 'RoleIcon',
-          path: '/admin-settings/capability-matrix',
           enabled: IS_ADMIN,
           visible: IS_ADMIN,
         },
@@ -190,6 +178,10 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           title: 'All numbers',
           path: '/admin-settings/numbers/all',
           icon: 'AllNumberIcon',
+          /* The tabs inside this screen navigate to their own addresses, so
+             without these the nav entry unlit itself the moment somebody
+             switched tab. */
+          extraActiveTab: ['in-use', 'by-line', 'inventory', 'released'],
         },
         {
           title: 'Identities & addresses',
@@ -197,30 +189,14 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           icon: 'AllNumberIcon',
           extraActiveTab: ['addresses', 'verifications'],
         },
-        {
-          title: 'Numbers in use',
-          path: '/admin-settings/numbers/in-use',
-          icon: 'TickCircleIcon',
-        },
-        {
-          /* The same numbers read from the line's side rather than the
-             number's, which is how an admin asks the question. */
-          title: 'Numbers by line',
-          path: '/admin-settings/numbers/by-line',
-          icon: 'AllNumberIcon',
-        },
-        {
-          title: 'Unused numbers',
-          path: '/admin-settings/numbers/inventory',
-          icon: 'InventoryIcon',
-        },
-        {
-          title: 'Released numbers',
-          path: '/admin-settings/numbers/released',
-          icon: 'HashIcon',
-          enabled: true,
-          visible: Boolean(features?.plan_features?.virtual_numbers?.action?.view),
-        },
+        /* "Numbers in use", "Numbers by line", "Unused numbers" and "Released
+           numbers" are not separate screens: all four render the same
+           `NumberList` component, which reads the view from the URL, and All
+           numbers already carries them as tabs. Listing them here made one
+           screen look like five and put the same table five times in the nav.
+           Their routes are kept so the tabs and any existing bookmark still
+           work — see `extraActiveTab`, which keeps this entry lit on all of
+           them. */
         {
           title: 'Call Coverage',
           path: '/admin-settings/numbers/coverage',
@@ -245,6 +221,15 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
           title: 'Call Queues',
           path: '/admin-settings/phone/queues',
           icon: 'CallQueue',
+          enabled: Boolean(features?.plan_features?.phone_system_action?.access?.QUEUE),
+          visible: Boolean(features?.plan_features?.phone_system_action?.action?.view),
+        },
+        {
+          /* Skills only matter to queue routing, so they sit beside queues and
+             share the queue permission. */
+          title: 'Skills',
+          path: '/admin-settings/phone/skills',
+          icon: 'Star',
           enabled: Boolean(features?.plan_features?.phone_system_action?.access?.QUEUE),
           visible: Boolean(features?.plan_features?.phone_system_action?.action?.view),
         },
@@ -365,63 +350,18 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
     },
 
     {
-      key: 'admin-settings.template',
-      id: 'templates',
-      title: 'Templates',
-      icon: 'Templates',
-      type: 'accordion',
-      value: 'template',
-      children: [
-        {
-          key: 'admin-settings.template.user_settings',
-          id: 'user_settings',
-          title: 'User Settings',
-          path: '/admin-settings/templates/user-settings',
-          icon: 'SettingsUserIcon2',
-        },
-        {
-          key: 'admin-settings.template.call_handling',
-          id: 'call_handling',
-          title: 'Call Handling',
-          path: '/admin-settings/templates/call-handling',
-          icon: 'PersonSupport',
-          enabled: Boolean(features?.plan_features?.phone_system_action?.access?.DEPARTMENT),
-          visible: Boolean(features?.plan_features?.phone_system_action?.action?.view),
-        },
-      ],
-    },
-    {
-      key: 'admin-settings.calling_rates',
-      id: 'calling_rates',
-      title: 'SMS/Calling Rates',
-      icon: 'DollarSignCircle',
-      type: 'accordion',
-      value: 'call-rates',
-      enabled: Boolean(features?.plan_features?.calling_rates?.IS_SHOW),
-      visible: Boolean(features?.plan_features?.calling_rates?.action?.view),
-      children: [
-        {
-          key: 'admin-settings.calling_rates.outbound_rates',
-          id: 'outbound_rates',
-          title: 'Rate Details',
-          path: '/admin-settings/calling-rates/outbound-rates',
-          icon: 'CallOutgoing',
-        },
-        {
-          /* The whole price list, rather than one country at a time. */
-          key: 'admin-settings.calling_rates.destinations',
-          id: 'destinations',
-          title: 'Destinations',
-          path: '/admin-settings/calling-rates/destinations',
-          icon: 'CallOutgoing',
-        },
-      ].filter(Boolean),
-    },
-    {
+      key: 'admin-settings.billing',
+      id: 'billing',
       /* Billing's pages come from one shared list, so this menu and the router
          cannot drift apart. Admin-only, because who may look at the company's
          money is a question about the person, not about which calling features
-         the company has bought. */
+         the company has bought.
+
+         Lost in the "Bring across the admin work this build was missing" merge
+         (8819b63), which took the entry but left `BILLING_SECTIONS` and
+         `ABSOLUTE` imported at the top of this file — the ten screens and their
+         routes were all still there, with nothing in the nav pointing at
+         them. */
       title: 'Billing',
       type: 'accordion',
       value: 'billing',
@@ -434,6 +374,7 @@ export const adminSettingArr = (features: any, IS_ADMIN: boolean) =>
         icon: section.icon,
       })),
     },
+
     {
       key: 'admin-settings.compliance',
       id: 'compliance',
@@ -602,7 +543,7 @@ const Sidebar = () => {
                   className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors ${
                     isCurrent
                       ? 'border-primary bg-ucass-primary-200/60 text-primary'
-                      : 'border-[#EEE7DD] bg-white text-[#2E2D35] dark:border-mcm-line dark:bg-mcm-surface dark:text-mcm-ink'
+                      : 'border-[#EEE7DD] bg-white text-[#2E2D35]'
                   } ${item?.enabled === false ? 'cursor-not-allowed opacity-60' : ''}`}
                   disabled={item?.enabled === false}
                 >
@@ -622,9 +563,9 @@ const Sidebar = () => {
         </div>
 
         {!!activeResponsiveChildren.length && (
-          <div className="min-h-[9rem] overflow-hidden rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)] dark:border-mcm-line dark:bg-mcm-surface dark:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.35),0_2px_8px_rgba(0,0,0,0.25)]">
-            <div className="border-b border-[#EEE7DD] px-4 py-3 dark:border-mcm-line">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#9A948F] dark:text-mcm-ink-3">
+          <div className="min-h-[9rem] overflow-hidden rounded-2xl border border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] shadow-[0_12px_28px_-6px_rgba(194,98,46,0.22),0_2px_8px_rgba(194,98,46,0.12)]">
+            <div className="border-b border-[#EEE7DD] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#9A948F]">
                 {activeResponsiveItem?.title}
               </p>
             </div>
@@ -642,10 +583,10 @@ const Sidebar = () => {
                       onClick={() => path && navigate(path)}
                       {...getRoutePrefetchHandlers(path)}
                       disabled={enabled === false}
-                      className={`flex min-h-11 w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left text-sm font-medium last:border-b-0 dark:border-mcm-line ${
+                      className={`flex min-h-11 w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left text-sm font-medium last:border-b-0 ${
                         isChildActive
                           ? 'bg-ucass-primary-200/50 text-primary'
-                          : 'bg-white text-[#2E2D35] dark:bg-mcm-surface dark:text-mcm-ink'
+                          : 'bg-white text-[#2E2D35]'
                       } ${enabled === false ? 'cursor-not-allowed opacity-60' : ''}`}
                     >
                       <Icon name={icon as IconType} className="h-4.5 w-4.5 shrink-0 p-0.5" />
@@ -659,7 +600,14 @@ const Sidebar = () => {
         )}
       </div>
 
-      <div className="hidden h-full min-h-0 overflow-y-auto overflow-x-hidden lg:flex lg:flex-col [scrollbar-gutter:stable]">
+      {/* No `scrollbar-gutter: stable` here. It reserves a gutter the width of
+          the browser's own scrollbar, but `.mcm-page ::-webkit-scrollbar` sets
+          this one to 9px -- narrower than the reserved strip -- so the bar sat
+          short of the panel edge with the leftover gutter showing as blank
+          space beside it. Without it the scrollbar lays out on the edge, which
+          is where a sidebar's scrollbar belongs. The list is always longer than
+          the panel, so nothing shifts as it appears and disappears. */}
+      <div className="mcm-adminnav-scroll hidden h-full min-h-0 overflow-y-auto overflow-x-hidden lg:flex lg:flex-col">
         <div className="mcm-adminnav-search">
           <Icon name={'SearchLine' as IconType} className="h-4 w-4" />
           <input
@@ -679,7 +627,12 @@ const Sidebar = () => {
           <Icon name={'Grid' as IconType} className="h-4 w-4" />
           All admin screens
         </NavLink>
-        <div className="mcm-adminnav h-full min-h-0 divide-y divide-[#EEE7DD] dark:divide-mcm-line">
+        {/* No `h-full`: the search box and "All admin screens" sit above this
+            in the same scrolling column, so stretching the list to the full
+            column height added that height on top of them -- which is the
+            empty run below the last section, and the scrollbar that came with
+            it. Sized to its content instead. */}
+        <div className="mcm-adminnav min-h-0 divide-y divide-[#EEE7DD]">
           {!searchedItems?.length ? (
             <p className="mcm-adminnav-empty">No section matches that.</p>
           ) : null}
@@ -701,26 +654,13 @@ const Sidebar = () => {
                     collapsible
                   >
                     <AccordionItem value={value} className="">
-                      <AccordionTrigger className="p-0 items-center min-w-0" isActive={isActive}>
-                        <div className="flex items-center w-full min-w-0 px-3 h-14 gap-2 cursor-pointer font-medium">
-                          <Icon name={icon as IconType} className="w-6 h-6 p-0.5 shrink-0" />
-                          <span className="truncate">{title}</span>
+                      <AccordionTrigger className="p-0 items-center" isActive={isActive}>
+                        <div className="flex items-center w-full px-3 h-14 gap-2 cursor-pointer font-medium whitespace-nowrap">
+                          <Icon name={icon as IconType} className="w-6 h-6 p-0.5" />
+                          {title}
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent
-                        /* dark:bg-mcm-surface, unprefixed so it applies at
-                           every breakpoint: base bg-white had no dark
-                           variant at all, and the md: variant it's
-                           replaced by there (bg-ucass-primary-200/20) is a
-                           translucent wash meant as a subtle highlight —
-                           reads fine as an accent, not right as an entire
-                           expanded section's opaque surface. This is the
-                           shared Admin Hub sidebar, so every collapsible
-                           section (Company, People, Numbers, AI Tools, ...)
-                           had the same white box in Dark Mode, not just
-                           this one. */
-                        className="border md:border-0  md:bg-ucass-primary-200/20 bg-white dark:bg-mcm-surface z-10 relative"
-                      >
+                      <AccordionContent className="border md:border-0  md:bg-ucass-primary-200/20 bg-white z-10 relative">
                         {visibleChildren?.map(
                           ({ title, path, icon, extraActiveTab, enabled }: any, index: number) => {
                             return (

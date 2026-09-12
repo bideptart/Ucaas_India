@@ -12,7 +12,7 @@ import { downloadCSV } from '@/pages/admin-settings/billing/invoice/constants';
 import { transFilterObject } from '@/components/custom/custom-filter';
 import DateDropdown from '@/components/custom/date-dropdown';
 import { dropdownCallInitialVal } from '@/components/custom/date-dropdown/constant';
-import { CheckCheckIcon, CheckIcon, ClockFading, TriangleAlert } from 'lucide-react';
+import { CheckCheckIcon, CheckIcon, ClockFading, Loader2, TriangleAlert } from 'lucide-react';
 import { SMS_TYPE } from '../call-logs/constant';
 
 const messageStatus = function (key: string = '') {
@@ -120,13 +120,15 @@ const SMSLogs = () => {
     setFilters([]);
   };
 
-  const handleRefetchTableData = () => {
-    if (!tableRef?.current) return;
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 450);
-    tableRef.current.refetchTable().then(() => {
-      handleAlert({ text: 'Refreshed', type: 'success' });
-    });
+  const handleRefetchTableData = async () => {
+    if (tableRef?.current) {
+      setIsLoading(true);
+      try {
+        await tableRef.current.refetchTable();
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const formatSMSLogsForCSV = (data: any[] = []) => {
@@ -253,7 +255,7 @@ const SMSLogs = () => {
             setSearch(e.target.value);
           }}
           IconPosition="left-0 pl-2 inset-y-0"
-          Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+          Icon={<SearchLine className=" text-gray-700" />}
         />
       </div>
 
@@ -268,15 +270,19 @@ const SMSLogs = () => {
         type="button"
         variant="outline"
         onClick={() => handleRefetchTableData()}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
-        <Icon name="Refresh" className={`w-5 h-5 ${isLoading ? 'animate-refresh-nudge' : ''}`} />
+        {isLoading ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <Icon name="Refresh" className="w-5 h-5" />
+        )}
       </Button>
       <Button
         type="button"
         variant={'ghost'}
         onClick={handleDownloadCSV}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <Icon name="DownloadIcon" className="w-5 h-5" />
       </Button>
@@ -284,7 +290,7 @@ const SMSLogs = () => {
         type="button"
         variant="outline"
         onClick={handleFilter}
-        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+        className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 h-9 w-9 rounded-lg bg-white border border-primary text-primary hover:bg-primary hover:text-white"
       >
         <FilterIcon className="w-5 h-5" />
       </Button>
@@ -297,8 +303,6 @@ const SMSLogs = () => {
         <TableManager
           {...{
             tableRef,
-            splitStickyHeader: true,
-            tableMaxHeight: '55vh',
             fetcherKey: 'smsList',
             fetcherFn: getSmsLogList,
             columns,

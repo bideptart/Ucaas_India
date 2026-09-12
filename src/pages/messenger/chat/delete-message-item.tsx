@@ -53,7 +53,7 @@ const DeleteMessageItem = ({
 
   return (
     <Dialog open={true} onOpenChange={handleClose}>
-      <DialogContent className="bg-white dark:bg-mcm-surface max-w-md">
+      <DialogContent className="bg-white max-w-md">
         <DialogHeader>
           <DialogTitle>Delete Message</DialogTitle>
           <DialogDescription>Are you sure you want to delete this message?</DialogDescription>

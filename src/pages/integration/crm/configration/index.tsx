@@ -157,16 +157,16 @@ const CRMConfigration: FC<CRMConfigurationProps> = ({ drawerData: crmData, setDr
             className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none"
           >
             {/* <div className="border-b border-gray-200 w-full">
-              <TabsList className="justify-start bg-white dark:bg-mcm-surface p-0 rounded-tl-sm rounded-tr-sm rounded-bl-none rounded-br-none min-h-10 w-full overflow-x-auto">
+              <TabsList className="justify-start bg-white p-0 rounded-tl-sm rounded-tr-sm rounded-bl-none rounded-br-none min-h-10 w-full overflow-x-auto">
                 <TabsTrigger
                   value="general-settings"
-                  className="shrink-0 max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:rounded-none h-full px-4 data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
+                  className="shrink-0 max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none  data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:rounded-none h-full px-4 data-[state=inactive]:text-gray-700"
                 >
                   General Settings
                 </TabsTrigger>
                 <TabsTrigger
                   value="connected-numbers"
-                  className="shrink-0 max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:rounded-none h-full px-4 data-[state=inactive]:text-gray-700 dark:data-[state=inactive]:text-mcm-ink-3"
+                  className="shrink-0 max-w-fit font-semibold cursor-pointer data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:rounded-none h-full px-4 data-[state=inactive]:text-gray-700"
                 >
                   Connected Numbers
                 </TabsTrigger>

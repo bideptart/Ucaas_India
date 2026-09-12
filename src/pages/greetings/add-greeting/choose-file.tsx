@@ -63,10 +63,8 @@ const ChooseFile: FC = () => {
       <div className={`flex items-center justify-center flex-col gap-4 w-full`}>
         <label
           htmlFor="file-upload"
-          className={`flex flex-col items-center justify-center w-full h-44 border-2 border-dashed rounded-xl cursor-pointer bg-white dark:bg-mcm-surface transition-colors duration-200 ${
-            isDragging
-              ? 'border-primary bg-primary/10'
-              : 'border-gray-300 dark:border-mcm-line hover:border-gray-400 dark:hover:border-mcm-line-2'
+          className={`flex flex-col items-center justify-center w-full h-44 border-2 border-dashed rounded-xl cursor-pointer bg-white transition-colors duration-200 ${
+            isDragging ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-gray-400'
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -74,9 +72,7 @@ const ChooseFile: FC = () => {
         >
           <div className="flex flex-col items-center">
             <UploadIcon className={`w-5 h-5 ${isDragging ? 'text-primary' : ''}`} />
-            <p
-              className={`pt-2 text-sm ${isDragging ? 'text-primary' : 'text-gray-900 dark:text-mcm-ink'}`}
-            >
+            <p className={`pt-2 text-sm ${isDragging ? 'text-primary' : 'text-gray-900'}`}>
               {isDragging ? 'Drop file here' : 'Upload File'}
             </p>
           </div>

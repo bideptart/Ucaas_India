@@ -143,12 +143,6 @@ const TextEditor = ({
             background: white;
             border-radius: 4px;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-            color: #1e293b;
-            .dark & {
-              background: #1e293b;
-              color: #f8fafc;
-              box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
-            }
           `}
         >
           {chars?.map((char, i) => (
@@ -163,7 +157,6 @@ const TextEditor = ({
                 padding: 3px 6px;
                 cursor: pointer;
                 background: ${i === index ? '#B4D5FF' : 'transparent'};
-                ${i === index ? 'color: #1e293b;' : ''}
               `}
             >
               {char}

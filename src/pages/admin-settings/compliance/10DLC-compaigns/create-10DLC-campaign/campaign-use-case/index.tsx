@@ -7,7 +7,6 @@ import { getUseCaseList } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Crown, Star } from 'lucide-react';
 import { Controller } from 'react-hook-form';
-import { formatMoney } from '@/lib/billing-money';
 
 const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
   const { data } = useBrandList();
@@ -62,16 +61,16 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
           ) : null}
           <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-4">
             {/* STANDARD LIST */}
-            <div className=" w-full border-1 border-ucass-primary-200 rounded-lg bg-white dark:bg-mcm-surface p-3">
+            <div className=" w-full border-1 border-ucass-primary-200 rounded-lg bg-white p-3">
               <h3 className="flex items-center gap-1 justify-center text-sm font-medium text-primary mb-2">
                 <Star className="w-4.5 h-4.5" />
                 Standard Campaign Type
               </h3>
 
-              <div className=" w-full border-gray-100 dark:border-mcm-line rounded-lg bg-gray-50 dark:bg-mcm-surface-3 ">
-                <div className="p-3 rounded-t-xl bg-gray-100 dark:bg-mcm-surface-3 flex items-center gap-2">
-                  <h3 className="text-gray-900 dark:text-mcm-ink font-medium w-4/7 text-sm">Use Case</h3>
-                  <h3 className="text-gray-900 dark:text-mcm-ink font-medium  w-3/7 text-sm">TCR Monthly Fee</h3>
+              <div className=" w-full border-gray-100 rounded-lg bg-gray-50 ">
+                <div className="p-3 rounded-t-xl bg-gray-100 flex items-center gap-2">
+                  <h3 className="text-gray-900 font-medium w-4/7 text-sm">Use Case</h3>
+                  <h3 className="text-gray-900 font-medium  w-3/7 text-sm">TCR Monthly Fee</h3>
                 </div>
 
                 <div className="w-full h-full overflow-y-auto flex flex-col gap-3 p-3">
@@ -103,8 +102,8 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
                                   </div>
                                 </RadioGroup>
 
-                                <h3 className="shrink-0 whitespace-nowrap text-gray-500 dark:text-mcm-ink-3 font-medium text-sm">
-                                  {formatMoney(20)}
+                                <h3 className="shrink-0 whitespace-nowrap text-gray-500 font-medium text-sm">
+                                  $20
                                 </h3>
                               </div>
                             );
@@ -117,16 +116,16 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
             </div>
 
             {/* SPECIAL LIST */}
-            <div className=" w-full  border-1  border-ucass-primary-200 rounded-lg bg-white dark:bg-mcm-surface p-3">
+            <div className=" w-full  border-1  border-ucass-primary-200 rounded-lg bg-white p-3">
               <h3 className="flex items-center gap-1 justify-center text-sm font-medium text-primary mb-2">
                 <Crown className="w-4.5 h-4.5" />
                 Special Campaign Type
               </h3>
 
-              <div className=" w-full  border-1  border-gray-100 dark:border-mcm-line rounded-lg bg-gray-50 dark:bg-mcm-surface-3 ">
-                <div className="p-3 rounded-t-xl bg-gray-100 dark:bg-mcm-surface-3 flex items-center gap-2">
-                  <h3 className="text-gray-900 dark:text-mcm-ink font-medium w-4/7 text-sm">Use Case</h3>
-                  <h3 className="text-gray-900 dark:text-mcm-ink font-medium  w-3/7 text-sm">TCR Monthly Fee</h3>
+              <div className=" w-full  border-1  border-gray-100 rounded-lg bg-gray-50 ">
+                <div className="p-3 rounded-t-xl bg-gray-100 flex items-center gap-2">
+                  <h3 className="text-gray-900 font-medium w-4/7 text-sm">Use Case</h3>
+                  <h3 className="text-gray-900 font-medium  w-3/7 text-sm">TCR Monthly Fee</h3>
                 </div>
 
                 <div className="w-full h-full overflow-y-auto flex flex-col gap-3 p-3">
@@ -158,8 +157,8 @@ const CampaignUseCase = ({ formInstance }: { formInstance: any }) => {
                                   </div>
                                 </RadioGroup>
 
-                                <h3 className="shrink-0 whitespace-nowrap text-gray-500 dark:text-mcm-ink-3 font-medium text-sm">
-                                  {formatMoney(20)}
+                                <h3 className="shrink-0 whitespace-nowrap text-gray-500 font-medium text-sm">
+                                  $20
                                 </h3>
                               </div>
                             );

@@ -7,12 +7,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { useUser } from '@/hooks/use-user';
+import { generateUniqueId } from '@/lib/utils';
+import moment from 'moment';
 import { Label } from '@/components/ui/label';
 import { ExtensionListView } from '@/pages/admin-settings/people/update-forwarding/call-rules/add-coworker';
 import ErrorTooltip from '@/components/custom/error-tooltip';
 import Loader from '@/components/custom/loader';
 import CustomAvatar from '@/components/custom/custom-avatar';
 import { useSocketEvents } from '@/hooks/use-socket-events';
+import { chatEvents } from '@/context/socket-events';
 import { toast } from 'react-toastify';
 import { v4 as uuidV4 } from 'uuid';
 import useDebounce from '@/hooks/use-debounce';
@@ -89,8 +92,12 @@ const CreateTeamChat = ({
   const [userSearch, setUserSearch] = useState('');
   const isCreatingTeamRef = useRef(false);
   const { user } = useUser();
-  const { createTeamChat, handleUpdateChannel, handleAddChannelImage, handleRemoveChannelImage } =
-    useSocketEvents();
+  const {
+    socketEventsManager,
+    handleUpdateChannel,
+    handleAddChannelImage,
+    handleRemoveChannelImage,
+  } = useSocketEvents();
 
   const {
     control,
@@ -270,9 +277,16 @@ const CreateTeamChat = ({
         ];
 
         await new Promise<void>((resolve) => {
-          const timer = setTimeout(() => resolve(), 10000);
+          if (!socketEventsManager) {
+            resolve();
+            return;
+          }
+          const timer = setTimeout(() => {
+            resolve();
+          }, 10000);
 
-          createTeamChat(
+          socketEventsManager.emit(
+            chatEvents.CREATE_NEW_CHAT,
             {
               chatId,
               company_uuid: user?.company_info?.uuid,
@@ -284,9 +298,23 @@ const CreateTeamChat = ({
               avatar: values?.channelImg || '',
               users: allUsers,
             },
-            values?.message,
-            () => {
+            (response: any) => {
               clearTimeout(timer);
+              if (values?.message?.trim() && response?.status === 200) {
+                const defaultEditorValue = [
+                  { type: 'paragraph', children: [{ text: values.message.trim() }] },
+                ] as any;
+                // ✅ send message only after chat is created
+                socketEventsManager?.emit(chatEvents.SEND_MESSAGE, {
+                  chatId,
+                  message: defaultEditorValue,
+                  attachments: [],
+                  senderId: user?.uuid,
+                  messageId: generateUniqueId(),
+                  receiverId: (values?.members || []).map((m: any) => m?.uuid),
+                  createdAt: moment().format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
+                });
+              }
               if (onChatSelect) {
                 onChatSelect({ chatId, isGroupChat: true, users: allUsers });
               }
@@ -336,7 +364,7 @@ const CreateTeamChat = ({
 
   return (
     <>
-      <div className="flex flex-col gap-1.5 text-gray-900 dark:text-mcm-ink">
+      <div className="flex flex-col gap-1.5 text-gray-900">
         <div className="font-semibold truncate text-md flex items-center justify-between min-h-11">
           <div className="flex items-center gap-2">
             {currentChat ? 'Edit Team' : 'Create New Team'}
@@ -350,21 +378,18 @@ const CreateTeamChat = ({
         </div>
       </div>
 
-      <div className="w-full flex flex-col gap-2 justify-between h-full min-h-0">
-        <form
-          className="flex flex-col gap-3 w-full h-full min-h-0"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <div className="w-full flex flex-1 min-h-0 flex-col gap-1 overflow-auto">
+      <div className="w-full flex flex-col gap-2 justify-between h-full">
+        <form className="flex flex-col gap-3 w-full h-full" onSubmit={handleSubmit(onSubmit)}>
+          <div className="w-full flex flex-col gap-1 overflow-auto max-h-[calc(100vh-140px)] min-h-[calc(100vh-140px)] ">
             {/* ── Avatar ─────────────────────────────────────── */}
             <Controller
               name="channelImg"
               control={control}
               render={({ field }) => (
                 <>
-                  <div className="flex items-center justify-center w-full bg-gray-100 dark:bg-mcm-surface-3 p-2 relative min-h-[72px] rounded-t-xl">
+                  <div className="flex items-center justify-center w-full bg-gray-100 p-2 relative min-h-[72px] rounded-t-xl">
                     <div
-                      className="flex items-center justify-center w-28 h-28 rounded-full overflow-hidden cursor-pointer absolute -bottom-15 bg-white dark:bg-mcm-surface-3 shadow-md border-2 border-white"
+                      className="flex items-center justify-center w-28 h-28 rounded-full overflow-hidden cursor-pointer absolute -bottom-15 bg-white shadow-md border-2 border-white"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       {field?.value ? (
@@ -483,7 +508,7 @@ const CreateTeamChat = ({
                   className={`flex items-center w-full rounded-xl ${
                     errors?.description?.message
                       ? 'border border-red-500'
-                      : 'border border-gray-300 dark:border-mcm-line'
+                      : 'border border-gray-300'
                   }`}
                 >
                   <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">
@@ -653,7 +678,7 @@ const CreateTeamChat = ({
 
                 <div
                   className={`flex items-center w-full rounded-xl ${
-                    errors?.message?.message ? 'border border-red-500' : 'border border-gray-300 dark:border-mcm-line'
+                    errors?.message?.message ? 'border border-red-500' : 'border border-gray-300'
                   }`}
                 >
                   <div className="flex min-h-[126px] justify-between w-full p-3 flex-col gap-2">
@@ -683,7 +708,7 @@ const CreateTeamChat = ({
           </div>
 
           {/* ── Footer Buttons ──────────────────────────────────── */}
-          <div className="mt-3 shrink-0 px-2">
+          <div className="mt-3 px-2">
             <Button
               type="submit"
               variant={'primary'}

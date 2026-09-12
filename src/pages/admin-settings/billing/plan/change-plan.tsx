@@ -358,7 +358,7 @@ const ChangePlan = ({
                 <div
                   key={uuid || `${index}-${plan_name}`}
                   className={`p-7 rounded-xl ${
-                    isActive ? 'bg-primary' : 'bg-white dark:bg-mcm-surface'
+                    isActive ? 'bg-primary' : 'bg-white'
                   } shadow-sm w-1/3 cursor-pointer`}
                   onClick={() => setActivePlanUuid(uuid)}
                 >
@@ -366,12 +366,12 @@ const ChangePlan = ({
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between gap-2">
                         <h2
-                          className={`text-2xl ${activeTextClass(isActive)} flex items-center gap-5 font-semibold text-gray-900 dark:text-mcm-ink truncate`}
+                          className={`text-2xl ${activeTextClass(isActive)} flex items-center gap-5 font-semibold text-gray-900 truncate`}
                         >
                           {plan_name}
                         </h2>
                         {isCurrentPlan && (
-                          <small className="text-gray-900 dark:text-mcm-ink inline-flex items-center rounded-xl bg-ucass-green px-2 py-1 font-medium uppercase tracking-widest text-xs">
+                          <small className="text-gray-900 inline-flex items-center rounded-xl bg-ucass-green px-2 py-1 font-medium uppercase tracking-widest text-xs">
                             Current Plan
                           </small>
                         )}
@@ -399,10 +399,10 @@ const ChangePlan = ({
                               {moneyOrUnavailable(original_price)}
                             </div>
                             <div
-                              className={`text-gray-900 dark:text-mcm-ink inline-flex items-center rounded-xl bg-yellow-100 px-2 py-1 font-medium uppercase tracking-widest text-xs`}
+                              className={`text-gray-900 inline-flex items-center rounded-xl bg-yellow-100 px-2 py-1 font-medium uppercase tracking-widest text-xs`}
                             >
                               {/* <div
-                              className={`text-xs px-3 py-1 rounded-sm ${isActive ? 'bg-white dark:bg-mcm-surface text-primary' : 'bg-ucass-primary-200 text-primary'}`}
+                              className={`text-xs px-3 py-1 rounded-sm ${isActive ? 'bg-white text-primary' : 'bg-ucass-primary-200 text-primary'}`}
                             > */}
                               Discount:
                               {discount}%
@@ -432,8 +432,8 @@ const ChangePlan = ({
                         <Button
                           className={`${
                             isActive
-                              ? 'text-primary bg-white dark:bg-mcm-surface border-primary hover:bg-white dark:hover:bg-mcm-surface hover:text-primary/90'
-                              : 'text-primary bg-white dark:bg-mcm-surface border-primary hover:bg-primary hover:text-white'
+                              ? 'text-primary bg-white border-primary hover:bg-white hover:text-primary/90'
+                              : 'text-primary bg-white border-primary hover:bg-primary hover:text-white'
                           }`}
                           variant={'outline'}
                           /* An unpriced plan cannot be bought. The purchase call
@@ -452,14 +452,14 @@ const ChangePlan = ({
                           {isCurrentSelection ? 'Renew Plan' : isUpgrade ? 'Upgrade' : 'Downgrade'}
                         </Button>
                       ) : companyInfo?.plan_status === 'ACTIVE' && isCurrentSelection ? (
-                        <span className="text-gray-900 dark:text-mcm-ink inline-flex justify-center items-center rounded-xl bg-ucass-green px-2 py-3 text-xs font-medium uppercase tracking-widest w-full">
+                        <span className="text-gray-900 inline-flex justify-center items-center rounded-xl bg-ucass-green px-2 py-3 text-xs font-medium uppercase tracking-widest w-full">
                           Current Plan
                         </span>
                       ) : (
                         <Button
                           type="button"
                           variant={'outline'}
-                          className={`font-semibold ${isActive ? ' hover:bg-white dark:hover:bg-mcm-surface hover:text-primary' : ''}`}
+                          className={`font-semibold ${isActive ? ' hover:bg-white hover:text-primary' : ''}`}
                           disabled={!priced}
                           onClick={() => {
                             if (!planFeatures?.action?.request_plan || isCurrentSelection) {
@@ -489,20 +489,20 @@ const ChangePlan = ({
                       )}
 
                       {!priced ? (
-                        <p className={`text-xs ${isActive ? 'text-white' : 'text-gray-600 dark:text-mcm-ink-3'}`}>
+                        <p className={`text-xs ${isActive ? 'text-white' : 'text-gray-600'}`}>
                           This plan&rsquo;s price did not come back, so it cannot be chosen from
                           here. Reload the page, or speak to your account manager.
                         </p>
                       ) : null}
                       <h5
-                        className={` ${isActive ? 'text-white' : ''} font-semibold text-gray-900 dark:text-mcm-ink truncate text-md`}
+                        className={` ${isActive ? 'text-white' : ''} font-semibold text-gray-900 truncate text-md`}
                       >
                         All Advanced Features
                       </h5>
                       <ul
                         className={` list-inside ${
                           isActive ? 'text-white' : 'text-grey-800'
-                        } text-gray-800 dark:text-mcm-ink-2 truncate text-sm flex flex-col gap-4 pb-1.5`}
+                        } text-gray-800 truncate text-sm flex flex-col gap-4 pb-1.5`}
                       >
                         {(includes
                           ? [
@@ -597,7 +597,7 @@ const ChangePlan = ({
       {isPaymentInitiate && (
         <Dialog open={isPaymentInitiate} onOpenChange={setIsPaymentInitiate}>
           <DialogContent
-            className="bg-white dark:bg-mcm-surface w-1/3"
+            className="bg-white w-1/3"
             onEscapeKeyDown={(e) => e.preventDefault()}
             onPointerDownOutside={(e) => e.preventDefault()}
           >

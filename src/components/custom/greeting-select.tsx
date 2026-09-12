@@ -7,8 +7,8 @@ import { CloseIcon, Play, UploadLineIcon } from '@/assets/icons';
 import { DEFAULT_RECORDING_UUIDS, getEnv, MEDIA_URL } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import ErrorTooltip from './error-tooltip';
+import SideDrawer from './side-drawer';
 import ReadyAudio from './ready-audio';
-import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 
 interface IGREETINGPROPS {
   options: ISELECTVALUE[];
@@ -25,6 +25,12 @@ interface IGREETINGPROPS {
   onGreetingUploadStart?: () => void;
   onGreetingUploadSuccess?: () => void;
   width?: string;
+  /* Keeps the add button available after a recording has been chosen, and
+     selects whatever gets made. Off by default: the forms that embed this
+     control - IVR keys, queue settings, a person's phone tab - lay it out in a
+     narrow column where a third button next to the dropdown and the play button
+     wraps the row. Screens with room ask for it. */
+  alwaysAllowAdd?: boolean;
 }
 
 interface GreetingSelectValue extends ISELECTVALUE {
@@ -41,10 +47,12 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
   audioCustomClass = '',
   selectCustomClass = '',
   selectCustomClassSecond = '',
+  width = '',
   isRefetchable = true,
   refetch = () => {},
   onGreetingUploadStart = () => {},
   onGreetingUploadSuccess = () => {},
+  alwaysAllowAdd = false,
 }) => {
   const { user } = useUser();
   const { company_info } = user;
@@ -101,7 +109,10 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
               <Play className="w-5 h-5" />
             </Button>
           )}
-          {isShowUpload && !isPlay && !value?.value && (
+          {/* Without `alwaysAllowAdd` this disappeared the moment a recording
+              was chosen, so the only way to add a second one was to clear the
+              first - on a screen whose whole job is choosing recordings. */}
+          {isShowUpload && !isPlay && (alwaysAllowAdd || !value?.value) && (
             <Button
               variant={'outline'}
               type="button"
@@ -120,28 +131,37 @@ const SelectGreeting: FC<IGREETINGPROPS> = ({
         </div>
       )}
 
-      <Dialog
-        open={Boolean(drawerState?.addGreeting)}
-        onOpenChange={(next) =>
-          !next && setDrawerState((prev) => ({ ...prev, addGreeting: false, greetingType: '' }))
-        }
-      >
-        <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
-          <DialogTitle>Upload File</DialogTitle>
-          <AddGreeting
-            drawerState={drawerState?.addGreeting}
-            setDrawerState={(val) =>
-              setDrawerState((prev) => ({ ...prev, addGreeting: val, greetingType: '' }))
-            }
-            greetingType={name}
-            refetch={() => {
-              refetch();
-              onGreetingUploadSuccess();
-            }}
-            isRefetchable={isRefetchable}
-          />
-        </DialogContent>
-      </Dialog>
+      {drawerState?.addGreeting && (
+        <SideDrawer
+          width={width}
+          isOpen={drawerState?.addGreeting}
+          /* It uploads, records from the microphone, and reads typed text
+             aloud. "Upload File" named one of the three. */
+          title="Add a recording"
+          handleClose={() =>
+            setDrawerState((prev) => ({ ...prev, addGreeting: false, greetingType: '' }))
+          }
+          isHeader
+          content={
+            <AddGreeting
+              drawerState={drawerState?.addGreeting}
+              setDrawerState={(val) =>
+                setDrawerState((prev) => ({ ...prev, addGreeting: val, greetingType: '' }))
+              }
+              greetingType={name}
+              refetch={() => {
+                refetch();
+                onGreetingUploadSuccess();
+              }}
+              /* Straight into the slot it was made for. The drawer was opened
+                 from this dropdown to fill it, so leaving the admin to find the
+                 new recording in the list afterwards is a step with no purpose. */
+              onCreated={alwaysAllowAdd ? (greeting) => onChangeMedia(greeting) : undefined}
+              isRefetchable={isRefetchable}
+            />
+          }
+        />
+      )}
     </>
   );
 };

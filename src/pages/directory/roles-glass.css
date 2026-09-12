@@ -5,10 +5,28 @@
 .gp-roles {
   position: relative;
   isolation: isolate;
+  /* Fills the width of whatever column it is dropped into. Admin renders
+     these two Directory screens inside a flex row, where a plain block
+     child sizes to its own content -- so Roles, with four columns, drew
+     its panel and its tint only two-thirds of the way across and left
+     bare page beside it. People escaped it only because its table is
+     wide enough to reach the edge on its own. */
+  width: 100%;
+  min-width: 0;
   min-height: 100%;
-  background-color: linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
-  margin: -22px -26px -40px;
-  padding: 22px 26px 40px;
+  background:
+    radial-gradient(1000px 750px at 4% -6%, rgba(255, 154, 66, 0.55), transparent 58%),
+    radial-gradient(900px 700px at 102% -4%, rgba(255, 120, 40, 0.42), transparent 55%),
+    radial-gradient(950px 700px at 50% 118%, rgba(255, 190, 120, 0.45), transparent 60%),
+    radial-gradient(650px 500px at 100% 100%, rgba(255, 150, 70, 0.3), transparent 55%),
+    linear-gradient(160deg, #fffaf3 0%, #ffe6c7 100%);
+  /* No negative margin here. This pair -- `margin: -22px -26px -40px` with a
+     matching padding -- was written for a version where this element sat
+     INSIDE `.page` and had to cancel that padding. It wraps `.page` now, so the
+     margin pulled the whole panel outside its container: 22px above it, which
+     in Admin is straight over the page head, covering the title and buttons.
+     Wrapping `.page` already reaches the edges, and `.page` still supplies the
+     inset. */
 }
 
 .gp-roles .page-head,
@@ -70,108 +88,33 @@
 
 .gp-roles .panel-card {
   background: #fffdfb;
-  /* A near-white border is invisible against this card's own near-white
-     fill and the page's light peach backdrop — --glass-border (the app's
-     own token for a visible edge on a light glass card) instead, same fix
-     as People's panel-card (people-glass.css). */
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(160, 95, 30, 0.14);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 320px);
 }
-/* Header/body split into independent scroll boxes — see the long comment on
-   the equivalent People rules in people-glass.css for why: a sticky
-   `<thead>` doesn't stop its scrolling ancestor's native scrollbar from
-   spanning the full box, header band included, so the bar always read as
-   running through the header no matter how it was styled. */
 .gp-roles .tbl-wrap {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  overflow-y: auto;
   min-height: 0;
 }
 .gp-roles table {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
   background: transparent;
-}
-.gp-roles thead {
-  display: block;
-  flex: none;
-  width: 100%;
-}
-.gp-roles tbody {
-  display: block;
-  flex: 1;
-  min-height: 0;
-  /* About 5-6 rows before scrolling, regardless of viewport height — a
-     row here (label + description) runs ~62px, so 5.5 of them plus a
-     little breathing room. `.panel-card`'s own `max-height` still caps
-     things on very short viewports; this is what actually decides the
-     row count on ordinary ones. */
-  max-height: 380px;
-  overflow-y: auto;
-  width: 100%;
-  padding-bottom: 14px;
-  padding-right: 4px;
-}
-.gp-roles thead tr,
-.gp-roles tbody tr {
-  display: table;
-  table-layout: fixed;
-  width: 100%;
-}
-.gp-roles th:nth-child(1),
-.gp-roles td:nth-child(1) {
-  width: auto;
-}
-.gp-roles th:nth-child(2),
-.gp-roles td:nth-child(2) {
-  width: 110px;
-}
-.gp-roles th:nth-child(3),
-.gp-roles td:nth-child(3) {
-  width: 90px;
-}
-.gp-roles th:nth-child(4),
-.gp-roles td:nth-child(4) {
-  width: 180px;
-}
-.gp-roles tbody::-webkit-scrollbar {
-  width: 8px;
-}
-.gp-roles tbody::-webkit-scrollbar-track {
-  background: transparent;
-}
-.gp-roles tbody::-webkit-scrollbar-thumb {
-  background: rgba(194, 111, 31, 0.35);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.gp-roles tbody::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 111, 31, 0.55);
-  background-clip: padding-box;
 }
 .gp-roles th {
   background: #fffdfb;
   color: #8a6f57;
-  border-bottom: 3px solid rgba(242, 153, 74, 0.4);
-  height: 40px;
-  font-size: 9.5px;
+  border-bottom: 2px solid rgba(242, 153, 74, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .gp-roles td {
   border-bottom-color: rgba(150, 100, 50, 0.1);
 }
-/* Same wash Performance ▸ Calls uses for its own row hover
-   (--ic-row-hover in interactions-theme.css). */
 .gp-roles tbody tr:hover {
-  background: rgba(255, 241, 235, 0.55);
+  background: rgba(255, 205, 155, 0.14);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -197,31 +140,25 @@
 .gp-roles .gp-role-actions-head {
   text-align: center;
 }
+.gp-roles .gp-role-actions-cell {
+  min-width: 160px;
+}
 .gp-roles .gp-role-actions {
   justify-content: center;
 }
-/* Glass circle at rest, filled sunset gradient on hover — matching
-   Performance ▸ Calls' own action buttons (interactions-theme.css) rather
-   than a rounded square with a plain tint-on-hover. */
 .gp-roles .gp-role-actions .mini {
   width: 38px;
   height: 38px;
   padding: 0;
-  border-radius: 9999px;
+  border-radius: 11px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(249, 115, 22, 0.4);
-  box-shadow: 0 1px 2px rgba(160, 95, 30, 0.08);
-  transition:
-    background-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.85);
 }
-.gp-roles .gp-role-actions .mini:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-ink) 100%);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.26);
+.gp-roles .gp-role-actions .mini:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-edge);
+  color: var(--accent-ink);
 }
 .gp-roles .gp-role-actions .mini:disabled {
   opacity: 0.4;
@@ -257,7 +194,7 @@
    untouched. Portaled to `document.body`, so scoped off its own class
    rather than an ancestor it never sits inside. ---- */
 .gp-assign-users-dialog {
-  background: #ffffff;
+  background: #fffaf3;
   border-color: rgba(242, 153, 74, 0.3);
 }
 .gp-assign-users-dialog .border-gray-200 {
@@ -286,167 +223,4 @@
 }
 .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary']:hover {
   background: #c96f1f !important;
-}
-
-/* ---- Dark theme — same treatment as people-glass.css's own .dark block:
-   every literal light-mode value here gets a dark-appropriate equivalent,
-   reusing the app's existing --mcm-* tokens rather than inventing new
-   colors. Covers the two portaled dialogs too (form + assign-users), since
-   neither sits inside .mcm-page in the DOM and both hardcode their own
-   light-only palette exactly like the rest of this file. ---- */
-/* Same warm ground as People/Groups: the light theme's own corner-glow
-   structure at a fifth of its alpha, so this page doesn't read as a flat
-   slate panel beside them. */
-.dark .gp-roles {
-  background-color: var(--mcm-ground, #080d12);
-}
-.dark .gp-roles .page-head,
-.dark .gp-roles .tbar .fchip {
-  border: 1px solid rgba(255, 171, 94, 0.14);
-  box-shadow:
-    0 10px 34px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-.dark .gp-roles .page-head {
-  background: linear-gradient(180deg, #17212d 0%, #111a24 100%);
-}
-.dark .gp-roles .tbar .fchip {
-  background: var(--mcm-accent-wash, #1a2733);
-}
-.dark .gp-roles .page-head h1 {
-  color: var(--mcm-ink, #f8fafc);
-}
-.dark .gp-roles .page-head p {
-  color: var(--mcm-ink-3, #aab6c1);
-}
-.dark .gp-roles .page-caveat {
-  background: rgba(14, 24, 33, 0.75);
-  border-left-color: var(--mcm-accent, #f97316);
-  color: var(--mcm-ink-3, #aab6c1);
-}
-.dark .gp-roles .tbar {
-  background: rgba(14, 24, 33, 0.75);
-  border: 1px solid #1b2934;
-  box-shadow:
-    0 6px 22px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-.dark .gp-roles .tbar .fchip {
-  background: rgba(17, 29, 39, 0.6);
-  border-color: #293746;
-}
-.dark .gp-roles .tbar .fchip:hover {
-  background: var(--mcm-surface-3, #1a2733);
-  border-color: var(--mcm-accent-edge);
-}
-/* The "x of y" result-count chip's light rule above (`.gp-roles .fchip.live`)
-   hardcodes a light mint fill with `!important`, so without this override it
-   stayed a bright light-mode chip even in Dark Mode. `--live`/`--live-wash`
-   already resolve to the correct dark-teal pair here (set on `.dark
-   .mcm-page`, the ancestor this sits inside) — this rule's extra class just
-   needs to out-specificity the light one, no `!important` required. */
-.dark .gp-roles .fchip.live {
-  /* The light rule above sets background/border-color with `!important`,
-     so beating it on selector specificity alone isn't enough — `!important`
-     always wins over a plain declaration regardless of specificity. This
-     rule needs `!important` too; it still wins the tie because `.dark
-     .gp-roles .fchip.live` is the more specific of the two. */
-  /* A solid muted-teal fill (not the faint `--live-wash` tint) so this chip
-     reads with the same weight as the header avatar's own solid initials
-     chip, instead of nearly disappearing into the dark toolbar. */
-  background: color-mix(in srgb, var(--live, #2dd4bf) 38%, #111c26) !important;
-  border-color: transparent !important;
-  color: #f3f6f9;
-}
-.dark .gp-roles .panel-card {
-  background: linear-gradient(180deg, #141d28 0%, #101922 100%);
-  border: 1px solid rgba(255, 171, 94, 0.14);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
-}
-/* Orange labels over the light theme's own 3px orange underline -- the
-   signature that makes this read as the same table as People's. */
-.dark .gp-roles th {
-  background: #1a232f;
-  color: var(--mcm-accent, #ffab5e);
-  border-bottom: 3px solid rgba(255, 171, 94, 0.35);
-}
-.dark .gp-roles td {
-  border-bottom-color: rgba(255, 171, 94, 0.1);
-}
-.dark .gp-roles tbody tr:hover {
-  background: rgba(255, 171, 94, 0.06);
-}
-.dark .gp-roles .tag.neu {
-  background: rgba(148, 163, 184, 0.12);
-  color: var(--mcm-ink-3, #aab6c1);
-}
-/* Action icons: no chrome at rest, orange disc on hover -- the same
-   treatment People's row actions use, so the two tables behave alike. */
-.dark .gp-roles .gp-role-actions .mini {
-  background: transparent;
-  border-color: transparent;
-  color: #fff;
-}
-.dark .gp-roles .gp-role-actions .mini:hover:not(:disabled) {
-  background: #f2994a;
-  border-color: #f2994a;
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(242, 153, 74, 0.28);
-}
-/* Disabled (delete, on the system roles) drops its chrome too -- with the
-   enabled buttons now bare, a filled circle was the only ring on the row
-   and read as the active control rather than the unavailable one. */
-.dark .gp-roles .gp-role-actions .mini:disabled,
-.dark .gp-roles .gp-role-actions .mini:disabled:hover {
-  background: transparent;
-  border-color: transparent;
-  color: rgba(255, 255, 255, 0.28);
-  box-shadow: none;
-}
-.dark .gp-role-form-dialog {
-  background: var(--mcm-surface, #111c26) !important;
-}
-.dark .gp-role-form-dialog .gp-create-group-head {
-  background: var(--mcm-surface, #111c26);
-}
-.dark .gp-assign-users-dialog {
-  background: #111c26;
-  border-color: #1b2934;
-}
-.dark .gp-assign-users-dialog .border-gray-200 {
-  border-color: #1b2934 !important;
-}
-.dark .gp-assign-users-dialog .bg-gray-50 {
-  background: var(--mcm-accent-wash, #1a2733) !important;
-}
-.dark .gp-assign-users-dialog .text-primary {
-  color: var(--mcm-accent-ink, #ff8a2a) !important;
-}
-.dark .gp-assign-users-dialog [class*='hover:bg-gray-50']:hover {
-  background: rgba(100, 116, 139, 0.15) !important;
-}
-.dark .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary'] {
-  background: var(--mcm-accent, #f97316) !important;
-  border-color: var(--mcm-accent, #f97316) !important;
-  color: #f8fafc !important;
-}
-.dark .gp-assign-users-dialog button[data-slot='button'][class*='bg-primary']:hover {
-  background: var(--mcm-accent-ink, #ff8a2a) !important;
-  color: #111c26 !important;
-}
-
-/* Typed text in the search field on the same white People and Favourites
-   use -- these three sat on `--mcm-ink-2`, which read dimmer than the
-   others for no reason. Placeholder stays muted on all five. `!important`
-   because index.css's compat net matches the raw
-   `placeholder:text-[#8a6f57]/70` class string and repaints the real ink. */
-.dark .gp-roles .tbar .fchip input {
-  color: var(--mcm-ink, #eef2f9) !important;
-}
-
-/* White placeholder, matching the other Directory toolbars. `!important`
-   because index.css's compat net matches the raw
-   `placeholder:text-[#8a6f57]/70` class string and repaints it otherwise. */
-.dark .gp-roles .tbar .fchip input::placeholder {
-  color: var(--mcm-ink, #eef2f9) !important;
 }

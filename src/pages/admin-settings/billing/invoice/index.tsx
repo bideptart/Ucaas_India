@@ -20,6 +20,7 @@
  * nobody got round to.
  */
 
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { Icon } from '@/assets/icons/icon';
 import { handleAlert } from '@/lib/utils';
 import { getInvoice } from '@/services/api';
@@ -59,7 +60,7 @@ const StatusPill = ({ value }: { value: string }) => {
           ? 'bg-blue-100 text-blue-700'
           : key === 'processing' || key === 'pending'
             ? 'bg-amber-100 text-amber-700'
-            : 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-600 dark:text-mcm-ink-3';
+            : 'bg-gray-100 text-gray-600';
   return (
     <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${tone}`}>
       {value || 'Unknown'}
@@ -97,6 +98,14 @@ const TruncatedDescriptionCell = ({ value }: { value: string }) => {
  * setting a from/to date twice to see a whole year is a chore nobody should
  * have to repeat. Five years back covers anything the platform can hold. */
 const yearOptions = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'Every charge raised on the account, with its tax broken out. Open a row to see what it covered.',
+  });
+
   const now = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => now - i).map((y) => ({
     label: String(y),
@@ -151,7 +160,7 @@ const Invoice = () => {
       accessorKey: 'tax_detail.total_amount',
       meta: { textAlign: 'right' },
       cell: ({ row }: any) => (
-        <span className="block text-right tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
+        <span className="block text-right tabular-nums font-medium text-gray-900">
           {moneyOrUnavailable(
             row?.original?.tax_detail?.total_amount ?? row?.original?.total_amount,
           )}
@@ -190,7 +199,7 @@ const Invoice = () => {
               side="top"
             >
               <span
-                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white"
+                className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
                 onClick={() => {
                   if (isPaymentCompleted) {
                     setRowData(invoice);
@@ -263,12 +272,15 @@ const Invoice = () => {
 
   return (
     <AdminPage
+      hideHead
+      /* TableManager draws its own bordered card, so AdminPage's would be a
+         second one around it — an empty band with nothing in it. */
+      bareBody
       section="Billing"
       title="Invoices"
-      description="Every charge raised on the account, with its tax broken out. Open a row to see what it covered."
       actions={
         <Button
-          className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+          className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
           onClick={handleDownloadCSV}
           title="Download as CSV"
         >
@@ -287,7 +299,7 @@ const Invoice = () => {
               if (value.startsWith(' ')) return;
               setSearch(e.target.value);
             }}
-            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+            Icon={<SearchLine className=" text-gray-700" />}
           />
           <div className="min-w-[9rem]">
             <CustomSelect
@@ -346,7 +358,7 @@ const Invoice = () => {
 
       {failureDetails && (
         <Dialog open={true} onOpenChange={(open) => !open && setFailureDetails(null)}>
-          <DialogContent className="max-h-[85vh] max-w-2xl overflow-hidden bg-white dark:bg-mcm-surface">
+          <DialogContent className="max-h-[85vh] max-w-2xl overflow-hidden bg-white">
             <DialogHeader>
               <DialogTitle>Why this payment did not go through</DialogTitle>
               <DialogDescription>
@@ -355,8 +367,8 @@ const Invoice = () => {
                   : 'Payment details'}
               </DialogDescription>
             </DialogHeader>
-            <div className="max-h-[60vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-mcm-line bg-gray-50 dark:bg-mcm-surface-3 p-4">
-              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-800 dark:text-mcm-ink-2">
+            <div className="max-h-[60vh] overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-800">
                 {failureDetails.description}
               </p>
             </div>

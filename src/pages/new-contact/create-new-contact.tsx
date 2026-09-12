@@ -120,7 +120,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         : createdContact;
       setTabData?.(mergedContactData);
       if (!keepFormDataAfterSave) {
-        navigate(`/contact/${createdContact?.uuid}`);
+        navigate('/contact');
         setDrawerState(false);
         reset();
         setValue('avatar', null);
@@ -447,14 +447,25 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
       // notes,
       ...rest
     } = data;
-    console.log(belongsTo, 'belongsTobelongsTo');
-
     const selectedBelongsTo = Array.isArray(belongsTo)
       ? belongsTo
           ?.map((item: any) => item?.value)
           ?.filter((value: string) => Boolean(value))
           ?.join(',')
       : belongsTo?.value || '';
+
+    const filledSocial = Object.entries({
+      twitter,
+      facebook,
+      linkedin,
+      whatsapp,
+      instagram,
+      telegram,
+    }).reduce<Record<string, string>>((acc, [key, value]) => {
+      const handle = String(value ?? '').trim();
+      if (handle) acc[key] = handle;
+      return acc;
+    }, {});
 
     const payload: Record<string, any> = {
       name: {
@@ -480,27 +491,20 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         zipcode: zipcode || '',
         ...(country?.value ? { country: country } : {}),
       },
-      social: {
-        twitter: twitter || '',
-        facebook: facebook || '',
-        linkedin: linkedin || '',
-        whatsapp: whatsapp || '',
-        instagram: instagram || '',
-        telegram: telegram || '',
-      },
+      /* Only the handles that were actually filled in. Sending the whole map
+         with empty strings had the API reject the save outright with
+         `"social.whatsapp" is not allowed`, so no contact could be created at
+         all — and when none are filled the key is left off entirely. */
+      ...(Object.keys(filledSocial).length ? { social: filledSocial } : {}),
       type: isLead ? 'LEAD' : 'CONTACT',
       ...(selectedBelongsTo ? { belongsTo: selectedBelongsTo } : {}),
     };
-
-    console.log(payload, 'payloadpayload');
 
     if (contactData?._id) payload.contact_uuid = contactData._id;
     try {
       setShowLoader(true);
 
-      console.log('add chla', contactData?.contactPic, contactData);
       if ((!contactData?.contactPic && avatar) || avatar instanceof File) {
-        console.log('add chla   1', contactData?.contactPic, contactData);
         const uploadMediaResponse = await uploadMediaMutate({
           uuid: user?.company_info?.uuid,
           type: 'contact',
@@ -522,8 +526,6 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           }
         }
       } else if (contactData?.contactPic && !avatar) {
-        console.log('update chla');
-
         payload.profile.contactPic = null;
         if (contactData?._id) {
           upsertUserContact(payload);
@@ -551,7 +553,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         {!isDisable && (
           <label
             htmlFor="file-upload"
-            className="rounded-full border border-gray-200 dark:border-mcm-line relative w-14 h-14 cursor-pointer"
+            className="rounded-full border border-gray-200 relative w-14 h-14 cursor-pointer"
           >
             {watch('avatar') || imagePreview || avatar ? (
               <div className="h-full w-full rounded-full relative group">
@@ -632,7 +634,6 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           <div className="flex gap-4 flex-wrap">
             <Input
               label={'First Name'}
-              required
               {...register('first_name')}
               placeholder="Enter first name"
               type="text"
@@ -643,7 +644,6 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
 
             <Input
               label={'Last Name'}
-              required
               {...register('last_name')}
               placeholder="Enter last name"
               type="text"
@@ -803,7 +803,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
           </div>
 
           <div className="flex flex-col w-full gap-4">
-            <p className="gp-form-section-h font-semibold text-gray-900 dark:text-mcm-ink">Address Information</p>
+            <p className="font-semibold text-gray-900">Address Information</p>
             <div className="flex gap-4 flex-wrap">
               <Input
                 placeholder="Enter street"
@@ -933,7 +933,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
             )}
           </div>
           {/* <div className="flex flex-col w-full gap-4">
-            <p className="gp-form-section-h font-semibold text-gray-900 dark:text-mcm-ink">Notes Information</p>
+            <p className="font-semibold text-gray-900">Notes Information</p>
             <div className="flex gap-4 relative">
               <div className="flex flex-col gap-1.5 w-full">
                 <div className="flex items-center justify-between">
@@ -942,7 +942,7 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
                 <div className="relative w-full">
                   <div className="flex">
                     <textarea
-                      className="border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 dark:disabled:text-mcm-ink-3 disabled:border-gray-200 dark:disabled:border-mcm-line disabled:shadow-none text-gray-700 dark:text-mcm-ink-2 placeholder:text-gray-700 dark:placeholder:text-mcm-ink-2 bg-white dark:bg-mcm-surface shadow-sm text-sm rounded-xl w-full p-3 min-h-10 border-gray-300 dark:border-mcm-line focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary resize-none"
+                      className="border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm rounded-xl w-full p-3 min-h-10 border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary resize-none"
                       placeholder="Enter notes"
                       rows={4}
                       {...register(`notes`)}
@@ -956,11 +956,11 @@ const CreateContactNew: React.FC<CreateNewContactProps> = ({
         </div>
       </div>
       {!isDisable && (
-        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface">
+        <div className="flex shrink-0 pt-2 justify-end gap-2 border-t border-gray-100 bg-white">
           {!hideCancelButton ? (
             <Button
               type="button"
-              variant="outline"
+              variant="transparent"
               onClick={() => {
                 handleClose?.();
                 setIsDisable((prevState) => !prevState);

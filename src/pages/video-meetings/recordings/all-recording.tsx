@@ -106,10 +106,10 @@ const AllRecording = () => {
     <>
       <section className="flex h-full min-h-0 w-full flex-1 flex-col gap-3 overflow-auto bg-transparent p-3 sm:p-4">
         <div className="mx-auto max-w-250 w-full flex min-h-0 flex-1 flex-col gap-3">
-          <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-gray-200 bg-white dark:border-[rgba(100,116,139,0.25)] dark:bg-mcm-surface p-4 shadow-sm sm:justify-between">
+          <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:justify-between">
             <div className="flex min-w-0 flex-col gap-[3px]" style={{ flex: '1 1 320px' }}>
               <div className="flex items-center gap-1.5">
-                <h4 className="text-[23px] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900 dark:text-mcm-ink">
+                <h4 className="text-[23px] font-extrabold leading-[1.1] tracking-[-0.035em] text-gray-900">
                   All Recordings
                 </h4>
                 <CustomTooltip
@@ -122,11 +122,8 @@ const AllRecording = () => {
                 </CustomTooltip>
               </div>
             </div>
-            <div className="ml-auto inline-flex h-10 w-fit items-center rounded-full border border-white/70 bg-white/45 dark:border-[rgba(100,116,139,0.25)] dark:bg-[rgba(30,41,59,0.5)] backdrop-blur-md px-4 text-[13px] text-muted-foreground shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:px-5">
-              <span
-                className="mr-1.5 text-[13px] font-bold vm-sunset-ink"
-                style={{ color: '#B5642F' }}
-              >
+            <div className="ml-auto inline-flex h-10 w-fit items-center rounded-full border border-white/70 bg-white/45 backdrop-blur-md px-4 text-[13px] text-muted-foreground shadow-[0_2px_10px_rgba(154,52,18,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:px-5">
+              <span className="mr-1.5 text-[13px] font-bold" style={{ color: '#B5642F' }}>
                 {totalItems}
               </span>
               items found
@@ -217,7 +214,7 @@ const AllRecording = () => {
         >
           <button
             type="button"
-            className="absolute top-3.5 right-3.5 z-20 cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-ucass-active hover:text-white transition-colors duration-200"
+            className="absolute top-3.5 right-3.5 z-20 cursor-pointer flex items-center justify-center rounded-full w-9 h-9 bg-gray-100 text-gray-900/80 hover:bg-ucass-active hover:text-white transition-colors duration-200"
             onClick={() => {
               setModalState((prev) => ({ ...prev, recordingChatModal: false }));
               setActiveChatRecord(null);

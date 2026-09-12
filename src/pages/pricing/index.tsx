@@ -12,9 +12,28 @@ import { durationMap, PlanDurationMap, PRICE_FEATURES } from '../admin-settings/
 import { Check, InfoIcon } from '@/assets/icons';
 import { getEnv } from '@/lib/utils';
 import { useOrganization } from '@/hooks/use-organisation';
-import { formatMoney } from '@/lib/billing-money';
+import { PLANS } from '@/lib/plan-catalogue';
 
 export type PricingDropdownKey = 'virtual_phone' | 'international_calling' | 'sms' | 'learn';
+
+/* The plans shown here come from the billing catalogue, so a price on this page
+   cannot disagree with the price a customer is actually charged. This page used
+   to carry three hardcoded plan names with one identical price caption repeated
+   under every one of them, matching nothing we sell.
+
+   Only paid plans get a column - a free plan has no per-seat price to compare
+   and belongs in its own section rather than in a price grid. */
+const PAID_PLANS = PLANS.filter((plan) => plan.monthlyPerSeat > 0);
+
+/* A year is quoted individually, so there is no annual figure to print. Saying
+   that plainly beats printing a number nobody honours. */
+const planPriceLine = (plan?: (typeof PAID_PLANS)[number]): string => {
+  if (!plan) return '';
+  const monthly = `$${plan.monthlyPerSeat} per user, per month`;
+  return plan.yearlyPerSeat === null
+    ? `${monthly} · annual billing quoted on request`
+    : `${monthly} · $${plan.yearlyPerSeat} per user, per year`;
+};
 
 const Pricing = () => {
   const navigate = useNavigate();
@@ -46,10 +65,10 @@ const Pricing = () => {
   };
   return (
     <>
-      <div className="w-full bg-white dark:bg-mcm-surface h-full">
+      <div className="w-full bg-white h-full">
         {/* header */}
         <div className="mx-auto w-full px-8">
-          <header className="bg-white dark:bg-mcm-surface py-8">
+          <header className="bg-white py-8">
             <nav className="flex items-center justify-between flex-row gap-6" aria-label="Global">
               {/* logo */}
               <div className="flex flex-1">
@@ -104,7 +123,7 @@ const Pricing = () => {
                   >
                     Virtual Phone Numbers
                     <svg
-                      className="h-5 w-5 flex-none text-gray-400 dark:text-mcm-ink-3"
+                      className="h-5 w-5 flex-none text-gray-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       aria-hidden="true"
@@ -128,7 +147,7 @@ const Pricing = () => {
                   >
                     International Calling
                     <svg
-                      className="h-5 w-5 flex-none text-gray-400 dark:text-mcm-ink-3"
+                      className="h-5 w-5 flex-none text-gray-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       aria-hidden="true"
@@ -152,7 +171,7 @@ const Pricing = () => {
                   >
                     SMS
                     <svg
-                      className="h-5 w-5 flex-none text-gray-400 dark:text-mcm-ink-3"
+                      className="h-5 w-5 flex-none text-gray-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       aria-hidden="true"
@@ -179,7 +198,7 @@ const Pricing = () => {
                   >
                     Learn
                     <svg
-                      className="h-5 w-5 flex-none text-gray-400 dark:text-mcm-ink-3"
+                      className="h-5 w-5 flex-none text-gray-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                       aria-hidden="true"
@@ -244,14 +263,14 @@ const Pricing = () => {
                       <>
                         <div
                           key={`${index}-${plan_name}`}
-                          // className={`p-6 rounded-xl ${index === activeIndex ? 'bg-primary' : 'bg-white dark:bg-mcm-surface'} shadow-md w-1/3 relative`}
-                          className={`p-6 rounded-xl ${index === activeIndex ? 'bg-primary' : 'bg-white dark:bg-mcm-surface'} shadow-md w-full relative transition-colors duration-300 ease-in-out`}
+                          // className={`p-6 rounded-xl ${index === activeIndex ? 'bg-primary' : 'bg-white'} shadow-md w-1/3 relative`}
+                          className={`p-6 rounded-xl ${index === activeIndex ? 'bg-primary' : 'bg-white'} shadow-md w-full relative transition-colors duration-300 ease-in-out`}
                           onClick={() => setActiveIndex(index)}
                         >
                           <div className="flex flex-col gap-6">
                             {costDetails?.discount_enabled && (
                               <span
-                                className={`inline-flex items-center rounded-b-md px-2 py-1 text-xs ${index === activeIndex ? 'bg-white dark:bg-mcm-surface text-primary' : 'bg-primary text-white'} font-medium tracking-widest absolute top-0 right-6`}
+                                className={`inline-flex items-center rounded-b-md px-2 py-1 text-xs ${index === activeIndex ? 'bg-white text-primary' : 'bg-primary text-white'} font-medium tracking-widest absolute top-0 right-6`}
                               >
                                 {costDetails?.discount}% Discount
                               </span>
@@ -270,7 +289,7 @@ const Pricing = () => {
                                 )}
                               </div>
                               <small
-                                className={`${index === activeIndex ? 'text-white' : 'text-gray-800 dark:text-mcm-ink-2'} font-normal text-[.8rem]`}
+                                className={`${index === activeIndex ? 'text-white' : 'text-gray-800'} font-normal text-[.8rem]`}
                               >
                                 {description}
                               </small>
@@ -279,16 +298,12 @@ const Pricing = () => {
                               <div className="flex items-center gap-3">
                                 <h2
                                   className={`text-4xl ${index === activeIndex ? 'text-white' : 'text-primary'} font-semibold flex items-center`}
-                                >{formatMoney(
-                                    costDetails?.discount_enabled
-                                      ? costDetails?.discount_price
-                                      : costDetails?.original_price,
-                                  )}</h2>
+                                >{`$${costDetails?.discount_enabled ? costDetails?.discount_price : costDetails?.original_price}`}</h2>
                                 {costDetails?.discount_enabled && (
                                   <h4
                                     className={`line-through text-xl ${index === activeIndex ? 'text-white' : 'text-primary'}`}
                                   >
-                                    {formatMoney(costDetails?.original_price)}
+                                    ${costDetails?.original_price}
                                   </h4>
                                 )}
                               </div>
@@ -308,7 +323,7 @@ const Pricing = () => {
 
                             <div className="flex flex-col gap-4">
                               <Button
-                                className={`${index === activeIndex ? 'text-primary bg-white dark:bg-mcm-surface border-primary hover:bg-white dark:hover:bg-mcm-surface hover:text-primary/90' : 'text-primary bg-white dark:bg-mcm-surface border-primary hover:bg-primary hover:text-white'}`}
+                                className={`${index === activeIndex ? 'text-primary bg-white border-primary hover:bg-white hover:text-primary/90' : 'text-primary bg-white border-primary hover:bg-primary hover:text-white'}`}
                                 onClick={() => {
                                   navigate(
                                     `/sign-up?planId=${encodeURIComponent(plan.uuid)}&isTrial=false`,
@@ -339,7 +354,7 @@ const Pricing = () => {
                                 All Advanced Features
                               </h5>
                               <ul
-                                className={`${index === activeIndex ? 'list-image-[url(assets/images/CheckWhite.svg)]' : 'list-image-[url(assets/images/CheckBlue.svg)]'} list-inside ${index === activeIndex ? 'text-white' : 'text-gray-800 dark:text-mcm-ink-2'} text-sm font-medium flex flex-col gap-4 pb-1.5`}
+                                className={`${index === activeIndex ? 'list-image-[url(assets/images/CheckWhite.svg)]' : 'list-image-[url(assets/images/CheckBlue.svg)]'} list-inside ${index === activeIndex ? 'text-white' : 'text-gray-800'} text-sm font-medium flex flex-col gap-4 pb-1.5`}
                               >
                                 {PRICE_FEATURES.map(({ name }, i) => {
                                   return <li key={`${i + 1}-${name}`}>{name}</li>;
@@ -355,14 +370,14 @@ const Pricing = () => {
                   <div>No Plans are found</div>
                 )}
                 {planData && planData?.length > 0 && (
-                  <div className="p-6 rounded-xl bg-white dark:bg-mcm-surface shadow-md w-full flex flex-col items-center justify-center gap-3 relative">
+                  <div className="p-6 rounded-xl bg-white shadow-md w-full flex flex-col items-center justify-center gap-3 relative">
                     <img
                       src={CustomPlanVector}
                       alt="Custom Plan "
                       className="w-full h-full max-h-52 object-contain"
                     />
                     <h5 className={`font-medium text-lg text-center`}>Customize Your Plan</h5>
-                    <p className={`font-medium text-sm text-gray-500 dark:text-mcm-ink-3 text-center mb-1`}>
+                    <p className={`font-medium text-sm text-gray-500 text-center mb-1`}>
                       Design a plan that fits your workflow with flexible options and transparent
                       pricing.
                     </p>
@@ -376,7 +391,7 @@ const Pricing = () => {
                 )}
               </div>
               <div className="flex flex-col items-center gap-6">
-                <h1 className="text-3xl text-gray-900 dark:text-mcm-ink font-semibold">Compare plan features</h1>
+                <h1 className="text-3xl text-gray-900 font-semibold">Compare plan features</h1>
                 <div className="flex w-full">
                   <div className="flex flex-col w-[30%] justify-center gap-5">
                     <div className="flex flex-col py-3">
@@ -621,18 +636,18 @@ const Pricing = () => {
                     </div>
                   </div>
                   <div className="flex flex-col w-[23.3%] px-2 gap-5">
-                    <div className="p-3 rounded-xl border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3">
+                    <div className="p-3 rounded-xl border border-gray-200 bg-gray-100">
                       <div className="flex flex-col items-center justify-center gap-1 w-full min-h-20">
                         <div className="flex items-center gap-3">
                           <h2 className="text-primary font-semibold flex items-center leading-none text-2xl">
-                            Basic
+                            {PAID_PLANS[0]?.name ?? ''}
                           </h2>
                           <span className="inline-flex items-center rounded-md bg-ucass-green px-2 py-1 text-xs font-medium  uppercase tracking-widest">
                             Popular
                           </span>
                         </div>
-                        <small className="text-gray-800 dark:text-mcm-ink-2 font-normal">
-                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
+                        <small className="text-gray-800 font-normal">
+                          {planPriceLine(PAID_PLANS[0])}
                         </small>
                       </div>
                     </div>
@@ -782,15 +797,15 @@ const Pricing = () => {
                     </div>
                   </div>
                   <div className="flex flex-col w-[23.3%] px-2 gap-5">
-                    <div className="p-3 rounded-xl border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3">
+                    <div className="p-3 rounded-xl border border-gray-200 bg-gray-100">
                       <div className="flex flex-col items-center justify-center gap-1 w-full min-h-20">
                         <div className="flex items-center gap-3">
                           <h2 className="text-primary font-semibold flex items-center leading-none text-2xl">
-                            Pro
+                            {PAID_PLANS[1]?.name ?? ''}
                           </h2>
                         </div>
-                        <small className="text-gray-800 dark:text-mcm-ink-2 font-normal">
-                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
+                        <small className="text-gray-800 font-normal">
+                          {planPriceLine(PAID_PLANS[1])}
                         </small>
                       </div>
                     </div>
@@ -964,15 +979,15 @@ const Pricing = () => {
                     </div>
                   </div>
                   <div className="flex flex-col w-[23.3%] px-2 gap-5">
-                    <div className="p-3 rounded-xl border border-gray-200 dark:border-mcm-line bg-gray-100 dark:bg-mcm-surface-3">
+                    <div className="p-3 rounded-xl border border-gray-200 bg-gray-100">
                       <div className="flex flex-col items-center justify-center gap-1 w-full min-h-20">
                         <div className="flex items-center gap-3">
                           <h2 className="text-primary font-semibold flex items-center leading-none text-2xl">
-                            Enterprise
+                            {PAID_PLANS[2]?.name ?? ''}
                           </h2>
                         </div>
-                        <small className="text-gray-800 dark:text-mcm-ink-2 font-normal">
-                          Annually: {formatMoney(20)} | Monthly: {formatMoney(30)}
+                        <small className="text-gray-800 font-normal">
+                          {planPriceLine(PAID_PLANS[2])}
                         </small>
                       </div>
                     </div>

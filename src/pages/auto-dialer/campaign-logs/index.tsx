@@ -55,8 +55,8 @@ const CampaignLogs = () => {
   return (
     // <div className="flex flex-col w-full">
     <div className="flex flex-col w-full">
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-        <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">Campaign Logs</p>
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+        <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">Campaign Logs</p>
         <div className="flex items-center gap-2 filters">
           <CustomSelect
             isClearable
@@ -152,16 +152,16 @@ const CampaignLogs = () => {
                 isSelected
                   ? // ? 'border-primary bg-primary/10 shadow-sm'
                     'border-primary bg-primary/10 shadow-sm'
-                  : 'border-stone-300/50 bg-stone-200/30 hover:border-stone-400 hover:bg-stone-200/40 dark:border-mcm-line dark:bg-mcm-surface-3 dark:hover:border-mcm-line dark:hover:bg-mcm-surface-3'
+                  : 'border-stone-300/50 bg-stone-200/30 hover:border-stone-400 hover:bg-stone-200/40'
               }`}
             >
               <span
-                className={`text-gray-900 dark:text-mcm-ink font-semibold ${card.label === 'Total Contacts' ? 'text-base' : 'text-lg'}`}
+                className={`text-gray-900 font-semibold ${card.label === 'Total Contacts' ? 'text-base' : 'text-lg'}`}
               >
                 {getCardValue(card.keys)}
               </span>
               <h3
-                className={`text-center text-sm font-medium ${isSelected ? 'text-slate-500 dark:text-mcm-ink-3' : 'text-slate-500 dark:text-mcm-ink-3'}`}
+                className={`text-center text-sm font-medium ${isSelected ? 'text-slate-500' : 'text-slate-500'}`}
               >
                 {card.label}
               </h3>

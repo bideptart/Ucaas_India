@@ -56,7 +56,7 @@ const DraggableMember = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="bg-white dark:bg-mcm-surface border-b border-[#EEE7DD] h-8"
+      className="bg-white border-b border-[#EEE7DD] h-8"
     >
       <TableCell className="w-1/12 text-center cursor-move px-4 py-2 border-r" {...listeners}>
         <DragLineIcon className="mx-auto w-3 h-3 text-[#9A948F]" />

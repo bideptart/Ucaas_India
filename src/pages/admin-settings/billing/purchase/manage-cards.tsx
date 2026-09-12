@@ -95,7 +95,7 @@ const ManageCards = () => {
               <CustomTooltip text={action.tooltipText} side="top">
                 <div
                   key={index}
-                  className={`cursor-pointer flex items-center justify-center rounded-xl w-8 h-8 bg-white dark:bg-mcm-surface border ${action.className}`}
+                  className={`cursor-pointer flex items-center justify-center rounded-xl w-8 h-8 bg-white border ${action.className}`}
                   onClick={() => {
                     action.onClick();
                   }}
@@ -120,12 +120,12 @@ const ManageCards = () => {
             </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:gap-0.5 p-4 rounded-lg bg-white dark:bg-mcm-surface border border-gray-100">
-          <p className="text-gray-800 dark:text-mcm-ink-2 text-sm inline-flex sm:items-center gap-1">
+        <div className="flex flex-col gap-2 sm:gap-0.5 p-4 rounded-lg bg-white border border-gray-100">
+          <p className="text-gray-800 text-sm inline-flex sm:items-center gap-1">
             <IdCard className="w-4" />
             Your primary card will be used for auto purchases.
           </p>
-          <p className="text-gray-800 dark:text-mcm-ink-2 text-sm inline-flex sm:items-center gap-1">
+          <p className="text-gray-800 text-sm inline-flex sm:items-center gap-1">
             <CircleFadingArrowUp className="w-4.5" />
             You can update or remove cards anytime.
           </p>

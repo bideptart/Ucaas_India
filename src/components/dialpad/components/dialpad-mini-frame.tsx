@@ -145,7 +145,7 @@ const DialpadMiniFrame = ({
   return (
     <div
       className={cn(
-        'flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[30px] border border-white/80 dark:border-mcm-line bg-white dark:bg-mcm-surface  sm:rounded-[32px]',
+        'flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[30px] border border-white/80 bg-white  sm:rounded-[32px]',
         'xs:p-2 xl:p-4',
         className,
       )}
@@ -180,7 +180,7 @@ const DialpadMiniFrame = ({
             />
 
             {!isSipRegistered ? (
-              <div className="mb-2 flex items-center gap-2 rounded-lg border border-[#ffd8b4] dark:border-mcm-accent-edge bg-[#fff8ef] dark:bg-mcm-accent-wash px-2.5 py-2 text-[11px] font-medium text-[#9a4f00] dark:text-mcm-accent-ink sm:text-xs">
+              <div className="mb-2 flex items-center gap-2 rounded-lg border border-[#ffd8b4] bg-[#fff8ef] px-2.5 py-2 text-[11px] font-medium text-[#9a4f00] sm:text-xs">
                 <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                 SIP not registered ({sipStatus}). Please wait before calling.
               </div>

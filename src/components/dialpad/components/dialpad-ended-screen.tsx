@@ -746,7 +746,7 @@ const DialpadEndedScreen = ({
 
   return (
     <div className="flex h-full  flex-col w-full justify-between xl:gap-10">
-      <div className="mt-1 mb-2 rounded-2xl  bg-white dark:bg-mcm-surface   md:mb-4">
+      <div className="mt-1 mb-2 rounded-2xl  bg-white   md:mb-4">
         <div className="mb-2.5 sm:mb-3">
           <DialpadSessionSummaryCard session={session} statusLabel={endStatus} showTimer={false} />
         </div>

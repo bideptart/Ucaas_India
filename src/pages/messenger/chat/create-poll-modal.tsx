@@ -92,7 +92,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
         onOpenChange(val);
       }}
     >
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-mcm-surface rounded-xl shadow-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
+      <DialogContent className="sm:max-w-[425px] bg-white rounded-xl shadow-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 pb-2 shrink-0">
           <div className="flex items-center gap-2 text-primary">
             <BarChart2 className="w-5 h-5" />
@@ -103,11 +103,11 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
         <div className="p-6 pt-2 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="question" className="text-sm font-semibold text-gray-700 dark:text-mcm-ink-2">
+              <Label htmlFor="question" className="text-sm font-semibold text-gray-700">
                 Question
               </Label>
               {question.length > 0 && (
-                <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-medium">{question.length}/255</span>
+                <span className="text-[11px] text-gray-400 font-medium">{question.length}/255</span>
               )}
             </div>
             <Input
@@ -116,14 +116,14 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               maxLength={255}
-              className="h-12 border-gray-200 dark:border-mcm-line focus:border-primary focus:ring-primary/20 rounded-lg"
+              className="h-12 border-gray-200 focus:border-primary focus:ring-primary/20 rounded-lg"
             />
           </div>
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="text-sm font-semibold text-gray-700 dark:text-mcm-ink-2">Options</Label>
-              <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-medium uppercase tracking-wider">
+              <Label className="text-sm font-semibold text-gray-700">Options</Label>
+              <span className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">
                 {options.length} / 12
               </span>
             </div>
@@ -137,10 +137,10 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
                       value={option}
                       onChange={(e) => handleOptionChange(index, e.target.value)}
                       maxLength={50}
-                      className="h-10 border-gray-200 dark:border-mcm-line focus:border-primary focus:ring-primary/20 rounded-lg pr-12"
+                      className="h-10 border-gray-200 focus:border-primary focus:ring-primary/20 rounded-lg pr-12"
                     />
                     {option.length > 0 && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 dark:text-mcm-ink-3">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">
                         {option.length}/50
                       </div>
                     )}
@@ -150,7 +150,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveOption(index)}
-                      className="h-10 w-10 text-gray-400 dark:text-mcm-ink-3 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"
+                      className="h-10 w-10 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -169,7 +169,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
                 variant="outline"
                 size="sm"
                 onClick={handleAddOption}
-                className="w-full h-10 border-dashed border-gray-300 dark:border-mcm-line text-gray-500 dark:text-mcm-ink-3 hover:text-primary hover:border-primary hover:bg-primary/5 rounded-lg flex items-center justify-center gap-2 mt-2"
+                className="w-full h-10 border-dashed border-gray-300 text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/5 rounded-lg flex items-center justify-center gap-2 mt-2"
               >
                 <Plus className="w-4 h-4" />
                 Add Option
@@ -178,7 +178,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-mcm-surface-3 rounded-lg border border-gray-100 dark:border-mcm-line">
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
               <Checkbox
                 id="multiple-choice"
                 checked={isMultipleChoice}
@@ -187,7 +187,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
               />
               <Label
                 htmlFor="multiple-choice"
-                className="text-sm font-medium leading-none cursor-pointer text-gray-700 dark:text-mcm-ink-2"
+                className="text-sm font-medium leading-none cursor-pointer text-gray-700"
               >
                 Allow multiple answers
               </Label>
@@ -195,7 +195,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
           </div>
         </div>
 
-        <DialogFooter className="p-6 bg-gray-50 dark:bg-mcm-surface-3 mt-2 border-t border-gray-100 dark:border-mcm-line shrink-0">
+        <DialogFooter className="p-6 bg-gray-50 mt-2 border-t border-gray-100 shrink-0">
           <Button
             type="button"
             variant="destructiveOutline"
@@ -203,7 +203,7 @@ const CreatePollModal: React.FC<CreatePollModalProps> = ({ open, onOpenChange, o
               handleReset();
               onOpenChange(false);
             }}
-            className="flex-1 h-11 text-slate-700 dark:text-mcm-ink-2  hover:!text-primary transition-colors cursor-pointer"
+            className="flex-1 h-11 text-slate-700  hover:!text-primary transition-colors cursor-pointer"
           >
             Cancel
           </Button>

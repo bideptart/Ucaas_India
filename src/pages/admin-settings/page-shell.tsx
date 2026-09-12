@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { McmIconSprite } from '@/components/mcm/icons';
+import { AdminHeadActions } from './admin-page-head';
 import '@/components/mcm/mcm-page.css';
 
 /**
@@ -22,33 +23,66 @@ export const AdminPage = ({
   description,
   actions,
   filters,
+  hideHead,
+  bareBody,
   children,
 }: {
   /** The area this screen belongs to, e.g. "Numbers". */
   section?: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   actions?: ReactNode;
   filters?: ReactNode;
+  /**
+   * Drops the eyebrow / title / description block, giving the table back the
+   * vertical space it costs.
+   *
+   * The shared strip above already prints the screen title from the nav
+   * registry, so this block was repeating a heading the page had a second time
+   * over, three lines down the page.
+   *
+   * Actions do not go with it: they are forwarded to the strip through
+   * `AdminHeadActions` below, so a screen only has to set this flag rather
+   * than restructure its JSX to keep its buttons.
+   */
+  hideHead?: boolean;
+  /**
+   * Drops the outer card, leaving the children to bring their own.
+   *
+   * `TableManager` already renders a bordered, rounded, tinted card of its
+   * own, so a screen built on it was drawing two nested cards — a white band
+   * showing around and below the table with nothing in it.
+   */
+  bareBody?: boolean;
   children: ReactNode;
 }) => (
   <section className="mcm-adminpage">
     <McmIconSprite />
-    <div className="mcm-adminpage-head">
-      <div className="mcm-adminpage-title">
-        {section ? <div className="mcm-adminpage-eyebrow">{section}</div> : null}
-        <h1>{title}</h1>
-        <p>{description}</p>
+    {hideHead ? (
+      /* The buttons that sat in the dropped head move up beside the screen
+         title rather than disappearing with it. */
+      actions ? <AdminHeadActions>{actions}</AdminHeadActions> : null
+    ) : (
+      <div className="mcm-adminpage-head">
+        <div className="mcm-adminpage-title">
+          {section ? <div className="mcm-adminpage-eyebrow">{section}</div> : null}
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </div>
+        {actions ? <div className="mcm-adminpage-actions">{actions}</div> : null}
       </div>
-      {actions ? <div className="mcm-adminpage-actions">{actions}</div> : null}
-    </div>
+    )}
     {filters ? <div className="mcm-adminpage-bar">{filters}</div> : null}
     <div className="mcm-adminpage-body">
-      {/* Same card the Directory tables sit in, so the two areas read as one
-          product rather than a styled header bolted onto a bare table. */}
-      <div className="panel-card">
-        <div className="tbl-wrap">{children}</div>
-      </div>
+      {bareBody ? (
+        children
+      ) : (
+        /* Same card the Directory tables sit in, so the two areas read as one
+           product rather than a styled header bolted onto a bare table. */
+        <div className="panel-card">
+          <div className="tbl-wrap">{children}</div>
+        </div>
+      )}
     </div>
   </section>
 );

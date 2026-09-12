@@ -590,7 +590,7 @@ const LicenseManagement: FC<any> = ({ dataGetMyPlanDetails, restrictPlan }) => {
               {isIdleSeatsLoading && <Skeleton className="h-8 w-full bg-amber-100" />}
 
               {!isIdleSeatsLoading && idleSeatRows.length > 0 && (
-                <div className="flex flex-col gap-1 rounded-lg border border-amber-200 bg-white dark:bg-mcm-surface p-2">
+                <div className="flex flex-col gap-1 rounded-lg border border-amber-200 bg-white p-2">
                   {idleSeatRows.slice(0, 10).map((seat: any) => (
                     <div
                       key={seat?.uuid}
@@ -754,7 +754,7 @@ const LicenseManagement: FC<any> = ({ dataGetMyPlanDetails, restrictPlan }) => {
                     {isLoading ? (
                       <Skeleton className="h-3 w-[55px] bg-[#F0DFC5]" />
                     ) : (
-                      <>{formatMoney(getTaxes?.plan_cost || 0)}</>
+                      <>${getTaxes?.plan_cost || 0}</>
                     )}
                   </div>
                 </div>

@@ -1,12 +1,11 @@
 import CommonSettingPermission from '@/components/common-settings';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
 import '@/components/mcm/mcm-page.css';
 import { POLICY_FIELDS, useCompanyPolicy, type PolicyField } from '@/lib/company-policy';
 import { getHolidaysFormVal, getHolidaysPayload, handleAlert } from '@/lib/utils';
 import { invalidateGlobalUsersDirectory } from '@/lib/invalidate-global-users-directory';
 import { isUnchanged } from '@/lib/form-baseline';
-import AccountPageHead from '../account-page-head';
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { CUSTOM_HOURS_SCHEDULE_OPTIONS } from '@/pages/admin-settings/numbers/set-number-forwarding/constants';
 import {
   FORWARDING_TAB_CONSTANT,
@@ -25,7 +24,9 @@ interface GeneralProps {
 
 /* "Preferences" is what the navigation calls this screen. The heading said
    "General", which matched nothing the user had clicked to get here. */
-export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
+export const General: FC<GeneralProps> = () => {
+  useSetAdminPageMeta({ description: 'Your own regional settings, business hours and call handling. Company-wide rules live under Phone System → Preferences.' });
+
   const queryClient: any = useQueryClient();
   const [schemaContext, setSchemaContext] = useState<any>(null);
   /* Serialised copy of the settings as they arrived, so "has anything
@@ -229,12 +230,6 @@ export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
     }
   }, [userInfoData]);
 
-  /* Company-locked settings are greyed out, so there is a real distinction
-     worth stating: some of what is on this page may not be yours to change.
-     Saying how many is more use than leaving somebody to discover it one
-     disabled control at a time. */
-  const lockedCount = lockedFields.length;
-
   /* Not `formState.isDirty`. The controls on this page belong to
      `CommonSettingPermission`, which writes through `setValue` without
      `shouldDirty`, so react-hook-form never marks the form dirty and the
@@ -253,21 +248,6 @@ export const General: FC<GeneralProps> = ({ heading = 'Preferences' }) => {
 
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <AccountPageHead
-        title={heading}
-        about="Your own regional settings, business hours and call handling. Company-wide rules live under Phone System → Preferences."
-      >
-        {!companyPolicy.isLoading && lockedCount > 0 && (
-          <div className="mcm-acct-note">
-            <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            <span>
-              {lockedCount} {lockedCount === 1 ? 'setting is' : 'settings are'} set by your company
-              and cannot be changed here.
-            </span>
-          </div>
-        )}
-      </AccountPageHead>
-
       <div className="mcm-acct-body">
         <div className="mcm-acct-narrow">
           <FormProvider {...methods}>

@@ -5,7 +5,9 @@ import { useDialpad } from '@/hooks/use-dialpad';
 import type { DialpadSession } from '@/context/dialpad-context';
 import { Ic } from '../icons';
 import { DialNumber } from '../dial-number';
-import { contactDisplayName, initialsOf } from '../copilot-adapter';
+import { initialsOf, isNumberLike } from '../copilot-adapter';
+import NumberWithFlag from '@/components/custom/number-with-flag';
+import { useCallerName } from '../use-caller-name';
 import type { ConsoleCallRow } from '../call-list-column';
 import { DEMO_ENABLED, demoProfile } from '../demo-data';
 import DemoChip from './demo-chip';
@@ -29,8 +31,9 @@ const ContactPane = ({
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
 
+  const { callerName } = useCallerName();
   const number = session?.remoteNumber || selectedCall?.number || '';
-  const name = session ? contactDisplayName(session) : selectedCall?.name || '';
+  const name = session ? callerName(session) : selectedCall?.name || '';
   const contact = session?.contactInfo;
 
   const formContactData = useMemo(() => {
@@ -96,7 +99,11 @@ const ContactPane = ({
       <div className="card contact-card">
         <div className="caller-av contact-av">{initialsOf(name) || <Ic n="user" size={20} />}</div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="contact-name">{name || 'Unknown contact'}</div>
+          {/* The heading falls back to the number when nobody is saved under
+              it, so it needs the same +91 / flag treatment as the row below. */}
+          <div className="contact-name">
+            {isNumberLike(name) ? <NumberWithFlag number={name} /> : name || 'Unknown contact'}
+          </div>
           <div className="contact-sub">
             {company || (contact ? 'Contact' : 'Not in the contact book')}
           </div>
@@ -135,7 +142,9 @@ const ContactPane = ({
         <div className="pc-body tight">
           <div className="kv">
             <span className="k">Number</span>
-            <span className="v num">{number}</span>
+            <span className="v num">
+              <NumberWithFlag number={number} />
+            </span>
           </div>
           <div className="kv">
             <span className="k">Company</span>

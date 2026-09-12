@@ -222,20 +222,20 @@ export const MeetInitiateModal = ({
                 <div
                   className={`fixed ${!isMinimize && 'inset-0'} z-[100] bg-black/50 flex justify-center items-center w-full`}
                 >
-                  <div className="w-full max-w-md rounded-xl bg-white dark:bg-mcm-surface shadow-xl p-6">
+                  <div className="w-full max-w-md rounded-xl bg-white shadow-xl p-6">
                     {isAutoJoining ? (
                       <div className="flex flex-col items-center gap-3 py-3">
                         <Loader variant="blue" size="lg" />
-                        <div className="text-sm text-gray-600 dark:text-mcm-ink-3">
+                        <div className="text-sm text-gray-600">
                           Preparing {normalizedCallType === 'audio' ? 'voice' : 'video'} call...
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className="text-base font-semibold text-gray-900 dark:text-mcm-ink">
+                        <div className="text-base font-semibold text-gray-900">
                           Unable to start {normalizedCallType === 'audio' ? 'voice' : 'video'} call
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-mcm-ink-3">
+                        <div className="text-sm text-gray-600">
                           {autoJoinError ||
                             (normalizedCallType === 'video'
                               ? eligibility.videoBlockReason
@@ -268,7 +268,7 @@ export const MeetInitiateModal = ({
                 className={`fixed ${!isMinimize && 'inset-0'} z-[100] bg-black/50 flex justify-center items-center w-full`}
               >
                 <div
-                  className={`${currentStatus === CALL_STATUS_CONST.CONNECTED || currentStatus === CALL_STATUS_CONST.ACCEPTED ? 'w-full max-w-full rounded-none' : 'w-auto rounded-xl'} bg-white dark:bg-mcm-surface shadow-xl`}
+                  className={`${currentStatus === CALL_STATUS_CONST.CONNECTED || currentStatus === CALL_STATUS_CONST.ACCEPTED ? 'w-full max-w-full rounded-none' : 'w-auto rounded-xl'} bg-white shadow-xl`}
                 >
                   <JoinOptionsScreen
                     callingUserdetails={callingUserdetails}
@@ -289,7 +289,7 @@ export const MeetInitiateModal = ({
                 className={`fixed ${!isMinimize && 'inset-0'} z-[100] bg-black flex justify-center items-center w-full max-w-[80%] max-h-[92vh] m-auto`}
               >
                 <div
-                  className={`${currentStatus === CALL_STATUS_CONST.CONNECTED || currentStatus === CALL_STATUS_CONST.ACCEPTED ? 'w-full max-w-full rounded-none' : 'w-auto rounded-xl'} bg-white dark:bg-mcm-surface shadow-xl`}
+                  className={`${currentStatus === CALL_STATUS_CONST.CONNECTED || currentStatus === CALL_STATUS_CONST.ACCEPTED ? 'w-full max-w-full rounded-none' : 'w-auto rounded-xl'} bg-white shadow-xl`}
                 >
                   <ConnectedScreen
                     incominCallData={incominCallData}

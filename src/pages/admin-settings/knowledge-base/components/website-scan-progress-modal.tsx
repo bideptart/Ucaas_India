@@ -46,7 +46,7 @@ const WebsiteScanProgressModal = ({ open, status }: WebsiteScanProgressModalProp
       role="dialog"
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/45 px-4"
     >
-      <div className="w-full max-w-[390px] rounded-2xl bg-white dark:bg-mcm-surface px-7 py-8 text-center shadow-2xl">
+      <div className="w-full max-w-[390px] rounded-2xl bg-white px-7 py-8 text-center shadow-2xl">
         <div className="mx-auto flex h-16 w-16 items-center justify-center">
           {isComplete ? (
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white">
@@ -54,17 +54,17 @@ const WebsiteScanProgressModal = ({ open, status }: WebsiteScanProgressModalProp
             </div>
           ) : (
             <div
-              className={`h-14 w-14 rounded-full border-4 border-slate-200 dark:border-mcm-line ${
+              className={`h-14 w-14 rounded-full border-4 border-slate-200 ${
                 isError ? 'border-b-red-500' : 'border-b-blue-600'
               } animate-spin`}
             />
           )}
         </div>
 
-        <h3 className="mt-5 text-lg font-bold text-gray-950 dark:text-mcm-ink">
+        <h3 className="mt-5 text-lg font-bold text-gray-950">
           {isError ? 'Scan could not complete' : 'Scanning your website...'}
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-mcm-ink-3">
+        <p className="mt-1 text-sm text-slate-500">
           {isComplete
             ? 'Pages are ready.'
             : isError
@@ -91,14 +91,14 @@ const WebsiteScanProgressModal = ({ open, status }: WebsiteScanProgressModalProp
             const isStepActive = !isComplete && !isError && index === activeStepIndex;
 
             return (
-              <div key={step} className="flex items-center gap-3 text-sm text-slate-600 dark:text-mcm-ink-2">
+              <div key={step} className="flex items-center gap-3 text-sm text-slate-600">
                 <span
                   className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                     isStepComplete
                       ? 'bg-emerald-500 text-white'
                       : isStepActive
                         ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-200'
-                        : 'bg-slate-100 text-slate-500 dark:text-mcm-ink-3'
+                        : 'bg-slate-100 text-slate-500'
                   }`}
                 >
                   {isStepComplete ? (

@@ -106,7 +106,7 @@ const AddFileModal = ({ open, setOpen, selectedChat, selectedFolder }: any) => {
             Add File
             <div
               onClick={() => setOpen(false)}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -121,7 +121,7 @@ const AddFileModal = ({ open, setOpen, selectedChat, selectedFolder }: any) => {
                   item?.attachments?.map((file: any, fileIndex: number) => (
                     <div
                       key={`${item?._id || item?.messageId}-${file?.filename || file?.name || fileIndex}`}
-                      className="flex justify-between border border-gray-200 dark:border-mcm-line w-full p-2 gap-2 rounded-lg cursor-pointer"
+                      className="flex justify-between border border-gray-200 w-full p-2 gap-2 rounded-lg cursor-pointer"
                     >
                       <div className="flex flex-row justify-between items-center w-[calc(100%-52px)]">
                         <div className="w-8 h-8 flex items-center">
@@ -132,14 +132,14 @@ const AddFileModal = ({ open, setOpen, selectedChat, selectedFolder }: any) => {
                           />
                         </div>
                         <div className="flex flex-col justify-between text-sm w-[calc(100%_-_3rem)]">
-                          <p className="font-semibold text-gray-900 dark:text-mcm-ink truncate ">
+                          <p className="font-semibold text-gray-900 truncate ">
                             {file?.name || file?.fileName || file?.filename}
                           </p>
-                          <p className="text-gray-800 dark:text-mcm-ink-2 truncate">{formatBytes(file?.size)}</p>
+                          <p className="text-gray-800 truncate">{formatBytes(file?.size)}</p>
                         </div>
                       </div>
                       <div
-                        className="cursor-pointer flex items-center justify-center rounded-full w-10 min-w-10 h-10 bg-gray-100 text-gray-900/80 dark:bg-mcm-surface-3 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                        className="cursor-pointer flex items-center justify-center rounded-full w-10 min-w-10 h-10 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
                         onClick={() => addFile(item, file)}
                       >
                         <Plus className="w-5 h-5" />
@@ -147,12 +147,12 @@ const AddFileModal = ({ open, setOpen, selectedChat, selectedFolder }: any) => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-base text-center text-gray-900 dark:text-mcm-ink">No files found</p>
+                  <p className="text-base text-center text-gray-900">No files found</p>
                 )}
               </div>
             ))
           ) : (
-            <p className="text-base text-center text-gray-900 dark:text-mcm-ink my-auto">No files found</p>
+            <p className="text-base text-center text-gray-900 my-auto">No files found</p>
           )}
         </div>
       </DialogContent>

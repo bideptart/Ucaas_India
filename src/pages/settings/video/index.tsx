@@ -26,25 +26,25 @@ const SettingsVideo = () => {
   return (
     <>
       {/* right content */}
-      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-border min-h-[65px] bg-card">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
           <div>
-            <p className="text-foreground font-semibold text-lg">Video</p>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-gray-900 font-semibold text-lg">Video</p>
+            <p className="text-gray-500 text-xs">
               Your camera, microphone and how you join meetings.
             </p>
           </div>
         </div>
 
         <div className="gap-3 flex flex-col p-3">
-          <h4 className="text-foreground font-semibold text-lg">General</h4>
-          <div className="border border-border shadow-[1px_1px_2px_rgba(0,0,0,0.05)] bg-card rounded-xl p-4 gap-3.5 flex flex-col h-full">
+          <h4 className="text-gray-900 font-semibold text-lg">General</h4>
+          <div className="border border-gray-100 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] bg-white rounded-xl p-4 gap-3.5 flex flex-col h-full">
             <div className="flex flex-col gap-1.5">
-              <p className="font-semibold truncate text-md text-foreground">Personal meeting</p>
-              <p className="text-foreground text-sm">Generate or copy the personal meeting link</p>
+              <p className="font-semibold truncate text-md text-gray-900">Personal meeting</p>
+              <p className="text-gray-800 text-sm">Generate or copy the personal meeting link</p>
               {privateMeetingLink && privateMeetingLink?.meetingId ? (
                 <div className="flex items-center gap-1">
-                  <p className="text-foreground text-sm">
+                  <p className="text-gray-800 text-sm">
                     Personal meeting link:
                     <span
                       className="cursor-pointer text-primary"
@@ -60,7 +60,7 @@ const SettingsVideo = () => {
                     </span>
                   </p>
                   <Button
-                    className="hover:text-foreground cursor-pointer"
+                    className="hover:text-black cursor-pointer"
                     variant={'ghost'}
                     size={'sm'}
                     onClick={async () => {
@@ -82,7 +82,7 @@ const SettingsVideo = () => {
                         <Check className="w-5 h-5" />
                       </>
                     ) : (
-                      <CopyIcon className="w-5 h-5 text-muted-foreground" />
+                      <CopyIcon className="w-5 h-5 text-gray-500" />
                     )}
                   </Button>
                 </div>

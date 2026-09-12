@@ -1,13 +1,20 @@
-import { formatMoney } from '@/lib/billing-money';
-
 export const TOP_UP_AMOUNT = [20, 50, 100, 150, 200];
 
-// `value` stays the raw figure the API expects; `label` is that figure
-// converted to INR for display, via the same conversion every other billing
-// screen uses.
-export const AUTO_PURCHASE_MIN_BALANCE_DATA = [20, 30, 50, 75, 100, 125, 150, 175, 200].map(
-  (value) => ({ label: formatMoney(value) as string, value }),
-);
+export const AUTO_PURCHASE_MIN_BALANCE_DATA = [
+  { label: '$20', value: 20 },
+  { label: '$30', value: 30 },
+  { label: '$50', value: 50 },
+  { label: '$75', value: 75 },
+  { label: '$100', value: 100 },
+  { label: '$125', value: 125 },
+  { label: '$150', value: 150 },
+  { label: '$175', value: 175 },
+  { label: '$200', value: 200 },
+  // { "label": "$500", "value": 500 },
+  // { "label": "$1000", "value": 1000 },
+  // { "label": "$2000", "value": 2000 },
+  // { "label": "$5000", "value": 5000 }
+];
 
 // export const RequestedPlanStatusMap: any = {
 //   P: 'Pending',
@@ -21,16 +28,16 @@ export const AUTO_PURCHASE_MIN_BALANCE_DATA = [20, 30, 50, 75, 100, 125, 150, 17
 // };
 
 export const RequestedPlanStatusMap: Record<string, { label: string; color: string }> = {
-  P: { label: 'Pending', color: 'bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400' },
-  C: { label: 'Canceled', color: 'bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400' },
-  A: { label: 'Active', color: 'bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400' },
-  ACTIVE: { label: 'Active', color: 'bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400' },
-  D: { label: 'Disabled', color: 'bg-gray-200 text-gray-600 dark:bg-mcm-surface-3 dark:text-mcm-ink-3' },
-  E: { label: 'Expired', color: 'bg-gray-100 text-gray-500 dark:bg-mcm-surface-3 dark:text-mcm-ink-3' },
-  EXPIRED: { label: 'Expired', color: 'bg-red-200 text-red-700 dark:bg-red-950/40 dark:text-red-400' },
-  R: { label: 'Rejected', color: 'bg-red-200 text-red-700 dark:bg-red-950/40 dark:text-red-400' },
+  P: { label: 'Pending', color: 'bg-orange-100 text-orange-600' },
+  C: { label: 'Canceled', color: 'bg-red-100 text-red-600' },
+  A: { label: 'Active', color: 'bg-green-100 text-green-600' },
+  ACTIVE: { label: 'Active', color: 'bg-green-100 text-green-600' },
+  D: { label: 'Disabled', color: 'bg-gray-200 text-gray-600' },
+  E: { label: 'Expired', color: 'bg-gray-100 text-gray-500' },
+  EXPIRED: { label: 'Expired', color: 'bg-red-200 text-red-700' },
+  R: { label: 'Rejected', color: 'bg-red-200 text-red-700' },
   U: { label: 'Upgraded', color: 'bg-ucass-active-bg text-ucass-active' },
-  S: { label: 'Suspended', color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-400' },
+  S: { label: 'Suspended', color: 'bg-yellow-100 text-yellow-600' },
 };
 
 export const RequestedPlanDurationMap: any = {

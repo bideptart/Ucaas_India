@@ -206,7 +206,7 @@ const VirtualBackgroundModal = ({ handleClose = () => null }: { handleClose?: ()
                       className={`w-12 h-11 rounded overflow-hidden border-2 transition-all duration-200 relative ${
                         options?.selectedThumbnail === image.uuid
                           ? 'border-ucass-active ring-2 ring-ucass-active-bg'
-                          : 'border-transparent hover:border-gray-300 dark:hover:border-mcm-line'
+                          : 'border-transparent hover:border-gray-300'
                       }`}
                       key={index}
                     >
@@ -241,7 +241,7 @@ const VirtualBackgroundModal = ({ handleClose = () => null }: { handleClose?: ()
                   className={`w-12 h-11 rounded bg-gray-700 flex items-center justify-center text-white cursor-pointer border-2 transition-all duration-200 relative ${
                     options?.selectedThumbnail === 'none' || !options?.backgroundEffectEnabled
                       ? 'border-ucass-active ring-2 ring-ucass-active-bg'
-                      : 'border-transparent hover:border-gray-300 dark:hover:border-mcm-line'
+                      : 'border-transparent hover:border-gray-300'
                   }`}
                   onClick={removeBackground}
                 >

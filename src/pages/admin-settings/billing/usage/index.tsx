@@ -27,6 +27,7 @@
  * with the invoice by construction.
  */
 
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -65,7 +66,7 @@ import {
   usageBand,
   type UsageRow,
 } from '@/lib/billing-usage';
-import { CALL_HISTORY_PATH, DESTINATIONS_PATH } from '../billing-sections';
+import { CALL_HISTORY_PATH } from '../billing-sections';
 
 /* Enough rows to cover a month of ordinary calling without making somebody wait
    on twenty-five round trips for a page they are only glancing at. */
@@ -93,7 +94,7 @@ const UsageBar = ({ row }: { row: UsageRow }) => {
   const colour =
     band === 'over' ? 'bg-red-500' : band === 'warning' ? 'bg-amber-500' : 'bg-gray-400';
   return (
-    <div className="mt-1.5 h-1 w-full max-w-[8rem] overflow-hidden rounded-full bg-gray-100 dark:bg-mcm-surface-3">
+    <div className="mt-1.5 h-1 w-full max-w-[8rem] overflow-hidden rounded-full bg-gray-100">
       <div
         className={`h-full rounded-full ${colour}`}
         style={{ width: `${Math.min(pct, 100)}%` }}
@@ -104,13 +105,24 @@ const UsageBar = ({ row }: { row: UsageRow }) => {
 
 const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
   <div className="scroller overflow-x-auto py-2">
-    <table className="w-full min-w-[38rem] border-collapse text-sm">
+    <table className="w-full min-w-[38rem] table-fixed border-collapse text-sm">
+      {/* Same reason as the breakdown tables below: five figures per row, each
+          kept under its own heading rather than drifting apart across columns
+          the browser sized from the header text. */}
+      <colgroup>
+        <col />
+        <col className="w-[96px]" />
+        <col className="w-[88px]" />
+        <col className="w-[80px]" />
+        <col className="w-[92px]" />
+        <col className="w-[96px]" />
+      </colgroup>
       <thead>
         <tr>
           {['Service', 'Included', 'Used', 'Over', 'Rate', 'Cost'].map((h, i) => (
             <th
               key={h}
-              className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
+              className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
                 i === 0 ? 'text-left' : 'text-right'
               }`}
             >
@@ -132,13 +144,13 @@ const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
              missing — it simply does not exist on this plan. */
           const unlimited = isUnlimitedAllowance(row.included);
           return (
-            <tr key={row.service} className={dim ? 'text-gray-500 dark:text-mcm-ink-3' : ''}>
+            <tr key={row.service} className={dim ? 'text-gray-500' : ''}>
               <td className="border-b border-gray-100 py-2.5 pr-4 align-top">
-                <span className={dim ? 'font-medium' : 'font-medium text-gray-900 dark:text-mcm-ink'}>
+                <span className={dim ? 'font-medium' : 'font-medium text-gray-900'}>
                   {row.service}
                 </span>
                 <UsageBar row={row} />
-                {row.note ? <p className="mt-1 text-[11px] text-gray-500 dark:text-mcm-ink-3">{row.note}</p> : null}
+                {row.note ? <p className="mt-1 text-[11px] text-gray-500">{row.note}</p> : null}
               </td>
               <td className="border-b border-gray-100 py-2.5 pr-4 text-right align-top tabular-nums">
                 {units(row.included, row.unit)}
@@ -148,7 +160,7 @@ const AllowanceTable = ({ rows }: { rows: UsageRow[] }) => (
               </td>
               <td
                 className={`border-b border-gray-100 py-2.5 pr-4 text-right align-top tabular-nums ${
-                  row.over !== null && row.over > 0 ? 'font-semibold text-gray-900 dark:text-mcm-ink' : ''
+                  row.over !== null && row.over > 0 ? 'font-semibold text-gray-900' : ''
                 }`}
               >
                 {unlimited ? 'None' : units(row.over, row.unit)}
@@ -183,18 +195,31 @@ const SpendTable = ({
   empty: string;
 }) => {
   if (groups.length === 0) {
-    return <p className="py-3 text-xs text-gray-600 dark:text-mcm-ink-3">{empty}</p>;
+    return <p className="py-3 text-xs text-gray-600">{empty}</p>;
   }
 
   return (
     <div className="scroller overflow-x-auto py-2">
-      <table className="w-full min-w-[24rem] border-collapse text-sm">
+      <table className="w-full min-w-[24rem] table-fixed border-collapse text-sm">
+        {/* The figures were auto-sized: "Talk time" claimed 219px for values
+            like "6m", and the label column took 330px, so a number sat a long
+            way from the heading it belonged to with nothing joining them.
+            Fixed widths keep the four figures in a tight block on the right,
+            each directly under its own heading, and give the slack to the
+            label, which is the column that actually varies. */}
+        <colgroup>
+          <col />
+          <col className="w-[104px]" />
+          <col className="w-[84px]" />
+          <col className="w-[96px]" />
+          <col className="w-[76px]" />
+        </colgroup>
         <thead>
           <tr>
             {[unit, 'Spent', 'Calls', 'Talk time', 'Share'].map((h, i) => (
               <th
                 key={h}
-                className={`border-b border-gray-200 dark:border-mcm-line pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-mcm-ink-3 last:pr-0 ${
+                className={`border-b border-gray-200 pb-2 pr-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500 last:pr-0 ${
                   i === 0 ? 'text-left' : 'text-right'
                 }`}
               >
@@ -206,19 +231,19 @@ const SpendTable = ({
         <tbody>
           {groups.map((g) => (
             <tr key={g.key}>
-              <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900 dark:text-mcm-ink">
+              <td className="border-b border-gray-100 py-2.5 pr-4 font-medium text-gray-900">
                 {g.label}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums font-medium text-gray-900 dark:text-mcm-ink">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums font-medium text-gray-900">
                 {moneyOrUnavailable(g.amount)}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
                 {g.calls.toLocaleString()}
               </td>
-              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700 dark:text-mcm-ink-2">
+              <td className="border-b border-gray-100 py-2.5 pr-4 text-right tabular-nums text-gray-700">
                 {readDuration(g.seconds)}
               </td>
-              <td className="border-b border-gray-100 py-2.5 text-right tabular-nums text-gray-500 dark:text-mcm-ink-3">
+              <td className="border-b border-gray-100 py-2.5 text-right tabular-nums text-gray-500">
                 {shareOf(g.amount, total)}%
               </td>
             </tr>
@@ -245,6 +270,14 @@ const TableSkeleton = ({ rows = 5, cols = 6 }: { rows?: number; cols?: number })
 );
 
 const Usage = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'What your plan includes against what has been used, and where the charges went.',
+  });
+
   const [dropdownVal, setDropdownVal] = useState(dropdownCallInitialVal);
   const [showBreakdown, setShowBreakdown] = useState(true);
   const from = dropdownVal?.value?.from;
@@ -400,15 +433,20 @@ const Usage = () => {
 
   return (
     <AdminPage
+      hideHead
       section="Billing"
       title="Usage"
-      description="What your plan includes against what has been used, and where the charges went."
+      /* The period picker sits beside Export CSV in the head rather than in a
+         filters bar of its own. That bar is a full-width strip with its own
+         surface, and it was spending a whole row on one dropdown. */
       actions={
-        <Button type="button" variant="outline" onClick={exportCsv} disabled={spendLoading}>
-          Export CSV
-        </Button>
+        <>
+          <DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />
+          <Button type="button" variant="outline" onClick={exportCsv} disabled={spendLoading}>
+            Export CSV
+          </Button>
+        </>
       }
-      filters={<DateDropdown dropdownVal={dropdownVal} setDropdownVal={setDropdownVal} />}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
         {/* The period's one big number, split the way a customer thinks about it:
@@ -424,7 +462,7 @@ const Usage = () => {
             spendLoading ? (
               <Skeleton className="h-6 w-24 bg-gray-200" />
             ) : (
-              <span className="text-2xl font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+              <span className="text-2xl font-semibold tabular-nums text-gray-900">
                 {moneyOrUnavailable(totals.amount)}
               </span>
             )
@@ -444,7 +482,7 @@ const Usage = () => {
                 label="Charged"
                 description="What these calls added to your bill."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900">
                     {moneyOrUnavailable(totals.amount)}
                   </span>
                 }
@@ -453,7 +491,7 @@ const Usage = () => {
                 label="Calls"
                 description="Everything placed or received, whether it was charged or included."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900">
                     {totals.calls.toLocaleString()}
                   </span>
                 }
@@ -462,7 +500,7 @@ const Usage = () => {
                 label="Talk time"
                 description="Connected time only. Ringing and unanswered calls are not counted."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900">
                     {readDuration(totals.seconds)}
                   </span>
                 }
@@ -471,7 +509,7 @@ const Usage = () => {
                 label="Out and in"
                 description="Outbound calls are usually where the charges are. Inbound is here for comparison."
                 control={
-                  <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-mcm-ink">
+                  <span className="text-sm font-semibold tabular-nums text-gray-900">
                     {totals.outboundCalls.toLocaleString()} out ·{' '}
                     {totals.inboundCalls.toLocaleString()} in
                   </span>
@@ -485,13 +523,6 @@ const Usage = () => {
           title="What your plan includes"
           description="Allowances for the current billing cycle, against what has been used so far."
           note="These counters run for the whole billing cycle and are not affected by the period chosen above. Several services are not metered back to this screen yet — those say so rather than showing a zero."
-          aside={
-            <Link to={DESTINATIONS_PATH}>
-              <Button type="button" variant="outline">
-                Full rate list
-              </Button>
-            </Link>
-          }
         >
           {planError ? (
             <SettingRow

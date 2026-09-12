@@ -138,9 +138,9 @@ const CustomizePlanModal = ({
           render={({ field }) => (
             <textarea
               {...field}
-              className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700 dark:placeholder:text-mcm-ink-3
-    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 dark:text-mcm-ink shadow-none resize-none
-    border border-gray-200 dark:border-mcm-line ${
+              className={`w-full h-full leading-7 p-2 rounded-xl text-sm overflow-y-auto placeholder:text-gray-700
+    focus:ring-0 focus-visible:shadow-none focus-visible:outline-0 text-gray-900 shadow-none resize-none
+    border border-gray-200 ${
       errors?.message?.message ? 'border-red-500 focus:border-red-500' : ''
     }`}
               rows={4}
@@ -163,7 +163,7 @@ const CustomizePlanModal = ({
 
   if (variant === 'page') {
     return (
-      <section className="w-full max-w-xl rounded-xl bg-white dark:bg-mcm-surface p-6 shadow-md sm:p-8">
+      <section className="w-full max-w-xl rounded-xl bg-white p-6 shadow-md sm:p-8">
         {isSubmitted ? (
           <div
             role="status"
@@ -172,9 +172,9 @@ const CustomizePlanModal = ({
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
               <VerifiedCheck className="h-8 w-8 text-green-700" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-mcm-ink">Thank you!</h1>
-            <p className="max-w-md text-base text-gray-600 dark:text-mcm-ink-2">{successMessage}</p>
-            <p className="max-w-md text-sm text-gray-500 dark:text-mcm-ink-3">
+            <h1 className="text-2xl font-semibold text-gray-900">Thank you!</h1>
+            <p className="max-w-md text-base text-gray-600">{successMessage}</p>
+            <p className="max-w-md text-sm text-gray-500">
               Our team will review your requirements and contact you with a tailored plan.
             </p>
             <Button type="button" variant="outline" className="mt-2" onClick={handleClose}>
@@ -184,8 +184,8 @@ const CustomizePlanModal = ({
         ) : (
           <>
             <div className="mb-6 flex flex-col gap-2">
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-mcm-ink">Customize Your Plan</h1>
-              <p className="text-sm text-gray-500 dark:text-mcm-ink-3">
+              <h1 className="text-xl font-semibold text-gray-900">Customize Your Plan</h1>
+              <p className="text-sm text-gray-500">
                 Share your requirements, expected usage, and any specific features you need. Our
                 team will contact you with a tailored plan that fits your business.
               </p>

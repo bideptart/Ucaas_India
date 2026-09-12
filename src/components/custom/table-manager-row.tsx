@@ -66,7 +66,7 @@ export const TableManagerRow: FC<{
                 ) : showSubRows ? (
                   <div
                     onClick={() => setShowSubRows(false)}
-                    className="w-5 h-5 border border-primary bg-white dark:bg-mcm-surface-3 hover:bg-primary hover:text-white text-primary rounded-sm flex items-center justify-center cursor-pointer"
+                    className="w-5 h-5 border border-primary bg-white hover:bg-primary hover:text-white text-primary rounded-sm flex items-center justify-center cursor-pointer"
                   >
                     <Minus className="w-4 h-4" />
                   </div>
@@ -76,7 +76,7 @@ export const TableManagerRow: FC<{
                       setShowSubRows(true);
                       handleSubRows();
                     }}
-                    className="w-5 h-5 border border-primary bg-white dark:bg-mcm-surface-3 hover:bg-primary hover:text-white text-primary rounded-sm flex items-center justify-center cursor-pointer"
+                    className="w-5 h-5 border border-primary bg-white hover:bg-primary hover:text-white text-primary rounded-sm flex items-center justify-center cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                   </div>
@@ -103,7 +103,7 @@ export const TableManagerRow: FC<{
           return (
             <TableCell
               key={`${row.id}_${cell.column.id}_${cellIndex}`}
-              className="px-2 xl:px-4 py-2 border-b  border-gray-200 dark:border-mcm-line last-of-type:border-r-0 h-11 min-h-11 text-black dark:text-mcm-ink font-semibold"
+              className="px-2 xl:px-4 py-2 border-b  border-gray-200 last-of-type:border-r-0 h-11 min-h-11 text-black font-semibold"
             >
               {bodyAlign === 'center' || bodyAlign === 'right' ? (
                 <div
@@ -121,8 +121,8 @@ export const TableManagerRow: FC<{
       {hasSubRows && showSubRows ? (
         renderSubComponent ? (
           <TableRow key={`${row.id}_subcomponent`}>
-            <TableCell className="max-w-5 bg-gray-50/50 dark:bg-mcm-surface-3"></TableCell>
-            <TableCell colSpan={columns.length} className="px-6 py-4 bg-gray-50/50 dark:bg-mcm-surface-3">
+            <TableCell className="max-w-5 bg-gray-50/50"></TableCell>
+            <TableCell colSpan={columns.length} className="px-6 py-4 bg-gray-50/50">
               {renderSubComponent(row.original)}
             </TableCell>
           </TableRow>
@@ -134,7 +134,7 @@ export const TableManagerRow: FC<{
                 return (
                   <TableCell
                     key={`${rows.id}_${cell.column.id}_${cellIndex}`}
-                    className="px-4 py-2 border-b  border-gray-200 dark:border-mcm-line last-of-type:border-r-0 h-11 min-h-11 text-gray-900/80 dark:text-mcm-ink font-normal bg-ucass-primary-200/40"
+                    className="px-4 py-2 border-b  border-gray-200 last-of-type:border-r-0 h-11 min-h-11 text-gray-900/80 font-normal bg-ucass-primary-200/40"
                   >
                     {cell?.column?.id === 'action' ? (
                       <div className="flex items-center justify-center">

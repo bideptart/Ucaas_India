@@ -1,6 +1,5 @@
 import { Icon } from '@/assets/icons/icon';
 import '@/components/mcm/mcm-page.css';
-import '@/styles/warm-glass.css';
 import { Button } from '@/components/ui/button';
 import { handleAlert, normalizeSearchText } from '@/lib/utils';
 import { deleteContact, deleteLeadGroup, getContactList, syncContacts } from '@/services/api';
@@ -36,6 +35,7 @@ import ExportContacts from '../leads/export-contacts.tsx/index.tsx';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useGetGroupList } from '@/hooks/common';
 import CustomSelect from '@/components/custom/custom-select';
+import '@/styles/warm-glass.css';
 
 interface IDrawerState {
   addContact: boolean;
@@ -77,11 +77,6 @@ const NewContact: FC = () => {
   const [selectedGroupForContactLogs, setSelectedGroupForContactLogs] = useState<any>(null);
   const [tabName, setTabName] = useState<string>(defaultTab || CONTACT_TABS_CONST.CONTACT_LIST);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  /* Kept alongside `selectedGroupId` (rather than re-deriving it by looking
-     the id back up in `groupList` at render time) so the dropdown always
-     shows the label of whatever was actually clicked — the lookup could
-     come back empty depending on how `groupList` is paginated/typed. */
-  const [selectedGroupLabel, setSelectedGroupLabel] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { data: groupList = [] } = useGetGroupList({
     type: 'CONTACT',
@@ -282,7 +277,7 @@ const NewContact: FC = () => {
         ) : (
           <>
             {/* Header bar */}
-            <div className="border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px]">
+            <div className="border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px]">
               <div className="flex flex-col gap-3 px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="w-full shrink-0 overflow-x-auto lg:w-auto lg:min-w-0 lg:shrink lg:flex-1">
                   <Tabs
@@ -291,10 +286,7 @@ const NewContact: FC = () => {
                     className="flex w-max min-w-full lg:min-w-0"
                   >
                     <div className="h-full min-w-max">
-                      <TabsList
-                        className="gap-1 rounded-lg border border-[rgba(225,200,165,0.7)] dark:border-mcm-line bg-[rgba(255,255,255,0.55)] dark:bg-mcm-surface-3 p-1"
-                        style={{ margin: 0 }}
-                      >
+                      <TabsList className="ptabstrip" style={{ margin: 0, border: 0 }}>
                         <TabsTrigger value={CONTACT_TABS_CONST.CONTACT_LIST}>
                           <span className="whitespace-nowrap">
                             {CONTACT_TABS_CONST.CONTACT_LIST}
@@ -314,7 +306,7 @@ const NewContact: FC = () => {
                   <Button
                     onClick={() => login()}
                     variant="outline"
-                    className="h-9 min-h-9 w-full rounded-lg border-primary bg-white dark:bg-mcm-surface font-medium text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow sm:w-auto md:max-lg:shrink-0"
+                    className="h-9 min-h-9 w-full rounded-lg border-primary bg-white font-medium text-primary shadow-sm hover:bg-primary hover:text-white hover:shadow sm:w-auto md:max-lg:shrink-0"
                   >
                     Sync With Google
                   </Button>
@@ -322,13 +314,13 @@ const NewContact: FC = () => {
                   <div className="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-center md:max-lg:min-w-0 md:max-lg:flex-1 md:max-lg:flex-nowrap lg:w-auto lg:min-w-0 lg:flex-nowrap">
                     <Input
                       placeholder="Search"
-                      className="h-9 min-h-9 w-full rounded-lg border-[rgba(225,200,165,0.9)] dark:border-mcm-line bg-white/70 dark:bg-mcm-surface pl-10 shadow-sm focus:shadow sm:min-w-[6rem] md:min-w-[8rem] md:max-lg:min-w-0 md:max-lg:flex-1 lg:min-w-[12rem] xl:min-w-[18rem]"
-                      IconPosition="left-0 pl-3 inset-y-0"
+                      className="min-h-10 w-full rounded-lg pl-10 sm:min-w-[6rem] md:min-w-[8rem] md:max-lg:min-w-0 md:max-lg:flex-1 lg:min-w-[12rem] xl:min-w-[18rem]"
+                      IconPosition="left-0 pl-2 inset-y-0"
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
                       }}
-                      Icon={<SearchLine className="text-[#8a7a67] dark:text-mcm-ink-3 w-4 h-4" />}
+                      Icon={<SearchLine className="text-[#8a7a67] w-4 h-4" />}
                     />
                     {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                       <>
@@ -340,16 +332,18 @@ const NewContact: FC = () => {
                               label: group.groupName || group.name || '',
                               value: group._id,
                             }))}
-                            handleChange={(e: any) => {
-                              setSelectedGroupId(e ? e.value : null);
-                              setSelectedGroupLabel(e ? e.label : null);
-                            }}
+                            handleChange={(e: any) => setSelectedGroupId(e ? e.value : null)}
                             value={
                               selectedGroupId
-                                ? { label: selectedGroupLabel || '', value: selectedGroupId }
+                                ? {
+                                    label:
+                                      groupList.find((g: any) => g._id === selectedGroupId)
+                                        ?.groupName || '',
+                                    value: selectedGroupId,
+                                  }
                                 : null
                             }
-                            inputClass="contact-toolbar-select"
+                            inputClass="team_chat"
                           />
                         </div>
                         <div className="w-full sm:w-40 md:max-lg:w-36 md:max-lg:shrink-0">
@@ -376,7 +370,7 @@ const NewContact: FC = () => {
                                   }
                                 : null
                             }
-                            inputClass="contact-toolbar-select"
+                            inputClass="team_chat"
                           />
                         </div>
                       </>
@@ -385,7 +379,7 @@ const NewContact: FC = () => {
                       {canAddContact ? (
                         <>
                           <Button
-                            className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+                            className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                             type="button"
                             onClick={() =>
                               setDrawerState((prev) => ({ ...prev, updateContacts: true }))
@@ -397,7 +391,7 @@ const NewContact: FC = () => {
                           {tabName === CONTACT_TABS_CONST.CONTACT_LIST && (
                             <>
                               <Button
-                                className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white dark:bg-mcm-surface border border-primary text-primary hover:bg-primary hover:text-white"
+                                className="cursor-pointer flex items-center justify-center min-h-9 min-w-9 max-w-9 max-h-9 rounded-lg w-9 h-9 bg-white border border-primary text-primary hover:bg-primary hover:text-white"
                                 type="button"
                                 onClick={() =>
                                   setDrawerState((prev) => ({ ...prev, exportContacts: true }))
@@ -409,7 +403,7 @@ const NewContact: FC = () => {
                             </>
                           )}
                           <Button
-                            className="cursor-pointer flex min-h-9 items-center justify-center gap-2 rounded-lg border border-primary bg-white dark:bg-mcm-surface px-3 text-primary hover:bg-primary hover:text-white sm:h-9 sm:w-9 sm:px-0"
+                            className="cursor-pointer flex min-h-9 items-center justify-center gap-2 rounded-lg border border-primary bg-white px-3 text-primary hover:bg-primary hover:text-white sm:h-9 sm:w-9 sm:px-0"
                             type="button"
                             onClick={() =>
                               tabName === CONTACT_TABS_CONST.CONTACT_GROUP_LIST
@@ -441,7 +435,6 @@ const NewContact: FC = () => {
                           canDeleteContact ? setShowDeleteConfirmation : () => void 0
                         }
                         payloadExtraParams={payloadExtraParams}
-                        tableWrapperClassName="contact-table-glass"
                         permissionAccess={{
                           canView: canViewContact,
                           canEdit: canEditContact,
@@ -470,7 +463,6 @@ const NewContact: FC = () => {
                           },
                           onOpenContactLogs: (group: any) => setSelectedGroupForContactLogs(group),
                           search: normalizedSearch,
-                          tableWrapperClassName: 'contact-table-glass',
                         }}
                       />
                     );
@@ -482,7 +474,6 @@ const NewContact: FC = () => {
                           canDeleteContact ? setShowDeleteConfirmation : () => void 0
                         }
                         payloadExtraParams={payloadExtraParams}
-                        tableWrapperClassName="contact-table-glass"
                         permissionAccess={{
                           canView: canViewContact,
                           canEdit: canEditContact,
@@ -575,13 +566,10 @@ const NewContact: FC = () => {
           title="Send WhatsApp Message"
           handleClose={() => setWhatsappDrawerOpen(false)}
           content={
-            <div className="mcm-warm-glass whatsapp-drawer-glass flex h-full min-h-0 w-full flex-col">
-              <SendWhatsappMessage
-                handleClose={() => setWhatsappDrawerOpen(false)}
-                initialNumber={selectedContact?.contact?.phone}
-                selectClassName="whatsapp-drawer-select"
-              />
-            </div>
+            <SendWhatsappMessage
+              handleClose={() => setWhatsappDrawerOpen(false)}
+              initialNumber={selectedContact?.contact?.phone}
+            />
           }
         />
       )}

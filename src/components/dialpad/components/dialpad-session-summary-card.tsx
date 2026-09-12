@@ -68,7 +68,7 @@ const DialpadSessionSummaryCard = ({
   const dotClass = isTerminalStatus ? 'bg-[#b33a49]' : 'bg-[#1d5fd9]';
 
   return (
-    <div className="flex items-start justify-between gap-2 rounded-2xl border border-[#e3e9f3] dark:border-mcm-line bg-white dark:bg-mcm-surface p-1 xl:p-2">
+    <div className="flex items-start justify-between gap-2 rounded-2xl border border-[#e3e9f3] bg-white p-1 xl:p-2">
       <div className="flex min-w-0 flex-1 items-center gap-2 max-[380px]:gap-2 xl:gap-3">
         <CustomAvatar
           name={contactName}

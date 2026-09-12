@@ -11,13 +11,17 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AddCallQueue from './add-edit-call-queue';
 import { QUEUES_PATH, QUEUE_DEFAULT_TAB } from './queue-tabs';
 import { CALL_DISTRIBUTION_DATA } from './constant';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllPages } from '@/lib/fetch-all-pages';
+import { allNumbersList } from '@/services/api';
+import { poolSummary } from '@/lib/queue-numbers';
+import NumberWithFlag from '@/components/custom/number-with-flag';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AlertConfirm from '@/components/custom/alert-confirm';
-import { Plus } from '@/assets/icons';
+import { Plus, SearchLine } from '@/assets/icons';
 import SideDrawer from '@/components/custom/side-drawer';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { Icon, IconName } from '@/assets/icons/icon';
-import { Input } from '@/components/ui/input';
 import useDebounce from '@/hooks/use-debounce';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import AgentDetailsModal from '@/pages/auto-dialer/campaign/modal/agent-details-modal';
@@ -86,6 +90,15 @@ const CallQueues: FC = () => {
   const queryClient: any = useQueryClient();
   const debouncedSearch = useDebounce(searchedText || '', 1000);
   const { features } = useCompanyFeatures();
+
+  /* Every number the company owns, so the list can show which ones ring each
+     queue. Same key and endpoint the numbers screens use, so this shares their
+     cache rather than fetching a second copy. */
+  const { data: allNumbers = [] } = useQuery({
+    queryKey: ['numbersByLine'],
+    queryFn: () => fetchAllPages(allNumbersList),
+    staleTime: 60 * 1000,
+  });
   const phoneSystem = features?.plan_features?.phone_system_action;
 
   const hasQueueAccess = Boolean(phoneSystem?.access?.QUEUE);
@@ -119,16 +132,45 @@ const CallQueues: FC = () => {
          it is occasionally used to find a queue somebody made last week. */
       header: 'Name',
       accessorKey: 'name',
-      cell: ({ row }) => <span className="break-words">{row?.original?.name}</span>,
+      cell: ({ row }) => {
+        const name = row?.original?.name;
+        return (
+          <div className="flex flex-col gap-1.5">
+            <span>{name}</span>
+          </div>
+        );
+      },
     },
     {
       header: 'Site',
       accessorKey: 'site_uuid',
-      cell: ({ row }: any) => <span>{row?.original?.site_uuid?.name || '---'}</span>,
+      cell: ({ row }: any) => <> {row?.original?.site_uuid?.name || ''}</>,
     },
     {
       header: 'Extension',
       accessorKey: 'extension',
+    },
+    {
+      /* Which outside numbers reach this queue. A queue does not store them -
+         each number stores where it forwards - so this is that relationship
+         read backwards. Without it, "no caller can reach this queue" and "this
+         queue is busy" looked identical from the list. */
+      header: 'Numbers',
+      accessorKey: 'did_numbers',
+      cell: ({ row }: any) => {
+        const pool = poolSummary(allNumbers, row?.original?._id);
+        if (!pool.count) {
+          return <span className="text-amber-700">No number</span>;
+        }
+        return (
+          <span className="flex flex-wrap items-center gap-1">
+            <NumberWithFlag number={pool.primary} />
+            {pool.count > 1 && (
+              <span className="text-gray-500">+{pool.count - 1}</span>
+            )}
+          </span>
+        );
+      },
     },
     {
       /* How calls are shared out. This was invisible from the list, so telling
@@ -148,7 +190,7 @@ const CallQueues: FC = () => {
         const type = readQueueSettings(row?.original)?.operational_hours?.type;
         if (type === '24_hours') return <span>Open 24 hours</span>;
         if (type === 'weekly') return <span>Set per weekday</span>;
-        return <span className="text-muted-foreground">Not set</span>;
+        return <span className="text-gray-500">Not set</span>;
       },
     },
     {
@@ -171,39 +213,36 @@ const CallQueues: FC = () => {
               const username = item?.name || 'Unknown';
               const imageUrl = item?.imageUrl || '';
               return (
-                <CustomTooltip key={index} text={username} side="top">
-                  <div className="mcm-avatar-hit w-9 h-9 cursor-pointer">
-                    <div className="mcm-avatar-chip w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800">
-                      {imageUrl ? (
-                        <img
-                          className="w-9 h-9 rounded-full"
-                          src={imageUrl}
-                          alt={username}
-                          width={36}
-                          height={36}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-muted text-muted-foreground text-xs capitalize">
-                          {getInitials(username)}
-                        </div>
-                      )}
-                    </div>
+                <CustomTooltip text={username} side="top">
+                  <div
+                    key={index}
+                    className="w-9 h-9 flex items-center justify-center border border-white rounded-full bg-gray-200 dark:border-gray-800 capitalizes cursor-pointer"
+                  >
+                    {imageUrl ? (
+                      <img
+                        className="w-9 h-9 rounded-full"
+                        src={imageUrl}
+                        alt={username}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center rounded-full border border-gray-400 bg-gray-100 text-gray-600 text-xs capitalize">
+                        {getInitials(username)}
+                      </div>
+                    )}
                   </div>
                 </CustomTooltip>
               );
             })}
             {members?.length > 5 && (
-              <button
-                type="button"
-                aria-label={`Show all ${members.length} members`}
+              <div
                 onClick={() => {
                   setModalState({ open: true, data: members || [], type: 'Total Members' });
                 }}
-                className="mcm-avatar-more w-9 h-9 flex items-center justify-center border border-gray-500 rounded-full bg-gray-500 text-white font-medium cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="w-9 h-9 flex items-center justify-center border border-gray-500 !space-x-10 rounded-full bg-gray-500 text-white font-medium cursor-pointer"
               >
                 +{members?.length - 5}
-              </button>
+              </div>
             )}
           </div>
         ) : (
@@ -229,14 +268,14 @@ const CallQueues: FC = () => {
             queueActions?.edit && {
               icon: 'EditStrokIcon',
               onClick: () => openQueue(data),
-              className: 'bg-muted text-foreground/80 hover:bg-primary hover:text-white',
+              className: 'mcm-rowact',
               tooltipText: 'Edit',
             },
           hasQueueAccess &&
             queueActions?.delete && {
               icon: 'TrashBin',
               onClick: () => setDeleteCallQueue(row?.original),
-              className: 'bg-red-100 text-red-500 hover:bg-red-500 hover:text-white',
+              className: 'mcm-rowact is-danger',
               tooltipText: 'Delete',
             },
         ].filter(Boolean);
@@ -246,17 +285,16 @@ const CallQueues: FC = () => {
         return (
           <div className="flex items-center gap-2">
             {actions?.map((action, index) => (
-              <CustomTooltip key={index} text={action.tooltipText} side="top">
-                <button
-                  type="button"
-                  aria-label={action.tooltipText}
-                  className={`mcm-row-action cursor-pointer flex items-center justify-center rounded-full w-8 h-8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${action.className}`}
+              <CustomTooltip text={action.tooltipText} side="top">
+                <div
+                  key={index}
+                  className={`cursor-pointer flex items-center justify-center ${action.className}`}
                   onClick={() => {
                     action.onClick();
                   }}
                 >
-                  <Icon name={action.icon as IconName} className="w-5 h-5" aria-hidden="true" />
-                </button>
+                  <Icon name={action.icon as IconName} className="w-5 h-5" />
+                </div>
               </CustomTooltip>
             ))}
           </div>
@@ -274,6 +312,8 @@ const CallQueues: FC = () => {
   return (
     <>
       <AdminPage
+        hideHead
+        bareBody
         section="Phone System"
         title="Call queues"
         description="Where incoming calls wait, and which people answer them. Queues can be company-wide or tied to one location."
@@ -289,44 +329,55 @@ const CallQueues: FC = () => {
             </button>
           ) : null
         }
-        filters={
-          <>
-            <Input
-              type="search"
-              name="queue-search"
-              autoComplete="off"
-              spellCheck={false}
-              aria-label="Search call queues"
-              placeholder="Search queues…"
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value.startsWith(' ')) return;
-                setSearchedText(value);
-              }}
-              className="w-full min-h-9 rounded-lg"
-            />
-            <CustomSelect
-              className="w-full min-w-36"
-              options={
-                dataSiteList?.map((site: { name: string; uuid: string }) => ({
-                  label: site?.name,
-                  value: site?.uuid,
-                })) || []
-              }
-              handleChange={(e: ISELECTVALUE | null) => {
-                setSelectedSite(e || '');
-              }}
-              value={selectedSite}
-            />
-          </>
-        }
       >
         <div className="flex flex-col gap-2">
-          <p className="text-foreground text-sm">
-            Set up call queues at the Company level or for Individual Site locations. This allows
-            you to organize incoming traffic for specific branches, ensuring callers are held
-            professionally until a user from that site is ready to answer.
-          </p>
+          {/* One line with the full wording behind it, rather than a
+              paragraph restating the screen above every row on every visit. */}
+          {/* Note, search and the site filter on one row. `filters` is not
+              used: it renders a full-width white bar of its own above the
+              content, which cost a line to hold two controls. */}
+          <div className="mcm-listbar">
+            <CustomTooltip
+              text={
+                'Queues can be company-wide or tied to one site, so incoming traffic for a branch is held until somebody from that branch is ready to answer.'
+              }
+              side="bottom"
+              className="max-w-sm"
+            >
+              <p className="mcm-numnote">
+                <Icon name={'InfoIcon' as IconName} className="w-3.5 h-3.5" />
+                Queues can be company-wide or tied to a single site.
+              </p>
+            </CustomTooltip>
+            <label className="mcm-numsearch">
+              <SearchLine />
+              <input
+                type="search"
+                placeholder="Search queues"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.startsWith(' ')) return;
+                  setSearchedText(e.target.value);
+                }}
+              />
+            </label>
+            <div className="mcm-numselect">
+              <CustomSelect
+                className="w-full"
+                placeholder="All sites"
+                options={
+                  dataSiteList?.map((site: { name: string; uuid: string }) => ({
+                    label: site?.name,
+                    value: site?.uuid,
+                  })) || []
+                }
+                handleChange={(e: ISELECTVALUE | null) => {
+                  setSelectedSite(e || '');
+                }}
+                value={selectedSite}
+              />
+            </div>
+          </div>
           <TableManager
             {...{
               columns,

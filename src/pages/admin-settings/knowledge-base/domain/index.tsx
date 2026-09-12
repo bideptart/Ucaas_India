@@ -4,16 +4,17 @@ import TableManager from '@/components/custom/table-manager';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { handleAlert } from '@/lib/utils';
-import { deleteAIDomain, getAIDomainList } from '@/services/api';
+import { deleteAIDomain, getAgentList, getAIDomainList } from '@/services/api';
 import AlertConfirm from '@/components/custom/alert-confirm';
 import CustomTooltip from '@/components/custom/custom-tooltip';
-import { useEffect, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import WidgetViewModal from '../ai-agent/modal/widget-view-modal';
 import AddDomainModal from './modals/add-domain-modal';
 import TestTalkModal from './modals/test-talk-modal';
 import { useCompanyFeatures } from '@/hooks/rbac';
+import { getAi360WidgetKey, getChatWidgetScriptSrc } from '../ai-agent/chat-agent-configure-modal';
 
 const EMBED_SCRIPT_ID = 'ai-domain-test-embed-script';
 
@@ -47,10 +48,25 @@ function AIDomain() {
   const domainAccess = features?.plan_features?.ai?.action?.domain;
   const [search, setSearch] = useState('');
 
+  // Track which row currently has the embed script loaded (by _id)
+  const [activeEmbedId, setActiveEmbedId] = useState<string | null>(null);
+  const embedLoadingRef = useRef(false);
+
   const [modalState, setModalState] = useState({
     widget: false,
     addDomain: false,
     testTalk: false,
+  });
+
+  // Fetch agent list for widget colors when an embed is active
+  const activeEmbedAgentId = selectedRowData?.agentId || '';
+  const { data: agentList } = useQuery({
+    queryFn: getAgentList,
+    queryKey: ['getAgentList', activeEmbedAgentId],
+    select: (data: any) => {
+      return data?.data?.data?.result?.rows || [];
+    },
+    // enabled: Boolean(activeEmbedAgentId),
   });
 
   // Cleanup embed script on unmount
@@ -59,6 +75,87 @@ function AIDomain() {
       unloadEmbedScript();
     };
   }, []);
+
+  const handleTestChatClick = async (rowData: any) => {
+    console.log(rowData?.domain, 'rowData???', window.location.origin);
+
+    if (rowData?.domain !== window.location.hostname) {
+      handleAlert({
+        text: 'You cannot test the chat widget on a different domain',
+        type: 'warning',
+      });
+      return;
+    }
+    const rowId = rowData?._id;
+
+    // Toggle off: same row clicked again
+    if (activeEmbedId === rowId) {
+      unloadEmbedScript();
+      setActiveEmbedId(null);
+      setSelectedRowData(null);
+      return;
+    }
+
+    // Remove any previously loaded script first
+    unloadEmbedScript();
+    setActiveEmbedId(null);
+
+    if (embedLoadingRef.current) return;
+    embedLoadingRef.current = true;
+
+    try {
+      const agentId = rowData?.agentId || '';
+
+      // Find agent widget colors from agentList (may be stale, fallback to empty)
+      const agent = agentList?.find(
+        (a: any) => a?._id === agentId || a?.agent_uuid === agentId || a?.id === agentId,
+      );
+      console.log(agent, 'rowData3', agentId, 'agentList', agentList);
+      const widgetKey = getAi360WidgetKey(agent || rowData);
+      const widgetScriptSrc = getChatWidgetScriptSrc();
+
+      if (!widgetKey) {
+        handleAlert({ text: 'Widget key is missing for this agent.', type: 'error' });
+        return;
+      }
+
+      if (!widgetScriptSrc) {
+        handleAlert({ text: 'Widget URL is missing.', type: 'error' });
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = EMBED_SCRIPT_ID;
+      script.src = widgetScriptSrc;
+      script.setAttribute('data-widget-mode', 'chat');
+      script.setAttribute('data-widget-key', widgetKey);
+      script.setAttribute('data-position', 'bottom-right');
+      script.setAttribute('data-label', 'Need Help?');
+      script.async = true;
+      script.type = 'text/javascript';
+      script.onload = () => {
+        setTimeout(() => {
+          const widgetId = `ai360-widget-chat-${widgetKey.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+          document.getElementById(widgetId)?.querySelector('button')?.click();
+        }, 0);
+      };
+
+      console.log(script, 'rowData4');
+
+      document.body.appendChild(script);
+
+      setSelectedRowData(rowData);
+      setActiveEmbedId(rowId);
+    } catch (err) {
+      console.error('Failed to load embed script:', err);
+      handleAlert({ text: 'Failed to load chat widget. Please try again.', type: 'error' });
+      unloadEmbedScript();
+    } finally {
+      embedLoadingRef.current = false;
+    }
+  };
+
+  console.log(handleTestChatClick);
 
   const { mutate: mutateDeleteDomain, isPending: isDeletePending } = useMutation({
     mutationKey: ['deleteAIDomain'],
@@ -86,7 +183,7 @@ function AIDomain() {
         return (
           <span className="flex items-center gap-2 max-w-full overflow-hidden">
             <span
-              className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[170px] inline-block"
+              className="font-medium text-gray-900 truncate max-w-[170px] inline-block"
               title={row?.original?.agentName || 'Unknown'}
             >
               {row?.original?.agentName || 'Unknown'}
@@ -108,7 +205,7 @@ function AIDomain() {
         return (
           <span className="flex items-center gap-2 max-w-full overflow-hidden">
             <span
-              className="font-medium text-gray-900 dark:text-mcm-ink truncate max-w-[190px] inline-block"
+              className="font-medium text-gray-900 truncate max-w-[190px] inline-block"
               title={row?.original?.domain || 'Unknown'}
             >
               {row?.original?.domain || 'Unknown'}
@@ -163,7 +260,7 @@ function AIDomain() {
               setSelectedRowData(data);
               setModalState((prev) => ({ ...prev, widget: true }));
             },
-            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Widget',
           },
           domainAccess?.delete &&
@@ -196,18 +293,18 @@ function AIDomain() {
   ];
   return (
     <>
-      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
           <div>
-            <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
+            <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => navigate('/admin-settings/knowledge/ai-agent')}
-                className="text-slate-500 dark:text-mcm-ink-3 transition-colors hover:text-primary"
+                className="text-slate-500 transition-colors hover:text-primary"
               >
                 AI Agents
               </button>
-              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+              <div className="-rotate-90 text-gray-800">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">Domain</span>
@@ -219,7 +316,7 @@ function AIDomain() {
                 IconPosition="left-0 pl-2 inset-y-0"
                 value={search}
                 onChange={(e) => setSearch(e?.target?.value)}
-                Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+                Icon={<SearchLine className=" text-gray-700" />}
               />
               {domainAccess?.add && (
                 <Button
@@ -233,7 +330,7 @@ function AIDomain() {
               )}
             </div>
           </div>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
+          <p className="text-gray-500 text-xs">
             Domains your AI agents are allowed to read from when building answers.
           </p>
         </div>

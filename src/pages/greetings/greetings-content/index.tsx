@@ -1,10 +1,10 @@
 import { FC, useState } from 'react';
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { deleteGreeting, deleteMedia, getGreetings } from '@/services/api';
 import { Icon, IconName } from '@/assets/icons/icon';
 import TableManager from '@/components/custom/table-manager';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useUser } from '@/hooks/use-user';
 import {
   capitalizeFirstLetter,
@@ -21,16 +21,14 @@ import AlertConfirm from '@/components/custom/alert-confirm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AddGreeting from '../add-greeting';
 import EditGreeting from '../edit-greeting';
-import { SearchLine } from '@/assets/icons';
 import CustomTooltip from '@/components/custom/custom-tooltip';
 import { useCompanyFeatures } from '@/hooks/rbac';
-import AccountPageHead from '@/pages/settings/account-page-head';
 import '@/components/mcm/mcm-page.css';
 
 const GreetingContent: FC = () => {
   const { user } = useUser();
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [search] = useState('');
   const [recordingUrl, serRecordingUrl] = useState<any>('');
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -90,6 +88,17 @@ const GreetingContent: FC = () => {
     all: 'Audio this account can use for greetings, IVR prompts and voicemail.',
   };
 
+  /* The page head above prints the title; this puts the sentence that used to
+     sit under it behind that head's info button instead.
+
+     It sits here, below BOTH `type` and `typeBlurb`, because each is a const:
+     reading either from higher up the component throws "Cannot access before
+     initialization" and takes the page down to the error boundary, which reads
+     on screen as a 404. Moving it below `type` alone was not enough. Still
+     called unconditionally on every render, which is what the rules of hooks
+     require. */
+  useSetAdminPageMeta({ description: typeBlurb[type] || typeBlurb.all });
+
   function handleOpenAudio(src: string) {
     serRecordingUrl(src);
     setModalState({ playMedia: true });
@@ -105,12 +114,30 @@ const GreetingContent: FC = () => {
   const handleDeleteGreeting = async () => {
     try {
       const result = await mutateDeleteGreeting(greetingData?.uuid);
-      await mutateDeleteMedia({
-        uuid: user?.company_info?.uuid,
-        type: greetingData?.type,
-        file_name: greetingData?.filename,
-      });
+
+      /* Always `greeting`, never the row's own type. Every recording is stored
+         in that one folder whatever it is called - the upload sends `greeting`
+         and every playback URL in the app reads `<media>/<company>/greeting/`.
+         Passing the row's type here asked the server to delete a voicemail or a
+         prompt from a folder it was never in, so the audio of every one of
+         those ever deleted is still sitting on the server. */
+      try {
+        await mutateDeleteMedia({
+          uuid: user?.company_info?.uuid,
+          type: 'greeting',
+          file_name: greetingData?.filename,
+        });
+      } catch (mediaError) {
+        /* The row is already gone, so the recording has left the product either
+           way. A leftover file is a housekeeping problem, not something to
+           report as a failed deletion - and the old code let this throw, which
+           skipped the refresh and the confirmation entirely: the row vanished
+           on the next load and the admin was never told anything had happened. */
+        console.error('greeting row deleted, its audio file was not: ', mediaError);
+      }
+
       await queryClient.invalidateQueries({ queryKey: ['greetingList'] });
+      await queryClient.invalidateQueries({ queryKey: ['greetings'] });
       setModalState({ isDelete: false });
       setGreetingData(null);
       handleAlert({
@@ -118,7 +145,8 @@ const GreetingContent: FC = () => {
         type: 'success',
       });
     } catch (error) {
-      console.error('FAILED TO ADD GREETING: ', error);
+      console.error('FAILED TO DELETE GREETING: ', error);
+      handleAlert({ text: 'That recording could not be deleted.', type: 'error' });
     }
   };
 
@@ -130,26 +158,26 @@ const GreetingContent: FC = () => {
     {
       header: 'Size',
       accessorKey: 'size',
-      cell: ({ getValue }: any) => <div className="text-gray-600 dark:text-mcm-ink-3">{formatSize(getValue())}</div>,
+      cell: ({ getValue }: any) => <div className="text-gray-600">{formatSize(getValue())}</div>,
     },
     {
       header: 'Type',
       accessorKey: 'type',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{capitalizeFirstLetter(getValue())}</div>
+        <div className="text-gray-600">{capitalizeFirstLetter(getValue())}</div>
       ),
     },
     {
       header: 'Duration',
       accessorKey: 'duration',
       cell: ({ getValue }: any) => (
-        <div className="text-gray-600 dark:text-mcm-ink-3">{formatDuration(getValue())}</div>
+        <div className="text-gray-600">{formatDuration(getValue())}</div>
       ),
     },
     {
       header: 'Created At',
       accessorKey: 'created_at',
-      cell: ({ getValue }: any) => <div className="text-gray-600 dark:text-mcm-ink-3">{formatDate(getValue())}</div>,
+      cell: ({ getValue }: any) => <div className="text-gray-600">{formatDate(getValue())}</div>,
     },
     {
       header: 'Action',
@@ -165,7 +193,7 @@ const GreetingContent: FC = () => {
             onClick: () => {
               handleOpenAudio(srcUrl);
             },
-            className: ' bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
+            className: ' bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Play',
             access: true,
           },
@@ -175,7 +203,7 @@ const GreetingContent: FC = () => {
               setGreetingData(data);
               setModalState({ isEdit: true });
             },
-            className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
             tooltipText: 'Edit',
             access: !data?.is_default,
           },
@@ -199,7 +227,7 @@ const GreetingContent: FC = () => {
             {actions?.map((action, index) => (
               <CustomTooltip key={index} text={action.tooltipText} side="top">
                 <div
-                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
+                  className={`${action?.access ? `cursor-pointer  ${action.className}` : 'cursor-not-allowed  bg-gray-100 text-gray-900/80'}  flex items-center justify-center rounded-full w-8 h-8 `}
                   onClick={() => {
                     if (action?.access) {
                       action.onClick();
@@ -208,7 +236,7 @@ const GreetingContent: FC = () => {
                 >
                   <Icon
                     name={action.icon as IconName}
-                    className={`w-5 h-5 ${action?.access ? '' : 'text-gray-400 dark:text-mcm-ink-3'}`}
+                    className={`w-5 h-5 ${action?.access ? '' : 'text-gray-400'}`}
                   />
                 </div>
               </CustomTooltip>
@@ -219,41 +247,8 @@ const GreetingContent: FC = () => {
     },
   ];
 
-  /* This page is mounted twice — in the standalone media library and under
-     My Account > Media Files — and an eyebrow here used to name which. The
-     slim head drops it: both mounts sit inside a rail that already shows and
-     highlights the area you are standing in, which is the same reason the
-     other six account pages no longer announce "My Account" either. */
-
   return (
     <section className="mcm-page mcm-admin mcm-acct">
-      <AccountPageHead title="Media Files" about={typeBlurb[type] || typeBlurb.all}>
-        <div className="mcm-adminpage-actions filters">
-          <Input
-            placeholder="Search files"
-            className="pl-10 w-full min-h-9 rounded-lg"
-            IconPosition="left-0 pl-2 inset-y-0"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value.startsWith(' ')) return;
-              setSearch(e.target.value);
-            }}
-            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
-          />
-          {greetingAccess?.add && !drawerState && (
-            <Button
-              className="min-h-9 whitespace-nowrap"
-              type="button"
-              variant={'outline'}
-              onClick={() => setDrawerState(true)}
-            >
-              <Icon name="Plus" className="w-3 h-3" /> Add file
-            </Button>
-          )}
-        </div>
-      </AccountPageHead>
-
       <div className="mcm-acct-body">
         {/* The four libraries as a tab strip in the body rather than a row of
             pills wedged under the title. It also used to sit inside a <p>,

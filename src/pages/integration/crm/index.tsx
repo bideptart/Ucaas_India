@@ -1,3 +1,4 @@
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useEffect, useState } from 'react';
 import { Icon } from '@/assets/icons/icon';
 import { Switch } from '@/components/ui/switch';
@@ -102,16 +103,17 @@ const CRMIntegration = () => {
     );
   };
 
+  useSetAdminPageMeta({
+    description:
+      'Connect the system your team already works in, so calls, contacts and activity flow both ways.',
+  });
+
+  /* The Admin head already prints this screen's name beside the sidebar's own
+     title, so the block below said it a second time under an "Integration"
+     eyebrow that repeats the section the nav has highlighted. The sentence is
+     the only part worth keeping; it goes to the info button by the title. */
   return (
     <section className="mcm-intpage">
-      <div className="mcm-intpage-head">
-        <div className="mcm-intpage-eyebrow">Integration</div>
-        <h1>CRM</h1>
-        <p>
-          Connect the system your team already works in, so calls, contacts and activity flow both
-          ways.
-        </p>
-      </div>
       <div className="mcm-intgrid">
         {crmList?.map((crm) => {
           const isConnected = getConnectionStatus(crm.id);
@@ -122,7 +124,7 @@ const CRMIntegration = () => {
               <div className="flex flex-col gap-5 w-full">
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-start w-full">
-                    <div className="flex shrink-0 items-center justify-center bg-gray-100 dark:bg-mcm-surface-3 rounded-lg p-3 h-16 w-16">
+                    <div className="flex shrink-0 items-center justify-center bg-[#FBE2C8]/45 rounded-lg p-3 h-16 w-16">
                       <img src={crm?.image} alt={crm?.alt} className="w-10 h-10 object-contain" />
                     </div>
                     {isConnected && (
@@ -151,7 +153,7 @@ const CRMIntegration = () => {
                     )}
                   </div>
                   <h4 className="text-start font-semibold text-primary">{crm.name}</h4>
-                  <p className="text-gray-700 dark:text-mcm-ink-2 text-sm whitespace-normal">{crm.description}</p>
+                  <p className="text-gray-700 text-sm whitespace-normal">{crm.description}</p>
                 </div>
               </div>
               {!isConnected ? (
@@ -165,7 +167,7 @@ const CRMIntegration = () => {
               ) : (
                 <div className="flex w-full items-center justify-between mt-auto">
                   <Switch className="cursor-pointer" checked={isConnected} />
-                  <div className="flex items-center gap-1.5 text-[11.5px] text-gray-600 dark:text-mcm-ink-3 bg-primary/5 px-3 py-1.5 rounded-md border border-primary/10">
+                  <div className="flex items-center gap-1.5 text-[11.5px] text-gray-600 bg-primary/5 px-3 py-1.5 rounded-md border border-primary/10">
                     <Icon name="InfoIcon" className="w-3.5 h-3.5 text-primary" />
                     <span>
                       <span className="font-semibold text-primary">Tip:</span> Manage settings from
@@ -206,46 +208,46 @@ const CRMIntegration = () => {
         )}
         {mondaySetupModal && (
           <Dialog open={mondaySetupModal} onOpenChange={setMondaySetupModal}>
-            <DialogContent className="max-w-md p-6 rounded-2xl border border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface shadow-2xl">
+            <DialogContent className="max-w-md p-6 rounded-2xl border border-gray-100 bg-white shadow-2xl">
               <div className="flex flex-col items-center text-center gap-4">
-                <div className="flex items-center gap-3 bg-slate-50 dark:bg-mcm-surface-3 p-3 rounded-xl border border-slate-100/50 dark:border-mcm-line">
+                <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
                   <img
                     src={crmList.find((item) => item.id === 'Monday')?.image}
                     alt="Monday"
                     className="w-10 h-10 object-contain"
                   />
-                  <div className="h-6 w-px bg-slate-200 dark:bg-mcm-line" />
+                  <div className="h-6 w-px bg-slate-200" />
                   {/* <img src={McmLogo} alt="UCAAS" className="w-10 h-10 object-contain" /> */}
                 </div>
-                <DialogTitle className="text-xl font-bold text-gray-900 dark:text-mcm-ink">
+                <DialogTitle className="text-xl font-bold text-gray-900">
                   Monday Integration Setup
                 </DialogTitle>
-                <DialogDescription className="text-sm text-gray-500 dark:text-mcm-ink-3 max-w-xs">
+                <DialogDescription className="text-sm text-gray-500 max-w-xs">
                   To connect monday.com, please follow these steps:
                 </DialogDescription>
               </div>
 
               <div className="flex flex-col gap-3.5 my-6">
-                <div className="flex gap-3 bg-slate-50/50 dark:bg-mcm-surface-3/50 p-3.5 rounded-xl border border-slate-100 dark:border-mcm-line">
+                <div className="flex gap-3 bg-slate-50/50 p-3.5 rounded-xl border border-slate-100">
                   <span className="flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold mt-0.5">
                     1
                   </span>
                   <div className="flex flex-col text-left">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">Install Monday App</span>
-                    <span className="text-xs text-gray-500 dark:text-mcm-ink-3 mt-0.5">
+                    <span className="text-sm font-semibold text-gray-800">Install Monday App</span>
+                    <span className="text-xs text-gray-500 mt-0.5">
                       Click the install button to install the app.
                     </span>
                   </div>
                 </div>
-                <div className="flex gap-3 bg-slate-50/50 dark:bg-mcm-surface-3/50 p-3.5 rounded-xl border border-slate-100 dark:border-mcm-line">
+                <div className="flex gap-3 bg-slate-50/50 p-3.5 rounded-xl border border-slate-100">
                   <span className="flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold mt-0.5">
                     2
                   </span>
                   <div className="flex flex-col text-left">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-mcm-ink-2">
+                    <span className="text-sm font-semibold text-gray-800">
                       Authorize Connection
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-mcm-ink-3 mt-0.5">
+                    <span className="text-xs text-gray-500 mt-0.5">
                       After installing, click connect to sync contacts and call logs.
                     </span>
                   </div>

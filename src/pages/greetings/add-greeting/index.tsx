@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,11 +21,15 @@ import { createGreeting, mediaUploadUrl, textToSpeech } from '@/services/api';
 import { AddGreetingProps, GreetingForm } from '@/interfaces/audio-interface';
 import { Input } from '@/components/ui/input';
 import CustomSelect from '@/components/custom/custom-select';
-import { isDemoMode } from '@/lib/demo-mode';
 
 interface IAddgreetings extends AddGreetingProps {
   refetch?: () => void;
   isRefetchable?: boolean;
+  /* Fires with the recording that was just made, so a caller that opened this
+     drawer to fill one slot can select it straight away. Without it the drawer
+     closes and the admin is left looking at the same empty dropdown, with the
+     thing they just recorded somewhere in a list they now have to search. */
+  onCreated?: (greeting: { label: string; value: string }) => void;
 }
 
 const AddGreeting: FC<IAddgreetings> = ({
@@ -33,6 +37,7 @@ const AddGreeting: FC<IAddgreetings> = ({
   greetingType,
   refetch = () => {},
   isRefetchable = true,
+  onCreated,
 }) => {
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -50,6 +55,12 @@ const AddGreeting: FC<IAddgreetings> = ({
     },
   });
   const { watch, reset, setValue, register } = formInstance;
+  /* The mutation's own success handler does not receive the payload that was
+     sent, and the create endpoint answers with a message rather than the row.
+     The name and filename are both known here at the moment of sending, so they
+     are held for the handler rather than read back out of a later list fetch
+     that may not have landed yet. */
+  const lastCreated = useRef<{ label: string; value: string } | null>(null);
   const [WatchUploadFile, WatchTextFile] = watch(['greetingFile', 'textFile']);
 
   const handleTabChange = (tab: string) => {
@@ -87,6 +98,8 @@ const AddGreeting: FC<IAddgreetings> = ({
         text: data?.data?.message || 'Greeting Created Successfully',
         type: 'success',
       });
+      if (lastCreated.current) onCreated?.(lastCreated.current);
+      lastCreated.current = null;
       refetch();
       // reset();
     },
@@ -129,6 +142,13 @@ const AddGreeting: FC<IAddgreetings> = ({
         return;
       }
 
+      /* Every recording is filed under `greeting` whatever its type, because
+         that is the one folder the playback URLs read from - the library and
+         the picker both build `<media>/<company>/greeting/<file>` regardless of
+         type. Filing a voicemail under `voicemail` here would store it where
+         nothing looks for it. (`deleteMedia` in the library does pass the row's
+         own type, which is why deleting a voicemail leaves its file behind -
+         a separate bug, in the other direction.) */
       const uploadMediaResponse = await uploadMediaMutate({
         uuid: user?.company_info?.uuid,
         type: 'greeting',
@@ -162,20 +182,14 @@ const AddGreeting: FC<IAddgreetings> = ({
           is_default: false,
         };
 
-        /* `url` is a demo placeholder in demo mode (there is no real storage
-           behind it), so skip the real PUT rather than let it fail against a
-           non-existent endpoint. */
-        if (isDemoMode()) {
-          upsertGreetingsMutate(greetingPayload);
-        } else {
-          const uploadFileResponse = await fetch(url, {
-            method: 'PUT',
-            body: fileToUpload,
-          });
+        const uploadFileResponse = await fetch(url, {
+          method: 'PUT',
+          body: fileToUpload,
+        });
 
-          if (uploadFileResponse.status === 200) {
-            upsertGreetingsMutate(greetingPayload);
-          }
+        if (uploadFileResponse.status === 200) {
+          lastCreated.current = { label: greetingPayload.name, value: file_name };
+          upsertGreetingsMutate(greetingPayload);
         }
       }
     } catch (error) {
@@ -199,7 +213,7 @@ const AddGreeting: FC<IAddgreetings> = ({
       <FormProvider {...formInstance}>
         <div className="flex flex-col gap-4 pr-1 flex-1 overflow-y-auto">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col w-full">
-            <div className="border-b border-gray-200 dark:border-mcm-line w-full mb-4">
+            <div className="border-b border-gray-200 w-full mb-4">
               <TabsList className="flex text-sm font-semibold text-center p-0 rounded-none h-auto justify-start bg-transparent gap-6">
                 {Object.entries(TAB_CONSTANT).map(([key, value]) => (
                   <TabsTrigger
@@ -207,7 +221,7 @@ const AddGreeting: FC<IAddgreetings> = ({
                     value={value}
                     type="button"
                     onClick={(event) => event.stopPropagation()}
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 border-transparent px-1 pb-3 pt-2 text-gray-600 dark:text-mcm-ink-2 cursor-pointer rounded-none relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-none hover:text-gray-900 dark:hover:text-mcm-ink transition-colors"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary border-b-2 border-transparent px-1 pb-3 pt-2 text-gray-600 cursor-pointer rounded-none relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-none hover:text-gray-900 transition-colors"
                   >
                     {value}
                   </TabsTrigger>

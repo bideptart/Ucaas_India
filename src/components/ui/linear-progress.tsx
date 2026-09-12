@@ -18,7 +18,7 @@ function LinearProgress({
   const percentage = outOfValue > 0 ? clamp((taskDoneValue / outOfValue) * 100, 0, 100) : 0;
 
   return (
-    <div className={cn('h-2 w-full rounded-full bg-muted', className)}>
+    <div className={cn('h-2 w-full rounded-full bg-gray-200', className)}>
       <div className={cn('h-full rounded-full', color)} style={{ width: `${percentage}%` }} />
     </div>
   );

@@ -10,6 +10,7 @@
  * would find out at quarter end.
  */
 
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, Coins, Plus, RotateCcw } from 'lucide-react';
@@ -30,6 +31,14 @@ import { checkCentre, normaliseCode, type CostCentre } from '@/lib/cost-centres'
 const STORE_KEY = 'cost_centres';
 
 const CostCentres = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'Labels your finance team can report spending against — a department, a project, a client.',
+  });
+
   const queryClient: any = useQueryClient();
   const [centres, setCentres] = useState<CostCentre[]>([]);
   const [dirty, setDirty] = useState(false);
@@ -89,8 +98,8 @@ const CostCentres = () => {
 
   return (
     <AdminPage
+      hideHead
       title="Cost centres"
-      description="Labels your finance team can report spending against — a department, a project, a client."
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
         {isLoading ? (
@@ -209,17 +218,17 @@ const CostCentres = () => {
               <SettingRow
                 label="A person's own split"
                 description="Beats everything else. Use it for somebody whose work genuinely spans two budgets."
-                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">1st</span>}
+                control={<span className="text-xs font-semibold text-gray-500">1st</span>}
               />
               <SettingRow
                 label="The split on their licence"
                 description="Applies when the person has none of their own."
-                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">2nd</span>}
+                control={<span className="text-xs font-semibold text-gray-500">2nd</span>}
               />
               <SettingRow
                 label="The split on their location"
                 description="The fallback. Setting one here covers everybody at that location in one go."
-                control={<span className="text-xs font-semibold text-gray-500 dark:text-mcm-ink-3">3rd</span>}
+                control={<span className="text-xs font-semibold text-gray-500">3rd</span>}
               />
               <SettingRow
                 label="Nothing set anywhere"

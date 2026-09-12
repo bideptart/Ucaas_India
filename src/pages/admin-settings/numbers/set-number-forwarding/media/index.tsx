@@ -23,7 +23,7 @@ const Media = () => {
       placeholder: 'On Hold Music',
       label: 'on hold music',
       icon: 'HoldMusicIcon',
-      iconClass: 'h-5 w-5 text-orange-500 dark:text-slate-500',
+      iconClass: 'h-5 w-5 text-orange-500',
     },
   ].filter(Boolean);
 

@@ -7,44 +7,24 @@
 .gp-role-dialog {
   border-color: rgba(242, 153, 74, 0.25) !important;
 }
-.dark .gp-role-dialog {
-  border-color: #1b2934 !important;
-}
 
 .gp-role-dialog .gp-role-head {
   border-bottom: 1px solid rgba(242, 153, 74, 0.2);
 }
-.dark .gp-role-dialog .gp-role-head {
-  border-bottom: 1px solid #1b2934;
-}
 .gp-role-dialog .gp-role-head p span {
   color: #f2994a !important;
-}
-.dark .gp-role-dialog .gp-role-head p span {
-  color: #ff8a2a !important;
 }
 
 .gp-role-dialog .gp-role-search {
   border-bottom: 1px solid rgba(242, 153, 74, 0.2);
 }
-.dark .gp-role-dialog .gp-role-search {
-  border-bottom: 1px solid #1b2934;
-}
 .gp-role-dialog .gp-role-search [data-slot='input'] {
   border-color: rgba(242, 153, 74, 0.25) !important;
   background: #fffdfb !important;
 }
-.dark .gp-role-dialog .gp-role-search [data-slot='input'] {
-  border-color: #1b2934 !important;
-  background: var(--mcm-surface, #111c26) !important;
-}
 .gp-role-dialog .gp-role-search [data-slot='input']:hover,
 .gp-role-dialog .gp-role-search [data-slot='input']:focus {
   border-color: #f2994a !important;
-}
-.dark .gp-role-dialog .gp-role-search [data-slot='input']:hover,
-.dark .gp-role-dialog .gp-role-search [data-slot='input']:focus {
-  border-color: #f97316 !important;
 }
 
 /* ---- role rows — real cards at rest, not just on hover/selected, so the
@@ -58,28 +38,14 @@
     border-color 0.12s ease,
     box-shadow 0.12s ease;
 }
-.dark .gp-role-dialog .gp-role-row {
-  border-color: #1b2934 !important;
-  background: var(--mcm-surface, #111c26) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-}
 .gp-role-dialog .gp-role-row:hover {
   background: #fff6e9 !important;
   border-color: rgba(242, 153, 74, 0.35) !important;
-}
-.dark .gp-role-dialog .gp-role-row:hover {
-  background: var(--mcm-surface-3, #1a2733) !important;
-  border-color: rgba(249, 115, 22, 0.3) !important;
 }
 .gp-role-dialog .gp-role-row.is-selected {
   background: #fff1e0 !important;
   border-color: #f2994a !important;
   box-shadow: 0 2px 8px rgba(242, 153, 74, 0.18);
-}
-.dark .gp-role-dialog .gp-role-row.is-selected {
-  background: var(--mcm-surface-3, #1a2733) !important;
-  border-color: #f97316 !important;
-  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.18);
 }
 
 /* ---- footer ---- */
@@ -87,37 +53,18 @@
   background: #fff6e9 !important;
   border-top: 1px solid rgba(242, 153, 74, 0.2) !important;
 }
-.dark .gp-role-dialog .gp-role-foot {
-  background: var(--mcm-surface-3, #1a2733) !important;
-  border-top: 1px solid #1b2934 !important;
-}
 .gp-role-dialog .gp-role-cancel {
   color: #6b5c4d !important;
 }
-.dark .gp-role-dialog .gp-role-cancel {
-  color: var(--mcm-ink-2, #aab6c1) !important;
-}
 .gp-role-dialog .gp-role-cancel:hover {
   color: #c96f1f !important;
-}
-.dark .gp-role-dialog .gp-role-cancel:hover {
-  color: #ff8a2a !important;
 }
 .gp-role-dialog .gp-role-submit {
   background: #f2994a !important;
   border-color: #f2994a !important;
   color: #ffffff !important;
 }
-.dark .gp-role-dialog .gp-role-submit {
-  background: #f97316 !important;
-  border-color: #f97316 !important;
-  color: #1a0f06 !important;
-}
 .gp-role-dialog .gp-role-submit:hover:not(:disabled) {
   background: #c96f1f !important;
   border-color: #c96f1f !important;
-}
-.dark .gp-role-dialog .gp-role-submit:hover:not(:disabled) {
-  background: #ff8a2a !important;
-  border-color: #ff8a2a !important;
 }

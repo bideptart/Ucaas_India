@@ -124,7 +124,7 @@ const InviteOthersModal: FC<InviteOthersModalProps> = ({
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <p className="text-gray-900 dark:text-mcm-ink text-sm">
+          <p className="text-gray-900 text-sm">
             Invite your friends to collaborate on this meeting
           </p>
           <div className="overflow-auto max-h-[300px] flex flex-col gap-2">
@@ -157,7 +157,7 @@ const InviteOthersModal: FC<InviteOthersModalProps> = ({
                   <Button
                     type="button"
                     onClick={() => handleRemove(index)}
-                    className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white dark:bg-mcm-surface border border-red-500 hover:bg-red-500 hover:text-white text-red-500"
+                    className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white border border-red-500 hover:bg-red-500 hover:text-white text-red-500"
                   >
                     <Minus className="w-3 h-3" />
                   </Button>
@@ -165,7 +165,7 @@ const InviteOthersModal: FC<InviteOthersModalProps> = ({
                 <Button
                   type="button"
                   onClick={handleAdd}
-                  className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white dark:bg-mcm-surface border border-primary hover:bg-primary hover:text-white text-primary"
+                  className="cursor-pointer flex items-center justify-center rounded-xl w-10 h-10 bg-white border border-primary hover:bg-primary hover:text-white text-primary"
                 >
                   <Icon name="Plus" className="w-3 h-3" />
                 </Button>

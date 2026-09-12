@@ -4,9 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import CompanyDetails from './company-details';
 import LocationFacts from './location-facts';
 import CompanyRecord from './company-record';
-import CompanyLogo from './company-logo';
 import CompanySettingsCard from './company-settings-card';
-import SetupGuide from '@/components/mcm/setup-guide';
+import CompanyLogo from './company-logo';
 import { Button } from '@/components/ui/button';
 import NewSiteSteps from './new-site-steps';
 import AlertConfirm from '@/components/custom/alert-confirm';
@@ -176,13 +175,6 @@ const CompanyInfo = () => {
 
   return (
     <section className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
-      <div className="flex min-h-[65px] flex-col justify-center border-b border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-4 py-3">
-        <p className="text-[#2E2D35] font-semibold text-lg">Company &amp; Locations</p>
-        <p className="text-[#9A948F] text-xs">
-          Your company record and every place it operates from — address, timezone and the people
-          who work there.
-        </p>
-      </div>
       {!canViewSites ? (
         <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-3 sm:px-4">
           <div className="mx-auto flex w-full max-w-[1040px] min-h-0 flex-col gap-4">
@@ -199,21 +191,14 @@ const CompanyInfo = () => {
             {/* Organisation before locations — the order established systems
                 use, and the order the platform's own data follows: a location
                 belongs to a company. */}
-            {/* Above the company record: it is the thing a new admin should read
-                first, and it disappears once everything is done. */}
-            <SetupGuide companyInfo={user?.company_info} />
-
             <div id="setup-company-record" className="rounded-xl">
               <CompanyRecord companyInfo={user?.company_info} defaultSite={defaultSite} />
             </div>
 
-            {/* Between the record and the rules: it is part of who the company
-                is, not how its phones behave. */}
-            <CompanyLogo companyInfo={user?.company_info} />
-
             {/* Company-wide rules belong on the company screen, which is where
                 established systems put them and where an admin looks. The editor
                 itself stays under Phone System — one editor, one record. */}
+            <CompanyLogo />
             <CompanySettingsCard />
 
             {/* A location is not a label — it decides how calls behave for

@@ -63,10 +63,10 @@ const ReactionUsersList = ({
 
   return (
     <div className="w-64 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-lg shadow-xl border overflow-hidden">
-      <div className="px-3 py-2 border-b border-gray-100 dark:border-mcm-line bg-gradient-to-r from-amber-50/60 to-orange-50/40 dark:to-slate-700/40">
+      <div className="px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-amber-50/60 to-orange-50/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white dark:bg-mcm-surface-3 border border-gray-200 dark:border-mcm-line">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white border border-gray-200">
               <span className="text-base">{renderableEmoji}</span>
             </div>
             <div className="text-xs font-semibold text-[#2E2D35]">Reacted by</div>
@@ -83,7 +83,7 @@ const ReactionUsersList = ({
           return (
             <div
               key={safeKey}
-              className="group relative flex items-center gap-2.5 px-3 py-2.5 hover:bg-amber-50/30 transition-colors border-b border-gray-50 dark:border-mcm-line last:border-0"
+              className="group relative flex items-center gap-2.5 px-3 py-2.5 hover:bg-amber-50/30 transition-colors border-b border-gray-50 last:border-0"
             >
               <div className="relative flex-shrink-0 text-xs">
                 <CustomAvatar
@@ -93,7 +93,7 @@ const ReactionUsersList = ({
                   size="30"
                   image={user?.profile || ''}
                 />
-                <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-mcm-surface-3 border border-gray-200 dark:border-mcm-line shadow-sm">
+                <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-white border border-gray-200 shadow-sm">
                   <span className="text-[10px]">{renderableEmoji}</span>
                 </div>
               </div>

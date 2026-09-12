@@ -1,11 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import { Icon } from '@/assets/icons/icon';
+import type { IconType } from '@/assets/icons/type';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useUser } from '@/hooks/use-user';
 import Loader from '@/components/custom/loader';
 import { Ic } from '@/components/mcm/icons';
 import { adminSettingArr, canShowItem } from '../sidebar';
 import { useAdminShortcuts } from '../use-admin-shortcuts';
+import { AdminHeadActions, useSetAdminPageMeta } from '../admin-page-head';
 import '@/components/mcm/mcm-page.css';
 
 /**
@@ -105,6 +109,14 @@ const AdminHome = () => {
      more than it can show. */
   const recentCount = recentEntries.length;
 
+  /* The registry has no entry for the landing page itself, so it names itself
+     here. The count moves into the info tooltip rather than sitting under the
+     title, which is what keeps this head the same height as every other. */
+  useSetAdminPageMeta({
+    title: 'Everything you administer',
+    description: `${allEntries.length} screens across ${groups.length} areas. Only what your role can reach is listed.`,
+  });
+
   if (loader || !user_info) {
     return (
       <div className="flex h-full w-full items-center justify-center p-5">
@@ -115,15 +127,11 @@ const AdminHome = () => {
 
   return (
     <section className="mcm-adminhome flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
-      <div className="mcm-adminhome-head">
-        <div>
-          <div className="mcm-adminhome-eyebrow">Admin</div>
-          <h1>Everything you administer</h1>
-          <p>
-            {allEntries.length} screens across {groups.length} areas. Only what your role can reach
-            is listed.
-          </p>
-        </div>
+      {/* The whole head lives in the shell now: the title on the same line as
+          "Admin Hub", the count behind its info button, and this search to the
+          right of the title. The search stays part of this screen's tree — it
+          owns `search` — and is only rendered up there. */}
+      <AdminHeadActions>
         <div className="mcm-adminhome-search">
           <Ic n="search" size={15} />
           <input
@@ -133,7 +141,7 @@ const AdminHome = () => {
             aria-label="Search admin screens"
           />
         </div>
-      </div>
+      </AdminHeadActions>
 
       <div className="ptabstrip mcm-adminhome-tabs">
         <button type="button" className={tab === 'all' ? 'on' : ''} onClick={() => setTab('all')}>
@@ -157,17 +165,24 @@ const AdminHome = () => {
         {tab === 'all' ? (
           visibleGroups.length ? (
             <div className="mcm-admingrid">
-              {visibleGroups.map((group, groupIndex) => (
-                <div
-                  className="mcm-admincard animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 motion-reduce:animate-none"
-                  style={{ animationDelay: `${Math.min(groupIndex, 10) * 30}ms` }}
-                  key={group.title}
-                >
-                  <div className="mcm-admincard-h">{group.title}</div>
+              {visibleGroups.map((group) => (
+                <div className="mcm-admincard" key={group.title}>
+                  {/* The section's own icon, the one the rail uses, so a card
+                      here and the entry that opens it are recognisably the same
+                      thing. The count says how much is behind it without
+                      opening it. */}
+                  <div className="mcm-admincard-h">
+                    <span className="mcm-admincard-ic" aria-hidden="true">
+                      <Icon name={group.icon as IconType} className="h-4 w-4" />
+                    </span>
+                    <span className="mcm-admincard-t">{group.title}</span>
+                    <span className="mcm-admincard-n">{group.entries.length}</span>
+                  </div>
                   <ul>
                     {group.entries.map((entry) => (
                       <li key={entry.path}>
                         <Link to={entry.path}>{entry.title}</Link>
+                        <ChevronRight className="mcm-admincard-go" aria-hidden="true" />
                       </li>
                     ))}
                   </ul>
@@ -179,7 +194,7 @@ const AdminHome = () => {
           )
         ) : recentEntries.length ? (
           <div className="mcm-admingrid">
-            <div className="mcm-admincard animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-300 motion-reduce:animate-none">
+            <div className="mcm-admincard">
               <div className="mcm-admincard-h">Recently used</div>
               <ul>
                 {recentEntries.map((entry) => (

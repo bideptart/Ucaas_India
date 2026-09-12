@@ -69,7 +69,7 @@ const ContactDetails = ({ formMethods }: { formMethods: UseFormReturn<any> }) =>
                       placeholder="Enter business contact email"
                       error={fieldState.error?.message}
                     />
-                    <p className="text-xs text-gray-500 mt-1 dark:text-mcm-ink-3">
+                    <p className="text-xs text-gray-500 mt-1">
                       Note: Common distribution addresses (like sales@company.com) and personal/free
                       email addresses are not allowed.
                     </p>

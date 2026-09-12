@@ -2,7 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 // import { getEnv } from '@/lib/utils';
 import { getMainSiteInfo } from '@/services/api';
 import ServerMaintenance from '@/components/custom/server-maintenance';
-import { getEnv, isPreviewHost } from '@/lib/utils';
+import { getEnv } from '@/lib/utils';
 import FullPageLoader from '@/components/custom/full-page-loader';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -53,28 +53,8 @@ export const OrganizationContext = createContext<OrganizationContextType>({
   error: null,
 });
 
-/**
- * Organisation branding is looked up by the domain the app is served from, so
- * normally the current origin is the right answer.
- *
- * A development or preview host is not registered with the backend, which
- * answers "Website settings not found" and leaves the app with nothing to
- * render. Those hosts fall back to QA — which is what localhost has always
- * done, now extended to the other hosts that share the problem.
- *
- * `VITE_ORG_DOMAIN` overrides both, for a deployment that should follow one
- * specific organisation no matter where it is hosted.
- */
-const FALLBACK_ORG_DOMAIN = 'https://qa.mycountrymobile.com';
-
-const getDomain = () => {
-  const configured = getFirstNonEmptyString(
-    (getEnv() as { VITE_ORG_DOMAIN?: string }).VITE_ORG_DOMAIN,
-  );
-  if (configured) return configured.replace(/\/+$/, '');
-
-  return isPreviewHost() ? FALLBACK_ORG_DOMAIN : window.location.origin;
-};
+/** Domain is taken from the current route (window.location.origin). */
+const getDomain = () => window.location.origin;
 
 export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   const [mainSiteInfo, setMainSiteInfo] = useState<MainSiteInfo | null>(null);
@@ -103,7 +83,10 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchMainSiteInfo = useCallback(async () => {
-    const domain = getDomain();
+    const domain = getDomain().includes('localhost')
+      ? 'https://qa.mycountrymobile.com'
+      : getDomain();
+    // const domain = "https://mcm.mycountrymobile.com";
     try {
       setIsLoading(true);
       setError(null);
@@ -176,7 +159,6 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
     const shareImageUrl = getAbsoluteAssetUrl(
       mainSiteInfo.large_logo || mainSiteInfo.small_logo || mainSiteInfo.fav_icon,
     );
-    const favIconPath = mainSiteInfo.fav_icon;
     const pageUrl = window.location.href;
 
     document.title = title;
@@ -198,25 +180,22 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
       setMetaContent('name', 'twitter:image:alt', organizationName || title);
     }
 
-    if (typeof favIconPath === 'string' && favIconPath) {
-      const trimmedPath = favIconPath.trim();
-      const iconUrl = getAbsoluteAssetUrl(trimmedPath);
-      const iconType = /\.svg($|\?)/i.test(trimmedPath)
-        ? 'image/svg+xml'
-        : /\.png($|\?)/i.test(trimmedPath)
-          ? 'image/png'
-          : /\.jpe?g($|\?)/i.test(trimmedPath)
-            ? 'image/jpeg'
-            : 'image/x-icon';
-      let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.head.appendChild(link);
-      }
-      link.href = iconUrl;
-      link.type = iconType;
-    }
+    /* The tab icon is deliberately NOT taken from mainSiteInfo.fav_icon.
+
+       This used to rewrite <link rel="icon"> to the org record's stored icon
+       once the branding call returned. That record still holds the older
+       cloud-only mark, so whatever index.html shipped was replaced a moment
+       after load and the bundled icon could never be seen — and it also
+       overwrote the light/dark pair with a single icon. The icon is part of
+       this build now, the same way --primary is pinned in index.css for the
+       same reason: the org API is not the source of truth for this
+       deployment's branding.
+
+       `mainSiteInfo.fav_icon` is still read a few lines above as the last
+       fallback for the og:image / twitter:image tags, which should follow the
+       org record. To go back to API-driven favicons, restore this block from
+       git history and re-point the org's fav_icon; changing only one of the
+       two leaves them disagreeing. */
   }, [mainSiteInfo]);
 
   const value: OrganizationContextType = {
@@ -229,12 +208,11 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
      is handed no key. Rendering without the provider keeps that failure on the
      screens that actually use Stripe.
 
-     This used to be a `!stripePublishableKey → <FullPageLoader />` guard
-     placed above the checks below, which made a missing key indistinguishable
-     from a page that is still loading: whenever the organisation lookup failed
-     — an unregistered domain, an unreachable API — there was never going
-     to be a key, so the app sat on that spinner forever and the error branch
-     underneath was unreachable. */
+     This used to be a `!stripePublishableKey -> <FullPageLoader />` guard above
+     the checks below, which made a missing key indistinguishable from a page
+     still loading: whenever the organisation lookup failed there was never
+     going to be a key, so the app sat on that spinner forever and the error
+     branch underneath was unreachable. */
   const withStripe = (content: ReactNode) =>
     stripePromise ? (
       <Elements stripe={stripePromise} options={options}>
@@ -261,8 +239,6 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <OrganizationContext.Provider value={value}>
-      {withStripe(children)}
-    </OrganizationContext.Provider>
+    <OrganizationContext.Provider value={value}>{withStripe(children)}</OrganizationContext.Provider>
   );
 };

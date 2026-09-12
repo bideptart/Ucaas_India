@@ -150,7 +150,7 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
       </div>
 
       {/* ── Request list ───────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-mcm-surface">
+      <div className="flex-1 overflow-y-auto bg-gray-50">
         {requests.length === 0 ? (
           /* Empty state */
           <div className="flex flex-col items-center justify-center h-full py-16 px-6 text-center">
@@ -169,11 +169,11 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
                 />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-gray-700 dark:text-mcm-ink-2">All caught up!</p>
-            <p className="text-xs text-gray-400 dark:text-mcm-ink-3 mt-1">No pending AI chat requests right now.</p>
+            <p className="text-sm font-semibold text-gray-700">All caught up!</p>
+            <p className="text-xs text-gray-400 mt-1">No pending AI chat requests right now.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-mcm-line">
+          <div className="divide-y divide-gray-100">
             {requests.map((data, index) => {
               const chatId: string = data?.chatId ?? '';
               const guestUser = data?.users;
@@ -186,7 +186,7 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
               return (
                 <div
                   key={chatId || index}
-                  className="flex flex-col gap-3 px-5 py-4 bg-white dark:bg-mcm-surface-3/50 hover:bg-primary/[0.02] transition-colors duration-150"
+                  className="flex flex-col gap-3 px-5 py-4 bg-white hover:bg-primary/[0.02] transition-colors duration-150"
                 >
                   {/* User row */}
                   <div className="flex items-center gap-3">
@@ -196,25 +196,25 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
                       <span className="text-white text-sm font-bold">{initials}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-800 dark:text-mcm-ink truncate">{displayName}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate">{displayName}</p>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         {guestUser?.email && (
-                          <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-mono truncate">
+                          <span className="text-[11px] text-gray-400 font-mono truncate">
                             {guestUser.email}
                           </span>
                         )}
                         {guestUser?.phone && (
-                          <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-mono truncate">
+                          <span className="text-[11px] text-gray-400 font-mono truncate">
                             {guestUser.phone}
                           </span>
                         )}
                         {chatId && (
-                          <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3 font-mono">
+                          <span className="text-[11px] text-gray-400 font-mono">
                             ID: {truncateId(chatId)}
                           </span>
                         )}
                         {data?.domain && (
-                          <span className="text-[11px] text-gray-400 dark:text-mcm-ink-3">· {data.domain}</span>
+                          <span className="text-[11px] text-gray-400">· {data.domain}</span>
                         )}
                       </div>
                     </div>
@@ -303,9 +303,9 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
       </div>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <div className="flex-shrink-0 border-t border-gray-100 dark:border-mcm-line bg-white dark:bg-mcm-surface px-5 py-3 flex items-center gap-2">
+      <div className="flex-shrink-0 border-t border-gray-100 bg-white px-5 py-3 flex items-center gap-2">
         <svg
-          className="w-3.5 h-3.5 text-gray-400 dark:text-mcm-ink-3 flex-shrink-0"
+          className="w-3.5 h-3.5 text-gray-400 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -317,7 +317,7 @@ const PendingChatRequestsDrawer = ({ onClose }: PendingChatRequestsDrawerProps) 
             d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
           />
         </svg>
-        <p className="text-[11px] text-gray-400 dark:text-mcm-ink-3">
+        <p className="text-[11px] text-gray-400">
           Requests persist across page refreshes and are removed on accept or decline.
         </p>
       </div>

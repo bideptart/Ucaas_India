@@ -56,11 +56,11 @@ const OrderSummary = ({
   return (
     <div className={`flex justify-end gap-4 ${mainCustomClass}`}>
       <div className={`border border-grey-200 p-3 rounded-xl ${customClass}`}>
-        <h5 className="font-semibold text-gray-900 truncate text-md border-b border-gray-200 pb-3 dark:text-mcm-ink dark:border-mcm-line">
+        <h5 className="font-semibold text-gray-900 truncate text-md border-b border-gray-200 pb-3">
           Order Summary
         </h5>
 
-        <ul className="flex flex-col gap-2 pt-3 text-sm text-gray-800 dark:text-mcm-ink-2">
+        <ul className="flex flex-col gap-2 pt-3 text-sm text-gray-800">
           <li className="flex items-center justify-between gap-2">
             <span className="font-semibold">Monthly License Cost:</span>
 

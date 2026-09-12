@@ -47,7 +47,8 @@ const unloadEmbedScript = () => {
 function AiAgent() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [, setSelectedRowData] = useState(null);
+  const [selectedRowData, setSelectedRowData] = useState(null);
+  console.log(selectedRowData, 'selectedRowData');
 
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [isUpdatingPrompt, setIsUpdatingPrompt] = useState(false);
@@ -134,6 +135,7 @@ function AiAgent() {
 
       // Find agent widget colors from agentList
       // const agent = agentList?.find((a: any) => a?.agentId === agentId || a?._id === agentId);
+      console.log(rowData, 'llllllOOOOO');
 
       const script = document.createElement('script');
       script.id = EMBED_SCRIPT_ID;
@@ -150,6 +152,7 @@ function AiAgent() {
           document.getElementById(widgetId)?.querySelector('button')?.click();
         }, 0);
       };
+      console.log(script, 'scriptscript', rowData, 'PPPPPPPPProwData');
 
       document.body.appendChild(script);
 
@@ -248,13 +251,16 @@ function AiAgent() {
         systemPrompt: newPrompt,
       };
 
-      const updatedData = { ...payload };
-      delete updatedData.agent_uuid;
-      delete updatedData.uuid;
-      delete updatedData.did_uuid;
-      delete updatedData.company_uuid;
-      delete updatedData.created_at;
-      delete updatedData.useMessageExactly;
+      const {
+        agent_uuid,
+        uuid,
+        did_uuid,
+        company_uuid,
+        created_at,
+        useMessageExactly,
+        ...updatedData
+      } = payload;
+      console.log(agent_uuid, uuid, did_uuid, company_uuid, created_at, useMessageExactly);
 
       submitAgent(updatedData, {
         onSuccess: () => {
@@ -340,11 +346,11 @@ function AiAgent() {
       cell: ({ row }: any) => {
         const date = row?.original?.updatedAt || row?.original?.updated_at;
         return date ? (
-          <span className="text-xs xxl:text-sm font-medium text-gray-600 dark:text-mcm-ink-3">
+          <span className="text-xs xxl:text-sm font-medium text-gray-600">
             {convertDateFormateApis(date, 'DD/MM/YYYY hh:mm A')}
           </span>
         ) : (
-          <div className="text-center font-medium text-gray-600 dark:text-mcm-ink-3">---</div>
+          <div className="text-center font-medium text-gray-600">---</div>
         );
       },
     },
@@ -373,7 +379,7 @@ function AiAgent() {
                   setEditData(data);
                   setPromptModalOpen(true);
                 },
-                className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
+                className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
                 tooltipText: 'Edit Prompt',
               },
               agentAccess?.edit && {
@@ -383,7 +389,7 @@ function AiAgent() {
                     state: { rowData: { isEdit: true, formData: data } },
                   });
                 },
-                className: 'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white',
+                className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
                 tooltipText: 'Edit',
               },
               agentAccess?.delete && {
@@ -430,12 +436,12 @@ function AiAgent() {
 
   return (
     <>
-      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
           <div>
-            <div className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
+            <div className="text-gray-900 font-semibold text-lg flex items-center gap-1">
               AI Tools
-              <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+              <div className="-rotate-90 text-gray-800">
                 <Icon name="ChevronIcon" className="w-5 h-5" />
               </div>
               <span className="text-primary text-md">Chat Agents</span>
@@ -448,7 +454,7 @@ function AiAgent() {
                 value={search}
                 maxLength={50}
                 onChange={(e) => setSearch(e?.target?.value)}
-                Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-2" />}
+                Icon={<SearchLine className=" text-gray-700" />}
               />
               {agentAccess?.add && (
                 <Button
@@ -462,7 +468,7 @@ function AiAgent() {
               )}
             </div>
           </div>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
+          <p className="text-gray-500 text-xs">
             AI agents that answer chats on your behalf, and the knowledge they answer from.
           </p>
         </div>
@@ -527,7 +533,7 @@ function AiAgent() {
                 )}
               </Button>
             </div>
-            <div className="rounded-md border border-gray-200 dark:border-mcm-line overflow-hidden">
+            <div className="rounded-md border border-gray-200 overflow-hidden">
               <pre className="bg-[#111827] text-gray-100 p-4 text-xs sm:text-sm overflow-x-auto max-h-[60vh]">
                 <code className="whitespace-pre-wrap">
                   {isPreviewLoading

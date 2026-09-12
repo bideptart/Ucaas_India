@@ -1,9 +1,9 @@
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TopUp from './top-up';
 import ManageCards from './manage-cards';
 import { useState } from 'react';
 // import Breadcrumb from '@/components/custom/breadcrumb';
-import { Icon } from '@/assets/icons/icon';
 // const breadcrumbData = [{ label: 'Billing' }, { label: 'Purchase' }];
 
 const Purchase = () => {
@@ -24,25 +24,16 @@ const Purchase = () => {
     'top-up': <TopUp />,
     'manage-cards': <ManageCards />,
   };
+  /* Its own 65px head repeated "Billing > Credit & Payment" under the Admin
+     head that had already named this screen, and the sentence beneath it goes
+     to the info button there. The cool wash over the warm ground goes too. */
+  useSetAdminPageMeta({
+    description:
+      'Top up the balance that pays for usage beyond your plan — calls, SMS and AI — and manage the cards it is charged to.',
+  });
+
   return (
-    <section className="w-full bg-muted/40 overflow-x-auto overflow-y-hidden">
-      {/* <Breadcrumb breadcrumbs={breadcrumbData} /> */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-mcm-line min-h-[65px] bg-white dark:bg-mcm-surface">
-        <div>
-          <p className="text-gray-900 dark:text-mcm-ink font-semibold text-lg flex items-center gap-1">
-            Billing
-            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
-              <Icon name="ChevronIcon" className="w-5 h-5" />
-            </div>
-            <span className="text-primary text-md">Credit &amp; Payment</span>
-          </p>
-          <p className="text-gray-500 dark:text-mcm-ink-3 text-xs">
-            Top up the balance that pays for usage beyond your plan — calls, SMS and AI — and manage
-            the cards it is charged to.
-          </p>
-        </div>
-        <div className="flex gap-2"></div>
-      </div>
+    <section className="w-full overflow-x-auto overflow-y-hidden">
 
       <div className="w-full p-3 flex flex-col gap-3 ">
         <Tabs
@@ -52,12 +43,12 @@ const Purchase = () => {
           className="flex w-full relative"
         >
           {' '}
-          <div className="border-b border-gray-200 dark:border-mcm-line w-full">
+          <div className="border-b border-gray-200 w-full">
             <TabsList className="flex text-sm font-semibold text-center  p-0 rounded-none min-h-10 bg-transparent">
               {tabArr?.map((v: any) => {
                 return (
                   <TabsTrigger
-                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 px-6  text-gray-700 dark:text-mcm-ink-2 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
+                    className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 px-6  text-gray-700 cursor-pointer h-full rounded-none w-2/4 m-auto relative flex gap-1 bg-transparent font-semibold data-[state=active]:shadow-2xs"
                     value={v.value}
                   >
                     {v.label}

@@ -21,7 +21,7 @@ const statusConfig: Record<string, { label: string; bg: string; dotBg: string }>
   },
   offline: {
     label: 'Offline',
-    bg: 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-mcm-surface-3 dark:text-mcm-ink-3 dark:border-mcm-line',
+    bg: 'bg-gray-50 text-gray-600 border-gray-200',
     dotBg: 'bg-gray-400',
   },
   busy: { label: 'Busy', bg: 'bg-amber-50 text-amber-700 border-amber-200', dotBg: 'bg-amber-500' },
@@ -64,7 +64,7 @@ const QueueMemberModal = ({
                 <div className="w-9 h-9 flex items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
                   {name.charAt(0).toUpperCase()}
                 </div>
-                <div className="font-semibold text-gray-900 dark:text-mcm-ink">{name}</div>
+                <div className="font-semibold text-gray-900">{name}</div>
               </div>
             );
           },
@@ -74,7 +74,7 @@ const QueueMemberModal = ({
           accessorKey: 'value',
           cell: ({ row }: any) => {
             const rowData = row?.original;
-            return <div className="text-gray-500 dark:text-mcm-ink-3 font-mono text-xs">{rowData?.value || '---'}</div>;
+            return <div className="text-gray-500 font-mono text-xs">{rowData?.value || '---'}</div>;
           },
         },
       ];
@@ -107,11 +107,11 @@ const QueueMemberModal = ({
                 size="36"
               />
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-gray-900 dark:text-mcm-ink truncate max-w-[200px] capitalize">
+                <span className="font-semibold text-gray-900 truncate max-w-[200px] capitalize">
                   {displayName}
                 </span>
                 {showEmail && (
-                  <span className="text-gray-500 dark:text-mcm-ink-3 text-xs truncate max-w-[200px]">{email}</span>
+                  <span className="text-gray-500 text-xs truncate max-w-[200px]">{email}</span>
                 )}
               </div>
             </div>
@@ -126,7 +126,7 @@ const QueueMemberModal = ({
           const role = String(rowData?.role || 'AGENT').trim();
           const normalizedRole = role.toUpperCase();
 
-          let badgeStyle = 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-mcm-surface-3 dark:text-mcm-ink-2 dark:border-mcm-line';
+          let badgeStyle = 'bg-gray-50 text-gray-700 border-gray-200';
           if (normalizedRole.includes('MANAGER')) {
             badgeStyle = 'bg-indigo-50 text-indigo-700 border-indigo-200';
           } else if (normalizedRole.includes('ADMIN')) {
@@ -153,7 +153,7 @@ const QueueMemberModal = ({
           if (!extension) return <span className="text-gray-400">---</span>;
 
           return (
-            <div className="flex items-center gap-1.5 text-gray-600 dark:text-mcm-ink-3 font-medium">
+            <div className="flex items-center gap-1.5 text-gray-600 font-medium">
               <Icon name="Grid" className="w-4 h-4 text-gray-400" />
               <span>{extension}</span>
             </div>
@@ -168,7 +168,7 @@ const QueueMemberModal = ({
           const ext = String(rowData?.value || rowData?.extension || '').trim();
           if (!ext) {
             return (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-600 border-gray-200 dark:bg-mcm-surface-3 dark:text-mcm-ink-3 dark:border-mcm-line">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-600 border-gray-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                 Offline
               </div>
@@ -260,7 +260,7 @@ const QueueMemberModal = ({
                 <button
                   type="button"
                   onClick={handleChat}
-                  className="flex items-center justify-center rounded-full w-8 h-8 bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all cursor-pointer shadow-3xs dark:bg-slate-700/40 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-slate-600 dark:hover:text-white dark:hover:border-slate-600"
+                  className="flex items-center justify-center rounded-full w-8 h-8 bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all cursor-pointer shadow-3xs"
                 >
                   <Icon name="MessageIcon" className="w-4.5 h-4.5" />
                 </button>
@@ -283,7 +283,7 @@ const QueueMemberModal = ({
             {type || 'Total Members'}
             <div
               onClick={handleClose}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -297,13 +297,6 @@ const QueueMemberModal = ({
               showPagination: false,
               isHeightSet: true,
               customClass: 'max-h-[500px]',
-              /* This table sits inside a centered Dialog (`translate(-50%,
-                 -50%)`), which is exactly the ancestor-transform case that
-                 breaks the sticky header's corner-rounding in Chromium — see
-                 `stickyHeader`'s own comment in table-manager.tsx. The list
-                 is short enough that a sticky header buys nothing here
-                 anyway. */
-              stickyHeader: false,
             }}
           />
         </div>

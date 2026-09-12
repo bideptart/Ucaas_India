@@ -17,18 +17,27 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   showEye?: boolean;
 }
 
-function Input({
-  className,
-  type = 'text',
-  label = null,
-  required = false,
-  error = '',
-  Icon = null,
-  IconPosition = 'right-0 inset-y-0 pr-2',
-  onIconClick,
-  showEye = false,
-  ...props
-}: InputProps) {
+/* Forwards the ref to the underlying <input>.
+
+   Callers that need to focus or measure the field -- the holiday date field and
+   the IP allow-list row -- were already passing `ref`, but a plain function
+   component silently swallows it, so those refs were always null and the field
+   never took focus. */
+const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    className,
+    type = 'text',
+    label = null,
+    required = false,
+    error = '',
+    Icon = null,
+    IconPosition = 'right-0 inset-y-0 pr-2',
+    onIconClick,
+    showEye = false,
+    ...props
+  },
+  ref,
+) {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const isSearchInput =
@@ -46,7 +55,7 @@ function Input({
         {Icon && (
           <span
             onClick={onIconClick}
-            className={`absolute ${IconPosition} cursor-pointer text-muted-foreground flex items-center`}
+            className={`absolute ${IconPosition} cursor-pointer text-gray-500 flex items-center`}
           >
             {Icon}
           </span>
@@ -54,21 +63,22 @@ function Input({
         {showEye && (
           <span
             onClick={() => setShowPassword((p) => !p)}
-            className={`absolute ${IconPosition} cursor-pointer text-muted-foreground flex items-center`}
+            className={`absolute ${IconPosition} cursor-pointer text-gray-500 flex items-center`}
           >
             {showPassword ? <EyeLineOff /> : <EyeLine />}
           </span>
         )}
         <div className="flex">
           <input
+            ref={ref}
             autoComplete="off"
             type={!showPassword ? type : 'text'}
             data-slot="input"
             className={cn(
-              'border normal-case focus:outline-none disabled:bg-muted disabled:text-muted-foreground disabled:border-border disabled:shadow-none text-foreground placeholder:text-muted-foreground bg-input shadow-sm text-sm  rounded-xl w-full px-3 min-h-10',
+              'border normal-case focus:outline-none disabled:bg-gray-300 disabled:text-slate-500 disabled:border-gray-200 disabled:shadow-none text-gray-700 placeholder:text-gray-700 bg-white shadow-sm text-sm  rounded-xl w-full px-3 min-h-10',
               error
                 ? 'border-red-500 focus:border-red-500 focus:ring-0'
-                : 'border-border focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary',
+                : 'border-gray-300 focus:shadow-secondary/5 focus:ring-white shadow-secondary/5 focus:border-primary hover:border-primary',
               className,
             )}
             {...props}
@@ -90,6 +100,6 @@ function Input({
       </div>
     </div>
   );
-}
+});
 
 export { Input };

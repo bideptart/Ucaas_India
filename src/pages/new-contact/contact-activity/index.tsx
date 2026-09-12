@@ -10,12 +10,35 @@ import CustomAvatar from '@/components/custom/custom-avatar';
 import ContactCallLogContent from '@/components/custom/contact-call-log-content';
 import '@/styles/warm-glass.css';
 
-const ContactActivity = () => {
-  const { state } = useLocation();
+/**
+ * Also renders inside a drawer, not only as the /contact-activity route.
+ *
+ * Opening a contact's activity from a Directory row used to navigate here,
+ * which swapped the whole screen for a standalone page — the list you came
+ * from, and the place you were in, both gone. Passing `contactId` and
+ * `onClose` renders the same thing over the list instead, the way the
+ * WhatsApp composer does. The props are optional and fall back to the URL, so
+ * the route keeps working exactly as before for the links that still use it.
+ */
+const ContactActivity = ({
+  contactId: contactIdProp,
+  activityState,
+  onClose,
+}: {
+  contactId?: string;
+  /** Stands in for the router state the route form reads. */
+  activityState?: { key: string; value: string };
+  /** Replaces the back arrow's navigate(-1) when embedded. */
+  onClose?: () => void;
+} = {}) => {
+  const { state: routerState } = useLocation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const contactId = searchParams.get('contactId');
+  const isEmbedded = Boolean(contactIdProp);
+  const state = activityState ?? routerState;
+  const contactId = contactIdProp ?? searchParams.get('contactId');
   const isLeadList = searchParams.get('isLeadList') === 'true';
+  const goBack = onClose ?? (() => navigate(-1));
   const [showDialer, setShowDialer] = useState(false);
   const [numberToAdd, setNumberToAdd] = useState('');
 
@@ -49,6 +72,12 @@ const ContactActivity = () => {
   }, [contactData]);
 
   useEffect(() => {
+    /* Embedded, the id comes from the caller, so an empty ?contactId= is not a
+       broken link to redirect away from — it is simply not how this instance
+       was addressed. Redirecting there would have thrown the drawer's host page
+       away the moment it opened. */
+    if (isEmbedded) return;
+
     if (searchParams.get('contactId')) {
       const contactId = searchParams.get('contactId');
 
@@ -58,7 +87,7 @@ const ContactActivity = () => {
     } else {
       navigate(isLeadList ? '/campaign/leads' : '/contact');
     }
-  }, [isLeadList, navigate, searchParams]);
+  }, [isEmbedded, isLeadList, navigate, searchParams]);
 
   useEffect(() => {
     window.addEventListener('OPEN_ACTIVITY_DIALER', openDialer);
@@ -93,12 +122,12 @@ const ContactActivity = () => {
   }, [contactDisplayName, contactPhone, contactUuid, makeCall]);
 
   const renderUnifiedHeader = () => (
-    <div className="flex items-center w-full px-3 h-16 gap-2 bg-[rgba(251,249,246,0.88)] dark:bg-mcm-surface-3 backdrop-blur-[12px] rounded-none border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line min-h-[65px]">
+    <div className="flex items-center w-full px-3 h-16 gap-2 bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] rounded-none border-b border-[rgba(225,200,165,0.9)] min-h-[65px]">
       <button
         type="button"
-        onClick={() => navigate(-1)}
-        className="flex items-center justify-center rounded-full w-9 h-9 text-[#9A948F] dark:text-mcm-ink-3 hover:bg-[#FBE2C8]/40 dark:hover:bg-mcm-surface-3 hover:text-[#2E2D35] dark:hover:text-mcm-ink shrink-0"
-        aria-label="Back"
+        onClick={goBack}
+        className="flex items-center justify-center rounded-full w-9 h-9 text-[#9A948F] hover:bg-[#FBE2C8]/40 hover:text-[#2E2D35] shrink-0"
+        aria-label={isEmbedded ? 'Close' : 'Back'}
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
@@ -110,9 +139,9 @@ const ContactActivity = () => {
         />
       </div>
       <div className="flex flex-col min-w-0">
-        <p className="font-semibold text-[#2E2D35] dark:text-mcm-ink truncate text-md">{fallbackHeaderName}</p>
+        <p className="font-semibold text-[#2E2D35] truncate text-md">{fallbackHeaderName}</p>
         {fallbackHeaderNumber ? (
-          <p className="text-[#2E2D35] dark:text-mcm-ink truncate text-sm">{fallbackHeaderNumber}</p>
+          <p className="text-[#2E2D35] truncate text-sm">{fallbackHeaderNumber}</p>
         ) : null}
       </div>
       <div className="ml-auto flex items-center gap-2">
@@ -136,8 +165,8 @@ const ContactActivity = () => {
           onClick={() => navigate(`/inbox?formState=contact&number=${fallbackHeaderNumber}`)}
           className={`flex items-center justify-center rounded-full w-8 h-8 ${
             fallbackHeaderNumber
-              ? 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#2E2D35]/80 dark:text-mcm-ink/80 hover:bg-primary hover:text-white cursor-pointer'
-              : 'bg-[#FBE2C8]/40 dark:bg-mcm-surface-3 text-[#9A948F] dark:text-mcm-ink-3 cursor-not-allowed'
+              ? 'bg-[#FBE2C8]/40 text-[#2E2D35]/80 hover:bg-primary hover:text-white cursor-pointer'
+              : 'bg-[#FBE2C8]/40 text-[#9A948F] cursor-not-allowed'
           }`}
           aria-label="SMS"
           title={fallbackHeaderNumber ? 'SMS' : 'No number available'}
@@ -154,18 +183,24 @@ const ContactActivity = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-[26rem_minmax(0,1fr)] flex-1 min-h-0">
         <div className="flex flex-col p-3 gap-2 min-h-0 border-r">
-          <p className="px-1 text-xs font-semibold tracking-wide text-[#9A948F] dark:text-mcm-ink-3 uppercase">
+          <p className="px-1 text-xs font-semibold tracking-wide text-[#9A948F] uppercase">
             Contact Details
           </p>
-          <section className="bg-white overflow-hidden flex-1 min-h-0">
+          {/* No white card around the form any more — just the fields on the
+              page. The card added a second frame inside a column that is
+              already bounded by its border and its "Contact Details" label,
+              and its own padding sat inside the column's, pushing every input
+              in twice. The layout roles it was carrying (fill the column,
+              allow it to shrink) stay here. */}
+          <div className="flex-1 min-h-0 overflow-hidden">
             {showDialer ? (
-              <div className="flex items-center justify-center w-full h-full min-h-0 bg-white">
+              <div className="flex items-center justify-center w-full h-full min-h-0">
                 <div className="flex items-center justify-center p-5">
                   {/* <CommonDialerWidget isShowCrossIcon={false} isSidebar={true} /> */}
                 </div>
               </div>
             ) : (
-              <div className="p-3 h-full min-h-0 overflow-hidden">
+              <div className="h-full min-h-0 overflow-hidden">
                 <CreateContactNew
                   contactData={contactData}
                   isDisable={false}
@@ -176,7 +211,7 @@ const ContactActivity = () => {
                 />
               </div>
             )}
-          </section>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 min-h-0">

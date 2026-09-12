@@ -1,3 +1,4 @@
+import { useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useState } from 'react';
 import { useGetMyPlanDetails } from '@/hooks/common';
 import { useUser } from '@/hooks/use-user';
@@ -30,6 +31,14 @@ const TABS = [
 type TabKey = (typeof TABS)[number]['key'];
 
 const BillingResources = () => {
+  /* `hideHead` drops AdminPage's own head, and the description went with
+     it -- written, passed, and rendered nowhere. It belongs on the info
+     button beside the title the Admin head draws. */
+  useSetAdminPageMeta({
+    description:
+      'What this account holds — seats, numbers, storage and AI usage — and who is using them.',
+  });
+
   const [tab, setTab] = useState<TabKey>('licence');
   const { user } = useUser();
   const { data: planData = {}, isPending, isError } = useGetMyPlanDetails(undefined, true);
@@ -51,15 +60,15 @@ const BillingResources = () => {
   if (isError) {
     return (
       <AdminPage
+      hideHead
         section="Billing"
         title="Licences & resources"
-        description="What this account holds — seats, numbers, storage and AI usage — and who is using them."
       >
         <div className="p-3">
-          <p className="text-sm font-semibold text-gray-900 dark:text-mcm-ink">
+          <p className="text-sm font-semibold text-gray-900">
             Your plan details could not be loaded
           </p>
-          <p className="mt-1 text-xs text-gray-600 dark:text-mcm-ink-3">
+          <p className="mt-1 text-xs text-gray-600">
             Nothing about your account has changed and no seat has been affected. Reload the page —
             if it keeps happening, the Plan screen shows the same figures.
           </p>
@@ -70,9 +79,9 @@ const BillingResources = () => {
 
   return (
     <AdminPage
+      hideHead
       section="Billing"
       title="Licences & resources"
-      description="What this account holds — seats, numbers, storage and AI usage — and who is using them."
       filters={
         <div className="ptabstrip">
           {TABS.map((entry) => (

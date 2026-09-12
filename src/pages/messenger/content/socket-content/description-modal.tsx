@@ -811,6 +811,11 @@ const DescriptionModal = ({
   const teamDisplayName = selectedChat?.isGroupChat && isEditingInfo ? teamNameDraft : name;
   const descriptionDisplay =
     selectedChat?.isGroupChat && isEditingInfo ? descriptionDraft : selectedChat?.description || '';
+  const subtitle = selectedChat?.isGroupChat
+    ? `Group - ${visibleMembers.length} ${visibleMembers.length === 1 ? 'member' : 'members'}`
+    : [otherUserData?.email, otherUserData?.extension ? `Ext: ${otherUserData.extension}` : '']
+        .filter(Boolean)
+        .join(' - ');
 
   return (
     <>
@@ -826,160 +831,140 @@ const DescriptionModal = ({
           }}
         />
       ) : null}
-      <div className="h-full w-full overflow-y-auto bg-white dark:bg-mcm-surface">
+      <div className="h-full w-full overflow-y-auto bg-white">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as InfoTab)}
           className="min-h-full w-full gap-0"
         >
-          <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] dark:border-mcm-line/90 bg-[rgba(251,249,246,0.5)] dark:bg-mcm-surface/50">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,.jpeg,.jpg,.png,.webp"
-              className="hidden"
-              onChange={handleTeamAvatarChange}
-            />
-            <div className="relative px-4 pb-5 pt-4">
+          <div className="shrink-0 border-b border-[rgba(225,200,165,0.9)] bg-white">
+            <div className="relative flex flex-col items-center px-4 pb-4 pt-5 text-center">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.jpeg,.jpg,.png,.webp"
+                className="hidden"
+                onChange={handleTeamAvatarChange}
+              />
               <button
                 type="button"
-                className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-mcm-ink-3 transition-colors hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-slate-800 dark:hover:text-mcm-ink"
+                className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
                 onClick={() => setActiveState(null)}
                 aria-label="Back to messages"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
 
-              {/* Instagram-style identity block: a gradient "story ring"
-                  around the avatar, bold stat numbers under the name, and
-                  flat gray pill buttons — the recognizable Instagram profile
-                  language, adapted to a contact card. */}
-              <div className="flex flex-col items-center pb-5 pt-8 text-center">
-                <div className="relative rounded-full bg-gradient-to-tr from-amber-400 via-pink-500 to-violet-500 p-[3px]">
-                  <div className="rounded-full bg-white dark:bg-mcm-surface p-[3px]">
-                    <CustomAvatar
-                      name={teamDisplayName || 'Team'}
-                      size="84"
-                      showPresence={false}
-                      extension={!selectedChat?.isGroupChat ? otherUserData?.extension : ''}
-                      image={avatarImage}
-                      textClass="text-2xl"
-                    />
-                  </div>
-                  {selectedChat?.isGroupChat && canEditTeam ? (
-                    <button
-                      type="button"
-                      className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white dark:bg-mcm-surface text-slate-400 dark:text-mcm-ink-3 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3 hover:text-primary"
-                      onClick={() => {
-                        startEditingTeamInfo();
-                        fileInputRef.current?.click();
-                      }}
-                      aria-label="Edit team photo"
-                    >
-                      <Camera className="h-3.5 w-3.5" />
-                    </button>
-                  ) : (
-                    <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white dark:bg-mcm-surface text-slate-400 dark:text-mcm-ink-3 shadow-sm">
-                      <Camera className="h-3.5 w-3.5" />
-                    </span>
-                  )}
-                </div>
-
-                {isEditingInfo && canEditTeam ? (
-                  <div className="mt-4 w-full max-w-md px-6">
-                    <input
-                      value={teamNameDraft}
-                      onChange={(event) => setTeamNameDraft(event.target.value)}
-                      maxLength={50}
-                      className="h-10 w-full rounded-lg border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-center text-lg font-semibold text-slate-900 dark:text-mcm-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                      placeholder="Team name"
-                    />
-                  </div>
-                ) : (
-                  <div className="mt-4 flex max-w-full items-center justify-center gap-1.5 px-6">
-                    <h2 className="truncate text-lg font-bold tracking-tight text-slate-900 dark:text-mcm-ink">
-                      {teamDisplayName || 'Team'}
-                    </h2>
-                    {canEditTeam ? (
-                      <button
-                        type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 dark:text-mcm-ink-3 hover:bg-slate-100 dark:hover:bg-mcm-surface-3 hover:text-primary"
-                        onClick={startEditingTeamInfo}
-                        aria-label="Edit team info"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                    ) : null}
-                  </div>
-                )}
-
-                {selectedChat?.isGroupChat ? (
-                  <div className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-emerald-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                    Group - {visibleMembers.length} {visibleMembers.length === 1 ? 'member' : 'members'}
-                  </div>
-                ) : (
-                  <div className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-emerald-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                    Ext: {otherUserData?.extension || '—'}
-                  </div>
-                )}
-
-                {isEditingInfo && canEditTeam ? (
-                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={handleSaveTeamInfo}
-                      disabled={isSavingInfo}
-                    >
-                      {isSavingInfo ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Check className="h-3.5 w-3.5" />
-                      )}
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 text-xs font-semibold text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
-                      onClick={handleCancelTeamInfoEdit}
-                      disabled={isSavingInfo}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      Cancel
-                    </button>
-                  </div>
+              <div className="relative">
+                <CustomAvatar
+                  name={teamDisplayName || 'Team'}
+                  size="96"
+                  showPresence={!selectedChat?.isGroupChat}
+                  extension={!selectedChat?.isGroupChat ? otherUserData?.extension : ''}
+                  image={avatarImage}
+                  textClass="text-2xl"
+                />
+                {selectedChat?.isGroupChat && canEditTeam ? (
+                  <button
+                    type="button"
+                    className="absolute bottom-1 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white text-slate-400 shadow-sm hover:bg-slate-50 hover:text-primary"
+                    onClick={() => {
+                      startEditingTeamInfo();
+                      fileInputRef.current?.click();
+                    }}
+                    aria-label="Edit team photo"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
                 ) : null}
+              </div>
 
-                <div className="mt-4 flex items-center justify-center gap-6">
-                  <HeaderActionButton
-                    label="Call"
-                    icon={<PhoneCall className="h-[18px] w-[18px]" />}
-                    iconClassName="bg-emerald-50 text-emerald-600"
-                    onClick={() => handleStartInfoCall('audio')}
+              {isEditingInfo && canEditTeam ? (
+                <div className="mt-3 w-full max-w-md">
+                  <input
+                    value={teamNameDraft}
+                    onChange={(event) => setTeamNameDraft(event.target.value)}
+                    maxLength={50}
+                    className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-center text-lg font-semibold text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    placeholder="Team name"
                   />
-                  <HeaderActionButton
-                    label="Video"
-                    icon={<Video className="h-[18px] w-[18px]" />}
-                    iconClassName="bg-orange-50 text-orange-600"
-                    onClick={() => handleStartInfoCall('video')}
-                  />
-                  {selectedChat?.isGroupChat || selectedChat?.groupType === 'CHANNEL' ? (
-                    <HeaderActionButton
-                      label="Add"
-                      icon={<UserPlus className="h-[18px] w-[18px]" />}
-                      iconClassName="bg-violet-50 text-violet-600"
-                      onClick={() => setActiveState('members')}
-                    />
+                </div>
+              ) : (
+                <div className="mt-3 flex max-w-full items-center justify-center gap-2">
+                  <h2 className="truncate text-lg font-semibold text-slate-900">
+                    {teamDisplayName || 'Team'}
+                  </h2>
+                  {canEditTeam ? (
+                    <button
+                      type="button"
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-primary"
+                      onClick={startEditingTeamInfo}
+                      aria-label="Edit team info"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
                   ) : null}
                 </div>
+              )}
+
+              {subtitle ? (
+                <p className="mt-1 text-xs font-semibold text-emerald-500">{subtitle}</p>
+              ) : null}
+
+              {isEditingInfo && canEditTeam ? (
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleSaveTeamInfo}
+                    disabled={isSavingInfo}
+                  >
+                    {isSavingInfo ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5" />
+                    )}
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    onClick={handleCancelTeamInfoEdit}
+                    disabled={isSavingInfo}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Cancel
+                  </button>
+                </div>
+              ) : null}
+
+              <div className="mt-5 flex items-center justify-center gap-5 sm:gap-7">
+                <HeaderActionButton
+                  label="Call"
+                  icon={<PhoneCall className="h-5 w-5" />}
+                  iconClassName="bg-emerald-100 text-emerald-500"
+                  onClick={() => handleStartInfoCall('audio')}
+                />
+                <HeaderActionButton
+                  label="Video"
+                  icon={<Video className="h-5 w-5" />}
+                  iconClassName="bg-orange-100 text-orange-500"
+                  onClick={() => handleStartInfoCall('video')}
+                />
+                {selectedChat?.isGroupChat || selectedChat?.groupType === 'CHANNEL' ? (
+                  <HeaderActionButton
+                    label="Add"
+                    icon={<UserPlus className="h-5 w-5" />}
+                    iconClassName="bg-slate-100 text-orange-500"
+                    onClick={() => setActiveState('members')}
+                  />
+                ) : null}
               </div>
             </div>
 
-            <div className="px-4 pb-5">
-              <div className="relative rounded-xl border border-slate-100 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4 py-4 text-left shadow-sm shadow-slate-900/[0.03]">
-                <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400 dark:text-mcm-ink-3">
+            <div className="px-3 pb-4">
+              <div className="relative rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-left">
+                <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                   Description
                 </div>
                 {isEditingInfo && canEditTeam ? (
@@ -988,18 +973,18 @@ const DescriptionModal = ({
                     onChange={(event) => setDescriptionDraft(event.target.value)}
                     maxLength={255}
                     rows={3}
-                    className="w-full resize-none rounded-md border border-slate-200 dark:border-mcm-line bg-white dark:bg-mcm-surface px-3 py-2 text-sm font-medium leading-6 text-slate-700 dark:text-mcm-ink-2 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    className="w-full resize-none rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium leading-5 text-slate-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                     placeholder="Add a team description"
                   />
                 ) : (
-                  <p className="pr-6 text-sm font-medium leading-6 text-slate-600 dark:text-mcm-ink-2">
+                  <p className="pr-7 text-xs font-medium leading-5 text-slate-700">
                     {descriptionDisplay || 'No description added.'}
                   </p>
                 )}
                 {canEditTeam && !isEditingInfo ? (
                   <button
                     type="button"
-                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 dark:text-mcm-ink-3 hover:bg-white dark:hover:bg-mcm-surface hover:text-primary"
+                    className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-primary"
                     onClick={startEditingTeamInfo}
                     aria-label="Edit description"
                   >
@@ -1009,24 +994,14 @@ const DescriptionModal = ({
               </div>
             </div>
 
-            <TabsList className="flex h-13 w-full gap-5 rounded-none border-t border-slate-100 dark:border-mcm-line bg-white dark:bg-mcm-surface px-4">
+            <TabsList className="flex h-12 w-full rounded-none border-t border-slate-100 bg-white p-0">
               {selectedChat?.isGroupChat ? (
-                <InfoTabTrigger value="members" icon={<UsersRound className="h-4 w-4" />}>
-                  Members
-                </InfoTabTrigger>
+                <InfoTabTrigger value="members">Members</InfoTabTrigger>
               ) : null}
-              <InfoTabTrigger value="media" icon={<LayoutGrid className="h-4 w-4" />}>
-                Media
-              </InfoTabTrigger>
-              <InfoTabTrigger value="files" icon={<FileText className="h-4 w-4" />}>
-                Files
-              </InfoTabTrigger>
-              <InfoTabTrigger value="links" icon={<Link2 className="h-4 w-4" />}>
-                Links
-              </InfoTabTrigger>
-              <InfoTabTrigger value="calls" icon={<PhoneCall className="h-4 w-4" />}>
-                Calls
-              </InfoTabTrigger>
+              <InfoTabTrigger value="media">Media</InfoTabTrigger>
+              <InfoTabTrigger value="files">Files</InfoTabTrigger>
+              <InfoTabTrigger value="links">Links</InfoTabTrigger>
+              <InfoTabTrigger value="calls">Calls</InfoTabTrigger>
             </TabsList>
           </div>
 
@@ -1100,12 +1075,12 @@ const HeaderActionButton = ({
 }) => (
   <button
     type="button"
-    className="group flex w-14 flex-col items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-mcm-ink-2"
+    className="flex min-w-12 flex-col items-center gap-2 text-xs font-medium text-slate-600"
     onClick={onClick}
   >
     <span
       className={cn(
-        'flex h-11 w-11 items-center justify-center rounded-full transition-transform duration-150 group-hover:scale-105 group-active:scale-95',
+        'flex h-11 w-11 items-center justify-center rounded-full transition-transform hover:scale-105',
         iconClassName,
       )}
     >
@@ -1115,20 +1090,11 @@ const HeaderActionButton = ({
   </button>
 );
 
-const InfoTabTrigger = ({
-  value,
-  icon,
-  children,
-}: {
-  value: InfoTab;
-  icon?: ReactNode;
-  children: ReactNode;
-}) => (
+const InfoTabTrigger = ({ value, children }: { value: InfoTab; children: ReactNode }) => (
   <TabsTrigger
     value={value}
-    className="flex h-full shrink-0 items-center gap-1.5 rounded-none border-0 border-b-[3px] border-transparent px-1 text-sm font-semibold text-slate-500 dark:text-mcm-ink-3 shadow-none transition-colors duration-150 hover:text-slate-700 dark:hover:text-mcm-ink-2 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
+    className="h-full flex-1 rounded-none border-0 px-2 text-xs font-semibold text-slate-500 shadow-none transition-colors data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-none"
   >
-    {icon}
     {children}
   </TabsTrigger>
 );
@@ -1143,19 +1109,19 @@ const SearchBar = ({
   onChange: (value: string) => void;
 }) => (
   <div className="relative">
-    <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-mcm-ink-3" />
+    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" />
     <input
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      className="h-11 w-full rounded-xl border border-slate-200 dark:border-mcm-line bg-slate-50 dark:bg-mcm-surface-3 pl-10 pr-3 text-sm font-medium text-slate-700 dark:text-mcm-ink-2 outline-none transition-colors placeholder:text-slate-400 dark:placeholder:text-mcm-ink-3 focus:border-primary/50 focus:bg-white dark:focus:bg-mcm-surface focus:shadow-sm"
+      className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-3 text-xs font-medium text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary/50 focus:bg-white"
     />
   </div>
 );
 
 const EmptyState = ({ label }: { label: string }) => (
-  <div className="mx-3 mt-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-mcm-line bg-slate-50/70 dark:bg-mcm-surface-3/70 px-4 py-14 text-center">
-    <p className="text-base font-medium text-slate-500 dark:text-mcm-ink-3">{label}</p>
+  <div className="mx-3 mt-4 flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/70 px-4 py-12 text-center">
+    <p className="text-sm font-medium text-slate-500">{label}</p>
   </div>
 );
 
@@ -1207,7 +1173,7 @@ const MediaTab = ({
   };
 
   return (
-    <div className="bg-white dark:bg-mcm-surface">
+    <div className="bg-white">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search media by name, type, size or date"
@@ -1217,7 +1183,7 @@ const MediaTab = ({
       </div>
       <div className="pb-4">
         <div className="flex items-center justify-between px-3 pb-3 pt-1">
-          <p className="text-sm font-semibold text-slate-500 dark:text-mcm-ink-3">Sort: recent</p>
+          <p className="text-xs font-semibold text-slate-500">Sort: recent</p>
           <ViewToggle value={viewMode} onChange={setViewMode} />
         </div>
 
@@ -1267,7 +1233,7 @@ const ViewToggle = ({
           aria-label={option.label}
           onClick={() => onChange(option.value)}
           className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-md text-slate-400 dark:text-mcm-ink-3 transition-colors hover:bg-orange-50 hover:text-primary',
+            'flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-orange-50 hover:text-primary',
             value === option.value && 'bg-orange-50 text-primary ring-1 ring-orange-100',
           )}
         >
@@ -1320,13 +1286,13 @@ const MediaList = ({
             <button
               key={item.id}
               type="button"
-              className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+              className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-slate-50"
               onClick={() => onPreview(item.serverFileName)}
             >
-              <MediaThumb item={item} className="h-12 w-12 rounded-lg" onPreview={onPreview} />
+              <MediaThumb item={item} className="h-11 w-11 rounded-md" onPreview={onPreview} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-slate-700 dark:text-mcm-ink-2">{item.fileName}</p>
-                <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
+                <p className="truncate text-xs font-semibold text-slate-700">{item.fileName}</p>
+                <p className="mt-0.5 truncate text-xs font-medium text-slate-400">
                   {item.fileType} - {item.fileSizeLabel} - {formatCompactDate(item.createdAt)}
                 </p>
               </div>
@@ -1348,11 +1314,11 @@ const MediaTable = ({
   <div className="overflow-x-auto pb-4">
     <table className="w-full min-w-[620px] border-collapse text-left">
       <thead>
-        <tr className="border-b border-slate-200 dark:border-mcm-line text-xs font-bold uppercase text-slate-400 dark:text-mcm-ink-3">
-          <th className="px-3 py-2.5">Name</th>
-          <th className="px-3 py-2.5">Type</th>
-          <th className="px-3 py-2.5">Size</th>
-          <th className="px-3 py-2.5">Date</th>
+        <tr className="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+          <th className="px-3 py-2">Name</th>
+          <th className="px-3 py-2">Type</th>
+          <th className="px-3 py-2">Size</th>
+          <th className="px-3 py-2">Date</th>
         </tr>
       </thead>
       <tbody>
@@ -1360,18 +1326,18 @@ const MediaTable = ({
           group.items.map((item) => (
             <tr
               key={item.id}
-              className="cursor-pointer border-b border-slate-100 dark:border-mcm-line text-sm font-medium text-slate-600 dark:text-mcm-ink-2 hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+              className="cursor-pointer border-b border-slate-100 text-xs font-medium text-slate-600 hover:bg-slate-50"
               onClick={() => onPreview(item.serverFileName)}
             >
-              <td className="px-3 py-2.5">
+              <td className="px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
-                  <MediaThumb item={item} className="h-6 w-6 rounded" onPreview={onPreview} />
+                  <MediaThumb item={item} className="h-5 w-5 rounded" onPreview={onPreview} />
                   <span className="truncate">{item.fileName}</span>
                 </div>
               </td>
-              <td className="px-3 py-2.5">{item.fileType}</td>
-              <td className="px-3 py-2.5">{item.fileSizeLabel}</td>
-              <td className="px-3 py-2.5">{formatCompactDate(item.createdAt)}</td>
+              <td className="px-3 py-2">{item.fileType}</td>
+              <td className="px-3 py-2">{item.fileSizeLabel}</td>
+              <td className="px-3 py-2">{formatCompactDate(item.createdAt)}</td>
             </tr>
           )),
         )}
@@ -1477,7 +1443,7 @@ const FilesTab = ({
   const groups = useMemo(() => groupByMonth(filteredItems), [filteredItems]);
 
   return (
-    <div className="bg-white dark:bg-mcm-surface">
+    <div className="bg-white">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search files by name, type, sender or date"
@@ -1496,14 +1462,14 @@ const FilesTab = ({
                 {group.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                    className="flex min-h-14 items-center gap-3 border-b border-slate-100 px-3 py-2"
                   >
                     <FileIconBadge item={item} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-700 dark:text-mcm-ink-2">
+                      <p className="truncate text-xs font-semibold text-slate-700">
                         {item.fileName}
                       </p>
-                      <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
+                      <p className="mt-0.5 truncate text-xs font-medium text-slate-400">
                         {item.fileType} - {item.fileSizeLabel} - {item.senderName} -{' '}
                         {formatCompactDate(item.createdAt)}
                       </p>
@@ -1513,8 +1479,8 @@ const FilesTab = ({
                       file_name={item.serverFileName}
                       company_uuid={item.company_uuid}
                       type="chat"
-                      className="text-slate-300 dark:text-mcm-ink-4 hover:text-primary"
-                      size="h-4.5 w-4.5"
+                      className="text-slate-300 hover:text-primary"
+                      size="h-4 w-4"
                     />
                   </div>
                 ))}
@@ -1550,7 +1516,7 @@ const LinksTab = ({
   const groups = useMemo(() => groupByMonth(filteredLinks), [filteredLinks]);
 
   return (
-    <div className="bg-white dark:bg-mcm-surface">
+    <div className="bg-white">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search links by URL or domain"
@@ -1575,20 +1541,20 @@ const LinksTab = ({
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                      className="flex min-h-14 items-center gap-3 border-b border-slate-100 px-3 py-2 transition-colors hover:bg-slate-50"
                     >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
-                        <Link2 className="h-4.5 w-4.5" />
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
+                        <Link2 className="h-4 w-4" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-orange-500">
+                        <span className="block truncate text-xs font-semibold text-orange-500">
                           {item.url}
                         </span>
-                        <span className="mt-0.5 block truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
+                        <span className="mt-0.5 block truncate text-xs font-medium text-slate-400">
                           {item.domain}
                         </span>
                       </span>
-                      <ExternalLink className="h-4 w-4 shrink-0 text-slate-300 dark:text-mcm-ink-4" />
+                      <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
                     </a>
                   );
                 })}
@@ -1617,7 +1583,7 @@ const CallsTab = ({
   }, [callsList, searchQuery]);
 
   return (
-    <div className="bg-white dark:bg-mcm-surface">
+    <div className="bg-white">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search calls by type, status or date"
@@ -1635,7 +1601,7 @@ const CallsTab = ({
             return (
               <div
                 key={item.id}
-                className="flex min-h-16 items-center gap-3 border-b border-slate-100 dark:border-mcm-line px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                className="flex min-h-16 items-center gap-3 border-b border-slate-100 px-3 py-2 transition-colors hover:bg-slate-50"
               >
                 <span
                   className={cn(
@@ -1653,21 +1619,21 @@ const CallsTab = ({
                   <p
                     className={cn(
                       'truncate text-sm font-semibold',
-                      isMissed ? 'text-red-500' : 'text-slate-700 dark:text-mcm-ink-2',
+                      isMissed ? 'text-red-500' : 'text-slate-700',
                     )}
                   >
                     {item.title}
                   </p>
-                  <p className="mt-0.5 truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
+                  <p className="mt-0.5 truncate text-xs font-medium text-slate-400">
                     {item.subtitle}
                   </p>
                 </div>
                 {item.durationLabel ? (
-                  <span className="rounded-full bg-slate-100 dark:bg-mcm-surface-3 px-2.5 py-1 text-sm font-semibold text-slate-500 dark:text-mcm-ink-3">
+                  <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">
                     {item.durationLabel}
                   </span>
                 ) : null}
-                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 dark:text-mcm-ink-4" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
               </div>
             );
           })
@@ -1714,7 +1680,7 @@ const MembersTab = ({
   }, [members, searchQuery]);
 
   return (
-    <div className="bg-white dark:bg-mcm-surface">
+    <div className="bg-white">
       <div className="shrink-0 px-3 py-3">
         <SearchBar
           placeholder="Search members by name, email or ext..."
@@ -1722,8 +1688,8 @@ const MembersTab = ({
           onChange={setSearchQuery}
         />
       </div>
-      <div className="flex items-center justify-between px-3 pb-2.5 text-sm font-semibold">
-        <span className="text-slate-400 dark:text-mcm-ink-3">
+      <div className="flex items-center justify-between px-3 pb-2 text-xs font-semibold">
+        <span className="text-slate-400">
           {members.length} {members.length === 1 ? 'participant' : 'participants'}
         </span>
         <span className="text-emerald-500">{onlineCount} online</span>
@@ -1753,7 +1719,7 @@ const MembersTab = ({
             return (
               <div
                 key={member?.uuid}
-                className="flex min-h-16 items-center gap-3 px-3 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-mcm-surface-3"
+                className="flex min-h-14 items-center gap-3 px-3 py-2 transition-colors hover:bg-slate-50"
               >
                 <div className="relative shrink-0">
                   <CustomAvatar
@@ -1773,12 +1739,12 @@ const MembersTab = ({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-base font-semibold text-slate-700 dark:text-mcm-ink-2">{displayName}</p>
+                  <p className="truncate text-sm font-semibold text-slate-700">{displayName}</p>
                   {member?.email ? (
-                    <p className="truncate text-sm font-medium text-slate-400 dark:text-mcm-ink-3">{member.email}</p>
+                    <p className="truncate text-xs font-medium text-slate-400">{member.email}</p>
                   ) : null}
                   {member?.extension ? (
-                    <div className="mt-0.5 flex items-center gap-2 text-sm font-medium text-slate-400 dark:text-mcm-ink-3">
+                    <div className="mt-0.5 flex items-center gap-2 text-xs font-medium text-slate-400">
                       <span>Ext: {member.extension}</span>
                       {!isMe ? (
                         <button
@@ -1787,7 +1753,7 @@ const MembersTab = ({
                             'flex h-5 w-5 items-center justify-center rounded-full',
                             canCall
                               ? 'bg-emerald-50 text-emerald-500'
-                              : 'bg-slate-100 dark:bg-mcm-surface-3 text-slate-300 dark:text-mcm-ink-4',
+                              : 'bg-slate-100 text-slate-300',
                           )}
                           disabled={!canCall}
                           onClick={() => onCall(member)}
@@ -1816,7 +1782,7 @@ const MembersTab = ({
                 {!isMe ? (
                   <button
                     type="button"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-mcm-surface-3 text-orange-500 transition-colors hover:bg-orange-50"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-orange-500 transition-colors hover:bg-orange-50"
                     onClick={() => onDirectChat(member)}
                     title="Direct message"
                   >
@@ -1833,7 +1799,7 @@ const MembersTab = ({
 };
 
 const MonthLabel = ({ children }: { children: ReactNode }) => (
-  <div className="px-3 pb-2.5 pt-1 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-mcm-ink-3">
+  <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
     {children}
   </div>
 );

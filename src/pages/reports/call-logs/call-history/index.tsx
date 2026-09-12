@@ -80,9 +80,9 @@ type CallHistoryProps = {
      getting the new modal was the actual bug reported here. Defaults to
      false so nothing else changes. */
   detailsAsModal?: boolean;
-  /* Performance ▸ Interactions' centralized toolbar search (index.tsx →
-     interactions-tab.tsx). The page's own search input (below) stays
-     exactly as it was — this only feeds the table when that local box is
+  /* Performance ▸ Calls' centralized toolbar search (index.tsx →
+     interactions-tab.tsx). Merges with this table's own local search box
+     the same way Campaigns does — local wins when it's not
      empty, so typing locally still wins without either input needing to
      know about the other. Every other caller (standalone Reports, the
      Home Live Wallboard) simply never passes it. */
@@ -947,13 +947,13 @@ const CallHistory = ({
     >
       <DialogContent
         showCloseButton={false}
-        className="qdv-modal max-w-5xl w-full max-h-[88vh] overflow-y-auto rounded-[20px] bg-[#fffdfb] dark:bg-mcm-surface backdrop-blur-[20px] border border-[rgba(249,115,22,0.18)] shadow-[0_20px_50px_rgba(160,95,30,0.22)] p-0 gap-0"
+        className="qdv-modal max-w-5xl w-full max-h-[88vh] overflow-y-auto rounded-[20px] bg-[#fffdfb] backdrop-blur-[20px] border border-[rgba(249,115,22,0.18)] shadow-[0_20px_50px_rgba(160,95,30,0.22)] p-0 gap-0"
         overlayClassName="bg-black/30 backdrop-blur-sm"
       >
         <DialogTitle className="sr-only">Details</DialogTitle>
         <DialogClose
           aria-label="Close"
-          className="absolute top-[18px] right-6 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[rgba(249,115,22,0.2)] bg-[#fff7ed] text-[#8a6f57] transition-all hover:bg-[#ffedd5] hover:text-[#1a1a1a] dark:hover:text-mcm-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="absolute top-[18px] right-6 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-[rgba(249,115,22,0.2)] bg-[#fff7ed] text-[#8a6f57] transition-all hover:bg-[#ffedd5] hover:text-[#1a1a1a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <X className="h-4 w-4" />
         </DialogClose>
@@ -995,15 +995,7 @@ const CallHistory = ({
               className={`cursor-pointer flex min-h-10 min-w-[10.75rem] flex-col items-center justify-center gap-1 rounded-lg border p-3 py-2 text-center transition-all duration-200 sm:min-w-0  ${
                 activeTab === tab.label
                   ? 'border-ucass-primary-200 bg-ucass-primary-200/40 '
-                  : // Tailwind's default `gray` scale leans cool/blue (its
-                    // 200 shade sits at ~264° hue), which read as a stray
-                    // bluish tint against every other warm-orange surface on
-                    // this card. `orange-100` turned out too pale to read as
-                    // clearly on-palette either — arbitrary values matching
-                    // Directory's own visible-but-not-loud accent border
-                    // (rgba(249,115,22,0.4), used everywhere else this
-                    // session) instead of a Tailwind step.
-                    'border-[rgba(249,115,22,0.4)] hover:bg-[rgba(255,241,235,0.65)] dark:hover:bg-mcm-accent-wash/65 bg-white'
+                  : 'border-gray-200 hover:bg-gray-50 bg-white'
               }`}
             >
               <div

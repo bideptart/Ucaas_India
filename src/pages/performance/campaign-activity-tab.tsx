@@ -35,7 +35,17 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
    */
   useEffect(() => {
     document.body.classList.add('perf-warm-backdrop');
-    return () => document.body.classList.remove('perf-warm-backdrop');
+    /* `perf-warm-backdrop` is shared by half of Performance's tabs (every
+       one on the warm theme), so it can't scope anything Campaigns-only.
+       This one is added only here — the hook the compact date-dropdown
+       restyle (index.css) needs, since that dropdown's open menu renders
+       through a portal straight onto `<body>`, outside any DOM ancestor
+       this tab's own markup has. */
+    document.body.classList.add('perf-campaigns-tab-active');
+    return () => {
+      document.body.classList.remove('perf-warm-backdrop');
+      document.body.classList.remove('perf-campaigns-tab-active');
+    };
   }, []);
 
   const { features } = useCompanyFeatures();

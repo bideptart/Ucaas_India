@@ -152,12 +152,12 @@ const MemberNameCell = memo(({ data }: { data: Member }) => {
               {data?.custom_role_data?.name || data?.role_data?.name || data?.role}
             </small>
           </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
+          <div className="flex items-center gap-1 text-gray-500">
             <Icon name="Grid" className="w-4 h-4" />
             <div>{data?.extension}</div>
           </div>
         </div>
-        <p className="text-muted-foreground flex justify-between">
+        <p className="text-gray-500 flex justify-between">
           <div>{data?.email}</div>
         </p>
       </div>
@@ -221,19 +221,14 @@ const SelectAllHeader = ({ currentMembers }: { currentMembers: Member[] }) => {
   );
 
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-xs font-semibold text-gray-500">Members</span>
       <div className="flex justify-center text-primary">
         <Checkbox
           checked={isAllChecked ? true : isIndeterminate ? 'indeterminate' : false}
           onCheckedChange={handleSelectAllChange}
         />
       </div>
-      {/* `text-muted-foreground` is a mid grey in both themes -- fine beside
-          the black headings this table used to have, too dim next to the
-          white ones it has now. */}
-      <span className="text-xs font-semibold text-muted-foreground dark:text-mcm-ink">
-        Members
-      </span>
     </div>
   );
 };
@@ -310,7 +305,7 @@ const AddMembers = () => {
             type="text"
             placeholder="Search by name, email, or extension..."
             value={searchKey}
-            Icon={<SearchLine className=" text-muted-foreground" />}
+            Icon={<SearchLine className=" text-gray-700" />}
             IconPosition="left-0 pl-2 inset-y-0"
             onChange={(e) => {
               const value = e.target.value;

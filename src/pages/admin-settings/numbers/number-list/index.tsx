@@ -2,7 +2,7 @@ import NumberWithFlag from '@/components/custom/number-with-flag';
 import { parseForwardActions } from '@/lib/call-standard';
 import TableManager from '@/components/custom/table-manager';
 import { AdminPage } from '@/pages/admin-settings/page-shell';
-import { Input } from '@/components/ui/input';
+import { AdminHeadActions, useSetAdminPageMeta } from '@/pages/admin-settings/admin-page-head';
 import { useUser } from '@/hooks/use-user';
 import { capitalizeFirstLetter, handleAlert } from '@/lib/utils';
 import {
@@ -160,6 +160,14 @@ const NumberList = () => {
   const { pathname } = useLocation();
   const view = VIEWS[viewFromPath(pathname)];
 
+  /* The head reads its title from the nav registry, and only "All numbers" is
+     listed there now — the other four views were taken out of the sidebar
+     because they are tabs on this same screen. Without a title the head
+     renders nothing at all, so switching tab dropped the whole 65px bar and
+     took the "Add number" button, which portals into it, along with it.
+     Each view names itself here instead, which is what this hook is for. */
+  useSetAdminPageMeta({ title: view.title, description: view.description });
+
   const [search, setSearch] = useState<string>('');
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -291,8 +299,7 @@ const NumberList = () => {
       {
         header: 'Label',
         accessorKey: 'did_name',
-        cell: ({ row }: any) =>
-          labelOf(row?.original) || <span className="text-gray-500 dark:text-mcm-ink-3">--</span>,
+        cell: ({ row }: any) => labelOf(row?.original) || <span className="text-gray-500">--</span>,
       },
       {
         header: 'Last assigned to',
@@ -302,7 +309,7 @@ const NumberList = () => {
           const name = [held?.first_name, held?.last_name].filter(Boolean).join(' ').trim();
           /* A number can be released without ever having had an owner, so this
              says so rather than showing an empty cell that reads as missing data. */
-          return name || <span className="text-gray-500 dark:text-mcm-ink-3">Never assigned</span>;
+          return name || <span className="text-gray-500">Never assigned</span>;
         },
       },
       {
@@ -367,7 +374,7 @@ const NumberList = () => {
               Add label
             </span>
           ) : (
-            <span className="text-gray-500 dark:text-mcm-ink-3">--</span>
+            <span className="text-gray-500">--</span>
           );
         },
       },
@@ -411,14 +418,14 @@ const NumberList = () => {
               {FORWARD_TYPES_WITH_EXTENSION.includes(forwardedValue?.type) ? (
                 <div className="flex">
                   <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-2.5 py-1 w-auto">
-                    <div className="w-7 h-7 rounded-lg border border-primary/30 bg-white dark:bg-mcm-surface-3 flex items-center justify-center text-primary text-base font-semibold leading-none">
+                    <div className="w-7 h-7 rounded-lg border border-primary/30 bg-white flex items-center justify-center text-primary text-base font-semibold leading-none">
                       #
                     </div>
                     <div className="flex flex-col gap-1 leading-tight">
-                      <div className="text-[9px] font-semibold tracking-[0.08em] text-gray-500 dark:text-mcm-ink-3 uppercase">
+                      <div className="text-[9px] font-semibold tracking-[0.08em] text-gray-500 uppercase">
                         {capitalizeFirstLetter(forwardedValue?.type)}
                       </div>
-                      <small className="text-gray-900 dark:text-mcm-ink text-xs font-semibold leading-none">
+                      <small className="text-gray-900 text-xs font-semibold leading-none">
                         {forwardedValue?.name}
                         {forwardedValue?.value ? ` (${forwardedValue.value})` : ''}
                       </small>
@@ -508,8 +515,11 @@ const NumberList = () => {
           cb: () => handleNumberState(data, stateAction),
         });
 
-        const neutral =
-          'bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink-2 hover:bg-primary hover:text-white';
+        /* A bordered square that tints on hover, not a filled grey disc. Five
+           solid circles per row competed with the number itself for attention;
+           the Directory roster this screen is matched to uses the same quiet
+           treatment for its row actions. */
+        const neutral = 'mcm-rowact';
 
         const assignNumberAction =
           !data?.User && virtualNumberAccess?.action?.assign_number
@@ -595,7 +605,9 @@ const NumberList = () => {
                 'Release Number',
                 'ReleaseNumber',
                 'w-5 h-5',
-                'bg-red-100 text-red-500 hover:bg-red-500 hover:text-white',
+                /* Releasing a number is the one action here that cannot be
+                   undone, so it keeps a colour the others do not have. */
+                'mcm-rowact is-danger',
                 'releaseConfirmationAlert',
               ),
             ]
@@ -623,7 +635,7 @@ const NumberList = () => {
             {actions?.map((action: any) => (
               <CustomTooltip key={action.id} text={action.tooltipText} side="top">
                 <div
-                  className={`cursor-pointer flex items-center justify-center rounded-full w-8 h-8 ${action.className}`}
+                  className={`cursor-pointer flex items-center justify-center ${action.className}`}
                   onClick={action.cb}
                 >
                   <Icon name={action.icon as IconName} className={action.iconClass} />
@@ -643,73 +655,82 @@ const NumberList = () => {
 
   return (
     <>
+      {/* Up into the shared strip beside the screen title, where the head used
+          to sit. All five views are one table with a tab bar, so the head was
+          spending three lines to repeat a title the strip already prints. */}
+      {!isTrial && view.showAddNumber && virtualNumberAccess?.action?.buy ? (
+        <AdminHeadActions>
+          <button type="button" className="btn primary" onClick={handleAddNumber}>
+            <Plus className="w-3 h-3" />
+            Add number
+          </button>
+        </AdminHeadActions>
+      ) : null}
       <AdminPage
-        section="Numbers"
-        title={view.title}
-        description={view.description}
-        actions={
-          !isTrial && view.showAddNumber && virtualNumberAccess?.action?.buy ? (
-            <button type="button" className="btn primary" onClick={handleAddNumber}>
-              <Plus className="w-3 h-3" />
-              Add number
-            </button>
-          ) : null
-        }
+        hideHead
+        bareBody
         filters={
-          <Input
-            placeholder="Search numbers"
-            className="pl-10 w-full min-h-9 rounded-lg"
-            IconPosition="left-0 pl-2 inset-y-0"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value.startsWith(' ')) return;
-              setSearch(value);
-            }}
-            Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-3" />}
-          />
-        }
-      >
-        <div className="flex flex-col gap-3">
-          {/* One list, three views. Each keeps its own address so a view can be
-              linked to and reloaded. */}
-          <nav
-            className="flex items-center gap-1 border-b border-gray-200 dark:border-mcm-line"
-            aria-label="Number views"
-          >
-            {Object.values(VIEWS).map((item) => {
-              const isActive = item.key === view.key;
-              return (
+          /* Views and search on one row, like the Directory filter bar this
+             screen is meant to match. The tabs used to sit inside the table
+             card, which read as part of the table rather than as a control on
+             the page, and pushed the first row a long way down. */
+          <div className="mcm-numbar">
+            <nav className="mcm-numtabs" aria-label="Number views">
+              {Object.values(VIEWS).map((item) => (
                 <Link
                   key={item.key}
                   to={item.path}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`-mb-px border-b-2 px-3 py-2 text-sm transition-colors ${
-                    isActive
-                      ? 'border-primary font-semibold text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-mcm-ink-3 dark:hover:text-mcm-ink'
-                  }`}
+                  aria-current={item.key === view.key ? 'page' : undefined}
+                  className={`mcm-numtab ${item.key === view.key ? 'on' : ''}`}
                 >
                   {item.tab}
                 </Link>
-              );
-            })}
-          </nav>
-
+              ))}
+            </nav>
+            <label className="mcm-numsearch">
+              <SearchLine />
+              <input
+                type="search"
+                placeholder="Search numbers"
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.startsWith(' ')) return;
+                  setSearch(value);
+                }}
+              />
+            </label>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {/* The billing note, in one line instead of three. It matters when
+              somebody is about to buy, and it was spending a full paragraph
+              above every row of the table to say so on every visit. */}
           {view.key === 'all' && (
-            <p className="text-gray-900 dark:text-mcm-ink text-sm">
-              Adding an additional number to an existing user/plan will only incur a charge for the
-              phone number itself. This action does not create a new subscription or user plan. Your
-              monthly recurring total will be updated based on the quantity of numbers added.
-            </p>
+            <CustomTooltip
+              text="Adding an additional number to an existing user or plan charges only for the phone number itself. It does not create a new subscription or user plan. Your monthly recurring total is updated by the quantity of numbers added."
+              side="bottom"
+              className="max-w-sm"
+            >
+              <p className="mcm-numnote">
+                <Icon name={'InfoIcon' as IconName} className="w-3.5 h-3.5" />
+                Extra numbers are charged per number — no new subscription or user plan.
+              </p>
+            </CustomTooltip>
           )}
 
           {view.isGrouped ? (
-            <NumbersByLine
-              search={search}
-              canLabel={Boolean(virtualNumberAccess?.action?.update_forwarding)}
-              onEditLabel={(did) => handleNumberState(did, 'editLabel')}
-            />
+            /* Every other view gets TableManager's own card. This one draws a
+               plain list, so it needs the matching surface or the tab would be
+               the one screen with nothing under its content. */
+            <div className="mcm-numcard">
+              <NumbersByLine
+                search={search}
+                canLabel={Boolean(virtualNumberAccess?.action?.update_forwarding)}
+                onEditLabel={(did) => handleNumberState(did, 'editLabel')}
+              />
+            </div>
           ) : (
             <TableManager
               {...{

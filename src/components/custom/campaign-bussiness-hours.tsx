@@ -146,7 +146,7 @@ const CampaignBussinessHoursModal: FC<IBussinessModalProps> = ({
             Campaign Hours
             <div
               onClick={handleCancel}
-              className="cursor-pointer text-gray-500 dark:text-mcm-ink-3 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+              className="cursor-pointer text-gray-500 ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
             >
               <CloseIcon className="w-3 h-3" />
             </div>
@@ -291,7 +291,7 @@ const CampaignBussinessHoursModal: FC<IBussinessModalProps> = ({
                 <span className="font-semibold text-sm">Holidays:</span>
                 <div className="flex flex-wrap  gap-1">
                   {_holidays.map((day: any) => (
-                    <div className="flex  gap-1.5 min-h-10  border border-gray-300 dark:border-mcm-line border-dashed px-3 py-2 rounded-md bg-gray-50 dark:bg-mcm-surface-3">
+                    <div className="flex  gap-1.5 min-h-10  border border-gray-300 border-dashed px-3 py-2 rounded-md bg-gray-50">
                       <Label className="">{moment(day).format('MMM DD, YYYY')}</Label>
                       <span className="text-sm">{moment(day).format('ddd')}</span>
                     </div>

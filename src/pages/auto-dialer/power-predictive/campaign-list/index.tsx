@@ -180,7 +180,7 @@ const CampaignList: FC<ICampaignProps> = ({ onEditCampaign }) => {
               </div>
             </p>
             <p className="border-r border-white last:border-0 pl-2 leading-none font-normal w-1/3 flex justify-center">
-              <div className="min-w-6 min-h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-500 dark:bg-slate-700/40 dark:text-slate-300">
+              <div className="min-w-6 min-h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-500">
                 {row?.original?.totalCount || 0}
               </div>
             </p>
@@ -199,7 +199,7 @@ const CampaignList: FC<ICampaignProps> = ({ onEditCampaign }) => {
               dialerFeaturesAccess?.action?.pause && (
                 <span
                   onClick={() => onPlayPause(row?.original)}
-                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
                 >
                   <Icon
                     name={
@@ -213,7 +213,7 @@ const CampaignList: FC<ICampaignProps> = ({ onEditCampaign }) => {
               dialerFeaturesAccess?.action?.edit && (
                 <span
                   onClick={() => onEditCampaign(row?.original)}
-                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 dark:bg-mcm-surface-3 text-gray-900/80 dark:text-mcm-ink hover:bg-primary hover:text-white"
+                  className="cursor-pointer flex items-center justify-center rounded-full w-8 h-8 bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white"
                 >
                   <Icon name="EditStrokIcon" className="w-5 h-5" />
                 </span>
@@ -266,7 +266,7 @@ const CampaignList: FC<ICampaignProps> = ({ onEditCampaign }) => {
                 placeholder="Search"
                 className="pl-10"
                 IconPosition="left-0 pl-2 inset-y-0"
-                Icon={<SearchLine className=" text-gray-700 dark:text-mcm-ink-3" />}
+                Icon={<SearchLine className=" text-gray-700" />}
                 onChange={(e) => setSearchedText(e.target.value)}
                 value={searchedText}
               />

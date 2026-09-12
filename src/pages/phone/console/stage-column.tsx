@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import NumberWithFlag, { formatDialNumber } from '@/components/custom/number-with-flag';
 import DialpadMaxiTabDispositions from '@/components/dialpad/components/dialpad-maxi-tab-dispositions';
 import DialpadEndedScreen from '@/components/dialpad/components/dialpad-ended-screen';
 import DialpadAddUserList from '@/components/dialpad/components/dialpad-add-user-list';
@@ -14,11 +15,17 @@ import { Ic } from './icons';
 import { useConsoleDialer } from './dial-number';
 import CallRecord from './call-record';
 import { isTerminalSession, mmss, type ConsoleCallState } from './use-console-call';
+import { placeTwilioCall, TWILIO_CALLER_ID, TWILIO_CALLER_ID_OPTION } from '@/lib/twilio-voice-device';
+import CountryFlag, { flagCodeFor } from '@/components/custom/country-flag';
+import { isIndiaCallerIdOption } from '@/lib/india-caller-ids';
+import type { Call as TwilioCall } from '@twilio/voice-sdk';
+import type { CallerIdOption } from '@/components/dialpad/types';
 import {
   buildEnrichment,
   CHECKLIST,
   contactDisplayName,
   initialsOf,
+  isNumberLike,
   lineHealth,
   type ConsoleTurn,
 } from './copilot-adapter';
@@ -90,9 +97,13 @@ const CallerBlock = ({
           </div>
         </div>
         <div style={{ minWidth: 0 }}>
-          <div className="caller-name">{name}</div>
+          {/* The name falls back to the number when the caller is not in the
+              book, so both lines get the readable form. */}
+          <div className="caller-name">
+            {isNumberLike(name) ? <NumberWithFlag number={name} /> : name}
+          </div>
           <div className="caller-num num">
-            {session?.remoteNumber}
+            <NumberWithFlag number={session?.remoteNumber} />
             {contact?.company ? ` · ${contact.company}` : ''}
           </div>
         </div>
@@ -370,6 +381,13 @@ const StageColumn = ({
     updateCallerIdSelection,
   } = useDialpadCallerIdOptions();
   const [callerIdOpen, setCallerIdOpen] = useState(false);
+  /* Twilio isn't one of the company's assigned DIDs, so useDialpadCallerIdOptions
+     never persists it as the account's default — updateCallerIdSelection() is a
+     no-op for it. Without this override the chip would keep showing whatever
+     the real persisted default is after picking "Twilio", even though the next
+     call correctly goes out through it. */
+  const [callerIdOverride, setCallerIdOverride] = useState<CallerIdOption | null>(null);
+  const effectiveCallerId = callerIdOverride ?? defaultCallerIdOption;
   const { users } = useUsersDirectory();
   const { dial: dial2 } = useConsoleDialer();
 
@@ -398,6 +416,24 @@ const StageColumn = ({
     }, 1000);
     return () => clearInterval(t);
   }, [demoCall?.phase]);
+
+  /* A real Twilio call, placed when the Twilio caller ID is selected. Not a
+     jssip session, so it never shows up in dialpad.sessions — this local
+     state is the only place its progress is tracked. */
+  const [twilioCall, setTwilioCall] = useState<null | {
+    number: string;
+    phase: 'dialing' | 'active';
+    secs: number;
+    call: TwilioCall | null;
+  }>(null);
+
+  useEffect(() => {
+    if (!twilioCall || twilioCall.phase !== 'active') return;
+    const t = setInterval(() => {
+      setTwilioCall((c) => (c ? { ...c, secs: c.secs + 1 } : c));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [twilioCall?.phase]);
 
   // same resolution order the dialpad's maxi side panel uses
   const scriptId = String(
@@ -437,6 +473,25 @@ const StageColumn = ({
   const placeCall = (target: string) => {
     const value = String(target || '').trim();
     if (!value) return;
+
+    if (effectiveCallerId?.number === TWILIO_CALLER_ID) {
+      setDial('');
+      setTwilioCall({ number: value, phase: 'dialing', secs: 0, call: null });
+      placeTwilioCall(value)
+        .then((call) => {
+          call.on('accept', () => setTwilioCall((c) => (c ? { ...c, phase: 'active' } : c)));
+          call.on('disconnect', () => setTwilioCall(null));
+          call.on('cancel', () => setTwilioCall(null));
+          call.on('error', () => setTwilioCall(null));
+          setTwilioCall((c) => (c ? { ...c, call } : c));
+        })
+        .catch((error) => {
+          console.error('Twilio call failed to start', error);
+          setTwilioCall(null);
+        });
+      return;
+    }
+
     if (!dialpad.isRegistered) {
       setDemoCall({ number: value, phase: 'dialing', secs: 0 });
       setDial('');
@@ -452,6 +507,40 @@ const StageColumn = ({
     }
     setDial((d) => d + key);
   };
+
+  /* ------------------------------------------------------- twilio call ---- */
+  if (state === 'idle' && twilioCall) {
+    const connected = twilioCall.phase === 'active';
+    const twilioSession = {
+      remoteNumber: twilioCall.number,
+      direction: 'outgoing',
+    } as unknown as DialpadSession;
+    return (
+      <div className="col stage">
+        <div className="stage-inner">
+          <CallerBlock
+            session={twilioSession}
+            state={connected ? 'active' : 'dialing'}
+            secs={twilioCall.secs}
+          />
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              type="button"
+              className="btn danger"
+              style={{ flex: 1, height: 46 }}
+              onClick={() => {
+                twilioCall.call?.disconnect();
+                setTwilioCall(null);
+              }}
+            >
+              <Ic n="hangup" size={18} fill />
+              {connected ? 'End call' : 'Cancel'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ---------------------------------------------------------- demo call ---- */
   if (state === 'idle' && demoCall) {
@@ -535,10 +624,34 @@ const StageColumn = ({
                   title="Choose which of your numbers people see"
                   onClick={() => setCallerIdOpen((open) => !open)}
                 >
-                  <Ic n="globe" size={12} />
+                  {/* The flag of whichever number is actually selected, not a
+                      fixed one: this chip also shows Twilio's +1 number and any
+                      DID the API assigns, so hardcoding India would have
+                      mislabelled every non-Indian caller ID. The globe stays for
+                      the "No caller ID" case, where there is no country to show.
+
+                      Drawn inline rather than fetched. react-country-flag's emoji
+                      mode has no glyph on Windows, and its `svg` mode pulls an
+                      image from cdn.jsdelivr.net, which is blocked on this
+                      network — that is what put a broken-image icon in the chip.
+                      The code comes from flagCodeFor, which reads the dialling
+                      code before the label: `did_country` is missing on some
+                      assigned DIDs and defaults to 'US', and when it held
+                      anything that was not an ISO code this branch rendered a
+                      null flag with no globe behind it — the chip showed no icon
+                      at all. Deciding the code first means the globe is chosen
+                      properly whenever there is no flag to draw. */}
+                  {flagCodeFor(effectiveCallerId?.number, effectiveCallerId?.country) ? (
+                    <CountryFlag
+                      code={flagCodeFor(effectiveCallerId?.number, effectiveCallerId?.country)}
+                      className="h-[1.15em] w-[1.6em] shrink-0"
+                    />
+                  ) : (
+                    <Ic n="globe" size={12} />
+                  )}
                   {isCallerIdUpdating
                     ? 'Saving…'
-                    : defaultCallerIdOption?.number || 'No caller ID'}
+                    : formatDialNumber(effectiveCallerId?.number) || 'No caller ID'}
                   {callerIdOptions.length > 1 ? <Ic n="chev" size={11} /> : null}
                 </button>
 
@@ -565,7 +678,7 @@ const StageColumn = ({
                       }}
                     >
                       {callerIdOptions.map((option) => {
-                        const active = option.id === defaultCallerIdOption?.id;
+                        const active = option.id === effectiveCallerId?.id;
                         return (
                           <button
                             key={option.id}
@@ -583,16 +696,32 @@ const StageColumn = ({
                             }}
                             onClick={async () => {
                               setCallerIdOpen(false);
-                              /* No-ops for the placeholder option, and the hook
-                                 refreshes the user so the label follows. */
+                              setCallerIdOverride(
+                                option.id === TWILIO_CALLER_ID_OPTION.id ? option : null,
+                              );
+                              /* No-ops for the placeholder option and for Twilio
+                                 (not an assigned DID) — the override above covers
+                                 Twilio's display, the hook refreshes the user so
+                                 a real DID's label follows. */
                               await updateCallerIdSelection(option);
                             }}
                           >
                             <span className="k" style={{ minWidth: 62 }}>
-                              {option.label}
+                              {/* Inline SVG for the same reason as the chip above:
+                                  the emoji has no glyph on Windows, and the
+                                  library's CDN image is blocked on this network. */}
+                              {isIndiaCallerIdOption(option) ? (
+                                <CountryFlag
+                                  code="IN"
+                                  title="India"
+                                  className="h-[1.25em] w-[1.75em] shrink-0"
+                                />
+                              ) : (
+                                option.label
+                              )}
                             </span>
                             <span className="v" style={{ flex: 1 }}>
-                              {option.number}
+                              {formatDialNumber(option.number)}
                             </span>
                             {active ? <Ic n="check" size={12} /> : null}
                           </button>

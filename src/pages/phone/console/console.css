@@ -62,30 +62,30 @@
     'Segoe UI', sans-serif;
 }
 .dark .mcm-console {
-  --ground: #080d12;
-  --surface: #111c26;
-  --surface-2: #16222c;
-  --surface-3: #1a2733;
-  --ink: #f3f6f9;
-  --ink-2: #aab6c1;
-  --ink-3: #8b98a6;
-  --ink-4: #7c8894;
-  --line: #1b2934;
-  --line-2: #263642;
-  --accent: #f97316;
-  --accent-ink: #ff8a2a;
-  --accent-wash: #1a2733;
-  --accent-edge: rgba(249, 115, 22, 0.4);
+  --ground: #0a0f1a;
+  --surface: #111827;
+  --surface-2: #161f31;
+  --surface-3: #1e293e;
+  --ink: #eef2f9;
+  --ink-2: #c3cddf;
+  --ink-3: #93a1ba;
+  --ink-4: #6b7a96;
+  --line: #26314a;
+  --line-2: #1c2537;
+  --accent: #ffab5e;
+  --accent-ink: #ffc98a;
+  --accent-wash: #2b1f12;
+  --accent-edge: #4a341c;
   --ai: #a97fff;
   --ai-ink: #c0a3ff;
   --ai-wash: #231a3d;
   --ai-edge: #3c2d66;
   --live: #2dd4bf;
   --live-wash: #0f2f2c;
-  --warn: #f97316;
-  --warn-wash: #1a2733;
+  --warn: #f0a24b;
+  --warn-wash: #33240f;
   --crit: #f87171;
-  --crit-wash: #24151a;
+  --crit-wash: #361618;
   --hold: #38bdf8;
   --hold-wash: #0d2a3a;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -478,9 +478,15 @@
 }
 .mcm-console .phone-grid {
   /* list is fixed, the stage takes the slack (it holds the softphone and the
-     call record), the panel is bounded so the transcript stays readable */
+     call record), the panel is bounded so the transcript stays readable.
+
+     304px, a little under the 20rem the other Activity columns use. This one
+     holds a call list — a number, a name and a time — not conversations with
+     preview text, so it reads fine at less, and every pixel it gives back
+     goes to the stage beside it, which is where the softphone and the call
+     record actually live. */
   display: grid;
-  grid-template-columns: 320px minmax(420px, 1fr) minmax(400px, 460px);
+  grid-template-columns: 304px minmax(420px, 1fr) minmax(400px, 460px);
   height: 100%;
   overflow: hidden;
 }
@@ -512,17 +518,19 @@
 }
 .mcm-console .col-title h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: normal;
-  color: #2e2d35;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 .mcm-console .seg {
   display: flex;
   gap: 2px;
-  background: var(--surface-3);
+  /* Warm wash rather than the neutral surface, so the direction filter reads
+     as part of the same control set as the tabs above it. */
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-edge);
   padding: 2px;
-  border-radius: 9px;
+  border-radius: 10px;
 }
 .mcm-console .seg button {
   flex: 1;
@@ -535,7 +543,7 @@
 }
 .mcm-console .seg button.on {
   background: var(--surface);
-  color: var(--ink);
+  color: var(--accent-ink);
   box-shadow: var(--shadow-sm);
 }
 .mcm-console .search-mini {
@@ -543,17 +551,27 @@
 }
 .mcm-console .search-mini input {
   width: 100%;
-  height: 32px;
-  border-radius: 8px;
+  /* Sized to the shared Input the rest of Activity uses -- 36px tall on a
+     12px radius -- so the search box is not visibly smaller here. */
+  height: 36px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  background: var(--surface-2);
-  padding: 0 10px 0 30px;
-  font-size: 12.5px;
+  background: var(--surface);
+  padding: 0 12px 0 32px;
+  font-size: 13px;
+  transition: border-color 0.15s ease;
+}
+
+.mcm-console .search-mini input:hover,
+.mcm-console .search-mini input:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 .mcm-console .search-mini svg {
   position: absolute;
-  left: 9px;
-  top: 8px;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--ink-4);
 }
 .mcm-console .list {
@@ -1035,9 +1053,18 @@
   padding: 0 6px;
   flex: none;
   overflow-x: auto;
+  /* `overflow-x: auto` with nothing set on the other axis makes overflow-y
+     compute to auto as well, which drew a scrollbar across a strip that is
+     only one row of tabs tall. */
+  overflow-y: hidden;
+  /* The ::-webkit-scrollbar rule below zeroes only the horizontal bar's
+     height, and only in WebKit. This is the standard property, so Firefox
+     stops reserving room for a bar as well. */
+  scrollbar-width: none;
 }
 .mcm-console .panel-tabs::-webkit-scrollbar {
   height: 0;
+  width: 0;
 }
 .mcm-console .ptab {
   padding: 12px 11px 10px;
@@ -2029,10 +2056,7 @@
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  /* Was --ink-4 (the dimmest tier) — bumped to --ink-3 so header text
-     stays clearly readable rather than near-invisible, same fix as
-     `.mcm-page th`. */
-  color: var(--ink-3);
+  color: var(--ink-4);
   padding: 9px 12px;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
@@ -3396,6 +3420,19 @@
 .mcm-console .tl-dot {
   color: var(--ink-4);
 }
+
+/* The "Called from / Received on" line under a history row. Quieter than the
+   date above it — it answers a question you only ask sometimes, and should not
+   compete with the call's own facts. */
+.mcm-console .tl-did {
+  gap: 5px;
+  color: var(--ink-4);
+  margin-top: 2px;
+}
+.mcm-console .tl-did .num {
+  color: var(--ink-3);
+  font-weight: 600;
+}
 .mcm-console .tl-right {
   display: flex;
   flex-direction: column;
@@ -3737,116 +3774,6 @@
   font-weight: 600;
 }
 
-/* ============================================================
-   PAST CALL RECORD — attractive pass. Same markup/classes as the
-   "PAST CALL RECORD" block above; this is the final, winning layer
-   (later in the cascade), so it can restyle without touching JSX.
-   ============================================================ */
-/* `.col.stage .stage-inner .btn.ghost` (dialpad's own round icon buttons,
-   further up in this file) forces every `.btn.ghost` in the stage into a
-   fixed 44×44 circle with zero padding. The "‹ Dialer" back link is a
-   `.btn.ghost.sm` in that same `.stage-inner` — an icon *and* the word
-   "Dialer" squeezed into that circle, which is why the text rendered
-   spilling out past its edge instead of inside a button. `.sm` already
-   carries the right pill sizing (30px tall, padded, 8px radius) on its
-   own; this just needs to out-rank the circular rule with one more class
-   in the selector so `.sm`'s sizing wins instead of being overridden. */
-.mcm-console .col.stage .stage-inner .btn.ghost.sm {
-  width: auto;
-  height: 32px;
-  padding: 0 12px 0 10px;
-  border-radius: 9999px;
-  background: var(--surface);
-  box-shadow: none;
-  gap: 6px;
-}
-.mcm-console .col.stage .stage-inner .btn.ghost.sm:hover {
-  background: var(--accent-wash);
-  border-color: var(--accent-edge);
-  color: var(--accent-ink);
-}
-.mcm-console .record-head {
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  border-bottom: 1px solid var(--line-2);
-}
-.mcm-console .record-av {
-  width: 46px;
-  height: 46px;
-  border-radius: 15px;
-  font-size: 15px;
-  box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--line-2);
-}
-.mcm-console .record-name {
-  font-size: 18px;
-}
-/* Matches `.col.stage .stage-inner .btn.primary` (the dialpad's own big
-   round call button, further up in this file) class-for-class — the
-   record-head Call button sits in that same `.stage-inner` container, so
-   without this it silently inherited that other button's dark gradient
-   and glow instead of its own lighter styling below. */
-.mcm-console .col.stage .stage-inner .record-head .btn.primary {
-  height: 44px;
-  border-radius: 22px;
-  font-size: 14px;
-  background: var(--accent-edge);
-  color: var(--accent-ink);
-  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 35%, transparent);
-}
-.mcm-console .col.stage .stage-inner .record-head .btn.primary:hover {
-  background: color-mix(in srgb, var(--accent-edge) 70%, var(--accent));
-}
-
-/* legs read as individual soft cards with breathing room between them,
-   instead of one flat list divided by hairlines. */
-.mcm-console .record-legs {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.mcm-console .leg {
-  border: 1px solid var(--line-2);
-  border-radius: 14px;
-  background: var(--surface);
-  transition:
-    box-shadow 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
-}
-.mcm-console .leg + .leg {
-  border-top: 1px solid var(--line-2);
-}
-.mcm-console .leg:hover {
-  background: var(--surface);
-  border-color: var(--accent-edge);
-  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
-  transform: translateY(-1px);
-}
-.mcm-console .leg.open {
-  border-color: var(--accent-edge);
-  box-shadow: 0 6px 16px -6px rgba(20, 20, 20, 0.14);
-}
-.mcm-console .cr-av {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-.mcm-console .leg-by strong {
-  font-weight: 800;
-}
-.mcm-console .legbtn {
-  width: 32px;
-  height: 32px;
-  border-radius: 99px;
-}
-.mcm-console .legbtn.on {
-  box-shadow: 0 3px 8px -2px color-mix(in srgb, var(--accent) 55%, transparent);
-}
-.mcm-console .leg-audio {
-  padding: 0 16px 14px 65px;
-}
-
 
 /* ============================================================
    Calls list — visual polish only.
@@ -3923,10 +3850,6 @@
   overflow-x: visible;
   flex-shrink: 1;
   min-width: 0;
-  /* Left-aligned tabs left a block of empty space after "Voicemails"
-     since the row is as wide as the whole column. Spreading them across
-     the full row instead fills that space evenly. */
-  justify-content: space-between;
 }
 .mcm-console .col.calls .ptab {
   border-radius: var(--r-sm);
@@ -3962,11 +3885,6 @@
   background: linear-gradient(135deg, #ffcf94, #fff1de);
   color: var(--accent-ink);
   box-shadow: 0 2px 6px rgba(234, 124, 30, 0.18);
-}
-.dark .mcm-console .col.calls .seg button.on {
-  background: var(--accent-edge);
-  color: var(--ink);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .mcm-console .col.calls .search-mini input {
@@ -4007,9 +3925,6 @@
   border-color: var(--accent-edge);
   box-shadow: 0 4px 14px rgba(234, 124, 30, 0.2);
 }
-.dark .mcm-console .col.calls .call-row.on {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-}
 .mcm-console .col.calls .call-row.on::before {
   border-radius: 0 3px 3px 0;
   box-shadow: 0 0 6px var(--accent);
@@ -4031,9 +3946,6 @@
 .mcm-console .col.calls .cr-av.out {
   background: linear-gradient(150deg, #f0973d, #ffd9ad);
 }
-.dark .mcm-console .col.calls .cr-av.out {
-  background: linear-gradient(150deg, #f0973d, #ffd9ad);
-}
 .mcm-console .col.calls .cr-av.miss {
   background: linear-gradient(150deg, #ef6a6a, #ffc9c9);
 }
@@ -4043,16 +3955,18 @@
   background: linear-gradient(150deg, #f0973d, #ffd48a);
   box-shadow: 0 3px 8px rgba(234, 124, 30, 0.25);
 }
-.dark .mcm-console .col.calls .call-row.on .cr-av {
-  background: linear-gradient(150deg, var(--accent), var(--accent-edge));
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-}
 .mcm-console .col.calls .cr-name {
   font-weight: 800;
 }
 .mcm-console .col.calls .col-head {
   position: relative;
   background: linear-gradient(180deg, var(--surface-2), transparent);
+}
+.mcm-console .col.calls .col-title h2 {
+  background: linear-gradient(120deg, var(--ink), var(--accent-ink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .mcm-console .col.calls .tag {
   border-radius: 99px;
@@ -4061,9 +3975,6 @@
 }
 .mcm-console .col.calls .tag.acc {
   box-shadow: 0 1px 3px rgba(234, 124, 30, 0.18);
-}
-.dark .mcm-console .col.calls .tag.acc {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================================
@@ -4105,27 +4016,16 @@
   transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease,
     background 0.15s ease;
 }
-.dark .mcm-console .col.stage .stage-inner .key {
-  background: linear-gradient(175deg, var(--surface-3) 0%, var(--surface-2) 100%);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
 .mcm-console .col.stage .stage-inner .key:hover {
   background: linear-gradient(175deg, #fff 0%, var(--accent-wash) 100%);
   border-color: var(--accent-edge);
   box-shadow: 0 0 0 5px var(--accent-wash), 0 8px 16px rgba(234, 124, 30, 0.24);
   transform: translateY(-2px) scale(1.05);
 }
-.dark .mcm-console .col.stage .stage-inner .key:hover {
-  background: linear-gradient(175deg, var(--surface-3) 0%, var(--accent-wash) 100%);
-  box-shadow: 0 0 0 5px var(--accent-wash), 0 8px 16px rgba(0, 0, 0, 0.35);
-}
 .mcm-console .col.stage .stage-inner .key:active {
   transform: scale(0.91);
   background: var(--accent-edge);
   box-shadow: inset 0 2px 5px rgba(120, 72, 20, 0.2);
-}
-.dark .mcm-console .col.stage .stage-inner .key:active {
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 .mcm-console .col.stage .stage-inner .key b {
   font-size: 19px;
@@ -4155,30 +4055,31 @@
   background: linear-gradient(135deg, var(--accent), var(--accent-ink));
   box-shadow: 0 6px 16px rgba(234, 124, 30, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
-.dark .mcm-console .col.stage .stage-inner .btn.primary {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
 .mcm-console .col.stage .stage-inner .btn.primary:hover {
   box-shadow: 0 8px 20px rgba(234, 124, 30, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   transform: translateY(-1px);
 }
-.dark .mcm-console .col.stage .stage-inner .btn.primary:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
 .mcm-console .col.stage .stage-inner .btn.primary:active {
   transform: translateY(0);
 }
+/* The shared surface for every ghost button on the call screen — the same
+   height and pill as the primary button above, so a pair of them sits level. */
 .mcm-console .col.stage .stage-inner .btn.ghost {
   height: 44px;
-  width: 44px;
-  padding: 0;
-  border-radius: 50%;
+  border-radius: 22px;
   background: linear-gradient(175deg, #fff 0%, var(--surface-2) 100%);
   box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
-.dark .mcm-console .col.stage .stage-inner .btn.ghost {
-  background: linear-gradient(175deg, var(--surface-3) 0%, var(--surface-2) 100%);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+/* Only the dialpad's Clear (✕) is a circle, because it is the one ghost button
+   here with an icon and no words. The circle used to be part of the rule above,
+   which caught every labelled ghost button on the stage: "Close wrap-up" is
+   width:100%, and a 100%-wide box with border-radius:50% and no padding is a
+   wide white ellipse, which is exactly how it rendered. */
+.mcm-console .col.stage .stage-inner .btn.ghost[aria-label='Clear'] {
+  width: 44px;
+  padding: 0;
+  border-radius: 50%;
 }
 .mcm-console .col.stage .stage-inner .btn.ghost:hover {
   background: var(--accent-wash);
@@ -4208,9 +4109,6 @@
   border-radius: 22px;
   background: linear-gradient(140deg, var(--accent), var(--accent-edge));
   box-shadow: 0 8px 18px rgba(234, 124, 30, 0.3);
-}
-.dark .mcm-console .col.stage .stage-inner .caller-av-ring {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
 }
 .mcm-console .col.stage .stage-inner .caller-av {
   width: 58px;

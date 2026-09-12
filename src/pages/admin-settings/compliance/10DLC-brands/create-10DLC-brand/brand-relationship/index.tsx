@@ -12,7 +12,7 @@ const BrandRelationship = ({ formMethods }: { formMethods: UseFormReturn<any> })
   if (isSoleProprietor) {
     return (
       <div className="flex flex-col gap-2 h-[calc(100vh_-_16rem)] overflow-auto pr-1 items-center justify-center ten-dlc-brand-step-scroll">
-        <p className="text-gray-500 dark:text-mcm-ink-3">
+        <p className="text-gray-500">
           Brand Relationship is not required for Sole Proprietor entities.
         </p>
       </div>
@@ -31,8 +31,8 @@ const BrandRelationship = ({ formMethods }: { formMethods: UseFormReturn<any> })
               key={item.key}
               onClick={() => setValue('brandRelationship', item.key)}
               className={clsx(
-                'cursor-pointer p-3 flex flex-col gap-2 rounded-lg items-center bg-white hover:bg-gray-50 dark:bg-mcm-surface dark:hover:bg-mcm-surface-3 border',
-                isActive ? 'border-primary shadow-sm' : 'border-gray-200 hover:border-primary dark:border-mcm-line',
+                'cursor-pointer p-3 flex flex-col gap-2 rounded-lg items-center bg-white hover:bg-gray-50 border',
+                isActive ? 'border-primary shadow-sm' : 'border-gray-200 hover:border-primary',
               )}
             >
               <span
@@ -40,7 +40,7 @@ const BrandRelationship = ({ formMethods }: { formMethods: UseFormReturn<any> })
                   'w-12 min-w-12 h-12 p-2 rounded-full border flex items-center justify-center',
                   isActive
                     ? 'border-primary text-primary bg-ucass-primary-200'
-                    : 'border-gray-300 text-primary bg-gray-100 dark:border-mcm-line dark:bg-mcm-surface-3',
+                    : 'border-gray-300 text-primary bg-gray-100',
                 )}
               >
                 <Icon className="w-6 h-6" />
@@ -48,7 +48,7 @@ const BrandRelationship = ({ formMethods }: { formMethods: UseFormReturn<any> })
 
               <h3 className="font-medium text-base text-center">{item.title}</h3>
 
-              <p className="text-sm text-gray-500 text-center dark:text-mcm-ink-3">{item.desc}</p>
+              <p className="text-sm text-gray-500 text-center">{item.desc}</p>
             </div>
           );
         })}

@@ -98,13 +98,13 @@ const UserRoles = () => {
     {
       header: 'Description',
       accessorKey: 'description',
-      cell: ({ row }: any) => <p className="text-gray-800 dark:text-mcm-ink-2">{row?.original?.description || '--'}</p>,
+      cell: ({ row }: any) => <p className="text-gray-800">{row?.original?.description || '--'}</p>,
     },
     {
       header: 'Type',
       accessorKey: 'company_uuid',
       cell: ({ getValue }: any) => (
-        <p className="font-semibold text-gray-900 dark:text-mcm-ink">
+        <p className="font-semibold text-gray-900">
           {getValue() === 'PREDEFINED' ? 'System' : 'Custom'}
         </p>
       ),
@@ -122,7 +122,7 @@ const UserRoles = () => {
               className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-semibold min-w-14 justify-center border ${
                 isActiveUsersCount
                   ? 'border-ucass-active-bg bg-ucass-active-bg text-primary'
-                  : 'border-gray-200 bg-gray-100 text-gray-500 dark:border-mcm-line dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
+                  : 'border-gray-200 bg-gray-100 text-gray-500'
               }`}
             >
               <Icon name="UsersGroupLine" className="w-4 h-4" />
@@ -146,7 +146,7 @@ const UserRoles = () => {
           {
             icon: 'UserPlusLine',
             className: isAdminRole
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-emerald-100 text-emerald-500 hover:bg-emerald-500 hover:text-white',
             tooltipText: 'Assign Users',
             cb: () => {
@@ -156,21 +156,69 @@ const UserRoles = () => {
             isDisabled: isAdminRole,
           },
           {
-            icon: 'EditStrokIcon',
-            className: isSystemRole
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
-              : 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white dark:bg-mcm-surface-3 dark:text-mcm-ink-2',
-            tooltipText: 'Edit',
+            /* Copying a built-in role into one you own.
+    
+               Manager, Agent and the rest are shared across every company on the
+               platform -- their `company_uuid` is the literal string PREDEFINED
+               rather than any company's id. Editing one would change it for
+               everybody, so Edit is correctly refused on them.
+    
+               What was missing was the way forward. An administrator who wants
+               "Manager, but without billing" clicked Edit on Manager, found it
+               greyed out with no explanation, and reasonably concluded that
+               roles cannot be changed at all. The create screen has always been
+               able to start from a built-in role and copy its permissions --
+               there was simply nothing pointing at it from here.
+    
+               Passing the role WITHOUT its uuid is what makes this a copy: the
+               drawer sends a uuid only when it has one, so no uuid means create
+               a new role rather than update this one. The company is left off
+               for the same reason -- it is the flag that hides the Save button. */
+            icon: 'CopyLine',
+            className: 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white',
+            tooltipText: isSystemRole
+              ? `Make my own copy of ${data?.name}`
+              : `Duplicate ${data?.name}`,
+            cb: () => {
+              setRoleData({
+                name: `${data?.name} (copy)`,
+                description: data?.description,
+                permission: data?.permission,
+              });
+              /* Cleared explicitly. Viewing a built-in role sets read-only, and
+                 without this a copy started straight after a view would open
+                 with no way to save it. */
+              setViewPermissions(false);
+              setDrawerState(true);
+            },
+            isDisabled: false,
+          },
+          {
+            /* View for a built-in role, Edit for your own.
+    
+               Seeing what Manager can actually do was always possible -- you
+               click the role's name -- but the name is styled as a pill, which
+               reads as a label rather than a control. Every administrator tries
+               the Actions column first, found a greyed-out Edit, and concluded
+               the permissions could be neither seen nor changed.
+    
+               A disabled button that explains itself is still a dead end. So a
+               built-in role gets a working View instead: same read-only drawer
+               the name already opened, reachable from where people look. */
+            icon: isSystemRole ? 'EyeLine' : 'EditStrokIcon',
+            className: 'bg-gray-100 text-gray-900/80 hover:bg-primary hover:text-white',
+            tooltipText: isSystemRole ? `See what ${data?.name} can do` : 'Edit',
             cb: () => {
               setRoleData(data);
               setDrawerState(true);
+              if (isSystemRole) setViewPermissions(true);
             },
-            isDisabled: isSystemRole,
+            isDisabled: false,
           },
           {
             icon: 'TrashBin',
             className: isSystemRole
-              ? 'bg-gray-100 text-gray-300 cursor-not-allowed dark:bg-mcm-surface-3 dark:text-mcm-ink-3'
+              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
               : 'bg-red-100 text-red-400 hover:bg-red-500 hover:text-white',
             tooltipText: 'Delete',
             cb: () => {
@@ -207,11 +255,11 @@ const UserRoles = () => {
 
   return (
     <>
-      <section className="w-full bg-muted/40 flex flex-col overflow-x-auto overflow-y-hidden ">
-        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white dark:border-mcm-line dark:bg-mcm-surface">
-          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1 dark:text-mcm-ink">
+      <section className="w-full bg-gray-200/15 flex flex-col overflow-x-auto overflow-y-hidden ">
+        <div className="flex items-center justify-between p-3 border-b border-gray-200 min-h-[65px] bg-white">
+          <p className="text-gray-900 font-semibold text-lg flex items-center gap-1">
             Users
-            <div className="-rotate-90 text-gray-800 dark:text-mcm-ink-2">
+            <div className="-rotate-90 text-gray-800">
               <Icon name="ChevronIcon" className="w-5 h-5" />
             </div>
             <span className="text-primary text-md">Role</span>
@@ -250,7 +298,7 @@ const UserRoles = () => {
         </div>
 
         <div className="w-full p-3 flex flex-col gap-2">
-          <p className="text-gray-900 text-sm dark:text-mcm-ink">
+          <p className="text-gray-900 text-sm">
             Create a custom role to control what your team members can see and do. Select a starting
             point (like Manager or Agent) to automatically pre-fill recommended permissions, then
             fine-tune their access below.

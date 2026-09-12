@@ -47,7 +47,7 @@ const PromptModal = ({ open, setOpen, data, onUpdate, isUpdating }: any) => {
             Provide core behavioral instructions. This defines the AI's persona, operational boundaries, tone, and specific interaction rules.
           </p> */}
           <div
-            className={`mt-3 overflow-hidden rounded-2xl border bg-white dark:bg-mcm-surface ring-4 ring-primary/10 ${
+            className={`mt-3 overflow-hidden rounded-2xl border bg-white ring-4 ring-primary/10 ${
               error ? 'border-red-400' : 'border-primary'
             }`}
           >

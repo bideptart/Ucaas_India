@@ -228,7 +228,7 @@ const SettingsAndPermission = ({ campaignStatus }: { campaignStatus: string }) =
               min={_start_date ? moment(_start_date).add(1, 'day').format('YYYY-MM-DD') : today}
             />
 
-            <span className="bg-gray-100 dark:bg-mcm-surface-3 rounded-lg text-gray-700 dark:text-mcm-ink-2 text-sm font-medium px-3 py-2 inline-flex items-center justify-center min-w-[140px] max-h-[40px] min-h-[40px]">
+            <span className="bg-gray-100 rounded-lg text-gray-700 text-sm font-medium px-3 py-2 inline-flex items-center justify-center min-w-[140px] max-h-[40px] min-h-[40px]">
               {totalSelectedDays} Days
             </span>
           </div>

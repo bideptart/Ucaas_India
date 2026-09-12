@@ -1,36 +1,37 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import fs from "fs";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 const enableCrossOriginIsolation = process.env.VITE_CROSS_ORIGIN_ISOLATION === 'true';
 
-/** Secrets directory on the production host; absent everywhere else. */
-const SECRETS_ENV_DIR = '/etc/mycountrymobile-web';
+/* Where `vite dev` and `vite preview` forward `/api` and the organisation
+   assets. Matches the rewrite in vercel.json so a local run and the deployed
+   preview talk to the same backend.
 
-/**
- * Upstream the dev server proxies `/api` to.
- *
- * The API only sends CORS headers to hosts it allowlists, so a browser on
- * localhost cannot call it directly. Proxying keeps the request same-origin.
- * The deployed build does the same thing through `vercel.json`.
- */
+   Without this the dev server has nothing behind `/api`, so the organisation
+   lookup 404s on startup and the app sits on its full-page spinner forever —
+   the API base is relative by design, precisely so both environments can put a
+   proxy in front of it. Set VITE_API_PROXY_TARGET to point somewhere else. */
 const API_PROXY_TARGET =
   process.env.VITE_API_PROXY_TARGET || 'https://api.mycountrymobile.com';
+
+const apiProxy = {
+  '/api': { target: API_PROXY_TARGET, changeOrigin: true, secure: true },
+  '/Organisations': { target: API_PROXY_TARGET, changeOrigin: true, secure: true },
+};
 
 export default defineConfig({
   // .env files live outside the repo (real secrets — Stripe, PayPal,
   // HubSpot, WhatsApp token, Turnstile — shouldn't sit in a project
   // directory that could end up in version control or get shared).
-  //
-  // That directory only exists on the production host. Pointing at it
-  // unconditionally meant every other build — Vercel, CI, a fresh clone —
-  // silently found no .env file and baked `undefined` into every VITE_* value,
-  // which leaves the app with no API base URL at runtime. Fall back to the
-  // project root so a local .env, or variables injected by the hosting
-  // platform, are picked up instead.
-  envDir: fs.existsSync(SECRETS_ENV_DIR) ? SECRETS_ENV_DIR : __dirname,
+  /* This deployment's env lives outside the repo, under the ucaas.in name --
+     the same path `/root/deploy-web.sh` documents and where `.env.ucaas` and
+     `.env.production` actually sit. The old `/etc/mycountrymobile-web` does
+     not exist on this box, so pointing there silently loaded no variables at
+     all: the bundle came out with no VITE_API_BASE_URL and the deploy script's
+     own guard rejected it for not referencing https://api.ucaas.in. */
+  envDir: '/etc/ucaas-india',
   define: {
     global: 'globalThis',
     Lame: {},
@@ -57,39 +58,11 @@ export default defineConfig({
           'Cross-Origin-Opener-Policy': 'same-origin',
         }
       : undefined,
-    proxy: {
-      '/api': {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: true,
-      },
-      // Organisation logos are served from the API host under this path, and
-      // the app builds their URLs from the same base as the API.
-      '/Organisations': {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: true,
-      },
-    },
+    proxy: apiProxy,
   },
   // `vite preview` serves the built app, so it needs the same proxy to be a
   // faithful rehearsal of the deployment.
-  preview: {
-    proxy: {
-      '/api': {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: true,
-      },
-      // Organisation logos are served from the API host under this path, and
-      // the app builds their URLs from the same base as the API.
-      '/Organisations': {
-        target: API_PROXY_TARGET,
-        changeOrigin: true,
-        secure: true,
-      },
-    },
-  },
+  preview: { proxy: apiProxy },
   build: {
     rollupOptions: {
       output: {

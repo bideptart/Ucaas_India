@@ -67,11 +67,11 @@ const Content = forwardRef<
         <AllChannelsContent selectedChat={selectedChat} onBackToList={onBackToList} />
       )}
       {!selectedChat && (
-        <div className="w-full bg-white dark:bg-mcm-surface p-3 flex items-center justify-center h-full">
+        <div className="w-full bg-white p-3 flex items-center justify-center h-full">
           <div className="flex flex-col justify-center items-center gap-1 py-5 h-full w-full mx-auto">
             <img src={NotFound} alt="BusyImage" className="min-w-36 w-36" />
-            <p className="text-md font-medium text-gray-900 dark:text-mcm-ink"> No conversations yet</p>
-            <p className="text-md  text-gray-700 dark:text-mcm-ink-2">Please add a user first to begin chatting.</p>
+            <p className="text-md font-medium text-gray-900"> No conversations yet</p>
+            <p className="text-md  text-gray-700">Please add a user first to begin chatting.</p>
           </div>
         </div>
       )}

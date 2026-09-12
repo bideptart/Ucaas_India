@@ -56,7 +56,7 @@ const PostMeetLayout = () => {
       <div className="w-full h-full flex justify-center items-center flex-col gap-2">
         <h5 className="text-xl font-semibold">Your meeting has ended !</h5>
         {isMeetingEnded?.reason && <div className="text-md font-medium">{getReasonMessage()}</div>}
-        <p className="text-center text-sm text-gray-700 dark:text-mcm-ink-3 italic">
+        <p className="text-center text-sm text-gray-700 italic">
           Your valuable insights are important. Kindly share your rating
           <br /> and provide any additional feedback.
         </p>
@@ -92,7 +92,7 @@ const PostMeetLayout = () => {
                     setComment(value);
                   }
                 }}
-                className={`border w-full border-gray-300 dark:border-mcm-line rounded-xl text-sm p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none`}
+                className={`border w-full border-gray-300 rounded-xl text-sm p-3 hover:border-primary focus:border-primary focus-visible:border-primary focus-visible:outline-none`}
               />
             </div>
             <div className="flex gap-2 mt-3">

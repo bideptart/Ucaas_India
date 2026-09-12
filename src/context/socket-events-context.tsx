@@ -14,30 +14,16 @@ import {
   showPushNotification,
 } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, ReactNode, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { createContext, ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import notificationSound from '@/assets/audio/new-notification.mp3';
 import { chatEvents } from '@/context/socket-events';
 import { isDemoMode } from '@/lib/demo-mode';
 import {
-  demoActiveCampaigns,
-  demoAgentChatThreads,
-  demoAiChatRequests,
   demoAiLiveWallboardData,
-  demoCampaignAgents,
   demoCampaignAiLiveCallData,
-  demoCampaignCallFlowFunnel,
   demoCampaignLiveCallsData,
-  demoChatThreads,
-  demoChatFolders,
-  demoChatNotes,
-  demoMessageList,
-  demoPinnedMessages,
-  demoLiveCalls,
-  demoLiveQueueCalls,
-  demoUserActivities,
-  demoUsersOnlineStatus,
 } from '@/lib/demo-contact-centre';
 import { v4 as uuidV4 } from 'uuid';
 import { toast } from 'react-toastify';
@@ -424,6 +410,14 @@ type AdminNotification = {
 };
 
 interface SocketEventsType {
+  /* Defined and used inside this provider since it was written, but never put
+     on the context value -- so the Chat page, which destructures and calls it,
+     got `undefined` and threw as soon as that path ran (creating a chat under
+     demo mode). Exposed here and in the value below. */
+  updateChatLists: (
+    updater: (chats: any[]) => any[],
+    options?: { targetChatId?: string; upsertInAgentList?: boolean },
+  ) => void;
   allLiveCalls: Array<any>;
   usersOnlineStatus: Array<any>;
   unreadCount: any;
@@ -522,11 +516,6 @@ interface SocketEventsType {
     isForwarded?: boolean,
     chatId?: string,
     attachments?: any[],
-  ) => void;
-  createTeamChat: (payload: any, message?: string, callback?: (response: any) => void) => void;
-  updateChatLists: (
-    updater: (chats: any[]) => any[],
-    options?: { targetChatId?: string; upsertInAgentList?: boolean },
   ) => void;
   chatExist: (chatId: string) => any;
   createPrivateChatId: (ids: string[]) => string;
@@ -642,6 +631,7 @@ interface SocketEventsType {
 }
 
 export const SocketEvents = createContext<SocketEventsType>({
+  updateChatLists: () => {},
   allLiveCalls: [],
   usersOnlineStatus: [],
   unreadCount: 0,
@@ -729,8 +719,6 @@ export const SocketEvents = createContext<SocketEventsType>({
   setRecentTasks: () => void 0,
   handleOpenChatInWindow: () => void 0,
   createNewChat: () => void 0,
-  createTeamChat: () => void 0,
-  updateChatLists: () => void 0,
   chatExist: () => null,
   createPrivateChatId: () => '',
   handleSendMessage: () => void 0,
@@ -833,23 +821,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [smsUnreadCountArray, setSmsUnreadCountArray] = useState([]);
   const [notificationArr, setNotificationArr] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState<boolean>(false);
-  /* Presence and in-progress calls arrive over the socket, which demo mode has
-     no backend for — seeding the initial state is the only way those screens
-     have a live picture to show. A real socket overwrites it on connect. */
-  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>(() =>
-    isDemoMode() ? demoUsersOnlineStatus() : [],
-  );
+  const [usersOnlineStatus, setUsersOnlineStatus] = useState<any>([]);
   const [conferenceTracker, setConferenceTracker] = useState<Array<any>>([]);
   const [ongoingDepartmentCalls, setOngoingDepartmentCalls] = useState<any>({});
   const [liveTranscriptionList, setLiveTranscriptionList] = useState<Array<any>>([]);
   const [callSummary, setCallSummary] = useState<any>(null);
-  /* Not `Array<any>`. Both writers put an object here — the socket hands back
-     the server's `{ data: [...] }` response, and demo mode returns the same
-     shape from `demoUserActivities()` — and the only reader, the activity
-     feed, unwraps it as `userActivitiesList?.data`. Typed as an array, the
-     demo-mode write did not compile. Nothing about the runtime shape changes;
-     the annotation now matches what is actually stored. */
-  const [userActivitiesList, setUserActivitiesList] = useState<any>([]);
+  const [userActivitiesList, setUserActivitiesList] = useState<Array<any>>([]);
   const [activityLoader, setActivityLoader] = useState<boolean>(false);
   const [ongoingCampaignActivity, setOngoingCampaignActivity] = useState<any>(null);
   const [omniChannelData, setOmniChannelData] = useState();
@@ -873,19 +850,13 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
       console.log('MMMM SocketEventsProvider UNMOUNTED');
     };
   }, []);
-  const [allChats, setAllChats] = useState<any>(() => (isDemoMode() ? demoChatThreads() : []));
-  const [allAgentChats, setAllAgentChats] = useState<any>(() =>
-    isDemoMode() ? demoAgentChatThreads() : [],
-  );
-  const [messageList, setMessageList] = useState<any>(() =>
-    isDemoMode() ? demoMessageList() : [],
-  );
-  const [pinnedList, setPinnedList] = useState<any>(() =>
-    isDemoMode() ? demoPinnedMessages() : [],
-  );
+  const [allChats, setAllChats] = useState<any>([]);
+  const [allAgentChats, setAllAgentChats] = useState<any>([]);
+  const [messageList, setMessageList] = useState<any>([]);
+  const [pinnedList, setPinnedList] = useState<any>([]);
   const [threadsManager, setThreadsManager] = useState<any>([]);
-  const [notesList, setNotesList] = useState<any>(() => (isDemoMode() ? demoChatNotes() : []));
-  const [folderList, setFolderList] = useState<any>(() => (isDemoMode() ? demoChatFolders() : []));
+  const [notesList, setNotesList] = useState<any>([]);
+  const [folderList, setFolderList] = useState<any>([]);
   const [typingList, setTypingList] = useState<any>({});
   const [chatPageList, setChatPageList] = useState<any>({});
   const [isFetchingMessages, setIsFetchingMessages] = useState<any>({});
@@ -940,38 +911,16 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   const [aiChatUnreadCount, setAiChatUnreadCount] = useState<number>(0);
   const [recentMeetings, setRecentMeetings] = useState<any[]>([]);
   const [recentTasks, setRecentTasks] = useState<any[]>([]);
-  const [liveCalls, setLiveCalls] = useState<any[]>(() => (isDemoMode() ? demoLiveCalls() : []));
-  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>(() =>
-    isDemoMode() ? demoLiveQueueCalls() : [],
-  );
-  const [activeCampaigns, setActiveCampaigns] = useState<any[]>(() =>
-    isDemoMode() ? demoActiveCampaigns() : [],
-  );
-  const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(() =>
-    isDemoMode() ? demoCampaignCallFlowFunnel() : null,
-  );
-  const [campaignAgents, setCampaignAgents] = useState<any>(() =>
-    isDemoMode() ? demoCampaignAgents() : null,
-  );
-  const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(() =>
-    isDemoMode() ? demoCampaignLiveCallsData() : null,
-  );
-  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(() =>
-    isDemoMode() ? demoAiLiveWallboardData() : null,
-  );
-  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(() =>
-    isDemoMode() ? demoCampaignAiLiveCallData() : null,
-  );
+  const [liveCalls, setLiveCalls] = useState<any[]>([]);
+  const [liveQueueCalls, setLiveQueueCalls] = useState<any[]>([]);
+  const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
+  const [campaignCallFlowFunnel, setCampaignCallFlowFunnel] = useState<any>(null);
+  const [campaignAgents, setCampaignAgents] = useState<any>(null);
+  const [campaignLiveCallsData, setCampaignLiveCallsData] = useState<any>(null);
+  const [aiLiveWallboardData, setAiLiveWallboardData] = useState<any>(null);
+  const [campaignAiLiveCallData, setCampaignAiLiveCallData] = useState<any>(null);
   const [contactsInfo, setContactsInfo] = useState<Record<string, any>>({});
   const [aiChatRequests, setAiChatRequests] = useState<any[]>(() => {
-    /* Demo mode seeds fresh every load rather than trusting localStorage: a
-       browser that ever visited this page before there was demo data to
-       seed cached an empty `"[]"` here, which — read first — would keep
-       shadowing the seed forever after, on every future visit, even once
-       this fix landed. The persist effect below overwrites that cache with
-       whatever demoAiChatRequests() (or a real accept/resolve) produces on
-       the very next state change, so this never fights a real session. */
-    if (isDemoMode()) return demoAiChatRequests();
     try {
       const stored = localStorage.getItem('ai_chat_requests');
       return stored ? (JSON.parse(stored) as any[]) : [];
@@ -1374,60 +1323,11 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const handleAiChatAccept = useCallback(
     (payload: any, callback?: (response: any) => void) => {
-      /* Demo mode has no socket connection, so `socketEventsManager` is
-         null and the emit below would silently never call back — leaving
-         "Accepting..." stuck forever. Simulate the accept locally instead:
-         move the pending request into `allAgentChats` as an active chat so
-         its already-seeded messages/profile become visible and typeable. */
-      if (isDemoMode()) {
-        const chatId = payload?.chatId;
-        const pendingRequest = aiChatRequests.find((request: any) => request?.chatId === chatId);
-        const rawVisitor = pendingRequest?.users;
-        const visitor = (Array.isArray(rawVisitor) ? rawVisitor : [rawVisitor]).find(
-          (chatUser: any) => chatUser?.uuid !== user?.uuid,
-        ) ||
-          rawVisitor || { uuid: `${chatId}-visitor`, name: 'Visitor' };
-        const me = {
-          uuid: user?.uuid,
-          first_name: user?.first_name || user?.user_info?.first_name,
-          last_name: user?.last_name || user?.user_info?.last_name,
-          name: `${user?.first_name || user?.user_info?.first_name || ''} ${user?.last_name || user?.user_info?.last_name || ''}`.trim(),
-        };
-        const nowIso = new Date().toISOString();
-
-        setAllAgentChats((prev: any) => {
-          const list = Array.isArray(prev) ? prev : [];
-          if (list.some((chat: any) => chat?.chatId === chatId)) return list;
-          return [
-            {
-              chatId,
-              isGroupChat: false,
-              groupType: 'AI',
-              isEnded: false,
-              users: [me, visitor],
-              lastMessage: { message: '', createdAt: nowIso, senderId: visitor?.uuid },
-              metaData: {
-                ...(pendingRequest?.metaData || {}),
-                status: 'active',
-                lastMessageTimeStamp: nowIso,
-              },
-              createdAt: pendingRequest?.createdAt || nowIso,
-              isHidden: [],
-              isDeleted: false,
-            },
-            ...list,
-          ];
-        });
-
-        callback?.({ status: 200, success: true });
-        return;
-      }
-
       socketEventsManager?.emit(chatEvents.AI_CHAT_ACCEPT, payload, (response: any) => {
         if (callback) callback(response);
       });
     },
-    [socketEventsManager, aiChatRequests, user],
+    [socketEventsManager],
   );
 
   const handleAiChatDecline = useCallback(
@@ -2337,7 +2237,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
               if (data?.meetingId) {
                 window.open(`/video-meet?meetCode=${data.meetingId}`, '_blank');
               } else {
-                navigate('/video-meetings');
+                navigate('/video');
               }
             },
           });
@@ -3889,15 +3789,6 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
   const userActivity = useCallback(
     (data: any) => {
-      /* Demo mode has no socket to answer `user-activity-list`, so this
-         returned before ever touching the loader and the timeline stayed
-         permanently empty ("No action" every hour). */
-      if (isDemoMode()) {
-        setActivityLoader(true);
-        setUserActivitiesList(demoUserActivities());
-        setActivityLoader(false);
-        return;
-      }
       if (!socketEventsManager || !user || isDisconnecting) return;
       setActivityLoader(true);
 
@@ -4075,7 +3966,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
           createdAt: new Date().toISOString(),
         });
       }
-    } else {
+    } else if (socketEventsManager) {
       const transformUser = (u: any) => {
         const info = u?.user_info || u;
         return {
@@ -4088,48 +3979,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
       const usersToSend = [transformUser(user), transformUser(otherPersonDetails)];
 
-      /* Demo mode has no server to create the chat on, so the socket emit
-         below would just be a no-op and "New Message" would silently do
-         nothing. Add the chat to local state directly instead — same shape
-         demoChatThreads() seeds — then send the first message through the
-         normal (already demo-aware) handleSendMessage path. */
-      if (isDemoMode()) {
-        setAllChats((prev: any[]) => {
-          const list = Array.isArray(prev) ? prev : [];
-          if (list.some((chat: any) => chat?.chatId === requiredChatId)) return list;
-          return [
-            {
-              chatId: requiredChatId,
-              isGroupChat: false,
-              groupType: 'DM',
-              users: usersToSend,
-              lastMessage: null,
-              createdAt: new Date().toISOString(),
-              favoriteChats: [],
-              isHidden: [],
-              isDeleted: false,
-            },
-            ...list,
-          ];
-        });
-
-        if (message) {
-          handleSendMessage({
-            chatId: requiredChatId,
-            message,
-            attachments: attachments || [],
-            senderId: user?.uuid,
-            receiverId: [otherPersonDetails?.uuid],
-            messageId: uuidV4(),
-            isForwarded,
-            createdAt: new Date().toISOString(),
-          });
-        }
-        handleOpenChatInWindow(requiredChatId, false, maximize);
-        return;
-      }
-
-      socketEventsManager?.emit(
+      socketEventsManager.emit(
         chatEvents.CREATE_NEW_CHAT,
         {
           chatId: requiredChatId,
@@ -4159,88 +4009,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  /* Team/channel creation (name + description + avatar + multiple members),
-     used by the "Create New Team" drawer. createNewChat above only covers
-     1-1 direct chats, so this is the group equivalent — same demo-mode
-     local-echo pattern: without it, demo mode's null socketEventsManager
-     made the CREATE_NEW_CHAT emit a silent no-op, and "Create Team" did
-     nothing at all. */
-  function createTeamChat(payload: any, message?: string, callback?: (response: any) => void) {
-    if (isDemoMode()) {
-      setAllChats((prev: any[]) => {
-        const list = Array.isArray(prev) ? prev : [];
-        return [
-          {
-            ...payload,
-            lastMessage: message
-              ? { message, createdAt: new Date().toISOString(), senderId: user?.uuid }
-              : null,
-            createdAt: new Date().toISOString(),
-            favoriteChats: [],
-            isHidden: [],
-            isDeleted: false,
-          },
-          ...list,
-        ];
-      });
-
-      if (message?.trim()) {
-        handleSendMessage({
-          chatId: payload?.chatId,
-          message: [{ type: 'paragraph', children: [{ text: message.trim() }] }],
-          attachments: [],
-          senderId: user?.uuid,
-          receiverId: (Array.isArray(payload?.users) ? payload.users : [])
-            .map((chatUser: any) => chatUser?.uuid)
-            .filter((uuid: string) => uuid && uuid !== user?.uuid),
-          messageId: uuidV4(),
-          createdAt: new Date().toISOString(),
-        });
-      }
-
-      callback?.({ status: 200, success: true });
-      return;
-    }
-
-    socketEventsManager?.emit(chatEvents.CREATE_NEW_CHAT, payload, (response: any) => {
-      callback?.(response);
-    });
-  }
-
   function handleSendMessage(message: any, callback?: (response: any) => void) {
-    /* Demo mode has no server on the other end of this socket, so the real
-       branch below would just emit into the void — the composer clears
-       itself (it doesn't wait on this) but the message never reappears
-       anywhere. The caller already builds a complete message object
-       (chatId, senderId, messageId, createdAt) before calling this, since
-       that's also what an optimistic send would show before the real ack —
-       so echoing it straight into local state is enough to make sending
-       feel real: it lands in the thread and the sidebar preview updates. */
-    if (isDemoMode()) {
-      const chatId = message?.chatId;
-      if (chatId) {
-        setMessageList((prevList: any[]) => {
-          const list = Array.isArray(prevList) ? prevList : [];
-          const index = list.findIndex((item: any) => item?.chatId === chatId);
-          if (index === -1) return [...list, { chatId, messages: [message] }];
-          const next = [...list];
-          const existingMessages = Array.isArray(next[index]?.messages)
-            ? next[index].messages
-            : [];
-          next[index] = { ...next[index], messages: [...existingMessages, message] };
-          return next;
-        });
-        updateChatLists(
-          (chats: any[]) =>
-            chats.map((chat: any) =>
-              chat?.chatId === chatId ? { ...chat, lastMessage: message } : chat,
-            ),
-          { targetChatId: chatId },
-        );
-      }
-      callback?.({ success: true, response: { data: { result: message } } });
-      return;
-    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.SEND_MESSAGE, message, (response: any) => {
         console.log('Server ack:', response);
@@ -4353,14 +4122,6 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
   }
 
   function getChatPinnedMessages(chatId: string, callback?: (response: any) => void) {
-    /* Demo mode seeds `pinnedList` up front (there's no server to ask), but
-       the panel's own loading spinner only clears inside this callback —
-       without this branch it never fires and "Loading pinned messages..."
-       never resolves even though the data is already there. */
-    if (isDemoMode()) {
-      callback?.(pinnedList.find((row: any) => row?.chatId === chatId) ?? null);
-      return;
-    }
     if (socketEventsManager) {
       socketEventsManager.emit(chatEvents.GET_PINNED_CHATS, { chatId }, (response: any) => {
         console.log('Server ack:', response);
@@ -4970,430 +4731,173 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-
-  /* ------------------------------------------------------------------
-     Stable identities for the provider value.
-
-     This context hands 163 members to every screen through one object
-     literal, rebuilt on every render of this component. A new object
-     identity re-renders every consumer of `useSocketEvents()` whether or
-     not the member it reads changed — so one live-call event re-rendered
-     the Performance page, its KPI band and whatever table was open
-     beneath it, to repaint nothing.
-
-     Memoising the object alone would not have helped: 50 of those members
-     are plain functions declared in this component, so they get a new
-     identity every render and would have invalidated the memo each time.
-     They are re-pointed at a ref instead.
-
-     Why a ref and not `useCallback` on each of the 50: a `useCallback`
-     needs a correct dependency list, and one wrong list in a file this
-     size ships a stale closure — a handler firing against the previous
-     render's state, which is a worse failure than the re-renders being
-     fixed here. A wrapper reading the ref always calls the current
-     implementation, so it cannot go stale, and its identity never changes.
-     ------------------------------------------------------------------ */
-  const latestHandlersRef = useRef<Record<string, any>>({});
-  latestHandlersRef.current = {
-    handleOnCallTranscript,
-    handleOpenChatInWindow,
-    createNewChat,
-    createTeamChat,
-    chatExist,
-    createPrivateChatIdFromUsers,
-    handleSendMessage,
-    handleGetMessageByChatId,
-    getChatPinnedMessages,
-    handleUnread,
-    handleTyping,
-    handleToggleChatAsFavorite,
-    handleDeleteChat,
-    handleExitChat,
-    handleAddChannelMember,
-    handleRemoveChannelMember,
-    handleMeetInviteMember,
-    handlePinMessage,
-    handleUserPresenceUpdate,
-    handleAssignAdminPrivileges,
-    handleAddChannelImage,
-    handleRemoveChannelImage,
-    handleDeleteMessage,
-    handleActivityStatus,
-    handleMeetInitiate,
-    handleMeetAccept,
-    handleMeetDecline,
-    handleMeetLeave,
-    handleMeetMissed,
-    handleTerminateCall,
-    handleUpdateMessage,
-    handleSendReaction,
-    handleUpdateChatname,
-    handleUpdateChannel,
-    handlePinConversation,
-    handleMuteConversation,
-    handleLeaveBeforeJoin,
-    getSeenByList,
-    searchMessages,
-    handleCreateNote,
-    handleDeleteNote,
-    handleUpdateNote,
-    getNotesByChatId,
-    getFoldersByChatId,
-    handleCreateFolder,
-    handleDeleteFolder,
-    handleUpdateFolder,
-    handlePinFolder,
-    handlePinFolderAttachment,
-    getAttachmentsByChatId,
-  };
-
-  const stableHandlers = useMemo(
-    () => ({
-      handleOnCallTranscript: (...args: any[]) => latestHandlersRef.current.handleOnCallTranscript?.(...args),
-      handleOpenChatInWindow: (...args: any[]) => latestHandlersRef.current.handleOpenChatInWindow?.(...args),
-      createNewChat: (...args: any[]) => latestHandlersRef.current.createNewChat?.(...args),
-      createTeamChat: (...args: any[]) => latestHandlersRef.current.createTeamChat?.(...args),
-      chatExist: (...args: any[]) => latestHandlersRef.current.chatExist?.(...args),
-      createPrivateChatId: (...args: any[]) => latestHandlersRef.current.createPrivateChatIdFromUsers?.(...args),
-      handleSendMessage: (...args: any[]) => latestHandlersRef.current.handleSendMessage?.(...args),
-      handleGetMessageByChatId: (...args: any[]) => latestHandlersRef.current.handleGetMessageByChatId?.(...args),
-      getChatPinnedMessages: (...args: any[]) => latestHandlersRef.current.getChatPinnedMessages?.(...args),
-      handleUnread: (...args: any[]) => latestHandlersRef.current.handleUnread?.(...args),
-      handleTyping: (...args: any[]) => latestHandlersRef.current.handleTyping?.(...args),
-      handleToggleChatAsFavorite: (...args: any[]) => latestHandlersRef.current.handleToggleChatAsFavorite?.(...args),
-      handleDeleteChat: (...args: any[]) => latestHandlersRef.current.handleDeleteChat?.(...args),
-      handleExitChat: (...args: any[]) => latestHandlersRef.current.handleExitChat?.(...args),
-      handleAddChannelMember: (...args: any[]) => latestHandlersRef.current.handleAddChannelMember?.(...args),
-      handleRemoveChannelMember: (...args: any[]) => latestHandlersRef.current.handleRemoveChannelMember?.(...args),
-      handleMeetInviteMember: (...args: any[]) => latestHandlersRef.current.handleMeetInviteMember?.(...args),
-      handlePinMessage: (...args: any[]) => latestHandlersRef.current.handlePinMessage?.(...args),
-      handleUserPresenceUpdate: (...args: any[]) => latestHandlersRef.current.handleUserPresenceUpdate?.(...args),
-      handleAssignAdminPrivileges: (...args: any[]) => latestHandlersRef.current.handleAssignAdminPrivileges?.(...args),
-      handleAddChannelImage: (...args: any[]) => latestHandlersRef.current.handleAddChannelImage?.(...args),
-      handleRemoveChannelImage: (...args: any[]) => latestHandlersRef.current.handleRemoveChannelImage?.(...args),
-      handleDeleteMessage: (...args: any[]) => latestHandlersRef.current.handleDeleteMessage?.(...args),
-      handleActivityStatus: (...args: any[]) => latestHandlersRef.current.handleActivityStatus?.(...args),
-      handleMeetInitiate: (...args: any[]) => latestHandlersRef.current.handleMeetInitiate?.(...args),
-      handleMeetAccept: (...args: any[]) => latestHandlersRef.current.handleMeetAccept?.(...args),
-      handleMeetDecline: (...args: any[]) => latestHandlersRef.current.handleMeetDecline?.(...args),
-      handleMeetLeave: (...args: any[]) => latestHandlersRef.current.handleMeetLeave?.(...args),
-      handleMeetMissed: (...args: any[]) => latestHandlersRef.current.handleMeetMissed?.(...args),
-      handleTerminateCall: (...args: any[]) => latestHandlersRef.current.handleTerminateCall?.(...args),
-      handleUpdateMessage: (...args: any[]) => latestHandlersRef.current.handleUpdateMessage?.(...args),
-      handleSendReaction: (...args: any[]) => latestHandlersRef.current.handleSendReaction?.(...args),
-      handleUpdateChatname: (...args: any[]) => latestHandlersRef.current.handleUpdateChatname?.(...args),
-      handleUpdateChannel: (...args: any[]) => latestHandlersRef.current.handleUpdateChannel?.(...args),
-      handlePinConversation: (...args: any[]) => latestHandlersRef.current.handlePinConversation?.(...args),
-      handleMuteConversation: (...args: any[]) => latestHandlersRef.current.handleMuteConversation?.(...args),
-      handleLeaveBeforeJoin: (...args: any[]) => latestHandlersRef.current.handleLeaveBeforeJoin?.(...args),
-      getSeenByList: (...args: any[]) => latestHandlersRef.current.getSeenByList?.(...args),
-      searchMessages: (...args: any[]) => latestHandlersRef.current.searchMessages?.(...args),
-      handleCreateNote: (...args: any[]) => latestHandlersRef.current.handleCreateNote?.(...args),
-      handleDeleteNote: (...args: any[]) => latestHandlersRef.current.handleDeleteNote?.(...args),
-      handleUpdateNote: (...args: any[]) => latestHandlersRef.current.handleUpdateNote?.(...args),
-      getNotesByChatId: (...args: any[]) => latestHandlersRef.current.getNotesByChatId?.(...args),
-      getFoldersByChatId: (...args: any[]) => latestHandlersRef.current.getFoldersByChatId?.(...args),
-      handleCreateFolder: (...args: any[]) => latestHandlersRef.current.handleCreateFolder?.(...args),
-      handleDeleteFolder: (...args: any[]) => latestHandlersRef.current.handleDeleteFolder?.(...args),
-      handleUpdateFolder: (...args: any[]) => latestHandlersRef.current.handleUpdateFolder?.(...args),
-      handlePinFolder: (...args: any[]) => latestHandlersRef.current.handlePinFolder?.(...args),
-      handlePinFolderAttachment: (...args: any[]) => latestHandlersRef.current.handlePinFolderAttachment?.(...args),
-      getAttachmentsByChatId: (...args: any[]) => latestHandlersRef.current.getAttachmentsByChatId?.(...args),
-    }),
-    [],
-  );
-
-  /* Rebuilt only when one of the 163 members actually changes. The list
-     below was generated from the value object rather than typed out, so it
-     cannot silently omit one. */
-  const socketContextValue = useMemo(
-    () => ({
-      socketEventsManager: socketEventsManager,
-      allLiveCalls: allLiveCalls,
-      ongoingLiveCalls: ongoingLiveCalls,
-      usersOnlineStatus: usersOnlineStatus,
-      unreadCount: unreadCount,
-      unreadSMSCount: unreadSMSCount,
-      unreadTaskCount: unreadTaskCount,
-      conferenceParticipants: conferenceParticipants,
-      conferenceTracker: conferenceTracker,
-      setConferenceTracker: setConferenceTracker,
-      getUnreadSMSCount: getUnreadSMSCount,
-      updateSmsCount: updateSmsCount,
-      transcriptionSocket: transcriptionSocket,
-      setSmsUnreadCountArray: setSmsUnreadCountArray,
-      smsUnreadCountArray: smsUnreadCountArray,
-      getNotifications: getNotifications,
-      notificationArr: notificationArr,
-      notificationLoading: notificationLoading,
-      mergeSeparateCalls,
-      ongoingDepartmentCalls,
-      markReadNotification,
-      liveTranscriptionList,
-      setLiveTranscriptionList,
-      userActivity,
-      userActivitiesList,
-      disconnectSocket,
-      activityLoader,
-      ongoingCampaignActivity,
-      omniChannelData,
-      setOmniChannelData,
-      callSummary,
-      setCallSummary,
-      setOngoingCampaignActivity,
-      userLogoutData,
-      setUserLogoutData,
-      inCallTranscription,
-      setInCallTranscription,
-      handleOnCallTranscript: stableHandlers.handleOnCallTranscript,
-      transcriptionActiveKeys,
-      addTranscriptionActiveKey,
-      removeTranscriptionActiveKey,
-      isSocketConnected,
-      callingInProgress,
-      callPresence,
-      allChats,
-      allAgentChats,
-      getAgentChats,
-      messageList,
-      setMessageList,
-      pinnedList,
-      threadsManager,
-      setThreadsManager,
-      typingList,
-      chatPageList,
-      isFetchingMessages,
-      hasMessagesTopNextPage,
-      hasMessagesBottomNextPage,
-      chatWindows,
-      setChatWindows,
-      chatWindowsMaximized,
-      setChatWindowsMaximized,
-      meetWindows,
-      setMeetWindows,
-      meetInitiateModalData,
-      setMeetInitiateModalData,
-      meetingAcceptingChatId,
-      setMeetingAcceptingChatId,
-      chatMode,
-      setChatMode,
-      activityCount,
-      activityList,
-      setActivityList,
-      unreadMessageCount,
-      groupChatUnreadCount,
-      directMessageUnreadCount,
-      aiChatUnreadCount,
-      recentMeetings,
-      recentTasks,
-      setRecentMeetings,
-      setRecentTasks,
-      handleOpenChatInWindow: stableHandlers.handleOpenChatInWindow,
-      createNewChat: stableHandlers.createNewChat,
-      createTeamChat: stableHandlers.createTeamChat,
-      updateChatLists,
-      chatExist: stableHandlers.chatExist,
-      createPrivateChatId: stableHandlers.createPrivateChatId,
-      handleSendMessage: stableHandlers.handleSendMessage,
-      handleGetMessageByChatId: stableHandlers.handleGetMessageByChatId,
-      getChatPinnedMessages: stableHandlers.getChatPinnedMessages,
-      handleUnread: stableHandlers.handleUnread,
-      handleTyping: stableHandlers.handleTyping,
-      handleToggleChatAsFavorite: stableHandlers.handleToggleChatAsFavorite,
-      handleDeleteChat: stableHandlers.handleDeleteChat,
-      handleExitChat: stableHandlers.handleExitChat,
-      handleAddChannelMember: stableHandlers.handleAddChannelMember,
-      handleRemoveChannelMember: stableHandlers.handleRemoveChannelMember,
-      handleMeetInviteMember: stableHandlers.handleMeetInviteMember,
-      handlePinMessage: stableHandlers.handlePinMessage,
-      handleUserPresenceUpdate: stableHandlers.handleUserPresenceUpdate,
-      handleAssignAdminPrivileges: stableHandlers.handleAssignAdminPrivileges,
-      handleAddChannelImage: stableHandlers.handleAddChannelImage,
-      handleRemoveChannelImage: stableHandlers.handleRemoveChannelImage,
-      handleDeleteMessage: stableHandlers.handleDeleteMessage,
-      handleActivityStatus: stableHandlers.handleActivityStatus,
-      handleMeetInitiate: stableHandlers.handleMeetInitiate,
-      handleMeetAccept: stableHandlers.handleMeetAccept,
-      handleMeetDecline: stableHandlers.handleMeetDecline,
-      handleMeetLeave: stableHandlers.handleMeetLeave,
-      handleMeetMissed: stableHandlers.handleMeetMissed,
-      handleTerminateCall: stableHandlers.handleTerminateCall,
-      handleUpdateMessage: stableHandlers.handleUpdateMessage,
-      handleSendReaction: stableHandlers.handleSendReaction,
-      handleUpdateChatname: stableHandlers.handleUpdateChatname,
-      handleUpdateChannel: stableHandlers.handleUpdateChannel,
-      handlePinConversation: stableHandlers.handlePinConversation,
-      handleMuteConversation: stableHandlers.handleMuteConversation,
-      handleLeaveBeforeJoin: stableHandlers.handleLeaveBeforeJoin,
-      getSeenByList: stableHandlers.getSeenByList,
-      searchMessages: stableHandlers.searchMessages,
-      handleCreateNote: stableHandlers.handleCreateNote,
-      handleDeleteNote: stableHandlers.handleDeleteNote,
-      handleUpdateNote: stableHandlers.handleUpdateNote,
-      getNotesByChatId: stableHandlers.getNotesByChatId,
-      getFoldersByChatId: stableHandlers.getFoldersByChatId,
-      notesList,
-      folderList,
-      handleCreateFolder: stableHandlers.handleCreateFolder,
-      handleDeleteFolder: stableHandlers.handleDeleteFolder,
-      handleUpdateFolder: stableHandlers.handleUpdateFolder,
-      handlePinFolder: stableHandlers.handlePinFolder,
-      handlePinFolderAttachment: stableHandlers.handlePinFolderAttachment,
-      getAttachmentsByChatId: stableHandlers.getAttachmentsByChatId,
-      liveCalls,
-      setLiveCalls,
-      eventLiveCallsData,
-      setEventLiveCallsData,
-      liveQueueCalls,
-      setLiveQueueCalls,
-      activeCampaigns,
-      setActiveCampaigns,
-      campaignCallFlowFunnel,
-      setCampaignCallFlowFunnel,
-      campaignAgents,
-      setCampaignAgents,
-      getCampaignLiveCalls,
-      campaignLiveCallsData,
-      setCampaignLiveCallsData,
-      aiLiveWallboardData,
-      setAiLiveWallboardData,
-      campaignAiLiveCallData,
-      setCampaignAiLiveCallData,
-      getAiLiveWallboardData,
-      getCampaignAiLiveCallData,
-      contactsInfo,
-      upsertContactInfoByNumber,
-      aiChatRequests,
-      setAiChatRequests,
-      handleAiChatAccept,
-      handleAiChatDecline,
-      sentimentData,
-      meetingSubtitlesByChatId,
-      clearMeetingSubtitles,
-      updateMeetingSubtitleLanguage,
-      updateMeetingSubtitleEnabled,
-    }),
-    [
-      socketEventsManager,
-      allLiveCalls,
-      ongoingLiveCalls,
-      usersOnlineStatus,
-      unreadCount,
-      unreadSMSCount,
-      unreadTaskCount,
-      conferenceParticipants,
-      conferenceTracker,
-      setConferenceTracker,
-      getUnreadSMSCount,
-      updateSmsCount,
-      transcriptionSocket,
-      setSmsUnreadCountArray,
-      smsUnreadCountArray,
-      getNotifications,
-      notificationArr,
-      notificationLoading,
-      mergeSeparateCalls,
-      ongoingDepartmentCalls,
-      markReadNotification,
-      liveTranscriptionList,
-      setLiveTranscriptionList,
-      userActivity,
-      userActivitiesList,
-      disconnectSocket,
-      activityLoader,
-      ongoingCampaignActivity,
-      omniChannelData,
-      setOmniChannelData,
-      callSummary,
-      setCallSummary,
-      setOngoingCampaignActivity,
-      userLogoutData,
-      setUserLogoutData,
-      inCallTranscription,
-      setInCallTranscription,
-      transcriptionActiveKeys,
-      addTranscriptionActiveKey,
-      removeTranscriptionActiveKey,
-      isSocketConnected,
-      callingInProgress,
-      callPresence,
-      allChats,
-      allAgentChats,
-      getAgentChats,
-      messageList,
-      setMessageList,
-      pinnedList,
-      threadsManager,
-      setThreadsManager,
-      typingList,
-      chatPageList,
-      isFetchingMessages,
-      hasMessagesTopNextPage,
-      hasMessagesBottomNextPage,
-      chatWindows,
-      setChatWindows,
-      chatWindowsMaximized,
-      setChatWindowsMaximized,
-      meetWindows,
-      setMeetWindows,
-      meetInitiateModalData,
-      setMeetInitiateModalData,
-      meetingAcceptingChatId,
-      setMeetingAcceptingChatId,
-      chatMode,
-      setChatMode,
-      activityCount,
-      activityList,
-      setActivityList,
-      unreadMessageCount,
-      groupChatUnreadCount,
-      directMessageUnreadCount,
-      aiChatUnreadCount,
-      recentMeetings,
-      recentTasks,
-      setRecentMeetings,
-      setRecentTasks,
-      updateChatLists,
-      notesList,
-      folderList,
-      liveCalls,
-      setLiveCalls,
-      eventLiveCallsData,
-      setEventLiveCallsData,
-      liveQueueCalls,
-      setLiveQueueCalls,
-      activeCampaigns,
-      setActiveCampaigns,
-      campaignCallFlowFunnel,
-      setCampaignCallFlowFunnel,
-      campaignAgents,
-      setCampaignAgents,
-      getCampaignLiveCalls,
-      campaignLiveCallsData,
-      setCampaignLiveCallsData,
-      aiLiveWallboardData,
-      setAiLiveWallboardData,
-      campaignAiLiveCallData,
-      setCampaignAiLiveCallData,
-      getAiLiveWallboardData,
-      getCampaignAiLiveCallData,
-      contactsInfo,
-      upsertContactInfoByNumber,
-      aiChatRequests,
-      setAiChatRequests,
-      handleAiChatAccept,
-      handleAiChatDecline,
-      sentimentData,
-      meetingSubtitlesByChatId,
-      clearMeetingSubtitles,
-      updateMeetingSubtitleLanguage,
-      updateMeetingSubtitleEnabled,
-      stableHandlers,
-    ],
-  );
   return (
     <SocketEvents.Provider
-      value={socketContextValue}
+      value={{
+        socketEventsManager: socketEventsManager,
+        allLiveCalls: allLiveCalls,
+        ongoingLiveCalls: ongoingLiveCalls,
+        usersOnlineStatus: usersOnlineStatus,
+        unreadCount: unreadCount,
+        unreadSMSCount: unreadSMSCount,
+        unreadTaskCount: unreadTaskCount,
+        conferenceParticipants: conferenceParticipants,
+        conferenceTracker: conferenceTracker,
+        setConferenceTracker: setConferenceTracker,
+        getUnreadSMSCount: getUnreadSMSCount,
+        updateSmsCount: updateSmsCount,
+        transcriptionSocket: transcriptionSocket,
+        setSmsUnreadCountArray: setSmsUnreadCountArray,
+        smsUnreadCountArray: smsUnreadCountArray,
+        getNotifications: getNotifications,
+        notificationArr: notificationArr,
+        notificationLoading: notificationLoading,
+        mergeSeparateCalls,
+        ongoingDepartmentCalls,
+        markReadNotification,
+        liveTranscriptionList,
+        setLiveTranscriptionList,
+        userActivity,
+        userActivitiesList,
+        disconnectSocket,
+        activityLoader,
+        ongoingCampaignActivity,
+        omniChannelData,
+        setOmniChannelData,
+        callSummary,
+        setCallSummary,
+        setOngoingCampaignActivity,
+        userLogoutData,
+        setUserLogoutData,
+        inCallTranscription,
+        setInCallTranscription,
+        handleOnCallTranscript,
+        transcriptionActiveKeys,
+        addTranscriptionActiveKey,
+        removeTranscriptionActiveKey,
+        isSocketConnected,
+        callingInProgress,
+        callPresence,
+        allChats,
+        allAgentChats,
+        getAgentChats,
+        messageList,
+        setMessageList,
+        pinnedList,
+        threadsManager,
+        setThreadsManager,
+        typingList,
+        chatPageList,
+        isFetchingMessages,
+        hasMessagesTopNextPage,
+        hasMessagesBottomNextPage,
+        chatWindows,
+        setChatWindows,
+        chatWindowsMaximized,
+        setChatWindowsMaximized,
+        meetWindows,
+        setMeetWindows,
+        meetInitiateModalData,
+        setMeetInitiateModalData,
+        meetingAcceptingChatId,
+        setMeetingAcceptingChatId,
+        chatMode,
+        setChatMode,
+        activityCount,
+        activityList,
+        setActivityList,
+        unreadMessageCount,
+        groupChatUnreadCount,
+        directMessageUnreadCount,
+        aiChatUnreadCount,
+        recentMeetings,
+        recentTasks,
+        setRecentMeetings,
+        setRecentTasks,
+        handleOpenChatInWindow,
+        createNewChat,
+        chatExist,
+        createPrivateChatId: createPrivateChatIdFromUsers,
+        handleSendMessage,
+        handleGetMessageByChatId,
+        getChatPinnedMessages,
+        handleUnread,
+        handleTyping,
+        handleToggleChatAsFavorite,
+        handleDeleteChat,
+        handleExitChat,
+        handleAddChannelMember,
+        handleRemoveChannelMember,
+        handleMeetInviteMember,
+        handlePinMessage,
+        handleUserPresenceUpdate,
+        handleAssignAdminPrivileges,
+        handleAddChannelImage,
+        handleRemoveChannelImage,
+        handleDeleteMessage,
+        handleActivityStatus,
+        handleMeetInitiate,
+        handleMeetAccept,
+        handleMeetDecline,
+        handleMeetLeave,
+        handleMeetMissed,
+        handleTerminateCall,
+        handleUpdateMessage,
+        handleSendReaction,
+        handleUpdateChatname,
+        handleUpdateChannel,
+        handlePinConversation,
+        handleMuteConversation,
+        handleLeaveBeforeJoin,
+        getSeenByList,
+        searchMessages,
+        handleCreateNote,
+        handleDeleteNote,
+        handleUpdateNote,
+        getNotesByChatId,
+        getFoldersByChatId,
+        notesList,
+        folderList,
+        handleCreateFolder,
+        handleDeleteFolder,
+        handleUpdateFolder,
+        handlePinFolder,
+        handlePinFolderAttachment,
+        getAttachmentsByChatId,
+        liveCalls,
+        setLiveCalls,
+        eventLiveCallsData,
+        setEventLiveCallsData,
+        liveQueueCalls,
+        setLiveQueueCalls,
+        activeCampaigns,
+        setActiveCampaigns,
+        campaignCallFlowFunnel,
+        setCampaignCallFlowFunnel,
+        campaignAgents,
+        setCampaignAgents,
+        getCampaignLiveCalls,
+        campaignLiveCallsData,
+        setCampaignLiveCallsData,
+        aiLiveWallboardData,
+        setAiLiveWallboardData,
+        campaignAiLiveCallData,
+        setCampaignAiLiveCallData,
+        getAiLiveWallboardData,
+        getCampaignAiLiveCallData,
+        contactsInfo,
+        upsertContactInfoByNumber,
+        aiChatRequests,
+        setAiChatRequests,
+        handleAiChatAccept,
+        handleAiChatDecline,
+        sentimentData,
+        meetingSubtitlesByChatId,
+        clearMeetingSubtitles,
+        updateMeetingSubtitleLanguage,
+        updateMeetingSubtitleEnabled,
+        updateChatLists,
+      }}
     >
       <audio ref={audioRef} src={notificationSound} preload="auto" />
       {children}
@@ -5487,18 +4991,18 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
       {/* Storage Limit Modal */}
       <Dialog open={isStorageModalOpen} onOpenChange={setIsStorageModalOpen}>
-        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden rounded-2xl border border-gray-100 dark:border-mcm-line shadow-2xl bg-white dark:bg-mcm-surface">
+        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden rounded-2xl border border-gray-100 shadow-2xl bg-white">
           {/* Header with warm/warning premium background */}
-          <div className="relative p-6 pb-4 bg-gradient-to-br from-amber-50 to-orange-50/50 border-b border-amber-100/60 dark:from-amber-950/30 dark:to-amber-950/10 dark:border-amber-900/40">
+          <div className="relative p-6 pb-4 bg-gradient-to-br from-amber-50 to-orange-50/50 border-b border-amber-100/60">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
                 <HardDrive className="h-6 w-6 animate-pulse" />
               </div>
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-mcm-ink leading-tight">
+                <h3 className="text-lg font-bold text-gray-900 leading-tight">
                   Storage Limit Exceeded
                 </h3>
-                <p className="text-xs font-medium text-amber-700/80 dark:text-amber-400">
+                <p className="text-xs font-medium text-amber-700/80">
                   Your organization's storage is nearly full or has run out of space.
                 </p>
               </div>
@@ -5507,13 +5011,13 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
 
           {/* Details / Usage Progress */}
           <div className="p-6 flex flex-col gap-5">
-            <p className="text-sm text-gray-700 dark:text-mcm-ink-2 leading-relaxed">
+            <p className="text-sm text-gray-700 leading-relaxed">
               Your organization has used{' '}
-              <strong className="font-semibold text-gray-900 dark:text-mcm-ink">
+              <strong className="font-semibold text-gray-900">
                 {storageLimitData?.used_storage || 0} GB
               </strong>{' '}
               of its total{' '}
-              <strong className="font-semibold text-gray-900 dark:text-mcm-ink">
+              <strong className="font-semibold text-gray-900">
                 {storageLimitData?.total_storage || 0} GB
               </strong>{' '}
               storage limit.
@@ -5522,7 +5026,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
             {/* Circular/horizontal progress visual */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-gray-500 dark:text-mcm-ink-3">Storage Consumption</span>
+                <span className="text-gray-500">Storage Consumption</span>
                 <span
                   className={`${(storageLimitData?.storage_used_percentage || 0) >= 90 ? 'text-red-500' : 'text-primary'}`}
                 >
@@ -5530,7 +5034,7 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 </span>
               </div>
 
-              <div className="relative w-full h-3 bg-gray-100 dark:bg-mcm-surface-3 rounded-full overflow-hidden">
+              <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`absolute top-0 left-0 h-full transition-all duration-500 rounded-full ${
                     (storageLimitData?.storage_used_percentage || 0) >= 90
@@ -5543,16 +5047,16 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-mcm-ink-3">
+              <div className="flex items-center justify-between text-[11px] text-gray-500">
                 <span>0 GB</span>
                 <span>{storageLimitData?.total_storage || 0} GB</span>
               </div>
             </div>
 
             {/* Info Message Box */}
-            <div className="flex items-start gap-2.5 p-3.5 bg-gray-50 dark:bg-mcm-surface-3 rounded-xl border border-gray-100 dark:border-mcm-line">
+            <div className="flex items-start gap-2.5 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
               <AlertTriangle className="h-4.5 w-4.5 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-gray-600 dark:text-mcm-ink-3 leading-normal">
+              <p className="text-xs text-gray-600 leading-normal">
                 To continue uploading files, attachments, transcription and call recordings, please
                 purchase extra storage space.
               </p>
@@ -5560,12 +5064,12 @@ export const SocketEventsProvider = ({ children }: { children: ReactNode }) => {
           </div>
 
           {/* Footer Actions */}
-          <div className="px-6 py-4 bg-gray-50/50 dark:bg-mcm-surface-3/50 border-t border-gray-100 dark:border-mcm-line flex items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
             <Button
               type="button"
               variant="ghost"
               onClick={() => setIsStorageModalOpen(false)}
-              className="text-gray-600 dark:text-mcm-ink-3 hover:text-gray-900 dark:hover:text-mcm-ink hover:bg-gray-100/80 dark:hover:bg-mcm-surface rounded-xl h-11 px-5 transition-colors cursor-pointer"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl h-11 px-5 transition-colors cursor-pointer"
             >
               Cancel
             </Button>

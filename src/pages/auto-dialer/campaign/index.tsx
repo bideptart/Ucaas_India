@@ -646,6 +646,14 @@ const Campaign = ({
         </div>
 
         <div className="panel-card">
+          <div className="pc-head">
+            <h3>All campaigns</h3>
+            <span className="src live pc-right">
+              <Ic n="spark" size={10} />
+              live
+            </span>
+          </div>
+
           <TableManager
             {...{
               columns,
@@ -665,30 +673,14 @@ const Campaign = ({
                 sort: { key: 'createdAt', desc: true },
               },
               customClass: 'w-full',
-              /* The default (non-split) header is `position: sticky`
-                 *inside* the same scrolling box as the rows — table-
-                 manager.tsx's own comment documents that this lets both
-                 the sticky header's background AND, it turns out, the
-                 native scrollbar escape the wrapper's rounded-corner clip
-                 in Chromium (a sticky descendant can escape an ancestor
-                 that isn't also its scroll container). splitStickyHeader
-                 moves the header into its own non-scrolling sibling box
-                 instead — nothing sticky left inside the clipped
-                 scrolling element, so neither the header nor the
-                 scrollbar can escape it. Same mode Performance's own
-                 tables (Agents, Queues, Interactions) already use. */
-              splitStickyHeader: true,
               // TableManager sizes itself to fill the rest of the viewport,
-              // which floors out at a 260px minimum — for this row's actual
-              // ~78-79px height (name + meta stack, plus the outcome bar's
-              // two-line "X% dialled / Y left" footer) that clipped the 4th
-              // row roughly a third of the way down. Embedded (this panel
-              // sits mid-page rather than filling the screen) gets a fixed
-              // height sized for exactly 4 full rows instead (4 * ~79px +
-              // a small margin), so all 4 show in full with no scrollbar
-              // and only a 5th+ row scrolls. Standalone keeps the
+              // which floors out at a 260px minimum — for this row's ~60px
+              // height that clips the 4th row by ~18px. Embedded (this
+              // panel sits mid-page rather than filling the screen) gets a
+              // fixed height sized for exactly 4 rows instead, so all 4
+              // show in full and a 5th scrolls. Standalone keeps the
               // viewport-fill sizing, which suits a full-page table.
-              ...(embedded ? { tableMaxHeight: '320px' } : {}),
+              ...(embedded ? { tableMaxHeight: '284px' } : {}),
             }}
           />
 

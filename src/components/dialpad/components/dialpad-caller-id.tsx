@@ -96,7 +96,7 @@ const DialpadCallerId = ({
   return (
     <>
       <div className="mb-2 flex items-center justify-between px-1 max-[380px]:mb-1.5 sm:mb-0.5">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.11em] text-[#4d5f7f] dark:text-mcm-ink-3 max-[380px]:text-[8.5px] sm:text-[11px] md:text-[10px] xl:text-[11px]">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.11em] text-[#4d5f7f] max-[380px]:text-[8.5px] sm:text-[11px] md:text-[10px] xl:text-[11px]">
           Caller ID
         </h2>
         <button
@@ -113,10 +113,10 @@ const DialpadCallerId = ({
         <button
           type="button"
           onClick={onToggle}
-          className={`w-full rounded-2xl border bg-white dark:bg-mcm-surface p-1.5 text-left shadow-sm transition max-[380px]:p-[5px] sm:p-2 md:p-[6px] xl:p-2.5 ${
+          className={`w-full rounded-2xl border bg-white p-1.5 text-left shadow-sm transition max-[380px]:p-[5px] sm:p-2 md:p-[6px] xl:p-2.5 ${
             isOpen
-              ? 'border-[#8ec0ff] ring-2 ring-[#8ec0ff]/40 dark:border-mcm-accent dark:ring-mcm-accent/30'
-              : 'border-[#e4e9f2] hover:border-[#cad6ea] dark:border-mcm-line dark:hover:border-mcm-accent/50'
+              ? 'border-[#8ec0ff] ring-2 ring-[#8ec0ff]/40'
+              : 'border-[#e4e9f2] hover:border-[#cad6ea]'
           }`}
         >
           <div className="flex items-center justify-between gap-2">
@@ -125,15 +125,15 @@ const DialpadCallerId = ({
                 <Phone className="h-3.5 w-3.5 max-[380px]:h-2.5 max-[380px]:w-2.5 sm:h-3.5 sm:w-3.5 xl:w-4 xl:h-4" />
               </span>
               <div className="leading-none">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#73839c] dark:text-mcm-ink-3 max-[380px]:text-[8.5px] sm:text-[11px] md:text-[11px]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#73839c] max-[380px]:text-[8.5px] sm:text-[11px] md:text-[11px]">
                   {selectedOption.label} - {normalizeCountry(selectedOption.country)}
                 </p>
-                <p className="mt-0.5 truncate text-[13px] font-semibold tracking-tight text-[#1d5fd9] dark:text-mcm-ink max-[380px]:text-[10px] sm:mt-1 sm:text-[12px] md:text-[14px] lg:text-[14px] xl:text-[18px]">
+                <p className="mt-0.5 truncate text-[13px] font-semibold tracking-tight text-[#1d5fd9] max-[380px]:text-[10px] sm:mt-1 sm:text-[12px] md:text-[14px] lg:text-[14px] xl:text-[18px]">
                   <NumberWithFlag number={selectedOption.number} />
                 </p>
               </div>
             </div>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#edf3ff] dark:bg-mcm-surface-3 text-primary max-[380px]:h-5 max-[380px]:w-5 sm:h-7 sm:w-7">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#edf3ff] text-primary max-[380px]:h-5 max-[380px]:w-5 sm:h-7 sm:w-7">
               {isOpen ? (
                 <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               ) : (
@@ -144,7 +144,7 @@ const DialpadCallerId = ({
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 right-0 z-20 mt-2 max-h-[min(52vh,260px)] overflow-y-auto overscroll-contain rounded-2xl border border-ucass-active-bg bg-white dark:bg-mcm-surface shadow-[0_16px_28px_rgba(25,42,70,0.18)]">
+          <div className="absolute left-0 right-0 z-20 mt-2 max-h-[min(52vh,260px)] overflow-y-auto overscroll-contain rounded-2xl border border-ucass-active-bg bg-white shadow-[0_16px_28px_rgba(25,42,70,0.18)]">
             {options.map((option, index) => {
               const isSelected = selectedOption.id === option.id;
               /* A heading before the first shared number. Without it a queue's

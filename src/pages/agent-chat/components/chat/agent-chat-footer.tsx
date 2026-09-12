@@ -1,7 +1,6 @@
 import { useSocketEvents } from '@/hooks/use-socket-events';
 import { useCompanyFeatures } from '@/hooks/rbac';
 import { useUser } from '@/hooks/use-user';
-import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import AiAssist from '@/pages/messenger/content/ai-assist';
@@ -9,7 +8,7 @@ import { AI_SETTINGS_TYPES } from '@/pages/messenger/constants';
 import { getAISettingConfig } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
+import EmojiPicker from 'emoji-picker-react';
 import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill';
 
 polyfillCountryFlagEmojis();
@@ -76,7 +75,6 @@ const AgentChatFooter = ({
   const { features } = useCompanyFeatures();
   const navigate = useNavigate();
   const { handleSendMessage, handleTyping, messageList } = useSocketEvents();
-  const theme = useTheme();
   const [text, setText] = useState('');
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [isAiAssistOpen, setIsAiAssistOpen] = useState(false);
@@ -181,7 +179,7 @@ const AgentChatFooter = ({
   };
 
   return (
-    <div className="relative flex w-full flex-col gap-2 border-t border-[rgba(225,200,165,0.9)] dark:border-[rgba(71,85,105,0.9)] bg-[rgba(251,249,246,0.88)] dark:bg-[rgba(30,41,59,0.88)] backdrop-blur-[12px] px-2 py-2 sm:px-3">
+    <div className="relative flex w-full flex-col gap-2 border-t border-[rgba(225,200,165,0.9)] bg-[rgba(251,249,246,0.88)] backdrop-blur-[12px] px-2 py-2 sm:px-3">
       {typingText ? (
         <div className="px-1 text-[11px] text-ucass-active sm:text-xs">{typingText}</div>
       ) : null}
@@ -213,7 +211,6 @@ const AgentChatFooter = ({
             {isEmojiPickerOpen ? (
               <div className="absolute bottom-9 right-0 z-50 overflow-hidden rounded-lg shadow-xl sm:bottom-10">
                 <EmojiPicker
-                  theme={theme === 'dark' ? Theme.DARK : Theme.LIGHT}
                   lazyLoadEmojis
                   searchDisabled={false}
                   onEmojiClick={(data: any) => onTextChange(`${text}${data?.emoji || ''}`)}
@@ -245,19 +242,19 @@ const AgentChatFooter = ({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] dark:border-mcm-line shadow-xl"
+                  className="w-[calc(100vw-2rem)] max-w-80 p-0 overflow-hidden rounded-xl border border-[rgba(225,200,165,0.9)] shadow-xl"
                   side="top"
                 >
-                  <div className="border-b border-gray-100 dark:border-mcm-line bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-mcm-surface-3 dark:to-mcm-surface-3 px-3 py-2.5">
+                  <div className="border-b border-gray-100 bg-gradient-to-br from-sky-50 to-indigo-50 px-3 py-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white dark:border-mcm-line bg-white/80 dark:bg-mcm-surface shadow-sm">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white bg-white/80 shadow-sm">
                         <Sparkles className="h-4 w-4 text-ucass-active" />
                       </span>
-                      <p className="text-sm font-semibold text-[#2E2D35] dark:text-mcm-ink">AI Assist Setup</p>
+                      <p className="text-sm font-semibold text-[#2E2D35]">AI Assist Setup</p>
                     </div>
                   </div>
                   <div className="space-y-3 p-3">
-                    <p className="text-xs leading-5 text-[#9A948F] dark:text-mcm-ink-3">
+                    <p className="text-xs leading-5 text-[#9A948F]">
                       Set up an agent in AI Settings to start using AI-generated assistance.
                     </p>
                     <div className="flex justify-end">

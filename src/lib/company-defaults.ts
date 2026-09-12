@@ -80,6 +80,13 @@ export const saveCompanyDefaults = ({
   uuid?: string;
   settings: any;
   greetings: any;
+  /* Eight company screens pass `only: [<their section key>]`, meaning "save
+     just my part". Nothing here or in the API layer has ever read it — it was
+     dropped on the floor because it is not destructured above, and every save
+     has always written the whole template. Declaring it keeps that behaviour
+     exactly as shipped while letting the callers typecheck; implementing a
+     partial save would change what those eight screens write. */
+  only?: string[];
 }) =>
   upsertTemplate({
     ...(uuid ? { uuid, userID: uuid } : {}),

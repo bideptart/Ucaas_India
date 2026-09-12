@@ -275,7 +275,7 @@ const CustomSelect = ({
         return (
           <components.MenuList {...props}>
             <div
-              className="flex items-center gap-2 px-3 py-2 cursor-pointer border-b border-gray-200 dark:border-mcm-line hover:bg-gray-50 dark:hover:bg-mcm-surface-3 text-xs font-semibold text-primary"
+              className="flex items-center gap-2 px-3 py-2 cursor-pointer border-b border-gray-200 hover:bg-gray-50 text-xs font-semibold text-primary"
               onMouseDown={onClickSelectAll}
             >
               <Checkbox checked={allSelected} className="pointer-events-none" />

@@ -9,7 +9,6 @@ import PaymentScreen from '@/components/payment';
 import { handleAlert } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { formatMoney, knownNumber, moneyOrUnavailable } from '@/lib/billing-money';
-import './storage.css';
 
 // Register
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -66,6 +65,7 @@ const Storage = () => {
         onSuccess: (res) => {
           const buyData = res?.data?.data?.result;
 
+          console.log(buyData, 'buyDatabuyData', data);
 
           if (buyData?.requires_action) {
             paymentRef.current.handle3DSPayment(buyData?.payment_intent_id);
@@ -164,7 +164,6 @@ const Storage = () => {
 
   return (
     <div
-      className="storage-page"
       style={{
         width: '100%',
         maxWidth: '100%',
@@ -185,7 +184,7 @@ const Storage = () => {
         {/* HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '10px' }}>
           <h3 style={{ margin: 0, fontWeight: 600 }}>Storage Usage</h3>
-          <p style={{ fontSize: '12px', color: 'var(--storage-ink-3)', marginTop: '4px' }}>
+          <p style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
             Monitor your storage consumption
           </p>
         </div>
@@ -216,12 +215,12 @@ const Storage = () => {
               style={{
                 fontSize: '22px',
                 fontWeight: 700,
-                color: percentage > 90 ? '#ef4444' : 'var(--storage-ink)',
+                color: percentage > 90 ? '#ef4444' : '#111',
               }}
             >
               {percentage}%
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--storage-ink-3)' }}>Used</div>
+            <div style={{ fontSize: '12px', color: '#888' }}>Used</div>
           </div>
         </div>
       </div>
@@ -229,7 +228,7 @@ const Storage = () => {
       {/* USAGE TEXT */}
       <div style={{ textAlign: 'center', marginBottom: '12px', padding: '0 16px' }}>
         <span style={{ fontWeight: 600 }}>{used} GB</span>
-        <span style={{ color: 'var(--storage-ink-3)' }}> of {total} GB used</span>
+        <span style={{ color: '#666' }}> of {total} GB used</span>
       </div>
 
       {/* PROGRESS BAR */}
@@ -237,7 +236,7 @@ const Storage = () => {
         style={{
           height: '6px',
           borderRadius: '6px',
-          background: 'var(--storage-track)',
+          background: '#eee',
           overflow: 'hidden',
           marginBottom: '16px',
           marginLeft: '16px',
@@ -304,17 +303,17 @@ const Storage = () => {
           style={{
             marginTop: '30px',
             padding: '24px 16px',
-            backgroundColor: 'var(--storage-surface-2)',
+            backgroundColor: '#f9fafb',
             borderRadius: '16px',
-            border: '1px solid var(--storage-border)',
+            border: '1px solid #e5e7eb',
             margin: '20px 16px 12px 16px',
           }}
         >
           <div style={{ marginBottom: '16px' }}>
-            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: 'var(--storage-ink)' }}>
+            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#111' }}>
               Need more space?
             </h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--storage-ink-3)' }}>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
               {isPriced ? (
                 <>
                   Add extra storage to your plan for{' '}
@@ -341,8 +340,8 @@ const Storage = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: 'var(--storage-surface)',
-                border: '1px solid var(--storage-border-2)',
+                backgroundColor: '#fff',
+                border: '1px solid #d1d5db',
                 borderRadius: '10px',
                 overflow: 'hidden',
                 height: '42px',
@@ -358,13 +357,13 @@ const Storage = () => {
                   background: 'transparent',
                   cursor: 'pointer',
                   fontSize: '18px',
-                  color: 'var(--storage-ink-2)',
+                  color: '#374151',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'background 0.2s',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--storage-hover)')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 -
@@ -380,7 +379,7 @@ const Storage = () => {
                   fontSize: '15px',
                   fontWeight: 600,
                   outline: 'none',
-                  color: 'var(--storage-ink)',
+                  color: '#111',
                 }}
               />
               <button
@@ -392,13 +391,13 @@ const Storage = () => {
                   background: 'transparent',
                   cursor: 'pointer',
                   fontSize: '18px',
-                  color: 'var(--storage-ink-2)',
+                  color: '#374151',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'background 0.2s',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--storage-hover)')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 +
@@ -406,12 +405,7 @@ const Storage = () => {
             </div>
 
             <div
-              style={{
-                fontSize: '14px',
-                fontWeight: 500,
-                color: 'var(--storage-ink-2)',
-                marginRight: 'auto',
-              }}
+              style={{ fontSize: '14px', fontWeight: 500, color: '#374151', marginRight: 'auto' }}
             >
               GB
             </div>
@@ -477,7 +471,7 @@ const Storage = () => {
             <DialogTitle>Complete Purchase</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <p className="text-sm text-gray-600 dark:text-mcm-ink-3 mb-4">
+            <p className="text-sm text-gray-600 mb-4">
               You are purchasing <strong>{extraGb} GB</strong> of extra storage for{' '}
               <strong>{moneyOrUnavailable(totalPrice)}</strong>.
               {proratedData && (

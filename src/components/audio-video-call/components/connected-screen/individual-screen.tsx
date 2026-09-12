@@ -145,7 +145,7 @@ const IndividualTrack = ({
           {isAudioMuted && (
             <a
               href="javascript:void(0)"
-              className="bg-white dark:bg-mcm-surface rounded-xl p-1 w-8 h-8 flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center"
             >
               <LucideMicOff className="w-5 h-5" />
             </a>
@@ -153,14 +153,14 @@ const IndividualTrack = ({
           {isVideoMuted && (
             <a
               href="javascript:void(0)"
-              className="bg-white dark:bg-mcm-surface rounded-xl p-1 w-8 h-8 flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 flex items-center justify-center"
             >
               <LucideVideoOff className="w-5 h-5" />
             </a>
           )}
           {isScreenSharing && (
             <div
-              className="bg-white dark:bg-mcm-surface rounded-xl p-1 w-8 h-8 cursor-pointer flex items-center justify-center"
+              className="bg-white rounded-xl p-1 w-8 h-8 cursor-pointer flex items-center justify-center"
               onClick={() => {
                 const elm: any = document.getElementById(participantId);
                 if (fullscreen) {

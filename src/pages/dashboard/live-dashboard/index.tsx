@@ -29,6 +29,7 @@ import {
   Bell,
   Bot,
   CheckCircle2,
+  ChevronRight,
   Clock3,
   Gauge,
   Headset,
@@ -1494,6 +1495,32 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                           : ''
                       }`}
                     >
+                      {/* The only thing that told a first-time visitor five of
+                          these fifteen tiles open a drill-in and ten don't was
+                          the cursor changing on hover -- invisible until
+                          you've already reached for the mouse. A small
+                          disclosure chevron, sitting in the corner rather than
+                          adding a row, says "opens something" at a glance
+                          without a label competing with the number for
+                          attention or shifting any tile's height.
+
+                          A bare orange chevron nearly vanished against this
+                          tile's own cream/peach fill -- both sit in the same
+                          warm hue, so opacity alone couldn't buy contrast. The
+                          white chip is the same trick the metric icon above
+                          already uses to lift off this exact background;
+                          reusing it here (rather than inventing a second way
+                          to say "clickable") is what keeps it reading as one
+                          premium surface instead of two different affordances
+                          competing on the same tile. */}
+                      {isClickableMetric && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-2.5 right-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-[0_1px_3px_rgba(154,78,30,0.22)] transition-transform duration-150 group-hover:scale-110"
+                        >
+                          <ChevronRight className="h-3 w-3 text-primary transition-transform duration-150 group-hover:translate-x-0.5" />
+                        </span>
+                      )}
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-[#475569] dark:text-mcm-ink-2">
                           {item.label}
@@ -1581,6 +1608,12 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                             : ''
                         }`}
                       >
+                        {isClickableMetric && (
+                          <ChevronRight
+                            aria-hidden="true"
+                            className="absolute top-2 right-2 h-3 w-3 text-primary transition-transform duration-150 group-hover:translate-x-0.5"
+                          />
+                        )}
                         <div
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                             stateStyle ? 'bg-white/60' : 'bg-[#FFF1E0] dark:bg-mcm-accent-wash'
@@ -2171,7 +2204,15 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                   className="agent-roster-scroll block flex-1 min-h-0 overflow-auto overflow-x-auto lg:block"
                 >
                   <Table className="min-w-245 xl:min-w-280">
-                    <TableHeader className="sticky top-0 z-10">
+                    {/* The base `TableHeader` carries no background of its
+                        own, so a `sticky` head over scrolling rows let each
+                        row's colour (including the zebra stripe and hover
+                        tint) show straight through it as it passed
+                        underneath. A solid, opaque fill is required here —
+                        the card's own `rgba(...)/97` wash is translucent by
+                        design and does not stop that bleed-through on its
+                        own. */}
+                    <TableHeader className="sticky top-0 z-10 bg-[#FFFCF8] dark:bg-mcm-surface shadow-[0_1px_0_rgba(214,163,90,0.35)]">
                       <TableRow>
                         <TableHead>
                           Agent Info
@@ -2241,13 +2282,21 @@ const LiveDashboard = ({ selectedRange }: { selectedRange?: { from: string; to: 
                                   <p className="text-[13px] font-semibold text-[#2E2D35] dark:text-mcm-ink">
                                     {agent?.first_name || ''} {agent?.last_name || ''}
                                   </p>
-                                  <p className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
+                                  {/* A block-level status dot (a `<div>` from
+                                      `statusImageLookup`) can't legally sit
+                                      inside a `<p>` — browsers silently
+                                      close the paragraph early to recover,
+                                      and React logs a hydration warning for
+                                      the mismatch. A `<div>` carries the
+                                      same flex-row layout without either
+                                      problem. */}
+                                  <div className="flex items-center gap-1 text-[11px] font-medium text-[#6b6459] dark:text-mcm-ink-3">
                                     <span className="inline-flex items-center justify-center">
                                       {statusImageLookup[getAgentPresenceStatus(agent)] ||
                                         statusImageLookup.offline}
                                     </span>
                                     Ext: {agent?.extension || ''}
-                                  </p>
+                                  </div>
                                 </div>
                               </div>
                             </TableCell>

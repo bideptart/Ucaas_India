@@ -441,32 +441,40 @@ body.perf-warm-backdrop.dark {
 }
 
 /* ── 10. Daily Stats cell ─────────────────────────────────────────────────── */
+/* "Calls: 8" / "AHT: 00:04" — a plain "label: value" pair, not the old
+   uppercase abbreviation glued straight onto the number (`CALLS8`). Label
+   and value are still separate spans so the label can stay a lighter
+   weight/colour than the value, but the colon lives in the label text
+   itself so there is always a real, unconditional space before the value
+   even if the row's flex gap is ever squeezed out. */
 
 .mcm-page .perf-agents .ag-daily-cell {
-  display:       flex;
+  display:        flex;
   flex-direction: column;
-  gap:           2px;
-  width:         fit-content;
-  margin:        auto;
+  align-items:    center;
+  gap:            2px;
+  width:          fit-content;
+  margin:         auto;
 }
 .mcm-page .perf-agents .ag-daily-row {
-  display: flex;
-  gap:     6px;
+  display:     flex;
   align-items: baseline;
+  gap:         4px;
+  white-space: nowrap;
 }
 .mcm-page .perf-agents .ag-daily-k {
-  font-size:      10px;
-  font-weight:    600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color:          var(--aa-muted);
-  width:          28px;
+  font-size:   12px;
+  font-weight: 500;
+  color:       #64748b;
 }
 .mcm-page .perf-agents .ag-daily-v {
   font-size:           12px;
   font-weight:         600;
   color:               var(--aa-ink);
   font-variant-numeric: tabular-nums;
+}
+.dark .mcm-page .perf-agents .ag-daily-k {
+  color: #94a3b8;
 }
 .dark .mcm-page .perf-agents .ag-daily-v {
   color: #e2e8f0;
@@ -479,137 +487,12 @@ body.perf-warm-backdrop.dark {
   font-size:            13px;
 }
 
-/* ── 11. Pagination ───────────────────────────────────────────────────────── */
-/* Brought to parity with the shared `.mcm-pager` bar every TableManager
-   screen renders (Calls included, via call-history's TableManager instance)
-   — this tab builds its own pager markup (`AgentPagination` in
-   agents-tab.tsx, not TableManager) since it paginates a plain array
-   client-side, but it should still read as the exact same control everyone
-   else pages with, not a bespoke look-alike. Values below (30px/9px pill,
-   1px tan card border, `rgb(242,153,74)` active fill) are read directly off
-   that benchmark's computed styles rather than approximated. */
-
-.mcm-page .perf-agents .ag-pagination {
-  display:         flex;
-  align-items:     center;
-  justify-content: space-between;
-  padding:         10px 16px;
-  /* The benchmark card's own border tone (`rgba(225,200,165,0.9)`, the tan
-     every Performance card frame now standardizes on for its outer border),
-     not the orange-tinted `--aa-hairline` this bar used before — a plain
-     top rule here reads as the table card's own footer seam, matching how
-     the benchmark's pager card sits just below its table. */
-  border-top:      1px solid rgba(225, 200, 165, 0.9);
-  background:      rgba(255, 255, 255, 0.4);
-  border-radius:   0 0 var(--aa-r-lg) var(--aa-r-lg);
-  gap:             12px;
-  flex-wrap:       wrap;
-}
-.dark .mcm-page .perf-agents .ag-pagination {
-  background: rgba(17, 24, 39, 0.35);
-  border-top-color: rgba(255, 255, 255, 0.12);
-}
-
-.mcm-page .perf-agents .ag-pagination-info {
-  font-size:   12.5px;
-  font-weight: 500;
-  color:       var(--aa-muted);
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-/* The pill cluster itself now gets the benchmark's own card treatment —
-   a bordered, subtly-shadowed group — rather than floating loose buttons;
-   the benchmark's `.mcm-pager` wraps its buttons the same way. */
-.mcm-page .perf-agents .ag-pagination-controls {
-  display:       flex;
-  align-items:   center;
-  gap:           2px;
-  flex-wrap:     wrap;
-  padding:       4px;
-  border:        1px solid rgba(225, 200, 165, 0.9);
-  border-radius: 12px;
-  background:    #fffdfb;
-  box-shadow:    0 1px 2px rgba(160, 95, 30, 0.06);
-}
-.dark .mcm-page .perf-agents .ag-pagination-controls {
-  background:   transparent;
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:   none;
-}
-
-.mcm-page .perf-agents .ag-page-btn {
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  width:           30px;
-  min-width:       30px;
-  height:          30px;
-  padding:         0;
-  border-radius:   9px;
-  font-size:       13px;
-  font-weight:     600;
-  color:           var(--aa-muted);
-  background:      transparent;
-  border:          0;
-  cursor:          pointer;
-  transition:
-    background-color 0.14s ease,
-    color             0.14s ease,
-    box-shadow        0.14s ease !important;
-  font-variant-numeric: tabular-nums;
-  outline: none;
-}
-.mcm-page .perf-agents .ag-page-btn:hover:not(:disabled):not(.is-active) {
-  background: rgba(249, 115, 22, 0.08) !important;
-  color:      var(--aa-accent-ink) !important;
-}
-.mcm-page .perf-agents .ag-page-btn:focus-visible {
-  outline:        2px solid var(--aa-accent);
-  outline-offset: 2px;
-}
-/* The one piece of colour in the group — same `rgb(242,153,74)` fill and
-   `0 1px 3px` glow the benchmark's `.mcm-pager-page.is-current` uses. */
-.mcm-page .perf-agents .ag-page-btn.is-active {
-  background: rgb(242, 153, 74);
-  color:      #fff;
-  font-weight: 700;
-  box-shadow: 0 1px 3px rgba(242, 153, 74, 0.45);
-}
-.dark .mcm-page .perf-agents .ag-page-btn.is-active {
-  background: rgb(242, 153, 74);
-  color:      #fff;
-  box-shadow: 0 1px 3px rgba(242, 153, 74, 0.5);
-}
-.mcm-page .perf-agents .ag-page-btn:disabled {
-  opacity: 0.35;
-  cursor:  not-allowed;
-}
-
-.mcm-page .perf-agents .ag-page-nav {
-  color: var(--aa-muted);
-}
-
-.mcm-page .perf-agents .ag-page-dots {
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  min-width:       30px;
-  height:          30px;
-  font-size:       13px;
-  color:           var(--aa-muted);
-  user-select:     none;
-  letter-spacing:  0.05em;
-}
-
-/* ── 12. Responsive ───────────────────────────────────────────────────────── */
+/* ── 11. Responsive ───────────────────────────────────────────────────────── */
+/* Pagination is now TableManager's own `.mcm-pager` bar (index.css) — the
+   same benchmark every other Performance table pages with — so this tab
+   carries no pagination CSS of its own any more. */
 
 @media (max-width: 640px) {
-  .mcm-page .perf-agents .ag-pagination {
-    flex-direction: column;
-    align-items:    center;
-    gap:            10px;
-  }
   .mcm-page .perf-agents .ag-util-cell {
     width: 80px;
   }

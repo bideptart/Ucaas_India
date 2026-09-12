@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   Users,
   Trophy,
@@ -8,8 +8,6 @@ import {
   ArrowLeftRight,
   AlertCircle,
   Clock,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import TableManager from '@/components/custom/table-manager';
 import buildAgentRows from './agent-rows';
@@ -33,94 +31,6 @@ export type QueueMembership = {
   uuid?: string;
   name?: string;
   memberKeys: string[];
-};
-
-const ITEMS_PER_PAGE = 10;
-
-/* ─── Pagination ─────────────────────────────────────────────────────────── */
-
-const AgentPagination = ({
-  currentPage,
-  totalPages,
-  totalItems,
-  itemsPerPage,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  onPageChange: (page: number) => void;
-}) => {
-  if (totalPages <= 1) return null;
-
-  const start = (currentPage - 1) * itemsPerPage + 1;
-  const end = Math.min(currentPage * itemsPerPage, totalItems);
-
-  const getPages = (): (number | '...')[] => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (currentPage <= 4) return [1, 2, 3, 4, 5, '...', totalPages];
-    if (currentPage >= totalPages - 3) {
-      return [
-        1,
-        '...',
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    }
-    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-  };
-
-  return (
-    <div className="ag-pagination">
-      <span className="ag-pagination-info">
-        {start}–{end} of {totalItems} agents
-      </span>
-      <div className="ag-pagination-controls">
-        <button
-          type="button"
-          className="ag-page-btn ag-page-nav"
-          disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
-          aria-label="Previous page"
-        >
-          <ChevronLeft style={{ width: 14, height: 14 }} />
-        </button>
-
-        {getPages().map((page, i) =>
-          page === '...' ? (
-            <span key={`dots-${i}`} className="ag-page-dots">
-              …
-            </span>
-          ) : (
-            <button
-              key={page}
-              type="button"
-              className={`ag-page-btn${page === currentPage ? ' is-active' : ''}`}
-              onClick={() => onPageChange(page as number)}
-              aria-label={`Page ${page}`}
-              aria-current={page === currentPage ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          ),
-        )}
-
-        <button
-          type="button"
-          className="ag-page-btn ag-page-nav"
-          disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
-          aria-label="Next page"
-        >
-          <ChevronRight style={{ width: 14, height: 14 }} />
-        </button>
-      </div>
-    </div>
-  );
 };
 
 /* ─── Main tab ───────────────────────────────────────────────────────────── */
@@ -148,8 +58,6 @@ const AgentsTab = ({
     return () => document.body.classList.remove('perf-warm-backdrop');
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
-
   /* Derive all rows from live data — memoised so buildAgentRows (and the KPI
      computations that follow) only re-run when the underlying live data
      actually changes, not on every render triggered by parent state. */
@@ -173,18 +81,6 @@ const AgentsTab = ({
         row.callerId.toLowerCase().includes(q),
     );
   }, [rows, globalSearch]);
-
-  /* Reset to page 1 whenever the search query changes. */
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [globalSearch]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedRows = filteredRows.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
-  );
 
   /* ── KPI stats — memoised on the full row set ──────────────────────────── */
   const kpi = useMemo(() => {
@@ -324,13 +220,13 @@ const AgentsTab = ({
       cell: ({ row }: any) => (
         <div className="ag-daily-cell num">
           <span className="ag-daily-row">
-            <span className="ag-daily-k">Calls</span>
+            <span className="ag-daily-k">Calls:</span>
             <span className="ag-daily-v">{row.original.handledToday}</span>
           </span>
           <span className="ag-daily-row">
-            <span className="ag-daily-k">AHT</span>
+            <span className="ag-daily-k">AHT:</span>
             <span className="ag-daily-v">
-              {row.original.aht === null ? (
+              {row.original.aht === null || row.original.aht === 0 ? (
                 <span className="ag-dash">—</span>
               ) : (
                 formatSecsToClock(row.original.aht)
@@ -426,23 +322,16 @@ const AgentsTab = ({
         <div className="ag-table-section">
           <TableManager
             columns={columns}
-            staticData={paginatedRows}
+            staticData={filteredRows}
             loading={isLoading}
-            showPagination={false}
+            search={globalSearch ?? ''}
+            isHeightSet={false}
             emptyTablePlaceholder={
               globalSearch?.trim() ? 'No agents match your search' : 'No agent activity yet'
             }
             descriptionEmptyTable={
               globalSearch?.trim() ? '' : 'Agent stats appear once calls are handled today.'
             }
-          />
-
-          <AgentPagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            totalItems={filteredRows.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-            onPageChange={setCurrentPage}
           />
         </div>
       </div>

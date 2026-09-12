@@ -92,7 +92,7 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
   const totals = useMemo(
     () =>
       perCampaign.reduce(
-        (acc, c) => {
+        (acc: any, c: any) => {
           acc.assigned += c.assigned;
           acc.answered += c.answered;
           acc.noAnswer += c.noAnswer;
@@ -109,7 +109,7 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    perCampaign.forEach((c) => {
+    perCampaign.forEach((c: any) => {
       const label = statusOf(c.status).label;
       counts[label] = (counts[label] || 0) + 1;
     });
@@ -118,7 +118,7 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
 
   const dialMethodCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    perCampaign.forEach((c) => {
+    perCampaign.forEach((c: any) => {
       counts[c.dialMethod] = (counts[c.dialMethod] || 0) + 1;
     });
     return counts;
@@ -126,7 +126,7 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
 
   const agentAssignment = useMemo(() => {
     const map = new Map<string, { name: string; campaigns: number; leads: number }>();
-    perCampaign.forEach((c) => {
+    perCampaign.forEach((c: any) => {
       c.members.forEach((member: any) => {
         const key = member?.user_uuid || member?.label || JSON.stringify(member);
         const name =
@@ -168,13 +168,15 @@ const CampaignActivityTab = ({ globalSearch }: { globalSearch?: string } = {}) =
      rate above it. A real, derived comparison (this campaign book is running
      hotter or colder than a typical campaign in it) rather than a fabricated
      time trend nothing here actually measures. */
-  const campaignsWithLeads = useMemo(() => perCampaign.filter((c) => c.assigned > 0), [perCampaign]);
+  const campaignsWithLeads = useMemo(() => perCampaign.filter((c: any) => c.assigned > 0), [perCampaign]);
   const avgCampaignConnectRate = campaignsWithLeads.length
-    ? Math.round(campaignsWithLeads.reduce((sum, c) => sum + c.connectRate, 0) / campaignsWithLeads.length)
+    ? Math.round(
+        campaignsWithLeads.reduce((sum: number, c: any) => sum + c.connectRate, 0) / campaignsWithLeads.length,
+      )
     : null;
   const avgCampaignNoAnswerRate = campaignsWithLeads.length
     ? Math.round(
-        campaignsWithLeads.reduce((sum, c) => sum + (c.noAnswer / c.assigned) * 100, 0) /
+        campaignsWithLeads.reduce((sum: number, c: any) => sum + (c.noAnswer / c.assigned) * 100, 0) /
           campaignsWithLeads.length,
       )
     : null;
